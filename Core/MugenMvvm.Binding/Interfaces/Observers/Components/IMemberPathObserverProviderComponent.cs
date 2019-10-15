@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers.Components
 {
     public interface IMemberPathObserverProviderComponent : IComponent<IObserverProvider>
     {
-        IMemberPathObserver? TryGetMemberPathObserver(object source, IMemberPath path, IReadOnlyMetadataContext? metadata);
+        IMemberPathObserver? TryGetMemberPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata);
     }
 }

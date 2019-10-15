@@ -34,30 +34,6 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        public MemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(type, nameof(type));
-            return GetMemberObserverInternal(type, member, metadata);
-        }
-
-        public IMemberPath GetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null)
-        {
-            var p = path as IMemberPath ?? TryGetMemberPathInternal(path, metadata);
-            if (p == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberPathProviderComponent<TPath>).Name);
-            return p!;
-        }
-
-        public IMemberPathObserver GetMemberPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(source, nameof(source));
-            var memberPath = GetMemberPath(path, metadata);
-            var observer = TryGetMemberPathObserverInternal(source, memberPath, metadata);
-            if (observer == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberObserverProviderComponent).Name);
-            return observer!;
-        }
-
         void IComponentOwnerAddedCallback<IComponent<IObserverProvider>>.OnComponentAdded(IComponentCollection<IComponent<IObserverProvider>> collection,
             IComponent<IObserverProvider> component, IReadOnlyMetadataContext? metadata)
         {
@@ -68,6 +44,29 @@ namespace MugenMvvm.Binding.Observers
             IComponent<IObserverProvider> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(collection, component, metadata);
+        }
+
+        public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return GetMemberObserverInternal(type, member, metadata);
+        }
+
+        public IMemberPath GetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null)
+        {
+            var p = path as IMemberPath ?? TryGetMemberPathInternal(path, metadata);
+            if (p == null)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberPathProviderComponent).Name);
+            return p!;
+        }
+
+        public IMemberPathObserver GetMemberPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(source, nameof(source));
+            var observer = TryGetMemberPathObserverInternal(source, path, metadata);
+            if (observer == null)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberObserverProviderComponent).Name);
+            return observer!;
         }
 
         #endregion
@@ -95,12 +94,9 @@ namespace MugenMvvm.Binding.Observers
             var providers = MemberObserverProviders;
             for (var i = 0; i < providers.Length; i++)
             {
-                if (providers[i] is IMemberObserverProviderComponent<TMember> component)
-                {
-                    var observer = component.TryGetMemberObserver(type, member, metadata);
-                    if (!observer.IsEmpty)
-                        return observer;
-                }
+                var observer = providers[i].TryGetMemberObserver(type, member, metadata);
+                if (!observer.IsEmpty)
+                    return observer;
             }
 
             return default;
@@ -111,7 +107,7 @@ namespace MugenMvvm.Binding.Observers
             var providers = PathProviders;
             for (var i = 0; i < providers.Length; i++)
             {
-                var memberPath = (providers[i] as IMemberPathProviderComponent<TPath>)?.TryGetMemberPath(path, metadata);
+                var memberPath = providers[i].TryGetMemberPath(path, metadata);
                 if (memberPath != null)
                     return memberPath;
             }
@@ -119,7 +115,7 @@ namespace MugenMvvm.Binding.Observers
             return null;
         }
 
-        protected virtual IMemberPathObserver? TryGetMemberPathObserverInternal(object source, IMemberPath path, IReadOnlyMetadataContext? metadata)
+        protected virtual IMemberPathObserver? TryGetMemberPathObserverInternal<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata)
         {
             var providers = PathObserverProviders;
             for (var i = 0; i < providers.Length; i++)

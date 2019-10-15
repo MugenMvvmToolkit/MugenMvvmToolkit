@@ -12,7 +12,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent<string>, IMemberObserverProviderComponent<PropertyInfo>, MemberObserver.IHandler, IHasPriority //todo add static property changed listener
+    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent,
+        IMemberObserverProviderComponentInternal<string>, IMemberObserverProviderComponentInternal<PropertyInfo>, MemberObserver.IHandler,
+        IHasPriority //todo add static property changed listener
     {
         #region Fields
 
@@ -45,8 +47,15 @@ namespace MugenMvvm.Binding.Observers.Components
                 return null;
             return _attachedDictionaryProvider
                 .ServiceIfNull()
-                .GetOrAdd((INotifyPropertyChanged)source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string)member);
+                .GetOrAdd((INotifyPropertyChanged) source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string) member);
+        }
+
+        public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        {
+            if (this is IMemberObserverProviderComponentInternal<TMember> provider)
+                return provider.TryGetMemberObserver(type, member, metadata);
+            return default;
         }
 
         public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext? metadata)
@@ -144,7 +153,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
                 if (_size == 0)
                     _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
-                else if (_listeners.Length / (float)_size > 2)
+                else if (_listeners.Length / (float) _size > 2)
                 {
                     var listeners = new KeyValuePair<WeakEventListener, string>[_size + (_size >> 2)];
                     Array.Copy(_listeners, 0, listeners, 0, _size);
@@ -156,7 +165,7 @@ namespace MugenMvvm.Binding.Observers.Components
             {
                 if (_listeners.Length == 0)
                 {
-                    _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
+                    _listeners = new[] {new KeyValuePair<WeakEventListener, string>(weakItem, path)};
                     _size = 1;
                     _removedSize = 0;
                 }

@@ -89,7 +89,7 @@ namespace MugenMvvm.Binding.Members
         public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.ServiceIfNull().GetMemberObserver(_reflectedType, _propertyInfo);
+                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, _propertyInfo);
             return _observer.Value.TryObserve(source, listener, metadata);
         }
 

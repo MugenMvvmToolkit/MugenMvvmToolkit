@@ -11,7 +11,8 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class EventInfoMemberObserverProviderComponent : IMemberObserverProviderComponent<EventInfo>, MemberObserver.IHandler, IHasPriority
+    public sealed class EventInfoMemberObserverProviderComponent : IMemberObserverProviderComponent,
+        IMemberObserverProviderComponentInternal<EventInfo>, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -19,6 +20,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
             .GetMethodOrThrow(nameof(EventListenerCollection.Raise), MemberFlags.Public | MemberFlags.Instance);
+
         private static readonly Func<object, EventInfo, object?, EventListenerCollection?> CreateWeakListenerDelegate = CreateWeakListener;
 
         #endregion
@@ -51,6 +53,13 @@ namespace MugenMvvm.Binding.Observers.Components
                 .ServiceIfNull()
                 .GetOrAdd(source, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
             return listenerInternal?.AddWithUnsubscriber(listener);
+        }
+
+        public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        {
+            if (this is IMemberObserverProviderComponentInternal<TMember> provider)
+                return provider.TryGetMemberObserver(type, member, metadata);
+            return default;
         }
 
         public MemberObserver TryGetMemberObserver(Type type, in EventInfo member, IReadOnlyMetadataContext? metadata)

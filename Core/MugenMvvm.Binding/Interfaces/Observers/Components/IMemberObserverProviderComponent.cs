@@ -7,10 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers.Components
 {
     public interface IMemberObserverProviderComponent : IComponent<IObserverProvider>
     {
-    }
-
-    public interface IMemberObserverProviderComponent<TMember> : IMemberObserverProviderComponent
-    {
-        MemberObserver TryGetMemberObserver(Type type, in TMember member, IReadOnlyMetadataContext? metadata);
+        MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata);
     }
 }

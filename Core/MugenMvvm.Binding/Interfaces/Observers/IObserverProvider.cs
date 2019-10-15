@@ -8,7 +8,7 @@ namespace MugenMvvm.Binding.Interfaces.Observers
 {
     public interface IObserverProvider : IComponentOwner<IObserverProvider>, IComponent<IBindingManager>
     {
-        MemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null);
+        MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null);
 
         IMemberPath GetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null);
 

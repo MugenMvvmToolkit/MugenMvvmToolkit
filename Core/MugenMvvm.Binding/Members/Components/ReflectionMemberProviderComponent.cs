@@ -140,7 +140,7 @@ namespace MugenMvvm.Binding.Members.Components
                     var eventInfo = t.GetEventUnified(name, MemberFlags.All);
                     if (eventInfo != null)
                     {
-                        var memberObserver = _bindingObserverProvider.ServiceIfNull().GetMemberObserver(type, eventInfo, metadata);
+                        var memberObserver = _bindingObserverProvider.ServiceIfNull().TryGetMemberObserver(type, eventInfo, metadata);
                         if (!memberObserver.IsEmpty)
                         {
                             result.Add(new BindingEventInfo(name, eventInfo, memberObserver));

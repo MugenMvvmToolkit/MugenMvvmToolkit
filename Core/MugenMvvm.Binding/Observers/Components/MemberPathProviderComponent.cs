@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class MemberPathProviderComponent : IMemberPathProviderComponent<string>, IHasPriority
+    public sealed class MemberPathProviderComponent : IMemberPathProviderComponent, IMemberPathProviderComponentInternal<string>, IHasPriority
     {
         #region Fields
 
@@ -36,6 +36,13 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Implementation of interfaces
+
+        public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
+        {
+            if (this is IMemberPathProviderComponentInternal<TPath> provider)
+                return provider.TryGetMemberPath(path, metadata);
+            return null;
+        }
 
         public IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
         {
@@ -126,7 +133,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 get
                 {
                     if (_members == null)
-                        _members = new[] {Path};
+                        _members = new[] { Path };
                     return _members;
                 }
             }

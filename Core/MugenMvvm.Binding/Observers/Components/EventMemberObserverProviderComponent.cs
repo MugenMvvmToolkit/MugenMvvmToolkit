@@ -12,7 +12,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public class EventMemberObserverProviderComponent : IMemberObserverProviderComponent<PropertyInfo>, IMemberObserverProviderComponent<MethodInfo>, MemberObserver.IHandler, IHasPriority
+    public class EventMemberObserverProviderComponent : IMemberObserverProviderComponent,
+        IMemberObserverProviderComponentInternal<PropertyInfo>, IMemberObserverProviderComponentInternal<MethodInfo>,
+        MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -42,7 +44,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
         IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IBindingEventInfo)member).TrySubscribe(source, listener, metadata);
+            return ((IBindingEventInfo) member).TrySubscribe(source, listener, metadata);
+        }
+
+        public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        {
+            if (this is IMemberObserverProviderComponentInternal<TMember> provider)
+                return provider.TryGetMemberObserver(type, member, metadata);
+            return default;
         }
 
         public MemberObserver TryGetMemberObserver(Type type, in MethodInfo member, IReadOnlyMetadataContext? metadata)
