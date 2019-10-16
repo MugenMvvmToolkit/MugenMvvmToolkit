@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -12,13 +13,15 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent,
-        IMemberObserverProviderComponentInternal<string>, IMemberObserverProviderComponentInternal<PropertyInfo>, MemberObserver.IHandler,
-        IHasPriority //todo add static property changed listener
+    public sealed class
+        PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority //todo add static property changed listener
     {
         #region Fields
 
         private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
+        private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
+
+        private readonly FuncEx<string, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverStringDelegate;
         private static readonly Func<INotifyPropertyChanged, object?, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
@@ -29,6 +32,8 @@ namespace MugenMvvm.Binding.Observers.Components
         public PropertyChangedMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
         {
             _attachedDictionaryProvider = attachedDictionaryProvider;
+            _tryGetMemberObserverStringDelegate = TryGetMemberObserver;
+            _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
         }
 
         #endregion
@@ -47,34 +52,36 @@ namespace MugenMvvm.Binding.Observers.Components
                 return null;
             return _attachedDictionaryProvider
                 .ServiceIfNull()
-                .GetOrAdd((INotifyPropertyChanged) source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string) member);
+                .GetOrAdd((INotifyPropertyChanged)source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string)member);
         }
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (this is IMemberObserverProviderComponentInternal<TMember> provider)
-                return provider.TryGetMemberObserver(type, member, metadata);
-            return default;
-        }
-
-        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext? metadata)
-        {
-            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && !member.IsStatic())
-                return new MemberObserver(this, member.Name);
-            return default;
-        }
-
-        public MemberObserver TryGetMemberObserver(Type type, in string member, IReadOnlyMetadataContext? metadata)
-        {
-            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type))
-                return new MemberObserver(this, member);
+            if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
+                return provider1.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverStringDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
+                return provider2.Invoke(member, type, metadata);
             return default;
         }
 
         #endregion
 
         #region Methods
+
+        private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
+        {
+            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && !member.IsStatic())
+                return new MemberObserver(this, member.Name);
+            return default;
+        }
+
+        private MemberObserver TryGetMemberObserver(in string member, Type type, IReadOnlyMetadataContext? metadata)
+        {
+            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type))
+                return new MemberObserver(this, member);
+            return default;
+        }
 
         private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _, object? __)
         {
@@ -153,7 +160,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
                 if (_size == 0)
                     _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
-                else if (_listeners.Length / (float) _size > 2)
+                else if (_listeners.Length / (float)_size > 2)
                 {
                     var listeners = new KeyValuePair<WeakEventListener, string>[_size + (_size >> 2)];
                     Array.Copy(_listeners, 0, listeners, 0, _size);
@@ -165,7 +172,7 @@ namespace MugenMvvm.Binding.Observers.Components
             {
                 if (_listeners.Length == 0)
                 {
-                    _listeners = new[] {new KeyValuePair<WeakEventListener, string>(weakItem, path)};
+                    _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
                     _size = 1;
                     _removedSize = 0;
                 }

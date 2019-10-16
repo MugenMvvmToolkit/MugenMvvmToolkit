@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections;
@@ -9,11 +10,12 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class MemberPathProviderComponent : IMemberPathProviderComponent, IMemberPathProviderComponentInternal<string>, IHasPriority
+    public sealed class MemberPathProviderComponent : IMemberPathProviderComponent, IHasPriority
     {
         #region Fields
 
         private readonly CacheDictionary _cache;
+        private readonly FuncEx<string, IReadOnlyMetadataContext?, IMemberPath?> _getMemberPathStringDelegate;
 
         #endregion
 
@@ -23,6 +25,7 @@ namespace MugenMvvm.Binding.Observers.Components
         public MemberPathProviderComponent()
         {
             _cache = new CacheDictionary();
+            _getMemberPathStringDelegate = TryGetMemberPath;
         }
 
         #endregion
@@ -39,12 +42,16 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            if (this is IMemberPathProviderComponentInternal<TPath> provider)
-                return provider.TryGetMemberPath(path, metadata);
+            if (_getMemberPathStringDelegate is FuncEx<TPath, IReadOnlyMetadataContext?, IMemberPath?> provider)
+                return provider.Invoke(path, metadata);
             return null;
         }
 
-        public IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
+        #endregion
+
+        #region Methods
+
+        private IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
         {
             if (path.Length == 0)
                 return EmptyMemberPath.Instance;
@@ -54,10 +61,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
             return GetObserver(path);
         }
-
-        #endregion
-
-        #region Methods
 
         private IMemberPath GetFromCache(string path)
         {
@@ -133,7 +136,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 get
                 {
                     if (_members == null)
-                        _members = new[] { Path };
+                        _members = new[] {Path};
                     return _members;
                 }
             }

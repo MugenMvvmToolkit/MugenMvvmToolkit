@@ -2,6 +2,7 @@
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -12,13 +13,13 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public class EventMemberObserverProviderComponent : IMemberObserverProviderComponent,
-        IMemberObserverProviderComponentInternal<PropertyInfo>, IMemberObserverProviderComponentInternal<MethodInfo>,
-        MemberObserver.IHandler, IHasPriority
+    public class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
         private readonly IMemberProvider? _memberProvider;
+        private readonly FuncEx<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
+        private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
 
         #endregion
 
@@ -28,6 +29,8 @@ namespace MugenMvvm.Binding.Observers.Components
         public EventMemberObserverProviderComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
+            _tryGetMemberObserverMethodDelegate = TryGetMemberObserver;
+            _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
         }
 
         #endregion
@@ -44,17 +47,23 @@ namespace MugenMvvm.Binding.Observers.Components
 
         IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IBindingEventInfo) member).TrySubscribe(source, listener, metadata);
+            return ((IBindingEventInfo)member).TrySubscribe(source, listener, metadata);
         }
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (this is IMemberObserverProviderComponentInternal<TMember> provider)
-                return provider.TryGetMemberObserver(type, member, metadata);
+            if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
+                return provider1.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverMethodDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
+                return provider2.Invoke(member, type, metadata);
             return default;
         }
 
-        public MemberObserver TryGetMemberObserver(Type type, in MethodInfo member, IReadOnlyMetadataContext? metadata)
+        #endregion
+
+        #region Methods
+
+        private MemberObserver TryGetMemberObserver(in MethodInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
             var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
@@ -63,7 +72,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        public MemberObserver TryGetMemberObserver(Type type, in PropertyInfo member, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
             var observableMember = TryGetEvent(type, member.Name, (member.GetGetMethodUnified(true) ?? member.GetSetMethodUnified(true)).GetAccessModifiers(), metadata);
             if (observableMember != null)
@@ -71,10 +80,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
             return default;
         }
-
-        #endregion
-
-        #region Methods
 
         private IBindingEventInfo? TryGetEvent(Type type, string memberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {

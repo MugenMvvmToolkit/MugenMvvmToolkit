@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -14,13 +15,14 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Parsing.Components
 {
     //todo use span/memory?
-    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IExpressionParserComponentInternal<string>, IHasPriority,
+    public class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority,
         IComponentCollectionChangedListener<IComponent<IExpressionParser>>
     {
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly TokenParserContext _parserContext;
+        private readonly FuncEx<string, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseStringDelegate;
 
         protected IParser[] Parsers;
 
@@ -37,6 +39,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             _metadataContextProvider = metadataContextProvider;
             _parserContext = new TokenParserContext(this);
+            _tryParseStringDelegate = ParseInternal;
             Parsers = Default.EmptyArray<IParser>();
         }
 
@@ -68,13 +71,6 @@ namespace MugenMvvm.Binding.Parsing.Components
             return TryParseInternal(expression, metadata);
         }
 
-        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponentInternal<string>.TryParse(in string expression,
-            IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(expression, nameof(expression));
-            return ParseInternal(expression, metadata);
-        }
-
         #endregion
 
         #region Methods
@@ -94,13 +90,14 @@ namespace MugenMvvm.Binding.Parsing.Components
         protected virtual ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParseInternal<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata)
         {
-            if (this is IExpressionParserComponentInternal<TExpression> parser)
-                return parser.TryParse(expression, metadata);
+            if (_tryParseStringDelegate is FuncEx<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser)
+                return parser.Invoke(expression, metadata);
             return default;
         }
 
         protected virtual ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(in string expression, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(expression, nameof(expression));
             _parserContext.Initialize(expression, metadata);
             return ParseInternal(_parserContext);
         }
