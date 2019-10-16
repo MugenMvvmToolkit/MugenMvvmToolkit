@@ -26,8 +26,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private static readonly MemberExpressionNode EmptyMember = new MemberExpressionNode(null, string.Empty);
 
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> {',', ';', ' '};
-        public static readonly HashSet<char> Delimiters = new HashSet<char> {',', ';'};
+        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
+        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
 
         #endregion
 
@@ -60,12 +60,6 @@ namespace MugenMvvm.Binding.Parsing.Components
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
             OnComponentRemoved(collection, component, metadata);
-        }
-
-        void IComponentCollectionChangedListener<IComponent<IExpressionParser>>.OnCleared(IComponentCollection<IComponent<IExpressionParser>> collection,
-            ItemOrList<IComponent<IExpressionParser>?, IComponent<IExpressionParser>[]> oldItems, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentCleared(collection, oldItems, metadata);
         }
 
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression,
@@ -114,19 +108,13 @@ namespace MugenMvvm.Binding.Parsing.Components
         protected virtual void OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref Parsers, Owner, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref Parsers, collection, component);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref Parsers, collection, component, metadata);
-        }
-
-        protected virtual void OnComponentCleared(IComponentCollection<IComponent<IExpressionParser>> collection,
-            ItemOrList<IComponent<IExpressionParser>?, IComponent<IExpressionParser>[]> oldItems, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnCleared(ref Parsers, collection, oldItems, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref Parsers, component);
         }
 
         protected ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(IContext context)
@@ -143,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (result == null)
-                        result = new List<ExpressionParserResult> {itemResult};
+                        result = new List<ExpressionParserResult> { itemResult };
                     result.Add(r);
                 }
             }
@@ -177,7 +165,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 else
                 {
                     if (parameters == null)
-                        parameters = new List<IExpressionNode> {parameter};
+                        parameters = new List<IExpressionNode> { parameter };
                     parameters.Add(param);
                 }
             }
@@ -252,7 +240,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         return ctx;
 
                     Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _parser._metadataContextProvider), null);
-                    return (IMetadataContext) _metadata!;
+                    return (IMetadataContext)_metadata!;
                 }
             }
 

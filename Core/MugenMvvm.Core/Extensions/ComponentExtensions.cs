@@ -1,9 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -78,42 +77,21 @@ namespace MugenMvvm
             return 0;
         }
 
-        public static void ComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent[] items, IComponentOwner<TComponentBase> owner,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
+        public static void ComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent[] items,
+            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component)
             where TComponent : class
             where TComponentBase : class
         {
             if (component is TComponent c)
-                AddOrdered(ref items, c, owner);
+                AddComponentOrdered(ref items, c, collection.Owner);
         }
 
-        public static void ComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent[] items,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
+        public static void ComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent[] items, IComponent<TComponentBase> component)
             where TComponent : class
             where TComponentBase : class
         {
             if (component is TComponent c)
                 Remove(ref items, c);
-        }
-
-        public static void ComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent[] items,
-            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>?, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
-            where TComponent : class
-            where TComponentBase : class
-        {
-            var components = oldItems.List;
-            if (components == null)
-            {
-                if (oldItems.Item is TComponent c)
-                    Remove(ref items, c);
-                return;
-            }
-
-            for (var index = 0; index < components.Length; index++)
-            {
-                if (components[index] is TComponent c)
-                    Remove(ref items, c);
-            }
         }
 
         public static void SingletonComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent? currentComponent, bool autoDetachOld,
@@ -135,36 +113,12 @@ namespace MugenMvvm
             currentComponent = c;
         }
 
-        public static void SingletonComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent? currentComponent,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
+        public static void SingletonComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent? currentComponent, IComponent<TComponentBase> component)
             where TComponent : class
             where TComponentBase : class
         {
             if (ReferenceEquals(currentComponent, component))
                 currentComponent = null;
-        }
-
-        public static void SingletonComponentTrackerOnCleared<TComponent, TComponentBase>(ref TComponent? currentComponent,
-            IComponentCollection<IComponent<TComponentBase>> collection, ItemOrList<IComponent<TComponentBase>?, IComponent<TComponentBase>[]> oldItems, IReadOnlyMetadataContext? metadata)
-            where TComponent : class
-            where TComponentBase : class
-        {
-            var components = oldItems.List;
-            if (components == null)
-            {
-                if (ReferenceEquals(oldItems.Item, currentComponent))
-                    currentComponent = null;
-                return;
-            }
-
-            for (var index = 0; index < components.Length; index++)
-            {
-                if (ReferenceEquals(currentComponent, components[index]))
-                {
-                    currentComponent = null;
-                    break;
-                }
-            }
         }
 
         #endregion

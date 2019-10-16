@@ -39,19 +39,19 @@ namespace MugenMvvm.Internal
         void IComponentOwnerAddedCallback<IComponent<IReflectionDelegateProvider>>.OnComponentAdded(IComponentCollection<IComponent<IReflectionDelegateProvider>> collection,
             IComponent<IReflectionDelegateProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _delegateComponents, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref _activatorComponents, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref _methodComponents, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref _memberComponents, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _delegateComponents, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _activatorComponents, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _methodComponents, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _memberComponents, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IReflectionDelegateProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IReflectionDelegateProvider>> collection,
             IComponent<IReflectionDelegateProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _delegateComponents, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _activatorComponents, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _methodComponents, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _memberComponents, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _delegateComponents, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _activatorComponents, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _methodComponents, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _memberComponents, component);
         }
 
         public bool CanCreateDelegate(Type delegateType, MethodInfo method)

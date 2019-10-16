@@ -32,13 +32,13 @@ namespace MugenMvvm.Binding.Parsing
         void IComponentOwnerAddedCallback<IComponent<IExpressionParser>>.OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _parsers, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _parsers, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IExpressionParser>>.OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
             IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _parsers, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _parsers, component);
         }
 
         public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)

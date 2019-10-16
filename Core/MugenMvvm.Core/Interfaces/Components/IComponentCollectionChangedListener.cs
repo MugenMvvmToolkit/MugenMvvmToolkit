@@ -8,7 +8,5 @@ namespace MugenMvvm.Interfaces.Components
         void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
 
         void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
-
-        void OnCleared(IComponentCollection<T> collection, ItemOrList<T?, T[]> oldItems, IReadOnlyMetadataContext? metadata);
     }
 }

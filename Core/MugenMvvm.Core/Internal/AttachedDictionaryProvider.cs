@@ -58,13 +58,13 @@ namespace MugenMvvm.Internal
         void IComponentOwnerAddedCallback<IComponent<IAttachedDictionaryProvider>>.OnComponentAdded(IComponentCollection<IComponent<IAttachedDictionaryProvider>> collection,
             IComponent<IAttachedDictionaryProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _components, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _components, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IAttachedDictionaryProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IAttachedDictionaryProvider>> collection,
             IComponent<IAttachedDictionaryProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _components, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _components, component);
         }
 
         #endregion

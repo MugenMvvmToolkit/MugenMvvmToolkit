@@ -31,13 +31,13 @@ namespace MugenMvvm.Binding.Compiling
         void IComponentOwnerAddedCallback<IComponent<IExpressionCompiler>>.OnComponentAdded(IComponentCollection<IComponent<IExpressionCompiler>> collection,
             IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _compilers, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _compilers, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IExpressionCompiler>>.OnComponentRemoved(IComponentCollection<IComponent<IExpressionCompiler>> collection,
             IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _compilers, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _compilers, component);
         }
 
         public ICompiledExpression Compile(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)

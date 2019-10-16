@@ -139,25 +139,6 @@ namespace MugenMvvm.Components
                 RemoveInternal(collection, component, collection.Owner as IComponentOwnerRemovedCallback<T>, metadata);
             }
 
-            public void OnCleared(IComponentCollection<T> collection, ItemOrList<T?, T[]> oldItems, IReadOnlyMetadataContext? metadata)
-            {
-                var clearedCallback = collection.Owner as IComponentOwnerClearedCallback<T>;
-                var removedCallback = clearedCallback == null ? collection.Owner as IComponentOwnerRemovedCallback<T> : null;
-                var items = oldItems.List;
-                if (items == null)
-                {
-                    if (oldItems.Item != null)
-                        RemoveInternal(collection, oldItems.Item, removedCallback, metadata);
-                }
-                else
-                {
-                    for (var i = 0; i < items.Length; i++)
-                        RemoveInternal(collection, items[i], removedCallback, metadata);
-                }
-
-                clearedCallback?.OnComponentCleared(collection, oldItems, metadata);
-            }
-
             public bool OnAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata)
             {
                 if (collection.Owner is IComponentOwnerAddingCallback<T> callback
@@ -173,13 +154,6 @@ namespace MugenMvvm.Components
                     && !callback.OnComponentRemoving(collection, component, metadata))
                     return false;
                 return Detach(collection, component, true, metadata);
-            }
-
-            public bool OnClearing(IComponentCollection<T> collection, IReadOnlyMetadataContext? metadata)
-            {
-                if (collection.Owner is IComponentOwnerClearingCallback<T> callback)
-                    return callback.OnComponentClearing(collection, collection.GetItems(), metadata);
-                return true;
             }
 
             public void OnComponentCollectionCreated<TItem>(IComponentCollectionProvider provider, IComponentCollection<TItem> componentCollection,

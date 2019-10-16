@@ -33,13 +33,13 @@ namespace MugenMvvm.Binding.Converters
         void IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>.OnComponentAdded(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
             IComponent<IGlobalValueConverter> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _converters, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _converters, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>.OnComponentRemoved(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
             IComponent<IGlobalValueConverter> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _converters, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _converters, component);
         }
 
         public object? Convert(object? value, Type targetType, IBindingMemberInfo? member = null, IReadOnlyMetadataContext? metadata = null)

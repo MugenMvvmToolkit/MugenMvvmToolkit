@@ -76,17 +76,17 @@ namespace MugenMvvm.Binding.Observers
         protected virtual void OnComponentAdded(IComponentCollection<IComponent<IObserverProvider>> collection,
             IComponent<IObserverProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref MemberObserverProviders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref PathObserverProviders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref PathProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref MemberObserverProviders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref PathObserverProviders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref PathProviders, collection, component);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IObserverProvider>> collection,
             IComponent<IObserverProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref MemberObserverProviders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref PathObserverProviders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref PathProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref MemberObserverProviders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref PathObserverProviders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref PathProviders, component);
         }
 
         protected virtual MemberObserver GetMemberObserverInternal<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)

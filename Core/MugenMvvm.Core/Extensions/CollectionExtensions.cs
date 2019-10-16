@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -21,34 +22,44 @@ namespace MugenMvvm
             return array;
         }
 
-        public static void AddOrdered<T>(ref T[] items, T component, object? owner) where T : class
+        public static void AddOrdered<T>(List<T> list, T item, IComparer<T> comparer)
+        {
+            Should.NotBeNull(list, nameof(list));
+            var binarySearch = list.BinarySearch(item, comparer);
+            if (binarySearch < 0)
+                binarySearch = ~binarySearch;
+            list.Insert(binarySearch, item);
+        }
+
+        public static void AddComponentOrdered<T>(ref T[] items, T item, object owner) where T : class
+        {
+            var componentComparer = ComponentComparer<T>.GetComparer(owner);
+            try
+            {
+                AddOrdered(ref items, item, componentComparer);
+            }
+            finally
+            {
+                componentComparer.Release();
+            }
+        }
+
+        public static void AddOrdered<T>(ref T[] items, T item, IComparer<T> comparer)
         {
             var array = new T[items.Length + 1];
-            var added = false;
-            var priority = GetComponentPriority(component, owner);
-            for (var i = 0; i < items.Length; i++)
-            {
-                if (added)
-                {
-                    array[i + 1] = items[i];
-                    continue;
-                }
-
-                var oldItem = items[i];
-                var compareTo = priority.CompareTo(GetComponentPriority(oldItem, owner));
-                if (compareTo > 0)
-                {
-                    array[i] = component;
-                    added = true;
-                    --i;
-                }
-                else
-                    array[i] = oldItem;
-            }
-
-            if (!added)
-                array[array.Length - 1] = component;
+            Array.Copy(items, 0, array, 0, items.Length);
+            AddOrdered(array, item, items.Length, comparer);
             items = array;
+        }
+
+        public static void AddOrdered<T>(T[] items, T item, int size, IComparer<T> comparer)
+        {
+            var binarySearch = Array.BinarySearch(items, 0, size, item, comparer);
+            if (binarySearch < 0)
+                binarySearch = ~binarySearch;
+            if (binarySearch < size)
+                Array.Copy(items, binarySearch, items, binarySearch + 1, size - binarySearch);
+            items[binarySearch] = item;
         }
 
         public static bool Remove<T>(ref T[] items, T item) where T : class
@@ -83,6 +94,59 @@ namespace MugenMvvm
             if (array != null)
                 items = array;
             return array != null;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class ComponentComparer<T> : IComparer<T> where T : class
+        {
+            #region Fields
+
+            private object? _owner;
+            private readonly bool _isPool;
+            private static readonly ComponentComparer<T> Instance = new ComponentComparer<T>(true);
+            private static ComponentComparer<T>? _poolComparer = Instance;
+
+            #endregion
+
+            #region Constructors
+
+            private ComponentComparer(bool isPool = false)
+            {
+                _isPool = isPool;
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            int IComparer<T>.Compare(T x, T y)
+            {
+                return GetComponentPriority(y, _owner).CompareTo(GetComponentPriority(x, _owner));
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static ComponentComparer<T> GetComparer(object? owner)
+            {
+                var comparer = Interlocked.Exchange(ref _poolComparer, null) ?? new ComponentComparer<T>();
+                comparer._owner = owner;
+                return comparer;
+            }
+
+            public void Release()
+            {
+                if (!_isPool)
+                    return;
+                _owner = null;
+                _poolComparer = this;
+            }
+
+            #endregion
         }
 
         #endregion

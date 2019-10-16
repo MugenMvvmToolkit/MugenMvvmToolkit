@@ -44,7 +44,7 @@ namespace MugenMvvm.IoC
             get
             {
                 if (_components == null)
-                    MugenExtensions.LazyInitialize(ref _components, GetListenersCollection());
+                    MugenExtensions.LazyInitialize(ref _components, GetComponentsCollection());
                 return _components!;
             }
         }
@@ -189,9 +189,9 @@ namespace MugenMvvm.IoC
                 (components[i] as IIocContainerListener)?.OnActivated(this, service, member, instance, bindingMetadata, metadata);
         }
 
-        protected virtual IComponentCollection<IComponent<IIocContainer>> GetListenersCollection()
+        protected virtual IComponentCollection<IComponent<IIocContainer>> GetComponentsCollection()
         {
-            return new OrderedArrayComponentCollection<IComponent<IIocContainer>>(this);
+            return new ComponentCollection<IComponent<IIocContainer>>(this);
         }
 
         protected void NotBeDisposed()

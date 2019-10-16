@@ -69,7 +69,7 @@ namespace MugenMvvm.Components
                 }
             }
 
-            return new OrderedArrayComponentCollection<T>(owner);
+            return new ComponentCollection<T>(owner);
         }
 
         protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext? metadata)

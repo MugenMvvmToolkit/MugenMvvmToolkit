@@ -1,36 +1,35 @@
-﻿using System;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public abstract class ArrayComponentCollectionBase<T> : IComponentCollection<T> where T : class
+    public sealed class ComponentCollection<T> : IComponentCollection<T>, IComparer<T> where T : class
     {
         #region Fields
 
+        private readonly List<T> _items;
+        private T[]? _arrayItems;
+
         private IComponentCollection<IComponent<IComponentCollection<T>>>? _components;
-        protected T[] Items;
 
         #endregion
 
         #region Constructors
 
-        protected ArrayComponentCollectionBase()
+        public ComponentCollection(object owner)
         {
-            Items = Default.EmptyArray<T>();
+            Owner = owner;
+            _items = new List<T>();
         }
 
         #endregion
 
         #region Properties
 
-        public abstract object Owner { get; }
+        public object Owner { get; }
 
-        protected abstract bool IsOrdered { get; }
-
-        protected abstract bool IsSynchronized { get; }
-
-        public bool HasItems => Items.Length > 0;
+        public bool HasItems => _items.Count > 0;
 
         bool IComponentOwner<IComponentCollection<T>>.HasComponents => _components != null && _components.HasItems;
 
@@ -48,15 +47,19 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
+        int IComparer<T>.Compare(T x, T y)
+        {
+            return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
+        }
+
         public T[] GetItems()
         {
-            return Items;
+            return _arrayItems ?? GetItemsIfNeed();
         }
 
         public bool Add(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-
             var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
             if (!defaultListener.OnAdding(this, component, metadata))
                 return false;
@@ -68,29 +71,21 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (IsSynchronized)
+            lock (_items)
             {
-                if (!AddLockImpl(component, metadata))
-                    return false;
-            }
-            else
-            {
-                if (!AddInternal(component, metadata))
-                    return false;
+                MugenExtensions.AddOrdered(_items, component, this);
+                _arrayItems = null;
             }
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionChangedListener<T>)?.OnAdded(this, component, metadata);
-
             defaultListener.OnAdded(this, component, metadata);
-
             return true;
         }
 
         public bool Remove(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-
             var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
             if (!defaultListener.OnRemoving(this, component, metadata))
                 return false;
@@ -102,47 +97,39 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (IsSynchronized)
+            lock (_items)
             {
-                if (!RemoveLockImpl(component, metadata))
+                if (!_items.Remove(component))
                     return false;
-            }
-            else
-            {
-                if (!RemoveInternal(component, metadata))
-                    return false;
+                _arrayItems = null;
             }
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionChangedListener<T>)?.OnRemoved(this, component, metadata);
-
             defaultListener.OnRemoved(this, component, metadata);
-
             return true;
         }
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
             var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
-            if (!defaultListener.OnClearing(this, metadata))
-                return false;
-
             var components = this.GetComponents();
-            for (var i = 0; i < components.Length; i++)
+
+            var oldItems = GetItems();
+            lock (_items)
             {
-                if (components[i] is IComponentCollectionChangingListener<T> listener && !listener.OnClearing(this, metadata))
-                    return false;
+                _items.Clear();
+                _arrayItems = null;
             }
 
-            var oldItems = Items;
-            if (!ClearInternal(metadata))
-                return false;
+            for (var i = 0; i < oldItems.Length; i++)
+            {
+                var oldItem = oldItems[i];
+                for (var j = 0; j < components.Length; j++)
+                    (components[j] as IComponentCollectionChangedListener<T>)?.OnRemoved(this, oldItem, metadata);
+                defaultListener.OnRemoved(this, oldItem, metadata);
+            }
 
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as IComponentCollectionChangedListener<T>)?.OnCleared(this, oldItems, metadata);
-
-            defaultListener.OnCleared(this, oldItems, metadata);
-            Array.Clear(oldItems, 0, oldItems.Length);
             return true;
         }
 
@@ -150,46 +137,23 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected virtual bool AddInternal(T component, IReadOnlyMetadataContext? metadata)
+        private T[] GetItemsIfNeed()
         {
-            if (IsOrdered)
-                MugenExtensions.AddOrdered(ref Items, component, Owner);
-            else
+            var items = _arrayItems;
+            if (items == null)
             {
-                var array = new T[Items.Length + 1];
-                Array.Copy(Items, array, Items.Length);
-                array[array.Length - 1] = component;
-                Items = array;
+                lock (_items)
+                {
+                    items = _arrayItems;
+                    if (items == null)
+                    {
+                        items = _items.ToArray();
+                        _arrayItems = items;
+                    }
+                }
             }
 
-            return true;
-        }
-
-        protected virtual bool RemoveInternal(T component, IReadOnlyMetadataContext? metadata)
-        {
-            return MugenExtensions.Remove(ref Items, component);
-        }
-
-        protected virtual bool ClearInternal(IReadOnlyMetadataContext? metadata)
-        {
-            Items = Default.EmptyArray<T>();
-            return true;
-        }
-
-        private bool AddLockImpl(T component, IReadOnlyMetadataContext? metadata)
-        {
-            lock (this)
-            {
-                return AddInternal(component, metadata);
-            }
-        }
-
-        private bool RemoveLockImpl(T component, IReadOnlyMetadataContext? metadata)
-        {
-            lock (this)
-            {
-                return RemoveInternal(component, metadata);
-            }
+            return items;
         }
 
         #endregion

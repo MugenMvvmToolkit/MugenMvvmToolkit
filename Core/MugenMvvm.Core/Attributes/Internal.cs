@@ -159,25 +159,6 @@ namespace System.Diagnostics.CodeAnalysis
     }
 
     [AttributeUsage(AttributeTargets.Parameter)]
-    internal sealed class DoesNotReturnWhenNullAttribute : Attribute//todo remove if need https://github.com/dotnet/csharplang/blob/master/meetings/2019/LDM-2019-05-15.md#flow-attributes-1
-    {
-        #region Constructors
-
-        public DoesNotReturnWhenNullAttribute(string parameterName)
-        {
-            ParameterName = parameterName;
-        }
-
-        #endregion
-
-        #region Properties
-
-        public string ParameterName { get; }
-
-        #endregion
-    }
-
-    [AttributeUsage(AttributeTargets.Parameter)]
     internal sealed class EnsuresNotNullAttribute : Attribute { }
 }
 

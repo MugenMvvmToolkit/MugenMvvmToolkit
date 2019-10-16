@@ -31,13 +31,13 @@ namespace MugenMvvm.Internal
         void IComponentOwnerAddedCallback<IComponent<IWeakReferenceProvider>>.OnComponentAdded(IComponentCollection<IComponent<IWeakReferenceProvider>> collection,
             IComponent<IWeakReferenceProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _providers, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _providers, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IWeakReferenceProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IWeakReferenceProvider>> collection,
             IComponent<IWeakReferenceProvider> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _providers, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _providers, component);
         }
 
         public IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)

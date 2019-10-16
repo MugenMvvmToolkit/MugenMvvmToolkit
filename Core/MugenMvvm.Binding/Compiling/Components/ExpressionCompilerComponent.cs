@@ -65,12 +65,6 @@ namespace MugenMvvm.Binding.Compiling.Components
             OnComponentRemoved(collection, component, metadata);
         }
 
-        void IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>.OnCleared(IComponentCollection<IComponent<IExpressionCompiler>> collection,
-            ItemOrList<IComponent<IExpressionCompiler>?, IComponent<IExpressionCompiler>[]> oldItems, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentCleared(collection, oldItems, metadata);
-        }
-
         public ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             return Compile(expression, metadata);
@@ -100,19 +94,13 @@ namespace MugenMvvm.Binding.Compiling.Components
         protected virtual void OnComponentAdded(IComponentCollection<IComponent<IExpressionCompiler>> collection,
             IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref Builders, Owner, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref Builders, collection, component);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IExpressionCompiler>> collection,
             IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref Builders, collection, component, metadata);
-        }
-
-        protected virtual void OnComponentCleared(IComponentCollection<IComponent<IExpressionCompiler>> collection,
-            ItemOrList<IComponent<IExpressionCompiler>?, IComponent<IExpressionCompiler>[]> oldItems, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnCleared(ref Builders, collection, oldItems, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref Builders, component);
         }
 
         #endregion

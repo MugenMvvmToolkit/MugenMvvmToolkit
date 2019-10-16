@@ -85,13 +85,13 @@ namespace MugenMvvm.Binding.Members
         protected virtual void OnComponentAdded(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component,
             IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref MemberProviders, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref MemberProviders, collection, component);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component,
             IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref MemberProviders, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref MemberProviders, component);
         }
 
         protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)

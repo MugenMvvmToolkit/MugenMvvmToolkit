@@ -51,17 +51,17 @@ namespace MugenMvvm.Messaging
         void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
             IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref _handlerComponents, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref _listeners, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _handlerComponents, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _listeners, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
             IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _handlerComponents, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _listeners, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _handlerComponents, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _listeners, component);
         }
 
         bool IEqualityComparer<MessengerSubscriberInfo>.Equals(MessengerSubscriberInfo x, MessengerSubscriberInfo y)
