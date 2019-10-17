@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Core
             var result = BuildBindingExpressionInternal(expression, metadata);
             if (result.IsNullOrEmpty())
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return default;
+            return result;
         }
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBinding<TExpression>(in TExpression expression, object target, ItemOrList<object?, IReadOnlyList<object?>> sources = default,
@@ -60,7 +60,7 @@ namespace MugenMvvm.Binding.Core
             var result = BuildBindingInternal(expression, target, sources, metadata);
             if (result.IsNullOrEmpty())
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return default;
+            return result;
         }
 
         public ItemOrList<IBinding?, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)

@@ -63,7 +63,6 @@ namespace MugenMvvm.Binding.Observers
 
         public void Dispose()
         {
-            _source?.Release();
             _source = null;
         }
 

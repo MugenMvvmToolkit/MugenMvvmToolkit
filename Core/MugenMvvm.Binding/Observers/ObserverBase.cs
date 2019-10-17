@@ -69,7 +69,6 @@ namespace MugenMvvm.Binding.Observers
             if (ReferenceEquals(_listeners, DisposedItems))
                 return;
             _listeners = DisposedItems;
-            (_source as IWeakReference)?.Release();
             _source = null;
             OnDisposed();
         }

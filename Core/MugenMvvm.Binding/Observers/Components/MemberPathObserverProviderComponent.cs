@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Observers.Components
         public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object source, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TryGetMemberPathObserverDelegate is FuncEx<TRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver> provider)
-                return provider.Invoke(request, provider, metadata);
+                return provider.Invoke(request, source, metadata);
             return null;
         }
 

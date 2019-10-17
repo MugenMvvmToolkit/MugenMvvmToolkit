@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             var provider = _observerProvider.ServiceIfNull();
             var path = GetPath(provider, source, metadata);
             return provider.GetMemberPathObserver(source ?? target,
-                new MemberPathObserverRequest(source, path, MemberFlags, _observableMethodName, HasStablePath, Observable, Optional), metadata);
+                new MemberPathObserverRequest(source ?? target, path, MemberFlags, _observableMethodName, HasStablePath, Observable, Optional), metadata);
         }
 
         #endregion

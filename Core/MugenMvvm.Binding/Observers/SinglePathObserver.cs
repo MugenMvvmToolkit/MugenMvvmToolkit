@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class SinglePathObserver : ObserverBase, IEventListener, IWeakReferenceHolder
+    public class SinglePathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {
         #region Fields
 
@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsWeak => false;
 
-        public IWeakReference? WeakReference { get; set; }
+        IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         protected bool Observable => CheckFlag(ObservableFlag);
 
@@ -122,6 +122,7 @@ namespace MugenMvvm.Binding.Observers
         protected override void OnDisposed()
         {
             UnsubscribeLastMember();
+            this.ReleaseWeakReference();
             _lastMember = null;
             _exception = null;
         }

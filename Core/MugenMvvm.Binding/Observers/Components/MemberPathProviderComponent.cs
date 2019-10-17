@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -110,7 +111,7 @@ namespace MugenMvvm.Binding.Observers.Components
             #endregion
         }
 
-        private sealed class SingleMemberPath : IMemberPath
+        private sealed class SingleMemberPath : IMemberPath, IValueHolder<string>
         {
             #region Fields
 
@@ -143,10 +144,12 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public bool IsSingle => true;
 
+            string IValueHolder<string>.Value { get; set; }
+
             #endregion
         }
 
-        private sealed class MultiMemberPath : IMemberPath
+        private sealed class MultiMemberPath : IMemberPath, IValueHolder<string>
         {
             #region Constructors
 
@@ -188,6 +191,8 @@ namespace MugenMvvm.Binding.Observers.Components
             public string[] Members { get; }
 
             public bool IsSingle => false;
+
+            string IValueHolder<string>.Value { get; set; }
 
             #endregion
         }

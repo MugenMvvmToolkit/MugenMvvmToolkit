@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -47,17 +48,17 @@ namespace MugenMvvm.Binding.Core.Components
                 return default;
 
             var values = path == null
-                ? attachedValueProvider.GetValues(target, target, (o, s, arg3) => s.StartsWith(BindPrefix, StringComparison.Ordinal))
-                : attachedValueProvider.GetValues(target, path, (o, s, arg3) => s.StartsWith(BindPrefix, StringComparison.Ordinal) && s.EndsWith(s, StringComparison.Ordinal));
+                ? attachedValueProvider.GetValues(target, target, (o, s, v, arg3) => s.StartsWith(BindPrefix, StringComparison.Ordinal))
+                : attachedValueProvider.GetValues(target, path, (o, s, v, arg3) => s.StartsWith(BindPrefix, StringComparison.Ordinal) && s.EndsWith(s, StringComparison.Ordinal));
 
             if (values.Count == 0)
                 return default;
             if (values.Count == 1)
-                return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>((IBinding) values[0].Value!);
+                return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>((IBinding)values[0].Value!);
 
             var bindings = new IBinding[values.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding) values[i].Value!;
+                bindings[i] = (IBinding)values[i].Value!;
             return bindings;
         }
 
@@ -68,8 +69,8 @@ namespace MugenMvvm.Binding.Core.Components
             if (source == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(source, metadata);
-            attachedValueProvider.AddOrUpdate(source, BindPrefix + binding.Target.Path.Path, binding, binding, binding, UpdateBindingDelegate);
+            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(source, metadata);//todo cache in path
+            attachedValueProvider.AddOrUpdate(source, GetPath(binding.Target.Path), binding, binding, binding, UpdateBindingDelegate);
             return true;
         }
 
@@ -84,12 +85,24 @@ namespace MugenMvvm.Binding.Core.Components
             if (attachedValueProvider == null)
                 return false;
 
-            return attachedValueProvider.Clear(source, BindPrefix + binding.Target.Path.Path);
+            return attachedValueProvider.Clear(source, GetPath(binding.Target.Path));
         }
 
         #endregion
 
         #region Methods
+
+        private static string GetPath(IMemberPath memberPath)
+        {
+            if (memberPath is IValueHolder<string> valueHolder)
+            {
+                if (valueHolder.Value == null)
+                    valueHolder.Value = BindPrefix + memberPath.Path;
+                return valueHolder.Value;
+            }
+
+            return BindPrefix + memberPath.Path;
+        }
 
         private static IBinding UpdateBinding(object item, IBinding addValue, IBinding currentValue, IBinding state1, IBinding state2)
         {
