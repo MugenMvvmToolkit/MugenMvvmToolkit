@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public SinglePathObserver(IWeakReference source, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
+        public SinglePathObserver(object source, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
             : base(source)
         {
             Should.NotBeNull(path, nameof(path));
@@ -79,10 +79,12 @@ namespace MugenMvvm.Binding.Observers
             UpdateIfNeed();
             if (_exception != null)
                 return new MemberPathMembers(Path, _exception);
-            var target = Source;
-            if (target == null || _lastMember == null)
+
+            var source = Source;
+            if (source == null || _lastMember == null)
                 return default;
-            return new MemberPathMembers(Path, target, target, null, _lastMember);
+
+            return new MemberPathMembers(Path, source, source, null, _lastMember);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -90,10 +92,12 @@ namespace MugenMvvm.Binding.Observers
             UpdateIfNeed();
             if (_exception != null)
                 return new MemberPathLastMember(Path, _exception);
-            var target = Source;
-            if (target == null || _lastMember == null)
+
+            var source = Source;
+            if (source == null || _lastMember == null)
                 return default;
-            return new MemberPathLastMember(Path, target, _lastMember);
+
+            return new MemberPathLastMember(Path, source, _lastMember);
         }
 
         protected override void OnListenerAdded(IMemberPathObserverListener listener)

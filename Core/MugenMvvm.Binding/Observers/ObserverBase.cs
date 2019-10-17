@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         private object? _listeners;
-        private IWeakReference? _source;
+        private object? _source;
 
         protected const byte ObservableFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
@@ -23,8 +23,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        protected ObserverBase(IWeakReference source)
+        protected ObserverBase(object source)
         {
+            Should.NotBeNull(source, nameof(source));
             _source = source;
             _listeners = Default.EmptyArray<IMemberPathObserverListener>();
         }
@@ -33,13 +34,27 @@ namespace MugenMvvm.Binding.Observers
 
         #region Properties
 
-        public bool IsAlive => _source?.Target != null;
+        public bool IsAlive
+        {
+            get
+            {
+                if (_source is IWeakReference w)
+                    return w.Target != null;
+                return true;
+            }
+        }
 
         public abstract IMemberPath Path { get; }
 
-        public object? Source => _source?.Target;
-
-        protected IWeakReference SourceWeakReference => _source!;
+        public object? Source
+        {
+            get
+            {
+                if (_source is IWeakReference w)
+                    return w.Target;
+                return _source;
+            }
+        }
 
         protected bool HasListeners => _listeners != null;
 
@@ -54,7 +69,7 @@ namespace MugenMvvm.Binding.Observers
             if (ReferenceEquals(_listeners, DisposedItems))
                 return;
             _listeners = DisposedItems;
-            _source?.Release();
+            (_source as IWeakReference)?.Release();
             _source = null;
             OnDisposed();
         }
@@ -73,7 +88,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] {(IMemberPathObserverListener) _listeners, listener};
+                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
 
             OnListenerAdded(listener);
         }

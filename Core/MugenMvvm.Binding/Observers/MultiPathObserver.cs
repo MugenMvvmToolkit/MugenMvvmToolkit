@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MultiPathObserver(IWeakReference source, IMemberPath path,
+        public MultiPathObserver(object source, IMemberPath path,
             MemberFlags memberFlags, bool hasStablePath, bool observable, bool optional)
             : base(source)
         {
@@ -87,11 +87,11 @@ namespace MugenMvvm.Binding.Observers
             if (source == null)
                 return default;
 
-            var target = _penultimateValue?.Target;
-            if (target == null || _members == null)
+            var penultimateValue = _penultimateValue?.Target;
+            if (penultimateValue == null || _members == null)
                 return default;
 
-            return new MemberPathMembers(Path, source, target, _members, _members[_members.Length - 1]);
+            return new MemberPathMembers(Path, source, penultimateValue, _members, _members[_members.Length - 1]);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -172,11 +172,13 @@ namespace MugenMvvm.Binding.Observers
                 var members = new IBindingMemberInfo[paths.Length];
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
+                var memberFlags = _memberFlags;
                 for (var i = 0; i < members.Length; i++)
                 {
                     var member = provider.GetMember(source!.GetType(), paths[i],
-                        i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event,
-                        _memberFlags);
+                        i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event, memberFlags);
+                    if (i == 1)
+                        memberFlags &= ~MemberFlags.Static;
                     if (member == null)
                     {
                         if (Optional)
