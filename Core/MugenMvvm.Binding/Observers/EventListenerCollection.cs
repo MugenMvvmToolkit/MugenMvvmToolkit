@@ -26,14 +26,14 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public static EventListenerCollection GetOrAdd(object item, string path, IAttachedDictionaryProvider? provider = null)
+        public static EventListenerCollection GetOrAdd(object item, string path, IAttachedValueManager? valueManager = null)
         {
-            return provider.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new EventListenerCollection());
+            return valueManager.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new EventListenerCollection());
         }
 
-        public static void Raise(object item, string path, object message, IAttachedDictionaryProvider? provider = null)
+        public static void Raise(object item, string path, object message, IAttachedValueManager? valueManager = null)
         {
-            provider.ServiceIfNull().TryGetValue(item, path, out EventListenerCollection collection);
+            valueManager.ServiceIfNull().TryGetValue(item, path, out EventListenerCollection collection);
             collection?.Raise(item, message);
         }
 

@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Delegates;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IAttachedDictionary
+    public interface IAttachedValueProvider
     {
-        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate)
+        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate = null)
             where TItem : class;
 
         bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhen(true)] out TValue value)

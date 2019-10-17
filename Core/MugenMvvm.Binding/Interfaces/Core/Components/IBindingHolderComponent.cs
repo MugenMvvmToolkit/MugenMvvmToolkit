@@ -9,7 +9,7 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
     {
         ItemOrList<IBinding?, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata);
 
-        bool TryRegister(IBinding binding, object? target, IReadOnlyMetadataContext? metadata);
+        bool TryRegister(IBinding binding, IReadOnlyMetadataContext? metadata);
 
         bool TryUnregister(IBinding binding, IReadOnlyMetadataContext? metadata);
     }

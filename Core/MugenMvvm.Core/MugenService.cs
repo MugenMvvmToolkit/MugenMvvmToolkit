@@ -25,7 +25,7 @@ namespace MugenMvvm
 
         public static IComponentCollectionProvider ComponentCollectionProvider => Service<IComponentCollectionProvider>.Instance;
 
-        public static IAttachedDictionaryProvider AttachedDictionaryProvider => Service<IAttachedDictionaryProvider>.Instance;
+        public static IAttachedValueManager AttachedValueManager => Service<IAttachedValueManager>.Instance;
 
         public static IReflectionDelegateProvider ReflectionDelegateProvider => Service<IReflectionDelegateProvider>.Instance;
 

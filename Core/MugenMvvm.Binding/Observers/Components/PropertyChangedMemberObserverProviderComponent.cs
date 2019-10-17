@@ -13,12 +13,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class
-        PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority //todo add static property changed listener
+    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority //todo add static property changed listener
     {
         #region Fields
 
-        private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
+        private readonly IAttachedValueManager? _attachedValueManager;
         private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
 
         private readonly FuncEx<string, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverStringDelegate;
@@ -29,9 +28,9 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PropertyChangedMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
+        public PropertyChangedMemberObserverProviderComponent(IAttachedValueManager? attachedValueManager = null)
         {
-            _attachedDictionaryProvider = attachedDictionaryProvider;
+            _attachedValueManager = attachedValueManager;
             _tryGetMemberObserverStringDelegate = TryGetMemberObserver;
             _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
         }
@@ -50,7 +49,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (source == null)
                 return null;
-            return _attachedDictionaryProvider
+            return _attachedValueManager
                 .ServiceIfNull()
                 .GetOrAdd((INotifyPropertyChanged)source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string)member);

@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly IAttachedDictionaryProvider? _attachedDictionaryProvider;
+        private readonly IAttachedValueManager? _attachedValueManager;
 
         private readonly FuncEx<EventInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverEventDelegate;
 
@@ -30,9 +30,9 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventInfoMemberObserverProviderComponent(IAttachedDictionaryProvider? attachedDictionaryProvider = null)
+        public EventInfoMemberObserverProviderComponent(IAttachedValueManager? attachedValueManager = null)
         {
-            _attachedDictionaryProvider = attachedDictionaryProvider;
+            _attachedValueManager = attachedValueManager;
             _tryGetMemberObserverEventDelegate = TryGetMemberObserver;
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 return null;
 
             var eventInfo = (EventInfo) member;
-            var listenerInternal = _attachedDictionaryProvider
+            var listenerInternal = _attachedValueManager
                 .ServiceIfNull()
                 .GetOrAdd(source, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
             return listenerInternal?.AddWithUnsubscriber(listener);
