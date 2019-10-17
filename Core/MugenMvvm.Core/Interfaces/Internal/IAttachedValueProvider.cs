@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IAttachedValueProvider
     {
-        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(TItem item, Func<TItem, string, object?, bool>? predicate = null)
+        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, string, TState, bool>? predicate = null)
             where TItem : class;
 
         bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhen(true)] out TValue value)
