@@ -5,11 +5,12 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingHolderComponent : IBindingHolderComponent
+    public sealed class BindingHolderComponent : IBindingHolderComponent, IHasPriority
     {
         #region Fields
 
@@ -30,6 +31,12 @@ namespace MugenMvvm.Binding.Core.Components
 
         #endregion
 
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public ItemOrList<IBinding?, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata)
@@ -46,11 +53,11 @@ namespace MugenMvvm.Binding.Core.Components
             if (values.Count == 0)
                 return default;
             if (values.Count == 1)
-                return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>((IBinding)values[0].Value!);
+                return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>((IBinding) values[0].Value!);
 
             var bindings = new IBinding[values.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding)values[i].Value!;
+                bindings[i] = (IBinding) values[i].Value!;
             return bindings;
         }
 

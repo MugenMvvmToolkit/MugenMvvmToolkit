@@ -60,10 +60,10 @@ namespace MugenMvvm.Binding.Observers
             return p!;
         }
 
-        public IMemberPathObserver GetMemberPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPathObserver GetMemberPathObserver<TRequest>(object source, in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(source, nameof(source));
-            var observer = TryGetMemberPathObserverInternal(source, path, metadata);
+            var observer = TryGetMemberPathObserverInternal(source, request, metadata);
             if (observer == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberObserverProviderComponent).Name);
             return observer!;
@@ -115,12 +115,12 @@ namespace MugenMvvm.Binding.Observers
             return null;
         }
 
-        protected virtual IMemberPathObserver? TryGetMemberPathObserverInternal<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata)
+        protected virtual IMemberPathObserver? TryGetMemberPathObserverInternal<TRequest>(object source, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             var providers = PathObserverProviders;
             for (var i = 0; i < providers.Length; i++)
             {
-                var observer = providers[i].TryGetMemberPathObserver(source, path, metadata);
+                var observer = providers[i].TryGetMemberPathObserver(source, request, metadata);
                 if (observer != null)
                     return observer;
             }

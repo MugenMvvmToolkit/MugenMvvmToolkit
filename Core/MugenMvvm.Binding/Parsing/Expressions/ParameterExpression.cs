@@ -40,6 +40,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override string ToString()
         {
+            if (NodeType == ExpressionNodeType.BindingMember)
+                return "bindValue" + Index;
             return Name;
         }
 

@@ -1,8 +1,10 @@
 ﻿using System.Text;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections.Internal;
+using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
@@ -12,13 +14,15 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private readonly StringBuilder _memberNameBuilder;
         private readonly StringOrdinalLightDictionary<IExpressionNode> _members;
+        private readonly IObserverProvider? _observerProvider;
 
         #endregion
 
         #region Constructors
 
-        public BindingMemberExpressionVisitor()
+        public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null)
         {
+            _observerProvider = observerProvider;
             _members = new StringOrdinalLightDictionary<IExpressionNode>(3);
             _memberNameBuilder = new StringBuilder();
         }
@@ -28,6 +32,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         #region Properties
 
         public bool IsPostOrder => false;
+
+        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.StaticNonPublic;
 
         #endregion
 
@@ -56,7 +62,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             _members.Clear();
         }
 
-        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)//todo allow to use as indexer
+        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall) //todo allow to use as indexer
         {
             IExpressionNode? member;
             if (methodCall.Target == null)
@@ -94,8 +100,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             if (!_members.TryGetValue(path, out var node))
             {
-                node = new ParameterExpression("p" + _members.Count, _members.Count);
-                //                node = new BindingMemberExpression(path, _members.Count);//todo fix
+                node = new BindingMemberExpression(path, MemberFlags & ~MemberFlags.Static, methodName, _observerProvider);
                 _members[path] = node;
             }
 

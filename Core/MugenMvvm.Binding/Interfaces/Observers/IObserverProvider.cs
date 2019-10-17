@@ -12,6 +12,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers
 
         IMemberPath GetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null);
 
-        IMemberPathObserver GetMemberPathObserver<TPath>(object source, in TPath path, IReadOnlyMetadataContext? metadata = null);
+        IMemberPathObserver GetMemberPathObserver<TRequest>(object source, in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }

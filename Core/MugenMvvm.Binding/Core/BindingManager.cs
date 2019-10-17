@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<T>(in T expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
             var result = BuildBindingExpressionInternal(expression, metadata);
             if (result.IsNullOrEmpty())
@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Core
             return default;
         }
 
-        public ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBinding<T>(in T expression, object target, ItemOrList<object?, IReadOnlyList<object?>> sources = default,
+        public ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBinding<TExpression>(in TExpression expression, object target, ItemOrList<object?, IReadOnlyList<object?>> sources = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
@@ -110,7 +110,7 @@ namespace MugenMvvm.Binding.Core
             MugenExtensions.ComponentTrackerOnRemoved(ref StateDispatchers, component);
         }
 
-        protected virtual ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpressionInternal<T>(in T expression,
+        protected virtual ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpressionInternal<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata = null)
         {
             var builders = ExpressionBuilders;
@@ -124,7 +124,7 @@ namespace MugenMvvm.Binding.Core
             return default;
         }
 
-        protected virtual ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBindingInternal<T>(in T expression, object target,
+        protected virtual ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBindingInternal<TExpression>(in TExpression expression, object target,
             ItemOrList<object?, IReadOnlyList<object?>> sources = default,
             IReadOnlyMetadataContext? metadata = null)
         {
