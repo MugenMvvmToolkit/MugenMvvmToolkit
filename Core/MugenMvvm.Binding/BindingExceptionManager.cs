@@ -47,6 +47,12 @@ namespace MugenMvvm.Binding
         }
 
         [DoesNotReturn]
+        public static void ThrowCannotUseExpressionExpected(IExpressionNode expression, Type expectedType)
+        {
+            throw new InvalidOperationException(CannotUseExpressionExpected.Format(expression, expectedType));
+        }
+
+        [DoesNotReturn]
         public static void ThrowDuplicateLambdaParameter(string parameterName)
         {
             throw new InvalidOperationException(DuplicateLambdaParameterFormat1.Format(parameterName));

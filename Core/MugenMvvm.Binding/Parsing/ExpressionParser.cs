@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Parsing
             for (var i = 0; i < parsers.Length; i++)
             {
                 var result = parsers[i].TryParse(expression, metadata);
-                if (!result.Item.IsEmpty || result.IsList)
+                if (!result.Item.IsEmpty || result.List != null)
                     return result;
             }
 

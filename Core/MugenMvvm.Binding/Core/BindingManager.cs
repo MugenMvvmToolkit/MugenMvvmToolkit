@@ -95,19 +95,19 @@ namespace MugenMvvm.Binding.Core
         protected virtual void OnComponentAdded(IComponentCollection<IComponent<IBindingManager>> collection,
             IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref BindingBuilders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref ExpressionBuilders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref Holders, this, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnAdded(ref StateDispatchers, this, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref BindingBuilders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref ExpressionBuilders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref Holders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref StateDispatchers, collection, component);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
             IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref BindingBuilders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref ExpressionBuilders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref Holders, collection, component, metadata);
-            MugenExtensions.ComponentTrackerOnRemoved(ref StateDispatchers, collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref BindingBuilders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref ExpressionBuilders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref Holders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref StateDispatchers, component);
         }
 
         protected virtual ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpressionInternal<T>(in T expression,
@@ -152,33 +152,8 @@ namespace MugenMvvm.Binding.Core
             for (var i = 0; i < holders.Length; i++)
             {
                 var bindings = holders[i].TryGetBindings(target, path, metadata);
-                if (bindings.IsNullOrEmpty())
-                    continue;
-
-                if (bindings.List == null)
-                {
-                    if (item == null)
-                        item = bindings.Item;
-                    else
-                    {
-                        if (list == null)
-                            list = new List<IBinding> { item };
-                        list.Add(bindings.Item!);
-                    }
-                }
-                else
-                {
-                    if (list == null)
-                    {
-                        list = new List<IBinding>();
-                        if (item != null)
-                            list.Add(item);
-                    }
-
-                    list.AddRange(bindings.List);
-                }
+                bindings.Merge(ref item, ref list);
             }
-
             if (list == null)
                 return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(item);
             return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(list);
