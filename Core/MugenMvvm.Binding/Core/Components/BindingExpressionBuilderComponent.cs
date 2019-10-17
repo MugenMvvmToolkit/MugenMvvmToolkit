@@ -145,14 +145,6 @@ namespace MugenMvvm.Binding.Core.Components
         private BindingExpressionBase GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
             ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
-            var targetInterceptors = _targetInterceptors;
-            for (var i = 0; i < targetInterceptors.Length; i++)
-                targetExpression = targetInterceptors[i].InterceptTargetExpression(targetExpression, metadata);
-
-            var sourceInterceptors = _sourceInterceptors;
-            for (var i = 0; i < sourceInterceptors.Length; i++)
-                sourceExpression = sourceInterceptors[i].InterceptSourceExpression(sourceExpression, metadata);
-
             if (!parameters.IsNullOrEmpty())
             {
                 var interceptors = _parameterInterceptors;
@@ -162,6 +154,14 @@ namespace MugenMvvm.Binding.Core.Components
                     interceptors[i].InterceptParameterExpression(parameters, metadata).Merge(ref expression, ref nodes);
                 parameters = nodes ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(expression);
             }
+
+            var targetInterceptors = _targetInterceptors;
+            for (var i = 0; i < targetInterceptors.Length; i++)
+                targetExpression = targetInterceptors[i].InterceptTargetExpression(targetExpression, parameters, metadata);
+
+            var sourceInterceptors = _sourceInterceptors;
+            for (var i = 0; i < sourceInterceptors.Length; i++)
+                sourceExpression = sourceInterceptors[i].InterceptSourceExpression(sourceExpression, parameters, metadata);
 
             if (!(targetExpression is IBindingMemberExpression targetMember))
             {

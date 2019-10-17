@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             _members.Clear();
         }
 
-        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)
+        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)//todo allow to use as indexer
         {
             IExpressionNode? member;
             if (methodCall.Target == null)
@@ -94,6 +94,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             if (!_members.TryGetValue(path, out var node))
             {
+                node = new ParameterExpression("p" + _members.Count, _members.Count);
                 //                node = new BindingMemberExpression(path, _members.Count);//todo fix
                 _members[path] = node;
             }

@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers
 
         private readonly IBindingMemberInfo? _lastMember;
         private readonly IMemberPath _path;
-        private readonly object? _penultimateValue;
+        private readonly object? _source;
 
         #endregion
 
@@ -25,15 +25,15 @@ namespace MugenMvvm.Binding.Observers
         {
             Should.NotBeNull(path, nameof(path));
             _path = path;
-            _penultimateValue = null;
+            _source = null;
             _lastMember = null;
         }
 
-        public MemberPathLastMember(IMemberPath path, object? penultimateValue, IBindingMemberInfo lastMember)
+        public MemberPathLastMember(IMemberPath path, object? source, IBindingMemberInfo lastMember)
         {
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(lastMember, nameof(lastMember));
-            _penultimateValue = penultimateValue;
+            _source = source;
             _lastMember = lastMember;
             _path = path;
         }
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Observers
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(exception, nameof(exception));
             _path = path;
-            _penultimateValue = exception;
+            _source = exception;
             _lastMember = null;
         }
 
@@ -60,18 +60,18 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_lastMember == null)
-                    return (Exception?)_penultimateValue;
+                    return (Exception?)_source;
                 return null;
             }
         }
 
-        public object? PenultimateValue
+        public object? Source
         {
             get
             {
                 if (_lastMember == null)
                     return BindingMetadata.UnsetValue;
-                return _penultimateValue;
+                return _source;
             }
         }
 
@@ -97,12 +97,12 @@ namespace MugenMvvm.Binding.Observers
 
         public object? GetLastMemberValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IBindingPropertyInfo)LastMember).GetValue(PenultimateValue, metadata);
+            return ((IBindingPropertyInfo)LastMember).GetValue(Source, metadata);
         }
 
         public void SetLastMemberValue(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IBindingPropertyInfo)LastMember).SetValue(PenultimateValue, value, metadata);
+            ((IBindingPropertyInfo)LastMember).SetValue(Source, value, metadata);
         }
 
         #endregion

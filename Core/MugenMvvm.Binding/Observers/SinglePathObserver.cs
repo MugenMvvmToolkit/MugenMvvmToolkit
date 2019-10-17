@@ -9,16 +9,17 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class SinglePathObserver : ObserverBase, IEventListener, IWeakReferenceHolder
+    public class SinglePathObserver : ObserverBase, IEventListener, IWeakReferenceHolder
     {
         #region Fields
+
+        protected readonly MemberFlags MemberFlags;
 
         private Exception? _exception;
         private IBindingMemberInfo? _lastMember;
         private IDisposable? _lastMemberUnsubscriber;
 
         private byte _state;
-        private readonly MemberFlags _memberFlags;
 
         #endregion
 
@@ -28,7 +29,7 @@ namespace MugenMvvm.Binding.Observers
             : base(source)
         {
             Should.NotBeNull(path, nameof(path));
-            _memberFlags = memberFlags;
+            MemberFlags = memberFlags;
             if (observable)
                 _state |= ObservableFlag;
             if (optional)
@@ -46,9 +47,9 @@ namespace MugenMvvm.Binding.Observers
 
         public IWeakReference? WeakReference { get; set; }
 
-        private bool Observable => CheckFlag(ObservableFlag);
+        protected bool Observable => CheckFlag(ObservableFlag);
 
-        private bool Optional => CheckFlag(OptionalFlag);
+        protected bool Optional => CheckFlag(OptionalFlag);
 
         private bool IsInitialized
         {
@@ -109,23 +110,18 @@ namespace MugenMvvm.Binding.Observers
                 if (source == null)
                     _lastMemberUnsubscriber = Default.Disposable;
                 else
-                    Subscribe(source, _lastMember);
+                    SubscribeLastMember(source, _lastMember);
             }
         }
 
         protected override void OnListenersRemoved()
         {
-            if (_lastMemberUnsubscriber != null)
-            {
-                _lastMemberUnsubscriber?.Dispose();
-                _lastMemberUnsubscriber = null;
-            }
+            UnsubscribeLastMember();
         }
 
         protected override void OnDisposed()
         {
-            _lastMemberUnsubscriber?.Dispose();
-            _lastMemberUnsubscriber = null;
+            UnsubscribeLastMember();
             _lastMember = null;
             _exception = null;
         }
@@ -156,7 +152,7 @@ namespace MugenMvvm.Binding.Observers
 
                 _lastMember = MugenBindingService
                     .MemberProvider
-                    .GetMember(source.GetType(), Path.Path, BindingMemberType.Event | BindingMemberType.Field | BindingMemberType.Property, _memberFlags);
+                    .GetMember(source as Type ?? source.GetType(), Path.Path, BindingMemberType.Event | BindingMemberType.Field | BindingMemberType.Property, MemberFlags);
                 if (_lastMember == null)
                 {
                     if (Optional)
@@ -167,7 +163,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 if (Observable && HasListeners)
-                    Subscribe(source, _lastMember);
+                    SubscribeLastMember(source, _lastMember);
                 SetLastMember(_lastMember, _exception);
             }
             catch (Exception e)
@@ -184,10 +180,16 @@ namespace MugenMvvm.Binding.Observers
             OnLastMemberChanged();
         }
 
-        private void Subscribe(object source, IBindingMemberInfo? lastMember)
+        protected virtual void SubscribeLastMember(object source, IBindingMemberInfo? lastMember)
         {
             _lastMemberUnsubscriber?.Dispose();
-            _lastMemberUnsubscriber = (lastMember as IBindingPropertyInfo)?.TryObserve(source, this) ?? Default.Disposable;
+            _lastMemberUnsubscriber = (lastMember as IObservableBindingMemberInfo)?.TryObserve(source, this) ?? Default.Disposable;
+        }
+
+        protected virtual void UnsubscribeLastMember()
+        {
+            _lastMemberUnsubscriber?.Dispose();
+            _lastMemberUnsubscriber = null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -9,12 +9,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class MultiPathObserver : ObserverBase, IEventListener, IWeakReferenceHolder
+    public class MultiPathObserver : ObserverBase, IEventListener, IWeakReferenceHolder
     {
         #region Fields
 
         private readonly IDisposable?[]? _listeners;
-        private readonly MemberFlags _memberFlags;
+        protected readonly MemberFlags MemberFlags;
         private Exception? _exception;
         private IEventListener? _lastMemberListener;
         private IBindingMemberInfo[]? _members;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Observers
             MemberFlags memberFlags, bool hasStablePath, bool observable, bool optional)
             : base(source)
         {
-            _memberFlags = memberFlags;
+            MemberFlags = memberFlags;
             if (hasStablePath)
                 _state |= HasStablePathFlag;
             if (optional)
@@ -50,9 +50,9 @@ namespace MugenMvvm.Binding.Observers
 
         public IWeakReference? WeakReference { get; set; }
 
-        private bool HasStablePath => CheckFlag(HasStablePathFlag);
+        protected bool HasStablePath => CheckFlag(HasStablePathFlag);
 
-        private bool Optional => CheckFlag(OptionalFlag);
+        protected bool Optional => CheckFlag(OptionalFlag);
 
         private bool IsInitialized
         {
@@ -112,27 +112,21 @@ namespace MugenMvvm.Binding.Observers
             UpdateIfNeed();
             if (_listeners != null && _members != null && _listeners[_listeners.Length - 1] == null && _penultimateValue != null)
             {
-                var target = _penultimateValue.Target;
-                if (target != null)
-                    _listeners[_listeners.Length - 1] =
-                        (_members[_members.Length - 1] as IObservableBindingMemberInfo)?.TryObserve(target, GetLastMemberListener()) ?? Default.Disposable;
+                var source = _penultimateValue.Target;
+                if (source != null)
+                    SubscribeLastMember(source, _members[_members.Length - 1]);
             }
         }
 
         protected override void OnListenersRemoved()
         {
-            var listeners = _listeners;
-            var listener = listeners?[listeners.Length - 1];
-            if (listener != null)
-            {
-                listener.Dispose();
-                listeners![listeners.Length - 1] = null;
-            }
+            UnsubscribeLastMember();
         }
 
         protected override void OnDisposed()
         {
             ClearListeners();
+            UnsubscribeLastMember();
             _penultimateValue?.Release();
             _penultimateValue = null;
             _members = null;
@@ -172,10 +166,11 @@ namespace MugenMvvm.Binding.Observers
                 var members = new IBindingMemberInfo[paths.Length];
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
-                var memberFlags = _memberFlags;
+                var memberFlags = MemberFlags;
+                var type = source as Type ?? source.GetType();
                 for (var i = 0; i < members.Length; i++)
                 {
-                    var member = provider.GetMember(source!.GetType(), paths[i],
+                    var member = provider.GetMember(type, paths[i],
                         i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event, memberFlags);
                     if (i == 1)
                         memberFlags &= ~MemberFlags.Static;
@@ -201,6 +196,8 @@ namespace MugenMvvm.Binding.Observers
                         SetMembers(null, null, null);
                         return true;
                     }
+
+                    type = source!.GetType();
                 }
 
                 if (_listeners != null && HasListeners)
@@ -233,9 +230,8 @@ namespace MugenMvvm.Binding.Observers
                 }
             }
 
-            if (_listeners != null && HasListeners)
-                _listeners[_listeners.Length - 1] =
-                    (members[members.Length - 1] as IObservableBindingMemberInfo)?.TryObserve(source, GetLastMemberListener()) ?? Default.Disposable;
+            if (_listeners != null && HasListeners && _members != null)
+                SubscribeLastMember(source, _members[_members.Length - 1]);
 
             SetMembers(source.ToWeakReference(), members, null);
         }
@@ -248,7 +244,7 @@ namespace MugenMvvm.Binding.Observers
             OnPathMembersChanged();
         }
 
-        private IEventListener GetLastMemberListener()
+        protected IEventListener GetLastMemberListener()
         {
             if (_lastMemberListener == null)
                 _lastMemberListener = new LastMemberListener(this.ToWeakReference());
@@ -264,6 +260,22 @@ namespace MugenMvvm.Binding.Observers
                     _listeners[index]?.Dispose();
                     _listeners[index] = null;
                 }
+            }
+        }
+
+        protected virtual void SubscribeLastMember(object source, IBindingMemberInfo? lastMember)
+        {
+            if (_listeners != null)
+                _listeners[_listeners.Length - 1] = (lastMember as IObservableBindingMemberInfo)?.TryObserve(source, GetLastMemberListener()) ?? Default.Disposable;
+        }
+
+        protected virtual void UnsubscribeLastMember()
+        {
+            var listener = _listeners?[_listeners.Length - 1];
+            if (listener != null)
+            {
+                listener.Dispose();
+                _listeners![_listeners.Length - 1] = null;
             }
         }
 

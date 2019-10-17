@@ -139,7 +139,7 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        protected void OnLastMemberChanged()
+        protected virtual void OnLastMemberChanged()
         {
             try
             {

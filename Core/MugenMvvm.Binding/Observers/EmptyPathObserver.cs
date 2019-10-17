@@ -45,20 +45,20 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            var target = _source?.Target;
-            if (target == null)
+            var source = _source?.Target;
+            if (source == null)
                 return default;
 
-            return new MemberPathMembers(Path, target, target, ConstantBindingMemberInfo.NullArray, ConstantBindingMemberInfo.Null);
+            return new MemberPathMembers(Path, source, source, ConstantBindingMemberInfo.NullArray, ConstantBindingMemberInfo.Null);
         }
 
         public MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            var target = _source?.Target;
-            if (target == null)
+            var source = _source?.Target;
+            if (source == null)
                 return default;
 
-            return new MemberPathLastMember(Path, target, ConstantBindingMemberInfo.Null);
+            return new MemberPathLastMember(Path, source, ConstantBindingMemberInfo.Null);
         }
 
         public void Dispose()

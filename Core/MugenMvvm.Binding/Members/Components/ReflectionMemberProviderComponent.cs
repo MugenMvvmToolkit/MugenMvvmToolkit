@@ -163,6 +163,8 @@ namespace MugenMvvm.Binding.Members.Components
                     break;
             }
 
+            //todo add method -> property with simple args
+
             foreach (var methodInfo in type.GetMethodsUnified(MemberFlags.All))
             {
                 if (methodInfo.Name.Equals(name))
