@@ -7,13 +7,13 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IAttachedValueProvider
     {
-        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, string, TState, bool>? predicate = null)
+        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, string, object?, TState, bool>? predicate = null)
             where TItem : class;
 
         bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhen(true)] out TValue value)
             where TItem : class;
 
-        bool Contains<TItem>(TItem item, string path);
+        bool Contains<TItem>(TItem item, string path) where TItem : class;
 
         TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
             UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)

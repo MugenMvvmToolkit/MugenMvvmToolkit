@@ -48,10 +48,10 @@ namespace MugenMvvm.Internal
             if (item is IWeakReference w)
                 return w;
 
-            var holder = item as IWeakReferenceHolder;
+            var holder = item as IValueHolder<IWeakReference>;
             if (holder != null)
             {
-                var weakReference = holder.WeakReference;
+                var weakReference = holder.Value;
                 if (weakReference != null)
                     return weakReference;
             }
@@ -63,7 +63,7 @@ namespace MugenMvvm.Internal
                 if (weakReference != null)
                 {
                     if (holder != null)
-                        holder.WeakReference = weakReference;
+                        holder.Value = weakReference;
                     return weakReference;
                 }
             }

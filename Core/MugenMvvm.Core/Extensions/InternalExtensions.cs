@@ -16,6 +16,11 @@ namespace MugenMvvm
     {
         #region Methods
 
+        internal static void ReleaseWeakReference(this IValueHolder<IWeakReference> valueHolder)
+        {
+            valueHolder.Value?.Release();
+        }
+
         internal static IWeakReference ToWeakReference(this object? item)
         {
             return MugenService.WeakReferenceProvider.GetWeakReference(item);

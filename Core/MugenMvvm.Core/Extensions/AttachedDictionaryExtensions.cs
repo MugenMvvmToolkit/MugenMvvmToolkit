@@ -10,16 +10,6 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem>(this IAttachedValueManager valueManager, TItem item, Func<TItem, string, object?, bool>? predicate)
-            where TItem : class
-        {
-            Should.NotBeNull(valueManager, nameof(valueManager));
-            var provider = valueManager.GetAttachedValueProvider(item);
-            if (provider == null)
-                return Default.EmptyArray<KeyValuePair<string, object?>>();
-            return provider.GetValues(item, predicate);
-        }
-
         public static bool TryGetValue<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, out TValue value)
             where TItem : class
         {

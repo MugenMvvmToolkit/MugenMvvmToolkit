@@ -34,8 +34,8 @@ namespace MugenMvvm.Internal
             var components = _components;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out var dict))
-                    return dict!;
+                if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out var provider))
+                    return provider!;
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAttachedValueManagerComponent).Name);
@@ -48,8 +48,8 @@ namespace MugenMvvm.Internal
             var components = _components;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetAttachedValueProvider(item, metadata, out var dict))
-                    return dict;
+                if (components[i].TryGetAttachedValueProvider(item, metadata, out var provider))
+                    return provider;
             }
 
             return null;

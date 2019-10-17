@@ -8,7 +8,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands
 {
-    public class MediatorCommand : IMediatorCommand, IWeakReferenceHolder
+    public class MediatorCommand : IMediatorCommand, IValueHolder<IWeakReference>
     {
         #region Fields
 
@@ -46,7 +46,7 @@ namespace MugenMvvm.Commands
             }
         }
 
-        IWeakReference? IWeakReferenceHolder.WeakReference { get; set; }
+        IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         public bool IsSuspended => Mediator.IsSuspended;
 
