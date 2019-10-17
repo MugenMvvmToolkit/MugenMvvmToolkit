@@ -5,7 +5,7 @@ namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ItemOrList<TItem, TList>
-        where TList : class, IEnumerable<TItem>
+        where TList : class, IReadOnlyList<TItem>
     {
         #region Fields
 
@@ -24,15 +24,23 @@ namespace MugenMvvm.Internal
 
         public ItemOrList(TList list)
         {
-            List = list;
-            Item = default!;
+            var count = list.Count;
+            if (count == 0)
+            {
+                List = default;
+                Item = default!;
+            }
+            else if (count == 1)
+            {
+                List = default;
+                Item = list[0];
+            }
+            else
+            {
+                List = list;
+                Item = default!;
+            }
         }
-
-        #endregion
-
-        #region Properties
-
-        public bool IsList => List != null;
 
         #endregion
 

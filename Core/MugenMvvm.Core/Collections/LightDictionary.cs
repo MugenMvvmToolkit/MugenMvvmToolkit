@@ -236,6 +236,42 @@ namespace MugenMvvm.Collections
             return result;
         }
 
+        public TKey[] KeysToArray()
+        {
+            if (_buckets == null)
+                RestoreState();
+            if (_count == 0)
+                return Default.EmptyArray<TKey>();
+            var result = new TKey[Count];
+            var index = 0;
+            for (var i = 0; i < _count; i++)
+            {
+                var entry = _entries[i];
+                if (entry.HashCode >= 0)
+                    result[index++] = entry.Key;
+            }
+
+            return result;
+        }
+
+        public TValue[] ValuesToArray()
+        {
+            if (_buckets == null)
+                RestoreState();
+            if (_count == 0)
+                return Default.EmptyArray<TValue>();
+            var result = new TValue[Count];
+            var index = 0;
+            for (var i = 0; i < _count; i++)
+            {
+                var entry = _entries[i];
+                if (entry.HashCode >= 0)
+                    result[index++] = entry.Value;
+            }
+
+            return result;
+        }
+
         public void Clone(LightDictionary<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
         {
             clone._buckets = _buckets?.ToArray()!;

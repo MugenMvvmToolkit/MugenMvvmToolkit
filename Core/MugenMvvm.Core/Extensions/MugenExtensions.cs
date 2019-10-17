@@ -19,18 +19,43 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool IsNull<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class?, IEnumerable<TItem>
+        public static void Merge<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)
+            where TItem : class
+            where TList : class?, IReadOnlyList<TItem>
         {
-            return itemOrList.Item == null && itemOrList.List == null;
+            var list = itemOrList.List;
+            var item = itemOrList.Item;
+            if (item == null && list == null)
+                return;
+
+            if (list == null)
+            {
+                if (currentItem == null)
+                    currentItem = item;
+                else
+                {
+                    if (items == null)
+                        items = new List<TItem>();
+                    if (items.Count == 0)
+                        items.Add(currentItem);
+                    items.Add(item!);
+                }
+            }
+            else
+            {
+                if (items == null)
+                    items = new List<TItem>();
+                if (currentItem != null && items.Count == 0)
+                    items.Add(currentItem);
+                items.AddRange(list);
+            }
         }
 
         public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
             where TList : class?, IReadOnlyList<TItem>
         {
-            return itemOrList.Item == null && (itemOrList.List == null || itemOrList.List.Count == 0);
+            return itemOrList.Item == null && itemOrList.List == null;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

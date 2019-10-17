@@ -78,10 +78,10 @@ namespace MugenMvvm.Metadata.Components
 
             IEnumerator IEnumerable.GetEnumerator()
             {
-                return ((IReadOnlyMetadataContext)this).GetEnumerator();
+                return GetEnumerator();
             }
 
-            IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
+            public new IEnumerator<MetadataContextValue> GetEnumerator()
             {
                 return this.Select(MetadataContextValue.CreateDelegate).GetEnumerator();
             }
