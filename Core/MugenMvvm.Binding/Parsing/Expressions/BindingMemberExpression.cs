@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public bool HasStablePath { get; set; }
 
-        public bool Observable { get; set; }
+        public bool Observable { get; set; } = true;
 
         public bool Optional { get; set; }
 

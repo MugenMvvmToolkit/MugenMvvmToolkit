@@ -27,7 +27,6 @@ namespace MugenMvvm.Binding.Observers
         {
             Should.NotBeNull(source, nameof(source));
             _source = source;
-            _listeners = Default.EmptyArray<IMemberPathObserverListener>();
         }
 
         #endregion
