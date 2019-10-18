@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Collections;
@@ -6,6 +7,7 @@ using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -259,7 +261,7 @@ namespace MugenMvvm.Messaging
             #endregion
         }
 
-        private sealed class MessageThreadExecutor : List<object>, IHasStateThreadDispatcherHandler
+        private sealed class MessageThreadExecutor : List<object>, IThreadDispatcherHandler, IValueHolder<Delegate>
         {
             #region Fields
 
@@ -278,7 +280,7 @@ namespace MugenMvvm.Messaging
 
             #region Properties
 
-            object? IHasStateThreadDispatcherHandler.State { get; set; }
+            Delegate IValueHolder<Delegate>.Value { get; set; }
 
             #endregion
 

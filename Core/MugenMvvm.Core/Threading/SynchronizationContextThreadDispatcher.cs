@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 
@@ -51,12 +52,12 @@ namespace MugenMvvm.Threading
                     _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o).Execute(null), handler);
                 else
                 {
-                    if (handler is IHasStateThreadDispatcherHandler hasState)
+                    if (handler is IValueHolder<Delegate> valueHolder)
                     {
-                        if (!(hasState.State is SendOrPostCallback sendOrPostCallback))
+                        if (!(valueHolder.Value is SendOrPostCallback sendOrPostCallback))
                         {
                             sendOrPostCallback = handler.Execute;
-                            hasState.State = sendOrPostCallback;
+                            valueHolder.Value = sendOrPostCallback;
                         }
                         _synchronizationContext.Post(sendOrPostCallback, state);
                     }
