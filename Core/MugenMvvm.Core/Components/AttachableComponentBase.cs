@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public abstract class AttachableComponentBase<T> : IAttachableComponent<T>, IDetachableComponent<T> where T : class
+    public abstract class AttachableComponentBase<T> : IAttachableComponent, IDetachableComponent where T : class
     {
         #region Fields
 
@@ -34,36 +34,39 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        public bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
+        public bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(owner, nameof(owner));
-            return OnAttachingInternal(owner, metadata);
+            if (owner is T o)
+                return OnAttachingInternal(o, metadata);
+            return true;
         }
 
-        public void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
+        public void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(owner, nameof(owner));
+            if (!(owner is T o))
+                return;
+
             if (Interlocked.CompareExchange(ref _state, AttachedState, DetachedState) != DetachedState)
                 ExceptionManager.ThrowObjectInitialized(this);
 
-            Owner = owner;
-            OnAttachedInternal(owner, metadata);
+            Owner = o;
+            OnAttachedInternal(o, metadata);
         }
 
-        public bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
+        public bool OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(owner, nameof(owner));
-            return OnDetachingInternal(owner, metadata);
+            if (owner is T o)
+                return OnDetachingInternal(o, metadata);
+            return true;
         }
 
-        public void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
+        public void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(owner, nameof(owner));
-            if (Interlocked.Exchange(ref _state, DetachedState) == DetachedState)
-                return;
-
-            OnDetachedInternal(owner, metadata);
-            Owner = null!;
+            if (owner is T o && ReferenceEquals(Owner, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
+            {
+                OnDetachedInternal(o, metadata);
+                Owner = null!;
+            }
         }
 
         #endregion
