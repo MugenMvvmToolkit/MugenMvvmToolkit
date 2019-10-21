@@ -20,7 +20,8 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MemberPathObserverRequest(object target, IMemberPath path, MemberFlags memberFlags, string? observableMethodName, bool hasStablePath, bool observable, bool optional, object? state = null)
+        public MemberPathObserverRequest(object target, IMemberPath path, MemberFlags memberFlags, string? observableMethodName, 
+            bool hasStablePath, bool observable, bool optional, object? state = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));

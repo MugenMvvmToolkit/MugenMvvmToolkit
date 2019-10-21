@@ -1,9 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
@@ -15,6 +19,69 @@ namespace MugenMvvm.Binding
     public static partial class BindingMugenExtensions
     {
         #region Methods
+
+        public static bool TryBuildBindingMember(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
+        {
+            Should.NotBeNull(builder, nameof(builder));
+            firstExpression = null;
+            builder.Clear();
+            if (target == null)
+                return false;
+            while (target != null)
+            {
+                firstExpression = target;
+                if (target is IMemberExpressionNode memberExpressionNode)
+                {
+                    var memberName = memberExpressionNode.MemberName.Trim();
+                    builder.Insert(0, memberName);
+                    if (memberExpressionNode.Target != null)
+                        builder.Insert(0, '.');
+                    target = memberExpressionNode.Target;
+                }
+                else
+                {
+                    if (target is IIndexExpressionNode indexExpressionNode && indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant))
+                    {
+                        IEnumerable<string> args = indexExpressionNode
+                            .Arguments
+                            .Cast<IConstantExpressionNode>()
+                            .Select(node => node.Value.ToStringValue());
+                        builder.Insert(0, "[" + string.Join(",", args).Trim() + "]");
+                        target = indexExpressionNode.Target;
+                    }
+                    else if (target is IMethodCallExpressionNode methodCallExpression && methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant))
+                    {
+                        IEnumerable<string> args = methodCallExpression
+                            .Arguments
+                            .Cast<IConstantExpressionNode>()
+                            .Select(node => node.Value.ToStringValue());
+                        builder.Insert(0, "(" + string.Join(",", args).Trim() + ")");
+                        target = methodCallExpression.Target;
+                    }
+                    else
+                    {
+                        if (builder.Length != 0 && builder[0] == '.')
+                            builder.Remove(0, 1);
+                        return false;
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        public static bool IsMacros(this IUnaryExpressionNode? expression)
+        {
+            if (expression == null)
+                return false;
+            return expression.Token == UnaryTokenType.DynamicExpression || expression.Token == UnaryTokenType.StaticExpression;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlagEx(this BindingMemberExpressionFlags value, BindingMemberExpressionFlags flag)
+        {
+            return (value & flag) == flag;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BindingMemberType value, BindingMemberType flag)

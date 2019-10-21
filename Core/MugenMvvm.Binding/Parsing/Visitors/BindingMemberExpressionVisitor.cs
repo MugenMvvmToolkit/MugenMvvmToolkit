@@ -1,19 +1,20 @@
 ﻿using System.Text;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Collections.Internal;
+using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
-    public class BindingMemberExpressionVisitor : IExpressionVisitor //todo relativesource visitor, resource visitor
+    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor //todo relativesource visitor, resource visitor
     {
         #region Fields
 
         private readonly StringBuilder _memberNameBuilder;
-        private readonly StringOrdinalLightDictionary<IExpressionNode> _members;
+        private readonly MemberDictionary _members;
         private readonly IObserverProvider? _observerProvider;
 
         #endregion
@@ -23,7 +24,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null)
         {
             _observerProvider = observerProvider;
-            _members = new StringOrdinalLightDictionary<IExpressionNode>(3);
+            _members = new MemberDictionary();
             _memberNameBuilder = new StringBuilder();
         }
 
@@ -50,6 +51,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             if (node is IIndexExpressionNode indexExpression)
                 return VisitIndexExpression(indexExpression);
 
+            if (node is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
+                return GetOrAddBindingParameter(node, null) ?? node;
+
             return node;
         }
 
@@ -62,11 +66,14 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             _members.Clear();
         }
 
-        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall) //todo allow to use as indexer
+        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)
         {
-            IExpressionNode? member;
+            var member = GetOrAddBindingParameter(methodCall, null);
+            if (member != null)
+                return member;
+
             if (methodCall.Target == null)
-                member = GetOrAddBindingParameter(string.Empty, methodCall.MethodName);
+                member = GetOrAddBindingParameter(string.Empty, 0, methodCall.MethodName);
             else
             {
                 member = GetOrAddBindingParameter(methodCall.Target, methodCall.MethodName);
@@ -91,20 +98,91 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private IExpressionNode? GetOrAddBindingParameter(IExpressionNode target, string? methodName)
         {
-            if (target.TryBuildBindingMember(_memberNameBuilder, out _))
-                return GetOrAddBindingParameter(_memberNameBuilder.ToString(), methodName);
+            if (target.TryBuildBindingMember(_memberNameBuilder, out var firstExpression))
+                return GetOrAddBindingParameter(_memberNameBuilder.ToString(), 0, methodName);
+
+            if (firstExpression is UnaryExpressionNode unaryExpression && unaryExpression.IsMacros() &&
+                unaryExpression.Operand is IMemberExpressionNode memberExpression)
+            {
+                //$target, $self, $this
+                if (memberExpression.MemberName == "target" || memberExpression.MemberName == "self" || memberExpression.MemberName == "this")
+                    return GetOrAddBindingParameter(_memberNameBuilder.ToString(), BindingMemberExpressionFlags.TargetOnly, methodName);
+
+                //$source
+                if (memberExpression.MemberName == "source")
+                    return GetOrAddBindingParameter(_memberNameBuilder.ToString(), BindingMemberExpressionFlags.SourceOnly, methodName);
+
+                //$context
+                if (memberExpression.MemberName == "context")
+                    return GetOrAddBindingParameter(_memberNameBuilder.ToString(), BindingMemberExpressionFlags.ContextOnly, methodName);
+            }
+
             return null;
         }
 
-        private IExpressionNode GetOrAddBindingParameter(string path, string? methodName)
+        private IExpressionNode GetOrAddBindingParameter(string path, BindingMemberExpressionFlags flags, string? methodName)
         {
-            if (!_members.TryGetValue(path, out var node))
+            var key = new CacheKey(path, flags);
+            if (!_members.TryGetValue(key, out var node))
             {
                 node = new BindingMemberExpression(path, MemberFlags & ~MemberFlags.Static, methodName, _observerProvider);
-                _members[path] = node;
+                node.Flags |= flags;
+                _members[key] = node;
             }
 
             return node;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class MemberDictionary : LightDictionary<CacheKey, IBindingMemberExpression>
+        {
+            #region Constructors
+
+            public MemberDictionary() : base(3)
+            {
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override bool Equals(CacheKey x, CacheKey y)
+            {
+                return x.Path == y.Path && x.Flags == y.Flags;
+            }
+
+            protected override int GetHashCode(CacheKey key)
+            {
+                unchecked
+                {
+                    return key.Path.GetHashCode() * 397 ^ ((short)key.Flags).GetHashCode();
+                }
+            }
+
+            #endregion
+        }
+
+        private readonly struct CacheKey
+        {
+            #region Fields
+
+            public readonly string Path;
+            public readonly BindingMemberExpressionFlags Flags;
+
+            #endregion
+
+            #region Constructors
+
+            public CacheKey(string path, BindingMemberExpressionFlags flags)
+            {
+                Path = path;
+                Flags = flags;
+            }
+
+            #endregion
         }
 
         #endregion

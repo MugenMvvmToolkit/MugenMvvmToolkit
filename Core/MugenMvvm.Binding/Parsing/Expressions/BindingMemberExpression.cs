@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
-    public class BindingMemberExpression : ParameterExpression, IBindingMemberExpression
+    public sealed class BindingMemberExpression : ParameterExpression, IBindingMemberExpression
     {
         #region Fields
 
@@ -33,15 +33,23 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public bool HasStablePath { get; set; }
-
-        public bool Observable { get; set; } = true;
-
-        public bool Optional { get; set; }
+        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
 
         public MemberFlags MemberFlags { get; set; }
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.BindingMember;
+
+        private bool HasStablePath => Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath);
+
+        private bool Observable => Flags.HasFlagEx(BindingMemberExpressionFlags.Observable);
+
+        private bool Optional => Flags.HasFlagEx(BindingMemberExpressionFlags.Optional);
+
+        private bool TargetOnly => Flags.HasFlagEx(BindingMemberExpressionFlags.TargetOnly);
+
+        private bool SourceOnly => Flags.HasFlagEx(BindingMemberExpressionFlags.SourceOnly);
+
+        private bool ContextOnly => Flags.HasFlagEx(BindingMemberExpressionFlags.ContextOnly);
 
         #endregion
 
@@ -52,15 +60,25 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Index = index;
         }
 
-        public virtual IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var provider = _observerProvider.ServiceIfNull();
-            return provider.GetMemberPathObserver(target,
-                new MemberPathObserverRequest(target, GetPath(provider, target, metadata), MemberFlags, _observableMethodName, HasStablePath, Observable, Optional), metadata);
+            return GetSourceObserver(target, target, metadata);
         }
 
-        public virtual IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
+            if (TargetOnly)
+                source = target;
+            else if (SourceOnly)
+            {
+                if (source == null)
+                    source = target;
+                else
+                    target = source;
+            }
+            else if (ContextOnly)
+                source = null;
+
             var provider = _observerProvider.ServiceIfNull();
             return provider.GetMemberPathObserver(source ?? target,
                 new MemberPathObserverRequest(source ?? target, GetPath(provider, source, metadata), MemberFlags, _observableMethodName, HasStablePath, Observable, Optional), metadata);
@@ -70,7 +88,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        protected IMemberPath GetPath(IObserverProvider provider, object? source, IReadOnlyMetadataContext? metadata)
+        private IMemberPath GetPath(IObserverProvider provider, object? source, IReadOnlyMetadataContext? metadata)
         {
             if (source == null)
             {
@@ -79,9 +97,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
                 string path;
                 if (Name.StartsWith("[", StringComparison.Ordinal))
-                    path = GetEmptySourcePath() + Name;
+                    path = BindableMembers.Object.DataContext + Name;
                 else
-                    path = GetEmptySourcePath() + "." + Name;
+                    path = BindableMembers.Object.DataContext + "." + Name;
                 _dataContextMemberPath = provider.GetMemberPath(path, metadata);
                 return _dataContextMemberPath;
             }
@@ -89,11 +107,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (_memberPath == null)
                 _memberPath = provider.GetMemberPath(Name, metadata);
             return _memberPath;
-        }
-
-        protected virtual string GetEmptySourcePath()
-        {
-            return BindableMembers.Object.DataContext;
         }
 
         #endregion
