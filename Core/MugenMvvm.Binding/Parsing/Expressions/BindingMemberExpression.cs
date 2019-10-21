@@ -52,14 +52,14 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Index = index;
         }
 
-        public virtual IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext metadata)
+        public virtual IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var provider = _observerProvider.ServiceIfNull();
             return provider.GetMemberPathObserver(target,
                 new MemberPathObserverRequest(target, GetPath(provider, target, metadata), MemberFlags, _observableMethodName, HasStablePath, Observable, Optional), metadata);
         }
 
-        public virtual IMemberPathObserver GetSourceObserver(object target, object source, IReadOnlyMetadataContext metadata)
+        public virtual IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var provider = _observerProvider.ServiceIfNull();
             return provider.GetMemberPathObserver(source ?? target,

@@ -73,7 +73,7 @@ namespace MugenMvvm.Commands.Components
 
         public int Priority { get; set; }
 
-        Delegate IValueHolder<Delegate>.Value { get; set; }
+        Delegate? IValueHolder<Delegate>.Value { get; set; }
 
         #endregion
 

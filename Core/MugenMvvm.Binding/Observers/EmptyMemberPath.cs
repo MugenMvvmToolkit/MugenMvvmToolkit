@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsSingle => false;
 
-        string IValueHolder<string>.Value { get; set; }
+        string? IValueHolder<string>.Value { get; set; }
 
         #endregion
     }

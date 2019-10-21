@@ -144,7 +144,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public bool IsSingle => true;
 
-            string IValueHolder<string>.Value { get; set; }
+            string? IValueHolder<string>.Value { get; set; }
 
             #endregion
         }
@@ -192,7 +192,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public bool IsSingle => false;
 
-            string IValueHolder<string>.Value { get; set; }
+            string? IValueHolder<string>.Value { get; set; }
 
             #endregion
         }

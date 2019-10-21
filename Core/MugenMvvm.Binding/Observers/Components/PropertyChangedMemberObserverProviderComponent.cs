@@ -114,9 +114,9 @@ namespace MugenMvvm.Binding.Observers.Components
 
             #region Implementation of interfaces
 
-            void Unsubscriber.IHandler.Unsubscribe(object state1, object state2)
+            void Unsubscriber.IHandler.Unsubscribe(object? state1, object? state2)
             {
-                var propertyName = (string)state2;
+                var propertyName = (string)state2!;
                 for (var i = 0; i < _listeners.Length; i++)
                 {
                     var pair = _listeners[i];

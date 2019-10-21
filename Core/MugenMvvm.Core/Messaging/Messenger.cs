@@ -280,7 +280,7 @@ namespace MugenMvvm.Messaging
 
             #region Properties
 
-            Delegate IValueHolder<Delegate>.Value { get; set; }
+            Delegate? IValueHolder<Delegate>.Value { get; set; }
 
             #endregion
 

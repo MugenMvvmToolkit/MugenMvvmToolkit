@@ -59,10 +59,10 @@ namespace MugenMvvm.Binding.Observers.Components
             }
 
             if (path.IsSingle)
-                return new MethodSinglePathObserver(observableMethod, targetValue, path, memberFlags, request.Optional);
+                return new MethodSinglePathObserver(observableMethod!, targetValue, path, memberFlags, request.Optional);
             if (path.Members.Length == 0)
-                return new MethodEmptyPathObserver(observableMethod, targetValue, memberFlags);
-            return new MethodMultiPathObserver(observableMethod, targetValue, path, memberFlags, request.HasStablePath, request.Optional);
+                return new MethodEmptyPathObserver(observableMethod!, targetValue, memberFlags);
+            return new MethodMultiPathObserver(observableMethod!, targetValue, path, memberFlags, request.HasStablePath, request.Optional);
         }
 
         #endregion

@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        void Unsubscriber.IHandler.Unsubscribe(object state1, object state2)
+        void Unsubscriber.IHandler.Unsubscribe(object? state1, object? state2)
         {
             if (ReferenceEquals(_listeners, state1))
             {
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Observers
                 _size = 0;
                 _removedSize = 0;
             }
-            else if (_listeners is object[] listeners)
+            else if (_listeners is object?[] listeners)
             {
                 for (var i = 0; i < listeners.Length; i++)
                 {
@@ -127,7 +127,7 @@ namespace MugenMvvm.Binding.Observers
             if (listener == null)
                 return false;
 
-            if (_listeners is object[] listeners)
+            if (_listeners is object?[] listeners)
             {
                 for (var i = 0; i < listeners.Length; i++)
                 {

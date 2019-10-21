@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Observers
         {
         }
 
-        public Unsubscriber(Action<object, object> handler, object? state1, object? state2) : this(handler, state: state1, state2)
+        public Unsubscriber(Action<object?, object?> handler, object? state1, object? state2) : this(handler, state: state1, state2)
         {
         }
 
@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Observers
             if (_handler is IHandler handler)
                 handler.Unsubscribe(_state1, _state2);
             else
-                ((Action<object, object>) _handler).Invoke(_state1, _state2);
+                ((Action<object?, object?>) _handler).Invoke(_state1, _state2);
         }
 
         #endregion
