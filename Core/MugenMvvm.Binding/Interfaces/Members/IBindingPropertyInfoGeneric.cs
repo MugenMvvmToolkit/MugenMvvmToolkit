@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingPropertyInfo<TTarget, TValue> : IBindingPropertyInfo
+    public interface IBindingMemberAccessorInfo<TTarget, TValue> : IBindingMemberAccessorInfo
     {
         TValue GetValue(TTarget target, IReadOnlyMetadataContext? metadata = null);
 

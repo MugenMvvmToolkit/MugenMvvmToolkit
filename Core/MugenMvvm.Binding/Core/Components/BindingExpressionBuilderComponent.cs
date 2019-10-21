@@ -161,7 +161,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             var sourceInterceptors = _sourceInterceptors;
             for (var i = 0; i < sourceInterceptors.Length; i++)
-                sourceExpression = sourceInterceptors[i].InterceptSourceExpression(sourceExpression, parameters, metadata);
+                sourceExpression = sourceInterceptors[i].InterceptSourceExpression(targetExpression, sourceExpression, parameters, metadata);
 
             if (!(targetExpression is IBindingMemberExpression targetMember))
             {

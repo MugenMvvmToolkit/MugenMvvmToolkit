@@ -8,6 +8,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface ISourceExpressionInterceptor : IComponent<IBindingManager>
     {
-        IExpressionNode InterceptSourceExpression(IExpressionNode sourceExpression, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
+        IExpressionNode InterceptSourceExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Observers
         private void AddMethodObserver(object? target, IBindingMemberInfo? lastMember)
         {
             _unsubscriber.Unsubscribe();
-            if (target == null || !(lastMember is IBindingPropertyInfo propertyInfo))
+            if (target == null || !(lastMember is IBindingMemberAccessorInfo propertyInfo))
             {
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
                 return;

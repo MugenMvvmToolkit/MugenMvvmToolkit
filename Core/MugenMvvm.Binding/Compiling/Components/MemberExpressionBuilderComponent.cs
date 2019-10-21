@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private readonly Expression _thisExpression;
 
         private static readonly MethodInfo GetValuePropertyMethod =
-            typeof(IBindingPropertyInfo).GetMethodOrThrow(nameof(IBindingPropertyInfo.GetValue), MemberFlags.InstancePublic);
+            typeof(IBindingMemberAccessorInfo).GetMethodOrThrow(nameof(IBindingMemberAccessorInfo.GetValue), MemberFlags.InstancePublic);
         private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), MemberFlags.InstancePublic);
 
         #endregion
@@ -85,13 +85,13 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (result != null)
                 return result;
 
-            if (!(member is IBindingPropertyInfo propertyInfo))
+            if (!(member is IBindingMemberAccessorInfo propertyInfo))
             {
                 BindingExceptionManager.ThrowInvalidBindingMember(type, memberExpression.MemberName);
                 return null;
             }
 
-            var methodCall = Expression.Call(Expression.Constant(propertyInfo, typeof(IBindingPropertyInfo)),
+            var methodCall = Expression.Call(Expression.Constant(propertyInfo, typeof(IBindingMemberAccessorInfo)),
                 GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataParameter);
             return Expression.Convert(methodCall, propertyInfo.Type);
         }
@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             var property = MugenBindingService
                 .MemberProvider
-                .GetMember(target.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~MemberFlags.Static, metadata) as IBindingPropertyInfo;
+                .GetMember(target.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~MemberFlags.Static, metadata) as IBindingMemberAccessorInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property!.GetValue(target, metadata);

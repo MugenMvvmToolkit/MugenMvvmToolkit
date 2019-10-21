@@ -43,10 +43,10 @@ namespace MugenMvvm.Binding
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingPropertyInfo;
+                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingMemberAccessorInfo;
             if (propertyInfo == null)
                 return defaultValue;
-            if (propertyInfo is IBindingPropertyInfo<TTarget, TValue> p)
+            if (propertyInfo is IBindingMemberAccessorInfo<TTarget, TValue> p)
                 return p.GetValue(target, metadata);
             return (TValue)propertyInfo.GetValue(target, metadata)!;
         }
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingPropertyInfo;
+                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingMemberAccessorInfo;
             if (propertyInfo == null)
             {
                 if (throwOnError)
@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding
                 return;
             }
 
-            if (propertyInfo is IBindingPropertyInfo<TTarget, TValue> p)
+            if (propertyInfo is IBindingMemberAccessorInfo<TTarget, TValue> p)
                 p.SetValue(target, value, metadata);
             else
                 propertyInfo.SetValue(target, value, metadata);

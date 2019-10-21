@@ -191,7 +191,7 @@ namespace MugenMvvm.Binding.Observers
                     if (_listeners != null && member is IObservableBindingMemberInfo observable)
                         _listeners[i] = observable.TryObserve(target, this);
 
-                    target = (member as IBindingPropertyInfo)?.GetValue(target);
+                    target = (member as IBindingMemberAccessorInfo)?.GetValue(target);
                     if (target.IsNullOrUnsetValue())
                     {
                         SetMembers(null, null, null);
@@ -222,7 +222,7 @@ namespace MugenMvvm.Binding.Observers
                 if (_listeners != null && member is IObservableBindingMemberInfo observable)
                     _listeners[index] = observable.TryObserve(target, this);
 
-                target = (member as IBindingPropertyInfo)?.GetValue(target)!;
+                target = (member as IBindingMemberAccessorInfo)?.GetValue(target)!;
                 if (target.IsNullOrUnsetValue())
                 {
                     SetMembers(null, members, null);

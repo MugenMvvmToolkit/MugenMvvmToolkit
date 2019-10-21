@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingPropertyInfo : IObservableBindingMemberInfo
+    public interface IBindingMemberAccessorInfo : IObservableBindingMemberInfo
     {
         bool CanRead { get; }
 
