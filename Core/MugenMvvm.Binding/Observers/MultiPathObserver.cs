@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Observers
         {
             UpdateIfNeed();
             if (_exception != null)
-                return new MemberPathMembers(Path, _exception);
+                return new MemberPathMembers(_exception);
 
             var source = Source;
             if (source == null)
@@ -91,20 +91,20 @@ namespace MugenMvvm.Binding.Observers
             if (penultimateValue == null || _members == null)
                 return default;
 
-            return new MemberPathMembers(Path, source, penultimateValue, _members, _members[_members.Length - 1]);
+            return new MemberPathMembers(source, _members);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
             if (_exception != null)
-                return new MemberPathLastMember(Path, _exception);
+                return new MemberPathLastMember(_exception);
 
             var target = _penultimateValue?.Target;
             if (target == null || _members == null)
                 return default;
 
-            return new MemberPathLastMember(Path, target, _members[_members.Length - 1]);
+            return new MemberPathLastMember(target, _members[_members.Length - 1]);
         }
 
         protected override void OnListenerAdded(IMemberPathObserverListener listener)
@@ -330,7 +330,7 @@ namespace MugenMvvm.Binding.Observers
 
             public bool TryHandle(object sender, object? message)
             {
-                var observer = (MultiPathObserver?) _observer.Target;
+                var observer = (MultiPathObserver?)_observer.Target;
                 if (observer == null)
                     return false;
                 observer.OnLastMemberChanged();

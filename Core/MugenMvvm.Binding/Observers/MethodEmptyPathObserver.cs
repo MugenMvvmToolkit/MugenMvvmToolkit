@@ -59,7 +59,7 @@ namespace MugenMvvm.Binding.Observers
             if (source == null)
                 return default;
 
-            return new MemberPathMembers(Path, source, source, ConstantBindingMemberInfo.NullArray, ConstantBindingMemberInfo.Null);
+            return new MemberPathMembers(source, ConstantBindingMemberInfo.NullArray);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Observers
             if (source == null)
                 return default;
 
-            return new MemberPathLastMember(Path, source, ConstantBindingMemberInfo.Null);
+            return new MemberPathLastMember(source, ConstantBindingMemberInfo.Null);
         }
 
         protected override void OnDisposed()

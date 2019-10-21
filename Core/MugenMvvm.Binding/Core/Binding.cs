@@ -446,7 +446,7 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        protected virtual object? GetSourceValue(in MemberPathLastMember targetMember)
+        protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
             return ((IMemberPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
         }
@@ -459,7 +459,7 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        protected virtual object? GetTargetValue(in MemberPathLastMember sourceMember)
+        protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
         {
             return Target.GetLastMember(Metadata).GetLastMemberValue(Metadata);
         }
@@ -541,7 +541,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
         }
 
-        protected virtual object? InterceptTargetValue(in MemberPathLastMember targetMember, object? value)
+        protected virtual object? InterceptTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -549,16 +549,16 @@ namespace MugenMvvm.Binding.Core
                 for (var i = 0; i < c.Length; i++)
                 {
                     if (c[i] is ITargetValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptTargetValue(targetMember, value, Metadata);
+                        value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, Metadata);
                 }
             }
             else if (components is ITargetValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptTargetValue(targetMember, value, Metadata);
+                value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, Metadata);
 
             return value;
         }
 
-        protected virtual object? InterceptSourceValue(in MemberPathLastMember sourceMember, object? value)
+        protected virtual object? InterceptSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -566,44 +566,44 @@ namespace MugenMvvm.Binding.Core
                 for (var i = 0; i < c.Length; i++)
                 {
                     if (c[i] is ISourceValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptSourceValue(sourceMember, value, Metadata);
+                        value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, Metadata);
                 }
             }
             else if (components is ISourceValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptSourceValue(sourceMember, value, Metadata);
+                value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, Metadata);
 
             return value;
         }
 
-        protected virtual bool TrySetTargetValue(in MemberPathLastMember targetMember, object? newValue)
+        protected virtual bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetMember, newValue, Metadata))
+                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, Metadata))
                         return true;
                 }
             }
-            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetMember, newValue, Metadata))
+            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, Metadata))
                 return true;
 
             return false;
         }
 
-        protected virtual bool TrySetSourceValue(in MemberPathLastMember sourceMember, object? newValue)
+        protected virtual bool TrySetSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceMember, newValue, Metadata))
+                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, Metadata))
                         return true;
                 }
             }
-            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceMember, newValue, Metadata))
+            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, Metadata))
                 return true;
 
             return false;
@@ -613,9 +613,9 @@ namespace MugenMvvm.Binding.Core
         {
         }
 
-        protected bool SetTargetValue(IMemberPathObserver target, out object? newValue)
+        protected bool SetTargetValue(IMemberPathObserver targetObserver, out object? newValue)
         {
-            var pathLastMember = target.GetLastMember(Metadata);
+            var pathLastMember = targetObserver.GetLastMember(Metadata);
             pathLastMember.ThrowIfError();
 
             if (!pathLastMember.IsAvailable)
@@ -630,14 +630,14 @@ namespace MugenMvvm.Binding.Core
 
             if (CheckFlag(HasTargetValueInterceptorFlag))
             {
-                newValue = InterceptTargetValue(pathLastMember, newValue);
+                newValue = InterceptTargetValue(targetObserver, pathLastMember, newValue);
                 if (newValue.IsUnsetValueOrDoNothing())
                     return false;
             }
 
             newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
 
-            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(pathLastMember, newValue))
+            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(targetObserver, pathLastMember, newValue))
                 pathLastMember.SetLastMemberValue(newValue, Metadata);
             return true;
         }
@@ -659,14 +659,14 @@ namespace MugenMvvm.Binding.Core
 
             if (CheckFlag(HasSourceValueInterceptorFlag))
             {
-                newValue = InterceptSourceValue(pathLastMember, newValue);
+                newValue = InterceptSourceValue(sourceObserver, pathLastMember, newValue);
                 if (newValue.IsUnsetValueOrDoNothing())
                     return false;
             }
 
             newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
 
-            if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(pathLastMember, newValue))
+            if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(sourceObserver, pathLastMember, newValue))
                 pathLastMember.SetLastMemberValue(newValue, Metadata);
             return true;
         }

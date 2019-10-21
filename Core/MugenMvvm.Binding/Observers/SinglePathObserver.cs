@@ -79,26 +79,26 @@ namespace MugenMvvm.Binding.Observers
         {
             UpdateIfNeed();
             if (_exception != null)
-                return new MemberPathMembers(Path, _exception);
+                return new MemberPathMembers(_exception);
 
             var source = Source;
             if (source == null || _lastMember == null)
                 return default;
 
-            return new MemberPathMembers(Path, source, source, null, _lastMember);
+            return new MemberPathMembers(source, new[] { _lastMember });
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
             if (_exception != null)
-                return new MemberPathLastMember(Path, _exception);
+                return new MemberPathLastMember(_exception);
 
             var source = Source;
             if (source == null || _lastMember == null)
                 return default;
 
-            return new MemberPathLastMember(Path, source, _lastMember);
+            return new MemberPathLastMember(source, _lastMember);
         }
 
         protected override void OnListenerAdded(IMemberPathObserverListener listener)

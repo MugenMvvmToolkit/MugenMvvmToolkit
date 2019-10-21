@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Interfaces.Metadata;
@@ -14,35 +13,22 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         private readonly IBindingMemberInfo? _lastMember;
-        private readonly IMemberPath _path;
         private readonly object? _source;
 
         #endregion
 
         #region Constructors
 
-        public MemberPathLastMember(IMemberPath path)
+        public MemberPathLastMember(object? source, IBindingMemberInfo lastMember)
         {
-            Should.NotBeNull(path, nameof(path));
-            _path = path;
-            _source = null;
-            _lastMember = null;
-        }
-
-        public MemberPathLastMember(IMemberPath path, object? source, IBindingMemberInfo lastMember)
-        {
-            Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(lastMember, nameof(lastMember));
             _source = source;
             _lastMember = lastMember;
-            _path = path;
         }
 
-        public MemberPathLastMember(IMemberPath path, Exception exception)
+        public MemberPathLastMember(Exception exception)
         {
-            Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(exception, nameof(exception));
-            _path = path;
             _source = exception;
             _lastMember = null;
         }
@@ -53,14 +39,12 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsAvailable => _lastMember != null;
 
-        public IMemberPath Path => _path ?? EmptyMemberPath.Instance;
-
         public Exception? Error
         {
             get
             {
                 if (_lastMember == null)
-                    return (Exception?)_source;
+                    return (Exception?) _source;
                 return null;
             }
         }
@@ -97,12 +81,12 @@ namespace MugenMvvm.Binding.Observers
 
         public object? GetLastMemberValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IBindingPropertyInfo)LastMember).GetValue(Source, metadata);
+            return ((IBindingPropertyInfo) LastMember).GetValue(Source, metadata);
         }
 
         public void SetLastMemberValue(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IBindingPropertyInfo)LastMember).SetValue(Source, value, metadata);
+            ((IBindingPropertyInfo) LastMember).SetValue(Source, value, metadata);
         }
 
         #endregion

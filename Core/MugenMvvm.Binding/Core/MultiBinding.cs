@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Core
             _expression = null;
         }
 
-        protected override object? GetSourceValue(in MemberPathLastMember targetMember)
+        protected override object? GetSourceValue(MemberPathLastMember targetMember)
         {
             if (BindingMemberType.Event == targetMember.LastMember.MemberType)
                 return this;
