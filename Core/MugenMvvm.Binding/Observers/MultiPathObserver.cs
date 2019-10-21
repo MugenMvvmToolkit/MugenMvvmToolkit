@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class MultiPathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
+    public class MultiPathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>//todo optimize observable vs non-observable
     {
         #region Fields
 

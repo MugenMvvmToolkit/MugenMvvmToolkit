@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (source == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(source, metadata);//todo cache in path
+            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(source, metadata);
             attachedValueProvider.AddOrUpdate(source, GetPath(binding.Target.Path), binding, binding, binding, UpdateBindingDelegate);
             return true;
         }
