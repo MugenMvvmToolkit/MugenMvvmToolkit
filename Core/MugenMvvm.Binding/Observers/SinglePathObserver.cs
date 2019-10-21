@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class SinglePathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
+    public class SinglePathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>//todo opt
     {
         #region Fields
 

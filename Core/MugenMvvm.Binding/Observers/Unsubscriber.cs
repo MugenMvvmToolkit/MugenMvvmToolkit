@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace MugenMvvm.Binding.Observers
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct Unsubscriber
+    public readonly struct Unsubscriber//todo opt
     {
         #region Fields
 
