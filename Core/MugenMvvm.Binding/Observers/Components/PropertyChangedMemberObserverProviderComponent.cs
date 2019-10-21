@@ -45,10 +45,10 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        Unsubscriber MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (source == null)
-                return null;
+                return default;
             return _attachedValueManager
                 .ServiceIfNull()
                 .GetOrAdd((INotifyPropertyChanged)source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Nested types
 
-        private sealed class WeakPropertyChangedListener
+        private sealed class WeakPropertyChangedListener : Unsubscriber.IHandler//todo id to item, review unsubscriber
         {
             #region Fields
 
@@ -108,6 +108,25 @@ namespace MugenMvvm.Binding.Observers.Components
             public WeakPropertyChangedListener()
             {
                 _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            void Unsubscriber.IHandler.Unsubscribe(object state1, object state2)
+            {
+                var propertyName = (string)state2;
+                for (var i = 0; i < _listeners.Length; i++)
+                {
+                    var pair = _listeners[i];
+                    if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Source, state1))
+                    {
+                        ++_removedSize;
+                        _listeners[i] = default;
+                        return;
+                    }
+                }
             }
 
             #endregion
@@ -140,35 +159,9 @@ namespace MugenMvvm.Binding.Observers.Components
                     Cleanup();
             }
 
-            public IDisposable Add(IEventListener target, string path)
+            public Unsubscriber Add(IEventListener target, string path)
             {
-                return AddInternal(target.ToWeak(), path);
-            }
-
-            private void Cleanup()
-            {
-                var size = _size;
-                _size = 0;
-                _removedSize = 0;
-                for (var i = 0; i < size; i++)
-                {
-                    var reference = _listeners[i];
-                    if (reference.Key.IsAlive)
-                        _listeners[_size++] = reference;
-                }
-
-                if (_size == 0)
-                    _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
-                else if (_listeners.Length / (float)_size > 2)
-                {
-                    var listeners = new KeyValuePair<WeakEventListener, string>[_size + (_size >> 2)];
-                    Array.Copy(_listeners, 0, listeners, 0, _size);
-                    _listeners = listeners;
-                }
-            }
-
-            private IDisposable AddInternal(WeakEventListener weakItem, string path)
-            {
+                var weakItem = target.ToWeak();
                 if (_listeners.Length == 0)
                 {
                     _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
@@ -197,64 +190,29 @@ namespace MugenMvvm.Binding.Observers.Components
                     }
                 }
 
-                return new Unsubscriber(this, weakItem, path);
+                return new Unsubscriber(this, weakItem.Source, path);
             }
 
-            private void Remove(WeakEventListener weakItem, string propertyName)
+            private void Cleanup()
             {
-                for (var i = 0; i < _listeners.Length; i++)
+                var size = _size;
+                _size = 0;
+                _removedSize = 0;
+                for (var i = 0; i < size; i++)
                 {
-                    var pair = _listeners[i];
-                    if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Source, weakItem.Source))
-                    {
-                        ++_removedSize;
-                        _listeners[i] = default;
-                        return;
-                    }
-                }
-            }
-
-            #endregion
-
-            #region Nested types
-
-            private sealed class Unsubscriber : IDisposable
-            {
-                #region Fields
-
-                private readonly string _propertyName;
-
-                private WeakPropertyChangedListener? _eventListener;
-                private WeakEventListener _weakItem;
-
-                #endregion
-
-                #region Constructors
-
-                public Unsubscriber(WeakPropertyChangedListener eventListener, WeakEventListener weakItem, string propertyName)
-                {
-                    _eventListener = eventListener;
-                    _weakItem = weakItem;
-                    _propertyName = propertyName;
+                    var reference = _listeners[i];
+                    if (reference.Key.IsAlive)
+                        _listeners[_size++] = reference;
                 }
 
-                #endregion
-
-                #region Implementation of interfaces
-
-                public void Dispose()
+                if (_size == 0)
+                    _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
+                else if (_listeners.Length / (float)_size > 2)
                 {
-                    var listener = _eventListener;
-                    var weakItem = _weakItem;
-                    if (listener != null && !weakItem.IsEmpty)
-                    {
-                        _eventListener = null;
-                        _weakItem = default;
-                        listener.Remove(weakItem, _propertyName);
-                    }
+                    var listeners = new KeyValuePair<WeakEventListener, string>[_size + (_size >> 2)];
+                    Array.Copy(_listeners, 0, listeners, 0, _size);
+                    _listeners = listeners;
                 }
-
-                #endregion
             }
 
             #endregion

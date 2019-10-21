@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly IDisposable?[]? _listeners;
+        private readonly Unsubscriber[]? _listeners;
         protected readonly MemberFlags MemberFlags;
         private Exception? _exception;
         private IEventListener? _lastMemberListener;
@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Observers
             if (optional)
                 _state |= OptionalFlag;
             if (observable)
-                _listeners = new IDisposable[path.Members.Length];
+                _listeners = new Unsubscriber[path.Members.Length];
             Path = path;
         }
 
@@ -110,7 +110,7 @@ namespace MugenMvvm.Binding.Observers
         protected override void OnListenerAdded(IMemberPathObserverListener listener)
         {
             UpdateIfNeed();
-            if (_listeners != null && _members != null && _listeners[_listeners.Length - 1] == null && _penultimateValue != null)
+            if (_listeners != null && _members != null && _listeners[_listeners.Length - 1].IsEmpty && _penultimateValue != null)
             {
                 var source = _penultimateValue.Target;
                 if (source != null)
@@ -171,7 +171,8 @@ namespace MugenMvvm.Binding.Observers
                 for (var i = 0; i < members.Length; i++)
                 {
                     var member = provider.GetMember(type, paths[i],
-                        i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event, memberFlags);
+                        i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event,
+                        memberFlags);
                     if (i == 1)
                         memberFlags &= ~MemberFlags.Static;
                     if (member == null)
@@ -187,8 +188,8 @@ namespace MugenMvvm.Binding.Observers
                     if (i == lastIndex)
                         break;
 
-                    if (_listeners != null)
-                        _listeners[i] = (member as IObservableBindingMemberInfo)?.TryObserve(source, this);
+                    if (_listeners != null && member is IObservableBindingMemberInfo observable)
+                        _listeners[i] = observable.TryObserve(source, this);
 
                     source = (member as IBindingPropertyInfo)?.GetValue(source);
                     if (source.IsNullOrUnsetValue())
@@ -201,8 +202,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 if (_listeners != null && HasListeners)
-                    _listeners[_listeners.Length - 1] =
-                        (members[members.Length - 1] as IObservableBindingMemberInfo)?.TryObserve(source, GetLastMemberListener()) ?? Default.Disposable;
+                    SubscribeLastMember(source, members[members.Length - 1]);
                 SetMembers(source.ToWeakReference(), members, null);
             }
             catch (Exception e)
@@ -219,8 +219,8 @@ namespace MugenMvvm.Binding.Observers
             for (var index = 0; index < members.Length - 1; index++)
             {
                 var member = members[index];
-                if (_listeners != null)
-                    _listeners[index] = (member as IObservableBindingMemberInfo)?.TryObserve(source, this);
+                if (_listeners != null && member is IObservableBindingMemberInfo observable)
+                    _listeners[index] = observable.TryObserve(source, this);
 
                 source = (member as IBindingPropertyInfo)?.GetValue(source)!;
                 if (source.IsNullOrUnsetValue())
@@ -257,25 +257,37 @@ namespace MugenMvvm.Binding.Observers
             {
                 for (var index = 0; index < _listeners.Length; index++)
                 {
-                    _listeners[index]?.Dispose();
-                    _listeners[index] = null;
+                    _listeners[index].Unsubscribe();
+                    _listeners[index] = default;
                 }
+
+                UnsubscribeLastMember();
             }
         }
 
         protected virtual void SubscribeLastMember(object source, IBindingMemberInfo? lastMember)
         {
-            if (_listeners != null)
-                _listeners[_listeners.Length - 1] = (lastMember as IObservableBindingMemberInfo)?.TryObserve(source, GetLastMemberListener()) ?? Default.Disposable;
+            if (_listeners == null)
+                return;
+            Unsubscriber unsubscriber = default;
+            if (lastMember is IObservableBindingMemberInfo observable)
+                unsubscriber = observable.TryObserve(source, GetLastMemberListener());
+            if (unsubscriber.IsEmpty)
+                _listeners[_listeners.Length - 1] = Unsubscriber.NoDoUnsubscriber;
+            else
+                _listeners[_listeners.Length - 1] = unsubscriber;
         }
 
         protected virtual void UnsubscribeLastMember()
         {
-            var listener = _listeners?[_listeners.Length - 1];
-            if (listener != null)
+            if (_listeners == null)
+                return;
+
+            var listener = _listeners[_listeners.Length - 1];
+            if (!listener.IsEmpty)
             {
-                listener.Dispose();
-                _listeners![_listeners.Length - 1] = null;
+                listener.Unsubscribe();
+                _listeners![_listeners.Length - 1] = default;
             }
         }
 
@@ -318,7 +330,7 @@ namespace MugenMvvm.Binding.Observers
 
             public bool TryHandle(object sender, object? message)
             {
-                var observer = (MultiPathObserver?)_observer.Target;
+                var observer = (MultiPathObserver?) _observer.Target;
                 if (observer == null)
                     return false;
                 observer.OnLastMemberChanged();

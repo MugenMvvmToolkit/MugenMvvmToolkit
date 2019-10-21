@@ -46,16 +46,18 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        IDisposable? MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        Unsubscriber MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (source == null)
-                return null;
+                return default;
 
-            var eventInfo = (EventInfo) member;
+            var eventInfo = (EventInfo)member;
             var listenerInternal = _attachedValueManager
                 .ServiceIfNull()
                 .GetOrAdd(source, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, CreateWeakListenerDelegate);
-            return listenerInternal?.AddWithUnsubscriber(listener);
+            if (listenerInternal == null)
+                return default;
+            return listenerInternal.Add(listener);
         }
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)

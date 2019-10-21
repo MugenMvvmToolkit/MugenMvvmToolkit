@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Observers
         private readonly string _observableMethodName;
 
         private IWeakReference? _lastValueRef;
-        private IDisposable? _unsubscriber;
+        private Unsubscriber _unsubscriber;
 
         #endregion
 
@@ -45,16 +45,16 @@ namespace MugenMvvm.Binding.Observers
 
         protected override void UnsubscribeLastMember()
         {
-            _unsubscriber?.Dispose();
-            _unsubscriber = null;
+            _unsubscriber.Unsubscribe();
+            _unsubscriber = default;
         }
 
         private void AddMethodObserver(object? source, IBindingMemberInfo? lastMember)
         {
-            _unsubscriber?.Dispose();
+            _unsubscriber.Unsubscribe();
             if (source == null || !(lastMember is IBindingPropertyInfo propertyInfo))
             {
-                _unsubscriber = Default.Disposable;
+                _unsubscriber = Unsubscriber.NoDoUnsubscriber;
                 return;
             }
 
@@ -65,14 +65,17 @@ namespace MugenMvvm.Binding.Observers
             var type = value?.GetType()!;
             if (value.IsNullOrUnsetValue() || type.IsValueTypeUnified())
             {
-                _unsubscriber = Default.Disposable;
+                _unsubscriber = Unsubscriber.NoDoUnsubscriber;
                 return;
             }
 
             _lastValueRef = value.ToWeakReference();
             var memberFlags = MemberFlags & ~MemberFlags.Static;
-            var member = MugenBindingService.MemberProvider.GetMember(type, _observableMethodName, BindingMemberType.Method, memberFlags);
-            _unsubscriber = (member as IObservableBindingMemberInfo)?.TryObserve(source, GetLastMemberListener()) ?? Default.Disposable;
+            var member = MugenBindingService.MemberProvider.GetMember(type!, _observableMethodName, BindingMemberType.Method, memberFlags);
+            if (member is IObservableBindingMemberInfo observable)
+                _unsubscriber = observable.TryObserve(source, GetLastMemberListener());
+            if (_unsubscriber.IsEmpty)
+                _unsubscriber = Unsubscriber.NoDoUnsubscriber;
         }
 
         #endregion

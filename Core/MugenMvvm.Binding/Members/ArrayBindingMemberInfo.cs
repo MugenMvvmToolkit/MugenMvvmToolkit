@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -49,18 +50,18 @@ namespace MugenMvvm.Binding.Members
         public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(source, nameof(source));
-            return ((Array) source!).GetValue(_indexes);
+            return ((Array)source!).GetValue(_indexes);
         }
 
         public void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(source, nameof(source));
-            ((Array) source!).SetValue(value, _indexes);
+            ((Array)source!).SetValue(value, _indexes);
         }
 
-        public IDisposable? TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
-            return null;
+            return default;
         }
 
         #endregion

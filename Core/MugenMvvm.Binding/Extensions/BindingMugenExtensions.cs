@@ -71,24 +71,28 @@ namespace MugenMvvm.Binding
                 propertyInfo.SetValue(source, value, metadata);
         }
 
-        public static IDisposable? TryObserveBindableMember<TSource, TValue>(this TSource source,
+        public static Unsubscriber TryObserveBindableMember<TSource, TValue>(this TSource source,
             BindablePropertyDescriptor<TSource, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
                 .GetMember(source.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IObservableBindingMemberInfo;
-            return propertyInfo?.TryObserve(source, listener, metadata);
+            if (propertyInfo == null)
+                return default;
+            return propertyInfo.TryObserve(source, listener, metadata);
         }
 
-        public static IDisposable? TrySubscribeBindableEvent<TSource>(this TSource source,
+        public static Unsubscriber TrySubscribeBindableEvent<TSource>(this TSource source,
             BindableEventDescriptor<TSource> eventMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
         {
             var eventInfo = provider
                 .ServiceIfNull()
                 .GetMember(source.GetType(), eventMember.Name, BindingMemberType.Event, flags, metadata) as IBindingEventInfo;
-            return eventInfo?.TrySubscribe(source, listener, metadata);
+            if (eventInfo == null)
+                return default;
+            return eventInfo.TrySubscribe(source, listener, metadata);
         }
 
         public static object? TryInvokeBindableMethod<TSource>(this TSource source,

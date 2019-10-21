@@ -5,21 +5,38 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class EventListenerCollection
+    public class EventListenerCollection : Unsubscriber.IHandler
     {
         #region Fields
 
-        private WeakEventListener[] _listeners;
+        private object? _listeners;
         private ushort _removedSize;
         private ushort _size;
 
         #endregion
 
-        #region Constructors
+        #region Implementation of interfaces
 
-        public EventListenerCollection()
+        void Unsubscriber.IHandler.Unsubscribe(object state1, object state2)
         {
-            _listeners = Default.EmptyArray<WeakEventListener>();
+            if (ReferenceEquals(_listeners, state1))
+            {
+                _listeners = null;
+                _size = 0;
+                _removedSize = 0;
+            }
+            else if (_listeners is object[] listeners)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                {
+                    if (ReferenceEquals(listeners[i], state1))
+                    {
+                        ++_removedSize;
+                        listeners[i] = null;
+                        return;
+                    }
+                }
+            }
         }
 
         #endregion
@@ -28,7 +45,7 @@ namespace MugenMvvm.Binding.Observers
 
         public static EventListenerCollection GetOrAdd(object item, string path, IAttachedValueManager? valueManager = null)
         {
-            return valueManager.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new EventListenerCollection());
+            return valueManager.ServiceIfNull().GetOrAdd(item, path, (object?) null, (object?) null, (_, __, ___) => new EventListenerCollection());
         }
 
         public static void Raise(object item, string path, object message, IAttachedValueManager? valueManager = null)
@@ -40,128 +57,125 @@ namespace MugenMvvm.Binding.Observers
         [Preserve(Conditional = true)]
         public void Raise<TArg>(object sender, TArg args)
         {
-            var hasDeadRef = false;
-            var listeners = _listeners;
-            for (var i = 0; i < listeners.Length; i++)
+            if (_listeners is object[] listeners)
             {
-                if (i >= _size)
-                    break;
-                if (!listeners[i].TryHandle(sender, args))
-                    hasDeadRef = true;
-            }
-
-            if (hasDeadRef)
-                Cleanup();
-        }
-
-        public void Add(IEventListener target)
-        {
-            AddInternal(target.ToWeak(), false);
-        }
-
-        public IDisposable AddWithUnsubscriber(IEventListener target)
-        {
-            return AddInternal(target.ToWeak(), true)!;
-        }
-
-        public void Remove(IEventListener listener)
-        {
-            if (!listener.IsWeak)
-            {
-                Remove(listener.ToWeak());
-                return;
-            }
-
-            for (var i = 0; i < _listeners.Length; i++)
-            {
-                if (ReferenceEquals(_listeners[i].Listener, listener))
+                var hasDeadRef = false;
+                for (var i = 0; i < listeners.Length; i++)
                 {
-                    RemoveAt(i);
-                    return;
+                    if (i >= _size)
+                        break;
+                    if (!WeakEventListener.TryHandle(listeners[i], sender, args))
+                        hasDeadRef = true;
                 }
+
+                if (hasDeadRef)
+                    Cleanup(listeners);
             }
+            else
+                WeakEventListener.TryHandle(_listeners, sender, args);
         }
 
-        public void Clear()
+        public Unsubscriber Add(IEventListener target)
         {
-            _listeners = Default.EmptyArray<WeakEventListener>();
-            _size = 0;
-            _removedSize = 0;
-        }
-
-        private IDisposable? AddInternal(WeakEventListener weakItem, bool withUnsubscriber)
-        {
-            if (_listeners.Length == 0)
+            var source = WeakEventListener.GetSource(target);
+            if (_listeners == null)
             {
-                _listeners = new[] { weakItem };
+                _listeners = source;
                 _size = 1;
                 _removedSize = 0;
             }
             else
             {
-                if (_removedSize == 0)
+                if (_listeners is object[] listeners)
                 {
-                    if (_size == _listeners.Length)
-                        EnsureCapacity(ref _listeners, _size, _size + 1);
-                    _listeners[_size++] = weakItem;
-                }
-                else
-                {
-                    for (var i = 0; i < _size; i++)
+                    if (_removedSize == 0)
                     {
-                        if (_listeners[i].IsEmpty)
+                        if (_size == listeners.Length)
                         {
-                            _listeners[i] = weakItem;
-                            --_removedSize;
-                            break;
+                            EnsureCapacity(ref listeners, _size, _size + 1);
+                            _listeners = listeners;
+                        }
+
+                        listeners[_size++] = source;
+                    }
+                    else
+                    {
+                        for (var i = 0; i < _size; i++)
+                        {
+                            if (listeners[i] == null)
+                            {
+                                listeners[i] = source;
+                                --_removedSize;
+                                break;
+                            }
                         }
                     }
                 }
-            }
-
-            if (withUnsubscriber)
-                return new Unsubscriber(this, weakItem);
-            return null;
-        }
-
-        private void Remove(WeakEventListener weakItem)
-        {
-            for (var i = 0; i < _listeners.Length; i++)
-            {
-                var wrapper = _listeners[i];
-                if (!wrapper.IsEmpty && ReferenceEquals(wrapper.Source, weakItem.Source))
+                else
                 {
-                    RemoveAt(i);
-                    return;
+                    _listeners = new {_listeners, source};
+                    _size = 2;
+                    _removedSize = 0;
                 }
             }
+
+            return new Unsubscriber(this, source, null);
         }
 
-        private void RemoveAt(int index)
+        public bool Remove(IEventListener listener)
         {
-            ++_removedSize;
-            _listeners[index] = default;
+            if (listener == null)
+                return false;
+
+            if (_listeners is object[] listeners)
+            {
+                for (var i = 0; i < listeners.Length; i++)
+                {
+                    if (ReferenceEquals(WeakEventListener.GetListener(listeners[i]), listener))
+                    {
+                        ++_removedSize;
+                        listeners[i] = null;
+                        return true;
+                    }
+                }
+            }
+            else if (ReferenceEquals(WeakEventListener.GetListener(_listeners), listener))
+            {
+                _listeners = null;
+                _size = 0;
+                _removedSize = 0;
+                return true;
+            }
+
+            return false;
         }
 
-        private void Cleanup()
+        public void Clear()
+        {
+            _listeners = null;
+            _size = 0;
+            _removedSize = 0;
+        }
+
+        private void Cleanup(object[] listeners)
         {
             var size = _size;
             _size = 0;
             _removedSize = 0;
             for (var i = 0; i < size; i++)
             {
-                var reference = _listeners[i];
-                if (reference.IsAlive)
-                    _listeners[_size++] = reference;
+                var reference = listeners[i];
+                if (WeakEventListener.GetIsAlive(reference))
+                    listeners[_size++] = reference;
             }
 
             if (_size == 0)
-                _listeners = Default.EmptyArray<WeakEventListener>();
-            else if (_listeners.Length / (float)_size > 2)
+                _listeners = null;
+            else if (listeners.Length / (float) _size > 2)
             {
-                var listeners = new WeakEventListener[_size + (_size >> 2)];
-                Array.Copy(_listeners, 0, listeners, 0, _size);
-                _listeners = listeners;
+                var array = new object[_size + (_size >> 2)];
+                Array.Copy(listeners, 0, array, 0, _size);
+                _listeners = array;
             }
         }
 
@@ -183,46 +197,6 @@ namespace MugenMvvm.Binding.Observers
             }
             else
                 listeners = Default.EmptyArray<T>();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class Unsubscriber : IDisposable
-        {
-            #region Fields
-
-            private EventListenerCollection? _eventListener;
-            private WeakEventListener _weakItem;
-
-            #endregion
-
-            #region Constructors
-
-            public Unsubscriber(EventListenerCollection eventListener, WeakEventListener weakItem)
-            {
-                _eventListener = eventListener;
-                _weakItem = weakItem;
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void Dispose()
-            {
-                var listener = _eventListener;
-                var weakItem = _weakItem;
-                if (listener != null && !weakItem.IsEmpty)
-                {
-                    _eventListener = null;
-                    _weakItem = default;
-                    listener.Remove(weakItem);
-                }
-            }
-
-            #endregion
         }
 
         #endregion

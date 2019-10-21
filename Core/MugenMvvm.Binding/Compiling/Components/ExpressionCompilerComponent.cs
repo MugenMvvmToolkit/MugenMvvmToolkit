@@ -23,7 +23,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Compiling.Components
 {
     public class ExpressionCompilerComponent : AttachableComponentBase<IExpressionCompiler>, IExpressionCompilerComponent, IHasPriority,
-        IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>
+        IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>//todo check fast compiler
     {
         #region Fields
 
@@ -291,7 +291,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     parameters[parameters.Length - 1] = MetadataParameterExpression;
 
                     var expression = Build(_expression);
-                    var compile = Expression.Lambda(expression, parameters).Compile();
+                    var compile = Expression.Lambda(expression, parameters).Compile();//todo review single compile for array
                     var methodInfo = compile.GetType().GetMethodUnified(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
                     if (methodInfo == null)
                         return new DelegateInvoker(compile, null);

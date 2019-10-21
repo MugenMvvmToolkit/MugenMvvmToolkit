@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -54,9 +55,9 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
-            return null;
+            return default;
         }
 
         public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Metadata;
@@ -35,9 +34,11 @@ namespace MugenMvvm.Binding.Observers
         #region Methods
 
         [Pure]
-        public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return _handler?.TryObserve(source, Member, listener, metadata);
+            if (_handler == null)
+                return default;
+            return _handler.TryObserve(source, Member, listener, metadata);
         }
 
         #endregion
@@ -46,7 +47,7 @@ namespace MugenMvvm.Binding.Observers
 
         public interface IHandler
         {
-            IDisposable? TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata);
+            Unsubscriber TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata);
         }
 
         #endregion

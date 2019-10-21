@@ -17,10 +17,7 @@ namespace MugenMvvm.Binding.Observers
 
         public WeakEventListener(IEventListener listener)
         {
-            if (listener.IsWeak)
-                Source = listener;
-            else
-                Source = listener.ToWeakReference();
+            Source = GetSource(listener);
         }
 
         #endregion
@@ -29,40 +26,51 @@ namespace MugenMvvm.Binding.Observers
 
         public bool IsEmpty => Source == null;
 
-        public bool IsAlive
+        public bool IsAlive => GetIsAlive(Source);
+
+        public IEventListener? Listener => GetListener(Source);
+
+        #endregion
+
+        #region Methods
+
+        public bool TryHandle(object sender, object? message) => TryHandle(Source, sender, message);
+
+        public static object GetSource(IEventListener listener)
         {
-            get
-            {
-                if (Source == null)
-                    return false;
-                if (Source is IEventListener listener)
-                    return listener.IsAlive;
-                listener = (IEventListener)((IWeakReference)Source).Target!;
-                return listener != null && listener.IsAlive;
-            }
+            if (listener.IsWeak)
+                return listener;
+            return listener.ToWeakReference();
         }
 
-        public IEventListener? Listener
+        public static bool GetIsAlive(object? source)
         {
-            get
-            {
-                if (Source == null)
-                    return null;
-                if (Source is IEventListener listener)
-                    return listener;
-                return (IEventListener?)((IWeakReference)Source).Target;
-            }
+            if (source == null)
+                return false;
+            if (source is IEventListener listener)
+                return listener.IsAlive;
+            listener = (IEventListener)((IWeakReference)source).Target!;
+            return listener != null && listener.IsAlive;
         }
 
-        public bool TryHandle(object sender, object? message)
+        public static IEventListener? GetListener(object? source)
         {
-            if (Source == null)
+            if (source == null)
+                return null;
+            if (source is IEventListener listener)
+                return listener;
+            return (IEventListener?)((IWeakReference)source).Target;
+        }
+
+        public static bool TryHandle(object? source, object sender, object? message)
+        {
+            if (source == null)
                 return false;
 
-            if (Source is IEventListener listener)
+            if (source is IEventListener listener)
                 return listener.TryHandle(sender, message);
 
-            listener = (IEventListener)((IWeakReference)Source).Target!;
+            listener = (IEventListener)((IWeakReference)source).Target!;
             return listener != null && listener.TryHandle(sender, message);
         }
 

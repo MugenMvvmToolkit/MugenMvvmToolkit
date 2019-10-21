@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observers
         private readonly MemberFlags _memberFlags;
         private readonly string _observableMethodName;
 
-        private IDisposable? _unsubscriber;
+        private Unsubscriber _unsubscriber;
 
         #endregion
 
@@ -79,22 +79,25 @@ namespace MugenMvvm.Binding.Observers
 
         protected override void OnListenerAdded(IMemberPathObserverListener listener)
         {
-            if (_unsubscriber != null)
+            if (!_unsubscriber.IsEmpty)
                 return;
             var source = Source;
             if (source == null)
-                _unsubscriber = Default.Disposable;
+                _unsubscriber = Unsubscriber.NoDoUnsubscriber;
             else
             {
                 var member = MugenBindingService.MemberProvider.GetMember(source as Type ?? source.GetType(), _observableMethodName, BindingMemberType.Method, _memberFlags);
-                _unsubscriber = (member as IObservableBindingMemberInfo)?.TryObserve(source, this) ?? Default.Disposable;
+                if (member is IObservableBindingMemberInfo observable)
+                    _unsubscriber = observable.TryObserve(source, this);
+                if (_unsubscriber.IsEmpty)
+                    _unsubscriber = Unsubscriber.NoDoUnsubscriber;
             }
         }
 
         protected override void OnListenersRemoved()
         {
-            _unsubscriber?.Dispose();
-            _unsubscriber = null;
+            _unsubscriber.Unsubscribe();
+            _unsubscriber = default;
         }
 
         #endregion

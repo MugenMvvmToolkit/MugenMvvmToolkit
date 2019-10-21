@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public IDisposable? TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
                 _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, _fieldInfo);
