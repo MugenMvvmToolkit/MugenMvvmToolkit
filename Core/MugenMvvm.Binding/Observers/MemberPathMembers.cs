@@ -12,24 +12,24 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         private readonly IBindingMemberInfo[]? _members;
-        private readonly object? _source;
+        private readonly object? _target;
 
         #endregion
 
         #region Constructors
 
-        public MemberPathMembers(object? source, IBindingMemberInfo[]? members)
+        public MemberPathMembers(object? target, IBindingMemberInfo[]? members)
         {
             Should.NotBeNull(members, nameof(members));
-            _source = source;
+            _target = target;
             _members = members;
         }
 
         public MemberPathMembers(Exception exception)
         {
             Should.NotBeNull(exception, nameof(exception));
-            _source = exception;
-            _source = null;
+            _target = exception;
+            _target = null;
             _members = null;
         }
 
@@ -44,18 +44,18 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_members == null)
-                    return (Exception?) _source;
+                    return (Exception?) _target;
                 return null;
             }
         }
 
-        public object? Source
+        public object? Target
         {
             get
             {
                 if (_members == null)
                     return BindingMetadata.UnsetValue;
-                return _source;
+                return _target;
             }
         }
 

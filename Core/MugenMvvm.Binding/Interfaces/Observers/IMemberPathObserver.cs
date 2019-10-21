@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Interfaces.Observers
 
         IMemberPath Path { get; }
 
-        object? Source { get; }
+        object? Target { get; }
 
         void AddListener(IMemberPathObserverListener listener);
 

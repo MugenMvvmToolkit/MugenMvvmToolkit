@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace MugenMvvm.Binding.Members.Descriptors
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindablePropertyDescriptor<TSource, TValue> where TSource : class
+    public readonly struct BindablePropertyDescriptor<TTarget, TValue> where TTarget : class
     {
         #region Fields
 
@@ -32,17 +32,17 @@ namespace MugenMvvm.Binding.Members.Descriptors
         }
 
         [Pure]
-        public BindablePropertyDescriptor<TSource, TNewType> Cast<TNewType>()
+        public BindablePropertyDescriptor<TTarget, TNewType> Cast<TNewType>()
         {
-            return new BindablePropertyDescriptor<TSource, TNewType>(Name);
+            return new BindablePropertyDescriptor<TTarget, TNewType>(Name);
         }
 
-        public static implicit operator BindablePropertyDescriptor<TSource, TValue>(string path)
+        public static implicit operator BindablePropertyDescriptor<TTarget, TValue>(string path)
         {
-            return new BindablePropertyDescriptor<TSource, TValue>(path);
+            return new BindablePropertyDescriptor<TTarget, TValue>(path);
         }
 
-        public static implicit operator string(BindablePropertyDescriptor<TSource, TValue> member)
+        public static implicit operator string(BindablePropertyDescriptor<TTarget, TValue> member)
         {
             return member.Name;
         }

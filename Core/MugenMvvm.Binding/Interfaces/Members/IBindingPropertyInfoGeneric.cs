@@ -2,10 +2,10 @@
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingPropertyInfo<in TSource, TValue> : IBindingPropertyInfo
+    public interface IBindingPropertyInfo<TTarget, TValue> : IBindingPropertyInfo
     {
-        TValue GetValue(TSource source, IReadOnlyMetadataContext? metadata = null);
+        TValue GetValue(TTarget target, IReadOnlyMetadataContext? metadata = null);
 
-        void SetValue(TSource source, TValue value, IReadOnlyMetadataContext? metadata = null);
+        void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata = null);
     }
 }

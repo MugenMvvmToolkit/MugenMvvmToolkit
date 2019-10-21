@@ -37,72 +37,72 @@ namespace MugenMvvm.Binding
             }
         }
 
-        public static TValue GetBindableMemberValue<TSource, TValue>(this TSource source,
-            BindablePropertyDescriptor<TSource, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
+        public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(source.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingPropertyInfo;
+                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingPropertyInfo;
             if (propertyInfo == null)
                 return defaultValue;
-            if (propertyInfo is IBindingPropertyInfo<TSource, TValue> p)
-                return p.GetValue(source, metadata);
-            return (TValue)propertyInfo.GetValue(source, metadata)!;
+            if (propertyInfo is IBindingPropertyInfo<TTarget, TValue> p)
+                return p.GetValue(target, metadata);
+            return (TValue)propertyInfo.GetValue(target, metadata)!;
         }
 
-        public static void SetBindableMemberValue<TSource, TValue>(this TSource source,
-            BindablePropertyDescriptor<TSource, TValue> bindableMember, TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
+        public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(source.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingPropertyInfo;
+                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingPropertyInfo;
             if (propertyInfo == null)
             {
                 if (throwOnError)
-                    BindingExceptionManager.ThrowInvalidBindingMember(source.GetType(), bindableMember.Name);
+                    BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), bindableMember.Name);
                 return;
             }
 
-            if (propertyInfo is IBindingPropertyInfo<TSource, TValue> p)
-                p.SetValue(source, value, metadata);
+            if (propertyInfo is IBindingPropertyInfo<TTarget, TValue> p)
+                p.SetValue(target, value, metadata);
             else
-                propertyInfo.SetValue(source, value, metadata);
+                propertyInfo.SetValue(target, value, metadata);
         }
 
-        public static Unsubscriber TryObserveBindableMember<TSource, TValue>(this TSource source,
-            BindablePropertyDescriptor<TSource, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
+        public static Unsubscriber TryObserveBindableMember<TTarget, TValue>(this TTarget target,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(source.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IObservableBindingMemberInfo;
+                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IObservableBindingMemberInfo;
             if (propertyInfo == null)
                 return default;
-            return propertyInfo.TryObserve(source, listener, metadata);
+            return propertyInfo.TryObserve(target, listener, metadata);
         }
 
-        public static Unsubscriber TrySubscribeBindableEvent<TSource>(this TSource source,
-            BindableEventDescriptor<TSource> eventMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
+        public static Unsubscriber TrySubscribeBindableEvent<TTarget>(this TTarget target,
+            BindableEventDescriptor<TTarget> eventMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var eventInfo = provider
                 .ServiceIfNull()
-                .GetMember(source.GetType(), eventMember.Name, BindingMemberType.Event, flags, metadata) as IBindingEventInfo;
+                .GetMember(target.GetType(), eventMember.Name, BindingMemberType.Event, flags, metadata) as IBindingEventInfo;
             if (eventInfo == null)
                 return default;
-            return eventInfo.TrySubscribe(source, listener, metadata);
+            return eventInfo.TrySubscribe(target, listener, metadata);
         }
 
-        public static object? TryInvokeBindableMethod<TSource>(this TSource source,
-            BindableMethodDescriptor<TSource> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TSource : class
+        public static object? TryInvokeBindableMethod<TTarget>(this TTarget target,
+            BindableMethodDescriptor<TTarget> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
+            IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var methodInfo = provider
                 .ServiceIfNull()
-                .GetMember(source.GetType(), methodMember.Name, BindingMemberType.Method, flags, metadata) as IBindingMethodInfo;
-            return methodInfo?.Invoke(source, args ?? Default.EmptyArray<object>());
+                .GetMember(target.GetType(), methodMember.Name, BindingMemberType.Method, flags, metadata) as IBindingMethodInfo;
+            return methodInfo?.Invoke(target, args ?? Default.EmptyArray<object>());
         }
 
         public static WeakEventListener ToWeak(this IEventListener listener)

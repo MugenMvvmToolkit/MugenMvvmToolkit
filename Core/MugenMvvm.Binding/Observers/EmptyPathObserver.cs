@@ -9,27 +9,27 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private IWeakReference? _source;
+        private IWeakReference? _target;
 
         #endregion
 
         #region Constructors
 
-        public EmptyPathObserver(IWeakReference source)
+        public EmptyPathObserver(IWeakReference target)
         {
-            Should.NotBeNull(source, nameof(source));
-            _source = source;
+            Should.NotBeNull(target, nameof(target));
+            _target = target;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsAlive => _source?.Target != null;
+        public bool IsAlive => _target?.Target != null;
 
         public IMemberPath Path => EmptyMemberPath.Instance;
 
-        public object? Source => _source?.Target;
+        public object? Target => _target?.Target;
 
         #endregion
 
@@ -45,25 +45,25 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            var source = _source?.Target;
-            if (source == null)
+            var target = _target?.Target;
+            if (target == null)
                 return default;
 
-            return new MemberPathMembers(source, ConstantBindingMemberInfo.NullArray);
+            return new MemberPathMembers(target, ConstantBindingMemberInfo.NullArray);
         }
 
         public MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            var source = _source?.Target;
-            if (source == null)
+            var target = _target?.Target;
+            if (target == null)
                 return default;
 
-            return new MemberPathLastMember(source, ConstantBindingMemberInfo.Null);
+            return new MemberPathLastMember(target, ConstantBindingMemberInfo.Null);
         }
 
         public void Dispose()
         {
-            _source = null;
+            _target = null;
         }
 
         #endregion

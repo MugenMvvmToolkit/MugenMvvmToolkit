@@ -4,6 +4,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface INotifiableBindingMemberInfo : IBindingMemberInfo
     {
-        bool Raise(object? source, object? message, IReadOnlyMetadataContext? metadata = null);
+        bool Raise(object? target, object? message, IReadOnlyMetadataContext? metadata = null);
     }
 }

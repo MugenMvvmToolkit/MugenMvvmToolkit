@@ -8,8 +8,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool CanWrite { get; }
 
-        object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null);
+        object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null);
 
-        void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null);
+        void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null);
     }
 }

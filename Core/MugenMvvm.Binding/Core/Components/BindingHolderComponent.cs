@@ -65,27 +65,27 @@ namespace MugenMvvm.Binding.Core.Components
         public bool TryRegister(IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
-            var source = binding.Target.Source;
-            if (source == null)
+            var target = binding.Target.Target;
+            if (target == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(source, metadata);
-            attachedValueProvider.AddOrUpdate(source, GetPath(binding.Target.Path), binding, binding, binding, UpdateBindingDelegate);
+            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(target, metadata);
+            attachedValueProvider.AddOrUpdate(target, GetPath(binding.Target.Path), binding, binding, binding, UpdateBindingDelegate);
             return true;
         }
 
         public bool TryUnregister(IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
-            var source = binding.Target.Source;
-            if (source == null)
+            var target = binding.Target.Target;
+            if (target == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetAttachedValueProvider(source, metadata);
+            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetAttachedValueProvider(target, metadata);
             if (attachedValueProvider == null)
                 return false;
 
-            return attachedValueProvider.Clear(source, GetPath(binding.Target.Path));
+            return attachedValueProvider.Clear(target, GetPath(binding.Target.Path));
         }
 
         #endregion

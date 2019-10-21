@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Observers
 
         public static EventListenerCollection GetOrAdd(object item, string path, IAttachedValueManager? valueManager = null)
         {
-            return valueManager.ServiceIfNull().GetOrAdd(item, path, (object?) null, (object?) null, (_, __, ___) => new EventListenerCollection());
+            return valueManager.ServiceIfNull().GetOrAdd(item, path, (object?)null, (object?)null, (_, __, ___) => new EventListenerCollection());
         }
 
         public static void Raise(object item, string path, object message, IAttachedValueManager? valueManager = null)
@@ -75,12 +75,12 @@ namespace MugenMvvm.Binding.Observers
                 WeakEventListener.TryHandle(_listeners, sender, args);
         }
 
-        public Unsubscriber Add(IEventListener target)
+        public Unsubscriber Add(IEventListener listener)
         {
-            var source = WeakEventListener.GetSource(target);
+            var target = WeakEventListener.GetTarget(listener);
             if (_listeners == null)
             {
-                _listeners = source;
+                _listeners = target;
                 _size = 1;
                 _removedSize = 0;
             }
@@ -96,7 +96,7 @@ namespace MugenMvvm.Binding.Observers
                             _listeners = listeners;
                         }
 
-                        listeners[_size++] = source;
+                        listeners[_size++] = target;
                     }
                     else
                     {
@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Observers
                         {
                             if (listeners[i] == null)
                             {
-                                listeners[i] = source;
+                                listeners[i] = target;
                                 --_removedSize;
                                 break;
                             }
@@ -113,13 +113,13 @@ namespace MugenMvvm.Binding.Observers
                 }
                 else
                 {
-                    _listeners = new {_listeners, source};
+                    _listeners = new[] { _listeners, target };
                     _size = 2;
                     _removedSize = 0;
                 }
             }
 
-            return new Unsubscriber(this, source, null);
+            return new Unsubscriber(this, target, null);
         }
 
         public bool Remove(IEventListener listener)
@@ -171,7 +171,7 @@ namespace MugenMvvm.Binding.Observers
 
             if (_size == 0)
                 _listeners = null;
-            else if (listeners.Length / (float) _size > 2)
+            else if (listeners.Length / (float)_size > 2)
             {
                 var array = new object[_size + (_size >> 2)];
                 Array.Copy(listeners, 0, array, 0, _size);

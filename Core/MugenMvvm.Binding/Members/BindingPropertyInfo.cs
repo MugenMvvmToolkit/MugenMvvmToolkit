@@ -86,21 +86,21 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
                 _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, _propertyInfo);
-            return _observer.Value.TryObserve(source, listener, metadata);
+            return _observer.Value.TryObserve(target, listener, metadata);
         }
 
-        public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            return _getterFunc(source);
+            return _getterFunc(target);
         }
 
-        public void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null)
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            _setterFunc(source, value);
+            _setterFunc(target, value);
         }
 
         #endregion

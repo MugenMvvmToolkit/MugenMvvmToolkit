@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         private object? _listeners;
-        private object? _source;
+        private object? _target;
 
         protected const byte ObservableFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
@@ -23,10 +23,10 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        protected ObserverBase(object source)
+        protected ObserverBase(object target)
         {
-            Should.NotBeNull(source, nameof(source));
-            _source = source;
+            Should.NotBeNull(target, nameof(target));
+            _target = target;
         }
 
         #endregion
@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Observers
         {
             get
             {
-                if (_source is IWeakReference w)
+                if (_target is IWeakReference w)
                     return w.Target != null;
                 return true;
             }
@@ -45,13 +45,13 @@ namespace MugenMvvm.Binding.Observers
 
         public abstract IMemberPath Path { get; }
 
-        public object? Source
+        public object? Target
         {
             get
             {
-                if (_source is IWeakReference w)
+                if (_target is IWeakReference w)
                     return w.Target;
-                return _source;
+                return _target;
             }
         }
 
@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Observers
             if (ReferenceEquals(_listeners, DisposedItems))
                 return;
             _listeners = DisposedItems;
-            _source = null;
+            _target = null;
             OnDisposed();
         }
 

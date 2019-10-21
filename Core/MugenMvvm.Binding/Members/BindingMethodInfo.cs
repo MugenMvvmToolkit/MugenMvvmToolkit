@@ -76,11 +76,11 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
                 _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, _method);
-            return _observer.Value.TryObserve(source, listener, metadata);
+            return _observer.Value.TryObserve(target, listener, metadata);
         }
 
         public IBindingParameterInfo[] GetParameters()
@@ -98,9 +98,9 @@ namespace MugenMvvm.Binding.Members
             return new BindingMethodInfo(Name, _method.MakeGenericMethod(types), _reflectedType, _observerProvider);
         }
 
-        public object? Invoke(object? source, object?[] args, IReadOnlyMetadataContext? metadata = null)
+        public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {
-            return _invoker(source, args);
+            return _invoker(target, args);
         }
 
         #endregion

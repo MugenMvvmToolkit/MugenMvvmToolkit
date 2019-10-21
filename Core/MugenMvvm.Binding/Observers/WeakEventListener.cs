@@ -9,7 +9,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        public readonly object Source;
+        public readonly object Target;
 
         #endregion
 
@@ -17,60 +17,60 @@ namespace MugenMvvm.Binding.Observers
 
         public WeakEventListener(IEventListener listener)
         {
-            Source = GetSource(listener);
+            Target = GetTarget(listener);
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsEmpty => Source == null;
+        public bool IsEmpty => Target == null;
 
-        public bool IsAlive => GetIsAlive(Source);
+        public bool IsAlive => GetIsAlive(Target);
 
-        public IEventListener? Listener => GetListener(Source);
+        public IEventListener? Listener => GetListener(Target);
 
         #endregion
 
         #region Methods
 
-        public bool TryHandle(object sender, object? message) => TryHandle(Source, sender, message);
+        public bool TryHandle(object sender, object? message) => TryHandle(Target, sender, message);
 
-        public static object GetSource(IEventListener listener)
+        public static object GetTarget(IEventListener listener)
         {
             if (listener.IsWeak)
                 return listener;
             return listener.ToWeakReference();
         }
 
-        public static bool GetIsAlive(object? source)
+        public static bool GetIsAlive(object? target)
         {
-            if (source == null)
+            if (target == null)
                 return false;
-            if (source is IEventListener listener)
+            if (target is IEventListener listener)
                 return listener.IsAlive;
-            listener = (IEventListener)((IWeakReference)source).Target!;
+            listener = (IEventListener)((IWeakReference)target).Target!;
             return listener != null && listener.IsAlive;
         }
 
-        public static IEventListener? GetListener(object? source)
+        public static IEventListener? GetListener(object? target)
         {
-            if (source == null)
+            if (target == null)
                 return null;
-            if (source is IEventListener listener)
+            if (target is IEventListener listener)
                 return listener;
-            return (IEventListener?)((IWeakReference)source).Target;
+            return (IEventListener?)((IWeakReference)target).Target;
         }
 
-        public static bool TryHandle(object? source, object sender, object? message)
+        public static bool TryHandle(object? target, object sender, object? message)
         {
-            if (source == null)
+            if (target == null)
                 return false;
 
-            if (source is IEventListener listener)
+            if (target is IEventListener listener)
                 return listener.TryHandle(sender, message);
 
-            listener = (IEventListener)((IWeakReference)source).Target!;
+            listener = (IEventListener)((IWeakReference)target).Target!;
             return listener != null && listener.TryHandle(sender, message);
         }
 

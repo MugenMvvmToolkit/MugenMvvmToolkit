@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace MugenMvvm.Binding.Members.Descriptors
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindableEventDescriptor<TSource> where TSource : class
+    public readonly struct BindableEventDescriptor<TTarget> where TTarget : class
     {
         #region Fields
 
@@ -31,12 +31,12 @@ namespace MugenMvvm.Binding.Members.Descriptors
             return new BindableEventDescriptor<TNewSource>(Name);
         }
 
-        public static implicit operator BindableEventDescriptor<TSource>(string path)
+        public static implicit operator BindableEventDescriptor<TTarget>(string path)
         {
-            return new BindableEventDescriptor<TSource>(path);
+            return new BindableEventDescriptor<TTarget>(path);
         }
 
-        public static implicit operator string(BindableEventDescriptor<TSource> member)
+        public static implicit operator string(BindableEventDescriptor<TTarget> member)
         {
             return member.Name;
         }

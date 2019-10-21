@@ -45,13 +45,13 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        Unsubscriber MemberObserver.IHandler.TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        Unsubscriber MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            if (source == null)
+            if (target == null)
                 return default;
             return _attachedValueManager
                 .ServiceIfNull()
-                .GetOrAdd((INotifyPropertyChanged)source, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string)member);
         }
 
@@ -120,7 +120,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 for (var i = 0; i < _listeners.Length; i++)
                 {
                     var pair = _listeners[i];
-                    if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Source, state1))
+                    if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Target, state1))
                     {
                         ++_removedSize;
                         _listeners[i] = default;
@@ -190,7 +190,7 @@ namespace MugenMvvm.Binding.Observers.Components
                     }
                 }
 
-                return new Unsubscriber(this, weakItem.Source, path);
+                return new Unsubscriber(this, weakItem.Target, path);
             }
 
             private void Cleanup()

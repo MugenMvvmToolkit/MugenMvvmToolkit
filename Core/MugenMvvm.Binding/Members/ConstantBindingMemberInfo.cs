@@ -55,17 +55,17 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             return default;
         }
 
-        public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
             return _result;
         }
 
-        public void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null)
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (!CanWrite)
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);

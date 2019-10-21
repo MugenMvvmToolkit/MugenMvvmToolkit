@@ -20,8 +20,8 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodSinglePathObserver(string observableMethodName, object source, IMemberPath path, MemberFlags memberFlags, bool optional)
-            : base(source, path, memberFlags, true, optional)
+        public MethodSinglePathObserver(string observableMethodName, object target, IMemberPath path, MemberFlags memberFlags, bool optional)
+            : base(target, path, memberFlags, true, optional)
         {
             Should.NotBeNull(observableMethodName, nameof(observableMethodName));
             _observableMethodName = observableMethodName;
@@ -31,17 +31,17 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected override void SubscribeLastMember(object source, IBindingMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
         {
-            base.SubscribeLastMember(source, lastMember);
-            AddMethodObserver(source, lastMember);
+            base.SubscribeLastMember(target, lastMember);
+            AddMethodObserver(target, lastMember);
         }
 
         protected override void OnLastMemberChanged()
         {
             base.OnLastMemberChanged();
             var lastMember = GetLastMember();
-            AddMethodObserver(lastMember.Source, lastMember.LastMember);
+            AddMethodObserver(lastMember.Target, lastMember.LastMember);
         }
 
         protected override void UnsubscribeLastMember()
@@ -50,16 +50,16 @@ namespace MugenMvvm.Binding.Observers
             _unsubscriber = default;
         }
 
-        private void AddMethodObserver(object? source, IBindingMemberInfo? lastMember)
+        private void AddMethodObserver(object? target, IBindingMemberInfo? lastMember)
         {
             _unsubscriber.Unsubscribe();
-            if (source == null || !(lastMember is IBindingPropertyInfo propertyInfo))
+            if (target == null || !(lastMember is IBindingPropertyInfo propertyInfo))
             {
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
                 return;
             }
 
-            var value = propertyInfo.GetValue(source);
+            var value = propertyInfo.GetValue(target);
             if (ReferenceEquals(value, _lastValueRef?.Target))
                 return;
 
@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Observers
             var memberFlags = MemberFlags & ~MemberFlags.Static;
             var member = MugenBindingService.MemberProvider.GetMember(type!, _observableMethodName, BindingMemberType.Method, memberFlags);
             if (member is IObservableBindingMemberInfo observable)
-                _unsubscriber = observable.TryObserve(source, this);
+                _unsubscriber = observable.TryObserve(target, this);
             if (_unsubscriber.IsEmpty)
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
         }

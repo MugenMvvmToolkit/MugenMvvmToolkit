@@ -25,8 +25,8 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public SinglePathObserver(object source, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
-            : base(source)
+        public SinglePathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
+            : base(target)
         {
             Should.NotBeNull(path, nameof(path));
             MemberFlags = memberFlags;
@@ -81,11 +81,11 @@ namespace MugenMvvm.Binding.Observers
             if (_exception != null)
                 return new MemberPathMembers(_exception);
 
-            var source = Source;
-            if (source == null || _lastMember == null)
+            var target = Target;
+            if (target == null || _lastMember == null)
                 return default;
 
-            return new MemberPathMembers(source, new[] { _lastMember });
+            return new MemberPathMembers(target, new[] { _lastMember });
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -94,11 +94,11 @@ namespace MugenMvvm.Binding.Observers
             if (_exception != null)
                 return new MemberPathLastMember(_exception);
 
-            var source = Source;
-            if (source == null || _lastMember == null)
+            var target = Target;
+            if (target == null || _lastMember == null)
                 return default;
 
-            return new MemberPathLastMember(source, _lastMember);
+            return new MemberPathLastMember(target, _lastMember);
         }
 
         protected override void OnListenerAdded(IMemberPathObserverListener listener)
@@ -106,11 +106,11 @@ namespace MugenMvvm.Binding.Observers
             UpdateIfNeed();
             if (Observable && _lastMemberUnsubscriber.IsEmpty && _lastMember != null)
             {
-                var source = Source;
-                if (source == null)
+                var target = Target;
+                if (target == null)
                     _lastMemberUnsubscriber = Unsubscriber.NoDoUnsubscriber;
                 else
-                    SubscribeLastMember(source, _lastMember);
+                    SubscribeLastMember(target, _lastMember);
             }
         }
 
@@ -141,8 +141,8 @@ namespace MugenMvvm.Binding.Observers
         {
             try
             {
-                var source = Source;
-                if (source == null)
+                var target = Target;
+                if (target == null)
                 {
                     SetLastMember(null, null);
                     return;
@@ -153,18 +153,18 @@ namespace MugenMvvm.Binding.Observers
 
                 _lastMember = MugenBindingService
                     .MemberProvider
-                    .GetMember(source as Type ?? source.GetType(), Path.Path, BindingMemberType.Event | BindingMemberType.Field | BindingMemberType.Property, MemberFlags);
+                    .GetMember(target as Type ?? target.GetType(), Path.Path, BindingMemberType.Event | BindingMemberType.Field | BindingMemberType.Property, MemberFlags);
                 if (_lastMember == null)
                 {
                     if (Optional)
                         SetLastMember(null, null);
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(source.GetType(), Path.Path);
+                        BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), Path.Path);
                     return;
                 }
 
                 if (Observable && HasListeners)
-                    SubscribeLastMember(source, _lastMember);
+                    SubscribeLastMember(target, _lastMember);
                 SetLastMember(_lastMember, _exception);
             }
             catch (Exception e)
@@ -181,11 +181,11 @@ namespace MugenMvvm.Binding.Observers
             OnLastMemberChanged();
         }
 
-        protected virtual void SubscribeLastMember(object source, IBindingMemberInfo? lastMember)
+        protected virtual void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
         {
             _lastMemberUnsubscriber.Unsubscribe();
             if (lastMember is IObservableBindingMemberInfo observable)
-                _lastMemberUnsubscriber = observable.TryObserve(source, this);
+                _lastMemberUnsubscriber = observable.TryObserve(target, this);
             if (_lastMemberUnsubscriber.IsEmpty)
                 _lastMemberUnsubscriber = Unsubscriber.NoDoUnsubscriber;
         }

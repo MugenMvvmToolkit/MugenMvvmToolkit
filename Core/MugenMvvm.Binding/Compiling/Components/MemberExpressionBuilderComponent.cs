@@ -101,16 +101,16 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Methods
 
         [Preserve(Conditional = true)]
-        public object? GetValueDynamic(object? source, string member, IReadOnlyMetadataContext? metadata)
+        public object? GetValueDynamic(object? target, string member, IReadOnlyMetadataContext? metadata)
         {
-            if (source == null)
+            if (target == null)
                 return null;
             var property = MugenBindingService
                 .MemberProvider
-                .GetMember(source.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~MemberFlags.Static, metadata) as IBindingPropertyInfo;
+                .GetMember(target.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~MemberFlags.Static, metadata) as IBindingPropertyInfo;
             if (property == null)
-                BindingExceptionManager.ThrowInvalidBindingMember(source.GetType(), member);
-            return property!.GetValue(source, metadata);
+                BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
+            return property!.GetValue(target, metadata);
         }
 
         private static Expression? TryCompile(Expression? target, object? member)

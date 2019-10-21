@@ -34,11 +34,11 @@ namespace MugenMvvm.Binding.Observers
         #region Methods
 
         [Pure]
-        public Unsubscriber TryObserve(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (_handler == null)
                 return default;
-            return _handler.TryObserve(source, Member, listener, metadata);
+            return _handler.TryObserve(target, Member, listener, metadata);
         }
 
         #endregion
@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Observers
 
         public interface IHandler
         {
-            Unsubscriber TryObserve(object? source, object member, IEventListener listener, IReadOnlyMetadataContext? metadata);
+            Unsubscriber TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata);
         }
 
         #endregion

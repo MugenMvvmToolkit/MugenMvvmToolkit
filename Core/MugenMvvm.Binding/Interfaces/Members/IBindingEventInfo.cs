@@ -7,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IBindingEventInfo : IBindingMemberInfo
     {
-        Unsubscriber TrySubscribe(object? source, IEventListener listener, IReadOnlyMetadataContext? metadata = null);
+        Unsubscriber TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null);
     }
 }

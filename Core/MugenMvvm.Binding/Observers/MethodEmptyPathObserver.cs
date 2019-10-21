@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodEmptyPathObserver(string observableMethodName, object source, MemberFlags memberFlags) : base(source)
+        public MethodEmptyPathObserver(string observableMethodName, object target, MemberFlags memberFlags) : base(target)
         {
             Should.NotBeNull(observableMethodName, nameof(observableMethodName));
             _memberFlags = memberFlags;
@@ -55,20 +55,20 @@ namespace MugenMvvm.Binding.Observers
 
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            var source = Source;
-            if (source == null)
+            var target = Target;
+            if (target == null)
                 return default;
 
-            return new MemberPathMembers(source, ConstantBindingMemberInfo.NullArray);
+            return new MemberPathMembers(target, ConstantBindingMemberInfo.NullArray);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            var source = Source;
-            if (source == null)
+            var target = Target;
+            if (target == null)
                 return default;
 
-            return new MemberPathLastMember(source, ConstantBindingMemberInfo.Null);
+            return new MemberPathLastMember(target, ConstantBindingMemberInfo.Null);
         }
 
         protected override void OnDisposed()
@@ -81,14 +81,14 @@ namespace MugenMvvm.Binding.Observers
         {
             if (!_unsubscriber.IsEmpty)
                 return;
-            var source = Source;
-            if (source == null)
+            var target = Target;
+            if (target == null)
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
             else
             {
-                var member = MugenBindingService.MemberProvider.GetMember(source as Type ?? source.GetType(), _observableMethodName, BindingMemberType.Method, _memberFlags);
+                var member = MugenBindingService.MemberProvider.GetMember(target as Type ?? target.GetType(), _observableMethodName, BindingMemberType.Method, _memberFlags);
                 if (member is IObservableBindingMemberInfo observable)
-                    _unsubscriber = observable.TryObserve(source, this);
+                    _unsubscriber = observable.TryObserve(target, this);
                 if (_unsubscriber.IsEmpty)
                     _unsubscriber = Unsubscriber.NoDoUnsubscriber;
             }

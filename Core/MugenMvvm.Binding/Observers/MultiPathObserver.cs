@@ -26,9 +26,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MultiPathObserver(object source, IMemberPath path,
+        public MultiPathObserver(object target, IMemberPath path,
             MemberFlags memberFlags, bool hasStablePath, bool observable, bool optional)
-            : base(source)
+            : base(target)
         {
             MemberFlags = memberFlags;
             if (hasStablePath)
@@ -83,15 +83,15 @@ namespace MugenMvvm.Binding.Observers
             if (_exception != null)
                 return new MemberPathMembers(_exception);
 
-            var source = Source;
-            if (source == null)
+            var target = Target;
+            if (target == null)
                 return default;
 
             var penultimateValue = _penultimateValue?.Target;
             if (penultimateValue == null || _members == null)
                 return default;
 
-            return new MemberPathMembers(source, _members);
+            return new MemberPathMembers(target, _members);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -112,9 +112,9 @@ namespace MugenMvvm.Binding.Observers
             UpdateIfNeed();
             if (_listeners != null && _members != null && _listeners[_listeners.Length - 1].IsEmpty && _penultimateValue != null)
             {
-                var source = _penultimateValue.Target;
-                if (source != null)
-                    SubscribeLastMember(source, _members[_members.Length - 1]);
+                var target = _penultimateValue.Target;
+                if (target != null)
+                    SubscribeLastMember(target, _members[_members.Length - 1]);
             }
         }
 
@@ -147,8 +147,8 @@ namespace MugenMvvm.Binding.Observers
         {
             try
             {
-                var source = Source;
-                if (source == null)
+                var target = Target;
+                if (target == null)
                 {
                     SetMembers(null, null, null);
                     return false;
@@ -158,7 +158,7 @@ namespace MugenMvvm.Binding.Observers
 
                 if (HasStablePath && _members != null)
                 {
-                    UpdateHasStablePath(_members, source);
+                    UpdateHasStablePath(_members, target);
                     return true;
                 }
 
@@ -167,7 +167,7 @@ namespace MugenMvvm.Binding.Observers
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
-                var type = source as Type ?? source.GetType();
+                var type = target as Type ?? target.GetType();
                 for (var i = 0; i < members.Length; i++)
                 {
                     var member = provider.GetMember(type, paths[i],
@@ -180,7 +180,7 @@ namespace MugenMvvm.Binding.Observers
                         if (Optional)
                             SetMembers(null, null, null);
                         else
-                            BindingExceptionManager.ThrowInvalidBindingMember(source.GetType(), paths[i]);
+                            BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), paths[i]);
                         return true;
                     }
 
@@ -189,21 +189,21 @@ namespace MugenMvvm.Binding.Observers
                         break;
 
                     if (_listeners != null && member is IObservableBindingMemberInfo observable)
-                        _listeners[i] = observable.TryObserve(source, this);
+                        _listeners[i] = observable.TryObserve(target, this);
 
-                    source = (member as IBindingPropertyInfo)?.GetValue(source);
-                    if (source.IsNullOrUnsetValue())
+                    target = (member as IBindingPropertyInfo)?.GetValue(target);
+                    if (target.IsNullOrUnsetValue())
                     {
                         SetMembers(null, null, null);
                         return true;
                     }
 
-                    type = source!.GetType();
+                    type = target!.GetType();
                 }
 
                 if (_listeners != null && HasListeners)
-                    SubscribeLastMember(source, members[members.Length - 1]);
-                SetMembers(source.ToWeakReference(), members, null);
+                    SubscribeLastMember(target, members[members.Length - 1]);
+                SetMembers(target.ToWeakReference(), members, null);
             }
             catch (Exception e)
             {
@@ -214,16 +214,16 @@ namespace MugenMvvm.Binding.Observers
             return true;
         }
 
-        private void UpdateHasStablePath(IBindingMemberInfo[] members, object source)
+        private void UpdateHasStablePath(IBindingMemberInfo[] members, object target)
         {
             for (var index = 0; index < members.Length - 1; index++)
             {
                 var member = members[index];
                 if (_listeners != null && member is IObservableBindingMemberInfo observable)
-                    _listeners[index] = observable.TryObserve(source, this);
+                    _listeners[index] = observable.TryObserve(target, this);
 
-                source = (member as IBindingPropertyInfo)?.GetValue(source)!;
-                if (source.IsNullOrUnsetValue())
+                target = (member as IBindingPropertyInfo)?.GetValue(target)!;
+                if (target.IsNullOrUnsetValue())
                 {
                     SetMembers(null, members, null);
                     return;
@@ -231,9 +231,9 @@ namespace MugenMvvm.Binding.Observers
             }
 
             if (_listeners != null && HasListeners && _members != null)
-                SubscribeLastMember(source, _members[_members.Length - 1]);
+                SubscribeLastMember(target, _members[_members.Length - 1]);
 
-            SetMembers(source.ToWeakReference(), members, null);
+            SetMembers(target.ToWeakReference(), members, null);
         }
 
         private void SetMembers(IWeakReference? penultimateValue, IBindingMemberInfo[]? members, Exception? exception)
@@ -265,13 +265,13 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        protected virtual void SubscribeLastMember(object source, IBindingMemberInfo? lastMember)
+        protected virtual void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
         {
             if (_listeners == null)
                 return;
             Unsubscriber unsubscriber = default;
             if (lastMember is IObservableBindingMemberInfo observable)
-                unsubscriber = observable.TryObserve(source, GetLastMemberListener());
+                unsubscriber = observable.TryObserve(target, GetLastMemberListener());
             if (unsubscriber.IsEmpty)
                 _listeners[_listeners.Length - 1] = Unsubscriber.NoDoUnsubscriber;
             else

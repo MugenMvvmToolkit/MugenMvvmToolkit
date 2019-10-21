@@ -47,16 +47,16 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public object? GetValue(object? source, IReadOnlyMetadataContext? metadata = null)
+        public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(source, nameof(source));
-            return ((Array)source!).GetValue(_indexes);
+            Should.NotBeNull(target, nameof(target));
+            return ((Array)target!).GetValue(_indexes);
         }
 
-        public void SetValue(object? source, object? value, IReadOnlyMetadataContext? metadata = null)
+        public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(source, nameof(source));
-            ((Array)source!).SetValue(value, _indexes);
+            Should.NotBeNull(target, nameof(target));
+            ((Array)target!).SetValue(value, _indexes);
         }
 
         public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)

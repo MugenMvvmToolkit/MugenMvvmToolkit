@@ -7,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
     {
         void SetIndex(int index);
 
-        IMemberPathObserver GetObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
+        IMemberPathObserver GetObserver(object target, object? source, IReadOnlyMetadataContext? metadata);//todo review
     }
 }

@@ -17,6 +17,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         IBindingMethodInfo MakeGenericMethod(Type[] types);
 
-        object? Invoke(object? source, object?[] args, IReadOnlyMetadataContext? metadata = null);//todo review source -> target
+        object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
     }
 }

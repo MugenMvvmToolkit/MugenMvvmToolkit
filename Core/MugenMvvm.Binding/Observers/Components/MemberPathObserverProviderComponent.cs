@@ -26,10 +26,10 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object source, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TryGetMemberPathObserverDelegate is FuncEx<TRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver> provider)
-                return provider.Invoke(request, source, metadata);
+                return provider.Invoke(request, target, metadata);
             return null;
         }
 
@@ -37,32 +37,32 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private static IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object source, IReadOnlyMetadataContext? metadata)
+        private static IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object target, IReadOnlyMetadataContext? metadata)
         {
             var memberFlags = request.MemberFlags;
             var isStatic = memberFlags.HasFlagEx(MemberFlags.Static);
-            object sourceValue;
-            if (isStatic && source is Type)
-                sourceValue = source;
+            object targetValue;
+            if (isStatic && target is Type)
+                targetValue = target;
             else
-                sourceValue = source.ToWeakReference();
+                targetValue = target.ToWeakReference();
 
             var path = request.Path;
             var observableMethod = request.ObservableMethodName;
             if (string.IsNullOrEmpty(observableMethod))
             {
                 if (path.IsSingle)
-                    return new SinglePathObserver(sourceValue, path, memberFlags, request.Observable, request.Optional);
+                    return new SinglePathObserver(targetValue, path, memberFlags, request.Observable, request.Optional);
                 if (path.Members.Length == 0)
-                    return new EmptyPathObserver((IWeakReference) sourceValue);
-                return new MultiPathObserver(sourceValue, path, memberFlags, request.HasStablePath, request.Observable, request.Optional);
+                    return new EmptyPathObserver((IWeakReference) targetValue);
+                return new MultiPathObserver(targetValue, path, memberFlags, request.HasStablePath, request.Observable, request.Optional);
             }
 
             if (path.IsSingle)
-                return new MethodSinglePathObserver(observableMethod, sourceValue, path, memberFlags, request.Optional);
+                return new MethodSinglePathObserver(observableMethod, targetValue, path, memberFlags, request.Optional);
             if (path.Members.Length == 0)
-                return new MethodEmptyPathObserver(observableMethod, sourceValue, memberFlags);
-            return new MethodMultiPathObserver(observableMethod, sourceValue, path, memberFlags, request.HasStablePath, request.Optional);
+                return new MethodEmptyPathObserver(observableMethod, targetValue, memberFlags);
+            return new MethodMultiPathObserver(observableMethod, targetValue, path, memberFlags, request.HasStablePath, request.Optional);
         }
 
         #endregion
