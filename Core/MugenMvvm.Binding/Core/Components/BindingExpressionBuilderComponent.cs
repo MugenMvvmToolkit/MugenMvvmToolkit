@@ -306,7 +306,7 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 if (metadata == null)
                     metadata = MetadataRaw;
-                var binding = new Binding(TargetExpression.GetObserver(target, target, metadata), _sourceExpression.GetObserver(target, source, metadata));
+                var binding = new Binding(TargetExpression.GetTargetObserver(target, source, metadata), _sourceExpression.GetSourceObserver(target, source, metadata));
                 InitializeBinding(binding, target, source, metadata);
                 return binding;
             }
@@ -343,8 +343,8 @@ namespace MugenMvvm.Binding.Core.Components
                     metadata = MetadataRaw;
                 var sources = new IMemberPathObserver[_sourceExpressions.Length];
                 for (var i = 0; i < sources.Length; i++)
-                    sources[i] = _sourceExpressions[i].GetObserver(target, source, metadata);
-                var binding = new MultiBinding(TargetExpression.GetObserver(target, target, metadata), sources, _compiledExpression);
+                    sources[i] = _sourceExpressions[i].GetSourceObserver(target, source, metadata);
+                var binding = new MultiBinding(TargetExpression.GetTargetObserver(target, source, metadata), sources, _compiledExpression);
                 InitializeBinding(binding, target, source, metadata);
                 return binding;
             }
