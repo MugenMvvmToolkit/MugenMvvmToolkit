@@ -42,20 +42,35 @@ namespace MugenMvvm.Binding
                 {
                     if (target is IIndexExpressionNode indexExpressionNode && indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant))
                     {
-                        IEnumerable<string> args = indexExpressionNode
-                            .Arguments
-                            .Cast<IConstantExpressionNode>()
-                            .Select(node => node.Value.ToStringValue());
-                        builder.Insert(0, "[" + string.Join(",", args).Trim() + "]");
+                        var args = indexExpressionNode.Arguments;
+                        builder.Insert(0, ']');
+                        if (args.Count > 0)
+                        {
+                            args.Last().ToStringValue(builder);
+                            for (int i = args.Count - 2; i >= 0; i--)
+                            {
+                                builder.Insert(0, ',');
+                                args[i].ToStringValue(builder);
+                            }
+                        }
+                        builder.Insert(0, '[');
                         target = indexExpressionNode.Target;
                     }
                     else if (target is IMethodCallExpressionNode methodCallExpression && methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant))
                     {
-                        IEnumerable<string> args = methodCallExpression
-                            .Arguments
-                            .Cast<IConstantExpressionNode>()
-                            .Select(node => node.Value.ToStringValue());
-                        builder.Insert(0, "(" + string.Join(",", args).Trim() + ")");
+                        var args = methodCallExpression.Arguments;
+                        builder.Insert(0, ')');
+                        if (args.Count > 0)
+                        {
+                            args.Last().ToStringValue(builder);
+                            for (int i = args.Count - 2; i >= 0; i--)
+                            {
+                                builder.Insert(0, ',');
+                                args[i].ToStringValue(builder);
+                            }
+                        }
+                        builder.Insert(0, '(');
+                        builder.Insert(0, methodCallExpression.MethodName);
                         target = methodCallExpression.Target;
                     }
                     else

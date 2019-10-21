@@ -23,15 +23,6 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
-        internal static string ToStringValue(this object? o)
-        {
-            if (o == null)
-                return "null";
-            if (o is string)
-                return "\"" + o + "\"";
-            return o.ToString();
-        }
-
         internal static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag)
         {
             return (attributes & flag) == flag;
@@ -137,6 +128,28 @@ namespace MugenMvvm.Binding
             if (method.IsStatic)
                 return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
             return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+        }
+
+        private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
+        {
+            var constantExpressionNode = (IConstantExpressionNode)expression;
+            var value = constantExpressionNode.Value;
+
+            if (value == null)
+            {
+                builder.Insert(0, "null");
+                return;
+            }
+
+            if (value is string st)
+            {
+                builder.Insert(0, '"');
+                builder.Insert(0, st);
+                builder.Insert(0, '"');
+                return;
+            }
+
+            builder.Insert(0, value);
         }
 
         private static IEnumerable<Type> SelfAndBaseClasses(Type type)
