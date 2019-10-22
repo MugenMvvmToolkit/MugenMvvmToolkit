@@ -43,6 +43,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         private bool Observable => Flags.HasFlagEx(BindingMemberExpressionFlags.Observable);
 
+        private bool ObservableMethod => Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethod);
+
         private bool Optional => Flags.HasFlagEx(BindingMemberExpressionFlags.Optional);
 
         private bool TargetOnly => Flags.HasFlagEx(BindingMemberExpressionFlags.TargetOnly);
@@ -80,8 +82,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 source = null;
 
             var provider = _observerProvider.ServiceIfNull();
-            return provider.GetMemberPathObserver(source ?? target,
-                new MemberPathObserverRequest(source ?? target, GetPath(provider, source, metadata), MemberFlags, _observableMethodName, HasStablePath, Observable, Optional), metadata);
+            var request = new MemberPathObserverRequest(source ?? target, GetPath(provider, source, metadata), MemberFlags, ObservableMethod ? _observableMethodName : null,
+                HasStablePath, Observable, Optional);
+            return provider.GetMemberPathObserver(source ?? target, request, metadata);
         }
 
         #endregion

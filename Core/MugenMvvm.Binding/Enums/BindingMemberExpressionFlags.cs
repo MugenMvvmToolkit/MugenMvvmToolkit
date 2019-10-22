@@ -7,9 +7,10 @@ namespace MugenMvvm.Binding.Enums
     {
         StablePath = 1,
         Observable = 1 << 1,
-        Optional = 1 << 2,
-        TargetOnly = 1 << 3,
-        SourceOnly = 1 << 4,
-        ContextOnly = 1 << 5
+        ObservableMethod = 1 << 2,
+        Optional = 1 << 3,
+        TargetOnly = 1 << 4,
+        SourceOnly = 1 << 5,
+        ContextOnly = 1 << 6
     }
 }
