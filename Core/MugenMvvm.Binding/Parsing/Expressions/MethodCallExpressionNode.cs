@@ -47,6 +47,17 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #endregion
 
+        #region Implementation of interfaces
+
+        public IHasTargetExpressionNode UpdateTarget(IExpressionNode? target)
+        {
+            if (Method == null)
+                return new MethodCallExpressionNode(target, MethodName, Arguments, TypeArgs);
+            return new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
+        }
+
+        #endregion
+
         #region Methods
 
         protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
@@ -67,7 +78,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             if (changed || itemsChanged)
-                return new MethodCallExpressionNode(target, MethodName, newArgs ?? Arguments, TypeArgs) { Method = Method };
+                return new MethodCallExpressionNode(target, MethodName, newArgs ?? Arguments, TypeArgs) {Method = Method};
             return this;
         }
 

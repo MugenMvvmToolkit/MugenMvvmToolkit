@@ -3,15 +3,13 @@ using System.Reflection;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IMethodCallExpressionNode : IExpressionNode
+    public interface IMethodCallExpressionNode : IHasTargetExpressionNode
     {
         MethodInfo? Method { get; }
 
         string MethodName { get; }
 
         IReadOnlyList<string> TypeArgs { get; }
-
-        IExpressionNode? Target { get; }
 
         IReadOnlyList<IExpressionNode> Arguments { get; }
     }

@@ -2,12 +2,10 @@
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IMemberExpressionNode : IExpressionNode
+    public interface IMemberExpressionNode : IHasTargetExpressionNode
     {
         MemberInfo? Member { get; }
 
         string MemberName { get; }
-
-        IExpressionNode? Target { get; }
     }
 }

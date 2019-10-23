@@ -91,9 +91,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     return methodCall;
             }
 
-            if (methodCall.Method == null)
-                return new MethodCallExpressionNode(member, methodCall.MethodName, methodCall.Arguments, methodCall.TypeArgs).Accept(this);
-            return new MethodCallExpressionNode(member, methodCall.Method, methodCall.Arguments, methodCall.TypeArgs).Accept(this);
+            return methodCall.UpdateTarget(member).Accept(this);
         }
 
         private IExpressionNode VisitMemberExpression(IMemberExpressionNode memberExpression)

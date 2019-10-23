@@ -3,11 +3,9 @@ using System.Reflection;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IIndexExpressionNode : IExpressionNode
+    public interface IIndexExpressionNode : IHasTargetExpressionNode
     {
         PropertyInfo? Indexer { get; }
-
-        IExpressionNode? Target { get; }
 
         IReadOnlyList<IExpressionNode> Arguments { get; }
     }

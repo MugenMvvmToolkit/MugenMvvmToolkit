@@ -9,19 +9,21 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        public MemberExpressionNode(IExpressionNode? target, string member)
+        private MemberExpressionNode(IExpressionNode? target, MemberInfo? memberInfo, string member)
         {
             Should.NotBeNull(member, nameof(member));
             Target = target;
+            Member = memberInfo;
             MemberName = member;
         }
 
-        public MemberExpressionNode(IExpressionNode? target, MemberInfo member)
+        public MemberExpressionNode(IExpressionNode? target, string member) : this(target, null, member)
         {
-            Should.NotBeNull(member, nameof(member));
-            Target = target;
-            Member = member;
-            MemberName = member.Name;
+        }
+
+        public MemberExpressionNode(IExpressionNode? target, MemberInfo member)
+            : this(target, member, member?.Name!)
+        {
         }
 
         #endregion
@@ -35,6 +37,15 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         public string MemberName { get; }
 
         public IExpressionNode? Target { get; }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public IHasTargetExpressionNode UpdateTarget(IExpressionNode? target)
+        {
+            return new MemberExpressionNode(target, Member, MemberName);
+        }
 
         #endregion
 

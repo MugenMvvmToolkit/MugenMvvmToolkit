@@ -39,6 +39,17 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #endregion
 
+        #region Implementation of interfaces
+
+        public IHasTargetExpressionNode UpdateTarget(IExpressionNode? target)
+        {
+            if (Indexer == null)
+                return new IndexExpressionNode(target, Arguments);
+            return new IndexExpressionNode(Indexer, target, Arguments);
+        }
+
+        #endregion
+
         #region Methods
 
         protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
@@ -59,7 +70,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             if (changed || itemsChanged)
-                return new IndexExpressionNode(target!, newArgs ?? Arguments) { Indexer = Indexer };
+                return new IndexExpressionNode(target!, newArgs ?? Arguments) {Indexer = Indexer};
             return this;
         }
 
