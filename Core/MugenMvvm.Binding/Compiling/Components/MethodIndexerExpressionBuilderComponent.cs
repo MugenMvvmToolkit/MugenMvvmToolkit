@@ -79,7 +79,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var type = BindingMugenExtensions.GetTargetType(ref target);
 
             if (methodCallExpression.Method != null)
-                return Expression.Call(target, methodCallExpression.Method, ToExpressions(methodCallExpression.Arguments, context));
+                return GenerateMethodCall(context, methodCallExpression.Method, target, methodCallExpression.Arguments);
 
             var targetData = new TargetData(methodCallExpression.Target, type, target);
             var args = new ArgumentData[methodCallExpression.Arguments.Count];
@@ -98,13 +98,13 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
 
             var target = context.Build(indexExpression.Target);
-            if (target.Type.IsArray)
-                return Expression.ArrayIndex(target, ToExpressions(indexExpression.Arguments, context));
-
             var type = BindingMugenExtensions.GetTargetType(ref target);
-            var method = indexExpression.Indexer?.GetGetMethodUnified(true);
-            if (method != null)
-                return Expression.Call(target, method, ToExpressions(indexExpression.Arguments, context));
+
+            if (indexExpression.Indexer != null)
+                return GenerateMethodCall(context, indexExpression.Indexer, target, indexExpression.Arguments);
+
+            if (target.Type.IsArray)
+                return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
 
             var targetData = new TargetData(indexExpression.Target, type, target);
             var args = new ArgumentData[indexExpression.Arguments.Count];
@@ -263,7 +263,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
 
             var result = methods[resultIndex];
-            var resultArgs = ConvertParameters(result, resultHasParams);
+            var resultArgs = ConvertParameters(context, result, resultHasParams);
 
             if (result.Method.Member is MethodInfo m)
                 return Expression.Call(result.IsExtensionMethod ? null : target.Expression, m, resultArgs);
@@ -273,6 +273,19 @@ namespace MugenMvvm.Binding.Compiling.Components
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
             invokeArgs[2] = context.MetadataParameter;
             return Expression.Call(Expression.Constant(result.Method, typeof(IBindingMethodInfo)), InvokeMethod, invokeArgs);
+        }
+
+        private static Expression GenerateMethodCall(ExpressionCompilerComponent.IContext context, IBindingMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
+        {
+            var expressions = ToExpressions(context, args, methodInfo, null);
+            if (methodInfo.Member is MethodInfo method)
+                return Expression.Call(target, method, expressions);
+
+            var invokeArgs = new Expression[3];
+            invokeArgs[0] = target.ConvertIfNeed(typeof(object), false);
+            invokeArgs[1] = Expression.NewArrayInit(typeof(object), expressions.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
+            invokeArgs[2] = context.MetadataParameter;
+            return Expression.Call(Expression.Constant(methodInfo, typeof(IBindingMethodInfo)), InvokeMethod, invokeArgs);
         }
 
         private static int TrySelectMethod(MethodData[] methods, ArgumentData[]? args, out bool resultHasParams)
@@ -414,7 +427,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ConvertParameters(in MethodData method, bool hasParams)
+        private static Expression[] ConvertParameters(ExpressionCompilerComponent.IContext context, in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
             var args = (Expression[])method.Args!;
@@ -426,13 +439,19 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     for (var j = i; j < parameters.Length; j++)
                     {
+                        var parameter = parameters[j];
                         if (j == parameters.Length - 1 && hasParams)
                         {
-                            var type = parameters[j].ParameterType.GetElementType();
+                            var type = parameter.ParameterType.GetElementType();
                             result[j] = Expression.NewArrayInit(type, Default.EmptyArray<Expression>());
                         }
                         else
-                            result[j] = Expression.Constant(parameters[j].DefaultValue).ConvertIfNeed(parameters[j].ParameterType, false);
+                        {
+                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
+                                result[j] = context.MetadataParameter;
+                            else
+                                result[j] = Expression.Constant(parameter.DefaultValue).ConvertIfNeed(parameter.ParameterType, false);
+                        }
                     }
 
                     break;
@@ -453,7 +472,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams)
+        private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams, IReadOnlyMetadataContext metadata)
         {
             var parameters = method.Parameters!;
             var result = args.Length == parameters.Length ? args : new object?[parameters.Length];
@@ -464,13 +483,19 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     for (var j = i; j < parameters.Length; j++)
                     {
+                        var parameter = parameters[j];
                         if (j == parameters.Length - 1 && hasParams)
                         {
                             ArraySize[0] = 0;
-                            result[j] = Array.CreateInstance(parameters[j].ParameterType.GetElementType(), ArraySize);
+                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
                         }
                         else
-                            result[j] = parameters[j].DefaultValue;
+                        {
+                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
+                                result[j] = metadata;
+                            else
+                                result[j] = parameter.DefaultValue;
+                        }
                     }
 
                     break;
@@ -644,11 +669,19 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ToExpressions(IReadOnlyList<IExpressionNode> args, ExpressionCompilerComponent.IContext context)
+        private static Expression[] ToExpressions(ExpressionCompilerComponent.IContext context, IReadOnlyList<IExpressionNode> args, IBindingMethodInfo? method, Type? convertType)
         {
+            var parameters = method?.GetParameters();
             var expressions = new Expression[args.Count];
             for (var i = 0; i < expressions.Length; i++)
-                expressions[i] = context.Build(args[i]);
+            {
+                var expression = context.Build(args[i]);
+                if (convertType != null)
+                    expression = expression.ConvertIfNeed(convertType, true);
+                else if (parameters != null && parameters.Length > i)
+                    expression = expression.ConvertIfNeed(parameters[i].ParameterType, true);
+                expressions[i] = expression;
+            }
             return expressions;
         }
 
@@ -742,7 +775,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     args = newArgs;
                 }
 
-                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamsArray ?? false), metadata);
+                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamsArray ?? false, metadata), metadata);
             }
 
             private static Type[] GetArgTypes(object?[]? args)

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
@@ -9,7 +10,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        private MemberExpressionNode(IExpressionNode? target, MemberInfo? memberInfo, string member)
+        private MemberExpressionNode(IExpressionNode? target, IBindingMemberAccessorInfo? memberInfo, string member)
         {
             Should.NotBeNull(member, nameof(member));
             Target = target;
@@ -21,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
         }
 
-        public MemberExpressionNode(IExpressionNode? target, MemberInfo member)
+        public MemberExpressionNode(IExpressionNode? target, IBindingMemberAccessorInfo member)
             : this(target, member, member?.Name!)
         {
         }
@@ -32,7 +33,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Member;
 
-        public MemberInfo? Member { get; private set; }
+        public IBindingMemberAccessorInfo? Member { get; private set; }
 
         public string MemberName { get; }
 

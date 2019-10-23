@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
+using MugenMvvm.Binding.Interfaces.Members;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
     public interface IIndexExpressionNode : IHasTargetExpressionNode
     {
-        PropertyInfo? Indexer { get; }
+        IBindingMethodInfo? Indexer { get; }
 
         IReadOnlyList<IExpressionNode> Arguments { get; }
     }

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        public MethodCallExpressionNode(IExpressionNode? target, MethodInfo method,
+        public MethodCallExpressionNode(IExpressionNode? target, IBindingMethodInfo method,
             IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
             : this(target, method?.Name!, arguments, typeArgs)
         {
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.MethodCall;
 
-        public MethodInfo? Method { get; private set; }
+        public IBindingMethodInfo? Method { get; private set; }
 
         public string MethodName { get; }
 

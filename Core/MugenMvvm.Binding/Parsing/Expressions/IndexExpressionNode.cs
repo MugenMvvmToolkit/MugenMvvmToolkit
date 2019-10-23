@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Arguments = arguments;
         }
 
-        public IndexExpressionNode(PropertyInfo indexer, IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
+        public IndexExpressionNode(IBindingMethodInfo indexer, IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
             : this(target, arguments)
         {
             Should.NotBeNull(indexer, nameof(indexer));
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Index;
 
-        public PropertyInfo? Indexer { get; private set; }
+        public IBindingMethodInfo? Indexer { get; private set; }
 
         public IExpressionNode? Target { get; }
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             if (changed || itemsChanged)
-                return new IndexExpressionNode(target!, newArgs ?? Arguments) {Indexer = Indexer};
+                return new IndexExpressionNode(target!, newArgs ?? Arguments) { Indexer = Indexer };
             return this;
         }
 
