@@ -4,7 +4,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
-    public class BindingMemberExpressionCollectorVisitor : IExpressionVisitor
+    public sealed class BindingMemberExpressionCollectorVisitor : IExpressionVisitor
     {
         #region Fields
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
         {
-            if (node is IBindingMemberExpression bindingMember)
+            if (node is IBindingMemberExpression bindingMember && !_members.Contains(bindingMember))
             {
                 bindingMember.SetIndex(_members.Count);
                 _members.Add(bindingMember);
