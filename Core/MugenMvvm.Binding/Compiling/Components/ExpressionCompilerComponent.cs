@@ -109,7 +109,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public interface IContext : IMetadataOwner<IMetadataContext>
         {
-            ParameterExpression MetadataParameter { get; }
+            Expression MetadataParameter { get; }
 
             IBindingParameterInfo? TryGetLambdaParameter();
 
@@ -117,9 +117,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             void ClearLambdaParameter(IBindingParameterInfo parameter);
 
-            ParameterExpression? TryGetParameterExpression(IParameterExpression expression);
+            Expression? TryGetParameterExpression(IParameterExpression expression);
 
-            void SetParameterExpression(IParameterExpression expression, ParameterExpression value);
+            void SetParameterExpression(IParameterExpression expression, Expression value);
 
             void ClearParameterExpression(IParameterExpression expression);
 
@@ -131,7 +131,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             Expression? TryBuild(IContext context, IExpressionNode expression);
         }
 
-        private sealed class CompiledExpression : LightDictionary<object, DelegateInvoker>, ICompiledExpression, IContext, IExpressionVisitor
+        private sealed class CompiledExpression : LightDictionary<object, Func<object[]?, object?>>, ICompiledExpression, IContext, IExpressionVisitor
         {
             #region Fields
 
@@ -144,7 +144,9 @@ namespace MugenMvvm.Binding.Compiling.Components
             private List<IBindingParameterInfo>? _lambdaParameters;
             private IMetadataContext? _metadata;
 
-            private static readonly ParameterExpression MetadataParameterExpression = Expression.Parameter(typeof(IReadOnlyMetadataContext), "metadata");
+            private static readonly ParameterExpression ArrayParameter = Expression.Parameter(typeof(object[]), "args");
+            private static readonly ParameterExpression[] ArrayParameterArray = { ArrayParameter };
+            private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(25);
 
             #endregion
 
@@ -157,6 +159,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 _parametersDict = new ParameterDictionary();
                 _expression = expression.Accept(this);
                 _values = new object[_parametersDict.Count + 1];
+                MetadataParameter = GetIndexExpression(_parametersDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
             }
 
             #endregion
@@ -175,7 +178,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
-            public ParameterExpression MetadataParameter => MetadataParameterExpression;
+            public Expression MetadataParameter { get; }
 
             bool IExpressionVisitor.IsPostOrder => false;
 
@@ -227,14 +230,14 @@ namespace MugenMvvm.Binding.Compiling.Components
                 _lambdaParameters?.Remove(parameter);
             }
 
-            public ParameterExpression? TryGetParameterExpression(IParameterExpression expression)
+            public Expression? TryGetParameterExpression(IParameterExpression expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
                 _parametersDict.TryGetValue(expression, out var value);
                 return value;
             }
 
-            public void SetParameterExpression(IParameterExpression expression, ParameterExpression value)
+            public void SetParameterExpression(IParameterExpression expression, Expression value)
             {
                 Should.NotBeNull(expression, nameof(expression));
                 Should.NotBeNull(value, nameof(value));
@@ -272,31 +275,23 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Methods
 
-            private DelegateInvoker CompileExpression(ExpressionValue[] values)
+            private Func<object?[], object?> CompileExpression(ExpressionValue[] values)
             {
                 try
                 {
-                    var parameters = new ParameterExpression[_values.Length];
                     foreach (var value in _parametersDict)
                     {
                         var parameterExpression = value.Key;
                         if (parameterExpression.NodeType == ExpressionNodeType.BindingMember)
                         {
-                            var parameter = Expression.Parameter(values[parameterExpression.Index].Type, parameterExpression.Name);
-                            parameters[parameterExpression.Index] = parameter;
-                            _parametersDict[parameterExpression] = parameter;
+                            var index = GetIndexExpression(parameterExpression.Index);
+                            _parametersDict[parameterExpression] = index.ConvertIfNeed(values[parameterExpression.Index].Type, false);
                         }
                     }
 
-                    parameters[parameters.Length - 1] = MetadataParameterExpression;
-
                     var expression = Build(_expression);
-                    var compile = Expression.Lambda(expression, parameters).Compile();//todo review single compile for array
-                    var methodInfo = compile.GetType().GetMethodUnified(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
-                    if (methodInfo == null)
-                        return new DelegateInvoker(compile, null);
-
-                    return new DelegateInvoker(compile, methodInfo.GetMethodInvoker(_compiler.DelegateProvider));
+                    var lambda = Expression.Lambda<Func<object?[], object?>>(expression, ArrayParameterArray);
+                    return lambda.Compile();
                 }
                 finally
                 {
@@ -379,10 +374,25 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return true;
             }
 
+            private static Expression GetIndexExpression(int index)
+            {
+                if (index < ArrayIndexesCache.Length)
+                    return ArrayIndexesCache[index];
+                return Expression.ArrayIndex(ArrayParameter, Expression.Constant(index, typeof(int)));
+            }
+
+            private static Expression[] GenerateArrayIndexes(int length)
+            {
+                var expressions = new Expression[length];
+                for (int i = 0; i < length; i++)
+                    expressions[i] = Expression.ArrayIndex(ArrayParameter, Expression.Constant(i, typeof(int)));
+                return expressions;
+            }
+
             #endregion
         }
 
-        private sealed class ParameterDictionary : LightDictionary<IParameterExpression, ParameterExpression?>
+        private sealed class ParameterDictionary : LightDictionary<IParameterExpression, Expression?>
         {
             #region Constructors
 
@@ -412,38 +422,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (x.NodeType == ExpressionNodeType.BindingMember && y.NodeType == ExpressionNodeType.BindingMember)
                     return x.Index == y.Index && x.Name == y.Name;
                 return ReferenceEquals(x, y);
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct DelegateInvoker
-        {
-            #region Fields
-
-            private readonly Delegate _delegate;
-            private readonly Func<object?, object?[], object?>? _invoker;
-
-            #endregion
-
-            #region Constructors
-
-            public DelegateInvoker(Delegate @delegate, Func<object?, object?[], object?>? invoker)
-            {
-                _delegate = @delegate;
-                _invoker = invoker;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public object? Invoke(object?[] args)
-            {
-                if (_invoker == null)
-                    return _delegate.DynamicInvoke(args);
-                return _invoker.Invoke(_delegate, args);
             }
 
             #endregion
