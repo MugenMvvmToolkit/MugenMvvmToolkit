@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IMemberExpressionNode : IHasTargetExpressionNode
+    public interface IMemberExpressionNode : IHasTargetExpressionNode<IMemberExpressionNode>
     {
         IBindingMemberAccessorInfo? Member { get; }
 

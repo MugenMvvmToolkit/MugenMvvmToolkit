@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding
             return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, MemberFlags.All, metadata, provider);
         }
 
-        public static object? FindByName(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
+        public static object? FindElementSource(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(elementName, nameof(elementName));
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding
             while (target != null)
             {
                 args[0] = elementName;
-                var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByNameMethod, args, MemberFlags.All, metadata, provider);
+                var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByName, args, MemberFlags.All, metadata, provider);
                 if (result != null)
                     return result;
                 target = GetParent(target, metadata, provider)!;

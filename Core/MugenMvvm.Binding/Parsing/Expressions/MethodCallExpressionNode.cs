@@ -49,8 +49,22 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Implementation of interfaces
 
-        public IHasTargetExpressionNode UpdateTarget(IExpressionNode? target)
+        public IMethodCallExpressionNode UpdateArguments(IReadOnlyList<IExpressionNode> arguments)
         {
+            Should.NotBeNull(arguments, nameof(arguments));
+            if (ReferenceEquals(arguments, Arguments))
+                return this;
+
+            if (Method == null)
+                return new MethodCallExpressionNode(Target, MethodName, arguments, TypeArgs);
+            return new MethodCallExpressionNode(Target, Method, arguments, TypeArgs);
+        }
+
+        public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target)
+        {
+            if (ReferenceEquals(target, Target))
+                return this;
+
             if (Method == null)
                 return new MethodCallExpressionNode(target, MethodName, Arguments, TypeArgs);
             return new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);

@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             context.SetPosition(endPosition);
-            return new MemberExpressionNode(expression, context.GetValue(position, endPosition));
+            return MemberExpressionNode.Get(expression, context.GetValue(position, endPosition));
         }
 
         #endregion

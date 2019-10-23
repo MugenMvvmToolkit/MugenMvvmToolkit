@@ -6,12 +6,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 {
     public abstract class ExpressionNodeBase : IExpressionNode
     {
-        #region Fields
-
-        private bool _updating;
-
-        #endregion
-
         #region Properties
 
         public abstract ExpressionNodeType NodeType { get; }
@@ -24,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             Should.NotBeNull(visitor, nameof(visitor));
             IExpressionNode? node;
-            bool changed = false;
+            var changed = false;
             if (!visitor.IsPostOrder)
             {
                 node = VisitWithCheck(visitor, this, true, ref changed);
@@ -32,20 +26,10 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                     return node;
             }
 
-            try
-            {
-                if (_updating)
-                    return this;
-                _updating = true;
-                node = VisitInternal(visitor);
-                if (visitor.IsPostOrder)
-                    return VisitWithCheck(visitor, node, true, ref changed);
-                return node;
-            }
-            finally
-            {
-                _updating = false;
-            }
+            node = VisitInternal(visitor);
+            if (visitor.IsPostOrder)
+                return VisitWithCheck(visitor, node, true, ref changed);
+            return node;
         }
 
         #endregion
@@ -62,7 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 changed = true;
             if (notNull && result == null)
                 BindingExceptionManager.ThrowExpressionNodeCannotBeNull(GetType());
-            return (T)result!;
+            return (T) result!;
         }
 
         #endregion

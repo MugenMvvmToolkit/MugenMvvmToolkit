@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public static readonly NullConditionalOperatorVisitor Instance = new NullConditionalOperatorVisitor();
 
-        private static readonly IConstantExpressionNode TypeConstantNode = new ConstantExpressionNode(typeof(NullConditionalOperatorVisitor), typeof(Type));
+        private static readonly IConstantExpressionNode TypeConstantNode = ConstantExpressionNode.Get<NullConditionalOperatorVisitor>();
         private static readonly IParameterExpression LambdaParameterNode = new ParameterExpression("x", 0);
         private static readonly IParameterExpression[] LambdaParameters = { LambdaParameterNode };
 
@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             node = null!;
             for (var i = 1; i < chain.Count; i++)
             {
-                var body = ((IHasTargetExpressionNode)chain[i]).UpdateTarget(LambdaParameterNode);
+                var body = ((IHasTargetExpressionNode<IExpressionNode>)chain[i]).UpdateTarget(LambdaParameterNode);
                 node = new MethodCallExpressionNode(TypeConstantNode, nameof(NullConditionalOperatorImpl), new[] { node ?? chain[i - 1], new LambdaExpressionNode(body, LambdaParameters) });
             }
 

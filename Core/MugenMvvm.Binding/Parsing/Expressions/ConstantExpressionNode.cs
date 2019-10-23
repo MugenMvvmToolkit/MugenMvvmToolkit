@@ -42,6 +42,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
+        public static ConstantExpressionNode Get<TType>()
+        {
+            return StaticTypeHolder<TType>.TypeConstant;
+        }
+
         public static ConstantExpressionNode Get(object? value, Type? type = null)
         {
             if (value == null && (type == null || typeof(object).EqualsEx(type)))
@@ -52,6 +57,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                     return True;
                 return False;
             }
+
             return new ConstantExpressionNode(value, type);
         }
 
@@ -69,6 +75,19 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (Value is char)
                 return $"'{Value}'";
             return Value.ToString();
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private static class StaticTypeHolder<TType>
+        {
+            #region Fields
+
+            public static readonly ConstantExpressionNode TypeConstant = new ConstantExpressionNode(typeof(TType), typeof(Type));
+
+            #endregion
         }
 
         #endregion

@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Arguments = arguments;
         }
 
-        public IndexExpressionNode(IBindingMethodInfo indexer, IExpressionNode? target, IReadOnlyList<IExpressionNode> arguments)
+        public IndexExpressionNode(IExpressionNode? target, IBindingMethodInfo indexer, IReadOnlyList<IExpressionNode> arguments)
             : this(target, arguments)
         {
             Should.NotBeNull(indexer, nameof(indexer));
@@ -41,11 +41,25 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Implementation of interfaces
 
-        public IHasTargetExpressionNode UpdateTarget(IExpressionNode? target)
+        public IIndexExpressionNode UpdateArguments(IReadOnlyList<IExpressionNode> arguments)
         {
+            Should.NotBeNull(arguments, nameof(arguments));
+            if (ReferenceEquals(arguments, Arguments))
+                return this;
+
+            if (Indexer == null)
+                return new IndexExpressionNode(Target, arguments);
+            return new IndexExpressionNode(Target, Indexer, arguments);
+        }
+
+        public IIndexExpressionNode UpdateTarget(IExpressionNode? target)
+        {
+            if (ReferenceEquals(target, Target))
+                return this;
+
             if (Indexer == null)
                 return new IndexExpressionNode(target, Arguments);
-            return new IndexExpressionNode(Indexer, target, Arguments);
+            return new IndexExpressionNode(target, Indexer, Arguments);
         }
 
         #endregion

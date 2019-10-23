@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        public static readonly ConstantExpressionNode StringType = new ConstantExpressionNode(typeof(string), typeof(Type));
+        public static readonly ConstantExpressionNode StringType = ConstantExpressionNode.Get<string>();
 
         #endregion
 

@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -16,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
     {
         #region Fields
 
-        private readonly StringBuilder _memberNameBuilder;
+        private readonly StringBuilder _memberBuilder;
         private readonly IMemberProvider? _memberProvider;
         private readonly MemberDictionary _members;
         private readonly IObserverProvider? _observerProvider;
@@ -32,7 +33,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             _resourceResolver = resourceResolver;
             _memberProvider = memberProvider;
             _members = new MemberDictionary();
-            _memberNameBuilder = new StringBuilder();
+            _memberBuilder = new StringBuilder();
         }
 
         #endregion
@@ -81,7 +82,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             if (methodCall.Target == null)
             {
-                _memberNameBuilder.Clear();
+                _memberBuilder.Clear();
                 member = GetOrAddBindingParameter(methodCall.MethodName);
             }
             else
@@ -106,22 +107,22 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private IExpressionNode? GetOrAddBindingParameter(IExpressionNode target, string? methodName)
         {
-            if (target.TryBuildBindingMember(_memberNameBuilder, out var firstExpression))
+            if (target.TryBuildBindingMember(_memberBuilder, out var firstExpression))
                 return GetOrAddBindingParameter(methodName);
 
             if (firstExpression is UnaryExpressionNode unaryExpression && unaryExpression.IsMacros() &&
                 unaryExpression.Operand is IMemberExpressionNode memberExpression)
             {
                 //$target, $self, $this
-                if (memberExpression.MemberName == "target" || memberExpression.MemberName == "self" || memberExpression.MemberName == "this")
+                if (memberExpression.MemberName == MacrosConstants.Target || memberExpression.MemberName == MacrosConstants.Self || memberExpression.MemberName == MacrosConstants.This)
                     return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.TargetOnly);
 
                 //$source
-                if (memberExpression.MemberName == "source")
+                if (memberExpression.MemberName == MacrosConstants.Source)
                     return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.SourceOnly);
 
                 //$context
-                if (memberExpression.MemberName == "context")
+                if (memberExpression.MemberName == MacrosConstants.Context)
                     return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.ContextOnly);
 
                 //type -> $string, $int, etc
@@ -130,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
-                        var value = _observerProvider.ServiceIfNull().GetMemberPath(GetPath()).GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
+                        var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
                         return ConstantExpressionNode.Get(value);
                     }
 
@@ -146,12 +147,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
 
-                    var value = _observerProvider.ServiceIfNull().GetMemberPath(GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static,
+                    var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static,
                         memberProvider: _memberProvider);
                     return ConstantExpressionNode.Get(value);
                 }
 
-                _memberNameBuilder.Insert(0, nameof(IResourceValue.Value));
+                _memberBuilder.Insert(0, nameof(IResourceValue.Value));
                 return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags)(1 << 7), false, memberExpression.MemberName);
             }
 
@@ -162,7 +163,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             flags |= BindingMemberExpressionFlags.Observable;
             var memberFlags = isStatic ? (MemberFlags | MemberFlags.Static) & ~MemberFlags.Instance : (MemberFlags | MemberFlags.Instance) & ~MemberFlags.Static;
-            var key = new CacheKey(GetPath(), methodName, memberFlags, target, flags);
+            var key = new CacheKey(_memberBuilder.GetPath(), methodName, memberFlags, target, flags);
             if (!_members.TryGetValue(key, out var node))
             {
                 node = new BindingMemberExpression(key.Path, _observerProvider, _resourceResolver)
@@ -177,13 +178,6 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             }
 
             return node;
-        }
-
-        private string GetPath()
-        {
-            if (_memberNameBuilder.Length != 0 && _memberNameBuilder[0] == '.')
-                _memberNameBuilder.Remove(0, 1);
-            return _memberNameBuilder.ToString();
         }
 
         #endregion

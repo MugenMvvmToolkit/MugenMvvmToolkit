@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using System;
+using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -7,6 +9,16 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 {
     public sealed class MemberExpressionNode : ExpressionNodeBase, IMemberExpressionNode
     {
+        #region Fields
+
+        internal static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstants.Source);
+        internal static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstants.Target);
+        internal static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstants.Context);
+        internal static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstants.Binding);
+        internal static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstants.Args);
+
+        #endregion
+
         #region Constructors
 
         private MemberExpressionNode(IExpressionNode? target, IBindingMemberAccessorInfo? memberInfo, string member)
@@ -32,7 +44,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Member;
 
-        public IBindingMemberAccessorInfo? Member { get; private set; }
+        public IBindingMemberAccessorInfo? Member { get; }
 
         public string MemberName { get; }
 
@@ -42,14 +54,36 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Implementation of interfaces
 
-        public IHasTargetExpressionNode UpdateTarget(IExpressionNode? target)
+        public IMemberExpressionNode UpdateTarget(IExpressionNode? target)
         {
+            if (ReferenceEquals(target, Target))
+                return this;
+
             return new MemberExpressionNode(target, Member, MemberName);
         }
 
         #endregion
 
         #region Methods
+
+        public static MemberExpressionNode Get(IExpressionNode? target, string member)
+        {
+            if (target == null)
+            {
+                if (member == MacrosConstants.Self || member == MacrosConstants.This || member == MacrosConstants.Target)
+                    return Self;
+                if (member == MacrosConstants.Context)
+                    return Context;
+                if (member == MacrosConstants.Source)
+                    return Source;
+                if (member == MacrosConstants.Args)
+                    return Args;
+                if (member == MacrosConstants.Binding)
+                    return Binding;
+            }
+
+            return new MemberExpressionNode(target, member);
+        }
 
         protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
         {
@@ -58,7 +92,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             var changed = false;
             var node = VisitWithCheck(visitor, Target, false, ref changed);
             if (changed)
-                return new MemberExpressionNode(node, MemberName) {Member = Member};
+                return new MemberExpressionNode(node, Member, MemberName);
             return this;
         }
 

@@ -21,6 +21,13 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
+        internal static string GetPath(this StringBuilder memberNameBuilder)
+        {
+            if (memberNameBuilder.Length != 0 && memberNameBuilder[0] == '.')
+                memberNameBuilder.Remove(0, 1);
+            return memberNameBuilder.ToString();
+        }
+
         internal static bool HasFlagEx(this GenericParameterAttributes attributes, GenericParameterAttributes flag)
         {
             return (attributes & flag) == flag;
