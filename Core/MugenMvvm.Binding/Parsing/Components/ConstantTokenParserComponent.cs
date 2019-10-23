@@ -16,9 +16,9 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 LiteralToExpression = new Dictionary<string, IExpressionNode>
                 {
-                    {"null", new ConstantExpressionNode(null, typeof(object))},
-                    {bool.TrueString, new ConstantExpressionNode(Default.TrueObject, typeof(bool))},
-                    {bool.FalseString, new ConstantExpressionNode(Default.FalseObject, typeof(bool))}
+                    {"null", ConstantExpressionNode.Null},
+                    {bool.TrueString, ConstantExpressionNode.True},
+                    {bool.FalseString, ConstantExpressionNode.False}
                 };
             }
             else

@@ -24,6 +24,8 @@
 
         internal const string CannotResolveTypeFormat1 = "Cannot resolve type '{0}'";
 
+        internal const string CannotResolveResourceFormat1 = "Cannot resolve resource '{0}'";
+
         internal const string CannotUseExpressionExpected = "Cannot use expression '{0}' expected type '{1}'";
 
         #endregion

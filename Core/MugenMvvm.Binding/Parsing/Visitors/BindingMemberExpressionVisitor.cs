@@ -1,29 +1,36 @@
-﻿using System.Text;
+﻿using System.Runtime.InteropServices;
+using System.Text;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
-    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor //todo relativesource visitor, resource visitor
+    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor
     {
         #region Fields
 
         private readonly StringBuilder _memberNameBuilder;
+        private readonly IMemberProvider? _memberProvider;
         private readonly MemberDictionary _members;
         private readonly IObserverProvider? _observerProvider;
+        private readonly IResourceResolver? _resourceResolver;
 
         #endregion
 
         #region Constructors
 
-        public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null)
+        public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null, IMemberProvider? memberProvider = null)
         {
             _observerProvider = observerProvider;
+            _resourceResolver = resourceResolver;
+            _memberProvider = memberProvider;
             _members = new MemberDictionary();
             _memberNameBuilder = new StringBuilder();
         }
@@ -73,7 +80,10 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 return member;
 
             if (methodCall.Target == null)
-                member = GetOrAddBindingParameter(string.Empty, 0, methodCall.MethodName);
+            {
+                _memberNameBuilder.Clear();
+                member = GetOrAddBindingParameter(methodCall.MethodName);
+            }
             else
             {
                 member = GetOrAddBindingParameter(methodCall.Target, methodCall.MethodName);
@@ -99,45 +109,90 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         private IExpressionNode? GetOrAddBindingParameter(IExpressionNode target, string? methodName)
         {
             if (target.TryBuildBindingMember(_memberNameBuilder, out var firstExpression))
-                return GetOrAddBindingParameter(_memberNameBuilder.ToString(), 0, methodName);
+                return GetOrAddBindingParameter(methodName);
 
             if (firstExpression is UnaryExpressionNode unaryExpression && unaryExpression.IsMacros() &&
                 unaryExpression.Operand is IMemberExpressionNode memberExpression)
             {
                 //$target, $self, $this
                 if (memberExpression.MemberName == "target" || memberExpression.MemberName == "self" || memberExpression.MemberName == "this")
-                    return GetOrAddBindingParameter(_memberNameBuilder.ToString(), BindingMemberExpressionFlags.TargetOnly, methodName);
+                    return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.TargetOnly);
 
                 //$source
                 if (memberExpression.MemberName == "source")
-                    return GetOrAddBindingParameter(_memberNameBuilder.ToString(), BindingMemberExpressionFlags.SourceOnly, methodName);
+                    return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.SourceOnly);
 
                 //$context
                 if (memberExpression.MemberName == "context")
-                    return GetOrAddBindingParameter(_memberNameBuilder.ToString(), BindingMemberExpressionFlags.ContextOnly, methodName);
+                    return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.ContextOnly);
+
+                //type -> $string, $int, etc
+                var type = _resourceResolver.TryGetType(memberExpression.MemberName);
+                if (type != null)
+                {
+                    if (unaryExpression.Token == UnaryTokenType.StaticExpression)
+                    {
+                        var value = _observerProvider.GetMemberPath(GetPath()).GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
+                        return ConstantExpressionNode.Get(value);
+                    }
+
+                    return GetOrAddBindingParameter(methodName, 0, true, type);
+                }
+
+                //resource -> $i18n, $color, etc
+                if (unaryExpression.Token == UnaryTokenType.StaticExpression)
+                {
+                    var resourceValue = _resourceResolver.TryGetResourceValue(memberExpression.MemberName);
+                    if (resourceValue == null)
+                        BindingExceptionManager.ThrowCannotResolveResource(memberExpression.MemberName);
+                    if (resourceValue.Value == null)
+                        return ConstantExpressionNode.Null;
+
+                    var value = _observerProvider.GetMemberPath(GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static,
+                        memberProvider: _memberProvider);
+                    return ConstantExpressionNode.Get(value);
+                }
+
+                _memberNameBuilder.Insert(0, nameof(IResourceValue.Value));
+                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags) (1 << 7), false, memberExpression.MemberName);
             }
 
             return null;
         }
 
-        private IExpressionNode GetOrAddBindingParameter(string path, BindingMemberExpressionFlags flags, string? methodName)
+        private IExpressionNode GetOrAddBindingParameter(string? methodName = null, BindingMemberExpressionFlags flags = 0, bool isStatic = false, object? target = null)
         {
-            var key = new CacheKey(path, flags);
+            flags |= BindingMemberExpressionFlags.Observable;
+            var memberFlags = isStatic ? (MemberFlags | MemberFlags.Static) & ~MemberFlags.Instance : (MemberFlags | MemberFlags.Instance) & ~MemberFlags.Static;
+            var key = new CacheKey(GetPath(), methodName, memberFlags, target, flags);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingMemberExpression(path, MemberFlags & ~MemberFlags.Static, methodName, _observerProvider);
-                node.Flags |= flags;
+                node = new BindingMemberExpression(key.Path, _observerProvider, _resourceResolver)
+                {
+                    Target = target,
+                    ObservableMethodName = methodName,
+                    Flags = flags,
+                    MemberFlags = memberFlags
+                };
+
                 _members[key] = node;
             }
 
             return node;
         }
 
+        private string GetPath()
+        {
+            if (_memberNameBuilder.Length != 0 && _memberNameBuilder[0] == '.')
+                _memberNameBuilder.Remove(0, 1);
+            return _memberNameBuilder.ToString();
+        }
+
         #endregion
 
         #region Nested types
 
-        private sealed class MemberDictionary : LightDictionary<CacheKey, IBindingMemberExpression>
+        private sealed class MemberDictionary : LightDictionary<CacheKey, BindingMemberExpression>
         {
             #region Constructors
 
@@ -151,35 +206,47 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.Path == y.Path && x.Flags == y.Flags;
+                return x.Path == y.Path && x.MethodName == y.MethodName && x.MemberFlags == y.MemberFlags && x.Flags == y.Flags && Equals(x.Target, y.Target);
             }
 
             protected override int GetHashCode(CacheKey key)
             {
                 unchecked
                 {
-                    return key.Path.GetHashCode() * 397 ^ ((short)key.Flags).GetHashCode();
+                    var hashCode = key.Path.GetHashCode();
+                    hashCode = hashCode * 397 ^ (key.MethodName != null ? key.MethodName.GetHashCode() : 0);
+                    hashCode = hashCode * 397 ^ (int) key.MemberFlags;
+                    hashCode = hashCode * 397 ^ (int) key.Flags;
+                    hashCode = hashCode * 397 ^ (key.Target != null ? key.Target.GetHashCode() : 0);
+                    return hashCode;
                 }
             }
 
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct CacheKey
         {
             #region Fields
 
             public readonly string Path;
+            public readonly string? MethodName;
+            public readonly MemberFlags MemberFlags;
             public readonly BindingMemberExpressionFlags Flags;
+            public readonly object? Target;
 
             #endregion
 
             #region Constructors
 
-            public CacheKey(string path, BindingMemberExpressionFlags flags)
+            public CacheKey(string path, string methodName, MemberFlags memberFlags, object? target, BindingMemberExpressionFlags flags)
             {
                 Path = path;
+                MethodName = methodName;
+                MemberFlags = memberFlags;
                 Flags = flags;
+                Target = target;
             }
 
             #endregion

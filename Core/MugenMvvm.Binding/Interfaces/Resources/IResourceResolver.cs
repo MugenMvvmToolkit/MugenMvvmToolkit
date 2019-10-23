@@ -8,8 +8,6 @@ namespace MugenMvvm.Binding.Interfaces.Resources
 {
     public interface IResourceResolver : IComponentOwner<IResourceResolver>, IComponent<IBindingManager>
     {
-        IComponent<IBinding>? TryGetComponent(string name, IReadOnlyMetadataContext? metadata = null);
-
         IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata = null);
 
         IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null);

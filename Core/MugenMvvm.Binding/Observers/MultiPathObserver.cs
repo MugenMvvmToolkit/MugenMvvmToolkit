@@ -167,7 +167,7 @@ namespace MugenMvvm.Binding.Observers
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
-                var type = target as Type ?? target.GetType();
+                var type = GetTargetType(target, memberFlags);
                 for (var i = 0; i < members.Length; i++)
                 {
                     var member = provider.GetMember(type, paths[i],

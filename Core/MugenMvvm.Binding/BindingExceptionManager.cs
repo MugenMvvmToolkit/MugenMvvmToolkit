@@ -70,6 +70,12 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(string.Format(CannotResolveTypeFormat1, typeName));
         }
 
+        [DoesNotReturn]
+        public static void ThrowCannotResolveResource(string resource)
+        {
+            throw new InvalidOperationException(string.Format(CannotResolveResourceFormat1, resource));
+        }
+
         #endregion
     }
 }

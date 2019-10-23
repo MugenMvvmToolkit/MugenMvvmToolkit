@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
@@ -86,7 +85,7 @@ namespace MugenMvvm.Binding.Observers
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
             else
             {
-                var member = MugenBindingService.MemberProvider.GetMember(target as Type ?? target.GetType(), _observableMethodName, BindingMemberType.Method, _memberFlags);
+                var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _observableMethodName, BindingMemberType.Method, _memberFlags);
                 if (member is IObservableBindingMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this);
                 if (_unsubscriber.IsEmpty)

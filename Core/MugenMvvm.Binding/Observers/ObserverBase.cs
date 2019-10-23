@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -43,8 +44,6 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        public abstract IMemberPath Path { get; }
-
         public object? Target
         {
             get
@@ -54,6 +53,8 @@ namespace MugenMvvm.Binding.Observers
                 return _target;
             }
         }
+
+        public abstract IMemberPath Path { get; }
 
         protected bool HasListeners => _listeners != null;
 
@@ -105,6 +106,13 @@ namespace MugenMvvm.Binding.Observers
         #endregion
 
         #region Methods
+
+        protected static Type GetTargetType(object target, MemberFlags flags)
+        {
+            if (flags.HasFlagEx(MemberFlags.Static))
+                return target as Type ?? target.GetType();
+            return target.GetType();
+        }
 
         protected virtual void OnListenerAdded(IMemberPathObserverListener listener)
         {

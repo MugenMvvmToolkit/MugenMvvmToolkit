@@ -13,19 +13,16 @@ namespace MugenMvvm.Binding.Observers
         public readonly string? ObservableMethodName;
         public readonly bool Optional;
         public readonly IMemberPath Path;
-        public readonly object Target;
         public readonly object? State;
 
         #endregion
 
         #region Constructors
 
-        public MemberPathObserverRequest(object target, IMemberPath path, MemberFlags memberFlags, string? observableMethodName, 
+        public MemberPathObserverRequest(IMemberPath path, MemberFlags memberFlags, string? observableMethodName, 
             bool hasStablePath, bool observable, bool optional, object? state = null)
         {
-            Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
-            Target = target;
             Path = path;
             MemberFlags = memberFlags;
             HasStablePath = hasStablePath;

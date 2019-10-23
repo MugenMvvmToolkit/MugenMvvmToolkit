@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
@@ -12,8 +13,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Fields
 
-        private readonly string? _observableMethodName;
         private readonly IObserverProvider? _observerProvider;
+        private readonly IResourceResolver? _resourceResolver;
         private IMemberPath? _dataContextMemberPath;
         private IMemberPath? _memberPath;
 
@@ -21,23 +22,26 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Constructors
 
-        public BindingMemberExpression(string path, MemberFlags memberFlags, string? observableMethodName, IObserverProvider? observerProvider = null)
+        public BindingMemberExpression(string path, IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null)
             : base(path, -1)
         {
-            _observableMethodName = observableMethodName;
             _observerProvider = observerProvider;
-            MemberFlags = memberFlags;
+            _resourceResolver = resourceResolver;
         }
 
         #endregion
 
         #region Properties
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
+        public BindingMemberExpressionFlags Flags { get; set; }
+
+        public string? ObservableMethodName { get; set; }
 
         public MemberFlags MemberFlags { get; set; }
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.BindingMember;
+
+        public object? Target { get; set; }
 
         private bool HasStablePath => Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath);
 
@@ -52,6 +56,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         private bool SourceOnly => Flags.HasFlagEx(BindingMemberExpressionFlags.SourceOnly);
 
         private bool ContextOnly => Flags.HasFlagEx(BindingMemberExpressionFlags.ContextOnly);
+
+        private bool IsResource => Flags.HasFlagEx((BindingMemberExpressionFlags) (1 << 7));
 
         #endregion
 
@@ -69,7 +75,15 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            if (TargetOnly)
+            Should.NotBeNull(target, nameof(target));
+            if (IsResource)
+            {
+                var resourceValue = _resourceResolver.ServiceIfNull().TryGetResourceValue((string) Target);
+                if (resourceValue == null)
+                    BindingExceptionManager.ThrowCannotResolveResource((string) Target);
+                Target = resourceValue;
+            }
+            else if (TargetOnly)
                 source = target;
             else if (SourceOnly)
             {
@@ -82,9 +96,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 source = null;
 
             var provider = _observerProvider.ServiceIfNull();
-            var request = new MemberPathObserverRequest(source ?? target, GetPath(provider, source, metadata), MemberFlags, ObservableMethod ? _observableMethodName : null,
-                HasStablePath, Observable, Optional);
-            return provider.GetMemberPathObserver(source ?? target, request, metadata);
+            var request = new MemberPathObserverRequest(GetPath(provider, source, metadata), MemberFlags, ObservableMethod ? ObservableMethodName : null, HasStablePath, Observable,
+                Optional);
+            return provider.GetMemberPathObserver(Target ?? (source ?? target).ToWeakReference(), request, metadata);
         }
 
         #endregion

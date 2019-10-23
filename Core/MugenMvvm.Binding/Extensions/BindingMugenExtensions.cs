@@ -20,7 +20,34 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
+        public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, MemberFlags flags,
+            int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            memberProvider = memberProvider.ServiceIfNull();
+            for (int index = firstMemberIndex; index < path.Members.Length; index++)
+            {
+                string item = path.Members[index];
+                if (src.IsNullOrUnsetValue())
+                    return null;
+
+                var member = memberProvider.GetMember(type, item, BindingMemberType.Field | BindingMemberType.Property, flags) as IBindingMemberAccessorInfo;
+                if (member == null)
+                    BindingExceptionManager.ThrowInvalidBindingMember(src.GetType(), item);
+                src = member.GetValue(src, metadata);
+                if (src != null)
+                    type = src.GetType();
+            }
+
+            return src;
+        }
+
         public static bool TryBuildBindingMember(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
+        {
+            return TryBuildBindingMember(target, builder, null, out firstExpression);
+        }
+
+        public static bool TryBuildBindingMember(this IExpressionNode? target, StringBuilder builder, Func<IExpressionNode, bool>? condition, out IExpressionNode? firstExpression)
         {
             Should.NotBeNull(builder, nameof(builder));
             firstExpression = null;
@@ -30,6 +57,9 @@ namespace MugenMvvm.Binding
             while (target != null)
             {
                 firstExpression = target;
+                if (condition != null && !condition(target))
+                    return false;
+
                 if (target is IMemberExpressionNode memberExpressionNode)
                 {
                     var memberName = memberExpressionNode.MemberName.Trim();
@@ -74,11 +104,7 @@ namespace MugenMvvm.Binding
                         target = methodCallExpression.Target;
                     }
                     else
-                    {
-                        if (builder.Length != 0 && builder[0] == '.')
-                            builder.Remove(0, 1);
                         return false;
-                    }
                 }
             }
 

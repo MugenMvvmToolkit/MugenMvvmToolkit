@@ -15,7 +15,6 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        public static readonly ConstantExpressionNode Empty = new ConstantExpressionNode("", typeof(string));
         public static readonly ConstantExpressionNode StringType = new ConstantExpressionNode(typeof(string), typeof(Type));
 
         #endregion
@@ -200,7 +199,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (builder == null)
             {
                 if (start == end.Value)
-                    return Empty;
+                    return ConstantExpressionNode.EmptyString;
                 return new ConstantExpressionNode(context.GetValue(start, end.Value), typeof(string));
             }
 

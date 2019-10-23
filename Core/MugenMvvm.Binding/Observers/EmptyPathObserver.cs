@@ -9,13 +9,13 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private IWeakReference? _target;
+        private object? _target;
 
         #endregion
 
         #region Constructors
 
-        public EmptyPathObserver(IWeakReference target)
+        public EmptyPathObserver(object target)
         {
             Should.NotBeNull(target, nameof(target));
             _target = target;
@@ -25,11 +25,27 @@ namespace MugenMvvm.Binding.Observers
 
         #region Properties
 
-        public bool IsAlive => _target?.Target != null;
+        public bool IsAlive
+        {
+            get
+            {
+                if (_target is IWeakReference w)
+                    return w.Target != null;
+                return true;
+            }
+        }
+
+        public object? Target
+        {
+            get
+            {
+                if (_target is IWeakReference w)
+                    return w.Target;
+                return _target;
+            }
+        }
 
         public IMemberPath Path => EmptyMemberPath.Instance;
-
-        public object? Target => _target?.Target;
 
         #endregion
 
@@ -45,7 +61,7 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
-            var target = _target?.Target;
+            var target = Target;
             if (target == null)
                 return default;
 
@@ -54,7 +70,7 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
-            var target = _target?.Target;
+            var target = Target;
             if (target == null)
                 return default;
 

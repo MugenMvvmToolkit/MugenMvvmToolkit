@@ -11,6 +11,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public static readonly ConstantExpressionNode True = new ConstantExpressionNode(Default.TrueObject, typeof(bool));
         public static readonly ConstantExpressionNode False = new ConstantExpressionNode(Default.FalseObject, typeof(bool));
+        public static readonly ConstantExpressionNode Null = new ConstantExpressionNode(null, typeof(object));
+        public static readonly ConstantExpressionNode EmptyString = new ConstantExpressionNode("", typeof(string));
 
         #endregion
 
@@ -37,6 +39,19 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         #endregion
 
         #region Methods
+
+        public static ConstantExpressionNode Get(object? value, Type? type = null)
+        {
+            if (value == null && (type == null || typeof(object).EqualsEx(type)))
+                return Null;
+            if (value is bool b)
+            {
+                if (b)
+                    return True;
+                return False;
+            }
+            return new ConstantExpressionNode(value, type);
+        }
 
         protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
         {

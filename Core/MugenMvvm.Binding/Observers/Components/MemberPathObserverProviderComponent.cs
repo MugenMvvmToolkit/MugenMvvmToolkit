@@ -40,29 +40,22 @@ namespace MugenMvvm.Binding.Observers.Components
         private static IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object target, IReadOnlyMetadataContext? metadata)
         {
             var memberFlags = request.MemberFlags;
-            var isStatic = memberFlags.HasFlagEx(MemberFlags.Static);
-            object targetValue;
-            if (isStatic && target is Type)
-                targetValue = target;
-            else
-                targetValue = target.ToWeakReference();
-
             var path = request.Path;
             var observableMethod = request.ObservableMethodName;
             if (string.IsNullOrEmpty(observableMethod))
             {
                 if (path.IsSingle)
-                    return new SinglePathObserver(targetValue, path, memberFlags, request.Observable, request.Optional);
+                    return new SinglePathObserver(target, path, memberFlags, request.Observable, request.Optional);
                 if (path.Members.Length == 0)
-                    return new EmptyPathObserver((IWeakReference) targetValue);
-                return new MultiPathObserver(targetValue, path, memberFlags, request.HasStablePath, request.Observable, request.Optional);
+                    return new EmptyPathObserver(target);
+                return new MultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Observable, request.Optional);
             }
 
             if (path.IsSingle)
-                return new MethodSinglePathObserver(observableMethod!, targetValue, path, memberFlags, request.Optional);
+                return new MethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional);
             if (path.Members.Length == 0)
-                return new MethodEmptyPathObserver(observableMethod!, targetValue, memberFlags);
-            return new MethodMultiPathObserver(observableMethod!, targetValue, path, memberFlags, request.HasStablePath, request.Optional);
+                return new MethodEmptyPathObserver(observableMethod!, target, memberFlags);
+            return new MethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional);
         }
 
         #endregion

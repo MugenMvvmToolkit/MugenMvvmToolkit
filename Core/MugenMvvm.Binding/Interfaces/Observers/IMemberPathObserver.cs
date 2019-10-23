@@ -8,9 +8,9 @@ namespace MugenMvvm.Binding.Interfaces.Observers
     {
         bool IsAlive { get; }
 
-        IMemberPath Path { get; }
-
         object? Target { get; }
+
+        IMemberPath Path { get; }
 
         void AddListener(IMemberPathObserverListener listener);
 
