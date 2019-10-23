@@ -78,9 +78,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Should.NotBeNull(target, nameof(target));
             if (IsResource)
             {
-                var resourceValue = _resourceResolver.ServiceIfNull().TryGetResourceValue((string) Target);
+                var resourceValue = _resourceResolver.ServiceIfNull().TryGetResourceValue((string) Target!);
                 if (resourceValue == null)
-                    BindingExceptionManager.ThrowCannotResolveResource((string) Target);
+                    BindingExceptionManager.ThrowCannotResolveResource((string) Target!);
                 Target = resourceValue;
             }
             else if (TargetOnly)

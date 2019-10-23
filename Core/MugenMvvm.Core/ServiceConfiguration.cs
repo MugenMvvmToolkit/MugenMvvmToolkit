@@ -63,16 +63,17 @@ namespace MugenMvvm
             {
                 get
                 {
+                    if (_service != null)
+                        return _service;
+
                     if (_serviceConfigurationOptional != null)
                         return _serviceConfigurationOptional.ServiceOptional;
 
                     if (_serviceConfiguration != null)
                         return _serviceConfiguration.Service;
 
-                    if (_service == null)
-                        return _fallbackConfiguration?.InstanceOptional<TService>();
+                    return _fallbackConfiguration?.InstanceOptional<TService>();
 
-                    return _service;
                 }
             }
 

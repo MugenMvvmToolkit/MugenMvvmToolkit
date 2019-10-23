@@ -127,12 +127,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.ContextOnly);
 
                 //type -> $string, $int, etc
-                var type = _resourceResolver.TryGetType(memberExpression.MemberName);
+                var type = _resourceResolver.ServiceIfNull().TryGetType(memberExpression.MemberName);
                 if (type != null)
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
-                        var value = _observerProvider.GetMemberPath(GetPath()).GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
+                        var value = _observerProvider.ServiceIfNull().GetMemberPath(GetPath()).GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
                         return ConstantExpressionNode.Get(value);
                     }
 
@@ -142,19 +142,19 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //resource -> $i18n, $color, etc
                 if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                 {
-                    var resourceValue = _resourceResolver.TryGetResourceValue(memberExpression.MemberName);
+                    var resourceValue = _resourceResolver.ServiceIfNull().TryGetResourceValue(memberExpression.MemberName);
                     if (resourceValue == null)
                         BindingExceptionManager.ThrowCannotResolveResource(memberExpression.MemberName);
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
 
-                    var value = _observerProvider.GetMemberPath(GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static,
+                    var value = _observerProvider.ServiceIfNull().GetMemberPath(GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static,
                         memberProvider: _memberProvider);
                     return ConstantExpressionNode.Get(value);
                 }
 
                 _memberNameBuilder.Insert(0, nameof(IResourceValue.Value));
-                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags) (1 << 7), false, memberExpression.MemberName);
+                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags)(1 << 7), false, memberExpression.MemberName);
             }
 
             return null;
@@ -215,8 +215,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     var hashCode = key.Path.GetHashCode();
                     hashCode = hashCode * 397 ^ (key.MethodName != null ? key.MethodName.GetHashCode() : 0);
-                    hashCode = hashCode * 397 ^ (int) key.MemberFlags;
-                    hashCode = hashCode * 397 ^ (int) key.Flags;
+                    hashCode = hashCode * 397 ^ (int)key.MemberFlags;
+                    hashCode = hashCode * 397 ^ (int)key.Flags;
                     hashCode = hashCode * 397 ^ (key.Target != null ? key.Target.GetHashCode() : 0);
                     return hashCode;
                 }
@@ -240,7 +240,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             #region Constructors
 
-            public CacheKey(string path, string methodName, MemberFlags memberFlags, object? target, BindingMemberExpressionFlags flags)
+            public CacheKey(string path, string? methodName, MemberFlags memberFlags, object? target, BindingMemberExpressionFlags flags)
             {
                 Path = path;
                 MethodName = methodName;

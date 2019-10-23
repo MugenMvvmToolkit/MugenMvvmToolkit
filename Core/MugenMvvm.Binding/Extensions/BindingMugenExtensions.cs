@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding
 
                 var member = memberProvider.GetMember(type, item, BindingMemberType.Field | BindingMemberType.Property, flags) as IBindingMemberAccessorInfo;
                 if (member == null)
-                    BindingExceptionManager.ThrowInvalidBindingMember(src.GetType(), item);
+                    BindingExceptionManager.ThrowInvalidBindingMember(type, item);
                 src = member.GetValue(src, metadata);
                 if (src != null)
                     type = src.GetType();
