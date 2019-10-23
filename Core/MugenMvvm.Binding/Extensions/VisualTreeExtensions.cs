@@ -26,22 +26,22 @@ namespace MugenMvvm.Binding
                 var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByNameMethod, args, MemberFlags.All, metadata, provider);
                 if (result != null)
                     return result;
-                target = GetParent(target)!;
+                target = GetParent(target, metadata, provider)!;
             }
 
             return null;
         }
 
-        public static object? FindRelativeSource(object target, string typeName, uint level)
+        public static object? FindRelativeSource(object target, string typeName, int level, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(typeName, nameof(typeName));
             object? fullNameSource = null;
             object? nameSource = null;
-            uint fullNameLevel = 0;
-            uint nameLevel = 0;
+            var fullNameLevel = 0;
+            var nameLevel = 0;
 
-            target = GetParent(target)!;
+            target = GetParent(target, metadata, provider)!;
             while (target != null)
             {
                 TypeNameEqual(target.GetType(), typeName, out var shortNameEqual, out var fullNameEqual);
@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding
                 if (nameSource != null && nameLevel == level)
                     return nameSource;
 
-                target = GetParent(target)!;
+                target = GetParent(target, metadata, provider)!;
             }
 
             return null;
