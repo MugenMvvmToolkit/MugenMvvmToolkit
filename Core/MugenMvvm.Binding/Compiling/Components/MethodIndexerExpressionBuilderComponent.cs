@@ -168,6 +168,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 try
                 {
                     var methodInfo = methods[index];
+                    if (methodInfo.IsEmpty)
+                        continue;
+
                     methods[index] = default;
                     var args = GetMethodArgs(methodInfo.IsExtensionMethod, target, arguments);
                     var methodData = TryInferMethod(methodInfo.Method, args, typeArgs);
@@ -244,7 +247,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                                 context.ClearLambdaParameter(lambdaParameter);
                             }
 
-                            args[i] = data;
+                            args[index] = data;
                         }
 
                         expressions[index] = data.Expression!;
@@ -711,13 +714,14 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return Default.EmptyArray<MethodData>();
 
             var methods = new MethodData[count];
-            for (var i = 0; i < methods.Length; i++)
+            count = 0;
+            for (var i = 0; i < members.Count; i++)
             {
                 if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
                 {
                     var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
-                        methods[i] = new MethodData(m);
+                        methods[count++] = new MethodData(m);
                 }
             }
 

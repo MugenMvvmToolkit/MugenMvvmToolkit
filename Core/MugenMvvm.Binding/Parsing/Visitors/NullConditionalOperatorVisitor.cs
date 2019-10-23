@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Properties
 
-        public bool IsPostOrder => true;
+        public bool IsPostOrder => false;
 
         #endregion
 

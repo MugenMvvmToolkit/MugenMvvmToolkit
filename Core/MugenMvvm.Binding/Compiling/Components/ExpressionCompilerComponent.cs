@@ -252,9 +252,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var components = _compiler.Builders;
                 foreach (var component in components)
                 {
-                    var compile = component.TryBuild(this, expression);
-                    if (compile != null)
-                        return compile;
+                    var exp = component.TryBuild(this, expression);
+                    if (exp != null)
+                        return exp;
                 }
 
                 BindingExceptionManager.ThrowCannotCompileExpression(expression);
