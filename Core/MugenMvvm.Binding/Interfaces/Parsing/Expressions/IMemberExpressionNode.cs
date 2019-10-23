@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using MugenMvvm.Binding.Interfaces.Members;
+﻿using MugenMvvm.Binding.Interfaces.Members;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {

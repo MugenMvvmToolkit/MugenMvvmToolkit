@@ -9,7 +9,6 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Views.Components
 {

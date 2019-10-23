@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
