@@ -70,6 +70,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (Value == null)
                 return "null";
+            if (Value is bool)
+                return Value.ToString().ToLowerInvariant();
             if (Value is string v)
                 return $"\"{Value}\"";
             if (Value is char)

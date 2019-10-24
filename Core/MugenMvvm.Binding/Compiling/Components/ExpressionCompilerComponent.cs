@@ -291,9 +291,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                         }
                     }
 
-                    var expression = Build(_expression);
+                    var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
                     var lambda = Expression.Lambda<Func<object?[], object?>>(expression, ArrayParameterArray);
-                    return lambda.Compile();
+                    return lambda.Compile();//todo as ext method
                 }
                 finally
                 {

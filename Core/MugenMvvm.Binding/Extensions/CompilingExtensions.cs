@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using MugenMvvm.Binding.Compiling.Components;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
+using ParameterExpression = System.Linq.Expressions.ParameterExpression;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
@@ -10,6 +14,11 @@ namespace MugenMvvm.Binding
     public static partial class BindingMugenExtensions
     {
         #region Fields
+
+        private static readonly Expression NullConstantExpression = Expression.Constant(null, typeof(object));
+        private static readonly Type[] GenericTypeBuffer = new Type[1];
+        private static readonly ParameterExpression[] ParameterExpressionBuffer = new ParameterExpression[1];
+        private static readonly Expression[] ExpressionBuffer = new Expression[2];
 
         private static readonly TypeLightDictionary<TypeCode> TypeCodeTable = new TypeLightDictionary<TypeCode>(15)
         {
@@ -33,6 +42,50 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        public static Expression? Build<TBuilder, TExpression>(this TExpression expression, TBuilder builder, ExpressionCompilerComponent.IContext context,
+           Func<TBuilder, ExpressionCompilerComponent.IContext, TExpression, Expression, Expression?> buildDelegate)
+            where TBuilder : class
+            where TExpression : IHasTargetExpressionNode<IExpressionNode>
+        {
+            var target = expression.Target;
+            if (target == null)
+                return null;
+
+            if (target is NullConditionalMemberExpressionNode nullConditional)
+            {
+                var targetEx = context.Build(nullConditional.Target);
+                if (targetEx.Type.IsValueTypeUnified() && !targetEx.Type.IsNullableType())
+                    return buildDelegate(builder, context, expression, targetEx);
+
+                var variable = Expression.Variable(targetEx.Type);
+                var exp = buildDelegate(builder, context, expression, variable);
+                if (exp == null)
+                    return null;
+
+                var type = exp.Type;
+                if (type.IsValueTypeUnified() && !type.IsNullableType())
+                {
+                    GenericTypeBuffer[0] = type;
+                    type = typeof(Nullable<>).MakeGenericType(GenericTypeBuffer);
+                }
+                var conditionalExpression = Expression.Condition(Expression.ReferenceEqual(variable, NullConstantExpression), Expression.Constant(null, type), exp.ConvertIfNeed(type, false));
+                ParameterExpressionBuffer[0] = variable;
+                ExpressionBuffer[0] = Expression.Assign(variable, targetEx);
+                ExpressionBuffer[1] = conditionalExpression;
+                try
+                {
+                    return Expression.Block(ParameterExpressionBuffer, ExpressionBuffer);
+                }
+                finally
+                {
+                    ExpressionBuffer[0] = null;
+                    ExpressionBuffer[1] = null;
+                }
+            }
+
+            return buildDelegate(builder, context, expression, context.Build(target));
+        }
 
         public static Expression GenerateExpression(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr)
         {

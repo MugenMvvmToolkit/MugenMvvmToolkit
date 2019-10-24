@@ -23,7 +23,6 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 _tokens = new[]
                 {
-                    BinaryTokenType.NullConditional,
                     BinaryTokenType.Multiplication,
                     BinaryTokenType.Division,
                     BinaryTokenType.Remainder,
@@ -81,14 +80,14 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (token == null)
                 return null;
 
-            var nodes = new List<IExpressionNode> {expression};
-            var tokens = new List<BinaryTokenType> {token};
+            var nodes = new List<IExpressionNode> { expression };
+            var tokens = new List<BinaryTokenType> { token };
 
             expression = null;
             while (true)
             {
                 context.SkipWhitespaces();
-                var newNode = context.IsToken('?') && !context.IsToken("??") ? null : context.TryParse(expression);
+                var newNode = context.TryParse(expression, parser => ((parser as IHasPriority)?.Priority ?? 0) >= BindingParserPriority.Binary);
                 if (newNode == null)
                 {
                     if (expression != null)

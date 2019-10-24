@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Binding.Delegates;
@@ -197,7 +198,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             void SetLimit(int? limit);
 
-            IExpressionNode? TryParse(IExpressionNode? expression = null);
+            IExpressionNode? TryParse(IExpressionNode? expression = null, Func<IParser, bool>? condition = null);
         }
 
         public interface IParser : IComponent<IExpressionParser>
@@ -264,12 +265,16 @@ namespace MugenMvvm.Binding.Parsing.Components
                 Position = position;
             }
 
-            public IExpressionNode? TryParse(IExpressionNode? expression = null)
+            public IExpressionNode TryParse(IExpressionNode? expression = null, Func<IParser, bool>? condition = null)
             {
                 var components = _parser.Parsers;
                 for (var i = 0; i < components.Length; i++)
                 {
-                    var result = components[i].TryParse(this, expression);
+                    var component = components[i];
+                    if (condition != null && !condition(component))
+                        continue;
+
+                    var result = component.TryParse(this, expression);
                     if (result != null)
                         return result;
                 }

@@ -1,9 +1,11 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -46,10 +48,18 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
-            if (!(expression is IMemberExpressionNode memberExpression) || memberExpression.Target == null)
-                return null;
+            if (expression is IMemberExpressionNode memberExpression)
+                return memberExpression.Build(this, context, (component, ctx, m, target) => component.Build(ctx, m, target));
+            return null;
 
-            var target = context.Build(memberExpression.Target);
+        }
+
+        #endregion
+
+        #region Methods
+
+        private Expression Build(ExpressionCompilerComponent.IContext context, IMemberExpressionNode memberExpression, Expression target)
+        {
             var type = BindingMugenExtensions.GetTargetType(ref target);
             var member = memberExpression.Member;
             if (member == null)
@@ -91,10 +101,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataParameter);
             return Expression.Convert(methodCall, member.Type);
         }
-
-        #endregion
-
-        #region Methods
 
         [Preserve(Conditional = true)]
         public object? GetValueDynamic(object? target, string member, IReadOnlyMetadataContext? metadata)
