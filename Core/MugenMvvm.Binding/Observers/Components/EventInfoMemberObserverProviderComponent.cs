@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Observers.Components
             if (addMethod == null)
                 return null;
 
-            addMethod.InvokeEx(target, handler);
+            addMethod.GetMethodInvoker<Action<object, Delegate>>().Invoke(target, handler);
             return listenerInternal;
         }
 

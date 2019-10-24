@@ -82,7 +82,8 @@ namespace MugenMvvm.Serialization
                                  (MemberInfo?)type.GetPropertyUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
             if (member == null)
             {
-                Tracer.Error(MessageConstants.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
+                if (Tracer.TraceError)
+                    Tracer.Error(MessageConstants.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
                 return null;
             }
 

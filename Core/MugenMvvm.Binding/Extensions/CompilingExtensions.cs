@@ -79,8 +79,7 @@ namespace MugenMvvm.Binding
                 }
                 finally
                 {
-                    ExpressionBuffer[0] = null;
-                    ExpressionBuffer[1] = null;
+                    Array.Clear(ExpressionBuffer, 0, ExpressionBuffer.Length);
                 }
             }
 

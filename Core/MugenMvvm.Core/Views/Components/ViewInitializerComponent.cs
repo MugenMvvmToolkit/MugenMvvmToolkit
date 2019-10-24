@@ -49,7 +49,7 @@ namespace MugenMvvm.Views.Components
                 return Default.EmptyArray<IViewInfo>();
             lock (views)
             {
-                return views.Select(pair => pair.Value).ToArray();
+                return views.ValuesToArray();
             }
         }
 

@@ -27,6 +27,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private const float NotExactlyEqualBoxWeight = 1.1f;
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
 
+        private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
         private static readonly int[] ArraySize = new int[1];
         private static readonly MethodInfo InvokeMethod = typeof(IBindingMethodInfo).GetMethodOrThrow(nameof(IBindingMethodInfo.Invoke), MemberFlags.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), MemberFlags.InstancePublic);
@@ -128,12 +129,19 @@ namespace MugenMvvm.Binding.Compiling.Components
                 arrayArgs[i] = data.Expression.ConvertIfNeed(typeof(object), false);
             }
 
-            return Expression.Call(Expression.Constant(new MethodInvoker(this), typeof(MethodInvoker)), MethodInvokerInvokeMethod,
-                targetData.Expression,
-                Expression.Constant(methodName, typeof(string)),
-                Expression.NewArrayInit(typeof(object), arrayArgs),
-                Expression.Constant(typeArgs, typeof(Type[])),
-                context.MetadataParameter);
+            try
+            {
+                ExpressionCallBuffer[0] = targetData.Expression;
+                ExpressionCallBuffer[1] = Expression.Constant(methodName, typeof(string));
+                ExpressionCallBuffer[2] = Expression.NewArrayInit(typeof(object), arrayArgs);
+                ExpressionCallBuffer[3] = Expression.Constant(typeArgs, typeof(Type[]));
+                ExpressionCallBuffer[4] = context.MetadataParameter;
+                return Expression.Call(Expression.Constant(new MethodInvoker(this), typeof(MethodInvoker)), MethodInvokerInvokeMethod, ExpressionCallBuffer);
+            }
+            finally
+            {
+                Array.Clear(ExpressionCallBuffer, 0, ExpressionCallBuffer.Length);
+            }
         }
 
         private Type[] GetTypes(IReadOnlyList<string>? types)
