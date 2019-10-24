@@ -16,7 +16,7 @@ namespace MugenMvvm.Collections
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class LightDictionary<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
+    public class LightDictionary<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
     {
         #region Fields
 

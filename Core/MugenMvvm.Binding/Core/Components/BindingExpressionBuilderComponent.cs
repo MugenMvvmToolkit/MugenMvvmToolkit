@@ -172,10 +172,10 @@ namespace MugenMvvm.Binding.Core.Components
             if (sourceExpression is IBindingMemberExpression memberExpression)
                 return new BindingExpression(this, targetMember, memberExpression, parameters, metadata);
 
-            var memberExpressions = _expressionCollectorVisitor.Collect(sourceExpression);
+            var memberExpressions = _expressionCollectorVisitor.Collect(sourceExpression); //todo special case empty sources?
             var compiledExpression = _expressionCompiler.ServiceIfNull().Compile(sourceExpression, metadata);
 
-            return new MultiBindingExpression(this, targetMember, memberExpressions, compiledExpression, parameters, metadata);
+            return new MultiBindingExpression(this, targetMember, memberExpressions.Item ?? (object?)memberExpressions.List, compiledExpression, parameters, metadata);
         }
 
         #endregion
@@ -188,8 +188,8 @@ namespace MugenMvvm.Binding.Core.Components
 
             private readonly BindingExpressionBuilderComponent _builder;
             private readonly ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> _parameters;
-            protected readonly IBindingMemberExpression TargetExpression;
             protected readonly IReadOnlyMetadataContext? MetadataRaw;
+            protected readonly IBindingMemberExpression TargetExpression;
 
             private IBindingComponentBuilder[]? _componentBuilders;
 
@@ -319,18 +319,18 @@ namespace MugenMvvm.Binding.Core.Components
             #region Fields
 
             private readonly ICompiledExpression _compiledExpression;
-            private readonly IBindingMemberExpression[] _sourceExpressions;
+            private readonly object _sourceRaw;
 
             #endregion
 
             #region Constructors
 
-            public MultiBindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpression targetExpression, IBindingMemberExpression[] sourceExpressions,
+            public MultiBindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpression targetExpression, object sourceRaw,
                 ICompiledExpression compiledExpression, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
                 : base(builder, targetExpression, parameters, metadata)
             {
                 _compiledExpression = compiledExpression;
-                _sourceExpressions = sourceExpressions;
+                _sourceRaw = sourceRaw;
             }
 
             #endregion
@@ -341,9 +341,20 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 if (metadata == null)
                     metadata = MetadataRaw;
-                var sources = new IMemberPathObserver[_sourceExpressions.Length];
-                for (var i = 0; i < sources.Length; i++)
-                    sources[i] = _sourceExpressions[i].GetSourceObserver(target, source, metadata);
+                ItemOrList<IMemberPathObserver, IMemberPathObserver[]> sources;
+                if (_sourceRaw is IBindingMemberExpression[] expressions)
+                {
+                    var array = new IMemberPathObserver[expressions.Length];
+                    for (var i = 0; i < array.Length; i++)
+                        array[i] = expressions[i].GetSourceObserver(target, source, metadata);
+                    sources = array;
+                }
+                else
+                {
+                    var observer = ((IBindingMemberExpression)_sourceRaw).GetSourceObserver(target, source, metadata);
+                    sources = new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>(observer);
+                }
+
                 var binding = new MultiBinding(TargetExpression.GetTargetObserver(target, source, metadata), sources, _compiledExpression);
                 InitializeBinding(binding, target, source, metadata);
                 return binding;

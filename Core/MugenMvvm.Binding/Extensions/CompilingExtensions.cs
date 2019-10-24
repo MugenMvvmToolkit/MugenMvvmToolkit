@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding
 
             if (target is NullConditionalMemberExpressionNode nullConditional)
             {
-                var targetEx = context.Build(nullConditional.Target);
+                var targetEx = context.Build(nullConditional.Target!);
                 if (targetEx.Type.IsValueTypeUnified() && !targetEx.Type.IsNullableType())
                     return buildDelegate(builder, context, expression, targetEx);
 

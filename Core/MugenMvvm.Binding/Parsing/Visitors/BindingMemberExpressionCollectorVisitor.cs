@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
@@ -44,11 +45,18 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Methods
 
-        public IBindingMemberExpression[] Collect(IExpressionNode expression)
+        public ItemOrList<IBindingMemberExpression, IBindingMemberExpression[]> Collect(IExpressionNode expression)
         {
             expression.Accept(this);
             if (_members.Count == 0)
                 return Default.EmptyArray<IBindingMemberExpression>();
+
+            if (_members.Count == 1)
+            {
+                var r = new ItemOrList<IBindingMemberExpression, IBindingMemberExpression[]>(_members[0]);
+                _members.Clear();
+                return r;
+            }
 
             var expressions = _members.ToArray();
             _members.Clear();

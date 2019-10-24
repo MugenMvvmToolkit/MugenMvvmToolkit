@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core
 {
@@ -17,8 +18,8 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public MultiBinding(IMemberPathObserver target, IMemberPathObserver[] sources, ICompiledExpression expression)
-            : base(target, sources)
+        public MultiBinding(IMemberPathObserver target, ItemOrList<IMemberPathObserver, IMemberPathObserver[]> sources, ICompiledExpression expression)
+            : base(target, sources.Item ?? (object?)sources.List)
         {
             Should.NotBeNull(expression, nameof(expression));
             _expression = expression;
@@ -30,18 +31,29 @@ namespace MugenMvvm.Binding.Core
 
         public object? GetValue()
         {
-            var sources = (IMemberPathObserver[])SourceRaw;
-            var values = new ExpressionValue[sources.Length];
-            for (var i = 0; i < sources.Length; i++)
+            ItemOrList<ExpressionValue, ExpressionValue[]> values;
+            if (SourceRaw is IMemberPathObserver[] sources)
             {
-                var members = sources[i].GetLastMember(Metadata);
+                var expressionValues = new ExpressionValue[sources.Length];
+                for (var i = 0; i < sources.Length; i++)
+                {
+                    var members = sources[i].GetLastMember(Metadata);
+                    var value = members.GetLastMemberValue(Metadata);
+                    if (value.IsUnsetValueOrDoNothing())
+                        return value;
+                    expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, null);
+                }
+
+                values = expressionValues;
+            }
+            else
+            {
+                var members = ((IMemberPathObserver)SourceRaw).GetLastMember(Metadata);
                 var value = members.GetLastMemberValue(Metadata);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
-                if (value == null)
-                    values[i] = new ExpressionValue(members.LastMember.Type, null);
-                else
-                    values[i] = new ExpressionValue(value.GetType(), value);
+
+                values = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, value);
             }
 
             return _expression!.Invoke(values, Metadata);

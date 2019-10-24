@@ -265,7 +265,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 Position = position;
             }
 
-            public IExpressionNode TryParse(IExpressionNode? expression = null, Func<IParser, bool>? condition = null)
+            public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<IParser, bool>? condition = null)
             {
                 var components = _parser.Parsers;
                 for (var i = 0; i < components.Length; i++)

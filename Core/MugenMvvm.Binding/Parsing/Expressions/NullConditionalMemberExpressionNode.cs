@@ -26,12 +26,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Implementation of interfaces
 
-        public NullConditionalMemberExpressionNode UpdateTarget(IExpressionNode target)
+        public NullConditionalMemberExpressionNode UpdateTarget(IExpressionNode? target)
         {
             if (ReferenceEquals(target, Target))
                 return this;
 
-            return new NullConditionalMemberExpressionNode(target);
+            return new NullConditionalMemberExpressionNode(target!);
         }
 
         #endregion

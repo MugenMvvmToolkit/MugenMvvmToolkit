@@ -22,5 +22,11 @@ namespace MugenMvvm.Binding.Compiling
         }
 
         #endregion
+
+        #region Properties
+
+        public bool IsEmpty => Type == null;
+
+        #endregion
     }
 }

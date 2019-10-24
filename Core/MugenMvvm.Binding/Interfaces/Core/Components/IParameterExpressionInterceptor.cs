@@ -6,7 +6,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
-    public interface IParameterExpressionInterceptor : IComponent<IBindingManager>
+    public interface IParameterExpressionInterceptor : IComponent<IBindingManager>//todo post interceptor
     {
         ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> InterceptParameterExpression(ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
             IReadOnlyMetadataContext? metadata);

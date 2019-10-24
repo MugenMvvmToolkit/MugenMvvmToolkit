@@ -16,6 +16,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
@@ -128,7 +129,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             Expression? TryBuild(IContext context, IExpressionNode expression);
         }
 
-        private sealed class CompiledExpression : LightDictionary<object, Func<object[]?, object?>>, ICompiledExpression, IContext, IExpressionVisitor
+        private sealed class CompiledExpression : LightDictionary<object, Func<object?[], object?>>, ICompiledExpression, IContext, IExpressionVisitor
         {
             #region Fields
 
@@ -183,20 +184,32 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Implementation of interfaces
 
-            public object? Invoke(ExpressionValue[] values, IReadOnlyMetadataContext? metadata)
+            public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
             {
-                Should.NotBeNull(values, nameof(values));
-                if (!TryGetValue(values, out var invoker))
+                var list = values.List;
+                var key = (object?)list ?? values.Item.Type;
+                Should.NotBeNull(key, nameof(values));
+                if (!TryGetValue(key, out var invoker))
                 {
                     invoker = CompileExpression(values);
-                    var types = new Type[values.Length];
-                    for (var i = 0; i < values.Length; i++)
-                        types[i] = values[i].Type;
-                    this[types] = invoker;
+                    if (list == null)
+                        this[values.Item.Type] = invoker;
+                    else
+                    {
+                        var types = new Type[list.Length];
+                        for (var i = 0; i < list.Length; i++)
+                            types[i] = list[i].Type;
+                        this[types] = invoker;
+                    }
                 }
 
-                for (var i = 0; i < values.Length; i++)
-                    _values[i] = values[i].Value;
+                if (list == null)
+                    _values[0] = values.Item.Value;
+                else
+                {
+                    for (var i = 0; i < list.Length; i++)
+                        _values[i] = list[i].Value;
+                }
                 _values[_values.Length - 1] = metadata;
                 try
                 {
@@ -277,23 +290,31 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Methods
 
-            private Func<object?[], object?> CompileExpression(ExpressionValue[] values)
+            private Func<object?[], object?> CompileExpression(ItemOrList<ExpressionValue, ExpressionValue[]> values)
             {
                 try
                 {
+                    ExpressionValue[]? expressionValues = values.List;
                     foreach (var value in _parametersDict)
                     {
                         var parameterExpression = value.Key;
                         if (parameterExpression.NodeType == ExpressionNodeType.BindingMember)
                         {
                             var index = GetIndexExpression(parameterExpression.Index);
-                            _parametersDict[parameterExpression] = index.ConvertIfNeed(values[parameterExpression.Index].Type, false);
+                            if (expressionValues == null)
+                            {
+                                if (parameterExpression.Index != 0)
+                                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(values));
+                                _parametersDict[parameterExpression] = index.ConvertIfNeed(values.Item.Type, false);
+                            }
+                            else
+                                _parametersDict[parameterExpression] = index.ConvertIfNeed(expressionValues[parameterExpression.Index].Type, false);
                         }
                     }
 
                     var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
                     var lambda = Expression.Lambda<Func<object?[], object?>>(expression, ArrayParameterArray);
-                    return lambda.Compile();//todo as ext method
+                    return lambda.Compile();
                 }
                 finally
                 {
@@ -309,6 +330,15 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override bool Equals(object x, object y)
             {
+                var typeX = x as Type;
+                var typeY = y as Type;
+                if (typeX != null || typeY != null)
+                {
+                    if (typeX == null || typeY == null)
+                        return false;
+                    return typeX.EqualsEx(typeY);
+                }
+
                 var typesX = x as Type[];
                 var typesY = y as Type[];
                 if (typesX == null && typesY == null)
@@ -344,6 +374,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override int GetHashCode(object key)
             {
+                if (key is Type type)
+                    return type.GetHashCode();
+
                 unchecked
                 {
                     var hash = 0;

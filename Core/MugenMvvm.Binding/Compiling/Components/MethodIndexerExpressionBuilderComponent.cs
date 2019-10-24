@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (methodCallExpression.Method != null)
                 return GenerateMethodCall(context, methodCallExpression.Method, target, methodCallExpression.Arguments);
 
-            var targetData = new TargetData(methodCallExpression.Target, type, target);
+            var targetData = new TargetData(methodCallExpression.Target!, type, target);
             var args = new ArgumentData[methodCallExpression.Arguments.Count];
             for (var i = 0; i < args.Length; i++)
             {
@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (target.Type.IsArray)
                 return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
 
-            var targetData = new TargetData(indexExpression.Target, type, target);
+            var targetData = new TargetData(indexExpression.Target!, type, target);
             var args = new ArgumentData[indexExpression.Arguments.Count];
             for (var i = 0; i < args.Length; i++)
             {
@@ -475,7 +475,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams, IReadOnlyMetadataContext metadata)
+        private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams, IReadOnlyMetadataContext? metadata)
         {
             var parameters = method.Parameters!;
             var result = args.Length == parameters.Length ? args : new object?[parameters.Length];
