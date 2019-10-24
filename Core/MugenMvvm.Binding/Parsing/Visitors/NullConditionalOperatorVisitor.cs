@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             List<IExpressionNode>? chain = null;
             var binaryExpression = node as IBinaryExpressionNode;
-            while (binaryExpression != null && binaryExpression.Token == BinaryTokenType.NullConditionalMemberAccess)
+            while (binaryExpression != null && binaryExpression.Token == BinaryTokenType.NullConditional)
             {
                 if (chain == null)
                     chain = new List<IExpressionNode>();

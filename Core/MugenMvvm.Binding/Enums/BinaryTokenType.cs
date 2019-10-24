@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Enums
     {
         #region Fields
 
-        public static readonly BinaryTokenType NullConditionalMemberAccess = new BinaryTokenType("?.", 1000);
+        public static readonly BinaryTokenType NullConditional = new BinaryTokenType("?.", 1000);
         public static readonly BinaryTokenType Multiplication = new BinaryTokenType("*", 990);
         public static readonly BinaryTokenType Division = new BinaryTokenType("/", 990);
         public static readonly BinaryTokenType Remainder = new BinaryTokenType("%", 990, "mod");

@@ -224,14 +224,14 @@ namespace MugenMvvm.Binding
             return null;
         }
 
+        internal static bool IsNullableType(this Type type)
+        {
+            return type.IsGenericTypeUnified() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
         private static Type GetNonNullableType(this Type type)
         {
             return IsNullableType(type) ? type.GetGenericArgumentsUnified().First() : type;
-        }
-
-        private static bool IsNullableType(this Type type)
-        {
-            return type.IsGenericTypeUnified() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         private static TypeCode GetTypeCode(this Type type)

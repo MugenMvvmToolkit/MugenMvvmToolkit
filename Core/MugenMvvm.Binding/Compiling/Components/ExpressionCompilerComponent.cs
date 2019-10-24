@@ -264,7 +264,12 @@ namespace MugenMvvm.Binding.Compiling.Components
             IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
             {
                 if (node.NodeType == ExpressionNodeType.BindingMember)
-                    _parametersDict[(IParameterExpression)node] = null;
+                {
+                    var parameterExpression = (IParameterExpression)node;
+                    if (parameterExpression.Index < 0)
+                        BindingExceptionManager.ThrowCannotCompileExpression(parameterExpression);
+                    _parametersDict[parameterExpression] = null;
+                }
                 return node;
             }
 
@@ -373,7 +378,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             private static Expression GetIndexExpression(int index)
             {
-                if (index < ArrayIndexesCache.Length)
+                if (index >= 0 && index < ArrayIndexesCache.Length)
                     return ArrayIndexesCache[index];
                 return Expression.ArrayIndex(ArrayParameter, Expression.Constant(index, typeof(int)));
             }

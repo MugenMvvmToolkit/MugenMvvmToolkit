@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 _tokens = new[]
                 {
-                    BinaryTokenType.NullConditionalMemberAccess,
+                    BinaryTokenType.NullConditional,
                     BinaryTokenType.Multiplication,
                     BinaryTokenType.Division,
                     BinaryTokenType.Remainder,
