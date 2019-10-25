@@ -187,13 +187,12 @@ namespace MugenMvvm.Binding.Compiling.Components
             public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
             {
                 var list = values.List;
-                var key = (object?)list ?? values.Item.Type;
-                Should.NotBeNull(key, nameof(values));
+                var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<Type>();
                 if (!TryGetValue(key, out var invoker))
                 {
                     invoker = CompileExpression(values);
                     if (list == null)
-                        this[values.Item.Type] = invoker;
+                        this[key] = invoker;
                     else
                     {
                         var types = new Type[list.Length];
