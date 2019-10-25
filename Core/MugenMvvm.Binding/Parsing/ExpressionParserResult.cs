@@ -12,9 +12,9 @@ namespace MugenMvvm.Binding.Parsing
         #region Fields
 
         public readonly IReadOnlyMetadataContext Metadata;
-        public readonly ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> Parameters;
         public readonly IExpressionNode Source;
         public readonly IExpressionNode Target;
+        private readonly object? _parametersRaw;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Parsing
             Should.NotBeNull(source, nameof(source));
             Target = target;
             Source = source;
-            Parameters = parameters;
+            _parametersRaw = parameters.Item ?? (object) parameters.List;
             Metadata = metadata ?? Default.Metadata;
         }
 
@@ -42,6 +42,16 @@ namespace MugenMvvm.Binding.Parsing
         #region Properties
 
         public bool IsEmpty => Target == null;
+
+        public ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> Parameters
+        {
+            get
+            {
+                if (_parametersRaw is IReadOnlyList<IExpressionNode> list)
+                    return new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(list);
+                return new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>((IExpressionNode) _parametersRaw);
+            }
+        }
 
         #endregion
     }
