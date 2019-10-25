@@ -75,6 +75,7 @@ namespace MugenMvvm
             return true;
         }
 
+        //todo remove
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool EqualsEx(this Type x, Type? y) //note idkw but default implementation doesn't use ReferenceEquals before equals check
         {

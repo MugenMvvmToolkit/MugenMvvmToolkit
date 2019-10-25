@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IAttachedValueManager : IComponentOwner<IAttachedValueManager>, IComponent<IMugenApplication>//todo rename
+    public interface IAttachedValueManager : IComponentOwner<IAttachedValueManager>, IComponent<IMugenApplication>
     {
         IAttachedValueProvider? GetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null);
 

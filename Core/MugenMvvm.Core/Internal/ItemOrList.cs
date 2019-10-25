@@ -46,6 +46,13 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
+        public ItemOrList<TItem, TNewList> Cast<TNewList>() where TNewList : class, IReadOnlyList<TItem>
+        {
+            if (List == null)
+                return new ItemOrList<TItem, TNewList>(Item);
+            return new ItemOrList<TItem, TNewList>((TNewList)(object)List);
+        }
+
         public static implicit operator ItemOrList<TItem, TList>(TItem item)
         {
             return new ItemOrList<TItem, TList>(item);

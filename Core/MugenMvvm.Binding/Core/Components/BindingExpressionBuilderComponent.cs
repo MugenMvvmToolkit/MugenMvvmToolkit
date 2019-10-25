@@ -31,9 +31,7 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly IExpressionParser? _parser;
 
         private IBindingComponentProviderComponent[] _componentProviders;
-        private IParameterExpressionInterceptor[] _parameterInterceptors;
-        private ISourceExpressionInterceptor[] _sourceInterceptors;
-        private ITargetExpressionInterceptor[] _targetInterceptors;
+        private IBindingExpressionInterceptor[] _expressionInterceptors;
 
         #endregion
 
@@ -43,9 +41,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             _parser = parser;
             _expressionCompiler = expressionCompiler;
-            _targetInterceptors = Default.EmptyArray<ITargetExpressionInterceptor>();
-            _sourceInterceptors = Default.EmptyArray<ISourceExpressionInterceptor>();
-            _parameterInterceptors = Default.EmptyArray<IParameterExpressionInterceptor>();
+            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptor>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
             _defaultBindingComponents = new List<IBindingComponentBuilder>();
             _componentsDictionary = new StringOrdinalLightDictionary<IBindingComponentBuilder>(7);
@@ -104,18 +100,14 @@ namespace MugenMvvm.Binding.Core.Components
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
             IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _parameterInterceptors, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _sourceInterceptors, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _targetInterceptors, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _expressionInterceptors, collection, component);
             MugenExtensions.ComponentTrackerOnAdded(ref _componentProviders, collection, component);
         }
 
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
             IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _parameterInterceptors, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _sourceInterceptors, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _targetInterceptors, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _expressionInterceptors, component);
             MugenExtensions.ComponentTrackerOnRemoved(ref _componentProviders, component);
         }
 
@@ -125,9 +117,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            _parameterInterceptors = owner.Components.GetItems().OfType<IParameterExpressionInterceptor>().ToArray();
-            _sourceInterceptors = owner.Components.GetItems().OfType<ISourceExpressionInterceptor>().ToArray();
-            _targetInterceptors = owner.Components.GetItems().OfType<ITargetExpressionInterceptor>().ToArray();
+            _expressionInterceptors = owner.Components.GetItems().OfType<IBindingExpressionInterceptor>().ToArray();
             _componentProviders = owner.Components.GetItems().OfType<IBindingComponentProviderComponent>().ToArray();
             owner.Components.Components.Add(this);
         }
@@ -135,32 +125,20 @@ namespace MugenMvvm.Binding.Core.Components
         protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
             owner.Components.Components.Remove(this);
-            _targetInterceptors = Default.EmptyArray<ITargetExpressionInterceptor>();
-            _sourceInterceptors = Default.EmptyArray<ISourceExpressionInterceptor>();
-            _parameterInterceptors = Default.EmptyArray<IParameterExpressionInterceptor>();
+            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptor>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
         }
 
         private BindingExpressionBase GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
             ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
-            if (!parameters.IsNullOrEmpty())
-            {
-                var interceptors = _parameterInterceptors;
-                IExpressionNode? expression = null;
-                List<IExpressionNode>? nodes = null;
-                for (var i = 0; i < interceptors.Length; i++)
-                    interceptors[i].InterceptParameterExpression(parameters, metadata).Merge(ref expression, ref nodes);
-                parameters = nodes ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(expression);
-            }
+            var parametersList = parameters.List != null
+                ? new ItemOrList<IExpressionNode, List<IExpressionNode>>(parameters.List.ToList())
+                : new ItemOrList<IExpressionNode, List<IExpressionNode>>(parameters.Item);
 
-            var targetInterceptors = _targetInterceptors;
-            for (var i = 0; i < targetInterceptors.Length; i++)
-                targetExpression = targetInterceptors[i].InterceptTargetExpression(targetExpression, parameters, metadata);
-
-            var sourceInterceptors = _sourceInterceptors;
-            for (var i = 0; i < sourceInterceptors.Length; i++)
-                sourceExpression = sourceInterceptors[i].InterceptSourceExpression(targetExpression, sourceExpression, parameters, metadata);
+            for (int i = 0; i < _expressionInterceptors.Length; i++)
+                _expressionInterceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
+            parameters = parametersList.Cast<IReadOnlyList<IExpressionNode>>();
 
             if (!(targetExpression is IBindingMemberExpression targetMember))
             {
@@ -181,7 +159,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Nested types
 
-        private abstract class BindingExpressionBase : IBindingExpression
+        private abstract class BindingExpressionBase : IBindingExpression//todo opt
         {
             #region Fields
 
