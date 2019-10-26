@@ -48,8 +48,8 @@ namespace MugenMvvm.Binding.Parsing
             get
             {
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> list)
-                    return new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(list);
-                return new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>((IExpressionNode) _parametersRaw);
+                    return new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(list);
+                return new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>((IExpressionNode) _parametersRaw);
             }
         }
 

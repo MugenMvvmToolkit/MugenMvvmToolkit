@@ -59,9 +59,9 @@ namespace MugenMvvm.Binding.Compiling.Components
             switch (expression)
             {
                 case IIndexExpressionNode indexExpression:
-                    return indexExpression.Build(this, context, (component, ctx, m, target) => component.TryBuildIndex(ctx, m, target));
+                    return TryBuildIndex(context, indexExpression);
                 case IMethodCallExpressionNode methodCallExpression:
-                    return methodCallExpression.Build(this, context, (component, ctx, m, target) => component.TryBuildMethod(ctx, m, target));
+                    return TryBuildMethod(context, methodCallExpression);
                 default:
                     return null;
             }
@@ -71,8 +71,12 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Methods
 
-        private Expression? TryBuildMethod(ExpressionCompilerComponent.IContext context, IMethodCallExpressionNode methodCallExpression, Expression target)
+        private Expression? TryBuildMethod(ExpressionCompilerComponent.IContext context, IMethodCallExpressionNode methodCallExpression)
         {
+            if (methodCallExpression.Target == null)
+                return null;
+
+            var target = context.Build(methodCallExpression.Target);
             var type = BindingMugenExtensions.GetTargetType(ref target);
 
             if (methodCallExpression.Method != null)
@@ -89,8 +93,12 @@ namespace MugenMvvm.Binding.Compiling.Components
             return TryBuildExpression(context, methodCallExpression.MethodName, targetData, args, GetTypes(methodCallExpression.TypeArgs));
         }
 
-        private Expression? TryBuildIndex(ExpressionCompilerComponent.IContext context, IIndexExpressionNode indexExpression, Expression target)
+        private Expression? TryBuildIndex(ExpressionCompilerComponent.IContext context, IIndexExpressionNode indexExpression)
         {
+            if (indexExpression.Target == null)
+                return null;
+
+            var target = context.Build(indexExpression.Target);
             var type = BindingMugenExtensions.GetTargetType(ref target);
 
             if (indexExpression.Indexer != null)

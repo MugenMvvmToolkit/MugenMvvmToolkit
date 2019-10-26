@@ -115,7 +115,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             void ClearLambdaParameter(IBindingParameterInfo parameter);
 
-            Expression? TryGetParameterExpression(IParameterExpressionNode expression);
+            Expression? TryGetExpression(IExpressionNode expression);
 
             void SetExpression(IExpressionNode expression, Expression value);
 
@@ -239,7 +239,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 _lambdaParameters?.Remove(parameter);
             }
 
-            public Expression? TryGetParameterExpression(IParameterExpressionNode expression)
+            public Expression? TryGetExpression(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
                 _parametersDict.TryGetValue(expression, out var value);
@@ -261,13 +261,19 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public Expression Build(IExpressionNode expression)
             {
+                Should.NotBeNull(expression, nameof(expression));
                 var components = _compiler.Builders;
+                Expression? exp;
                 foreach (var component in components)
                 {
-                    var exp = component.TryBuild(this, expression);
+                    exp = component.TryBuild(this, expression);
                     if (exp != null)
                         return exp;
                 }
+
+                exp = TryGetExpression(expression);
+                if (exp != null)
+                    return exp;
 
                 BindingExceptionManager.ThrowCannotCompileExpression(expression);
                 return null!;

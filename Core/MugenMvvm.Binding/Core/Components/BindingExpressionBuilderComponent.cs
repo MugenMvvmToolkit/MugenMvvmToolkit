@@ -133,8 +133,8 @@ namespace MugenMvvm.Binding.Core.Components
             ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             var parametersList = parameters.List != null
-                ? new ItemOrList<IExpressionNode, List<IExpressionNode>>(parameters.List.ToList())
-                : new ItemOrList<IExpressionNode, List<IExpressionNode>>(parameters.Item);
+                ? new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.List.ToList())
+                : new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.Item);
 
             for (int i = 0; i < _expressionInterceptors.Length; i++)
                 _expressionInterceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
