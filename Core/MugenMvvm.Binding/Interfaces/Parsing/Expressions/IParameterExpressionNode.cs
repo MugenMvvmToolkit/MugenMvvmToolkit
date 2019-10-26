@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IParameterExpression : IExpressionNode
+    public interface IParameterExpressionNode : IExpressionNode
     {
         int Index { get; }
 

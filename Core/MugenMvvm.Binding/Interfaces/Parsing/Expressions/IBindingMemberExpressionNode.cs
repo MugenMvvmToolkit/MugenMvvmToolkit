@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IBindingMemberExpression : IParameterExpression
+    public interface IBindingMemberExpressionNode : IParameterExpressionNode
     {
         BindingMemberExpressionFlags Flags { get; set; }
 

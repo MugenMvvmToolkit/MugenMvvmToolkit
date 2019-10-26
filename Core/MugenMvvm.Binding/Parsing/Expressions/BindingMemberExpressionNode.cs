@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
-    public sealed class BindingMemberExpression : ParameterExpression, IBindingMemberExpression
+    public sealed class BindingMemberExpressionNode : ParameterExpressionNode, IBindingMemberExpressionNode
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Constructors
 
-        public BindingMemberExpression(string path, IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null)
+        public BindingMemberExpressionNode(string path, IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null)
             : base(path, -1)
         {
             _observerProvider = observerProvider;

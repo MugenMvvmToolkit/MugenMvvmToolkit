@@ -9,7 +9,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
     {
         #region Fields
 
-        private readonly List<IBindingMemberExpression> _members;
+        private readonly List<IBindingMemberExpressionNode> _members;
 
         #endregion
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public BindingMemberExpressionCollectorVisitor()
         {
-            _members = new List<IBindingMemberExpression>(4);
+            _members = new List<IBindingMemberExpressionNode>(4);
         }
 
         #endregion
@@ -32,7 +32,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
         {
-            if (node is IBindingMemberExpression bindingMember && !_members.Contains(bindingMember))
+            if (node is IBindingMemberExpressionNode bindingMember && !_members.Contains(bindingMember))
             {
                 bindingMember.SetIndex(_members.Count);
                 _members.Add(bindingMember);
@@ -45,15 +45,15 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Methods
 
-        public ItemOrList<IBindingMemberExpression, IBindingMemberExpression[]> Collect(IExpressionNode expression)
+        public ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]> Collect(IExpressionNode expression)
         {
             expression.Accept(this);
             if (_members.Count == 0)
-                return Default.EmptyArray<IBindingMemberExpression>();
+                return Default.EmptyArray<IBindingMemberExpressionNode>();
 
             if (_members.Count == 1)
             {
-                var r = new ItemOrList<IBindingMemberExpression, IBindingMemberExpression[]>(_members[0]);
+                var r = new ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]>(_members[0]);
                 _members.Clear();
                 return r;
             }

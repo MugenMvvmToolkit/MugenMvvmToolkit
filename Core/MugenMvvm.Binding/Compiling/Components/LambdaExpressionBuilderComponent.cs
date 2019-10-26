@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                     var parameter = Expression.Parameter(parameters[i].ParameterType, lambdaExpression.Parameters[i].Name);
                     lambdaParameters[i] = parameter;
-                    context.SetParameterExpression(parameterExp, parameter);
+                    context.SetExpression(parameterExp, parameter);
                 }
 
                 return Expression.Lambda(context.Build(lambdaExpression.Body), lambdaParameters);
@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             finally
             {
                 for (var i = 0; i < lambdaParameters.Length; i++)
-                    context.ClearParameterExpression(lambdaExpression.Parameters[i]);
+                    context.ClearExpression(lambdaExpression.Parameters[i]);
             }
         }
 

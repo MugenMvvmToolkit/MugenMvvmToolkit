@@ -10,11 +10,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpression>? parameters)
+        public LambdaExpressionNode(IExpressionNode body, IReadOnlyList<IParameterExpressionNode>? parameters)
         {
             Should.NotBeNull(body, nameof(body));
             Body = body;
-            Parameters = parameters ?? Default.EmptyArray<IParameterExpression>();
+            Parameters = parameters ?? Default.EmptyArray<IParameterExpressionNode>();
         }
 
         #endregion
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Lambda;
 
-        public IReadOnlyList<IParameterExpression> Parameters { get; }
+        public IReadOnlyList<IParameterExpressionNode> Parameters { get; }
 
         public IExpressionNode Body { get; }
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             var body = VisitWithCheck(visitor, Body, true, ref changed);
 
             var itemsChanged = false;
-            IParameterExpression[]? newParams = null;
+            IParameterExpressionNode[]? newParams = null;
             for (var i = 0; i < Parameters.Count; i++)
             {
                 var node = VisitWithCheck(visitor, Parameters[i], true, ref itemsChanged);

@@ -115,11 +115,11 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             void ClearLambdaParameter(IBindingParameterInfo parameter);
 
-            Expression? TryGetParameterExpression(IParameterExpression expression);
+            Expression? TryGetParameterExpression(IParameterExpressionNode expression);
 
-            void SetParameterExpression(IParameterExpression expression, Expression value);
+            void SetExpression(IExpressionNode expression, Expression value);
 
-            void ClearParameterExpression(IParameterExpression expression);
+            void ClearExpression(IExpressionNode expression);
 
             Expression Build(IExpressionNode expression);
         }
@@ -239,21 +239,21 @@ namespace MugenMvvm.Binding.Compiling.Components
                 _lambdaParameters?.Remove(parameter);
             }
 
-            public Expression? TryGetParameterExpression(IParameterExpression expression)
+            public Expression? TryGetParameterExpression(IParameterExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
                 _parametersDict.TryGetValue(expression, out var value);
                 return value;
             }
 
-            public void SetParameterExpression(IParameterExpression expression, Expression value)
+            public void SetExpression(IExpressionNode expression, Expression value)
             {
                 Should.NotBeNull(expression, nameof(expression));
                 Should.NotBeNull(value, nameof(value));
                 _parametersDict[expression] = value;
             }
 
-            public void ClearParameterExpression(IParameterExpression expression)
+            public void ClearExpression(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
                 _parametersDict.Remove(expression);
@@ -277,7 +277,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (node.NodeType == ExpressionNodeType.BindingMember)
                 {
-                    var parameterExpression = (IParameterExpression)node;
+                    var parameterExpression = (IParameterExpressionNode)node;
                     if (parameterExpression.Index < 0)
                         BindingExceptionManager.ThrowCannotCompileExpression(parameterExpression);
                     _parametersDict[parameterExpression] = null;
@@ -296,8 +296,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                     ExpressionValue[]? expressionValues = values.List;
                     foreach (var value in _parametersDict)
                     {
-                        var parameterExpression = value.Key;
-                        if (parameterExpression.NodeType == ExpressionNodeType.BindingMember)
+                        var ex = value.Key;
+                        if (ex.NodeType == ExpressionNodeType.BindingMember && ex is IParameterExpressionNode parameterExpression)
                         {
                             var index = GetIndexExpression(parameterExpression.Index);
                             if (expressionValues == null)
@@ -426,7 +426,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             #endregion
         }
 
-        private sealed class ParameterDictionary : LightDictionary<IParameterExpression, Expression?>
+        private sealed class ParameterDictionary : LightDictionary<IExpressionNode, Expression?>
         {
             #region Constructors
 
@@ -438,23 +438,27 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Methods
 
-            protected override int GetHashCode(IParameterExpression key)
+            protected override int GetHashCode(IExpressionNode key)
             {
-                if (key.NodeType == ExpressionNodeType.BindingMember)
+                if (key.NodeType == ExpressionNodeType.BindingMember && key is IParameterExpressionNode parameter)
                 {
                     unchecked
                     {
-                        return key.Index * 397 ^ key.Name.GetHashCode();
+                        return parameter.Index * 397 ^ parameter.Name.GetHashCode();
                     }
                 }
 
                 return RuntimeHelpers.GetHashCode(key);
             }
 
-            protected override bool Equals(IParameterExpression x, IParameterExpression y)
+            protected override bool Equals(IExpressionNode x, IExpressionNode y)
             {
                 if (x.NodeType == ExpressionNodeType.BindingMember && y.NodeType == ExpressionNodeType.BindingMember)
-                    return x.Index == y.Index && x.Name == y.Name;
+                {
+                    var xP = (IParameterExpressionNode)x;
+                    var yP = (IParameterExpressionNode)y;
+                    return xP.Index == yP.Index && xP.Name == yP.Name;
+                }
                 return ReferenceEquals(x, y);
             }
 

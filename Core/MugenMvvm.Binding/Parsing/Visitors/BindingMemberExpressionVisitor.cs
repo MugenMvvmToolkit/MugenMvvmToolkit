@@ -166,7 +166,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, memberFlags, target, flags);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingMemberExpression(key.Path, _observerProvider, _resourceResolver)
+                node = new BindingMemberExpressionNode(key.Path, _observerProvider, _resourceResolver)
                 {
                     Target = target,
                     ObservableMethodName = methodName,
@@ -184,7 +184,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Nested types
 
-        private sealed class MemberDictionary : LightDictionary<CacheKey, BindingMemberExpression>
+        private sealed class MemberDictionary : LightDictionary<CacheKey, BindingMemberExpressionNode>
         {
             #region Constructors
 

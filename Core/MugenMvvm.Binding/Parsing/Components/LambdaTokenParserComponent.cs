@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<IParameterExpression> _currentParameters;
+        private readonly StringOrdinalLightDictionary<IParameterExpressionNode> _currentParameters;
 
         #endregion
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public LambdaTokenParserComponent()
         {
-            _currentParameters = new StringOrdinalLightDictionary<IParameterExpression>(3);
+            _currentParameters = new StringOrdinalLightDictionary<IParameterExpressionNode>(3);
         }
 
         #endregion
@@ -60,10 +60,10 @@ namespace MugenMvvm.Binding.Parsing.Components
             }
 
 
-            IParameterExpression[] args;
+            IParameterExpressionNode[] args;
             if (context.IsToken("()"))
             {
-                args = Default.EmptyArray<IParameterExpression>();
+                args = Default.EmptyArray<IParameterExpressionNode>();
                 context.MoveNext(2);
             }
             else if (context.IsToken('('))
@@ -72,9 +72,9 @@ namespace MugenMvvm.Binding.Parsing.Components
                 if (stringArgs == null)
                     return null;
 
-                args = new IParameterExpression[stringArgs.Count];
+                args = new IParameterExpressionNode[stringArgs.Count];
                 for (int i = 0; i < args.Length; i++)
-                    args[i] = new ParameterExpression(stringArgs[i], i);
+                    args[i] = new ParameterExpressionNode(stringArgs[i], i);
             }
             else
             {
@@ -85,7 +85,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 if (!context.IsToken("=>", position))
                     return null;
 
-                args = new IParameterExpression[] { new ParameterExpression(context.GetValue(context.Position, end), 0) };
+                args = new IParameterExpressionNode[] { new ParameterExpressionNode(context.GetValue(context.Position, end), 0) };
                 context.SetPosition(position);
             }
 

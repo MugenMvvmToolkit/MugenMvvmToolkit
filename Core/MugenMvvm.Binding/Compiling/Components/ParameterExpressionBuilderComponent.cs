@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
-            if (expression is IParameterExpression parameter)
+            if (expression is IParameterExpressionNode parameter)
                 return context.TryGetParameterExpression(parameter);
             return null;
         }

@@ -5,11 +5,11 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
-    public class ParameterExpression : ExpressionNodeBase, IParameterExpression
+    public class ParameterExpressionNode : ExpressionNodeBase, IParameterExpressionNode
     {
         #region Constructors
 
-        public ParameterExpression(string name, int index, Type? type = null)
+        public ParameterExpressionNode(string name, int index, Type? type = null)
         {
             Should.NotBeNull(name, nameof(name));
             Index = index;
