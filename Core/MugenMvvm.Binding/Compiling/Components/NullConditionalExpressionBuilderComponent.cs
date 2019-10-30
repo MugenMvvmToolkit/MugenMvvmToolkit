@@ -10,7 +10,6 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Fields
 
-        private static readonly Expression NullConstantExpression = Expression.Constant(null, typeof(object));
         private static readonly Type[] GenericTypeBuffer = new Type[1];
         private static readonly ParameterExpression[] ParameterExpressionBuffer = new ParameterExpression[1];
         private static readonly Expression[] ExpressionBuffer = new Expression[2];
@@ -55,7 +54,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     type = typeof(Nullable<>).MakeGenericType(GenericTypeBuffer);
                 }
 
-                var conditionalExpression = Expression.Condition(Expression.ReferenceEqual(variable, NullConstantExpression), Expression.Constant(null, type),
+                var conditionalExpression = Expression.Condition(Expression.ReferenceEqual(variable, MugenExtensions.NullConstantExpression), Expression.Constant(null, type),
                     exp.ConvertIfNeed(type, false));
                 ParameterExpressionBuffer[0] = variable;
                 ExpressionBuffer[0] = Expression.Assign(variable, targetEx);

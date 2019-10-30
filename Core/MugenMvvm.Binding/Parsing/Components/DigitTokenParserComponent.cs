@@ -137,14 +137,14 @@ namespace MugenMvvm.Binding.Parsing.Components
                 case "u":
                 case "U":
                     if (uint.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var ui))
-                        return new ConstantExpressionNode(ui, typeof(uint));
+                        return ConstantExpressionNode.Get(ui);
                     return null;
                 case "ul":
                 case "UL":
                 case "Ul":
                 case "uL":
                     if (ulong.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var ul))
-                        return new ConstantExpressionNode(ul, typeof(ulong));
+                        return ConstantExpressionNode.Get(ul);
                     return null;
                 case "":
                     if (integer)
@@ -152,17 +152,17 @@ namespace MugenMvvm.Binding.Parsing.Components
                         if (ulong.TryParse(value, out var result))
                         {
                             if (result <= int.MaxValue)
-                                return new ConstantExpressionNode((int) result, typeof(int));
+                                return ConstantExpressionNode.Get((int)result);
                             if (result <= long.MaxValue)
-                                return new ConstantExpressionNode((long) result, typeof(long));
-                            return new ConstantExpressionNode(result, typeof(ulong));
+                                return ConstantExpressionNode.Get((long)result);
+                            return ConstantExpressionNode.Get(result);
                         }
 
                         return null;
                     }
 
                     if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var r))
-                        return new ConstantExpressionNode(r, typeof(ulong));
+                        return new ConstantExpressionNode(r, typeof(double));
                     return null;
             }
 

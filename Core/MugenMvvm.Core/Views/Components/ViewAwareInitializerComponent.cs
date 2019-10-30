@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority
+    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority//todo review
     {
         #region Fields
 
@@ -51,12 +51,12 @@ namespace MugenMvvm.Views.Components
 
         public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, Default.FalseObject }); //todo initialize wrappers
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, BoxingExtensions.FalseObject }); //todo initialize wrappers
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, Default.TrueObject }); //todo initialize wrappers
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, BoxingExtensions.TrueObject }); //todo initialize wrappers
         }
 
         #endregion

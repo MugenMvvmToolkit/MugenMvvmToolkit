@@ -140,11 +140,11 @@ namespace MugenMvvm.Binding.Compiling.Components
             try
             {
                 ExpressionCallBuffer[0] = targetData.Expression;
-                ExpressionCallBuffer[1] = Expression.Constant(methodName, typeof(string));
+                ExpressionCallBuffer[1] = Expression.Constant(methodName);
                 ExpressionCallBuffer[2] = Expression.NewArrayInit(typeof(object), arrayArgs);
-                ExpressionCallBuffer[3] = Expression.Constant(typeArgs, typeof(Type[]));
+                ExpressionCallBuffer[3] = Expression.Constant(typeArgs);
                 ExpressionCallBuffer[4] = context.MetadataParameter;
-                return Expression.Call(Expression.Constant(new MethodInvoker(this), typeof(MethodInvoker)), MethodInvokerInvokeMethod, ExpressionCallBuffer);
+                return Expression.Call(Expression.Constant(new MethodInvoker(this)), MethodInvokerInvokeMethod, ExpressionCallBuffer);
             }
             finally
             {
@@ -283,7 +283,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             invokeArgs[0] = (result.IsExtensionMethod ? null : target.Expression).ConvertIfNeed(typeof(object), false);
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
             invokeArgs[2] = context.MetadataParameter;
-            return Expression.Call(Expression.Constant(result.Method, typeof(IBindingMethodInfo)), InvokeMethod, invokeArgs);
+            return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs);
         }
 
         private static Expression GenerateMethodCall(ExpressionCompilerComponent.IContext context, IBindingMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
@@ -296,7 +296,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             invokeArgs[0] = target.ConvertIfNeed(typeof(object), false);
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), expressions.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
             invokeArgs[2] = context.MetadataParameter;
-            return Expression.Call(Expression.Constant(methodInfo, typeof(IBindingMethodInfo)), InvokeMethod, invokeArgs);
+            return Expression.Call(Expression.Constant(methodInfo), InvokeMethod, invokeArgs);
         }
 
         private static int TrySelectMethod(MethodData[] methods, ArgumentData[]? args, out bool resultHasParams)

@@ -31,8 +31,6 @@ namespace MugenMvvm
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
         internal static readonly Action NoDoAction = NoDo;
 
-        public static readonly object TrueObject = true;
-        public static readonly object FalseObject = false;
         public static readonly IReadOnlyMetadataContext Metadata = EmptyContext.Instance;
         public static readonly IDisposable Disposable = EmptyContext.Instance;
         public static readonly IWeakReference WeakReference = EmptyContext.Instance;
@@ -58,13 +56,6 @@ namespace MugenMvvm
         public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>()
         {
             return EmptyDictionaryImpl<TKey, TValue>.Instance;
-        }
-
-        public static object BoolToObject(bool value)
-        {
-            if (value)
-                return TrueObject;
-            return FalseObject;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

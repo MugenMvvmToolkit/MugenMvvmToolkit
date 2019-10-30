@@ -942,7 +942,7 @@ namespace MugenMvvm.IoC
                     _arrayActivator = constructorInfo!.GetActivator();
                 }
 
-                var array = _arrayActivator(new object[] { items.Length });
+                var array = _arrayActivator(new[] { BoxingExtensions.Box(items.Length) });
                 if (_arraySetMethodInvoker == null)
                 {
                     var method = typeof(MugenExtensions).GetMethodOrThrow(nameof(MugenExtensions.InitializeArray), MemberFlags.StaticOnly);

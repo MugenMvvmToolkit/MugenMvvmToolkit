@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq.Expressions;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -9,16 +10,16 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Fields
 
-        public static readonly ConstantExpressionNode True = new ConstantExpressionNode(Default.TrueObject, typeof(bool));
-        public static readonly ConstantExpressionNode False = new ConstantExpressionNode(Default.FalseObject, typeof(bool));
-        public static readonly ConstantExpressionNode Null = new ConstantExpressionNode(null, typeof(object));
-        public static readonly ConstantExpressionNode EmptyString = new ConstantExpressionNode("", typeof(string));
+        public static readonly ConstantExpressionNode True = new ConstantExpressionNode(BoxingExtensions.TrueObject, typeof(bool), MugenExtensions.TrueConstantExpression);
+        public static readonly ConstantExpressionNode False = new ConstantExpressionNode(BoxingExtensions.FalseObject, typeof(bool), MugenExtensions.FalseConstantExpression);
+        public static readonly ConstantExpressionNode Null = new ConstantExpressionNode(null, typeof(object), MugenExtensions.NullConstantExpression);
+        public static readonly ConstantExpressionNode EmptyString = new ConstantExpressionNode("", typeof(string), Expression.Constant(""));
 
         #endregion
 
         #region Constructors
 
-        public ConstantExpressionNode(object? value, Type? type = null)
+        public ConstantExpressionNode(object? value, Type? type = null, ConstantExpression? constantExpression = null)
         {
             if (type == null)
                 type = value == null ? typeof(object) : value.GetType();
@@ -26,11 +27,14 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 Should.BeOfType(value, nameof(value), type);
             Value = value;
             Type = type;
+            ConstantExpression = constantExpression;
         }
 
         #endregion
 
         #region Properties
+
+        public ConstantExpression? ConstantExpression { get; }
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Constant;
 
@@ -44,7 +48,86 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public static ConstantExpressionNode Get<TType>()
         {
-            return StaticTypeHolder<TType>.TypeConstant;
+            return TypeCache<TType>.TypeConstant;
+        }
+
+        public static ConstantExpressionNode Get(bool value)
+        {
+            if (value)
+                return True;
+            return False;
+        }
+
+        public static ConstantExpressionNode Get(byte value)
+        {
+            return ExpressionCache<byte>.Items[value];
+        }
+
+        public static ConstantExpressionNode Get(sbyte value)
+        {
+            if (value < 0)
+                return ExpressionCache<sbyte>.NegativeItems[-value];
+            return ExpressionCache<sbyte>.Items[value];
+        }
+
+        public static ConstantExpressionNode Get(ushort value)
+        {
+            if (value < BoxingExtensions.CacheSize)
+                return ExpressionCache<ushort>.Items[value];
+            return new ConstantExpressionNode(value, typeof(ushort));
+        }
+
+        public static ConstantExpressionNode Get(short value)
+        {
+            if (value < 0)
+            {
+                if (value > -BoxingExtensions.CacheSize)
+                    return ExpressionCache<short>.NegativeItems[-value];
+            }
+            else if (value < BoxingExtensions.CacheSize)
+                return ExpressionCache<short>.Items[value];
+
+            return new ConstantExpressionNode(value, typeof(short));
+        }
+
+        public static ConstantExpressionNode Get(uint value)
+        {
+            if (value < BoxingExtensions.CacheSize)
+                return ExpressionCache<uint>.Items[value];
+            return new ConstantExpressionNode(value, typeof(uint));
+        }
+
+        public static ConstantExpressionNode Get(int value)
+        {
+            if (value < 0)
+            {
+                if (value > -BoxingExtensions.CacheSize)
+                    return ExpressionCache<int>.NegativeItems[-value];
+            }
+            else if (value < BoxingExtensions.CacheSize)
+                return ExpressionCache<int>.Items[value];
+
+            return new ConstantExpressionNode(value, typeof(int));
+        }
+
+        public static ConstantExpressionNode Get(ulong value)
+        {
+            if (value < BoxingExtensions.CacheSize)
+                return ExpressionCache<ulong>.Items[value];
+            return new ConstantExpressionNode(value, typeof(ulong));
+        }
+
+        public static ConstantExpressionNode Get(long value)
+        {
+            if (value < 0)
+            {
+                if (value > -BoxingExtensions.CacheSize)
+                    return ExpressionCache<long>.NegativeItems[-value];
+            }
+            else if (value < BoxingExtensions.CacheSize)
+                return ExpressionCache<long>.Items[value];
+
+            return new ConstantExpressionNode(value, typeof(long));
         }
 
         public static ConstantExpressionNode Get(object? value, Type? type = null)
@@ -52,12 +135,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (value == null && (type == null || typeof(object).EqualsEx(type)))
                 return Null;
             if (value is bool b)
-            {
-                if (b)
-                    return True;
-                return False;
-            }
-
+                return Get(b);
             return new ConstantExpressionNode(value, type);
         }
 
@@ -83,11 +161,41 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Nested types
 
-        private static class StaticTypeHolder<TType>
+        private static class ExpressionCache<T>
         {
             #region Fields
 
-            public static readonly ConstantExpressionNode TypeConstant = new ConstantExpressionNode(typeof(TType), typeof(Type));
+            public static readonly ConstantExpressionNode[] Items = GenerateItems(false);
+            public static readonly ConstantExpressionNode[] NegativeItems = GenerateItems(true);
+
+            #endregion
+
+            #region Methods
+
+            private static ConstantExpressionNode[] GenerateItems(bool negative)
+            {
+                var cache = negative ? MugenExtensions.ExpressionCache<T>.NegativeItems : MugenExtensions.ExpressionCache<T>.Items;
+                if (cache.Length == 0)
+                    return Default.EmptyArray<ConstantExpressionNode>();
+
+                var items = new ConstantExpressionNode[cache.Length];
+                for (var i = 0; i < items.Length; i++)
+                {
+                    var constantExpression = cache[i];
+                    items[i] = new ConstantExpressionNode(constantExpression.Value, constantExpression.Type, constantExpression);
+                }
+
+                return items;
+            }
+
+            #endregion
+        }
+
+        private static class TypeCache<TType>
+        {
+            #region Fields
+
+            public static readonly ConstantExpressionNode TypeConstant = new ConstantExpressionNode(typeof(TType), typeof(Type), Expression.Constant(typeof(TType)));
 
             #endregion
         }

@@ -123,7 +123,7 @@ namespace MugenMvvm.Enums
 
         public static bool TryParse(TValue value, out TEnumeration result)
         {
-            if (Default.IsNullable<TValue>() && IsNull(value))
+            if (Default.IsNullable<TValue>() && value == null)
             {
                 result = default!;
                 return false;
@@ -156,11 +156,6 @@ namespace MugenMvvm.Enums
         public static void SetEnum(TValue value, TEnumeration enumeration)
         {
             _enumerations[value] = enumeration;
-        }
-
-        private static bool IsNull(TValue value)
-        {
-            return value == null;
         }
 
         #endregion

@@ -418,14 +418,14 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (index >= 0 && index < ArrayIndexesCache.Length)
                     return ArrayIndexesCache[index];
-                return Expression.ArrayIndex(ArrayParameter, Expression.Constant(index, typeof(int)));
+                return Expression.ArrayIndex(ArrayParameter, MugenExtensions.GetConstantExpression(index));
             }
 
             private static Expression[] GenerateArrayIndexes(int length)
             {
                 var expressions = new Expression[length];
                 for (int i = 0; i < length; i++)
-                    expressions[i] = Expression.ArrayIndex(ArrayParameter, Expression.Constant(i, typeof(int)));
+                    expressions[i] = Expression.ArrayIndex(ArrayParameter, MugenExtensions.GetConstantExpression(i));
                 return expressions;
             }
 

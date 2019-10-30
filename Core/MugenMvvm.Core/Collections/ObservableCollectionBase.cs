@@ -78,7 +78,7 @@ namespace MugenMvvm.Collections
                 if (hasDecorators && _batchCountDecorators++ == 1)
                     OnBeginBatchUpdate(true);
 
-                return WeakActionToken.Create(this, Default.BoolToObject(hasListeners), Default.BoolToObject(hasDecorators),
+                return WeakActionToken.Create(this, BoxingExtensions.Box(hasListeners), BoxingExtensions.Box(hasDecorators),
                     (@base, b1, b2) => @base.EndBatchUpdate((bool)b1, (bool)b2));
             }
         }

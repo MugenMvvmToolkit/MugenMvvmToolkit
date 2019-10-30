@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         public MemberExpressionBuilderComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
-            _thisExpression = Expression.Constant(this, typeof(MemberExpressionBuilderComponent));
+            _thisExpression = Expression.Constant(this);
         }
 
         #endregion
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 return Expression.Call(_thisExpression, GetValueDynamicMethod,
                     target.ConvertIfNeed(typeof(object), false),
-                    Expression.Constant(memberExpression.MemberName, typeof(string)),
+                    Expression.Constant(memberExpression.MemberName),
                     context.MetadataParameter);
             }
 
@@ -89,7 +89,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (result != null)
                 return result;
 
-            var methodCall = Expression.Call(Expression.Constant(member, typeof(IBindingMemberAccessorInfo)),
+            var methodCall = Expression.Call(Expression.Constant(member),
                 GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataParameter);
             return Expression.Convert(methodCall, member.Type);
         }

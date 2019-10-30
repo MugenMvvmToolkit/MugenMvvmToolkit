@@ -20,7 +20,6 @@ namespace MugenMvvm.Internal.Components
         #region Fields
 
         private static readonly ParameterExpression EmptyParameterExpression = Expression.Parameter(typeof(object));
-        private static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
 
         private static readonly MemberInfoDelegateCache<MethodInfo?> CachedDelegates =
             new MemberInfoDelegateCache<MethodInfo?>();
@@ -215,7 +214,7 @@ namespace MugenMvvm.Internal.Components
                 {
                     return Expression
                         .Lambda<Func<object?, object?[], object?>>(
-                            Expression.Block(callExpression, NullConstantExpression), EmptyParameterExpression,
+                            Expression.Block(callExpression, MugenExtensions.NullConstantExpression), EmptyParameterExpression,
                             parameterExpression)
                         .Compile();
                 }
@@ -232,7 +231,7 @@ namespace MugenMvvm.Internal.Components
             if (isVoid)
             {
                 return Expression
-                    .Lambda<Func<object?, object?[], object?>>(Expression.Block(callExpression, NullConstantExpression),
+                    .Lambda<Func<object?, object?[], object?>>(Expression.Block(callExpression, MugenExtensions.NullConstantExpression),
                         targetExp, parameterExpression)
                     .Compile();
             }
@@ -350,10 +349,8 @@ namespace MugenMvvm.Internal.Components
             //and create a typed expression of them
             for (var i = 0; i < paramsInfo.Length; i++)
             {
-                Expression index = Expression.Constant(i, typeof(int));
-                var paramType = paramsInfo[i].ParameterType;
-                Expression paramAccessorExp = Expression.ArrayIndex(parameterExpression, index);
-                var paramCastExp = paramAccessorExp.ConvertIfNeed(paramType, false);
+                Expression paramAccessorExp = Expression.ArrayIndex(parameterExpression, MugenExtensions.GetConstantExpression(i));
+                var paramCastExp = paramAccessorExp.ConvertIfNeed(paramsInfo[i].ParameterType, false);
                 argsExp[i] = paramCastExp;
             }
 

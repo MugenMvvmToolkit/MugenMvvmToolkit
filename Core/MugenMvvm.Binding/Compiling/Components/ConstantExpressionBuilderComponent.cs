@@ -1,5 +1,6 @@
 ﻿using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
@@ -16,6 +17,8 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
         {
+            if (expression is ConstantExpressionNode constantExpression)
+                return constantExpression.ConstantExpression ?? Expression.Constant(constantExpression.Value, constantExpression.Type);
             if (expression is IConstantExpressionNode constant)
                 return Expression.Constant(constant.Value, constant.Type);
             return null;
