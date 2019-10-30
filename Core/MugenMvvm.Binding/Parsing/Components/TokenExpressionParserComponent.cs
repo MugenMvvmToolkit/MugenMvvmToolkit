@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null) //todo review input parameter usage
+        public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
             _parserContext = new TokenParserContext(this);
