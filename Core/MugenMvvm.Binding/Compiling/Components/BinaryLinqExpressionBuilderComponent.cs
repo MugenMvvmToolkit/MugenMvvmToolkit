@@ -2,20 +2,22 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class BinaryLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent
+    public sealed class BinaryLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 
         private static readonly MethodInfo StringConcatMethod =
-            typeof(string).GetMethodOrThrow(nameof(string.Concat), MemberFlags.StaticPublic, new[] { typeof(object), typeof(object) });
+            typeof(string).GetMethodOrThrow(nameof(string.Concat), MemberFlags.StaticPublic, new[] {typeof(object), typeof(object)});
 
         private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), MemberFlags.StaticPublic);
 
@@ -59,6 +61,8 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Properties
 
         public Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>> BinaryTokenMapping { get; }
+
+        public int Priority { get; set; } = BindingLinqCompilerPriority.Binary;
 
         #endregion
 

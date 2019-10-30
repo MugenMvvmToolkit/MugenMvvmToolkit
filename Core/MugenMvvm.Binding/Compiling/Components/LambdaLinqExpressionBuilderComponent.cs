@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq.Expressions;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -12,7 +13,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = BindingLinqCompilerPriority.Lambda;
 
         #endregion
 

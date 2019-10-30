@@ -2,6 +2,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
@@ -40,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = BindingLinqCompilerPriority.Member;
 
         public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
 

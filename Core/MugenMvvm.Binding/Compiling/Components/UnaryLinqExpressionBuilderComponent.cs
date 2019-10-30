@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
@@ -35,7 +36,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Dictionary<UnaryTokenType, Func<Expression, Expression>> UnaryTokenMapping { get; }
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = BindingLinqCompilerPriority.Unary;
 
         #endregion
 
