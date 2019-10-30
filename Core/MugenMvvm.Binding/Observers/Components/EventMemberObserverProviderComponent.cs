@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority
+    public sealed class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
