@@ -2,16 +2,18 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class UnaryExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
+    public sealed class UnaryLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
     {
         #region Constructors
 
-        public UnaryExpressionBuilderComponent(Dictionary<UnaryTokenType, Func<Expression, Expression>>? unaryTokenMapping = null)
+        public UnaryLinqExpressionBuilderComponent(Dictionary<UnaryTokenType, Func<Expression, Expression>>? unaryTokenMapping = null)
         {
             if (unaryTokenMapping == null)
             {
@@ -39,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
             if (expression is IUnaryExpressionNode unaryExpressionNode && UnaryTokenMapping.TryGetValue(unaryExpressionNode.Token, out var func))
                 return func(context.Build(unaryExpressionNode.Operand));

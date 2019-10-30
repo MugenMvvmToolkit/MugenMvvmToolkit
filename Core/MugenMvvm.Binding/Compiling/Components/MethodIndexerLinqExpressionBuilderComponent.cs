@@ -6,6 +6,8 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
@@ -16,7 +18,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class MethodIndexerExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
+    public sealed class MethodIndexerLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 
@@ -36,7 +38,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public MethodIndexerExpressionBuilderComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
+        public MethodIndexerLinqExpressionBuilderComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
         {
             _memberProvider = memberProvider;
             _resourceResolver = resourceResolver;
@@ -54,7 +56,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
             switch (expression)
             {
@@ -71,7 +73,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Methods
 
-        private Expression? TryBuildMethod(ExpressionCompilerComponent.IContext context, IMethodCallExpressionNode methodCallExpression)
+        private Expression? TryBuildMethod(ILinqExpressionBuilderContext context, IMethodCallExpressionNode methodCallExpression)
         {
             if (methodCallExpression.Target == null)
                 return null;
@@ -93,7 +95,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return TryBuildExpression(context, methodCallExpression.MethodName, targetData, args, GetTypes(methodCallExpression.TypeArgs));
         }
 
-        private Expression? TryBuildIndex(ExpressionCompilerComponent.IContext context, IIndexExpressionNode indexExpression)
+        private Expression? TryBuildIndex(ILinqExpressionBuilderContext context, IIndexExpressionNode indexExpression)
         {
             if (indexExpression.Target == null)
                 return null;
@@ -118,7 +120,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return TryBuildExpression(context, type.EqualsEx(typeof(string)) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
         }
 
-        private Expression? TryBuildExpression(ExpressionCompilerComponent.IContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
+        private Expression? TryBuildExpression(ILinqExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
         {
             var methods = FindBestMethods(targetData, GetMethods(targetData.Type, methodName, targetData.IsStatic, null, context.GetMetadataOrDefault()), args, typeArgs);
             var expression = TryGenerateMethodCall(context, methods, targetData, args);
@@ -224,7 +226,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return methods;
         }
 
-        private static Expression? TryGenerateMethodCall(ExpressionCompilerComponent.IContext context, MethodData[] methods, in TargetData target, ArgumentData[] arguments)
+        private static Expression? TryGenerateMethodCall(ILinqExpressionBuilderContext context, MethodData[] methods, in TargetData target, ArgumentData[] arguments)
         {
             if (methods.Length == 0)
                 return null;
@@ -286,7 +288,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs);
         }
 
-        private static Expression GenerateMethodCall(ExpressionCompilerComponent.IContext context, IBindingMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
+        private static Expression GenerateMethodCall(ILinqExpressionBuilderContext context, IBindingMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
         {
             var expressions = ToExpressions(context, args, methodInfo, null);
             if (methodInfo.Member is MethodInfo method)
@@ -438,7 +440,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ConvertParameters(ExpressionCompilerComponent.IContext context, in MethodData method, bool hasParams)
+        private static Expression[] ConvertParameters(ILinqExpressionBuilderContext context, in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
             var args = (Expression[])method.Args!;
@@ -680,7 +682,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ToExpressions(ExpressionCompilerComponent.IContext context, IReadOnlyList<IExpressionNode> args, IBindingMethodInfo? method, Type? convertType)
+        private static Expression[] ToExpressions(ILinqExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IBindingMethodInfo? method, Type? convertType)
         {
             var parameters = method?.GetParameters();
             var expressions = new Expression[args.Count];
@@ -745,14 +747,14 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             #region Fields
 
-            private readonly MethodIndexerExpressionBuilderComponent _component;
+            private readonly MethodIndexerLinqExpressionBuilderComponent _component;
             private Type? _type;
 
             #endregion
 
             #region Constructors
 
-            public MethodInvoker(MethodIndexerExpressionBuilderComponent component) : base(3)
+            public MethodInvoker(MethodIndexerLinqExpressionBuilderComponent component) : base(3)
             {
                 _component = component;
             }

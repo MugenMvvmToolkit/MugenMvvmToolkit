@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq.Expressions;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class LambdaExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
+    public sealed class LambdaLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 
@@ -16,7 +18,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;

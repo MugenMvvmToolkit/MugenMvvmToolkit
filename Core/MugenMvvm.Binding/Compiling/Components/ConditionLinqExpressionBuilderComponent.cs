@@ -1,10 +1,12 @@
 ﻿using System.Linq.Expressions;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ConditionExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
+    public sealed class ConditionLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 
@@ -14,7 +16,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
             if (!(expression is IConditionExpressionNode condition))
                 return null;

@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class BinaryExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder
+    public sealed class BinaryLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent
     {
         #region Fields
 
@@ -21,7 +23,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public BinaryExpressionBuilderComponent(Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>? binaryTokenMapping = null)
+        public BinaryLinqExpressionBuilderComponent(Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>? binaryTokenMapping = null)
         {
             if (binaryTokenMapping == null)
             {
@@ -62,7 +64,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
             if (expression is IBinaryExpressionNode binaryExpression && BinaryTokenMapping.TryGetValue(binaryExpression.Token, out var func))
                 return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));

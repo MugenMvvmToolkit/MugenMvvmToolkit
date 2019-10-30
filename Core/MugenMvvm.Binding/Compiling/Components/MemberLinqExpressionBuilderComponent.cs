@@ -3,6 +3,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
@@ -12,7 +14,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class MemberExpressionBuilderComponent : ExpressionCompilerComponent.IExpressionBuilder, IHasPriority
+    public sealed class MemberLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 
@@ -22,13 +24,13 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static readonly MethodInfo GetValuePropertyMethod =
             typeof(IBindingMemberAccessorInfo).GetMethodOrThrow(nameof(IBindingMemberAccessorInfo.GetValue), MemberFlags.InstancePublic);
 
-        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), MemberFlags.InstancePublic);
+        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberLinqExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), MemberFlags.InstancePublic);
 
         #endregion
 
         #region Constructors
 
-        public MemberExpressionBuilderComponent(IMemberProvider? memberProvider = null)
+        public MemberLinqExpressionBuilderComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
             _thisExpression = Expression.Constant(this);
@@ -46,7 +48,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ExpressionCompilerComponent.IContext context, IExpressionNode expression)
+        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
             if (!(expression is IMemberExpressionNode memberExpression) || memberExpression.Target == null)
                 return null;

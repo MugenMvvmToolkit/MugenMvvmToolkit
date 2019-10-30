@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    internal sealed class ArrayBindingMemberInfo : IBindingMemberAccessorInfo
+    public sealed class ArrayBindingMemberInfo : IBindingMemberAccessorInfo
     {
         #region Fields
 
