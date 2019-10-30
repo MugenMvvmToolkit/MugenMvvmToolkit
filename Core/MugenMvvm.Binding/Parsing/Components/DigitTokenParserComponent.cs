@@ -1,13 +1,15 @@
 ﻿using System.Collections.Generic;
 using System.Globalization;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class DigitTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
+    public sealed class DigitTokenParserComponent : ITokenParserComponent, IHasPriority
     {
         #region Constructors
 
@@ -49,7 +51,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
             if (expression != null)
                 return null;

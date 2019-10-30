@@ -1,12 +1,14 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class MethodCallTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
+    public sealed class MethodCallTokenParserComponent : ITokenParserComponent, IHasPriority
     {
         #region Properties
 
@@ -16,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression);
@@ -29,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private static IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
+        private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
             context.SkipWhitespaces();
             if (expression != null)

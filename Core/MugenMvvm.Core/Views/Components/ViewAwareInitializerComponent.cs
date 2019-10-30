@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority//todo review
+    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority//todo review delegate type, review sealed, input parameters usage (protected vs private)
     {
         #region Fields
 

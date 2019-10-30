@@ -1,4 +1,6 @@
 ﻿using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Interfaces.Parsing;
+using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections.Internal;
@@ -6,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class LambdaTokenParserComponent : TokenExpressionParserComponent.IParser, IHasPriority
+    public sealed class LambdaTokenParserComponent : ITokenParserComponent, IHasPriority
     {
         #region Fields
 
@@ -31,7 +33,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryParse(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
+        public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
             var p = context.Position;
             var node = TryParseInternal(context, expression);
@@ -44,7 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        private IExpressionNode? TryParseInternal(TokenExpressionParserComponent.IContext context, IExpressionNode? expression)
+        private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
             if (expression != null)
                 return null;
