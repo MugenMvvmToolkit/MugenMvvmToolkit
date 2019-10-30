@@ -78,8 +78,8 @@ namespace MugenMvvm.Serialization
 
         public static StaticMemberMemento? Create(object target, Type type, string fieldOrPropertyName)
         {
-            MemberInfo? member = type.GetFieldUnified(fieldOrPropertyName, MemberFlags.StaticOnly) ??
-                                 (MemberInfo?)type.GetPropertyUnified(fieldOrPropertyName, MemberFlags.StaticOnly);
+            MemberInfo? member = type.GetField(fieldOrPropertyName, BindingFlagsEx.StaticOnly) ??
+                                 (MemberInfo?)type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
             if (member == null)
             {
                 if (Tracer.TraceError)

@@ -70,14 +70,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type) && !member.IsStatic())
+            if (typeof(INotifyPropertyChanged).IsAssignableFrom(type) && !member.IsStatic())
                 return new MemberObserver(this, member.Name);
             return default;
         }
 
         private MemberObserver TryGetMemberObserver(in string member, Type type, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(INotifyPropertyChanged).IsAssignableFromUnified(type))
+            if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
                 return new MemberObserver(this, member);
             return default;
         }

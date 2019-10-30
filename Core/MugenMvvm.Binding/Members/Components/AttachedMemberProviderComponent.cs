@@ -82,7 +82,7 @@ namespace MugenMvvm.Binding.Members.Components
             var removed = false;
             foreach (var keyValuePair in _cache)
             {
-                if (!keyValuePair.Key.Type.EqualsEx(type))
+                if (keyValuePair.Key.Type != type)
                     continue;
 
                 var list = keyValuePair.Value;
@@ -141,7 +141,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.Name.Equals(y.Name) && x.Type.EqualsEx(y.Type);
+                return x.Name.Equals(y.Name) && x.Type == y.Type;
             }
 
             protected override int GetHashCode(CacheKey key)

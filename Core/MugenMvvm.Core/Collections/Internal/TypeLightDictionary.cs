@@ -16,7 +16,7 @@ namespace MugenMvvm.Collections.Internal
 
         protected override bool Equals(Type x, Type y)
         {
-            return x.EqualsEx(y);
+            return x == y;
         }
 
         protected override int GetHashCode(Type key)

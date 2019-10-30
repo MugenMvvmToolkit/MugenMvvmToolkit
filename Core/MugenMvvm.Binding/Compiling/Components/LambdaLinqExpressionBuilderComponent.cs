@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;
 
-            var method = context.TryGetLambdaParameter()?.ParameterType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic);
+            var method = context.TryGetLambdaParameter()?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
             if (method == null)
                 return null;
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 for (var i = 0; i < parameters.Length; i++)
                 {
                     var parameterExp = lambdaExpression.Parameters[i];
-                    if (parameterExp.Type != null && !parameterExp.Type.IsAssignableFromUnified(parameters[i].ParameterType))
+                    if (parameterExp.Type != null && !parameterExp.Type.IsAssignableFrom(parameters[i].ParameterType))
                         return null;
 
                     var parameter = Expression.Parameter(parameters[i].ParameterType, lambdaExpression.Parameters[i].Name);

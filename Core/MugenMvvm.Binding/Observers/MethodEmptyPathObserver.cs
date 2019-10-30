@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly MemberFlags _memberFlags;
+        private readonly BindingMemberFlags _memberFlags;
         private readonly string _observableMethodName;
 
         private Unsubscriber _unsubscriber;
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodEmptyPathObserver(string observableMethodName, object target, MemberFlags memberFlags) : base(target)
+        public MethodEmptyPathObserver(string observableMethodName, object target, BindingMemberFlags memberFlags) : base(target)
         {
             Should.NotBeNull(observableMethodName, nameof(observableMethodName));
             _memberFlags = memberFlags;

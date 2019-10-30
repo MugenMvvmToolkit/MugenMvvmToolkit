@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Enums;
@@ -115,7 +116,7 @@ namespace MugenMvvm.Binding
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, castType ?? typeof(object));
+                result[i] = s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, castType);
             }
 
             return result;
@@ -126,13 +127,13 @@ namespace MugenMvvm.Binding
             return st.Substring(1, st.Length - 2);
         }
 
-        internal static MemberFlags GetAccessModifiers(this MethodBase? method)
+        internal static BindingMemberFlags GetAccessModifiers(this MethodBase? method)
         {
             if (method == null)
-                return MemberFlags.Instance;
+                return BindingMemberFlags.Instance;
             if (method.IsStatic)
-                return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
-            return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+                return method.IsPublic ? BindingMemberFlags.StaticPublic : BindingMemberFlags.StaticNonPublic;
+            return method.IsPublic ? BindingMemberFlags.InstancePublic : BindingMemberFlags.InstanceNonPublic;
         }
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
@@ -162,16 +163,16 @@ namespace MugenMvvm.Binding
             while (type != null)
             {
                 yield return type;
-                type = type.GetBaseTypeUnified();
+                type = type.BaseType;
             }
         }
 
         private static void AddInterface(HashSet<Type> types, Type type, bool isFirstCall)
         {
-            if (!isFirstCall && type.IsInterfaceUnified() && types.Contains(type))
+            if (!isFirstCall && type.IsInterface && types.Contains(type))
                 return;
             types.Add(type);
-            foreach (var t in type.GetInterfacesUnified())
+            foreach (var t in type.GetInterfaces())
                 AddInterface(types, t, false);
         }
 

@@ -60,21 +60,21 @@ namespace MugenMvvm.Binding.Members
             InvalidateCacheInternal();
         }
 
-        public IBindingMemberInfo? GetMember(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
+        public IBindingMemberInfo? GetMember(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            if (!flags.HasFlagEx(MemberFlags.NonPublic))
-                flags |= MemberFlags.Public;
+            if (!flags.HasFlagEx(BindingMemberFlags.NonPublic))
+                flags |= BindingMemberFlags.Public;
             return GetMemberInternal(type, name, memberTypes, flags, metadata);
         }
 
-        public IReadOnlyList<IBindingMemberInfo> GetMembers(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<IBindingMemberInfo> GetMembers(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            if (!flags.HasFlagEx(MemberFlags.NonPublic))
-                flags |= MemberFlags.Public;
+            if (!flags.HasFlagEx(BindingMemberFlags.NonPublic))
+                flags |= BindingMemberFlags.Public;
             return GetMembersInternal(type, name, memberTypes, flags, metadata);
         }
 
@@ -94,7 +94,7 @@ namespace MugenMvvm.Binding.Members
             MugenExtensions.ComponentTrackerOnRemoved(ref MemberProviders, component);
         }
 
-        protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        protected virtual IBindingMemberInfo? GetMemberInternal(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
             if (TempCache.TryGetValue(cacheKey, out var result))
@@ -115,7 +115,7 @@ namespace MugenMvvm.Binding.Members
             return result;
         }
 
-        protected virtual IReadOnlyList<IBindingMemberInfo> GetMembersInternal(Type type, string name, BindingMemberType memberTypes, MemberFlags flags,
+        protected virtual IReadOnlyList<IBindingMemberInfo> GetMembersInternal(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags,
             IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
@@ -155,7 +155,7 @@ namespace MugenMvvm.Binding.Members
                 (components[i] as IHasCache)?.Invalidate();
         }
 
-        protected IBindingMemberInfo? SelectMember(IReadOnlyList<IBindingMemberInfo> members, BindingMemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        protected IBindingMemberInfo? SelectMember(IReadOnlyList<IBindingMemberInfo> members, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < members.Count; i++)
             {
@@ -185,7 +185,7 @@ namespace MugenMvvm.Binding.Members
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Name.Equals(y.Name) && x.Type.EqualsEx(y.Type);
+                return x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Name.Equals(y.Name) && x.Type == y.Type;
             }
 
             protected override int GetHashCode(CacheKey key)
@@ -217,7 +217,7 @@ namespace MugenMvvm.Binding.Members
 
             #region Constructors
 
-            public CacheKey(Type type, string name, BindingMemberType memberType, MemberFlags memberFlags)
+            public CacheKey(Type type, string name, BindingMemberType memberType, BindingMemberFlags memberFlags)
             {
                 Type = type;
                 if (name == null)

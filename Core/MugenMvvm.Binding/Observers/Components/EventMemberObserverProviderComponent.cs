@@ -74,14 +74,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
-            var observableMember = TryGetEvent(type, member.Name, (member.GetGetMethodUnified(true) ?? member.GetSetMethodUnified(true)).GetAccessModifiers(), metadata);
+            var observableMember = TryGetEvent(type, member.Name, (member.GetGetMethod(true) ?? member.GetSetMethod(true)).GetAccessModifiers(), metadata);
             if (observableMember != null)
                 return new MemberObserver(this, observableMember);
 
             return default;
         }
 
-        private IBindingEventInfo? TryGetEvent(Type type, string memberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        private IBindingEventInfo? TryGetEvent(Type type, string memberName, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             if (EventFinder != null)
                 return EventFinder(type, memberName, metadata);

@@ -38,9 +38,9 @@ namespace MugenMvvm.Binding.Members
             _getterFunc = CompileGetter;
             _setterFunc = CompileSetter;
             if (fieldInfo.IsStatic)
-                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+                AccessModifiers = fieldInfo.IsPublic ? BindingMemberFlags.StaticPublic : BindingMemberFlags.StaticNonPublic;
             else
-                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+                AccessModifiers = fieldInfo.IsPublic ? BindingMemberFlags.InstancePublic : BindingMemberFlags.InstanceNonPublic;
         }
 
         #endregion
@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Members
 
         public BindingMemberType MemberType => BindingMemberType.Field;
 
-        public MemberFlags AccessModifiers { get; }
+        public BindingMemberFlags AccessModifiers { get; }
 
         public bool CanRead => true;
 

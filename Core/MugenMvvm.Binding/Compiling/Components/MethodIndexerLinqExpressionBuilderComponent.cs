@@ -32,8 +32,8 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
         private static readonly int[] ArraySize = new int[1];
-        private static readonly MethodInfo InvokeMethod = typeof(IBindingMethodInfo).GetMethodOrThrow(nameof(IBindingMethodInfo.Invoke), MemberFlags.InstancePublic);
-        private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), MemberFlags.InstancePublic);
+        private static readonly MethodInfo InvokeMethod = typeof(IBindingMethodInfo).GetMethodOrThrow(nameof(IBindingMethodInfo.Invoke), BindingFlagsEx.InstancePublic);
+        private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
 
         #endregion
 
@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public int Priority { get; set; } = BindingLinqCompilerPriority.Member;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public BindingMemberFlags MemberFlags { get; set; } = BindingMemberFlags.All & ~BindingMemberFlags.NonPublic;
 
         #endregion
 
@@ -118,7 +118,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 args[i] = new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : context.Build(indexExpression.Arguments[i]), null);
             }
 
-            return TryBuildExpression(context, type.EqualsEx(typeof(string)) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
+            return TryBuildExpression(context, type == typeof(string) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
         }
 
         private Expression? TryBuildExpression(ILinqExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
@@ -344,7 +344,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         var parameterType = parameters[j].ParameterType;
                         if (parameterType.IsByRef)
                             parameterType = parameterType.GetElementType();
-                        if (parameterType.EqualsEx(argType))
+                        if (parameterType == argType)
                         {
                             ++usageCount;
                             continue;
@@ -364,7 +364,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                                 break;
                             }
 
-                            if (argType.IsValueTypeUnified())
+                            if (argType.IsValueType)
                             {
                                 valid = false;
                                 break;
@@ -420,7 +420,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             for (var i = startIndex; i < method.ExpectedParameterCount; i++)
             {
                 var argType = method.GetExpectedParameterType(i);
-                if (elementType.EqualsEx(argType))
+                if (elementType == argType)
                     continue;
                 if (argType.IsCompatibleWith(elementType, out var boxRequired))
                 {
@@ -430,7 +430,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
                 else
                 {
-                    if (argType.IsValueTypeUnified())
+                    if (argType.IsValueType)
                         return false;
                     if (NotExactlyEqualUnsafeCastWeight > weight)
                         weight = NotExactlyEqualUnsafeCastWeight;
@@ -515,7 +515,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     break;
                 }
 
-                if (i == parameters.Length - 1 && hasParams && !parameters[i].ParameterType.IsInstanceOfTypeUnified(args[i]))
+                if (i == parameters.Length - 1 && hasParams && !parameters[i].ParameterType.IsInstanceOfType(args[i]))
                 {
                     ArraySize[0] = args.Length - i;
                     var array = Array.CreateInstance(parameters[i].ParameterType.GetElementType(), ArraySize);
@@ -604,12 +604,12 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var arg = genericArguments[i];
                 if (ReferenceEquals(inferredType, arg))
                     continue;
-                if (!IsCompatible(inferredType, arg.GetGenericParameterAttributesUnified()))
+                if (!IsCompatible(inferredType, arg.GenericParameterAttributes))
                     return null;
-                var constraints = arg.GetGenericParameterConstraintsUnified();
+                var constraints = arg.GetGenericParameterConstraints();
                 for (var j = 0; j < constraints.Length; j++)
                 {
-                    if (!constraints[j].IsAssignableFromUnified(inferredType))
+                    if (!constraints[j].IsAssignableFrom(inferredType))
                         return null;
                 }
             }
@@ -624,14 +624,14 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (source.IsArray)
                 return inputType.IsArray ? inputType.GetElementType() : null;
 
-            if (source.IsGenericTypeUnified())
+            if (source.IsGenericType)
             {
                 inputType = FindCommonType(source.GetGenericTypeDefinition(), inputType)!;
                 if (inputType == null)
                     return null;
 
-                var srcArgs = source.GetGenericArgumentsUnified();
-                var inputArgs = inputType.GetGenericArgumentsUnified();
+                var srcArgs = source.GetGenericArguments();
+                var inputArgs = inputType.GetGenericArguments();
                 for (var index = 0; index < srcArgs.Length; index++)
                 {
                     var parameter = TryInferParameter(srcArgs[index], argumentType, inputArgs[index]);
@@ -660,7 +660,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             foreach (var baseType in BindingMugenExtensions.SelfAndBaseTypes(type))
             {
-                if (baseType.IsGenericTypeUnified() && baseType.GetGenericTypeDefinition() == genericDefinition)
+                if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericDefinition)
                     return baseType;
             }
 
@@ -672,12 +672,12 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(node is ILambdaExpressionNode lambdaExpressionNode))
                 return true;
 
-            if (typeof(Expression).IsAssignableFromUnified(parameterType) && parameterType.IsGenericTypeUnified())
-                parameterType = parameterType.GetGenericArgumentsUnified().First();
-            if (!typeof(Delegate).IsAssignableFromUnified(parameterType))
+            if (typeof(Expression).IsAssignableFrom(parameterType) && parameterType.IsGenericType)
+                parameterType = parameterType.GetGenericArguments()[0];
+            if (!typeof(Delegate).IsAssignableFrom(parameterType))
                 return false;
 
-            var method = parameterType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.Public | MemberFlags.Instance);
+            var method = parameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
             if (method == null || method.GetParameters().Length != lambdaExpressionNode.Parameters.Count)
                 return false;
             return true;
@@ -701,9 +701,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private static bool IsCompatible(Type type, GenericParameterAttributes attributes)
         {
-            if (attributes.HasFlagEx(GenericParameterAttributes.ReferenceTypeConstraint) && type.IsValueTypeUnified())
+            if (attributes.HasFlagEx(GenericParameterAttributes.ReferenceTypeConstraint) && type.IsValueType)
                 return false;
-            if (attributes.HasFlagEx(GenericParameterAttributes.NotNullableValueTypeConstraint) && !type.IsValueTypeUnified())
+            if (attributes.HasFlagEx(GenericParameterAttributes.NotNullableValueTypeConstraint) && !type.IsValueType)
                 return false;
             return true;
         }
@@ -712,12 +712,12 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var members = _memberProvider
                 .ServiceIfNull()
-                .GetMembers(type, methodName, BindingMemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags, metadata);
+                .GetMembers(type, methodName, BindingMemberType.Method, isStatic ? MemberFlags & ~BindingMemberFlags.Instance : MemberFlags, metadata);
 
             var count = 0;
             for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
+                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(BindingMemberFlags.Instance) || method.IsExtensionMethod))
                     ++count;
             }
 
@@ -728,7 +728,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             count = 0;
             for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
+                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(BindingMemberFlags.Instance) || method.IsExtensionMethod))
                 {
                     var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
@@ -768,7 +768,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 var type = target.GetType();
                 var types = GetArgTypes(args);
-                if (!type.EqualsEx(_type) || TryGetValue(types, out var method))
+                if (type != _type || TryGetValue(types, out var method))
                 {
                     _type = type;
                     var methods = _component.GetMethods(type, methodName, false, typeArgs, metadata);

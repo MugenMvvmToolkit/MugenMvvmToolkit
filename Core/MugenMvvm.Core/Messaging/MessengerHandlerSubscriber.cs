@@ -103,13 +103,13 @@ namespace MugenMvvm.Messaging
                 if (!Cache.TryGetValue(key, out var items))
                 {
                     var interfaces = key.HandlerType
-                        .GetInterfacesUnified()
-                        .Where(x => x.IsGenericTypeUnified() && x.GetGenericTypeDefinition().EqualsEx(typeof(IMessengerHandler<>)));
+                        .GetInterfaces()
+                        .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IMessengerHandler<>));
                     foreach (var @interface in interfaces)
                     {
-                        var typeMessage = @interface.GetGenericArgumentsUnified()[0];
-                        var method = @interface.GetMethodUnified(nameof(IMessengerHandler<object>.Handle), MemberFlags.InstancePublic);
-                        if (method != null && typeMessage.IsAssignableFromUnified(key.MessageType))
+                        var typeMessage = @interface.GetGenericArguments()[0];
+                        var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
+                        if (method != null && typeMessage.IsAssignableFrom(key.MessageType))
                         {
                             if (items == null)
                                 items = new List<Func<object?, object?[], object?>>(2);
@@ -170,7 +170,7 @@ namespace MugenMvvm.Messaging
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.HandlerType.EqualsEx(y.HandlerType) && x.MessageType.EqualsEx(y.MessageType);
+                return x.HandlerType == y.HandlerType && x.MessageType == y.MessageType;
             }
 
             #endregion

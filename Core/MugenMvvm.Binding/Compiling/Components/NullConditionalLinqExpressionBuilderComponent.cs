@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var targetEx = context.Build(nullConditional.Target!);
             try
             {
-                if (targetEx.Type.IsValueTypeUnified() && !targetEx.Type.IsNullableType())
+                if (targetEx.Type.IsValueType && !targetEx.Type.IsNullableType())
                 {
                     context.SetExpression(nullConditional, targetEx);
                     return context.Build(expression);
@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     return null;
 
                 var type = exp.Type;
-                if (type.IsValueTypeUnified() && !type.IsNullableType())
+                if (type.IsValueType && !type.IsNullableType())
                 {
                     GenericTypeBuffer[0] = type;
                     type = typeof(Nullable<>).MakeGenericType(GenericTypeBuffer);

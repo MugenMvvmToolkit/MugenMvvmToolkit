@@ -46,9 +46,9 @@ namespace MugenMvvm.IoC
 
         #region Properties
 
-        public static MemberFlags ConstructorMemberFlags { get; set; } = MemberFlags.InstancePublic;
+        public static BindingFlags ConstructorMemberFlags { get; set; } = BindingFlagsEx.InstancePublic;
 
-        public static MemberFlags PropertyMemberFlags { get; set; } = MemberFlags.InstancePublic;
+        public static BindingFlags PropertyMemberFlags { get; set; } = BindingFlagsEx.InstancePublic;
 
         public bool IsLockFreeRead { get; set; }
 
@@ -807,7 +807,7 @@ namespace MugenMvvm.IoC
             {
                 Type = type;
                 IsArray = type.IsArray;
-                IsContainerBinding = type.EqualsEx(typeof(IServiceProvider)) || type.EqualsEx(typeof(IIocContainer));
+                IsContainerBinding = type == typeof(IServiceProvider) || type == typeof(IIocContainer);
             }
 
             #endregion
@@ -819,7 +819,7 @@ namespace MugenMvvm.IoC
                 get
                 {
                     if (_isGenericType == null)
-                        _isGenericType = Type.IsGenericTypeUnified();
+                        _isGenericType = Type.IsGenericType;
                     return _isGenericType.Value;
                 }
             }
@@ -829,7 +829,7 @@ namespace MugenMvvm.IoC
                 get
                 {
                     if (_isGenericTypeDefinition == null)
-                        _isGenericTypeDefinition = Type.IsGenericTypeDefinitionUnified();
+                        _isGenericTypeDefinition = Type.IsGenericTypeDefinition;
                     return _isGenericTypeDefinition.Value;
                 }
             }
@@ -840,11 +840,11 @@ namespace MugenMvvm.IoC
                 {
                     if (_isSelfBindable == null)
                     {
-                        _isSelfBindable = !Type.IsInterfaceUnified()
-                                          && !Type.IsValueTypeUnified()
+                        _isSelfBindable = !Type.IsInterface
+                                          && !Type.IsValueType
                                           && Type != typeof(string)
-                                          && !Type.IsAbstractUnified()
-                                          && !Type.ContainsGenericParametersUnified();
+                                          && !Type.IsAbstract
+                                          && !Type.ContainsGenericParameters;
                     }
 
                     return _isSelfBindable.Value;
@@ -884,19 +884,19 @@ namespace MugenMvvm.IoC
                 }
 
                 var definition = Type.GetGenericTypeDefinition();
-                var originalType = Type.GetGenericArgumentsUnified().First();
+                var originalType = Type.GetGenericArguments()[0];
 
                 ConstructorInfo? constructor = null;
-                if (definition.IsInterfaceUnified())
+                if (definition.IsInterface)
                 {
                     if (definition == typeof(ICollection<>) || definition == typeof(IEnumerable<>) || definition == typeof(IList<>)
                         || definition == typeof(IReadOnlyCollection<>) || definition == typeof(IReadOnlyList<>))
-                        constructor = typeof(List<>).MakeGenericType(originalType).GetConstructorUnified(MemberFlags.InstancePublic, Default.EmptyArray<Type>());
+                        constructor = typeof(List<>).MakeGenericType(originalType).GetConstructor(Default.EmptyArray<Type>());
                 }
                 else
                 {
-                    if (typeof(ICollection<>).MakeGenericType(originalType).IsAssignableFromUnified(Type))
-                        constructor = Type.GetConstructorUnified(MemberFlags.InstancePublic, Default.EmptyArray<Type>());
+                    if (typeof(ICollection<>).MakeGenericType(originalType).IsAssignableFrom(Type))
+                        constructor = Type.GetConstructor(Default.EmptyArray<Type>());
                 }
 
                 if (constructor == null)
@@ -905,7 +905,7 @@ namespace MugenMvvm.IoC
                     return null;
                 }
 
-                var methodInfo = constructor.DeclaringType?.GetMethodUnified("Add", MemberFlags.InstancePublic, originalType);
+                var methodInfo = constructor.DeclaringType?.GetMethod("Add", BindingFlagsEx.InstancePublic, null, new[] { originalType }, null);
                 if (methodInfo == null || methodInfo.IsStatic)
                 {
                     _isCollection = false;
@@ -936,7 +936,7 @@ namespace MugenMvvm.IoC
             {
                 if (_arrayActivator == null)
                 {
-                    var constructorInfo = Type.GetConstructorUnified(MemberFlags.InstancePublic, ArrayConstructorTypes);
+                    var constructorInfo = Type.GetConstructor(ArrayConstructorTypes);
                     if (constructorInfo == null)
                         ExceptionManager.ThrowCannotFindConstructor(Type);
                     _arrayActivator = constructorInfo!.GetActivator();
@@ -945,7 +945,7 @@ namespace MugenMvvm.IoC
                 var array = _arrayActivator(new[] { BoxingExtensions.Box(items.Length) });
                 if (_arraySetMethodInvoker == null)
                 {
-                    var method = typeof(MugenExtensions).GetMethodOrThrow(nameof(MugenExtensions.InitializeArray), MemberFlags.StaticOnly);
+                    var method = typeof(MugenExtensions).GetMethodOrThrow(nameof(MugenExtensions.InitializeArray), BindingFlagsEx.StaticOnly);
                     _arraySetMethodInvoker = method.MakeGenericMethod(ElementType.Type).GetMethodInvoker();
                 }
 
@@ -1022,9 +1022,9 @@ namespace MugenMvvm.IoC
                 if (_cachedProperties == null)
                 {
                     var cachedProperties = new StringOrdinalLightDictionary<PropertyInfoCache>(3);
-                    foreach (var propertyInfo in Type.GetPropertiesUnified(PropertyMemberFlags))
+                    foreach (var propertyInfo in Type.GetProperties(PropertyMemberFlags))
                     {
-                        var method = propertyInfo.GetSetMethodUnified(PropertyMemberFlags.HasFlagEx(MemberFlags.NonPublic));
+                        var method = propertyInfo.GetSetMethod(PropertyMemberFlags.HasFlagEx(BindingFlags.NonPublic));
                         if (method != null)
                             cachedProperties[propertyInfo.Name] = new PropertyInfoCache(propertyInfo);
                     }
@@ -1040,7 +1040,7 @@ namespace MugenMvvm.IoC
                 if (_cachedConstructors == null)
                 {
                     var cachedConstructors = new List<ConstructorInfoCache>();
-                    foreach (var constructorInfo in Type.GetConstructorsUnified(ConstructorMemberFlags))
+                    foreach (var constructorInfo in Type.GetConstructors(ConstructorMemberFlags))
                     {
                         if (ConstructorInfoCache.IsValid(constructorInfo, ConstructorMemberFlags))
                             cachedConstructors.Add(new ConstructorInfoCache(constructorInfo));
@@ -1055,10 +1055,7 @@ namespace MugenMvvm.IoC
             public Type[] GetGenericArguments()
             {
                 if (_genericArguments == null)
-                {
-                    var list = Type.GetGenericArgumentsUnified();
-                    _genericArguments = list as Type[] ?? list.ToArray();
-                }
+                    _genericArguments = Type.GetGenericArguments();
 
                 return _genericArguments;
             }
@@ -1087,11 +1084,11 @@ namespace MugenMvvm.IoC
 
             #region Methods
 
-            public static bool IsValid(ConstructorInfo constructor, MemberFlags memberFlags)
+            public static bool IsValid(ConstructorInfo constructor, BindingFlags memberFlags)
             {
                 if (constructor.IsStatic)
                     return false;
-                return constructor.IsPublic || memberFlags.HasFlagEx(MemberFlags.NonPublic);
+                return constructor.IsPublic || memberFlags.HasFlagEx(BindingFlags.NonPublic);
             }
 
             public ParameterInfoCache[] GetParameters()
@@ -1237,7 +1234,7 @@ namespace MugenMvvm.IoC
 
             protected override bool Equals(Type x, Type y)
             {
-                return x.EqualsEx(y);
+                return x == y;
             }
 
             protected override int GetHashCode(Type key)

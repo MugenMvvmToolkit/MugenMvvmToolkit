@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Members
             Type = _propertyInfo.PropertyType;
             _indexerValues = BindingMugenExtensions.GetIndexerValues(indexerValues!, indexParameters);
 
-            var getMethod = propertyInfo.GetGetMethodUnified(true);
+            var getMethod = propertyInfo.GetGetMethod(true);
             if (getMethod == null)
             {
                 CanRead = false;
@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Members
                 _getterIndexerFunc = CompileIndexerGetter;
             }
 
-            var setMethod = propertyInfo.GetSetMethodUnified(true);
+            var setMethod = propertyInfo.GetSetMethod(true);
             if (setMethod == null)
             {
                 CanWrite = false;
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Members
 
         public BindingMemberType MemberType => BindingMemberType.Property;
 
-        public MemberFlags AccessModifiers { get; }
+        public BindingMemberFlags AccessModifiers { get; }
 
         public bool CanRead { get; }
 
@@ -129,13 +129,13 @@ namespace MugenMvvm.Binding.Members
 
         private object? CompileIndexerSetter(object? arg1, object?[] arg2)
         {
-            _setterIndexerFunc = _propertyInfo.GetSetMethodUnified(true)!.GetMethodInvoker();
+            _setterIndexerFunc = _propertyInfo.GetSetMethod(true)!.GetMethodInvoker();
             return _setterIndexerFunc(arg1, arg2);
         }
 
         private object? CompileIndexerGetter(object? arg, object?[] values)
         {
-            _getterIndexerFunc = _propertyInfo.GetGetMethodUnified(true)!.GetMethodInvoker();
+            _getterIndexerFunc = _propertyInfo.GetGetMethod(true)!.GetMethodInvoker();
             return _getterIndexerFunc(arg, values);
         }
 

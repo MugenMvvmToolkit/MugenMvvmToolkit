@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using JetBrains.Annotations;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
+using TraceLevel = MugenMvvm.Enums.TraceLevel;
 
 namespace MugenMvvm.Internal
 {
@@ -28,9 +27,9 @@ namespace MugenMvvm.Internal
 
         public static bool TraceInformation { get; set; }
 
-        public static bool TraceWarning { get; set; } = Debugger.IsAttached;
+        public static bool TraceWarning { get; set; }
 
-        public static bool TraceError { get; set; } = Debugger.IsAttached;
+        public static bool TraceError { get; set; }
 
         #endregion
 

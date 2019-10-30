@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             private IMetadataContext? _metadata;
 
             private static readonly ParameterExpression ArrayParameter = Expression.Parameter(typeof(object[]), "args");
-            private static readonly ParameterExpression[] ArrayParameterArray = {ArrayParameter};
+            private static readonly ParameterExpression[] ArrayParameterArray = { ArrayParameter };
             private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(25);
 
             #endregion
@@ -143,7 +143,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
             {
                 var list = values.List;
-                var key = list ?? values.Item.Type ?? (object) Default.EmptyArray<Type>();
+                var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<Type>();
                 if (!TryGetValue(key, out var invoker))
                 {
                     invoker = CompileExpression(values);
@@ -181,7 +181,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (node.NodeType == ExpressionNodeType.BindingMember)
                 {
-                    var parameterExpression = (IParameterExpressionNode) node;
+                    var parameterExpression = (IParameterExpressionNode)node;
                     if (parameterExpression.Index < 0)
                         BindingExceptionManager.ThrowCannotCompileExpression(parameterExpression);
                     _parametersDict[parameterExpression] = null;
@@ -299,20 +299,20 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     if (typeX == null || typeY == null)
                         return false;
-                    return typeX.EqualsEx(typeY);
+                    return typeX == typeY;
                 }
 
                 var typesX = x as Type[];
                 var typesY = y as Type[];
                 if (typesX == null && typesY == null)
                 {
-                    var valuesX = (ExpressionValue[]) x;
-                    var valuesY = (ExpressionValue[]) y;
+                    var valuesX = (ExpressionValue[])x;
+                    var valuesY = (ExpressionValue[])y;
                     if (valuesX.Length != valuesY.Length)
                         return false;
                     for (var i = 0; i < valuesX.Length; i++)
                     {
-                        if (!valuesX[i].Type.EqualsEx(valuesY[i].Type))
+                        if (valuesX[i].Type != valuesY[i].Type)
                             return false;
                     }
 
@@ -320,15 +320,15 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
 
                 if (typesX == null)
-                    return Equals(typesY!, (ExpressionValue[]) x);
+                    return Equals(typesY!, (ExpressionValue[])x);
                 if (typesY == null)
-                    return Equals(typesX!, (ExpressionValue[]) y);
+                    return Equals(typesX!, (ExpressionValue[])y);
 
                 if (typesX.Length != typesY.Length)
                     return false;
                 for (var i = 0; i < typesX.Length; i++)
                 {
-                    if (!typesX[i].EqualsEx(typesY[i]))
+                    if (typesX[i] != typesY[i])
                         return false;
                 }
 
@@ -350,7 +350,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     }
                     else
                     {
-                        var types = (Type[]) key;
+                        var types = (Type[])key;
                         for (var index = 0; index < types.Length; index++)
                             hash = hash * 397 ^ types[index].GetHashCode();
                     }
@@ -365,7 +365,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     return false;
                 for (var i = 0; i < values.Length; i++)
                 {
-                    if (!values[i].Type.EqualsEx(types[i]))
+                    if (values[i].Type != types[i])
                         return false;
                 }
 
@@ -419,8 +419,8 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (x.NodeType == ExpressionNodeType.BindingMember && y.NodeType == ExpressionNodeType.BindingMember)
                 {
-                    var xP = (IParameterExpressionNode) x;
-                    var yP = (IParameterExpressionNode) y;
+                    var xP = (IParameterExpressionNode)x;
+                    var yP = (IParameterExpressionNode)y;
                     return xP.Index == yP.Index && xP.Name == yP.Name;
                 }
 

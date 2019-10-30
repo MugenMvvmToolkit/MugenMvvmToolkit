@@ -16,8 +16,8 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateView), MemberFlags.StaticOnly);
-        private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateViewModel), MemberFlags.StaticOnly);
+        private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateView), BindingFlagsEx.StaticOnly);
+        private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateViewModel), BindingFlagsEx.StaticOnly);
 
         private static readonly TypeLightDictionary<Func<object?, object?[], object?>?> TypeToInitializeDelegate =
             new TypeLightDictionary<Func<object?, object?[], object?>?>(17);
@@ -125,11 +125,11 @@ namespace MugenMvvm.Views.Components
         private static Func<object?, object?[], object?>? GetDelegate(Type targetType, Type interfaceType, string propertyName, MethodInfo method)
         {
             Func<object?, object?[], object?>? result = null;
-            foreach (var @interface in targetType.GetInterfacesUnified().Where(type => type.IsGenericTypeUnified()))
+            foreach (var @interface in targetType.GetInterfaces().Where(type => type.IsGenericType))
             {
                 if (@interface.GetGenericTypeDefinition() != interfaceType)
                     continue;
-                var propertyInfo = @interface.GetPropertyUnified(propertyName, MemberFlags.InstancePublic);
+                var propertyInfo = @interface.GetProperty(propertyName, BindingFlagsEx.InstancePublic);
                 if (propertyInfo == null)
                     continue;
                 var methodInvoker = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodInvoker();

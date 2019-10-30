@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
-        public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, MemberFlags flags,
+        public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, BindingMemberFlags flags,
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)
         {
             Should.NotBeNull(type, nameof(type));
@@ -118,6 +118,12 @@ namespace MugenMvvm.Binding
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlagEx(this BindingMemberFlags value, BindingMemberFlags flag)
+        {
+            return (value & flag) == flag;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BindingMemberExpressionFlags value, BindingMemberExpressionFlags flag)
         {
             return (value & flag) == flag;
@@ -145,7 +151,7 @@ namespace MugenMvvm.Binding
         }
 
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -159,7 +165,7 @@ namespace MugenMvvm.Binding
         }
 
         public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue value, bool throwOnError = true, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -179,7 +185,7 @@ namespace MugenMvvm.Binding
         }
 
         public static Unsubscriber TryObserveBindableMember<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -191,7 +197,7 @@ namespace MugenMvvm.Binding
         }
 
         public static Unsubscriber TrySubscribeBindableEvent<TTarget>(this TTarget target,
-            BindableEventDescriptor<TTarget> eventMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
+            BindableEventDescriptor<TTarget> eventMember, IEventListener listener, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var eventInfo = provider
@@ -203,7 +209,7 @@ namespace MugenMvvm.Binding
         }
 
         public static object? TryInvokeBindableMethod<TTarget>(this TTarget target,
-            BindableMethodDescriptor<TTarget> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
+            BindableMethodDescriptor<TTarget> methodMember, object?[]? args = null, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var methodInfo = provider

@@ -31,13 +31,13 @@ namespace MugenMvvm
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             Should.BeOfType(implementation, nameof(implementation), wrapperType);
-            if (implementation.IsInterfaceUnified() || implementation.IsAbstractUnified())
+            if (implementation.IsInterface || implementation.IsAbstract)
                 ExceptionManager.ThrowWrapperTypeShouldBeNonAbstract(implementation);
 
             if (wrapperFactory == null)
             {
                 var constructor = implementation
-                    .GetConstructorsUnified(MemberFlags.InstanceOnly)
+                    .GetConstructors(BindingFlagsEx.InstanceOnly)
                     .FirstOrDefault();
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(implementation);
@@ -45,7 +45,7 @@ namespace MugenMvvm
                 wrapperFactory = (manager, o, arg3, arg4) => constructor!.InvokeEx(o);
             }
 
-            return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType.EqualsEx(arg3), wrapperFactory);
+            return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType == arg3, wrapperFactory);//todo closure check
         }
 
         public static IWrapperManagerComponent AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
@@ -94,7 +94,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            return wrapperType.IsInstanceOfTypeUnified(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
+            return wrapperType.IsInstanceOfType(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
         public static IComponentCollection<object> GetOrAddWrappersCollection(this IViewInfo viewInfo, IComponentCollectionProvider? provider = null)
@@ -108,13 +108,13 @@ namespace MugenMvvm
         {
             Should.NotBeNull(viewInfo, nameof(viewInfo));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            if (wrapperType.IsInstanceOfTypeUnified(viewInfo.View))
+            if (wrapperType.IsInstanceOfType(viewInfo.View))
                 return viewInfo.View;
 
             var collection = viewInfo.GetOrAddWrappersCollection();
             lock (collection)
             {
-                var item = collection.GetItems().FirstOrDefault(wrapperType.IsInstanceOfTypeUnified);
+                var item = collection.GetItems().FirstOrDefault(wrapperType.IsInstanceOfType);
                 if (item == null)
                 {
                     wrapperManager = wrapperManager.ServiceIfNull();

@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        protected readonly MemberFlags MemberFlags;
+        protected readonly BindingMemberFlags MemberFlags;
 
         private Exception? _exception;
         private IBindingMemberInfo? _lastMember;
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public SinglePathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
+        public SinglePathObserver(object target, IMemberPath path, BindingMemberFlags memberFlags, bool observable, bool optional)
             : base(target)
         {
             Should.NotBeNull(path, nameof(path));

@@ -1,23 +1,6 @@
 ﻿using System;
 
 // ReSharper disable CheckNamespace
-
-#if !NET40
-namespace System
-{
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct | AttributeTargets.Enum | AttributeTargets.Delegate,
-        Inherited = false)]
-    internal sealed class SerializableAttribute : Attribute
-    {
-    }
-
-    [AttributeUsage(AttributeTargets.Field)]
-    internal sealed class NonSerializedAttribute : Attribute
-    {
-    }
-}
-#endif
-
 namespace System.Diagnostics.CodeAnalysis
 {
     /// <summary>Specifies that null is allowed as an input even if the corresponding type disallows it.</summary>

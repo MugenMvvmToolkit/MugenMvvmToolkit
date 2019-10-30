@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public string? ObservableMethodName { get; set; }
 
-        public MemberFlags MemberFlags { get; set; }
+        public BindingMemberFlags MemberFlags { get; set; }
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.BindingMember;
 

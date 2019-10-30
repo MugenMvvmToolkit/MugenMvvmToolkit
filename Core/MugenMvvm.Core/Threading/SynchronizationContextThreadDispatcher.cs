@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -22,7 +21,7 @@ namespace MugenMvvm.Threading
         public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext)
         {
             _synchronizationContext = synchronizationContext;
-            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state)._mainThreadId = Environment.CurrentManagedThreadId, this);
+            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
         #endregion
@@ -49,7 +48,7 @@ namespace MugenMvvm.Threading
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o).Execute(null), handler);
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(null), handler);
                 else
                 {
                     if (handler is IValueHolder<Delegate> valueHolder)
@@ -59,21 +58,31 @@ namespace MugenMvvm.Threading
                             sendOrPostCallback = handler.Execute;
                             valueHolder.Value = sendOrPostCallback;
                         }
+
                         _synchronizationContext.Post(sendOrPostCallback, state);
                     }
                     else
                         _synchronizationContext.Post(handler.Execute, state);
                 }
+
                 return;
             }
 
             if (executionMode == ThreadExecutionMode.Background)
             {
-                //todo THREADPOOL
-                if (state == null)
-                    Task.Factory.StartNew(o => ((IThreadDispatcherHandler)o).Execute(null), handler, cancellationToken);
+                if (handler is IValueHolder<Delegate> valueHolder)
+                {
+                    if (!(valueHolder.Value is WaitCallback waitCallback))
+                    {
+                        waitCallback = handler.Execute;
+                        valueHolder.Value = waitCallback;
+                    }
+
+                    ThreadPool.QueueUserWorkItem(waitCallback, state);
+                }
                 else
-                    Task.Factory.StartNew(handler.Execute, state, cancellationToken);
+                    ThreadPool.QueueUserWorkItem(handler.Execute, state);
+
                 return;
             }
 
@@ -94,7 +103,7 @@ namespace MugenMvvm.Threading
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((Action<object?>)o).Invoke(null), action);
+                    _synchronizationContext.Post(o => ((Action<object?>) o).Invoke(null), action);
                 else
                     _synchronizationContext.Post(new SendOrPostCallback(action), state);
                 return;
@@ -102,11 +111,10 @@ namespace MugenMvvm.Threading
 
             if (executionMode == ThreadExecutionMode.Background)
             {
-                //todo THREADPOOL
                 if (state == null)
-                    Task.Factory.StartNew(o => ((Action<object?>)o).Invoke(null), action, cancellationToken);
+                    ThreadPool.QueueUserWorkItem(o => ((Action<object?>) o).Invoke(null), action);
                 else
-                    Task.Factory.StartNew(action, state, cancellationToken);
+                    ThreadPool.QueueUserWorkItem(new WaitCallback(action), state);
                 return;
             }
 

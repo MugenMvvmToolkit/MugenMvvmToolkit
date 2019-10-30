@@ -106,7 +106,7 @@ namespace MugenMvvm.Serialization
 
         protected virtual bool CanSerializeInternal(Type type, IReadOnlyMetadataContext? metadata)
         {
-            return type.IsSerializableUnified() || TryGetSurrogateSerializerHandler(type, out _, out _);
+            return type.IsSerializable || TryGetSurrogateSerializerHandler(type, out _, out _);
         }
 
         protected virtual void OnContextCreated(ISerializationContext context)

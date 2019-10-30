@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         private readonly Unsubscriber[]? _listeners;
-        protected readonly MemberFlags MemberFlags;
+        protected readonly BindingMemberFlags MemberFlags;
         private Exception? _exception;
         private IEventListener? _lastMemberListener;
         private IBindingMemberInfo[]? _members;
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Observers
         #region Constructors
 
         public MultiPathObserver(object target, IMemberPath path,
-            MemberFlags memberFlags, bool hasStablePath, bool observable, bool optional)
+            BindingMemberFlags memberFlags, bool hasStablePath, bool observable, bool optional)
             : base(target)
         {
             MemberFlags = memberFlags;
@@ -174,7 +174,7 @@ namespace MugenMvvm.Binding.Observers
                         i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event,
                         memberFlags);
                     if (i == 1)
-                        memberFlags &= ~MemberFlags.Static;
+                        memberFlags &= ~BindingMemberFlags.Static;
                     if (member == null)
                     {
                         if (Optional)

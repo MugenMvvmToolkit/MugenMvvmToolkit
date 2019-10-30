@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Members
             Name = name;
             Type = _propertyInfo.PropertyType;
 
-            var getMethod = propertyInfo.GetGetMethodUnified(true);
+            var getMethod = propertyInfo.GetGetMethod(true);
             if (getMethod == null)
             {
                 CanRead = false;
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Members
                 _getterFunc = CompileGetter;
             }
 
-            var setMethod = propertyInfo.GetSetMethodUnified(true);
+            var setMethod = propertyInfo.GetSetMethod(true);
             if (setMethod == null)
             {
                 CanWrite = false;
@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Members
 
         public BindingMemberType MemberType => BindingMemberType.Property;
 
-        public MemberFlags AccessModifiers { get; }
+        public BindingMemberFlags AccessModifiers { get; }
 
         public bool CanRead { get; }
 

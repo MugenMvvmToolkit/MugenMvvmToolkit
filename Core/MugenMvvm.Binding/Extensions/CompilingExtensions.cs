@@ -9,29 +9,6 @@ namespace MugenMvvm.Binding
 {
     public static partial class BindingMugenExtensions
     {
-        #region Fields
-
-        private static readonly TypeLightDictionary<TypeCode> TypeCodeTable = new TypeLightDictionary<TypeCode>(15)
-        {
-            {typeof(bool), TypeCode.Boolean},
-            {typeof(char), TypeCode.Char},
-            {typeof(byte), TypeCode.Byte},
-            {typeof(short), TypeCode.Int16},
-            {typeof(int), TypeCode.Int32},
-            {typeof(long), TypeCode.Int64},
-            {typeof(sbyte), TypeCode.SByte},
-            {typeof(ushort), TypeCode.UInt16},
-            {typeof(uint), TypeCode.UInt32},
-            {typeof(ulong), TypeCode.UInt64},
-            {typeof(float), TypeCode.Single},
-            {typeof(double), TypeCode.Double},
-            {typeof(DateTime), TypeCode.DateTime},
-            {typeof(decimal), TypeCode.Decimal},
-            {typeof(string), TypeCode.String}
-        };
-
-        #endregion
-
         #region Methods
 
         public static Expression GenerateExpression(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr)
@@ -42,7 +19,7 @@ namespace MugenMvvm.Binding
 
         public static void Convert(ref Expression left, ref Expression right, bool exactly)
         {
-            if (left.Type.EqualsEx(right.Type))
+            if (left.Type == right.Type)
                 return;
 
             if (left.Type.IsCompatibleWith(right.Type))
@@ -61,18 +38,18 @@ namespace MugenMvvm.Binding
             boxRequired = false;
             if (source == target)
                 return true;
-            if (!target.IsValueTypeUnified())
+            if (!target.IsValueType)
             {
-                boxRequired = source.IsValueTypeUnified();
-                return target.IsAssignableFromUnified(source);
+                boxRequired = source.IsValueType;
+                return target.IsAssignableFrom(source);
             }
 
             var st = GetNonNullableType(source);
             var tt = GetNonNullableType(target);
-            if (st != source && tt.EqualsEx(st))
+            if (st != source && tt == st)
                 return false;
-            var sc = st.IsEnumUnified() ? TypeCode.Object : st.GetTypeCode();
-            var tc = tt.IsEnumUnified() ? TypeCode.Object : tt.GetTypeCode();
+            var sc = st.IsEnum ? TypeCode.Object : Type.GetTypeCode(st);
+            var tc = tt.IsEnum ? TypeCode.Object : Type.GetTypeCode(tt);
             switch (sc)
             {
                 case TypeCode.SByte:
@@ -213,10 +190,10 @@ namespace MugenMvvm.Binding
 
         internal static object? TryParseEnum(this Type type, string name)
         {
-            if (!type.IsEnumUnified())
+            if (!type.IsEnum)
                 return null;
 
-            foreach (var field in type.GetFieldsUnified(MemberFlags.StaticPublic))
+            foreach (var field in type.GetFields(BindingFlagsEx.StaticPublic))
             {
                 if (field.Name.Equals(name, StringComparison.CurrentCultureIgnoreCase))
                     return field.GetValue(null);
@@ -226,46 +203,12 @@ namespace MugenMvvm.Binding
 
         internal static bool IsNullableType(this Type type)
         {
-            return type.IsGenericTypeUnified() && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         private static Type GetNonNullableType(this Type type)
         {
-            return IsNullableType(type) ? type.GetGenericArgumentsUnified().First() : type;
-        }
-
-        private static TypeCode GetTypeCode(this Type type)
-        {
-            if (type == null)
-                return TypeCode.Empty;
-            if (!TypeCodeTable.TryGetValue(type, out var result))
-                result = TypeCode.Object;
-            return result;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private enum TypeCode
-        {
-            Byte,
-            Int16,
-            Int32,
-            Int64,
-            SByte,
-            UInt16,
-            UInt32,
-            UInt64,
-            Single,
-            Double,
-            Char,
-            Boolean,
-            String,
-            DateTime,
-            Decimal,
-            Empty,
-            Object
+            return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
         }
 
         #endregion

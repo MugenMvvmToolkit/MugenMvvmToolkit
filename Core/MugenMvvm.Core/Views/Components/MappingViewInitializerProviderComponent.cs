@@ -180,7 +180,7 @@ namespace MugenMvvm.Views.Components
                     if (view.GetType() == _viewType)
                         return _viewModelType;
                 }
-                else if (_viewType!.IsInstanceOfTypeUnified(view))
+                else if (_viewType!.IsInstanceOfType(view))
                     return _viewModelType;
 
                 return null;
@@ -199,7 +199,7 @@ namespace MugenMvvm.Views.Components
                     if (viewModel.GetType() == _viewModelType)
                         return _viewType;
                 }
-                else if (_viewModelType!.IsInstanceOfTypeUnified(viewModel))
+                else if (_viewModelType!.IsInstanceOfType(viewModel))
                     return _viewType;
 
                 return null;

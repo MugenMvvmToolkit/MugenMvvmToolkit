@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
@@ -12,7 +13,7 @@ namespace MugenMvvm.Binding
 
         public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
-            return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, MemberFlags.All, metadata, provider);
+            return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, BindingMemberFlags.All, metadata, provider);
         }
 
         public static object? FindElementSource(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
@@ -23,7 +24,7 @@ namespace MugenMvvm.Binding
             while (target != null)
             {
                 args[0] = elementName;
-                var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByName, args, MemberFlags.All, metadata, provider);
+                var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByName, args, BindingMemberFlags.All, metadata, provider);
                 if (result != null)
                     return result;
                 target = GetParent(target, metadata, provider)!;
@@ -91,7 +92,7 @@ namespace MugenMvvm.Binding
                         break;
                 }
 
-                type = type.GetBaseTypeUnified();
+                type = type.BaseType;
             }
         }
 

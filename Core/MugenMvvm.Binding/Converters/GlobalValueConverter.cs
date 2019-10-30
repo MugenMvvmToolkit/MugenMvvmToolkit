@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Converters
             {
                 if (value == null)
                     return targetType.GetDefaultValue();
-                if (targetType.IsInstanceOfTypeUnified(value))
+                if (targetType.IsInstanceOfType(value))
                     return value;
                 return System.Convert.ChangeType(value, targetType);
             }

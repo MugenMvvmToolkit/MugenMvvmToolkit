@@ -14,6 +14,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         BindingMemberType MemberType { get; }
 
-        MemberFlags AccessModifiers { get; }
+        BindingMemberFlags AccessModifiers { get; }
     }
 }

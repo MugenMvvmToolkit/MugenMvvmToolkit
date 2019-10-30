@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Members
 
         public BindingMemberType MemberType => BindingMemberType.Event;
 
-        public MemberFlags AccessModifiers { get; }
+        public BindingMemberFlags AccessModifiers { get; }
 
         #endregion
 

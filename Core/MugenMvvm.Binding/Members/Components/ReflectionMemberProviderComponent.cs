@@ -71,7 +71,7 @@ namespace MugenMvvm.Binding.Members.Components
                 {
                     if (indexerArgs == null)
                     {
-                        var property = t.GetPropertyUnified(name, MemberFlags.All);
+                        var property = t.GetProperty(name, BindingFlagsEx.All);
                         if (property != null)
                         {
                             result.Add(new BindingPropertyInfo(name, property, type, _bindingObserverProvider));
@@ -83,7 +83,7 @@ namespace MugenMvvm.Binding.Members.Components
                         PropertyInfo? candidate = null;
                         var valueTypeCount = -1;
                         ParameterInfo[]? indexParameters = null;
-                        foreach (var property in t.GetPropertiesUnified(MemberFlags.All))
+                        foreach (var property in t.GetProperties(BindingFlagsEx.All))
                         {
                             indexParameters = property.GetIndexParameters();
                             if (indexParameters.Length != indexerArgs.Length)
@@ -110,7 +110,7 @@ namespace MugenMvvm.Binding.Members.Components
                                         break;
                                     }
 
-                                    if (paramType.IsValueTypeUnified())
+                                    if (paramType.IsValueType)
                                         count++;
                                 }
                             }
@@ -137,7 +137,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                 if (!hasEvent)
                 {
-                    var eventInfo = t.GetEventUnified(name, MemberFlags.All);
+                    var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
                     if (eventInfo != null)
                     {
                         var memberObserver = _bindingObserverProvider.ServiceIfNull().TryGetMemberObserver(type, eventInfo, metadata);
@@ -151,7 +151,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                 if (!hasField)
                 {
-                    var field = t.GetFieldUnified(name, MemberFlags.All);
+                    var field = t.GetField(name, BindingFlagsEx.All);
                     if (field != null)
                     {
                         result.Add(new BindingFieldInfo(name, field, type, _bindingObserverProvider));
@@ -165,7 +165,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             //todo add method -> property with simple args
 
-            foreach (var methodInfo in type.GetMethodsUnified(MemberFlags.All))
+            foreach (var methodInfo in type.GetMethods(BindingFlagsEx.All))
             {
                 if (methodInfo.Name.Equals(name))
                     result.Add(new BindingMethodInfo(name, methodInfo, type, _bindingObserverProvider));
@@ -213,7 +213,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.Type.EqualsEx(y.Type) && string.Equals(x.Name, y.Name);
+                return x.Type == y.Type && string.Equals(x.Name, y.Name);
             }
 
             protected override int GetHashCode(CacheKey key)

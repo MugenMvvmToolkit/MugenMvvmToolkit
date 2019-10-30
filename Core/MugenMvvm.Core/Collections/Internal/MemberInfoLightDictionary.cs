@@ -17,7 +17,7 @@ namespace MugenMvvm.Collections.Internal
 
         protected override bool Equals(TKey x, TKey y)
         {
-            return x.EqualsEx(y);
+            return x == y;
         }
 
         protected override int GetHashCode(TKey key)

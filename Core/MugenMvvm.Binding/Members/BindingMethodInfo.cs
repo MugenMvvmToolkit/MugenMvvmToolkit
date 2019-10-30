@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Members
 
         public BindingMemberType MemberType => BindingMemberType.Method;
 
-        public MemberFlags AccessModifiers { get; }
+        public BindingMemberFlags AccessModifiers { get; }
 
         public bool IsExtensionMethod { get; }
 

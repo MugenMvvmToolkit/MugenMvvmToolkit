@@ -75,19 +75,6 @@ namespace MugenMvvm
             return true;
         }
 
-        //todo remove
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool EqualsEx(this Type x, Type? y) //note idkw but default implementation doesn't use ReferenceEquals before equals check
-        {
-            return ReferenceEquals(x, y) || x.Equals(y);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool EqualsEx(this MemberInfo x, MemberInfo y)
-        {
-            return ReferenceEquals(x, y) || x.Equals(y);
-        }
-
         internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
         {
             property.SetValue(target, value, Default.EmptyArray<object>());

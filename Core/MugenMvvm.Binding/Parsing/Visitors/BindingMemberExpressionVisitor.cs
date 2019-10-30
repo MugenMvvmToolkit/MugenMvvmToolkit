@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public bool IsPostOrder => false;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.StaticNonPublic;
+        public BindingMemberFlags MemberFlags { get; set; } = BindingMemberFlags.All & ~BindingMemberFlags.StaticNonPublic;
 
         #endregion
 
@@ -131,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
-                        var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
+                        var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(type, null, MemberFlags | BindingMemberFlags.Static, memberProvider: _memberProvider);
                         return ConstantExpressionNode.Get(value);
                     }
 
@@ -147,7 +147,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
 
-                    var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static,
+                    var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~BindingMemberFlags.Static,
                         memberProvider: _memberProvider);
                     return ConstantExpressionNode.Get(value);
                 }
@@ -162,7 +162,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         private IExpressionNode GetOrAddBindingParameter(string? methodName = null, BindingMemberExpressionFlags flags = 0, bool isStatic = false, object? target = null)
         {
             flags |= BindingMemberExpressionFlags.Observable;
-            var memberFlags = isStatic ? (MemberFlags | MemberFlags.Static) & ~MemberFlags.Instance : (MemberFlags | MemberFlags.Instance) & ~MemberFlags.Static;
+            var memberFlags = isStatic ? (MemberFlags | BindingMemberFlags.Static) & ~BindingMemberFlags.Instance : (MemberFlags | BindingMemberFlags.Instance) & ~BindingMemberFlags.Static;
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, memberFlags, target, flags);
             if (!_members.TryGetValue(key, out var node))
             {
@@ -224,7 +224,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             public readonly string Path;
             public readonly string? MethodName;
-            public readonly MemberFlags MemberFlags;
+            public readonly BindingMemberFlags MemberFlags;
             public readonly BindingMemberExpressionFlags Flags;
             public readonly object? Target;
 
@@ -232,7 +232,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             #region Constructors
 
-            public CacheKey(string path, string? methodName, MemberFlags memberFlags, object? target, BindingMemberExpressionFlags flags)
+            public CacheKey(string path, string? methodName, BindingMemberFlags memberFlags, object? target, BindingMemberExpressionFlags flags)
             {
                 Path = path;
                 MethodName = methodName;

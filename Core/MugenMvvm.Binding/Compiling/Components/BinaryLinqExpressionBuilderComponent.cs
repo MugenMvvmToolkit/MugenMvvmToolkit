@@ -17,9 +17,9 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Fields
 
         private static readonly MethodInfo StringConcatMethod =
-            typeof(string).GetMethodOrThrow(nameof(string.Concat), MemberFlags.StaticPublic, new[] {typeof(object), typeof(object)});
+            typeof(string).GetMethodOrThrow(nameof(string.Concat), BindingFlagsEx.StaticPublic, new[] { typeof(object), typeof(object) });
 
-        private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), MemberFlags.StaticPublic);
+        private static readonly MethodInfo EqualsMethod = typeof(object).GetMethodOrThrow(nameof(Equals), BindingFlagsEx.StaticPublic);
 
         #endregion
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private static Expression GeneratePlusExpression(Expression left, Expression right)
         {
-            if (left.Type.EqualsEx(typeof(string)) || right.Type.EqualsEx(typeof(string)))
+            if (left.Type == typeof(string) || right.Type == typeof(string))
             {
                 return Expression.Call(null, StringConcatMethod, left.ConvertIfNeed(typeof(object), false),
                     right.ConvertIfNeed(typeof(object), false));

@@ -23,9 +23,9 @@ namespace MugenMvvm.Binding.Compiling.Components
         private readonly Expression _thisExpression;
 
         private static readonly MethodInfo GetValuePropertyMethod =
-            typeof(IBindingMemberAccessorInfo).GetMethodOrThrow(nameof(IBindingMemberAccessorInfo.GetValue), MemberFlags.InstancePublic);
+            typeof(IBindingMemberAccessorInfo).GetMethodOrThrow(nameof(IBindingMemberAccessorInfo.GetValue), BindingFlagsEx.InstancePublic);
 
-        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberLinqExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), MemberFlags.InstancePublic);
+        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberLinqExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), BindingFlagsEx.InstancePublic);
 
         #endregion
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public int Priority { get; set; } = BindingLinqCompilerPriority.Member;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public BindingMemberFlags MemberFlags { get; set; } = BindingMemberFlags.All & ~BindingMemberFlags.NonPublic;
 
         #endregion
 
@@ -59,17 +59,17 @@ namespace MugenMvvm.Binding.Compiling.Components
             var member = memberExpression.Member;
             if (member == null)
             {
-                MemberFlags flags;
+                BindingMemberFlags flags;
                 if (target == null)
                 {
                     var @enum = type.TryParseEnum(memberExpression.MemberName);
                     if (@enum != null)
                         return Expression.Constant(@enum);
 
-                    flags = MemberFlags & ~MemberFlags.Instance;
+                    flags = MemberFlags & ~BindingMemberFlags.Instance;
                 }
                 else
-                    flags = MemberFlags & ~MemberFlags.Static;
+                    flags = MemberFlags & ~BindingMemberFlags.Static;
 
                 member = _memberProvider
                     .ServiceIfNull()
@@ -108,7 +108,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             var property = MugenBindingService
                     .MemberProvider
-                    .GetMember(target.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~MemberFlags.Static, metadata) as
+                    .GetMember(target.GetType(), member, BindingMemberType.Property | BindingMemberType.Field, MemberFlags & ~BindingMemberFlags.Static, metadata) as
                 IBindingMemberAccessorInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);

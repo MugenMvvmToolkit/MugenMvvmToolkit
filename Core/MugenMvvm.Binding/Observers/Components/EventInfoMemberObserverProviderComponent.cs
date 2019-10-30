@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly FuncEx<EventInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverEventDelegate;
 
         private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
-            .GetMethodOrThrow(nameof(EventListenerCollection.Raise), MemberFlags.Public | MemberFlags.Instance);
+            .GetMethodOrThrow(nameof(EventListenerCollection.Raise), BindingFlagsEx.InstancePublic);
 
         private static readonly Func<object, EventInfo, object?, EventListenerCollection?> CreateWeakListenerDelegate = CreateWeakListener;
 
@@ -81,14 +81,14 @@ namespace MugenMvvm.Binding.Observers.Components
         private static EventListenerCollection? CreateWeakListener(object target, EventInfo eventInfo, object? _)
         {
             var listenerInternal = new EventListenerCollection();
-            var handler = eventInfo.EventHandlerType.EqualsEx(typeof(EventHandler))
+            var handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)
                 : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod);
 
             if (handler == null)
                 return null;
 
-            var addMethod = eventInfo.GetAddMethodUnified(true);
+            var addMethod = eventInfo.GetAddMethod(true);
             if (addMethod == null)
                 return null;
 

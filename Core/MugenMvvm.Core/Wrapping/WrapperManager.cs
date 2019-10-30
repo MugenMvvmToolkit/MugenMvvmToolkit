@@ -42,7 +42,7 @@ namespace MugenMvvm.Wrapping
 
         protected virtual bool CanWrapInternal(Type type, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
-            if (wrapperType.IsAssignableFromUnified(type))
+            if (wrapperType.IsAssignableFrom(type))
                 return true;
 
             var components = Components.GetItems();

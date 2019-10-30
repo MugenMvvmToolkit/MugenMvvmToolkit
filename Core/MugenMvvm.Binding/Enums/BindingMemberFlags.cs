@@ -1,9 +1,9 @@
 ﻿using System;
 
-namespace MugenMvvm.Enums
+namespace MugenMvvm.Binding.Enums
 {
     [Flags]
-    public enum MemberFlags : byte
+    public enum BindingMemberFlags : byte
     {
         Static = 1,
         Instance = 1 << 1,

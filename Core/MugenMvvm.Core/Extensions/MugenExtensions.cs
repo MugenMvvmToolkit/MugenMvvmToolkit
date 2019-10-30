@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -69,9 +70,9 @@ namespace MugenMvvm
         {
             return (value & flag) == flag;
         }
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
+        public static bool HasFlagEx(this BindingFlags value, BindingFlags flag)
         {
             return (value & flag) == flag;
         }

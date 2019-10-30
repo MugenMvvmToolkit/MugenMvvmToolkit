@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
@@ -107,9 +108,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected static Type GetTargetType(object target, MemberFlags flags)
+        protected static Type GetTargetType(object target, BindingMemberFlags flags)
         {
-            if (flags.HasFlagEx(MemberFlags.Static))
+            if (flags.HasFlagEx(BindingMemberFlags.Static))
                 return target as Type ?? target.GetType();
             return target.GetType();
         }

@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 
@@ -19,9 +20,36 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static MethodInfo GetMethodOrThrow(this Type type, string name, MemberFlags flags, Type[]? types = null)
+        public static bool IsStatic(this MemberInfo member)
         {
-            var method = types == null ? type.GetMethodUnified(name, flags) : type.GetMethodUnified(name, flags, types);
+            Should.NotBeNull(member, nameof(member));
+            if (member is PropertyInfo propertyInfo)
+            {
+                var method = propertyInfo.CanRead
+                    ? propertyInfo.GetGetMethod(true)
+                    : propertyInfo.GetSetMethod(true);
+                return method != null && method.IsStatic;
+            }
+
+            if (member is EventInfo eventInfo)
+            {
+                var method = (eventInfo.AddMethod ?? eventInfo.RemoveMethod);
+                return method != null && method.IsStatic;
+            }
+
+            if (member is MethodBase m)
+                return m.IsStatic;
+            return member is FieldInfo fieldInfo && fieldInfo.IsStatic;
+        }
+
+        public static bool IsAnonymousClass(this Type type)
+        {
+            return type.IsDefined(typeof(CompilerGeneratedAttribute), false) && type.IsClass;
+        }
+
+        public static MethodInfo GetMethodOrThrow(this Type type, string name, BindingFlags flags, Type[]? types = null)
+        {
+            var method = types == null ? type.GetMethod(name, flags) : type.GetMethod(name, flags, null, types, null);
             Should.BeSupported(method != null, type.Name + "." + name);
             return method!;
         }
@@ -140,7 +168,7 @@ namespace MugenMvvm
 
         public static object? GetDefaultValue(this Type type)
         {
-            if (type.IsValueTypeUnified())
+            if (type.IsValueType)
                 return Activator.CreateInstance(type);
             return null;
         }
@@ -149,9 +177,9 @@ namespace MugenMvvm
         {
             if (expression == null)
                 return null!;
-            if (type.EqualsEx(typeof(void)) || type.EqualsEx(expression.Type))
+            if (type == typeof(void) || type == expression.Type)
                 return expression;
-            if (!exactly && !expression.Type.IsValueTypeUnified() && !type.IsValueTypeUnified() && type.IsAssignableFromUnified(expression.Type))
+            if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;
             return Expression.Convert(expression, type);
         }

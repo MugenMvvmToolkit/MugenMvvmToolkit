@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Members
 
         public BindingMemberType MemberType => BindingMemberType.Property;
 
-        public MemberFlags AccessModifiers => MemberFlags.InstancePublic;
+        public BindingMemberFlags AccessModifiers => BindingMemberFlags.InstancePublic;
 
         public bool CanRead => true;
 

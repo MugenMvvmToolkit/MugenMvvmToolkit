@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodMultiPathObserver(string observableMethodName, object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+        public MethodMultiPathObserver(string observableMethodName, object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, true, optional)
         {
             Should.NotBeNull(observableMethodName, nameof(observableMethodName));
@@ -63,14 +63,14 @@ namespace MugenMvvm.Binding.Observers
                 return;
 
             var type = value?.GetType()!;
-            if (value.IsNullOrUnsetValue() || type.IsValueTypeUnified())
+            if (value.IsNullOrUnsetValue() || type.IsValueType)
             {
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
                 return;
             }
 
             _lastValueRef = value.ToWeakReference();
-            var memberFlags = MemberFlags & ~MemberFlags.Static;
+            var memberFlags = MemberFlags & ~BindingMemberFlags.Static;
             var member = MugenBindingService.MemberProvider.GetMember(type!, _observableMethodName, BindingMemberType.Method, memberFlags);
             if (member is IObservableBindingMemberInfo observable)
                 _unsubscriber = observable.TryObserve(target, GetLastMemberListener());

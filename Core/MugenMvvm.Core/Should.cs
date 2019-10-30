@@ -66,7 +66,7 @@ namespace MugenMvvm
         {
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));
-            if (!requiredType.IsAssignableFromUnified(type))
+            if (!requiredType.IsAssignableFrom(type))
                 throw new ArgumentException(MessageConstants.ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
         }
 

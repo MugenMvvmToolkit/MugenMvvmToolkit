@@ -132,7 +132,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public static ConstantExpressionNode Get(object? value, Type? type = null)
         {
-            if (value == null && (type == null || typeof(object).EqualsEx(type)))
+            if (value == null && (type == null || typeof(object) == type))
                 return Null;
             if (value is bool b)
                 return Get(b);

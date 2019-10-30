@@ -153,11 +153,11 @@ namespace MugenMvvm.Internal.Components
 
         public static MethodInfo? TryGetMethodDelegate(Type delegateType, MethodInfo method)
         {
-            if (!typeof(Delegate).IsAssignableFromUnified(delegateType))
+            if (!typeof(Delegate).IsAssignableFrom(delegateType))
                 return null;
 
             var mParameters = method.GetParameters();
-            var eParameters = delegateType.GetMethodUnified(nameof(Action.Invoke), MemberFlags.InstancePublic)?.GetParameters();
+            var eParameters = delegateType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic)?.GetParameters();
             if (eParameters == null || mParameters.Length != eParameters.Length)
                 return null;
             if (method.IsGenericMethodDefinition)
@@ -188,7 +188,7 @@ namespace MugenMvvm.Internal.Components
             {
                 var mParameter = mParameters[i].ParameterType;
                 var eParameter = eParameters[i].ParameterType;
-                if (!mParameter.IsAssignableFromUnified(eParameter) || mParameter.IsValueTypeUnified() != eParameter.IsValueTypeUnified())
+                if (!mParameter.IsAssignableFrom(eParameter) || mParameter.IsValueType != eParameter.IsValueType)
                     return null;
             }
 
@@ -204,7 +204,7 @@ namespace MugenMvvm.Internal.Components
 
         public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
-            var isVoid = method.ReturnType.EqualsEx(typeof(void));
+            var isVoid = method.ReturnType == typeof(void);
             var expressions = GetParametersExpression(method, out var parameterExpression);
             Expression callExpression;
             if (method.IsStatic)
@@ -244,7 +244,7 @@ namespace MugenMvvm.Internal.Components
 
         public static Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
         {
-            var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), MemberFlags.InstanceOnly);
+            var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
             var delegateParams = delegateMethod.GetParameters().ToList();
             var methodParams = method.GetParameters();
             var expressions = new List<Expression>();
@@ -302,7 +302,7 @@ namespace MugenMvvm.Internal.Components
         {
             var declaringType = member.DeclaringType;
             var fieldInfo = member as FieldInfo;
-            if (declaringType.IsValueTypeUnified())
+            if (declaringType.IsValueType)
             {
                 if (fieldInfo == null)
                 {
@@ -322,7 +322,7 @@ namespace MugenMvvm.Internal.Components
                 var propertyInfo = member as PropertyInfo;
                 MethodInfo? setMethod = null;
                 if (propertyInfo != null)
-                    setMethod = propertyInfo.GetSetMethodUnified(true);
+                    setMethod = propertyInfo.GetSetMethod(true);
                 Should.MethodBeSupported(propertyInfo != null && setMethod != null, MessageConstants.ShouldSupportOnlyFieldsReadonlyFields);
                 var valueExpression = valueParameter.ConvertIfNeed(propertyInfo!.PropertyType, false);
                 expression = Expression.Call(setMethod!.IsStatic ? null : target.ConvertIfNeed(declaringType, false), setMethod, valueExpression);
@@ -391,7 +391,7 @@ namespace MugenMvvm.Internal.Components
 
             protected override bool Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
             {
-                return x.DelegateType.EqualsEx(y.DelegateType) && x.Member.EqualsEx(y.Member);
+                return x.DelegateType == y.DelegateType && x.Member == y.Member;
             }
 
             protected override int GetHashCode(MemberInfoDelegateCacheKey key)
