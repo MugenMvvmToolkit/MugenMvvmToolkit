@@ -22,7 +22,7 @@ namespace MugenMvvm
 
         public static void Merge<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)
             where TItem : class
-            where TList : class?, IReadOnlyList<TItem>
+            where TList : class?, IReadOnlyCollection<TItem>
         {
             var list = itemOrList.List;
             var item = itemOrList.Item;
@@ -54,7 +54,7 @@ namespace MugenMvvm
 
         public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class?, IReadOnlyList<TItem>
+            where TList : class?, IReadOnlyCollection<TItem>
         {
             return itemOrList.Item == null && itemOrList.List == null;
         }
@@ -70,7 +70,7 @@ namespace MugenMvvm
         {
             return (value & flag) == flag;
         }
-        
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BindingFlags value, BindingFlags flag)
         {

@@ -11,26 +11,13 @@ namespace MugenMvvm.ViewModels
 {
     public class ViewModelManager : ComponentOwnerBase<IViewModelManager>, IViewModelManager
     {
-        #region Fields
-
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelManager(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewModelManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            _metadataContextProvider = metadataContextProvider;
         }
-
-        #endregion
-
-        #region Properties
-
-        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();//todo review usage
 
         #endregion
 
@@ -73,17 +60,7 @@ namespace MugenMvvm.ViewModels
             for (var i = 0; i < components.Length; i++)
             {
                 var m = (components[i] as IViewModelLifecycleDispatcherComponent)?.OnLifecycleChanged(viewModel, lifecycleState, metadata);
-                if (m == null || m.Count == 0)
-                    continue;
-
-                if (result == null)
-                    result = m;
-                else
-                {
-                    var r = result.ToNonReadonly(this, _metadataContextProvider);
-                    r.Merge(m);
-                    result = r;
-                }
+                m.Aggregate(ref result);
             }
 
             return result;

@@ -4,6 +4,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
@@ -20,8 +21,13 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, IEnumerable<MetadataContextValue>? values = null)
+        public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
+            var list = values.List;
+            var item = values.Item;
+            if (list == null && item.IsEmpty)
+                return Default.Metadata;
+
             var components = Components.GetItems();
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
@@ -32,14 +38,19 @@ namespace MugenMvvm.Metadata
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
+            {
+                if (list == null)
+                    result = new SingleValueMetadataContext(item);
+                else
+                    result = new ReadOnlyMetadataContext(list);
+            }
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IMetadataContextProviderListener)?.OnReadOnlyContextCreated(this, result!, target);
             return result!;
         }
 
-        public IMetadataContext GetMetadataContext(object? target = null, IEnumerable<MetadataContextValue>? values = null)
+        public IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
             var components = Components.GetItems();
             IMetadataContext? result = null;
@@ -51,7 +62,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
+                result = new MetadataContext(values);
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IMetadataContextProviderListener)?.OnContextCreated(this, result!, target);

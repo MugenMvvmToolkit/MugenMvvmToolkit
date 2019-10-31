@@ -34,7 +34,6 @@ namespace MugenMvvm.Presenters
         {
             _navigationDispatcher = navigationDispatcher;
             _threadDispatcher = threadDispatcher;
-            Id = GetType().FullName;
         }
 #pragma warning restore CS8618
 
@@ -42,7 +41,7 @@ namespace MugenMvvm.Presenters
 
         #region Properties
 
-        public virtual string Id { get; }
+        public virtual string Id => GetType().FullName;
 
         public abstract NavigationType NavigationType { get; }
 

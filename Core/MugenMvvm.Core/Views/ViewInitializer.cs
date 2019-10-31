@@ -45,7 +45,7 @@ namespace MugenMvvm.Views
 
         #region Properties
 
-        public bool HasMetadata => true;
+        public bool HasMetadata => Metadata.Count != 0;
 
         public IReadOnlyMetadataContext Metadata { get; }
 
@@ -58,8 +58,6 @@ namespace MugenMvvm.Views
         private IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
 
         private IViewManager ViewManager => _viewManager.ServiceIfNull();
-
-        private IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         private ThreadExecutionMode InitializeExecutionMode { get; }
 
@@ -178,7 +176,7 @@ namespace MugenMvvm.Views
                 _initializer = initializer;
                 _viewModel = viewModel;
                 _view = view;
-                _metadata = metadata.ToNonReadonly(initializer, initializer.MetadataContextProvider);
+                _metadata = metadata.ToNonReadonly(initializer, initializer._metadataContextProvider);
                 _isView = isView;
                 initializer.ThreadDispatcher.Execute(initializer.InitializeExecutionMode, this);
             }
@@ -232,7 +230,7 @@ namespace MugenMvvm.Views
                 _initializer = initializer;
                 _viewInfo = viewInfo;
                 _viewModel = viewModel;
-                _metadata = metadata.ToNonReadonly(initializer, initializer.MetadataContextProvider);
+                _metadata = metadata.ToNonReadonly(initializer, initializer._metadataContextProvider);
                 initializer.ThreadDispatcher.Execute(initializer.CleanupExecutionMode, this);
             }
 

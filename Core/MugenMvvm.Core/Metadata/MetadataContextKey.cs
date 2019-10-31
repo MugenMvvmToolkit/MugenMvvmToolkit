@@ -264,7 +264,7 @@ namespace MugenMvvm.Metadata
             {
                 ValidateAction?.Invoke(metadataContext, this, newValue);
                 if (SetValueFunc == null)
-                    return newValue;
+                    return newValue;//todo opt
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 

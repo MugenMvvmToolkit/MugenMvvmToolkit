@@ -339,7 +339,7 @@ namespace MugenMvvm.Messaging
 
             #region Properties
 
-            public bool HasMetadata => _metadata != null;
+            public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
             public IMetadataContext Metadata
             {
@@ -347,9 +347,7 @@ namespace MugenMvvm.Messaging
                 {
                     if (_metadata is IMetadataContext ctx)
                         return ctx;
-
-                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _messenger._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata!;
+                    return _messenger._metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
                 }
             }
 

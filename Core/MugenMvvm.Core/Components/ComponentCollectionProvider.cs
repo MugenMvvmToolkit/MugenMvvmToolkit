@@ -54,7 +54,7 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        private IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext? metadata) where T : class
+        private IComponentCollection<T> GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (!ReferenceEquals(owner, this))
             {

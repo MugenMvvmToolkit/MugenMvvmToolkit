@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Parsing
             Should.NotBeNull(source, nameof(source));
             Target = target;
             Source = source;
-            _parametersRaw = parameters.Item ?? (object) parameters.List;
+            _parametersRaw = parameters.Item ?? (object?) parameters.List;
             Metadata = metadata ?? Default.Metadata;
         }
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Parsing
             {
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> list)
                     return new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(list);
-                return new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>((IExpressionNode) _parametersRaw);
+                return new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>((IExpressionNode?) _parametersRaw);
             }
         }
 

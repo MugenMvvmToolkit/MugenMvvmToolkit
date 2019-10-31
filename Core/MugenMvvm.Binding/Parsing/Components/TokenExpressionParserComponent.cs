@@ -180,8 +180,8 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 _source = source;
                 _metadata?.Clear();
-                if (metadata != null && metadata.Count != 0)
-                    Metadata.Merge(metadata);
+                if (!metadata.IsNullOrEmpty())
+                    Metadata.Merge(metadata!);
                 Position = 0;
                 Length = source.Length;
             }

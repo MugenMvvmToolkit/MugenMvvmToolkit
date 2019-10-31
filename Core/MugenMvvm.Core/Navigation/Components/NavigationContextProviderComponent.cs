@@ -40,7 +40,7 @@ namespace MugenMvvm.Navigation.Components
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
             Should.NotBeNull(navigationMode, nameof(navigationMode));
             Should.NotBeNull(navigationType, nameof(navigationType));
-            return new NavigationContext(navigationProvider, navigationType, navigationOperationId, navigationMode, metadata, _metadataContextProvider);
+            return new NavigationContext(navigationProvider, navigationType, navigationOperationId, navigationMode, _metadataContextProvider, metadata);
         }
 
         #endregion
@@ -52,37 +52,36 @@ namespace MugenMvvm.Navigation.Components
             #region Fields
 
             private readonly IMetadataContextProvider? _metadataContextProvider;
-            private IMetadataContext? _metadata;
+            private IReadOnlyMetadataContext? _metadata;
 
             #endregion
 
             #region Constructors
 
             public NavigationContext(INavigationProvider navigationProvider, NavigationType navigationType, string navigationOperationId,
-                NavigationMode navigationMode, IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+                NavigationMode navigationMode, IMetadataContextProvider? metadataContextProvider, IReadOnlyMetadataContext? metadata)
             {
-                _metadataContextProvider = metadataContextProvider;
                 NavigationType = navigationType;
                 NavigationOperationId = navigationOperationId;
                 NavigationProvider = navigationProvider;
                 NavigationMode = navigationMode;
-                if (metadata != null)
-                    _metadata = metadata.ToNonReadonly(this, metadataContextProvider);
+                _metadataContextProvider = metadataContextProvider;
+                _metadata = metadata;
             }
 
             #endregion
 
             #region Properties
 
-            public bool HasMetadata => _metadata != null;
+            public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
             public IMetadataContext Metadata
             {
                 get
                 {
-                    if (_metadata == null)
-                        _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                    return _metadata!;
+                    if (_metadata is IMetadataContext ctx)
+                        return ctx;
+                    return _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
                 }
             }
 

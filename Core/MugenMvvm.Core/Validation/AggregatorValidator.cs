@@ -42,14 +42,14 @@ namespace MugenMvvm.Validation
 
         protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
-        public bool HasMetadata => _metadata != null;
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
         public IMetadataContext Metadata
         {
             get
             {
                 if (_metadata == null)
-                    MetadataContextProvider.LazyInitialize(ref _metadata, this);
+                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
                 return _metadata!;
             }
         }

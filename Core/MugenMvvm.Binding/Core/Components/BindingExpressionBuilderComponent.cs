@@ -191,7 +191,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Properties
 
-            public bool HasMetadata => MetadataRaw != null && MetadataRaw.Count != 0;
+            public bool HasMetadata => !MetadataRaw.IsNullOrEmpty();
 
             public IReadOnlyMetadataContext Metadata => MetadataRaw ?? Default.Metadata;
 
@@ -318,7 +318,7 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 if (metadata == null)
                     metadata = MetadataRaw;
-                ItemOrList<IMemberPathObserver, IMemberPathObserver[]> sources;
+                ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> sources;
                 if (_sourceRaw is IBindingMemberExpressionNode[] expressions)
                 {
                     var array = new IMemberPathObserver[expressions.Length];
@@ -329,7 +329,7 @@ namespace MugenMvvm.Binding.Core.Components
                 else
                 {
                     var observer = ((IBindingMemberExpressionNode)_sourceRaw).GetSourceObserver(target, source, metadata);
-                    sources = new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>(observer);
+                    sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
                 }
 
                 var binding = new MultiBinding(TargetExpression.GetTargetObserver(target, source, metadata), sources, _compiledExpression);

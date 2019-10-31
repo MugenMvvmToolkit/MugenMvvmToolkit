@@ -14,8 +14,6 @@ namespace MugenMvvm.Binding.Core
     {
         #region Fields
 
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-
         protected IBindingBuilderComponent[] BindingBuilders;
         protected IBindingExpressionBuilderComponent[] ExpressionBuilders;
         protected IBindingHolderComponent[] Holders;
@@ -25,21 +23,14 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public BindingManager(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public BindingManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            _metadataContextProvider = metadataContextProvider;
             BindingBuilders = Default.EmptyArray<IBindingBuilderComponent>();
             ExpressionBuilders = Default.EmptyArray<IBindingExpressionBuilderComponent>();
             Holders = Default.EmptyArray<IBindingHolderComponent>();
             StateDispatchers = Default.EmptyArray<IBindingStateDispatcherComponent>();
         }
-
-        #endregion
-
-        #region Properties
-
-        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
         #endregion
 
@@ -181,17 +172,7 @@ namespace MugenMvvm.Binding.Core
             for (var i = 0; i < dispatchers.Length; i++)
             {
                 var m = dispatchers[i].OnLifecycleChanged(binding, lifecycle, metadata);
-                if (m == null || m.Count == 0)
-                    continue;
-
-                if (result == null)
-                    result = m;
-                else
-                {
-                    var r = result.ToNonReadonly(this, _metadataContextProvider);
-                    r.Merge(m);
-                    result = r;
-                }
+                m.Aggregate(ref result);
             }
 
             return result;

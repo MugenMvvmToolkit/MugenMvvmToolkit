@@ -36,7 +36,7 @@ namespace MugenMvvm.Serialization
 
         public bool IsRestored { get; }
 
-        public bool HasMetadata => true;
+        public bool HasMetadata => Metadata.Count != 0;
 
         public IReadOnlyMetadataContext Metadata { get; }
 

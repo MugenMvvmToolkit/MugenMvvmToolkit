@@ -195,14 +195,14 @@ namespace MugenMvvm.Commands
             return CreateFromTask(execute, canExecute, allowMultipleExecution, notifiers, metadata: null);
         }
 
-        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool allowMultipleExecution, IReadOnlyMetadataContext? metadata,
-            params object[] notifiers)
+        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool allowMultipleExecution, 
+            IReadOnlyMetadataContext? metadata, params object[] notifiers)
         {
             return CreateFromTask(execute, canExecute, allowMultipleExecution, notifiers, metadata: metadata);
         }
 
-        public static MediatorCommand Create(Action execute, Func<bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext? metadata)
+        public static MediatorCommand Create(Action execute, Func<bool>? canExecute, bool? allowMultipleExecution, 
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
             request.Set(MediatorCommandMetadata.Execute, execute);
@@ -215,8 +215,8 @@ namespace MugenMvvm.Commands
             return new MediatorCommand(request);
         }
 
-        public static MediatorCommand Create<T>(Action<T> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext? metadata)
+        public static MediatorCommand Create<T>(Action<T> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, 
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
             request.Set(MediatorCommandMetadata.Execute, execute);
@@ -229,8 +229,8 @@ namespace MugenMvvm.Commands
             return new MediatorCommandGeneric<T>(request);
         }
 
-        public static MediatorCommand CreateFromTask(Func<Task> execute, Func<bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext? metadata)
+        public static MediatorCommand CreateFromTask(Func<Task> execute, Func<bool>? canExecute, bool? allowMultipleExecution, 
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
             request.Set(MediatorCommandMetadata.Execute, execute);
@@ -243,8 +243,8 @@ namespace MugenMvvm.Commands
             return new MediatorCommand(request);
         }
 
-        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, IReadOnlyCollection<object>? notifiers,
-            IReadOnlyMetadataContext? metadata)
+        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, 
+            IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
             request.Set(MediatorCommandMetadata.Execute, execute);

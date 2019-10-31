@@ -22,7 +22,7 @@ namespace MugenMvvm.Views
 
         #region Properties
 
-        public bool HasMetadata => true;
+        public bool HasMetadata => Metadata.Count != 0;
 
         public IReadOnlyMetadataContext Metadata { get; }
 

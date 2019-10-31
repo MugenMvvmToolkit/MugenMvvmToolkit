@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Messaging.Components
 {
-    public class ViewModelMessengerSubscriberComponent : IMessengerSubscriberComponent, IHasPriority
+    public sealed class ViewModelMessengerSubscriberComponent : IMessengerSubscriberComponent, IHasPriority
     {
         #region Fields
 

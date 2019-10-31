@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -20,6 +21,11 @@ namespace MugenMvvm
 
         #region Methods
 
+        public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata)
+        {
+            return metadata == null || metadata.Count == 0;
+        }
+
         public static IReadOnlyMetadataContext GetMetadataOrDefault(this IMetadataOwner<IReadOnlyMetadataContext>? owner, IReadOnlyMetadataContext? defaultValue = null)
         {
             if (owner != null && owner.HasMetadata)
@@ -27,17 +33,59 @@ namespace MugenMvvm
             return defaultValue ?? Default.Metadata;
         }
 
-        public static bool LazyInitialize(this IMetadataContextProvider? metadataContextProvider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
-            object? target, IEnumerable<MetadataContextValue>? values = null)
+        public static void Aggregate(this IReadOnlyMetadataContext? metadata, ref IReadOnlyMetadataContext? currentMetadata)
         {
-            return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextProvider.ServiceIfNull().GetMetadataContext(target, values));
+            if (metadata.IsNullOrEmpty())
+                return;
+
+            if (currentMetadata == null)
+                currentMetadata = metadata;
+            else
+            {
+                if (!(currentMetadata is AggregatedMetadataContext aggregatedMetadata))
+                {
+                    aggregatedMetadata = new AggregatedMetadataContext(currentMetadata);
+                    currentMetadata = aggregatedMetadata;
+                }
+
+                aggregatedMetadata.Aggregate(metadata!);
+            }
+        }
+
+        public static IMetadataContext LazyInitializeNonReadonly(this IMetadataContextProvider? metadataContextProvider,
+            [EnsuresNotNull] ref IReadOnlyMetadataContext? metadataContext, object? target)
+        {
+            if (metadataContext is IMetadataContext m)
+                return m;
+            LazyInitialize(ref metadataContext, metadataContext.ToNonReadonly(target, metadataContextProvider));
+            return (IMetadataContext)metadataContext;
+        }
+
+        public static bool LazyInitialize(this IMetadataContextProvider? metadataContextProvider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
+            object? target, IReadOnlyCollection<MetadataContextValue>? values = null)
+        {
+            return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextProvider
+                       .ServiceIfNull()
+                       .GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values)));
         }
 
         public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             if (metadata is IMetadataContext m)
                 return m;
-            return metadataContextProvider.ServiceIfNull().GetMetadataContext(target, metadata);
+            return metadataContextProvider.ServiceIfNull().GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(metadata));
+        }
+
+        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextProvider metadataContextProvider, object? target = null, IReadOnlyCollection<MetadataContextValue>? values = null)
+        {
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            return metadataContextProvider.GetReadOnlyMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
+        }
+
+        public static IMetadataContext GetMetadataContext(this IMetadataContextProvider metadataContextProvider, object? target = null, IReadOnlyCollection<MetadataContextValue>? values = null)
+        {
+            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            return metadataContextProvider.GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
         }
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)

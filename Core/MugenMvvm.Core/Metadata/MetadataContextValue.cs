@@ -10,10 +10,10 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        internal static readonly Func<KeyValuePair<IMetadataContextKey, object?>, MetadataContextValue> CreateDelegate = Create;
-
         public readonly IMetadataContextKey ContextKey;
         public readonly object? Value;
+
+        internal static readonly Func<KeyValuePair<IMetadataContextKey, object?>, MetadataContextValue> CreateDelegate = Create;
 
         #endregion
 
@@ -29,6 +29,12 @@ namespace MugenMvvm.Metadata
             ContextKey = contextKey;
             Value = value;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsEmpty => ContextKey == null;
 
         #endregion
 

@@ -120,14 +120,14 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Properties
 
-            public bool HasMetadata => _metadata != null || _inputMetadata != null && _inputMetadata.Count != 0;
+            public bool HasMetadata => !(_metadata ?? _inputMetadata).IsNullOrEmpty();
 
             public IMetadataContext Metadata
             {
                 get
                 {
                     if (_metadata == null)
-                        Interlocked.CompareExchange(ref _metadata, _inputMetadata.ToNonReadonly(this, _compiler._metadataContextProvider), null);
+                        _compiler._metadataContextProvider.LazyInitialize(ref _metadata, this, _inputMetadata);
                     return _metadata!;
                 }
             }
@@ -285,8 +285,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                     if (_metadata != null)
                     {
                         _metadata.Clear();
-                        if (_inputMetadata != null && _inputMetadata.Count != 0)
-                            _metadata.Merge(_inputMetadata);
+                        if (!_inputMetadata.IsNullOrEmpty())
+                            _metadata.Merge(_inputMetadata!);
                     }
                 }
             }

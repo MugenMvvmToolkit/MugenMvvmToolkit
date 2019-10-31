@@ -28,6 +28,7 @@ namespace MugenMvvm.Validation
         private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
         private PropertyChangedEventHandler? _weakPropertyHandler;
+        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         private const int DisposedState = 1;
 
@@ -40,7 +41,7 @@ namespace MugenMvvm.Validation
             : base(componentCollectionProvider)
         {
             _metadata = metadata;
-            MetadataContextProvider = metadataContextProvider;
+            _metadataContextProvider = metadataContextProvider;
             ValidateOnPropertyChanged = true;
             HasAsyncValidation = hasAsyncValidation;
             Errors = new Dictionary<string, IReadOnlyList<object>>(StringComparer.Ordinal);
@@ -52,16 +53,16 @@ namespace MugenMvvm.Validation
 
         #region Properties
 
-        protected IMetadataContextProvider? MetadataContextProvider { get; }
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
 
-        public bool HasMetadata => _metadata != null;
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
         public IMetadataContext Metadata
         {
             get
             {
                 if (_metadata == null)
-                    MetadataContextProvider.LazyInitialize(ref _metadata, this);
+                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
                 return _metadata!;
             }
         }

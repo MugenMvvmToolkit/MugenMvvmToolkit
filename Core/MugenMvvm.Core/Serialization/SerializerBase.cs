@@ -246,7 +246,7 @@ namespace MugenMvvm.Serialization
 
             #region Properties
 
-            public bool HasMetadata => _metadata != null && _metadata.Count != 0;
+            public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
             public IMetadataContext Metadata
             {
@@ -254,9 +254,7 @@ namespace MugenMvvm.Serialization
                 {
                     if (_metadata is IMetadataContext ctx)
                         return ctx;
-
-                    Interlocked.CompareExchange(ref _metadata, _metadata.ToNonReadonly(this, _serializer._metadataContextProvider), null);
-                    return (IMetadataContext)_metadata!;
+                    return _serializer._metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
                 }
             }
 

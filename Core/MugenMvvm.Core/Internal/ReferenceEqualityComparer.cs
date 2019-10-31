@@ -8,7 +8,7 @@ namespace MugenMvvm.Internal
 {
     [Serializable]
     [DataContract(Namespace = BuildConstants.DataContractNamespace)]
-    public class ReferenceEqualityComparer : IEqualityComparer<object>
+    public sealed class ReferenceEqualityComparer : IEqualityComparer<object>
     {
         #region Fields
 

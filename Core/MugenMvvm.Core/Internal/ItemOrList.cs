@@ -1,11 +1,13 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ItemOrList<TItem, TList>
-        where TList : class, IReadOnlyList<TItem>
+        where TList : class, IReadOnlyCollection<TItem>
     {
         #region Fields
 
@@ -16,14 +18,22 @@ namespace MugenMvvm.Internal
 
         #region Constructors
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList(TItem item)
         {
             Item = item;
             List = null;
         }
 
-        public ItemOrList(TList list)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ItemOrList(TList? list)
         {
+            if (list == null)
+            {
+                List = default;
+                Item = default!;
+                return;
+            }
             var count = list.Count;
             if (count == 0)
             {
@@ -33,7 +43,7 @@ namespace MugenMvvm.Internal
             else if (count == 1)
             {
                 List = default;
-                Item = list[0];
+                Item = list.First();
             }
             else
             {
@@ -46,6 +56,7 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList<TItem, TNewList> Cast<TNewList>() where TNewList : class, IReadOnlyList<TItem>
         {
             if (List == null)
@@ -53,11 +64,13 @@ namespace MugenMvvm.Internal
             return new ItemOrList<TItem, TNewList>((TNewList)(object)List);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrList<TItem, TList>(TItem item)
         {
             return new ItemOrList<TItem, TList>(item);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static implicit operator ItemOrList<TItem, TList>(TList items)
         {
             return new ItemOrList<TItem, TList>(items);
