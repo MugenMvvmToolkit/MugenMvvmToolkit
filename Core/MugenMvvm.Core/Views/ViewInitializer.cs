@@ -21,7 +21,7 @@ namespace MugenMvvm.Views
 
         #region Constructors
 
-        public ViewInitializer(IThreadDispatcher? threadDispatcher, IViewManager? viewManager, IMetadataContextProvider? metadataContextProvider,
+        public ViewInitializer(IViewManager? viewManager, IThreadDispatcher? threadDispatcher, IMetadataContextProvider? metadataContextProvider,
             ThreadExecutionMode initializeExecutionMode, ThreadExecutionMode cleanupExecutionMode, string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(initializeExecutionMode, nameof(initializeExecutionMode));

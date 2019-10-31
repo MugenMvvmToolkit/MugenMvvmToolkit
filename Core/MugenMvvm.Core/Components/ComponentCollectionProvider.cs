@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public class ComponentCollectionProvider : IComponentCollectionProvider
+    public sealed class ComponentCollectionProvider : IComponentCollectionProvider
     {
         #region Fields
 
@@ -43,11 +43,9 @@ namespace MugenMvvm.Components
         {
             Should.NotBeNull(owner, nameof(owner));
             var result = GetComponentCollectionInternal<T>(owner, metadata);
-
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IComponentCollectionProviderComponent).Name);
-
-            OnComponentCollectionCreated(result!, metadata);
+            var components = this.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IComponentCollectionProviderListener)?.OnComponentCollectionCreated(this, result, metadata);
 
             return result!;
         }
@@ -56,7 +54,7 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected virtual IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext? metadata) where T : class
+        private IComponentCollection<T>? GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (!ReferenceEquals(owner, this))
             {
@@ -70,14 +68,6 @@ namespace MugenMvvm.Components
             }
 
             return new ComponentCollection<T>(owner);
-        }
-
-        protected virtual void OnComponentCollectionCreated<T>(IComponentCollection<T> result, IReadOnlyMetadataContext? metadata)
-            where T : class
-        {
-            var components = this.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as IComponentCollectionProviderListener)?.OnComponentCollectionCreated(this, result, metadata);
         }
 
         #endregion

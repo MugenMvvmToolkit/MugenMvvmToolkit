@@ -63,7 +63,7 @@ namespace MugenMvvm.Views.Components
                     var viewModelType = mapping.GetViewModelType(view, metadata);
                     if (viewModelType != null)
                     {
-                        initializers.Add(new ViewInitializer(_threadDispatcher, Owner, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
+                        initializers.Add(new ViewInitializer(Owner, _threadDispatcher, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
                               view.GetType(), viewModelType, mapping.Metadata));
                     }
                 }
@@ -84,7 +84,7 @@ namespace MugenMvvm.Views.Components
                     var viewType = mapping.GetViewType(viewModel, metadata);
                     if (viewType != null)
                     {
-                        initializers.Add(new ViewInitializer(_threadDispatcher, Owner, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
+                        initializers.Add(new ViewInitializer(Owner, _threadDispatcher, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
                             viewType, viewModel.GetType(), mapping.Metadata));
                     }
                 }
