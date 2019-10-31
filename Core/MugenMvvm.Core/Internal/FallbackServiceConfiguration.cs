@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.IoC;
+﻿using System;
+using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Internal
 {
@@ -7,13 +7,13 @@ namespace MugenMvvm.Internal
     {
         #region Fields
 
-        private readonly IIocContainer _container;
+        private readonly IServiceProvider _container;
 
         #endregion
 
         #region Constructors
 
-        public FallbackServiceConfiguration(IIocContainer container)
+        public FallbackServiceConfiguration(IServiceProvider container)
         {
             Should.NotBeNull(container, nameof(container));
             _container = container;
@@ -25,13 +25,13 @@ namespace MugenMvvm.Internal
 
         public TService Instance<TService>() where TService : class
         {
-            return (TService) _container.Get(typeof(TService));
+            return _container.GetService<TService>();
         }
 
         public TService? InstanceOptional<TService>() where TService : class
         {
-            if (_container.TryGet(typeof(TService), out var service))
-                return (TService?) service;
+            if (_container.TryGetService<TService>(out var service))
+                return service;
             return null;
         }
 
