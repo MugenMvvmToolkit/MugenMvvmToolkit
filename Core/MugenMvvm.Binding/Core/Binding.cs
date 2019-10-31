@@ -206,8 +206,7 @@ namespace MugenMvvm.Binding.Core
             if (State == BindingState.Disposed)
                 return false;
 
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
-            if (!defaultListener.OnAdding(this, component, metadata))
+            if (!MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
                 return false;
 
             if (_components == null)
@@ -225,7 +224,7 @@ namespace MugenMvvm.Binding.Core
             }
 
             OnComponentAdded(component);
-            defaultListener.OnAdded(this, component, metadata);
+            MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
             return true;
         }
 
@@ -235,18 +234,16 @@ namespace MugenMvvm.Binding.Core
             if (State == BindingState.Disposed)
                 return false;
 
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
-            if (!defaultListener.OnRemoving(this, component, metadata) || !RemoveComponent(component))
+            if (!MugenExtensions.OnRemovingDefaultHandler(this, component, metadata) || !RemoveComponent(component))
                 return false;
 
             OnComponentRemoved(component);
-            defaultListener.OnRemoved(this, component, metadata);
+            MugenExtensions.OnRemovedDefaultHandler(this, component, metadata);
             return true;
         }
 
         bool IComponentCollection<IComponent<IBinding>>.Clear(IReadOnlyMetadataContext? metadata)
         {
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
             var components = _components;
             _components = null;
             var isValid = State != BindingState.Disposed;
@@ -257,7 +254,7 @@ namespace MugenMvvm.Binding.Core
                     var component = array[i];
                     if (isValid)
                         OnComponentRemoved(component);
-                    defaultListener.OnRemoved(this, component, metadata);
+                    MugenExtensions.OnRemovedDefaultHandler(this, component, metadata);
                 }
             }
             else
@@ -267,7 +264,7 @@ namespace MugenMvvm.Binding.Core
                 {
                     if (isValid)
                         OnComponentRemoved(component);
-                    defaultListener.OnRemoved(this, component, metadata);
+                    MugenExtensions.OnRemovedDefaultHandler(this, component, metadata);
                 }
             }
             return true;
@@ -410,14 +407,13 @@ namespace MugenMvvm.Binding.Core
                 return;
             }
 
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<IComponent<IBinding>>();
             if (list == null || list.Length == 1)
             {
                 var component = item ?? list![0];
-                if (defaultListener.OnAdding(this, component, metadata))
+                if (MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
                 {
                     OnComponentAdded(component);
-                    defaultListener.OnAdded(this, component, metadata);
+                    MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
                     _components = component;
                 }
             }
@@ -427,11 +423,11 @@ namespace MugenMvvm.Binding.Core
                 for (var i = 0; i < list.Length; i++)
                 {
                     var component = list[i];
-                    if (!defaultListener.OnAdding(this, component, metadata))
+                    if (!MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
                         continue;
 
                     OnComponentAdded(component);
-                    defaultListener.OnAdded(this, component, metadata);
+                    MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
                     list[currentLength++] = list[i];
                 }
 

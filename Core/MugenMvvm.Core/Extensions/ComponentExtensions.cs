@@ -120,6 +120,42 @@ namespace MugenMvvm
                 currentComponent = null;
         }
 
+        public static void OnAddedDefaultHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            if (component is IAttachableComponent attachable)
+                attachable.OnAttached(collection.Owner, metadata);
+
+            (collection.Owner as IComponentOwnerAddedCallback<T>)?.OnComponentAdded(collection, component, metadata);
+        }
+
+        public static void OnRemovedDefaultHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            if (component is IDetachableComponent detachable)
+                detachable.OnDetached(collection.Owner, metadata);
+
+            (collection.Owner as IComponentOwnerRemovedCallback<T>)?.OnComponentRemoved(collection, component, metadata);
+        }
+
+        public static bool OnAddingDefaultHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            if (collection.Owner is IComponentOwnerAddingCallback<T> callback && !callback.OnComponentAdding(collection, component, metadata))
+                return false;
+
+            if (component is IAttachableComponent attachable)
+                return attachable.OnAttaching(collection.Owner, metadata);
+            return true;
+        }
+
+        public static bool OnRemovingDefaultHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        {
+            if (collection.Owner is IComponentOwnerRemovingCallback<T> callback && !callback.OnComponentRemoving(collection, component, metadata))
+                return false;
+
+            if (component is IDetachableComponent detachable)
+                return detachable.OnDetaching(collection.Owner, metadata);
+            return true;
+        }
+
         #endregion
     }
 }

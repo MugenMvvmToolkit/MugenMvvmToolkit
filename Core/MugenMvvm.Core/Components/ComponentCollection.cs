@@ -60,8 +60,7 @@ namespace MugenMvvm.Components
         public bool Add(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
-            if (!defaultListener.OnAdding(this, component, metadata))
+            if (!MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
                 return false;
 
             var components = this.GetComponents();
@@ -79,15 +78,14 @@ namespace MugenMvvm.Components
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionChangedListener<T>)?.OnAdded(this, component, metadata);
-            defaultListener.OnAdded(this, component, metadata);
+            MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
             return true;
         }
 
         public bool Remove(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
-            if (!defaultListener.OnRemoving(this, component, metadata))
+            if (!MugenExtensions.OnRemovingDefaultHandler(this, component, metadata))
                 return false;
 
             var components = this.GetComponents();
@@ -106,15 +104,13 @@ namespace MugenMvvm.Components
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionChangedListener<T>)?.OnRemoved(this, component, metadata);
-            defaultListener.OnRemoved(this, component, metadata);
+            MugenExtensions.OnRemovedDefaultHandler(this, component, metadata);
             return true;
         }
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            var defaultListener = CallbackInvokerComponentCollectionComponent.GetComponentCollectionListener<T>();
             var components = this.GetComponents();
-
             var oldItems = GetItems();
             lock (_items)
             {
@@ -127,7 +123,7 @@ namespace MugenMvvm.Components
                 var oldItem = oldItems[i];
                 for (var j = 0; j < components.Length; j++)
                     (components[j] as IComponentCollectionChangedListener<T>)?.OnRemoved(this, oldItem, metadata);
-                defaultListener.OnRemoved(this, oldItem, metadata);
+                MugenExtensions.OnRemovedDefaultHandler(this, oldItem, metadata);
             }
 
             return true;
