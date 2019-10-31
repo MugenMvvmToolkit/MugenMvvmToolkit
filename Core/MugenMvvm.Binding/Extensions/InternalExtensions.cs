@@ -116,7 +116,7 @@ namespace MugenMvvm.Binding
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, castType);
+                result[i] = s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, castType!);
             }
 
             return result;

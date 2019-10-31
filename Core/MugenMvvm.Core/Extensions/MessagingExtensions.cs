@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Reflection;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Messaging;
@@ -23,16 +26,20 @@ namespace MugenMvvm
             where TTarget : class
         {
             Should.NotBeNull(messenger, nameof(messenger));
-            var subscriber = new WeakDelegateMessengerSubscriber<TTarget, TMessage>(target, action);
+            var subscriber = new WeakDelegateMessengerSubscriber<TTarget, TMessage>(target.ToWeakReference(), action);
             messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }
 
         public static MessengerHandlerComponent.IMessengerSubscriber SubscribeWeak<TMessage>(this IMessenger messenger, Action<TMessage, IMessageContext> action,
-            ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+            ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             Should.NotBeNull(messenger, nameof(messenger));
-            var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action);
+            Should.NotBeNull(action, nameof(action));
+            Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
+            Should.BeSupported(!action.Target!.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
+            var methodInvoker = action.GetMethodInfo().GetMethodInvoker<Action<object, TMessage, IMessageContext>>(reflectionDelegateProvider);
+            var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action.Target.ToWeakReference(), methodInvoker);
             messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }
@@ -47,22 +54,22 @@ namespace MugenMvvm
         }
 
         public static MessengerHandlerComponent.IMessengerSubscriber Subscribe(this IMessenger messenger, IMessengerHandler handler,
-            ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+            ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return messenger.Subscribe(handler, false, executionMode, metadata);
+            return messenger.Subscribe(handler, false, executionMode, metadata, reflectionDelegateProvider);
         }
 
         public static MessengerHandlerComponent.IMessengerSubscriber SubscribeWeak(this IMessenger messenger, IMessengerHandler handler,
-            ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+            ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return messenger.Subscribe(handler, true, executionMode, metadata);
+            return messenger.Subscribe(handler, true, executionMode, metadata, reflectionDelegateProvider);
         }
 
         private static MessengerHandlerComponent.IMessengerSubscriber Subscribe(this IMessenger messenger, IMessengerHandler handler, bool isWeak,
-            ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+            ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(messenger, nameof(messenger));
-            var subscriber = new MessengerHandlerSubscriber(handler, isWeak);
+            var subscriber = new MessengerHandlerSubscriber(handler, isWeak, reflectionDelegateProvider);
             messenger.Subscribe(subscriber, executionMode, metadata);
             return subscriber;
         }

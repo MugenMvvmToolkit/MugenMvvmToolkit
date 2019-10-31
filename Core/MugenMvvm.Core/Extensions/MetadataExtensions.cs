@@ -27,17 +27,17 @@ namespace MugenMvvm
             return defaultValue ?? Default.Metadata;
         }
 
-        public static bool LazyInitialize(this IMetadataContextProvider? provider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
+        public static bool LazyInitialize(this IMetadataContextProvider? metadataContextProvider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
             object? target, IEnumerable<MetadataContextValue>? values = null)
         {
-            return metadataContext == null && LazyInitialize(ref metadataContext, GetMetadataContext(target, values, provider));
+            return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextProvider.ServiceIfNull().GetMetadataContext(target, values));
         }
 
-        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? contextProvider = null)
+        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             if (metadata is IMetadataContext m)
                 return m;
-            return contextProvider.ServiceIfNull().GetMetadataContext(target, metadata);
+            return metadataContextProvider.ServiceIfNull().GetMetadataContext(target, metadata);
         }
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)
@@ -87,28 +87,6 @@ namespace MugenMvvm
             if (_notNullValidateAction == null)
                 _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
             return builder.WithValidation(_notNullValidateAction!);
-        }
-
-        public static IReadOnlyMetadataContext ToReadOnlyMetadataContext(this IEnumerable<MetadataContextValue>? values, object? target = null,
-            IMetadataContextProvider? provider = null)
-        {
-            return GetReadOnlyMetadataContext(target, values, provider);
-        }
-
-        public static IMetadataContext ToMetadataContext(this IEnumerable<MetadataContextValue>? values, object? target = null, IMetadataContextProvider? provider = null)
-        {
-            return GetMetadataContext(target, values, provider);
-        }
-
-        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target, IEnumerable<MetadataContextValue>? values = null,
-            IMetadataContextProvider? provider = null)
-        {
-            return provider.ServiceIfNull().GetReadOnlyMetadataContext(target, values);
-        }
-
-        public static IMetadataContext GetMetadataContext(object? target, IEnumerable<MetadataContextValue>? values = null, IMetadataContextProvider? provider = null)
-        {
-            return provider.ServiceIfNull().GetMetadataContext(target, values);
         }
 
         public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext

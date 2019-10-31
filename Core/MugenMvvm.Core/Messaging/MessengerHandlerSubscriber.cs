@@ -16,6 +16,7 @@ namespace MugenMvvm.Messaging
         private readonly Type _handlerType;
         private readonly int _hashCode;
         private readonly bool _isWeak;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly object _target;
 
         private static readonly CacheDictionary Cache = new CacheDictionary();
@@ -24,10 +25,11 @@ namespace MugenMvvm.Messaging
 
         #region Constructors
 
-        public MessengerHandlerSubscriber(IMessengerHandler handler, bool isWeak)
+        public MessengerHandlerSubscriber(IMessengerHandler handler, bool isWeak, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(handler, nameof(handler));
             _isWeak = isWeak;
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             _target = isWeak ? (object)handler.ToWeakReference() : handler;
             _hashCode = handler.GetHashCode();
             _handlerType = handler.GetType();
@@ -53,7 +55,7 @@ namespace MugenMvvm.Messaging
 
         public bool CanHandle(IMessageContext messageContext)
         {
-            return GetHandlers(_handlerType, messageContext.Message) != null;
+            return GetHandlers(_reflectionDelegateProvider, _handlerType, messageContext.Message) != null;
         }
 
         public MessengerResult Handle(IMessageContext messageContext)
@@ -62,7 +64,7 @@ namespace MugenMvvm.Messaging
             if (target == null)
                 return MessengerResult.Invalid;
 
-            var handlers = GetHandlers(_handlerType, messageContext.Message);
+            var handlers = GetHandlers(_reflectionDelegateProvider, _handlerType, messageContext.Message);
             if (handlers == null)
                 return MessengerResult.Ignored;
 
@@ -95,7 +97,7 @@ namespace MugenMvvm.Messaging
             return _hashCode;
         }
 
-        private static List<Func<object?, object?[], object?>>? GetHandlers(Type handlerType, object message)
+        private static List<Func<object?, object?[], object?>>? GetHandlers(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, object message)
         {
             var key = new CacheKey(handlerType, message.GetType());
             lock (Cache)
@@ -113,7 +115,7 @@ namespace MugenMvvm.Messaging
                         {
                             if (items == null)
                                 items = new List<Func<object?, object?[], object?>>(2);
-                            items.Add(method.GetMethodInvoker());
+                            items.Add(method.GetMethodInvoker(reflectionDelegateProvider));
                         }
                     }
 

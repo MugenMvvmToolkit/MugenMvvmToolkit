@@ -20,21 +20,12 @@ namespace MugenMvvm.Messaging
 
         #region Constructors
 
-        public WeakDelegateMessengerSubscriber(TTarget target, Action<TTarget, TMessage, IMessageContext> action)
+        public WeakDelegateMessengerSubscriber(IWeakReference reference, Action<TTarget, TMessage, IMessageContext> action)
         {
-            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(reference, nameof(reference));
             Should.NotBeNull(action, nameof(action));
-            _reference = target.ToWeakReference();
+            _reference = reference;
             _action = action;
-        }
-
-        public WeakDelegateMessengerSubscriber(Action<TMessage, IMessageContext> action)
-        {
-            Should.NotBeNull(action, nameof(action));
-            Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
-            Should.BeSupported(!action.Target!.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
-            _reference = action.Target.ToWeakReference();
-            _action = action.GetMethodInfo().GetMethodInvoker<Action<TTarget, TMessage, IMessageContext>>();
         }
 
         #endregion
@@ -48,7 +39,7 @@ namespace MugenMvvm.Messaging
 
         public MessengerResult Handle(IMessageContext messageContext)
         {
-            var target = (TTarget?) _reference.Target;
+            var target = (TTarget?)_reference.Target;
             if (target == null)
                 return MessengerResult.Invalid;
 

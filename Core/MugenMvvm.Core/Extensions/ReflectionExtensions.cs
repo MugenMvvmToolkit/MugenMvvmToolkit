@@ -84,15 +84,15 @@ namespace MugenMvvm
                 _createPropertyChangedHandlerDelegate = CreateHandler;
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
-        //todo review usage with provider
-        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? provider = null)
+        
+        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return provider.ServiceIfNull().CanCreateDelegate(delegateType, method);
+            return reflectionDelegateProvider.ServiceIfNull().CanCreateDelegate(delegateType, method);
         }
 
-        public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionDelegateProvider? provider = null)
+        public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return provider.ServiceIfNull().TryCreateDelegate(delegateType, target, method);
+            return reflectionDelegateProvider.ServiceIfNull().TryCreateDelegate(delegateType, target, method);
         }
 
         public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)

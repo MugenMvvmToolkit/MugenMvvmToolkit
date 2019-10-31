@@ -4,6 +4,7 @@ using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -12,9 +13,11 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority//todo review delegate type, review sealed, input parameters usage (protected vs private)
+    public sealed class ViewAwareInitializerComponent : IViewManagerListener, IHasPriority //todo review delegate type, review sealed, input parameters usage (protected vs private)
     {
         #region Fields
+
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateView), BindingFlagsEx.StaticOnly);
         private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewAwareInitializerComponent).GetMethodOrThrow(nameof(UpdateViewModel), BindingFlagsEx.StaticOnly);
@@ -27,8 +30,9 @@ namespace MugenMvvm.Views.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewAwareInitializerComponent()
+        public ViewAwareInitializerComponent(IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
+            _reflectionDelegateProvider = reflectionDelegateProvider;
         }
 
         #endregion
@@ -51,12 +55,12 @@ namespace MugenMvvm.Views.Components
 
         public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, BoxingExtensions.FalseObject }); //todo initialize wrappers
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] {viewModel, viewInfo, metadata, BoxingExtensions.FalseObject}); //todo initialize wrappers
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, BoxingExtensions.TrueObject }); //todo initialize wrappers
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] {viewModel, viewInfo, metadata, BoxingExtensions.TrueObject}); //todo initialize wrappers
         }
 
         #endregion
@@ -72,14 +76,16 @@ namespace MugenMvvm.Views.Components
                 var viewType = view.GetType();
                 if (!TypeToInitializeDelegate.TryGetValue(viewType, out viewFunc))
                 {
-                    viewFunc = GetDelegate(viewType, typeof(IViewModelAwareView<>), nameof(IViewModelAwareView<IViewModelBase>.ViewModel), UpdateViewModelMethodInfo);
+                    viewFunc = GetDelegate(_reflectionDelegateProvider, viewType, typeof(IViewModelAwareView<>), nameof(IViewModelAwareView<IViewModelBase>.ViewModel),
+                        UpdateViewModelMethodInfo);
                     TypeToInitializeDelegate[viewType] = viewFunc;
                 }
 
                 var viewModelType = viewModel.GetType();
                 if (!TypeToInitializeDelegate.TryGetValue(viewModelType, out viewModelFunc))
                 {
-                    viewModelFunc = GetDelegate(viewType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View), UpdateViewMethodInfo);
+                    viewModelFunc = GetDelegate(_reflectionDelegateProvider, viewType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View),
+                        UpdateViewMethodInfo);
                     TypeToInitializeDelegate[viewModelType] = viewModelFunc;
                 }
             }
@@ -122,7 +128,8 @@ namespace MugenMvvm.Views.Components
                 awareView.ViewModel = vm;
         }
 
-        private static Func<object?, object?[], object?>? GetDelegate(Type targetType, Type interfaceType, string propertyName, MethodInfo method)
+        private static Func<object?, object?[], object?>? GetDelegate(IReflectionDelegateProvider? reflectionDelegateProvider, Type targetType, Type interfaceType,
+            string propertyName, MethodInfo method)
         {
             Func<object?, object?[], object?>? result = null;
             foreach (var @interface in targetType.GetInterfaces().Where(type => type.IsGenericType))
@@ -132,7 +139,7 @@ namespace MugenMvvm.Views.Components
                 var propertyInfo = @interface.GetProperty(propertyName, BindingFlagsEx.InstancePublic);
                 if (propertyInfo == null)
                     continue;
-                var methodInvoker = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodInvoker();
+                var methodInvoker = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodInvoker(reflectionDelegateProvider);
                 if (result == null)
                     result = methodInvoker;
                 else

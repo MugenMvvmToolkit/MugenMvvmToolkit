@@ -5,7 +5,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
@@ -16,6 +16,7 @@ namespace MugenMvvm.Binding.Members
 
         private readonly MethodInfo _method;
         private readonly IObserverProvider? _observerProvider;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly IBindingParameterInfo[] _parameters;
         private readonly Type _reflectedType;
         private Func<object?, object?[], object?> _invoker;
@@ -26,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public BindingMethodInfo(string name, MethodInfo method, Type reflectedType, IObserverProvider? observerProvider)
+        public BindingMethodInfo(string name, MethodInfo method, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(method, nameof(method));
@@ -34,6 +35,7 @@ namespace MugenMvvm.Binding.Members
             _method = method;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             _invoker = CompileMethod;
             Name = name;
             Type = method.ReturnType;
@@ -95,7 +97,7 @@ namespace MugenMvvm.Binding.Members
 
         public IBindingMethodInfo MakeGenericMethod(Type[] types)
         {
-            return new BindingMethodInfo(Name, _method.MakeGenericMethod(types), _reflectedType, _observerProvider);
+            return new BindingMethodInfo(Name, _method.MakeGenericMethod(types), _reflectedType, _observerProvider, _reflectionDelegateProvider);
         }
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
@@ -109,7 +111,7 @@ namespace MugenMvvm.Binding.Members
 
         private object? CompileMethod(object? target, object?[] args)
         {
-            _invoker = _method.GetMethodInvoker();
+            _invoker = _method.GetMethodInvoker(_reflectionDelegateProvider);
             return _invoker(target, args);
         }
 

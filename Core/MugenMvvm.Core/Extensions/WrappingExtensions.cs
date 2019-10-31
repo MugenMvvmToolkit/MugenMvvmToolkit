@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
@@ -26,7 +27,8 @@ namespace MugenMvvm
         }
 
         public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null)
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null, 
+            IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
@@ -38,11 +40,11 @@ namespace MugenMvvm
             {
                 var constructor = implementation
                     .GetConstructors(BindingFlagsEx.InstanceOnly)
-                    .FirstOrDefault();
+                    .FirstOrDefault()
+                    ?.GetActivator(reflectionDelegateProvider);
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(implementation);
-
-                wrapperFactory = (manager, o, arg3, arg4) => constructor!.InvokeEx(o);
+                wrapperFactory = (manager, o, arg3, arg4) => constructor!.Invoke(new[] { o });
             }
 
             return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType == arg3, wrapperFactory);//todo closure check
@@ -97,11 +99,11 @@ namespace MugenMvvm
             return wrapperType.IsInstanceOfType(viewInfo.View) || wrapperManager.ServiceIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
         }
 
-        public static IComponentCollection<object> GetOrAddWrappersCollection(this IViewInfo viewInfo, IComponentCollectionProvider? provider = null)
+        public static IComponentCollection<object> GetOrAddWrappersCollection(this IViewInfo viewInfo, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             return viewInfo
                 .Metadata
-                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, provider, (context, v, p) => p.ServiceIfNull().GetComponentCollection<object>(v, context))!;
+                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, componentCollectionProvider, (context, v, p) => p.ServiceIfNull().GetComponentCollection<object>(v, context))!;
         }
 
         private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)

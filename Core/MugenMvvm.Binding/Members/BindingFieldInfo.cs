@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
@@ -16,6 +17,7 @@ namespace MugenMvvm.Binding.Members
         private readonly FieldInfo _fieldInfo;
         private readonly Type _reflectedType;
         private readonly IObserverProvider? _observerProvider;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private MemberObserver? _observer;
         private Func<object?, object?> _getterFunc;
@@ -25,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public BindingFieldInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider)
+        public BindingFieldInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(fieldInfo, nameof(fieldInfo));
@@ -33,6 +35,7 @@ namespace MugenMvvm.Binding.Members
             _fieldInfo = fieldInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             Name = name;
             Type = _fieldInfo.FieldType;
             _getterFunc = CompileGetter;
@@ -88,13 +91,13 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
-            _setterFunc = _fieldInfo.GetMemberSetter<object?>();
+            _setterFunc = _fieldInfo.GetMemberSetter<object?>(_reflectionDelegateProvider);
             _setterFunc(arg1, arg2);
         }
 
         private object? CompileGetter(object? arg)
         {
-            _getterFunc = _fieldInfo.GetMemberGetter<object?>();
+            _getterFunc = _fieldInfo.GetMemberGetter<object?>(_reflectionDelegateProvider);
             return _getterFunc(arg);
         }
 

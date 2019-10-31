@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
@@ -14,6 +15,7 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly IObserverProvider? _observerProvider;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
@@ -26,7 +28,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public BindingPropertyInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObserverProvider? observerProvider)
+        public BindingPropertyInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
@@ -34,6 +36,7 @@ namespace MugenMvvm.Binding.Members
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             Name = name;
             Type = _propertyInfo.PropertyType;
 
@@ -120,13 +123,13 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
-            _setterFunc = _propertyInfo.GetMemberSetter<object?>();
+            _setterFunc = _propertyInfo.GetMemberSetter<object?>(_reflectionDelegateProvider);
             _setterFunc(arg1, arg2);
         }
 
         private object? CompileGetter(object? arg)
         {
-            _getterFunc = _propertyInfo.GetMemberGetter<object>();
+            _getterFunc = _propertyInfo.GetMemberGetter<object>(_reflectionDelegateProvider);
             return _getterFunc(arg);
         }
 

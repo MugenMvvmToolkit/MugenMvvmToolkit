@@ -60,11 +60,11 @@ namespace MugenMvvm
             return null;
         }
 
-        public static bool LazyInitialize<T>(this IComponentCollectionProvider? provider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
+        public static bool LazyInitialize<T>(this IComponentCollectionProvider? componentCollectionProvider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
             IReadOnlyMetadataContext? metadata = null)
             where T : class
         {
-            return item == null && LazyInitialize(ref item, provider.ServiceIfNull().GetComponentCollection<T>(target, metadata));
+            return item == null && LazyInitialize(ref item, componentCollectionProvider.ServiceIfNull().GetComponentCollection<T>(target, metadata));
         }
 
         public static int GetComponentPriority(object component, object? owner)

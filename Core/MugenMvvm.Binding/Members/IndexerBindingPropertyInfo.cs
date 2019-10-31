@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
@@ -18,6 +19,7 @@ namespace MugenMvvm.Binding.Members
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
         private readonly IObserverProvider? _observerProvider;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private MemberObserver? _observer;
         private Func<object?, object?[], object?> _getterIndexerFunc;
@@ -28,7 +30,8 @@ namespace MugenMvvm.Binding.Members
         #region Constructors
 
         public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo,
-            ParameterInfo[] indexParameters, string[] indexerValues, Type reflectedType, IObserverProvider? observerProvider)
+            ParameterInfo[] indexParameters, string[] indexerValues, Type reflectedType,
+            IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
@@ -38,6 +41,7 @@ namespace MugenMvvm.Binding.Members
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             Name = name;
             Type = _propertyInfo.PropertyType;
             _indexerValues = BindingMugenExtensions.GetIndexerValues(indexerValues!, indexParameters);
@@ -129,13 +133,13 @@ namespace MugenMvvm.Binding.Members
 
         private object? CompileIndexerSetter(object? arg1, object?[] arg2)
         {
-            _setterIndexerFunc = _propertyInfo.GetSetMethod(true)!.GetMethodInvoker();
+            _setterIndexerFunc = _propertyInfo.GetSetMethod(true)!.GetMethodInvoker(_reflectionDelegateProvider);
             return _setterIndexerFunc(arg1, arg2);
         }
 
         private object? CompileIndexerGetter(object? arg, object?[] values)
         {
-            _getterIndexerFunc = _propertyInfo.GetGetMethod(true)!.GetMethodInvoker();
+            _getterIndexerFunc = _propertyInfo.GetGetMethod(true)!.GetMethodInvoker(_reflectionDelegateProvider);
             return _getterIndexerFunc(arg, values);
         }
 

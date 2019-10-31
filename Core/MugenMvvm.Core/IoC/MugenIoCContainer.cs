@@ -9,6 +9,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
@@ -20,6 +21,7 @@ namespace MugenMvvm.IoC
         #region Fields
 
         private readonly BindingDictionary _bindingRegistrations;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private BindingDictionary? _bindingRegistrationsReadonly;
         private bool _hasConditionBinding;
 
@@ -29,14 +31,15 @@ namespace MugenMvvm.IoC
 
         #region Constructors
 
-        public MugenIocContainer()
-            : this(null)
+        public MugenIocContainer(IReflectionDelegateProvider? reflectionDelegateProvider = null)
+            : this(null, reflectionDelegateProvider)
         {
         }
 
-        private MugenIocContainer(MugenIocContainer? parent)
+        private MugenIocContainer(MugenIocContainer? parent, IReflectionDelegateProvider? reflectionDelegateProvider)
             : base(parent)
         {
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             _bindingRegistrations = new BindingDictionary();
             _bindingRegistrationsReadonly = _bindingRegistrations;
             IsLockFreeRead = true;
@@ -69,7 +72,7 @@ namespace MugenMvvm.IoC
 
         protected override MugenIocContainer CreateChildInternal(IReadOnlyMetadataContext? metadata)
         {
-            return new MugenIocContainer(this)
+            return new MugenIocContainer(this, _reflectionDelegateProvider)
             {
                 IsLockFreeRead = IsLockFreeRead
             };
@@ -167,6 +170,7 @@ namespace MugenMvvm.IoC
                     ExceptionManager.ThrowEnumOutOfRange(nameof(lifecycle), lifecycle);
                     binding = null!;
                 }
+
                 if (binding.HasCondition)
                     _hasConditionBinding = true;
                 _bindingRegistrationsReadonly = null;
@@ -246,7 +250,7 @@ namespace MugenMvvm.IoC
             if (service.IsArray)
             {
                 var elementType = service.ElementType;
-                value = service.ConvertToArray(GetAllImpl(elementType.Type, elementType, parameterInfo, metadata));
+                value = service.ConvertToArray(_reflectionDelegateProvider, GetAllImpl(elementType.Type, elementType, parameterInfo, metadata));
                 return true;
             }
 
@@ -262,7 +266,7 @@ namespace MugenMvvm.IoC
                     return true;
             }
 
-            var itemType = service.TryGetCollectionItemType();
+            var itemType = service.TryGetCollectionItemType(_reflectionDelegateProvider);
             if (itemType != null)
             {
                 value = service.ConvertToCollection(GetAllImpl(itemType.Type, itemType, parameterInfo, metadata));
@@ -566,7 +570,8 @@ namespace MugenMvvm.IoC
                 return result;
             }
 
-            private object? ResolveWithCyclicalDependencyDetection(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
+            private object? ResolveWithCyclicalDependencyDetection(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo,
+                IReadOnlyMetadataContext? metadata)
             {
                 var lockTaken = false;
                 try
@@ -615,7 +620,8 @@ namespace MugenMvvm.IoC
 
             #region Methods
 
-            protected object? ResolveInternal(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
+            protected object? ResolveInternal(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo,
+                IReadOnlyMetadataContext? metadata)
             {
                 if (_bindingDelegate != null)
                     return _bindingDelegate.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
@@ -636,9 +642,9 @@ namespace MugenMvvm.IoC
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(type.Type);
 
-                var result = constructor!.Invoke(GetParameters(container, constructor!, parameters, metadata));
+                var result = constructor!.Invoke(container._reflectionDelegateProvider, GetParameters(container, constructor!, parameters, metadata));
                 if (parameters.Count != 0)
-                    type.SetProperties(result, parameters);
+                    type.SetProperties(container._reflectionDelegateProvider, result, parameters);
                 return result;
             }
 
@@ -697,8 +703,8 @@ namespace MugenMvvm.IoC
 
                     //If exist binding for type.
                     if (container.HasRegistration(originalType.Type, parameterInfo, metadata))
-                        return type.ConvertToArray(container.GetAllImpl(originalType.Type, originalType, parameterInfo, metadata));
-                    return type.ConvertToArray(Default.EmptyArray<object>());
+                        return type.ConvertToArray(container._reflectionDelegateProvider, container.GetAllImpl(originalType.Type, originalType, parameterInfo, metadata));
+                    return type.ConvertToArray(container._reflectionDelegateProvider, Default.EmptyArray<object>());
                 }
 
                 return container.GetImpl(type.Type, type, parameterInfo, metadata);
@@ -756,11 +762,11 @@ namespace MugenMvvm.IoC
                 switch (_state)
                 {
                     case BothCondition:
-                        return _name!.Equals(metadata?.Get(IocMetadata.Name)) && _condition!(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
+                        return _name!.Equals(metadata?.Get(IocMetadata.Name)) && _condition!.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
                     case NameCondition:
                         return _name!.Equals(metadata?.Get(IocMetadata.Name));
                     case DelegateCondition:
-                        return _condition!(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
+                        return _condition!.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
                 }
 
                 return true;
@@ -872,7 +878,7 @@ namespace MugenMvvm.IoC
                 return _genericTypeDefinition;
             }
 
-            public TypeCache? TryGetCollectionItemType()
+            public TypeCache? TryGetCollectionItemType(IReflectionDelegateProvider? reflectionDelegateProvider)
             {
                 if (_isCollection != null)
                     return _collectionItemType;
@@ -913,40 +919,40 @@ namespace MugenMvvm.IoC
                 }
 
                 _collectionItemType = GetTypeCache(originalType);
-                _collectionActivator = constructor.GetActivator();
-                _collectionAddMethodInvoker = methodInfo.GetMethodInvoker();
+                _collectionActivator = constructor.GetActivator(reflectionDelegateProvider);
+                _collectionAddMethodInvoker = methodInfo.GetMethodInvoker(reflectionDelegateProvider);
                 _isCollection = true;
                 return _collectionItemType;
             }
 
             public object ConvertToCollection(object?[] items)
             {
-                var collection = _collectionActivator!(Default.EmptyArray<object>());
+                var collection = _collectionActivator!.Invoke(Default.EmptyArray<object>());
                 var args = new object?[1];
                 for (var index = 0; index < items.Length; index++)
                 {
                     args[0] = items[index];
-                    _collectionAddMethodInvoker!(collection, args);
+                    _collectionAddMethodInvoker!.Invoke(collection, args);
                 }
 
                 return collection;
             }
 
-            public object ConvertToArray(object?[] items)
+            public object ConvertToArray(IReflectionDelegateProvider? reflectionDelegateProvider, object?[] items)
             {
                 if (_arrayActivator == null)
                 {
                     var constructorInfo = Type.GetConstructor(ArrayConstructorTypes);
                     if (constructorInfo == null)
                         ExceptionManager.ThrowCannotFindConstructor(Type);
-                    _arrayActivator = constructorInfo!.GetActivator();
+                    _arrayActivator = constructorInfo!.GetActivator(reflectionDelegateProvider);
                 }
 
                 var array = _arrayActivator(new[] { BoxingExtensions.Box(items.Length) });
                 if (_arraySetMethodInvoker == null)
                 {
                     var method = typeof(MugenExtensions).GetMethodOrThrow(nameof(MugenExtensions.InitializeArray), BindingFlagsEx.StaticOnly);
-                    _arraySetMethodInvoker = method.MakeGenericMethod(ElementType.Type).GetMethodInvoker();
+                    _arraySetMethodInvoker = method.MakeGenericMethod(ElementType.Type).GetMethodInvoker(reflectionDelegateProvider);
                 }
 
                 _arraySetMethodInvoker.Invoke(null, new[] { array, items });
@@ -963,7 +969,7 @@ namespace MugenMvvm.IoC
                 return _selfBindableBindingRegistration;
             }
 
-            public void SetProperties(object item, IReadOnlyCollection<IIocParameter> parameters)
+            public void SetProperties(IReflectionDelegateProvider? reflectionDelegateProvider, object item, IReadOnlyCollection<IIocParameter> parameters)
             {
                 StringOrdinalLightDictionary<PropertyInfoCache>? props = null;
                 foreach (var iocParameter in parameters)
@@ -974,7 +980,7 @@ namespace MugenMvvm.IoC
                         props = GetCachedProperties();
 
                     if (props.TryGetValue(iocParameter.Name, out var value))
-                        value.Invoke(item, iocParameter.Value);
+                        value.Invoke(reflectionDelegateProvider, item, iocParameter.Value);
                 }
             }
 
@@ -1105,10 +1111,10 @@ namespace MugenMvvm.IoC
                 return _parameters;
             }
 
-            public object Invoke(params object?[] parameters)
+            public object Invoke(IReflectionDelegateProvider? reflectionDelegateProvider, params object?[] parameters)
             {
                 if (_activatorDel == null)
-                    _activatorDel = _constructor.GetActivator();
+                    _activatorDel = _constructor.GetActivator(reflectionDelegateProvider);
                 return _activatorDel(parameters);
             }
 
@@ -1135,10 +1141,10 @@ namespace MugenMvvm.IoC
 
             #region Methods
 
-            public void Invoke(object item, object value)
+            public void Invoke(IReflectionDelegateProvider? reflectionDelegateProvider, object item, object value)
             {
                 if (_invokeAction == null)
-                    _invokeAction = _propertyInfo.GetMemberSetter<object?>();
+                    _invokeAction = _propertyInfo.GetMemberSetter<object?>(reflectionDelegateProvider);
                 _invokeAction(item, value);
             }
 

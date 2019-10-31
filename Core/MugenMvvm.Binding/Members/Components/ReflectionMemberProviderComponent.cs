@@ -8,6 +8,7 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -18,6 +19,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObserverProvider? _bindingObserverProvider;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly CacheDictionary _cache;
 
         #endregion
@@ -25,9 +27,10 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionMemberProviderComponent(IObserverProvider? bindingObserverProvider = null)//todo add reflectionprovider
+        public ReflectionMemberProviderComponent(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _bindingObserverProvider = bindingObserverProvider;
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             _cache = new CacheDictionary();
         }
 
@@ -74,7 +77,7 @@ namespace MugenMvvm.Binding.Members.Components
                         var property = t.GetProperty(name, BindingFlagsEx.All);
                         if (property != null)
                         {
-                            result.Add(new BindingPropertyInfo(name, property, type, _bindingObserverProvider));
+                            result.Add(new BindingPropertyInfo(name, property, type, _bindingObserverProvider, _reflectionDelegateProvider));
                             hasProperty = true;
                         }
                     }
@@ -124,7 +127,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                         if (candidate != null)
                         {
-                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexParameters!, indexerArgs, type, _bindingObserverProvider));
+                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexParameters!, indexerArgs, type, _bindingObserverProvider, _reflectionDelegateProvider));
                             hasProperty = true;
                         }
                         else if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
@@ -154,7 +157,7 @@ namespace MugenMvvm.Binding.Members.Components
                     var field = t.GetField(name, BindingFlagsEx.All);
                     if (field != null)
                     {
-                        result.Add(new BindingFieldInfo(name, field, type, _bindingObserverProvider));
+                        result.Add(new BindingFieldInfo(name, field, type, _bindingObserverProvider, _reflectionDelegateProvider));
                         hasField = true;
                     }
                 }
@@ -168,7 +171,7 @@ namespace MugenMvvm.Binding.Members.Components
             foreach (var methodInfo in type.GetMethods(BindingFlagsEx.All))
             {
                 if (methodInfo.Name.Equals(name))
-                    result.Add(new BindingMethodInfo(name, methodInfo, type, _bindingObserverProvider));
+                    result.Add(new BindingMethodInfo(name, methodInfo, type, _bindingObserverProvider, _reflectionDelegateProvider));
             }
 
             return result;
