@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -9,31 +10,24 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class ObservableCollectionBase<T> : IObservableCollection<T>, IReadOnlyList<T>, IObservableCollectionDecoratorManager<T>
+    public abstract class ObservableCollectionBase<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IReadOnlyList<T>, IObservableCollectionDecoratorManager<T>
     {
         #region Fields
 
         private int _batchCount;
         private int _batchCountDecorators;
-        private IComponentCollection<IComponent<IObservableCollection<T>>>? _components;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
 
         #endregion
 
         #region Constructors
 
-        protected ObservableCollectionBase(IComponentCollectionProvider? componentCollectionProvider = null)
+        protected ObservableCollectionBase(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
-
-        protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.ServiceIfNull();
-
-        public bool HasComponents => _components != null && _components.HasItems;
 
         public abstract int Count { get; }
 
@@ -42,17 +36,6 @@ namespace MugenMvvm.Collections
         public abstract T this[int index] { get; set; }
 
         IObservableCollection<T> IObservableCollectionDecoratorManager<T>.Collection => this;
-
-        public IComponentCollection<IComponent<IObservableCollection<T>>> Components
-        {
-            get
-            {
-                if (_components == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
-
-                return _components!;
-            }
-        }
 
         #endregion
 
