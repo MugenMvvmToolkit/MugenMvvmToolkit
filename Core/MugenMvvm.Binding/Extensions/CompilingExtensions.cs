@@ -206,7 +206,7 @@ namespace MugenMvvm.Binding
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
-        private static Type GetNonNullableType(this Type type)
+        internal static Type GetNonNullableType(this Type type)
         {
             return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
         }

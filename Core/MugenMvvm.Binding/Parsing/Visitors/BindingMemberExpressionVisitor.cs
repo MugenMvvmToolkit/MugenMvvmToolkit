@@ -131,7 +131,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
-                        var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(type, null, MemberFlags | BindingMemberFlags.Static, memberProvider: _memberProvider);
+                        var value = _observerProvider.ServiceIfNull()
+                            .GetMemberPath(_memberBuilder.GetPath())
+                            .GetValueFromPath(type, null, MemberFlags | BindingMemberFlags.Static, memberProvider: _memberProvider);
                         return ConstantExpressionNode.Get(value);
                     }
 
@@ -147,8 +149,10 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
 
-                    var value = _observerProvider.ServiceIfNull().GetMemberPath(_memberBuilder.GetPath()).GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~BindingMemberFlags.Static,
-                        memberProvider: _memberProvider);
+                    var value = _observerProvider
+                        .ServiceIfNull()
+                        .GetMemberPath(_memberBuilder.GetPath())
+                        .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~BindingMemberFlags.Static, memberProvider: _memberProvider);
                     return ConstantExpressionNode.Get(value);
                 }
 

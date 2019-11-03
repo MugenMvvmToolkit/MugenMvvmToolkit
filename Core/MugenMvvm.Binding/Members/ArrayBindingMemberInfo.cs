@@ -18,9 +18,10 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public ArrayBindingMemberInfo(string name, Type arrayType, string[] indexes)
+        public ArrayBindingMemberInfo(string name, Type arrayType, int[] indexes)
         {
-            _indexes = BindingMugenExtensions.GetIndexerValues<int>(indexes);
+            Should.NotBeNull(indexes, nameof(indexes));
+            _indexes = indexes;
             Name = name;
             Type = arrayType.GetElementType();
         }

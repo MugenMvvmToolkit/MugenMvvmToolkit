@@ -7,7 +7,6 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -69,7 +68,8 @@ namespace MugenMvvm.Binding.Members
             return GetMemberInternal(type, name, memberTypes, flags, metadata);
         }
 
-        public IReadOnlyList<IBindingMemberInfo> GetMembers(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<IBindingMemberInfo> GetMembers(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
@@ -151,11 +151,12 @@ namespace MugenMvvm.Binding.Members
             TempCache.Clear();
             TempMembersCache.Clear();
             var components = Components.GetItems();
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
                 (components[i] as IHasCache)?.Invalidate();
         }
 
-        protected IBindingMemberInfo? SelectMember(IReadOnlyList<IBindingMemberInfo> members, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata)
+        protected IBindingMemberInfo? SelectMember(IReadOnlyList<IBindingMemberInfo> members, BindingMemberType memberTypes, BindingMemberFlags flags,
+            IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < members.Count; i++)
             {

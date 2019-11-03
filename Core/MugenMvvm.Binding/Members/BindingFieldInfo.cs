@@ -37,7 +37,6 @@ namespace MugenMvvm.Binding.Members
             _observerProvider = observerProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             Name = name;
-            Type = _fieldInfo.FieldType;
             _getterFunc = CompileGetter;
             _setterFunc = CompileSetter;
             if (fieldInfo.IsStatic)
@@ -52,7 +51,7 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type Type { get; }
+        public Type Type => _fieldInfo.FieldType;
 
         public object? Member => _fieldInfo;
 

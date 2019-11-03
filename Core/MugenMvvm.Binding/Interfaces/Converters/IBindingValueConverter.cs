@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Converters
 {
-    public interface IValueConverter
+    public interface IBindingValueConverter
     {
         object? Convert(object? value, Type targetType, object? parameter, IReadOnlyMetadataContext context);
 

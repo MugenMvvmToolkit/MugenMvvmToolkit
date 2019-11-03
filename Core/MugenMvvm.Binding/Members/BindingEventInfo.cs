@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Members
             _observer = observer;
             Name = name;
             Type = _eventInfo.EventHandlerType;
-            AccessModifiers = (_eventInfo.AddMethod ?? _eventInfo.RemoveMethod).GetAccessModifiers();
+            AccessModifiers = (_eventInfo.GetAddMethod(true) ?? _eventInfo.GetRemoveMethod(true)).GetAccessModifiers();
         }
 
         #endregion

@@ -4,7 +4,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -14,37 +13,35 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        private readonly object?[]? _indexerValues;
+        private readonly object?[] _indexerArgs;
+        private readonly IObserverProvider? _observerProvider;
 
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
-        private readonly IObserverProvider? _observerProvider;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private Func<object?, object?[], object?> _getterIndexerFunc;
 
         private MemberObserver? _observer;
-        private Func<object?, object?[], object?> _getterIndexerFunc;
         private Func<object?, object?[], object?> _setterIndexerFunc;
 
         #endregion
 
         #region Constructors
 
-        public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo,
-            ParameterInfo[] indexParameters, string[] indexerValues, Type reflectedType,
-            IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public IndexerBindingPropertyInfo(string name, PropertyInfo propertyInfo, object?[] indexerArgs,
+            Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
-            Should.NotBeNull(indexParameters, nameof(indexParameters));
-            Should.NotBeNull(indexerValues, nameof(indexerValues));
+            Should.NotBeNull(indexerArgs, nameof(indexerArgs));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
+            _indexerArgs = indexerArgs;
             Name = name;
             Type = _propertyInfo.PropertyType;
-            _indexerValues = BindingMugenExtensions.GetIndexerValues(indexerValues!, indexParameters);
 
             var getMethod = propertyInfo.GetGetMethod(true);
             if (getMethod == null)
@@ -104,14 +101,14 @@ namespace MugenMvvm.Binding.Members
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            return _getterIndexerFunc(target, _indexerValues!);
+            return _getterIndexerFunc(target, _indexerArgs);
         }
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            var args = new object?[_indexerValues!.Length + 1];
-            Array.Copy(_indexerValues, args, _indexerValues.Length);
-            args[_indexerValues.Length] = value;
+            var args = new object?[_indexerArgs.Length + 1];
+            Array.Copy(_indexerArgs, args, _indexerArgs.Length);
+            args[_indexerArgs.Length] = value;
             _setterIndexerFunc(target, args);
         }
 

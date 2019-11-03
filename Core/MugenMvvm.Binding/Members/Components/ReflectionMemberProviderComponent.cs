@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -14,10 +15,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority
+    public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority//todo review restructure
     {
         #region Fields
 
+        private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly IObserverProvider? _bindingObserverProvider;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly CacheDictionary _cache;
@@ -27,8 +29,10 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionMemberProviderComponent(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ReflectionMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
+            IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
+            _globalValueConverter = globalValueConverter;
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _cache = new CacheDictionary();
@@ -62,7 +66,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         private List<IBindingMemberInfo> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
-            var indexerArgs = BindingMugenExtensions.GetIndexerValuesRaw(name);
+            var indexerArgs = BindingMugenExtensions.GetIndexerArgsRaw(name);
             var types = BindingMugenExtensions.SelfAndBaseTypes(type);
             var hasProperty = false;
             var hasEvent = false;
@@ -83,56 +87,15 @@ namespace MugenMvvm.Binding.Members.Components
                     }
                     else
                     {
-                        PropertyInfo? candidate = null;
-                        var valueTypeCount = -1;
-                        ParameterInfo[]? indexParameters = null;
-                        foreach (var property in t.GetProperties(BindingFlagsEx.All))
-                        {
-                            indexParameters = property.GetIndexParameters();
-                            if (indexParameters.Length != indexerArgs.Length)
-                                continue;
-
-                            var count = 0;
-                            for (var i = 0; i < indexParameters.Length; i++)
-                            {
-                                var arg = indexerArgs[i];
-                                var paramType = indexParameters[i].ParameterType;
-                                if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
-                                {
-                                    if (paramType != typeof(string))
-                                    {
-                                        count = -1;
-                                        break;
-                                    }
-                                }
-                                else
-                                {
-                                    if (!MugenBindingService.GlobalValueConverter.TryConvert(arg, paramType, null, metadata, out _))
-                                    {
-                                        count = -1;
-                                        break;
-                                    }
-
-                                    if (paramType.IsValueType)
-                                        count++;
-                                }
-                            }
-
-                            if (valueTypeCount < count)
-                            {
-                                candidate = property;
-                                valueTypeCount = count;
-                            }
-                        }
-
+                        var candidate = SelectMember(t.GetProperties(BindingFlagsEx.All), name, indexerArgs, metadata, (info, _) => info.GetIndexParameters(), out var indexerValues);
                         if (candidate != null)
                         {
-                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexParameters!, indexerArgs, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexerValues, type, _bindingObserverProvider, _reflectionDelegateProvider));
                             hasProperty = true;
                         }
                         else if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
                         {
-                            result.Add(new ArrayBindingMemberInfo(name, t, indexerArgs));
+                            result.Add(new ArrayBindingMemberInfo(name, t, _globalValueConverter.ConvertValues<int>(indexerArgs, metadata)));
                             hasProperty = true;
                         }
                     }
@@ -166,15 +129,71 @@ namespace MugenMvvm.Binding.Members.Components
                     break;
             }
 
-            //todo add method -> property with simple args
-
-            foreach (var methodInfo in type.GetMethods(BindingFlagsEx.All))
+            var methodArgs = BindingMugenExtensions.GetMethodArgsRaw(name, out var methodName);
+            if (methodArgs == null)
             {
-                if (methodInfo.Name.Equals(name))
-                    result.Add(new BindingMethodInfo(name, methodInfo, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                foreach (var methodInfo in type.GetMethods(BindingFlagsEx.All))
+                {
+                    if (methodInfo.Name.Equals(name))
+                        result.Add(new BindingMethodInfo(name, methodInfo, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                }
+            }
+            else
+            {
+                var method = SelectMember(type.GetMethods(BindingFlagsEx.All), methodName, methodArgs, metadata, (info, n) => info.Name == n ? info.GetParameters() : null, out var args);
+                if (method != null)
+                    result.Add(new MethodBindingPropertyInfo(name, method, args, type, _bindingObserverProvider, _reflectionDelegateProvider));
             }
 
             return result;
+        }
+
+        private T? SelectMember<T, TState>(T[] members, TState state, string[] args, IReadOnlyMetadataContext metadata, Func<T, TState, ParameterInfo[]?> getParameters, out object?[]? indexerValues) where T : MemberInfo
+        {
+            T? candidate = null;
+            var valueTypeCount = -1;
+            ParameterInfo[]? indexParameters = null;
+            foreach (var member in members)
+            {
+                indexParameters = getParameters(member, state);
+                if (indexParameters == null || indexParameters.Length != args.Length)
+                    continue;
+
+                var count = 0;
+                for (var i = 0; i < indexParameters.Length; i++)
+                {
+                    var arg = args[i];
+                    var paramType = indexParameters[i].ParameterType;
+                    if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
+                    {
+                        if (paramType != typeof(string))
+                        {
+                            count = -1;
+                            break;
+                        }
+                    }
+                    else
+                    {
+                        if (!_globalValueConverter.TryConvert(arg, paramType, null, metadata, out _))
+                        {
+                            count = -1;
+                            break;
+                        }
+
+                        if (paramType.IsValueType)
+                            count++;
+                    }
+                }
+
+                if (valueTypeCount < count)
+                {
+                    candidate = member;
+                    valueTypeCount = count;
+                }
+            }
+
+            indexerValues = candidate == null ? null : _globalValueConverter.ConvertValues(args, indexParameters, null, metadata);
+            return candidate;
         }
 
         #endregion

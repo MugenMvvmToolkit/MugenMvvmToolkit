@@ -38,7 +38,6 @@ namespace MugenMvvm.Binding.Members
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _invoker = CompileMethod;
             Name = name;
-            Type = method.ReturnType;
             AccessModifiers = _method.GetAccessModifiers();
             var parameterInfos = method.GetParameters();
             if (parameterInfos.Length == 0)
@@ -50,8 +49,7 @@ namespace MugenMvvm.Binding.Members
                     _parameters[i] = new Parameter(parameterInfos[i]);
             }
 
-            IsExtensionMethod = method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) &&
-                                _parameters.Length > 0;
+            IsExtensionMethod = method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) && _parameters.Length > 0;
         }
 
         #endregion
@@ -60,7 +58,7 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type Type { get; }
+        public Type Type => _method.ReturnType;
 
         public object? Member => _method;
 

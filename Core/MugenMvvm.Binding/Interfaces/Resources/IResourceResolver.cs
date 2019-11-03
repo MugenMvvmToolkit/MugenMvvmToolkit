@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Interfaces.Resources
     {
         IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata = null);
 
-        IValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null);
+        IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null);
 
         Type? TryGetType(string name, IReadOnlyMetadataContext? metadata = null);
     }

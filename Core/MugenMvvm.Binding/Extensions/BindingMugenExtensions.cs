@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
 {
-    public static partial class BindingMugenExtensions
+    public static partial class BindingMugenExtensions//todo rename
     {
         #region Methods
 
@@ -135,8 +135,7 @@ namespace MugenMvvm.Binding
             return (value & flag) == flag;
         }
 
-        public static bool TryConvert(this IGlobalValueConverter? converter, object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata,
-            out object? result)
+        public static bool TryConvert(this IGlobalValueConverter? converter, object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata, out object? result)
         {
             try
             {

@@ -4,9 +4,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
@@ -65,49 +67,60 @@ namespace MugenMvvm.Binding
             return types;
         }
 
-        internal static string[]? GetIndexerValuesRaw(string path)
+        internal static string[]? GetIndexerArgsRaw(string path)
         {
+            int start = 1;
             if (path.StartsWith("Item[", StringComparison.Ordinal))
-                path = path.Substring(4);
-            if (!path.StartsWith("[", StringComparison.Ordinal) || !path.EndsWith("]", StringComparison.Ordinal))
+                start = 5;
+            else if (!path.StartsWith("[", StringComparison.Ordinal) || !path.EndsWith("]", StringComparison.Ordinal))
                 return null;
 
             return path
-                .RemoveBounds()
+                .RemoveBounds(start)
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        internal static object?[] GetIndexerValues(string path, ParameterInfo[]? parameters = null, Type? castType = null)
+        public static string[]? GetMethodArgsRaw(string path, out string? methodName)
         {
-            if (path.StartsWith("Item[", StringComparison.Ordinal))
-                path = path.Substring(4);
-            if (!path.StartsWith("[", StringComparison.Ordinal))
-                return Default.EmptyArray<object>();
-            return GetIndexerValues(path
-                .RemoveBounds()
-                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries), parameters, castType);
+            var startIndex = path.IndexOf('(');
+            if (startIndex < 0 || !path.EndsWith(")", StringComparison.Ordinal))
+            {
+                methodName = null;
+                return null;
+            }
+
+            methodName = path.Substring(0, startIndex);
+            return path
+                .RemoveBounds(startIndex + 1)
+                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        internal static TItem[] GetIndexerValues<TItem>(string[] args)
+        internal static TItem[] ConvertValues<TItem>(this IGlobalValueConverter? converter, string[] args, IReadOnlyMetadataContext? metadata)
         {
+            converter = converter.ServiceIfNull();
             var result = new TItem[args.Length];
             for (var i = 0; i < args.Length; i++)
             {
                 var s = args[i];
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = (TItem)(s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, typeof(TItem)))!;
+                result[i] = (TItem)(s == "null" ? null : converter.Convert(s, typeof(TItem), metadata: metadata))!;
             }
 
             return result;
         }
 
-        internal static object?[] GetIndexerValues(string[] args, ParameterInfo[]? parameters = null, Type? castType = null)
+        internal static object?[] ConvertValues(this IGlobalValueConverter? converter, string[] args, ParameterInfo[]? parameters,
+            Type? castType, IReadOnlyMetadataContext? metadata)
         {
             if (parameters == null)
                 Should.NotBeNull(castType, nameof(castType));
             else
                 Should.NotBeNull(parameters, nameof(parameters));
+            if (args.Length == 0)
+                return Default.EmptyArray<object?>();
+
+            converter = converter.ServiceIfNull();
             var result = new object?[args.Length];
             for (var i = 0; i < args.Length; i++)
             {
@@ -116,15 +129,15 @@ namespace MugenMvvm.Binding
                     castType = parameters[i].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : MugenBindingService.GlobalValueConverter.Convert(s, castType!);
+                result[i] = s == "null" ? null : converter.Convert(s, castType!, parameters?[i], metadata);
             }
 
             return result;
         }
 
-        internal static string RemoveBounds(this string st) //todo Span?
+        internal static string RemoveBounds(this string st, int start = 1) //todo Span?
         {
-            return st.Substring(1, st.Length - 2);
+            return st.Substring(start, st.Length - start - 1);
         }
 
         internal static BindingMemberFlags GetAccessModifiers(this MethodBase? method)

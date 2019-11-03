@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
@@ -10,7 +11,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Binding.Converters
 {
     public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter,
-        IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>//todo review IConvertible
+        IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>
     {
         #region Fields
 
@@ -28,6 +29,12 @@ namespace MugenMvvm.Binding.Converters
 
         #endregion
 
+        #region Properties
+
+        public Func<IFormatProvider>? FormatProvider { get; set; }
+
+        #endregion
+
         #region Implementation of interfaces
 
         void IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>.OnComponentAdded(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
@@ -42,20 +49,23 @@ namespace MugenMvvm.Binding.Converters
             MugenExtensions.ComponentTrackerOnRemoved(ref _converters, component);
         }
 
-        public object? Convert(object? value, Type targetType, IBindingMemberInfo? member = null, IReadOnlyMetadataContext? metadata = null)
+        public object? Convert(object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
         {
             var converters = _converters;
-            if (converters.Length == 0)
+            for (var i = 0; i < converters.Length; i++)
             {
-                if (value == null)
-                    return targetType.GetDefaultValue();
-                if (targetType.IsInstanceOfType(value))
+                if (converters[i].TryConvert(ref value, targetType, member, metadata))
                     return value;
-                return System.Convert.ChangeType(value, targetType);
             }
 
-            for (var i = 0; i < converters.Length; i++)
-                value = converters[i].Convert(value, targetType, member, metadata);
+            if (value == null)
+                return targetType.GetDefaultValue();
+            if (targetType.IsInstanceOfType(value))
+                return value;
+            if (value is IConvertible)
+                return System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider?.Invoke() ?? CultureInfo.CurrentCulture);
+            if (targetType == typeof(string))
+                return value.ToString();
             return value;
         }
 
