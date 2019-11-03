@@ -19,8 +19,9 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
-
         private readonly FuncEx<string, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverStringDelegate;
+        private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
+
         private static readonly Func<INotifyPropertyChanged, object?, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
@@ -33,6 +34,7 @@ namespace MugenMvvm.Binding.Observers.Components
             _attachedValueManager = attachedValueManager;
             _tryGetMemberObserverStringDelegate = TryGetMemberObserver;
             _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
+            _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
         }
 
         #endregion
@@ -61,12 +63,21 @@ namespace MugenMvvm.Binding.Observers.Components
                 return provider1.Invoke(member, type, metadata);
             if (_tryGetMemberObserverStringDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
                 return provider2.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider3)
+                return provider3.Invoke(member, type, metadata);
             return default;
         }
 
         #endregion
 
         #region Methods
+
+        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
+        {
+            if (request.Member is PropertyInfo)
+                return TryGetMemberObserver(request.Path, type, metadata);
+            return default;
+        }
 
         private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {

@@ -20,6 +20,7 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly IMemberProvider? _memberProvider;
         private readonly FuncEx<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
         private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
+        private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         #endregion
 
@@ -31,6 +32,7 @@ namespace MugenMvvm.Binding.Observers.Components
             _memberProvider = memberProvider;
             _tryGetMemberObserverMethodDelegate = TryGetMemberObserver;
             _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
+            _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
         }
 
         #endregion
@@ -62,6 +64,15 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Methods
+
+        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
+        {
+            if (request.Member is PropertyInfo p)
+                return TryGetMemberObserver(p, type, metadata);
+            if (request.Member is MethodInfo m)
+                return TryGetMemberObserver(m, type, metadata);
+            return default;
+        }
 
         private MemberObserver TryGetMemberObserver(in MethodInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {

@@ -95,7 +95,7 @@ namespace MugenMvvm.Binding.Members
         public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, Name);
+                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, new MemberObserverRequest(Name, _propertyInfo, _indexerArgs));
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 

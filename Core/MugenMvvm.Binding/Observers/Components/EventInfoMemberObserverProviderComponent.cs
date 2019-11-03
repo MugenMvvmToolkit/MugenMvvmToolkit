@@ -17,11 +17,10 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-
         private readonly Func<object, EventInfo, object?, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
-
         private readonly FuncEx<EventInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverEventDelegate;
+        private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
             .GetMethodOrThrow(nameof(EventListenerCollection.Raise), BindingFlagsEx.InstancePublic);
@@ -36,6 +35,7 @@ namespace MugenMvvm.Binding.Observers.Components
             _attachedValueManager = attachedValueManager;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _tryGetMemberObserverEventDelegate = TryGetMemberObserver;
+            _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
             _createWeakListenerDelegate = CreateWeakListener;
         }
 
@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Observers.Components
             if (target == null)
                 return default;
 
-            var eventInfo = (EventInfo)member;
+            var eventInfo = (EventInfo) member;
             var listenerInternal = _attachedValueManager
                 .ServiceIfNull()
                 .GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, _createWeakListenerDelegate);
@@ -65,14 +65,23 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverEventDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider)
-                return provider.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverEventDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
+                return provider1.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
+                return provider2.Invoke(member, type, metadata);
             return default;
         }
 
         #endregion
 
         #region Methods
+
+        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
+        {
+            if (request.Member is EventInfo eventInfo)
+                return TryGetMemberObserver(eventInfo, type, metadata);
+            return default;
+        }
 
         private MemberObserver TryGetMemberObserver(in EventInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {

@@ -10,8 +10,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private static readonly FuncEx<MemberPathObserverRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver?> TryGetMemberPathObserverDelegate =
-            TryGetMemberPathObserver;
+        private static readonly FuncEx<MemberPathObserverRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver?> TryGetMemberPathObserverDelegate = TryGetMemberPathObserver;
 
         #endregion
 
