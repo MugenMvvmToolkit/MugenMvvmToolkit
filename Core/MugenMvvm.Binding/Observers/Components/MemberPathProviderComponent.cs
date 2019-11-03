@@ -156,7 +156,7 @@ namespace MugenMvvm.Binding.Observers.Components
             public MultiMemberPath(string path, bool hasIndexer)
             {
                 Path = path;
-                Members = path.Split(BindingMugenExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
+                Members = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
 
                 if (hasIndexer)
                 {

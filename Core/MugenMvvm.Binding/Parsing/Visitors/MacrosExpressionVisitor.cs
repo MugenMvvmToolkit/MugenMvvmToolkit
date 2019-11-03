@@ -26,11 +26,11 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         public MacrosExpressionVisitor()
         {
             _memberBuilder = new StringBuilder();
-            var argsMethod = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(BindingMugenExtensions), typeof(Type)), nameof(BindingMugenExtensions.GetEventArgs),
+            var argsMethod = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(MugenBindingExtensions), typeof(Type)), nameof(MugenBindingExtensions.GetEventArgs),
                 Default.EmptyArray<IExpressionNode>());
             MacrosMethods = new Dictionary<string, IMethodCallExpressionNode>
             {
-                {MacrosConstants.Binding, new MethodCallExpressionNode(argsMethod.Target, nameof(BindingMugenExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
+                {MacrosConstants.Binding, new MethodCallExpressionNode(argsMethod.Target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
                 {MacrosConstants.Args, argsMethod},
                 {MacrosConstants.Arg, argsMethod}
             };

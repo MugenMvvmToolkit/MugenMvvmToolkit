@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
 
             var target = context.Build(memberExpression.Target);
-            var type = BindingMugenExtensions.GetTargetType(ref target);
+            var type = MugenBindingExtensions.GetTargetType(ref target);
             var member = memberExpression.Member;
             if (member == null)
             {

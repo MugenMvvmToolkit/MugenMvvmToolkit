@@ -80,7 +80,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
 
             var target = context.Build(methodCallExpression.Target);
-            var type = BindingMugenExtensions.GetTargetType(ref target);
+            var type = MugenBindingExtensions.GetTargetType(ref target);
 
             if (methodCallExpression.Method != null)
                 return GenerateMethodCall(context, methodCallExpression.Method, target, methodCallExpression.Arguments);
@@ -102,7 +102,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
 
             var target = context.Build(indexExpression.Target);
-            var type = BindingMugenExtensions.GetTargetType(ref target);
+            var type = MugenBindingExtensions.GetTargetType(ref target);
 
             if (indexExpression.Indexer != null)
                 return GenerateMethodCall(context, indexExpression.Indexer, target, indexExpression.Arguments);
@@ -658,7 +658,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private static Type? FindCommonType(Type genericDefinition, Type type)
         {
-            foreach (var baseType in BindingMugenExtensions.SelfAndBaseTypes(type))
+            foreach (var baseType in MugenBindingExtensions.SelfAndBaseTypes(type))
             {
                 if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericDefinition)
                     return baseType;

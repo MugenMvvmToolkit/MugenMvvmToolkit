@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
 {
-    public static partial class BindingMugenExtensions
+    public static partial class MugenBindingExtensions
     {
         #region Methods
 

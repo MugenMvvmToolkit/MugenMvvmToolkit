@@ -87,13 +87,13 @@ namespace MugenMvvm.Binding.Compiling.Components
                     right.ConvertIfNeed(typeof(object), false));
             }
 
-            BindingMugenExtensions.Convert(ref left, ref right, true);
+            MugenBindingExtensions.Convert(ref left, ref right, true);
             return Expression.Add(left, right);
         }
 
         private static Expression GenerateEqual(Expression left, Expression right)
         {
-            BindingMugenExtensions.Convert(ref left, ref right, true);
+            MugenBindingExtensions.Convert(ref left, ref right, true);
             try
             {
                 return Expression.Equal(left, right);

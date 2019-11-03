@@ -66,8 +66,8 @@ namespace MugenMvvm.Binding.Members.Components
 
         private List<IBindingMemberInfo> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
-            var indexerArgs = BindingMugenExtensions.GetIndexerArgsRaw(name);
-            var types = BindingMugenExtensions.SelfAndBaseTypes(type);
+            var indexerArgs = MugenBindingExtensions.GetIndexerArgsRaw(name);
+            var types = MugenBindingExtensions.SelfAndBaseTypes(type);
             var hasProperty = false;
             var hasEvent = false;
             var hasField = false;
@@ -129,7 +129,7 @@ namespace MugenMvvm.Binding.Members.Components
                     break;
             }
 
-            var methodArgs = BindingMugenExtensions.GetMethodArgsRaw(name, out var methodName);
+            var methodArgs = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
             if (methodArgs == null)
             {
                 foreach (var methodInfo in type.GetMethods(BindingFlagsEx.All))
