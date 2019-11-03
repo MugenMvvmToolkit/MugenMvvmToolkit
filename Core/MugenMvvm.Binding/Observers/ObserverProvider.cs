@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider,//todo restructure
+    public class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider, //todo restructure
         IComponentOwnerAddedCallback<IComponent<IObserverProvider>>, IComponentOwnerRemovedCallback<IComponent<IObserverProvider>>
     {
         #region Fields
@@ -89,19 +89,6 @@ namespace MugenMvvm.Binding.Observers
             MugenExtensions.ComponentTrackerOnRemoved(ref PathProviders, component);
         }
 
-        protected virtual MemberObserver GetMemberObserverInternal<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
-        {
-            var providers = MemberObserverProviders;
-            for (var i = 0; i < providers.Length; i++)
-            {
-                var observer = providers[i].TryGetMemberObserver(type, member, metadata);
-                if (!observer.IsEmpty)
-                    return observer;
-            }
-
-            return default;
-        }
-
         protected virtual IMemberPath? TryGetMemberPathInternal<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
             var providers = PathProviders;
@@ -113,6 +100,19 @@ namespace MugenMvvm.Binding.Observers
             }
 
             return null;
+        }
+
+        protected virtual MemberObserver GetMemberObserverInternal<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        {
+            var providers = MemberObserverProviders;
+            for (var i = 0; i < providers.Length; i++)
+            {
+                var observer = providers[i].TryGetMemberObserver(type, member, metadata);
+                if (!observer.IsEmpty)
+                    return observer;
+            }
+
+            return default;
         }
 
         protected virtual IMemberPathObserver? TryGetMemberPathObserverInternal<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata)
