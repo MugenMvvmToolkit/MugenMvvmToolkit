@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Binding.Compiling;
+﻿using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -9,7 +8,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class MultiBinding : Binding, IDynamicBindingValue
+    public sealed class MultiBinding : Binding, IBindingExpressionValue
     {
         #region Fields
 
@@ -30,7 +29,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public object? GetValue()
+        public object? Invoke()
         {
             ItemOrList<ExpressionValue, ExpressionValue[]> values;
             if (SourceRaw == null)
@@ -44,19 +43,19 @@ namespace MugenMvvm.Binding.Core
                     var value = members.GetValue(this);
                     if (value.IsUnsetValueOrDoNothing())
                         return value;
-                    expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, null);
+                    expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.Member.Type, null);
                 }
 
                 values = expressionValues;
             }
             else
             {
-                var members = ((IMemberPathObserver)SourceRaw).GetLastMember(this);
+                var members = ((IMemberPathObserver) SourceRaw).GetLastMember(this);
                 var value = members.GetValue(this);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
 
-                values = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, value);
+                values = new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
             }
 
             return _expression!.Invoke(values, this);
@@ -73,9 +72,9 @@ namespace MugenMvvm.Binding.Core
 
         protected override object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            if (BindingMemberType.Event == targetMember.LastMember.MemberType)
+            if (BindingMemberType.Event == targetMember.Member.MemberType)
                 return this;
-            return GetValue();
+            return Invoke();
         }
 
         #endregion

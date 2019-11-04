@@ -462,7 +462,7 @@ namespace MugenMvvm.Binding.Core
                         return false;
                 }
 
-                newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, this);
+                newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.Member.Type, pathLastMember.Member, this);
 
                 if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(sourceObserver, pathLastMember, newValue))
                     pathLastMember.SetValue(newValue, this);
@@ -499,7 +499,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
             }
 
-            newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, this);
+            newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.Member.Type, pathLastMember.Member, this);
 
             if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(Target, pathLastMember, newValue))
                 pathLastMember.SetValue(newValue, this);

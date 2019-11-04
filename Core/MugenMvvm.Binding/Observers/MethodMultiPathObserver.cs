@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Observers
         {
             base.OnLastMemberChanged();
             var lastMember = GetLastMember();
-            this.AddMethodObserver(lastMember.Target, lastMember.LastMember, ref _unsubscriber, ref _lastValueRef);
+            this.AddMethodObserver(lastMember.Target, lastMember.Member, ref _unsubscriber, ref _lastValueRef);
         }
 
         protected override void UnsubscribeLastMember()

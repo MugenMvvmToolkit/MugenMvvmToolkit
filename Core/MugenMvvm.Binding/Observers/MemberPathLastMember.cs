@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly IBindingMemberInfo? _lastMember;
+        private readonly IBindingMemberInfo? _member;
         private readonly object? _target;
 
         #endregion
@@ -21,29 +21,29 @@ namespace MugenMvvm.Binding.Observers
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public MemberPathLastMember(object? target, IBindingMemberInfo lastMember)
+        public MemberPathLastMember(object? target, IBindingMemberInfo member)
         {
             _target = target;
-            _lastMember = lastMember;
+            _member = member;
         }
 
         public MemberPathLastMember(Exception exception)
         {
             _target = exception;
-            _lastMember = null;
+            _member = null;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsAvailable => _lastMember != null;
+        public bool IsAvailable => _member != null;
 
         public Exception? Error
         {
             get
             {
-                if (_lastMember == null)
+                if (_member == null)
                     return (Exception?)_target;
                 return null;
             }
@@ -53,19 +53,19 @@ namespace MugenMvvm.Binding.Observers
         {
             get
             {
-                if (_lastMember == null)
+                if (_member == null)
                     return BindingMetadata.UnsetValue;
                 return _target;
             }
         }
 
-        public IBindingMemberInfo LastMember
+        public IBindingMemberInfo Member
         {
             get
             {
-                if (_lastMember == null)
+                if (_member == null)
                     return ConstantBindingMemberInfo.Unset;
-                return _lastMember;
+                return _member;
             }
         }
 
@@ -76,18 +76,18 @@ namespace MugenMvvm.Binding.Observers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ThrowIfError()
         {
-            if (_lastMember == null && _target is Exception e)
+            if (_member == null && _target is Exception e)
                 throw e;
         }
 
         public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IBindingMemberAccessorInfo)_lastMember!).GetValue(_target, metadata);
+            return ((IBindingMemberAccessorInfo)_member!).GetValue(_target, metadata);
         }
 
         public void SetValue(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IBindingMemberAccessorInfo)_lastMember!).SetValue(_target, value, metadata);
+            ((IBindingMemberAccessorInfo)_member!).SetValue(_target, value, metadata);
         }
 
         #endregion
