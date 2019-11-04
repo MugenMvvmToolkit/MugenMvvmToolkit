@@ -37,8 +37,8 @@ namespace MugenMvvm.Binding.Core
                 var expressionValues = new ExpressionValue[sources.Length];
                 for (var i = 0; i < sources.Length; i++)
                 {
-                    var members = sources[i].GetLastMember(Metadata);
-                    var value = members.GetLastMemberValue(Metadata);
+                    var members = sources[i].GetLastMember(this);
+                    var value = members.GetLastMemberValue(this);
                     if (value.IsUnsetValueOrDoNothing())
                         return value;
                     expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, null);
@@ -48,15 +48,15 @@ namespace MugenMvvm.Binding.Core
             }
             else
             {
-                var members = ((IMemberPathObserver)SourceRaw).GetLastMember(Metadata);
-                var value = members.GetLastMemberValue(Metadata);
+                var members = ((IMemberPathObserver)SourceRaw).GetLastMember(this);
+                var value = members.GetLastMemberValue(this);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
 
                 values = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, value);
             }
 
-            return _expression!.Invoke(values, Metadata);
+            return _expression!.Invoke(values, this);
         }
 
         #endregion

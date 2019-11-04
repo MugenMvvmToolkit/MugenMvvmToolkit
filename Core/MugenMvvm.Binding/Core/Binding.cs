@@ -80,9 +80,7 @@ namespace MugenMvvm.Binding.Core
 
         bool IMetadataOwner<IReadOnlyMetadataContext>.HasMetadata => true;
 
-        IReadOnlyMetadataContext IMetadataOwner<IReadOnlyMetadataContext>.Metadata => Metadata;
-
-        protected virtual IReadOnlyMetadataContext Metadata => this;
+        IReadOnlyMetadataContext IMetadataOwner<IReadOnlyMetadataContext>.Metadata => this;
 
         public BindingState State => _targetObserverCount == byte.MaxValue ? BindingState.Disposed : BindingState.Attached;
 
@@ -113,7 +111,7 @@ namespace MugenMvvm.Binding.Core
                 return;
             _targetObserverCount = byte.MaxValue;
             OnDispose();
-            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, Metadata);
+            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, this);
             if (targetObserverCount != 0)
                 Target.RemoveListener(this);
             Target.Dispose();
@@ -287,20 +285,20 @@ namespace MugenMvvm.Binding.Core
                 if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, Metadata);
+                        (c[i] as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, this);
                 }
                 else
-                    (components as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, Metadata);
+                    (components as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, this);
             }
             else
             {
                 if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, Metadata);
+                        (c[i] as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, this);
                 }
                 else
-                    (components as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, Metadata);
+                    (components as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, this);
             }
         }
 
@@ -313,20 +311,20 @@ namespace MugenMvvm.Binding.Core
                 if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, Metadata);
+                        (c[i] as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, this);
                 }
                 else
-                    (components as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, Metadata);
+                    (components as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, this);
             }
             else
             {
                 if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, Metadata);
+                        (c[i] as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, this);
                 }
                 else
-                    (components as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, Metadata);
+                    (components as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, this);
             }
         }
 
@@ -339,20 +337,20 @@ namespace MugenMvvm.Binding.Core
                 if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, Metadata);
+                        (c[i] as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, this);
                 }
                 else
-                    (components as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, Metadata);
+                    (components as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, this);
             }
             else
             {
                 if (components is IComponent<IBinding>[] c)
                 {
                     for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, Metadata);
+                        (c[i] as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, this);
                 }
                 else
-                    (components as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, Metadata);
+                    (components as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, this);
             }
         }
 
@@ -443,174 +441,51 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            return ((IMemberPathObserver)SourceRaw).GetLastMember(Metadata).GetLastMemberValue(Metadata);
+            return ((IMemberPathObserver)SourceRaw).GetLastMember(this).GetLastMemberValue(this);
         }
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
         {
-            if (SourceRaw is IMemberPathObserver observer)
-                return SetSourceValue(observer, out newValue);
+            if (SourceRaw is IMemberPathObserver sourceObserver)
+            {
+                var pathLastMember = sourceObserver.GetLastMember(this);
+                pathLastMember.ThrowIfError();
+
+                if (!pathLastMember.IsAvailable)
+                {
+                    newValue = null;
+                    return false;
+                }
+
+                newValue = GetTargetValue(pathLastMember);
+                if (newValue.IsUnsetValueOrDoNothing())
+                    return false;
+
+                if (CheckFlag(HasSourceValueInterceptorFlag))
+                {
+                    newValue = InterceptSourceValue(sourceObserver, pathLastMember, newValue);
+                    if (newValue.IsUnsetValueOrDoNothing())
+                        return false;
+                }
+
+                newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, this);
+
+                if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(sourceObserver, pathLastMember, newValue))
+                    pathLastMember.SetLastMemberValue(newValue, this);
+                return true;
+            }
             newValue = null;
             return false;
         }
 
         protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
         {
-            return Target.GetLastMember(Metadata).GetLastMemberValue(Metadata);
+            return Target.GetLastMember(this).GetLastMemberValue(this);
         }
 
         protected virtual bool UpdateTargetInternal(out object? newValue)
         {
-            return SetTargetValue(Target, out newValue);
-        }
-
-        protected virtual void OnTargetUpdateFailed(Exception error)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, Metadata);
-            }
-            else
-                (components as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, Metadata);
-        }
-
-        protected virtual void OnTargetUpdateCanceled()
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdateCanceled(this, Metadata);
-            }
-            else
-                (components as IBindingTargetListener)?.OnTargetUpdateCanceled(this, Metadata);
-        }
-
-        protected virtual void OnTargetUpdated(object? newValue)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdated(this, newValue, Metadata);
-            }
-            else
-                (components as IBindingTargetListener)?.OnTargetUpdated(this, newValue, Metadata);
-        }
-
-        protected virtual void OnSourceUpdateFailed(Exception error)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, Metadata);
-            }
-            else
-                (components as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, Metadata);
-        }
-
-        protected virtual void OnSourceUpdateCanceled()
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdateCanceled(this, Metadata);
-            }
-            else
-                (components as IBindingSourceListener)?.OnSourceUpdateCanceled(this, Metadata);
-        }
-
-        protected virtual void OnSourceUpdated(object? newValue)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
-            }
-            else
-                (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, Metadata);
-        }
-
-        protected virtual object? InterceptTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, Metadata);
-                }
-            }
-            else if (components is ITargetValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, Metadata);
-
-            return value;
-        }
-
-        protected virtual object? InterceptSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? value)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, Metadata);
-                }
-            }
-            else if (components is ISourceValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, Metadata);
-
-            return value;
-        }
-
-        protected virtual bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? newValue)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, Metadata))
-                        return true;
-                }
-            }
-            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, Metadata))
-                return true;
-
-            return false;
-        }
-
-        protected virtual bool TrySetSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? newValue)
-        {
-            var components = _components;
-            if (components is IComponent<IBinding>[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, Metadata))
-                        return true;
-                }
-            }
-            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, Metadata))
-                return true;
-
-            return false;
-        }
-
-        protected virtual void OnDispose()
-        {
-        }
-
-        protected bool SetTargetValue(IMemberPathObserver targetObserver, out object? newValue)
-        {
-            var pathLastMember = targetObserver.GetLastMember(Metadata);
+            var pathLastMember = Target.GetLastMember(this);
             pathLastMember.ThrowIfError();
 
             if (!pathLastMember.IsAvailable)
@@ -625,45 +500,160 @@ namespace MugenMvvm.Binding.Core
 
             if (CheckFlag(HasTargetValueInterceptorFlag))
             {
-                newValue = InterceptTargetValue(targetObserver, pathLastMember, newValue);
+                newValue = InterceptTargetValue(Target, pathLastMember, newValue);
                 if (newValue.IsUnsetValueOrDoNothing())
                     return false;
             }
 
-            newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
+            newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, this);
 
-            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(targetObserver, pathLastMember, newValue))
-                pathLastMember.SetLastMemberValue(newValue, Metadata);
+            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(Target, pathLastMember, newValue))
+                pathLastMember.SetLastMemberValue(newValue, this);
             return true;
         }
 
-        protected bool SetSourceValue(IMemberPathObserver sourceObserver, out object? newValue)
+        protected virtual void OnTargetUpdateFailed(Exception error)
         {
-            var pathLastMember = sourceObserver.GetLastMember(Metadata);
-            pathLastMember.ThrowIfError();
-
-            if (!pathLastMember.IsAvailable)
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
             {
-                newValue = null;
-                return false;
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, this);
             }
+            else
+                (components as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, this);
+        }
 
-            newValue = GetTargetValue(pathLastMember);
-            if (newValue.IsUnsetValueOrDoNothing())
-                return false;
-
-            if (CheckFlag(HasSourceValueInterceptorFlag))
+        protected virtual void OnTargetUpdateCanceled()
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
             {
-                newValue = InterceptSourceValue(sourceObserver, pathLastMember, newValue);
-                if (newValue.IsUnsetValueOrDoNothing())
-                    return false;
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdateCanceled(this, this);
             }
+            else
+                (components as IBindingTargetListener)?.OnTargetUpdateCanceled(this, this);
+        }
 
-            newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, Metadata);
+        protected virtual void OnTargetUpdated(object? newValue)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdated(this, newValue, this);
+            }
+            else
+                (components as IBindingTargetListener)?.OnTargetUpdated(this, newValue, this);
+        }
 
-            if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(sourceObserver, pathLastMember, newValue))
-                pathLastMember.SetLastMemberValue(newValue, Metadata);
-            return true;
+        protected virtual void OnSourceUpdateFailed(Exception error)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, this);
+            }
+            else
+                (components as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, this);
+        }
+
+        protected virtual void OnSourceUpdateCanceled()
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdateCanceled(this, this);
+            }
+            else
+                (components as IBindingSourceListener)?.OnSourceUpdateCanceled(this, this);
+        }
+
+        protected virtual void OnSourceUpdated(object? newValue)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdated(this, newValue, this);
+            }
+            else
+                (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, this);
+        }
+
+        protected virtual object? InterceptTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ITargetValueInterceptorBindingComponent interceptor)
+                        value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, this);
+                }
+            }
+            else if (components is ITargetValueInterceptorBindingComponent interceptor)
+                value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, this);
+
+            return value;
+        }
+
+        protected virtual object? InterceptSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? value)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ISourceValueInterceptorBindingComponent interceptor)
+                        value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, this);
+                }
+            }
+            else if (components is ISourceValueInterceptorBindingComponent interceptor)
+                value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, this);
+
+            return value;
+        }
+
+        protected virtual bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? newValue)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, this))
+                        return true;
+                }
+            }
+            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, this))
+                return true;
+
+            return false;
+        }
+
+        protected virtual bool TrySetSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? newValue)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, this))
+                        return true;
+                }
+            }
+            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, this))
+                return true;
+
+            return false;
+        }
+
+        protected virtual void OnDispose()
+        {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
