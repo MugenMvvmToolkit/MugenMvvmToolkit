@@ -9,7 +9,6 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -27,7 +26,7 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
-        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IBindingMemberInfo? lastMember, ref Unsubscriber unsubscriber, ref IWeakReference lastValueRef)
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IBindingMemberInfo? lastMember, ref Unsubscriber unsubscriber, ref IWeakReference? lastValueRef)
         {
             unsubscriber.Unsubscribe();
             if (target == null || !(lastMember is IBindingMemberAccessorInfo propertyInfo))

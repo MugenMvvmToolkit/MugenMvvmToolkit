@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Linq;
 using System.Linq.Expressions;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
 
 // ReSharper disable once CheckNamespace

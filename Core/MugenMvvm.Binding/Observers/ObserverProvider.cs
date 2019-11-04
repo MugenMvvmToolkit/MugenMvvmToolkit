@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider, //todo restructure
+    public class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider,
         IComponentOwnerAddedCallback<IComponent<IObserverProvider>>, IComponentOwnerRemovedCallback<IComponent<IObserverProvider>>
     {
         #region Fields

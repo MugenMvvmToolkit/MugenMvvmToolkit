@@ -1,9 +1,10 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using System.Runtime.InteropServices;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Observers
 {
+    [StructLayout(LayoutKind.Auto)]
     public readonly struct MemberPathObserverRequest
     {
         #region Fields
@@ -20,7 +21,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MemberPathObserverRequest(IMemberPath path, BindingMemberFlags memberFlags, string? observableMethodName, 
+        public MemberPathObserverRequest(IMemberPath path, BindingMemberFlags memberFlags, string? observableMethodName,
             bool hasStablePath, bool observable, bool optional, object? state = null)
         {
             Should.NotBeNull(path, nameof(path));

@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Binding.Delegates;
+﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -10,7 +12,18 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private static readonly FuncEx<MemberPathObserverRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver?> TryGetMemberPathObserverDelegate = TryGetMemberPathObserver;
+        private readonly FuncEx<MemberPathObserverRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver?> _tryGetMemberPathObserverDelegate;
+
+        #endregion
+
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public MemberPathObserverProviderComponent()
+        {
+            ObservableRootMembers = new HashSet<string> {BindableMembers.Object.DataContext};
+            _tryGetMemberPathObserverDelegate = TryGetMemberPathObserver;
+        }
 
         #endregion
 
@@ -18,13 +31,15 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; }
 
+        public HashSet<string> ObservableRootMembers { get; }
+
         #endregion
 
         #region Implementation of interfaces
 
         public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (TryGetMemberPathObserverDelegate is FuncEx<TRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver> provider)
+            if (_tryGetMemberPathObserverDelegate is FuncEx<TRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver> provider)
                 return provider.Invoke(request, target, metadata);
             return null;
         }
@@ -33,7 +48,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private static IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object target, IReadOnlyMetadataContext? metadata)
+        private IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object target, IReadOnlyMetadataContext? metadata)
         {
             var memberFlags = request.MemberFlags;
             var path = request.Path;
@@ -41,10 +56,15 @@ namespace MugenMvvm.Binding.Observers.Components
             if (string.IsNullOrEmpty(observableMethod))
             {
                 if (path.IsSingle)
-                    return new SinglePathObserver(target, path, memberFlags, request.Observable, request.Optional);
+                    return new SinglePathObserver(target, path, memberFlags, request.Observable || ObservableRootMembers.Contains(path.Path), request.Optional);
                 if (path.Members.Length == 0)
                     return new EmptyPathObserver(target);
-                return new MultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Observable, request.Optional);
+
+                if (request.Observable)
+                    return new MultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
+                if (ObservableRootMembers.Contains(path.Members[0]))
+                    return new ObservableRootMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
+                return new MultiPathObserverRaw(target, path, memberFlags, request.HasStablePath, request.Optional);
             }
 
             if (path.IsSingle)

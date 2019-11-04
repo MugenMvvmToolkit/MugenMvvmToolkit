@@ -9,13 +9,12 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
 {
-    public static partial class MugenBindingExtensions//todo rename
+    public static partial class MugenBindingExtensions
     {
         #region Methods
 

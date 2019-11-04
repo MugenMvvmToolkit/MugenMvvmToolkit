@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority//todo review restructure
+    public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -90,7 +90,7 @@ namespace MugenMvvm.Binding.Members.Components
                         var candidate = SelectMember(t.GetProperties(BindingFlagsEx.All), name, indexerArgs, metadata, (info, _) => info.GetIndexParameters(), out var indexerValues);
                         if (candidate != null)
                         {
-                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexerValues, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                            result.Add(new IndexerBindingPropertyInfo(name, candidate, indexerValues!, type, _bindingObserverProvider, _reflectionDelegateProvider));
                             hasProperty = true;
                         }
                         else if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
@@ -148,7 +148,7 @@ namespace MugenMvvm.Binding.Members.Components
             return result;
         }
 
-        private T? SelectMember<T, TState>(T[] members, TState state, string[] args, IReadOnlyMetadataContext metadata, Func<T, TState, ParameterInfo[]?> getParameters, out object?[]? indexerValues) where T : MemberInfo
+        private T? SelectMember<T, TState>(T[] members, TState state, string[] args, IReadOnlyMetadataContext? metadata, Func<T, TState, ParameterInfo[]?> getParameters, out object?[]? indexerValues) where T : MemberInfo
         {
             T? candidate = null;
             var valueTypeCount = -1;

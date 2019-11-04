@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using MugenMvvm.Enums;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;

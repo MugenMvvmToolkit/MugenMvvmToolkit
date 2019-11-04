@@ -4,7 +4,6 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions

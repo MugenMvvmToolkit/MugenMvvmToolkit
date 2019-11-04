@@ -9,7 +9,6 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections;
-using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {

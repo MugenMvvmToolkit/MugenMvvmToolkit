@@ -63,6 +63,7 @@ namespace MugenMvvm.Binding.Observers
         {
             _unsubscriber.Unsubscribe();
             _unsubscriber = default;
+            base.UnsubscribeLastMember();
         }
 
         #endregion

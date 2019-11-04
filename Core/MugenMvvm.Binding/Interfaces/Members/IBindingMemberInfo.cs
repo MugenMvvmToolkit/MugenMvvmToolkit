@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Enums;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {

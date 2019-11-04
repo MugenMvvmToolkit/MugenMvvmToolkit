@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace

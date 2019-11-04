@@ -1,5 +1,4 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 

@@ -3,7 +3,6 @@ using System.Globalization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;

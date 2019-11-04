@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MethodBindingPropertyInfo : IBindingMemberAccessorInfo//todo add interface for extended path
+    public sealed class MethodBindingPropertyInfo : IBindingMemberAccessorInfo
     {
         #region Fields
 

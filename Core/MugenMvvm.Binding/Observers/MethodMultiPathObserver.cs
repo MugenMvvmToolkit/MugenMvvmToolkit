@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observers
         #region Constructors
 
         public MethodMultiPathObserver(string method, object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
-            : base(target, path, memberFlags, hasStablePath, true, optional)
+            : base(target, path, memberFlags, hasStablePath, optional)
         {
             Should.NotBeNull(method, nameof(method));
             _method = method;
@@ -63,6 +63,7 @@ namespace MugenMvvm.Binding.Observers
         {
             _unsubscriber.Unsubscribe();
             _unsubscriber = default;
+            base.UnsubscribeLastMember();
         }
 
         #endregion

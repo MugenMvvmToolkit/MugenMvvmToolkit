@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
