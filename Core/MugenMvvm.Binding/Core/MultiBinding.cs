@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Core
                 for (var i = 0; i < sources.Length; i++)
                 {
                     var members = sources[i].GetLastMember(this);
-                    var value = members.GetLastMemberValue(this);
+                    var value = members.GetValue(this);
                     if (value.IsUnsetValueOrDoNothing())
                         return value;
                     expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.LastMember.Type, null);
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Core
             else
             {
                 var members = ((IMemberPathObserver)SourceRaw).GetLastMember(this);
-                var value = members.GetLastMemberValue(this);
+                var value = members.GetValue(this);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
 

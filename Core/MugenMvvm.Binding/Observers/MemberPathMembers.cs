@@ -20,14 +20,12 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberPathMembers(object? target, IBindingMemberInfo[]? members)
         {
-            Should.NotBeNull(members, nameof(members));
             _target = target;
             _members = members;
         }
 
         public MemberPathMembers(Exception exception)
         {
-            Should.NotBeNull(exception, nameof(exception));
             _target = exception;
             _target = null;
             _members = null;

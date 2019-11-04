@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
@@ -19,16 +20,15 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemberPathLastMember(object? target, IBindingMemberInfo lastMember)
         {
-            Should.NotBeNull(lastMember, nameof(lastMember));
             _target = target;
             _lastMember = lastMember;
         }
 
         public MemberPathLastMember(Exception exception)
         {
-            Should.NotBeNull(exception, nameof(exception));
             _target = exception;
             _lastMember = null;
         }
@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_lastMember == null)
-                    return (Exception?) _target;
+                    return (Exception?)_target;
                 return null;
             }
         }
@@ -73,20 +73,21 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ThrowIfError()
         {
-            if (Error != null)
-                throw Error!;
+            if (_lastMember == null && _target is Exception e)
+                throw e;
         }
 
-        public object? GetLastMemberValue(IReadOnlyMetadataContext? metadata = null)
+        public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IBindingMemberAccessorInfo) LastMember).GetValue(Target, metadata);
+            return ((IBindingMemberAccessorInfo)_lastMember).GetValue(_target, metadata);
         }
 
-        public void SetLastMemberValue(object? value, IReadOnlyMetadataContext? metadata = null)
+        public void SetValue(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IBindingMemberAccessorInfo) LastMember).SetValue(Target, value, metadata);
+            ((IBindingMemberAccessorInfo)_lastMember).SetValue(_target, value, metadata);
         }
 
         #endregion

@@ -434,7 +434,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            return ((IMemberPathObserver)SourceRaw).GetLastMember(this).GetLastMemberValue(this);
+            return ((IMemberPathObserver)SourceRaw).GetLastMember(this).GetValue(this);
         }
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
@@ -464,7 +464,7 @@ namespace MugenMvvm.Binding.Core
                 newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, this);
 
                 if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(sourceObserver, pathLastMember, newValue))
-                    pathLastMember.SetLastMemberValue(newValue, this);
+                    pathLastMember.SetValue(newValue, this);
                 return true;
             }
             newValue = null;
@@ -473,7 +473,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
         {
-            return Target.GetLastMember(this).GetLastMemberValue(this);
+            return Target.GetLastMember(this).GetValue(this);
         }
 
         protected virtual bool UpdateTargetInternal(out object? newValue)
@@ -501,7 +501,7 @@ namespace MugenMvvm.Binding.Core
             newValue = MugenBindingService.GlobalValueConverter.Convert(newValue, pathLastMember.LastMember.Type, pathLastMember.LastMember, this);
 
             if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(Target, pathLastMember, newValue))
-                pathLastMember.SetLastMemberValue(newValue, this);
+                pathLastMember.SetValue(newValue, this);
             return true;
         }
 

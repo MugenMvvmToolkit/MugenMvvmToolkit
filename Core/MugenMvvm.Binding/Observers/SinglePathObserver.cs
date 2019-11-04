@@ -48,18 +48,6 @@ namespace MugenMvvm.Binding.Observers
 
         protected bool Optional => CheckFlag(OptionalFlag);
 
-        private bool IsInitialized
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get => CheckFlag(InitializedFlag);
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            set
-            {
-                if (value)
-                    _state |= InitializedFlag;
-            }
-        }
-
         #endregion
 
         #region Implementation of interfaces
@@ -134,9 +122,9 @@ namespace MugenMvvm.Binding.Observers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateIfNeed()
         {
-            if (!IsInitialized)
+            if (!CheckFlag(InitializedFlag))
             {
-                IsInitialized = true;
+                _state |= InitializedFlag;
                 Update();
             }
         }

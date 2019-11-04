@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
@@ -46,6 +47,7 @@ namespace MugenMvvm.Binding.Observers
 
         public object? Target
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_target is IWeakReference w)
@@ -87,7 +89,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] {(IMemberPathObserverListener) _listeners, listener};
+                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
 
             OnListenerAdded(listener);
         }
