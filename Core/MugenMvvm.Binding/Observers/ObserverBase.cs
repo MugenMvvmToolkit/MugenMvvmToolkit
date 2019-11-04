@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -88,7 +87,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
+                _listeners = new[] {(IMemberPathObserverListener) _listeners, listener};
 
             OnListenerAdded(listener);
         }
@@ -219,6 +218,19 @@ namespace MugenMvvm.Binding.Observers
             }
 
             return false;
+        }
+
+        #endregion
+
+        #region Nested types
+
+        internal interface IMethodPathObserver : IMemberPathObserver
+        {
+            BindingMemberFlags MemberFlags { get; }
+
+            string Method { get; }
+
+            IEventListener GetMethodListener();
         }
 
         #endregion

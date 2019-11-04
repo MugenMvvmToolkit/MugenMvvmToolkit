@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         private readonly BindingMemberFlags _memberFlags;
-        private readonly string _observableMethodName;
+        private readonly string _method;
 
         private Unsubscriber _unsubscriber;
 
@@ -21,11 +21,11 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodEmptyPathObserver(string observableMethodName, object target, BindingMemberFlags memberFlags) : base(target)
+        public MethodEmptyPathObserver(string method, object target, BindingMemberFlags memberFlags) : base(target)
         {
-            Should.NotBeNull(observableMethodName, nameof(observableMethodName));
+            Should.NotBeNull(method, nameof(method));
             _memberFlags = memberFlags;
-            _observableMethodName = observableMethodName;
+            _method = method;
         }
 
         #endregion
@@ -85,7 +85,7 @@ namespace MugenMvvm.Binding.Observers
                 _unsubscriber = Unsubscriber.NoDoUnsubscriber;
             else
             {
-                var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _observableMethodName, BindingMemberType.Method, _memberFlags);
+                var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _method, BindingMemberType.Method, _memberFlags);
                 if (member is IObservableBindingMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this);
                 if (_unsubscriber.IsEmpty)

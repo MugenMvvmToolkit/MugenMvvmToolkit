@@ -5,9 +5,12 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
@@ -23,6 +26,35 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IBindingMemberInfo? lastMember, ref Unsubscriber unsubscriber, ref IWeakReference lastValueRef)
+        {
+            unsubscriber.Unsubscribe();
+            if (target == null || !(lastMember is IBindingMemberAccessorInfo propertyInfo))
+            {
+                unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                return;
+            }
+
+            var value = propertyInfo.GetValue(target);
+            if (ReferenceEquals(value, lastValueRef?.Target))
+                return;
+
+            var type = value?.GetType()!;
+            if (value.IsNullOrUnsetValue() || type.IsValueType)
+            {
+                unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                return;
+            }
+
+            lastValueRef = value.ToWeakReference();
+            var memberFlags = observer.MemberFlags & ~BindingMemberFlags.Static;
+            var member = MugenBindingService.MemberProvider.GetMember(type!, observer.Method, BindingMemberType.Method, memberFlags);
+            if (member is IObservableBindingMemberInfo observable)
+                unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
+            if (unsubscriber.IsEmpty)
+                unsubscriber = Unsubscriber.NoDoUnsubscriber;
+        }
 
         internal static string GetPath(this StringBuilder memberNameBuilder)
         {
@@ -80,7 +112,7 @@ namespace MugenMvvm.Binding
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static string[]? GetMethodArgsRaw(string path, out string? methodName)
+        internal static string[]? GetMethodArgsRaw(string path, out string? methodName)
         {
             var startIndex = path.IndexOf('(');
             if (startIndex < 0 || !path.EndsWith(")", StringComparison.Ordinal))
@@ -135,11 +167,6 @@ namespace MugenMvvm.Binding
             return result;
         }
 
-        internal static string RemoveBounds(this string st, int start = 1) //todo Span?
-        {
-            return st.Substring(start, st.Length - start - 1);
-        }
-
         internal static BindingMemberFlags GetAccessModifiers(this MethodBase? method)
         {
             if (method == null)
@@ -147,6 +174,11 @@ namespace MugenMvvm.Binding
             if (method.IsStatic)
                 return method.IsPublic ? BindingMemberFlags.StaticPublic : BindingMemberFlags.StaticNonPublic;
             return method.IsPublic ? BindingMemberFlags.InstancePublic : BindingMemberFlags.InstanceNonPublic;
+        }
+
+        private static string RemoveBounds(this string st, int start = 1) //todo Span?
+        {
+            return st.Substring(start, st.Length - start - 1);
         }
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
