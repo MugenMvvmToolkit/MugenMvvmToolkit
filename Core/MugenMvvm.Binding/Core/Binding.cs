@@ -98,7 +98,7 @@ namespace MugenMvvm.Binding.Core
 
         protected object SourceRaw { get; }
 
-        int IReadOnlyCollection<MetadataContextValue>.Count => 1;
+        int IReadOnlyCollection<MetadataContextValue>.Count => GetMetadataCount();
 
         #endregion
 
@@ -356,29 +356,22 @@ namespace MugenMvvm.Binding.Core
 
         IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
         {
-            yield return MetadataContextValue.Create(BindingMetadata.Binding, this);
+            return GetMetadataEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            return ((IReadOnlyMetadataContext)this).GetEnumerator();
+            return GetMetadataEnumerator();
         }
 
         bool IReadOnlyMetadataContext.TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
         {
-            if (BindingMetadata.Binding.Equals(contextKey))
-            {
-                value = (T)(object)this;
-                return true;
-            }
-
-            value = contextKey.GetDefaultValue(this, defaultValue);
-            return false;
+            return TryGetMetadata(contextKey, out value, defaultValue);
         }
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey)
         {
-            return BindingMetadata.Binding.Equals(contextKey);
+            return ContainsMetadata(contextKey);
         }
 
         #endregion
@@ -512,7 +505,31 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        protected virtual void OnTargetUpdateFailed(Exception error)
+        protected virtual int GetMetadataCount() => 1;
+
+        protected virtual IEnumerator<MetadataContextValue> GetMetadataEnumerator()
+        {
+            yield return MetadataContextValue.Create(BindingMetadata.Binding, this);
+        }
+
+        protected virtual bool TryGetMetadata<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
+        {
+            if (BindingMetadata.Binding.Equals(contextKey))
+            {
+                value = (T)(object)this;
+                return true;
+            }
+
+            value = contextKey.GetDefaultValue(this, defaultValue);
+            return false;
+        }
+
+        protected virtual bool ContainsMetadata(IMetadataContextKey contextKey)
+        {
+            return BindingMetadata.Binding.Equals(contextKey);
+        }
+
+        protected void OnTargetUpdateFailed(Exception error)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -524,7 +541,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, this);
         }
 
-        protected virtual void OnTargetUpdateCanceled()
+        protected void OnTargetUpdateCanceled()
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -536,7 +553,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingTargetListener)?.OnTargetUpdateCanceled(this, this);
         }
 
-        protected virtual void OnTargetUpdated(object? newValue)
+        protected void OnTargetUpdated(object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -548,7 +565,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingTargetListener)?.OnTargetUpdated(this, newValue, this);
         }
 
-        protected virtual void OnSourceUpdateFailed(Exception error)
+        protected void OnSourceUpdateFailed(Exception error)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -560,7 +577,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, this);
         }
 
-        protected virtual void OnSourceUpdateCanceled()
+        protected void OnSourceUpdateCanceled()
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -572,7 +589,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingSourceListener)?.OnSourceUpdateCanceled(this, this);
         }
 
-        protected virtual void OnSourceUpdated(object? newValue)
+        protected void OnSourceUpdated(object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -584,7 +601,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, this);
         }
 
-        protected virtual object? InterceptTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value)
+        protected object? InterceptTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -601,7 +618,7 @@ namespace MugenMvvm.Binding.Core
             return value;
         }
 
-        protected virtual object? InterceptSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? value)
+        protected object? InterceptSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -618,7 +635,7 @@ namespace MugenMvvm.Binding.Core
             return value;
         }
 
-        protected virtual bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? newValue)
+        protected bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -635,7 +652,7 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        protected virtual bool TrySetSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? newValue)
+        protected bool TrySetSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
