@@ -209,11 +209,7 @@ namespace MugenMvvm.Binding.Core
                 _components = items;
             }
             else
-            {
-                _components = MugenExtensions.GetComponentPriority(_components, this) >= MugenExtensions.GetComponentPriority(component, this)
-                    ? new[] { (IComponent<IBinding>)_components, component }
-                    : new[] { component, (IComponent<IBinding>)_components };
-            }
+                _components = MergeComponents((IComponent<IBinding>)_components, component);
 
             OnComponentAdded(component);
             MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
@@ -373,57 +369,67 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public void SetComponents(ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
+        public void AddOrderedComponents(ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
         {
             var list = components.List;
             var item = components.Item;
-            if (item == null && list == null)
-                return;
 
-            if (_components != null)
+            if (list == null)
             {
                 if (item == null)
+                    return;
+
+                if (MugenExtensions.OnAddingDefaultHandler(this, item, metadata))
                 {
-                    for (int i = 0; i < list!.Length; i++)
-                        Components.Add(list[i]);
+                    OnComponentAdded(item);
+                    MugenExtensions.OnAddedDefaultHandler(this, item, metadata);
+                    MergeComponents(item);
                 }
-                else
-                    Components.Add(item);
                 return;
             }
 
-            if (list == null || list.Length == 1)
+            int currentLength = 0;
+            for (var i = 0; i < list.Length; i++)
             {
-                var component = item ?? list![0];
-                if (MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
-                {
-                    OnComponentAdded(component);
-                    MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
-                    _components = component;
-                }
+                var component = list[i];
+                if (!MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
+                    continue;
+
+                OnComponentAdded(component);
+                MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
+                list[currentLength++] = list[i];
             }
-            else
+
+            if (currentLength == 1)
+                MergeComponents(list[0]);
+            else if (currentLength != 0)
             {
-                int currentLength = 0;
-                for (var i = 0; i < list.Length; i++)
+                if (_components != null)
                 {
-                    var component = list[i];
-                    if (!MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
-                        continue;
+                    if (_components is IComponent<IBinding>[] array)
+                    {
+                        var newSize = array.Length + currentLength;
+                        if (newSize != list.Length)
+                            Array.Resize(ref list, newSize);
+                        for (int i = 0; i < array.Length; i++)
+                            MugenExtensions.AddOrdered(list, array[i], currentLength++, this);
+                        _components = list;
+                        return;
+                    }
 
-                    OnComponentAdded(component);
-                    MugenExtensions.OnAddedDefaultHandler(this, component, metadata);
-                    list[currentLength++] = list[i];
+                    if (list.Length == currentLength)
+                    {
+                        _components = MergeComponents(list, (IComponent<IBinding>)_components);
+                        return;
+                    }
+
+                    MugenExtensions.AddOrdered(list, (IComponent<IBinding>)_components, currentLength, this);
+                    ++currentLength;
                 }
 
-                if (currentLength == 1)
-                    _components = list[0];
-                else if (currentLength != 0)
-                {
-                    if (list.Length - currentLength != 0)
-                        Array.Resize(ref list, currentLength);
-                    _components = list;
-                }
+                if (list.Length != currentLength)
+                    Array.Resize(ref list, currentLength);
+                _components = list;
             }
         }
 
@@ -684,6 +690,29 @@ namespace MugenMvvm.Binding.Core
         protected void ClearFlag(byte flag)
         {
             _state = (byte)(_state & ~flag);
+        }
+
+        private void MergeComponents(IComponent<IBinding> component)
+        {
+            if (_components == null)
+                _components = component;
+            else if (_components is IComponent<IBinding>[] array)
+                _components = MergeComponents(array, component);
+            else
+                _components = MergeComponents((IComponent<IBinding>)_components, component);
+        }
+
+        private object MergeComponents(IComponent<IBinding> c1, IComponent<IBinding> c2)
+        {
+            return MugenExtensions.GetComponentPriority(c1, this) >= MugenExtensions.GetComponentPriority(c2, this)
+                ? new[] { c1, c2 }
+                : new[] { c2, c1 };
+        }
+
+        private object MergeComponents(IComponent<IBinding>[] components, IComponent<IBinding> component)
+        {
+            MugenExtensions.AddOrdered(ref components, component, this);
+            return components;
         }
 
         private bool RemoveComponent(IComponent<IBinding> component)

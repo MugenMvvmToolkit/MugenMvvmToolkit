@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm.Binding
@@ -17,6 +18,29 @@ namespace MugenMvvm.Binding
     public static partial class MugenBindingExtensions
     {
         #region Methods
+
+        public static bool IsAllMembersAvailable(this ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> observers)
+        {
+            var list = observers.List;
+            if (list == null)
+            {
+                var item = observers.Item;
+                return item == null || item.IsAllMembersAvailable();
+            }
+
+            for (int i = 0; i < list.Length; i++)
+            {
+                if (!list[i].IsAllMembersAvailable())
+                    return false;
+            }
+
+            return true;
+        }
+
+        public static bool IsAllMembersAvailable(this IMemberPathObserver observer)
+        {
+            return observer.GetLastMember().IsAvailable;
+        }
 
         public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, BindingMemberFlags flags,
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)

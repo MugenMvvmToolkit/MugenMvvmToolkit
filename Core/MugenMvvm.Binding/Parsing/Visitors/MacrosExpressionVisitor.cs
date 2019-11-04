@@ -43,6 +43,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             ConstantParametersMethods = new Dictionary<string, string>
             {
                 {nameof(INotifyDataErrorInfo.GetErrors), nameof(INotifyDataErrorInfo.GetErrors)},
+                {"HasErrors", "HasErrors"},
                 {"Rel", BindableMembers.Object.RelativeSource},
                 {"Relative", BindableMembers.Object.RelativeSource},
                 {"RelativeSourceType", BindableMembers.Object.RelativeSource},
@@ -53,6 +54,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             MacrosTargets = new Dictionary<string, IExpressionNode>
             {
                 {nameof(INotifyDataErrorInfo.GetErrors), ContextMacros},
+                {"HasErrors", ContextMacros},
                 {"Rel", TargetMacros},
                 {"Relative", TargetMacros},
                 {"RelativeSource", TargetMacros},

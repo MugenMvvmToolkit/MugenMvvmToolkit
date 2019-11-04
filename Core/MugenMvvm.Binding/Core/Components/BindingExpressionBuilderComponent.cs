@@ -213,13 +213,13 @@ namespace MugenMvvm.Binding.Core.Components
                     _componentBuilders = BuildComponents(binding, target, source, metadata);
 
                 if (_componentBuilders.Length == 1)
-                    binding.SetComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(target, source, metadata)), metadata);
+                    binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
                     var components = new IComponent<IBinding>[_componentBuilders.Length];
                     for (var i = 0; i < components.Length; i++)
-                        MugenExtensions.AddOrdered(components, _componentBuilders[i].GetComponent(target, source, metadata), i, binding);
-                    binding.SetComponents(components, metadata);
+                        MugenExtensions.AddOrdered(components, _componentBuilders[i].GetComponent(binding, target, source, metadata), i, binding);
+                    binding.AddOrderedComponents(components, metadata);
                 }
 
                 if (binding.State != BindingState.Disposed)
