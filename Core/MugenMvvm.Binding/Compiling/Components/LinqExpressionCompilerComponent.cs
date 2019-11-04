@@ -18,7 +18,6 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    //todo check fast compiler
     public sealed class LinqExpressionCompilerComponent : AttachableComponentBase<IExpressionCompiler>, IExpressionCompilerComponent, IHasPriority,
         IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>
     {
@@ -276,7 +275,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                     var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
                     var lambda = Expression.Lambda<Func<object?[], object?>>(expression, ArrayParameterArray);
-                    return lambda.Compile();
+                    return lambda.CompileEx();
                 }
                 finally
                 {

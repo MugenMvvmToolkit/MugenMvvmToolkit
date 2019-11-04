@@ -199,7 +199,7 @@ namespace MugenMvvm.Internal.Components
         {
             var expressions = GetParametersExpression(constructor, out var parameterExpression);
             var newExpression = Expression.New(constructor, expressions).ConvertIfNeed(typeof(object), false);
-            return Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).Compile();
+            return Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).CompileEx();
         }
 
         public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
@@ -216,13 +216,13 @@ namespace MugenMvvm.Internal.Components
                         .Lambda<Func<object?, object?[], object?>>(
                             Expression.Block(callExpression, MugenExtensions.NullConstantExpression), EmptyParameterExpression,
                             parameterExpression)
-                        .Compile();
+                        .CompileEx();
                 }
 
                 callExpression = callExpression.ConvertIfNeed(typeof(object), false);
                 return Expression
                     .Lambda<Func<object?, object?[], object?>>(callExpression, EmptyParameterExpression, parameterExpression)
-                    .Compile();
+                    .CompileEx();
             }
 
             var declaringType = method.DeclaringType;
@@ -233,13 +233,13 @@ namespace MugenMvvm.Internal.Components
                 return Expression
                     .Lambda<Func<object?, object?[], object?>>(Expression.Block(callExpression, MugenExtensions.NullConstantExpression),
                         targetExp, parameterExpression)
-                    .Compile();
+                    .CompileEx();
             }
 
             callExpression = callExpression.ConvertIfNeed(typeof(object), false);
             return Expression
                 .Lambda<Func<object?, object?[], object?>>(callExpression, targetExp, parameterExpression)
-                .Compile();
+                .CompileEx();
         }
 
         public static Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
@@ -278,7 +278,7 @@ namespace MugenMvvm.Internal.Components
             if (delegateMethod.ReturnType != typeof(void))
                 callExpression = callExpression.ConvertIfNeed(delegateMethod.ReturnType, false);
             var lambdaExpression = Expression.Lambda(delegateType, callExpression, parameters);
-            return lambdaExpression.Compile();
+            return lambdaExpression.CompileEx();
         }
 
         public static Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
@@ -295,7 +295,7 @@ namespace MugenMvvm.Internal.Components
 
             return Expression
                 .Lambda<Func<object?, TType>>(accessExp.ConvertIfNeed(typeof(TType), false), target)
-                .Compile();
+                .CompileEx();
         }
 
         public static Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
@@ -335,7 +335,7 @@ namespace MugenMvvm.Internal.Components
 
             return Expression
                 .Lambda<Action<object?, TType>>(expression, targetParameter, valueParameter)
-                .Compile();
+                .CompileEx();
         }
 
         private static Expression[] GetParametersExpression(MethodBase methodBase, out ParameterExpression parameterExpression)

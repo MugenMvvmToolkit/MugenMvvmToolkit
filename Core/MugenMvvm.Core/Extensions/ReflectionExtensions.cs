@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -18,6 +19,22 @@ namespace MugenMvvm
         #endregion
 
         #region Methods
+
+        public static Delegate CompileEx(this LambdaExpression lambdaExpression, IReadOnlyMetadataContext? metadata = null)
+        {
+            var compiler = Service<ILambdaExpressionCompiler>.InstanceOptional;
+            if (compiler == null)
+                return lambdaExpression.Compile();
+            return compiler.Compile(lambdaExpression, metadata);
+        }
+
+        public static TDelegate CompileEx<TDelegate>(this Expression<TDelegate> lambdaExpression, IReadOnlyMetadataContext? metadata = null) where TDelegate : Delegate
+        {
+            var compiler = Service<ILambdaExpressionCompiler>.InstanceOptional;
+            if (compiler == null)
+                return lambdaExpression.Compile();
+            return compiler.Compile<TDelegate>(lambdaExpression, metadata);
+        }
 
         public static bool IsStatic(this MemberInfo member)
         {
@@ -83,7 +100,7 @@ namespace MugenMvvm
                 _createPropertyChangedHandlerDelegate = CreateHandler;
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
-        
+
         public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             return reflectionDelegateProvider.ServiceIfNull().CanCreateDelegate(delegateType, method);
