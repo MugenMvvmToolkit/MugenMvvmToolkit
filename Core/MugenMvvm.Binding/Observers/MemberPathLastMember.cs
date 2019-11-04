@@ -82,12 +82,12 @@ namespace MugenMvvm.Binding.Observers
 
         public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IBindingMemberAccessorInfo)_lastMember).GetValue(_target, metadata);
+            return ((IBindingMemberAccessorInfo)_lastMember!).GetValue(_target, metadata);
         }
 
         public void SetValue(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IBindingMemberAccessorInfo)_lastMember).SetValue(_target, value, metadata);
+            ((IBindingMemberAccessorInfo)_lastMember!).SetValue(_target, value, metadata);
         }
 
         #endregion

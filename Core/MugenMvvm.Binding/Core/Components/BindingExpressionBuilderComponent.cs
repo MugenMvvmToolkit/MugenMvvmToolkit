@@ -22,10 +22,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly Dictionary<string, int> _bindingMemberPriorities;
-
         private readonly StringOrdinalLightDictionary<IBindingComponentBuilder> _componentsDictionary;
-        private readonly List<IBindingComponentBuilder> _defaultBindingComponents;
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
@@ -43,10 +40,10 @@ namespace MugenMvvm.Binding.Core.Components
             _expressionCompiler = expressionCompiler;
             _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptor>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
-            _defaultBindingComponents = new List<IBindingComponentBuilder>();
+            DefaultBindingComponents = new List<IBindingComponentBuilder>();
             _componentsDictionary = new StringOrdinalLightDictionary<IBindingComponentBuilder>(7);
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
-            _bindingMemberPriorities = new Dictionary<string, int>
+            BindingMemberPriorities = new Dictionary<string, int>
             {
                 {BindableMembers.Object.DataContext, int.MaxValue - 1000},
                 {"BindingContext", int.MaxValue - 1000},
@@ -64,9 +61,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         public int Priority { get; set; }
 
-        public IDictionary<string, int> BindingMemberPriorities => _bindingMemberPriorities;
+        public Dictionary<string, int> BindingMemberPriorities { get; }
 
-        public IList<IBindingComponentBuilder> DefaultBindingComponents => _defaultBindingComponents; //todo add values
+        public List<IBindingComponentBuilder> DefaultBindingComponents { get; }//todo add values
 
         #endregion
 
@@ -132,9 +129,10 @@ namespace MugenMvvm.Binding.Core.Components
         private BindingExpressionBase GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
             ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
-            var parametersList = parameters.List != null
-                ? new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.List.ToList())
-                : new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.Item);
+            var list = parameters.List;
+            var parametersList = list == null
+                ? new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.Item)
+                : new ItemOrList<IExpressionNode?, List<IExpressionNode>>(new List<IExpressionNode>(list));
 
             for (int i = 0; i < _expressionInterceptors.Length; i++)
                 _expressionInterceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
@@ -149,24 +147,25 @@ namespace MugenMvvm.Binding.Core.Components
             if (sourceExpression is IBindingMemberExpressionNode memberExpression)
                 return new BindingExpression(this, targetMember, memberExpression, parameters, metadata);
 
-            var memberExpressions = _expressionCollectorVisitor.Collect(sourceExpression); //todo special case empty sources?
+            var memberExpressions = _expressionCollectorVisitor.Collect(sourceExpression);
             var compiledExpression = _expressionCompiler.ServiceIfNull().Compile(sourceExpression, metadata);
 
-            return new MultiBindingExpression(this, targetMember, memberExpressions.Item ?? (object?)memberExpressions.List, compiledExpression, parameters, metadata);
+            return new MultiBindingExpression(this, targetMember, memberExpressions.GetRawValue(), compiledExpression, parameters, metadata);
         }
 
         #endregion
 
         #region Nested types
 
-        private abstract class BindingExpressionBase : IBindingExpression//todo opt
+        private abstract class BindingExpressionBase : IBindingExpression
         {
             #region Fields
 
-            private readonly BindingExpressionBuilderComponent _builder;
-            private readonly ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> _parameters;
             protected readonly IReadOnlyMetadataContext? MetadataRaw;
             protected readonly IBindingMemberExpressionNode TargetExpression;
+
+            private readonly BindingExpressionBuilderComponent _builder;
+            private readonly object? _parametersRaw;
 
             private IBindingComponentBuilder[]? _componentBuilders;
 
@@ -179,11 +178,11 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 _builder = builder;
                 TargetExpression = targetExpression;
-                _parameters = parameters;
                 MetadataRaw = metadata;
+                _parametersRaw = parameters.GetRawValue();
                 if (TargetExpression is IHasPriority hasPriority)
                     Priority = hasPriority.Priority;
-                else if (builder._bindingMemberPriorities.TryGetValue(targetExpression.Name, out var p))
+                else if (builder.BindingMemberPriorities.TryGetValue(targetExpression.Name, out var p))
                     Priority = p;
             }
 
@@ -211,38 +210,10 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 _builder.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
                 if (_componentBuilders == null)
-                {
-                    var dictionary = _builder._componentsDictionary;
-                    dictionary.Clear();
-                    foreach (var builder in _builder._defaultBindingComponents)
-                        dictionary[builder.Name] = builder;
-
-                    var providers = _builder._componentProviders;
-                    for (var i = 0; i < providers.Length; i++)
-                    {
-                        var builders = providers[i].TryGetComponentBuilders(binding, target, source, _parameters, metadata);
-                        var list = builders.List;
-                        var item = builders.Item;
-                        if (item == null && list == null)
-                            continue;
-
-                        if (list == null)
-                            dictionary[item!.Name] = item;
-                        else
-                        {
-                            for (var j = 0; j < list.Count; j++)
-                            {
-                                item = list[j];
-                                dictionary[item.Name] = item;
-                            }
-                        }
-                    }
-
-                    _componentBuilders = dictionary.ValuesToArray();
-                }
+                    _componentBuilders = BuildComponents(binding, target, source, metadata);
 
                 if (_componentBuilders.Length == 1)
-                    binding.SetComponents(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(target, source, metadata)), metadata);
+                    binding.SetComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
                     var components = new IComponent<IBinding>[_componentBuilders.Length];
@@ -253,6 +224,38 @@ namespace MugenMvvm.Binding.Core.Components
 
                 if (binding.State != BindingState.Disposed)
                     _builder.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, metadata);
+            }
+
+            private IBindingComponentBuilder[] BuildComponents(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+            {
+                var dictionary = _builder._componentsDictionary;
+                dictionary.Clear();
+                foreach (var builder in _builder.DefaultBindingComponents)
+                    dictionary[builder.Name] = builder;
+
+                var parameters = ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>.FromRawValue(_parametersRaw);
+                var providers = _builder._componentProviders;
+                for (var i = 0; i < providers.Length; i++)
+                {
+                    var builders = providers[i].TryGetComponentBuilders(binding, target, source, parameters, metadata);
+                    var list = builders.List;
+                    var item = builders.Item;
+                    if (item == null && list == null)
+                        continue;
+
+                    if (list == null)
+                        dictionary[item!.Name] = item;
+                    else
+                    {
+                        for (var j = 0; j < list.Count; j++)
+                        {
+                            item = list[j];
+                            dictionary[item.Name] = item;
+                        }
+                    }
+                }
+
+                return dictionary.ValuesToArray();
             }
 
             #endregion
@@ -296,13 +299,13 @@ namespace MugenMvvm.Binding.Core.Components
             #region Fields
 
             private readonly ICompiledExpression _compiledExpression;
-            private readonly object _sourceRaw;
+            private readonly object? _sourceRaw;
 
             #endregion
 
             #region Constructors
 
-            public MultiBindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression, object sourceRaw,
+            public MultiBindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression, object? sourceRaw,
                 ICompiledExpression compiledExpression, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
                 : base(builder, targetExpression, parameters, metadata)
             {
@@ -319,7 +322,9 @@ namespace MugenMvvm.Binding.Core.Components
                 if (metadata == null)
                     metadata = MetadataRaw;
                 ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> sources;
-                if (_sourceRaw is IBindingMemberExpressionNode[] expressions)
+                if (_sourceRaw == null)
+                    sources = default;
+                else if (_sourceRaw is IBindingMemberExpressionNode[] expressions)
                 {
                     var array = new IMemberPathObserver[expressions.Length];
                     for (var i = 0; i < array.Length; i++)

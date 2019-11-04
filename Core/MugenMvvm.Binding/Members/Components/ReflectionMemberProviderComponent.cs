@@ -142,7 +142,7 @@ namespace MugenMvvm.Binding.Members.Components
             {
                 var method = SelectMember(type.GetMethods(BindingFlagsEx.All), methodName, methodArgs, metadata, (info, n) => info.Name == n ? info.GetParameters() : null, out var args);
                 if (method != null)
-                    result.Add(new MethodBindingPropertyInfo(name, method, args, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                    result.Add(new MethodBindingPropertyInfo(name, method, args!, type, _bindingObserverProvider, _reflectionDelegateProvider));
             }
 
             return result;

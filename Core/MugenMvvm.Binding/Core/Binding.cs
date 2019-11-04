@@ -41,10 +41,9 @@ namespace MugenMvvm.Binding.Core
         #region Constructors
 
 #pragma warning disable CS8618
-        protected Binding(IMemberPathObserver target, object sourceRaw)
+        protected Binding(IMemberPathObserver target, object? sourceRaw)
         {
             Should.NotBeNull(target, nameof(target));
-            Should.NotBeNull(sourceRaw, nameof(sourceRaw));
             Target = target;
             SourceRaw = sourceRaw;
         }
@@ -53,6 +52,7 @@ namespace MugenMvvm.Binding.Core
         public Binding(IMemberPathObserver target, IMemberPathObserver source)
             : this(target, sourceRaw: source)
         {
+            Should.NotBeNull(source, nameof(source));
         }
 
         #endregion
@@ -86,17 +86,9 @@ namespace MugenMvvm.Binding.Core
 
         public IMemberPathObserver Target { get; }
 
-        public ItemOrList<IMemberPathObserver, IMemberPathObserver[]> Source
-        {
-            get
-            {
-                if (SourceRaw is IMemberPathObserver[] array)
-                    return array;
-                return new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>((IMemberPathObserver)SourceRaw);
-            }
-        }
+        public ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> Source => ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>.FromRawValue(SourceRaw);
 
-        protected object SourceRaw { get; }
+        protected object? SourceRaw { get; }
 
         int IReadOnlyCollection<MetadataContextValue>.Count => GetMetadataCount();
 
@@ -123,13 +115,16 @@ namespace MugenMvvm.Binding.Core
             }
             else
             {
-                var sources = (IMemberPathObserver[])SourceRaw;
-                for (var i = 0; i < sources.Length; i++)
+                var sources = (IMemberPathObserver[]?)SourceRaw;
+                if (sources != null)
                 {
-                    var observer = sources[i];
-                    if (_sourceObserverCount != 0)
-                        observer.RemoveListener(this);
-                    observer.Dispose();
+                    for (var i = 0; i < sources.Length; i++)
+                    {
+                        var observer = sources[i];
+                        if (_sourceObserverCount != 0)
+                            observer.RemoveListener(this);
+                        observer.Dispose();
+                    }
                 }
             }
 
@@ -378,7 +373,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public void SetComponents(ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
+        public void SetComponents(ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
         {
             var list = components.List;
             var item = components.Item;
@@ -434,7 +429,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            return ((IMemberPathObserver)SourceRaw).GetLastMember(this).GetValue(this);
+            return ((IMemberPathObserver)SourceRaw!).GetLastMember(this).GetValue(this);
         }
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
@@ -751,9 +746,12 @@ namespace MugenMvvm.Binding.Core
                 source.AddListener(this);
             else
             {
-                var observers = (IMemberPathObserver[])SourceRaw;
-                for (var i = 0; i < observers.Length; i++)
-                    observers[i].AddListener(this);
+                var observers = (IMemberPathObserver[]?)SourceRaw;
+                if (observers != null)
+                {
+                    for (var i = 0; i < observers.Length; i++)
+                        observers[i].AddListener(this);
+                }
             }
         }
 
@@ -767,9 +765,12 @@ namespace MugenMvvm.Binding.Core
                     source.RemoveListener(this);
                 else
                 {
-                    var observers = (IMemberPathObserver[])SourceRaw;
-                    for (var i = 0; i < observers.Length; i++)
-                        observers[i].RemoveListener(this);
+                    var observers = (IMemberPathObserver[]?)SourceRaw;
+                    if (observers != null)
+                    {
+                        for (var i = 0; i < observers.Length; i++)
+                            observers[i].RemoveListener(this);
+                    }
                 }
             }
         }

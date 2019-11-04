@@ -57,6 +57,14 @@ namespace MugenMvvm.Internal
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrList<TItem, TList> FromRawValue(object? value)
+        {
+            if (value is TList list)
+                return new ItemOrList<TItem, TList>(list);
+            return new ItemOrList<TItem, TList>((TItem)value!);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList<TItem, TNewList> Cast<TNewList>() where TNewList : class, IReadOnlyList<TItem>
         {
             if (List == null)

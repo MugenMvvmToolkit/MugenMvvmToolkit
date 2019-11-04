@@ -39,8 +39,8 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public MetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null) : this(
-            new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values))
+        public MetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null)
+            : this(new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values))
         {
         }
 

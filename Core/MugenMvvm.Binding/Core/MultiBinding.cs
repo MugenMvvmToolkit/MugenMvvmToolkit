@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Compiling;
+﻿using System;
+using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -19,7 +20,7 @@ namespace MugenMvvm.Binding.Core
         #region Constructors
 
         public MultiBinding(IMemberPathObserver target, ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> sources, ICompiledExpression expression)
-            : base(target, sources.Item ?? (object?)sources.List)
+            : base(target, sources.GetRawValue())
         {
             Should.NotBeNull(expression, nameof(expression));
             _expression = expression;
@@ -32,7 +33,9 @@ namespace MugenMvvm.Binding.Core
         public object? GetValue()
         {
             ItemOrList<ExpressionValue, ExpressionValue[]> values;
-            if (SourceRaw is IMemberPathObserver[] sources)
+            if (SourceRaw == null)
+                values = Default.EmptyArray<ExpressionValue>();
+            else if (SourceRaw is IMemberPathObserver[] sources)
             {
                 var expressionValues = new ExpressionValue[sources.Length];
                 for (var i = 0; i < sources.Length; i++)

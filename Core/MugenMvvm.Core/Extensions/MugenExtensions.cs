@@ -20,6 +20,14 @@ namespace MugenMvvm
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class?, IReadOnlyCollection<TItem>
+        {
+            return (object?)itemOrList.Item ?? itemOrList.List;
+        }
+
         public static void Merge<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)
             where TItem : class
             where TList : class?, IReadOnlyCollection<TItem>
