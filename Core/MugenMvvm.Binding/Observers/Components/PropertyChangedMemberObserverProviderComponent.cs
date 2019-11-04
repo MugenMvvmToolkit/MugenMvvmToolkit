@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Nested types
 
-        private sealed class WeakPropertyChangedListener : Unsubscriber.IHandler//todo id to item, review unsubscriber
+        private sealed class WeakPropertyChangedListener : Unsubscriber.IHandler
         {
             #region Fields
 
