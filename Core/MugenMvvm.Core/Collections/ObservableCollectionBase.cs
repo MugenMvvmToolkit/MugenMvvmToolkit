@@ -10,7 +10,8 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class ObservableCollectionBase<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IReadOnlyList<T>, IObservableCollectionDecoratorManager<T>
+    public abstract class ObservableCollectionBase<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IReadOnlyList<T>,
+        IObservableCollectionDecoratorManager<T>, ActionToken.IHandler
     {
         #region Fields
 
@@ -41,17 +42,31 @@ namespace MugenMvvm.Collections
 
         #region Implementation of interfaces
 
+        void ActionToken.IHandler.Invoke(object? state1, object? state2)
+        {
+            var hasListeners = (bool)state1!;
+            var hasDecorators = (bool)state2!;
+            using (Lock())
+            {
+                if (hasListeners && _batchCount-- == 0)
+                    OnEndBatchUpdate(false);
+
+                if (hasDecorators && _batchCountDecorators-- == 0)
+                    OnEndBatchUpdate(true);
+            }
+        }
+
         public IEnumerable<T> DecorateItems()
         {
             return DecorateItems(null);
         }
 
-        public IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both)
+        public ActionToken BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both)
         {
             var hasListeners = mode.HasFlagEx(BatchUpdateCollectionMode.Listeners);
             var hasDecorators = mode.HasFlagEx(BatchUpdateCollectionMode.DecoratorListeners);
             if (!hasListeners && !hasDecorators)
-                return Default.Disposable;
+                return default;
 
             using (Lock())
             {
@@ -61,8 +76,7 @@ namespace MugenMvvm.Collections
                 if (hasDecorators && _batchCountDecorators++ == 1)
                     OnBeginBatchUpdate(true);
 
-                return WeakActionToken.Create(this, BoxingExtensions.Box(hasListeners), BoxingExtensions.Box(hasDecorators),
-                    (@base, b1, b2) => @base.EndBatchUpdate((bool)b1, (bool)b2));
+                return new ActionToken(this, BoxingExtensions.Box(hasListeners), BoxingExtensions.Box(hasDecorators));
             }
         }
 
@@ -98,7 +112,7 @@ namespace MugenMvvm.Collections
             return GetEnumeratorInternal();
         }
 
-        public abstract IDisposable Lock();
+        public abstract ActionToken Lock();
 
         IEnumerable<T> IObservableCollectionDecoratorManager<T>.DecorateItems(IDecoratorObservableCollectionComponent<T> decorator)
         {
@@ -155,7 +169,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnBeginBatchUpdate(bool decorators)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionBatchUpdateListener<T> listener && listener.IsDecoratorComponent == decorators)
@@ -165,7 +179,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnEndBatchUpdate(bool decorators)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionBatchUpdateListener<T> listener && listener.IsDecoratorComponent == decorators)
@@ -191,7 +205,7 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnAdding(T item, int index)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanAdd(this, item, index))
@@ -209,7 +223,7 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnReplacing(T oldItem, T newItem, int index)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanReplace(this, oldItem, newItem, index))
@@ -227,7 +241,7 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnMoving(T item, int oldIndex, int newIndex)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanMove(this, item, oldIndex, newIndex))
@@ -245,7 +259,7 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnRemoving(T item, int index)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanRemove(this, item, index))
@@ -263,7 +277,7 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnResetting(IEnumerable<T> items)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanReset(this, items))
@@ -281,7 +295,7 @@ namespace MugenMvvm.Collections
 
         protected virtual bool OnClearing()
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionObservableCollectionComponent<T> listener && !listener.CanClear(this))
@@ -299,7 +313,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnAdded(T item, int index)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -311,7 +325,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnReplaced(T oldItem, T newItem, int index)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -323,7 +337,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnMoved(T item, int oldIndex, int newIndex)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -335,7 +349,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnRemoved(T item, int index)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -347,7 +361,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnReset(IEnumerable<T> items)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -359,7 +373,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnCleared()
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -371,7 +385,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnItemChanged(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index, object? args)
         {
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && !listener.IsDecoratorComponent)
@@ -407,7 +421,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
@@ -427,7 +441,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
@@ -447,7 +461,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
@@ -467,7 +481,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
@@ -487,7 +501,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
@@ -507,7 +521,7 @@ namespace MugenMvvm.Collections
                 }
             }
 
-            var components = this.GetComponents();
+            var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IObservableCollectionChangedListener<T> listener && listener.IsDecoratorComponent)
@@ -529,7 +543,7 @@ namespace MugenMvvm.Collections
         protected IComponent<IObservableCollection<T>>[] GetDecorators(IDecoratorObservableCollectionComponent<T>? decorator, out int? indexOf)
         {
             indexOf = null;
-            var components = this.GetComponents();
+            var components = GetComponents();
             if (decorator == null || components == null)
                 return components ?? Default.EmptyArray<IComponent<IObservableCollection<T>>>();
 
@@ -543,18 +557,6 @@ namespace MugenMvvm.Collections
             }
 
             return components;
-        }
-
-        private void EndBatchUpdate(bool hasListeners, bool hasDecorators)
-        {
-            using (Lock())
-            {
-                if (hasListeners && _batchCount-- == 0)
-                    OnEndBatchUpdate(false);
-
-                if (hasDecorators && _batchCountDecorators-- == 0)
-                    OnEndBatchUpdate(true);
-            }
         }
 
         #endregion

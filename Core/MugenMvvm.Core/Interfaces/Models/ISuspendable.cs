@@ -1,4 +1,4 @@
-﻿using System;
+﻿using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Models
 {
@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Models
     {
         bool IsSuspended { get; }
 
-        IDisposable Suspend();
+        ActionToken Suspend();
     }
 }

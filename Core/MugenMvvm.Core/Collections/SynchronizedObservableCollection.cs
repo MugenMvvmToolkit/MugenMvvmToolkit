@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
@@ -16,7 +17,7 @@ namespace MugenMvvm.Collections
         {
             Should.NotBeNull(list, nameof(list));
             Items = list;
-            Locker = new LockerImpl();
+            Locker = new object();
         }
 
         public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionProvider? componentCollectionProvider = null)
@@ -46,7 +47,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected LockerImpl Locker { get; }
+        protected object Locker { get; }
 
         bool ICollection.IsSynchronized => true;
 
@@ -215,9 +216,13 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public override IDisposable Lock()
+        public override ActionToken Lock()
         {
-            return Locker.Lock();
+            bool taken = false;
+            Monitor.Enter(Locker, ref taken);
+            if (taken)
+                return new ActionToken((o, _) => Monitor.Exit(o), Locker);
+            return default;
         }
 
         public sealed override bool Contains(T item)
@@ -361,28 +366,6 @@ namespace MugenMvvm.Collections
         #endregion
 
         #region Nested types
-
-        protected sealed class LockerImpl : IDisposable
-        {
-            #region Implementation of interfaces
-
-            public void Dispose()
-            {
-                Monitor.Exit(this);
-            }
-
-            #endregion
-
-            #region Methods
-
-            public IDisposable Lock()
-            {
-                Monitor.Enter(this);
-                return this;
-            }
-
-            #endregion
-        }
 
         [StructLayout(LayoutKind.Auto)]
         public struct Enumerator : IEnumerator<T>

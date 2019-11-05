@@ -174,27 +174,28 @@ namespace MugenMvvm.Commands
                 (components[i] as IConditionEventCommandMediatorComponent)?.RaiseCanExecuteChanged();
         }
 
-        public virtual IDisposable Suspend()
+        public virtual ActionToken Suspend()
         {
             var components = GetComponents();
-            List<IDisposable>? tokens = null;
+            List<ActionToken>? tokens = null;
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is ISuspendable suspendNotifications)
                 {
                     if (tokens == null)
-                        tokens = new List<IDisposable>(2);
+                        tokens = new List<ActionToken>(2);
                     tokens.Add(suspendNotifications.Suspend());
                 }
             }
 
             if (tokens == null)
-                return Default.Disposable;
-            return WeakActionToken.Create(tokens, t =>
+                return default;
+            return new ActionToken((o, _) =>
             {
-                for (var i = 0; i < t.Count; i++)
-                    t[i].Dispose();
-            });
+                var list = (List<ActionToken>)o;
+                for (int i = 0; i < list.Count; i++)
+                    list[i].Dispose();
+            }, tokens);
         }
 
         #endregion

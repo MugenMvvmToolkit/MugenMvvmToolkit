@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
 {
@@ -9,7 +10,7 @@ namespace MugenMvvm.Interfaces.Collections
     {
         IEnumerable<T> DecorateItems();
 
-        IDisposable BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both);
+        ActionToken BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both);
 
         void Move(int oldIndex, int newIndex);
 

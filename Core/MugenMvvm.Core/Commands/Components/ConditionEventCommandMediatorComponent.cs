@@ -117,10 +117,10 @@ namespace MugenMvvm.Commands.Components
             _canExecuteChanged?.Invoke(_command, EventArgs.Empty);
         }
 
-        public IDisposable Suspend()
+        public ActionToken Suspend()
         {
             Interlocked.Increment(ref _suspendCount);
-            return WeakActionToken.Create(this, @this => @this.EndSuspendNotifications());
+            return new ActionToken((o, o1) => ((ConditionEventCommandMediatorComponent)o).EndSuspendNotifications(), this);
         }
 
         #endregion

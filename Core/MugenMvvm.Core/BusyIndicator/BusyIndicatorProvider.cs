@@ -59,7 +59,7 @@ namespace MugenMvvm.BusyIndicator
             return busyToken;
         }
 
-        public IDisposable Suspend()
+        public ActionToken Suspend()
         {
             bool? notify = null;
             lock (Locker)
@@ -70,7 +70,7 @@ namespace MugenMvvm.BusyIndicator
 
             if (notify.GetValueOrDefault())
                 OnBusyInfoChanged(true);
-            return WeakActionToken.Create(this, @base => @base.EndSuspendNotifications());
+            return new ActionToken((o, o1) => ((BusyIndicatorProvider)o).EndSuspendNotifications(), this);
         }
 
         public IReadOnlyList<IBusyToken> GetTokens()
@@ -252,9 +252,9 @@ namespace MugenMvvm.BusyIndicator
                 callback.OnCompleted(this);
             }
 
-            public IDisposable Suspend()
+            public ActionToken Suspend()
             {
-                return SuspendExternal(true)!;
+                return SuspendExternal(true);
             }
 
             public void Dispose()
@@ -361,14 +361,14 @@ namespace MugenMvvm.BusyIndicator
                 return true;
             }
 
-            private IDisposable? SuspendExternal(bool withToken)
+            private ActionToken SuspendExternal(bool withToken)
             {
                 if (Interlocked.Increment(ref _suspendExternalCount) == 1)
                     SetSuspendedExternal(true);
 
                 if (withToken)
-                    return WeakActionToken.Create(this, t => t.OnEndSuspendExternal());
-                return null;
+                    return new ActionToken((t, _) => ((BusyToken)t).OnEndSuspendExternal(), this);
+                return default;
             }
 
             private void OnEndSuspendExternal()

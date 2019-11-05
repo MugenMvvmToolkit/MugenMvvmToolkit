@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
 {
@@ -8,7 +8,7 @@ namespace MugenMvvm.Interfaces.Collections
     {
         IObservableCollection<T> Collection { get; }
 
-        IDisposable Lock();
+        ActionToken Lock();
 
         IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T> decorator);
 

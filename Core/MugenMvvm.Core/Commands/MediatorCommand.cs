@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Commands
@@ -84,7 +85,7 @@ namespace MugenMvvm.Commands
             Mediator.Dispose();
         }
 
-        public IDisposable Suspend()
+        public ActionToken Suspend()
         {
             return Mediator.Suspend();
         }
