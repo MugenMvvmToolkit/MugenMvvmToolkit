@@ -232,12 +232,11 @@ namespace MugenMvvm.Metadata
         {
             #region Fields
 
+            private static readonly bool IsBoxRequired = !Default.IsNullable<T>();
+
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, T, T>? GetDefaultValueFunc;
-
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T>? GetValueFunc;
-
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<T>, object?, T, object?>? SetValueFunc;
-
             public Action<IReadOnlyMetadataContext, IMetadataContextKey<T>, T>? ValidateAction;
 
             #endregion
@@ -264,7 +263,7 @@ namespace MugenMvvm.Metadata
             {
                 ValidateAction?.Invoke(metadataContext, this, newValue);
                 if (SetValueFunc == null)
-                    return newValue;//todo opt
+                    return IsBoxRequired ? BoxingExtensions.Box(newValue) : newValue;
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 

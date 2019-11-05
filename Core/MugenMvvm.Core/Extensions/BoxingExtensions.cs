@@ -10,6 +10,9 @@ namespace MugenMvvm
 
         public const int CacheSize = 50;
 
+        private static readonly BoxingDelegate<bool> BoxBoolDelegate = Box;
+        private static readonly BoxingDelegate<int> BoxIntDelegate = Box;
+
         public static readonly object TrueObject = true;
         public static readonly object FalseObject = false;
 
@@ -47,7 +50,6 @@ namespace MugenMvvm
             return value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(short value)
         {
             if (value < 0)
@@ -69,7 +71,6 @@ namespace MugenMvvm
             return value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(int value)
         {
             if (value < 0)
@@ -83,7 +84,6 @@ namespace MugenMvvm
             return value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(ulong value)
         {
             if (value < CacheSize)
@@ -91,7 +91,6 @@ namespace MugenMvvm
             return value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(long value)
         {
             if (value < 0)
@@ -105,9 +104,20 @@ namespace MugenMvvm
             return value;
         }
 
+        public static object Box<T>(T value)
+        {
+            if (BoxBoolDelegate is BoxingDelegate<T> d1)
+                return d1(value);
+            if (BoxIntDelegate is BoxingDelegate<T> d2)
+                return d2(value);
+            return value;
+        }
+
         #endregion
 
         #region Nested types
+
+        private delegate object BoxingDelegate<T>(T value);
 
         internal static class Cache<T>
         {
