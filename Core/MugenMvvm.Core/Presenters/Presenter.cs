@@ -94,7 +94,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual IPresenterResult? ShowInternal(string operationId, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterShowListener)?.OnShowing(this, operationId, metadata);
 
@@ -116,7 +116,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual IPresenterResult OnShownInternal(string operationId, IPresenterResult result, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterShowListener)?.OnShown(this, operationId, result, metadata);
 
@@ -125,7 +125,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual bool CanShow(IPresenterComponent presenter, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionPresenterComponent component && !component.CanShow(presenter, metadata))
@@ -137,14 +137,14 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnShowError(string operationId, Exception exception, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterShowListener)?.OnShowError(this, operationId, exception, metadata);
         }
 
         protected virtual IReadOnlyList<IPresenterResult> TryCloseInternal(string operationId, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterCloseListener)?.OnClosing(this, operationId, metadata);
 
@@ -167,7 +167,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual IReadOnlyList<IPresenterResult> OnClosedInternal(string operationId, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterCloseListener)?.OnClosed(this, operationId, results, metadata);
             return results;
@@ -175,7 +175,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual bool CanClose(ICloseablePresenterComponent presenter, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionPresenterComponent component && !component.CanClose(presenter, results, metadata))
@@ -187,14 +187,14 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnCloseError(string operationId, Exception exception, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterCloseListener)?.OnCloseError(this, operationId, exception, metadata);
         }
 
         protected virtual IReadOnlyList<IPresenterResult> TryRestoreInternal(string operationId, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterRestoreListener)?.OnRestoring(this, operationId, metadata);
 
@@ -217,7 +217,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual IReadOnlyList<IPresenterResult> OnRestoredInternal(string operationId, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterRestoreListener)?.OnRestored(this, operationId, results, metadata);
             return results;
@@ -225,7 +225,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual bool CanRestore(IRestorablePresenterComponent presenter, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionPresenterComponent component && !component.CanRestore(presenter, results, metadata))
@@ -237,7 +237,7 @@ namespace MugenMvvm.Presenters
 
         protected virtual void OnRestoreError(string operationId, Exception exception, IMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IPresenterRestoreListener)?.OnRestoreError(this, operationId, exception, metadata);
         }

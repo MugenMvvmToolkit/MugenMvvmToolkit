@@ -23,7 +23,7 @@ namespace MugenMvvm.Components
 
         #region Properties
 
-        public bool HasComponents => _components != null && _components.HasItems;
+        public bool HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection<IComponent<IComponentCollectionProvider>> Components
         {

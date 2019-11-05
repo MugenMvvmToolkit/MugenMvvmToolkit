@@ -37,7 +37,7 @@ namespace MugenMvvm.IoC
 
         #region Properties
 
-        public bool HasComponents => _components != null && _components.HasItems;
+        public bool HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection<IComponent<IIocContainer>> Components
         {

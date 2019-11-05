@@ -28,7 +28,7 @@ namespace MugenMvvm.Metadata
             if (list == null && item.IsEmpty)
                 return Default.Metadata;
 
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
             {
@@ -52,7 +52,7 @@ namespace MugenMvvm.Metadata
 
         public IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             IMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
             {

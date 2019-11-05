@@ -290,7 +290,7 @@ namespace MugenMvvm.Validation
 
         protected virtual bool OnValidatorAdding(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
-            return !Validators.GetItems().Contains(validator);
+            return !Validators.GetComponents().Contains(validator);
         }
 
         protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext? metadata)

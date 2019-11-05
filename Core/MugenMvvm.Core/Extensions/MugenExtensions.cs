@@ -138,7 +138,7 @@ namespace MugenMvvm
 
         public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class
         {
-            return componentCollection?.GetItems() ?? Default.EmptyArray<T>();
+            return componentCollection?.GetComponents() ?? Default.EmptyArray<T>();
         }
 
         [StringFormatMethod("format")]

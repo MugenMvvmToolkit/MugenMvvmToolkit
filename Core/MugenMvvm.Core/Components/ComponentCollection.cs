@@ -29,9 +29,9 @@ namespace MugenMvvm.Components
 
         public object Owner { get; }
 
-        public bool HasItems => _items.Count > 0;
+        public int Count => _items.Count;
 
-        bool IComponentOwner<IComponentCollection<T>>.HasComponents => _components != null && _components.HasItems;
+        bool IComponentOwner<IComponentCollection<T>>.HasComponents => _components != null && _components.Count != 0;
 
         IComponentCollection<IComponent<IComponentCollection<T>>> IComponentOwner<IComponentCollection<T>>.Components
         {
@@ -52,7 +52,7 @@ namespace MugenMvvm.Components
             return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
         }
 
-        public T[] GetItems()
+        public T[] GetComponents()
         {
             return _arrayItems ?? GetItemsIfNeed();
         }
@@ -63,7 +63,7 @@ namespace MugenMvvm.Components
             if (!MugenExtensions.OnAddingDefaultHandler(this, component, metadata))
                 return false;
 
-            var components = this.GetComponents();
+            var components = MugenExtensions.GetComponents(this);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IComponentCollectionChangingListener<T> listener && !listener.OnAdding(this, component, metadata))
@@ -88,7 +88,7 @@ namespace MugenMvvm.Components
             if (!MugenExtensions.OnRemovingDefaultHandler(this, component, metadata))
                 return false;
 
-            var components = this.GetComponents();
+            var components = MugenExtensions.GetComponents(this);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IComponentCollectionChangingListener<T> listener && !listener.OnRemoving(this, component, metadata))
@@ -110,8 +110,8 @@ namespace MugenMvvm.Components
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            var components = this.GetComponents();
-            var oldItems = GetItems();
+            var components = MugenExtensions.GetComponents(this);
+            var oldItems = GetComponents();
             lock (_items)
             {
                 _items.Clear();

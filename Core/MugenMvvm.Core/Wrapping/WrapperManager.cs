@@ -45,7 +45,7 @@ namespace MugenMvvm.Wrapping
             if (wrapperType.IsAssignableFrom(type))
                 return true;
 
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IWrapperManagerComponent component && component.CanWrap(this, type, wrapperType, metadata))
@@ -58,7 +58,7 @@ namespace MugenMvvm.Wrapping
         protected virtual object WrapInternal(object item, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
             object? wrapper = null;
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 wrapper = (components[i] as IWrapperManagerComponent)?.TryWrap(this, item.GetType(), wrapperType, metadata);

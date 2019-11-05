@@ -76,7 +76,17 @@ namespace MugenMvvm.Binding.Core
 
         object IComponentCollection<IComponent<IBinding>>.Owner => this;
 
-        bool IComponentCollection<IComponent<IBinding>>.HasItems => HasComponents;
+        int IComponentCollection<IComponent<IBinding>>.Count
+        {
+            get
+            {
+                if (_components == null)
+                    return 0;
+                if (_components is IComponent<IBinding>[] array)
+                    return array.Length;
+                return 1;
+            }
+        }
 
         bool IMetadataOwner<IReadOnlyMetadataContext>.HasMetadata => true;
 
@@ -258,7 +268,7 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        IComponent<IBinding>[] IComponentCollection<IComponent<IBinding>>.GetItems()
+        IComponent<IBinding>[] IComponentCollection<IComponent<IBinding>>.GetComponents()
         {
             if (_components == null)
                 return Default.EmptyArray<IComponent<IBinding>>();

@@ -62,7 +62,7 @@ namespace MugenMvvm
         public static IReadOnlyList<INavigationCallback> GetCallbacks(this INavigationDispatcher dispatcher, INavigationEntry entry, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
-            var components = dispatcher.Components.GetItems();
+            var components = dispatcher.Components.GetComponents();
             List<INavigationCallback>? result = null;
             for (int i = 0; i < components.Length; i++)
             {

@@ -24,7 +24,7 @@ namespace MugenMvvm.Components
 
         protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.ServiceIfNull();
 
-        public bool HasComponents => _components != null && _components.HasItems;
+        public bool HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection<IComponent<T>> Components
         {
@@ -44,7 +44,7 @@ namespace MugenMvvm.Components
         {
             if (_components == null)
                 return Default.EmptyArray<IComponent<T>>();
-            return _components.GetItems();
+            return _components.GetComponents();
         }
 
         #endregion

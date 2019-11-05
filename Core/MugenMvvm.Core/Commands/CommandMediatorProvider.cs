@@ -43,7 +43,7 @@ namespace MugenMvvm.Commands
         protected virtual ICommandMediator? GetCommandMediatorInternal<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
         {
             ICommandMediator? result = null;
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 result = (components[i] as ICommandMediatorProviderComponent)?.TryGetCommandMediator<TParameter>(command, metadata);
@@ -56,7 +56,7 @@ namespace MugenMvvm.Commands
 
         protected virtual void OnMediatorCreated<TParameter>(ICommandMediator mediator, ICommand command, IReadOnlyMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as ICommandMediatorProviderListener)?.OnCommandMediatorCreated<TParameter>(this, mediator, command, metadata);
         }

@@ -24,7 +24,7 @@ namespace MugenMvvm.Navigation
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext)
         {
-            return new NavigatingResult(this, Components.GetItems(), navigationContext).Task;
+            return new NavigatingResult(this, Components.GetComponents(), navigationContext).Task;
         }
 
         public void OnNavigated(INavigationContext navigationContext)
@@ -52,21 +52,21 @@ namespace MugenMvvm.Navigation
 
         protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationDispatcherNavigatedListener)?.OnNavigated(this, navigationContext);
         }
 
         protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationDispatcherErrorListener)?.OnNavigationFailed(this, navigationContext, exception);
         }
 
         protected virtual void OnNavigationCanceledInternal(INavigationContext navigationContext)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationDispatcherErrorListener)?.OnNavigationCanceled(this, navigationContext);
         }

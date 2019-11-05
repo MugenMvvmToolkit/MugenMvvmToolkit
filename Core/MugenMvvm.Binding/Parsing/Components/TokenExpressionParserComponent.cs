@@ -72,7 +72,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            _parsers = owner.Components.GetItems().OfType<ITokenParserComponent>().ToArray();
+            _parsers = owner.Components.GetComponents().OfType<ITokenParserComponent>().ToArray();
             owner.Components.Components.Add(this);
         }
 

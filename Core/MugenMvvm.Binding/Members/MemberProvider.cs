@@ -150,7 +150,7 @@ namespace MugenMvvm.Binding.Members
         {
             TempCache.Clear();
             TempMembersCache.Clear();
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IHasCache)?.Invalidate();
         }

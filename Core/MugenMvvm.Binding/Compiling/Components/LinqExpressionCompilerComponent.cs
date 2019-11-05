@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         protected override void OnAttachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
         {
-            _builders = owner.Components.GetItems().OfType<ILinqExpressionBuilderComponent>().ToArray();
+            _builders = owner.Components.GetComponents().OfType<ILinqExpressionBuilderComponent>().ToArray();
             owner.Components.Components.Add(this);
         }
 

@@ -59,7 +59,7 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool HasComponents => _components != null && _components.HasItems;
+        public bool HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection<IComponent<IMetadataContext>> Components
         {

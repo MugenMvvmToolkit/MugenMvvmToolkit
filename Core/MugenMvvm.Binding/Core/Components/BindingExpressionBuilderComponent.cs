@@ -114,8 +114,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            _expressionInterceptors = owner.Components.GetItems().OfType<IBindingExpressionInterceptor>().ToArray();
-            _componentProviders = owner.Components.GetItems().OfType<IBindingComponentProviderComponent>().ToArray();
+            _expressionInterceptors = owner.Components.GetComponents().OfType<IBindingExpressionInterceptor>().ToArray();
+            _componentProviders = owner.Components.GetComponents().OfType<IBindingComponentProviderComponent>().ToArray();
             owner.Components.Components.Add(this);
         }
 

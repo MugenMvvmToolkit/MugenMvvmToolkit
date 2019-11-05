@@ -39,7 +39,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
-                return componentOwner.Components.GetItems();
+                return componentOwner.Components.GetComponents();
             return Default.EmptyArray<IComponent<T>>();
         }
 

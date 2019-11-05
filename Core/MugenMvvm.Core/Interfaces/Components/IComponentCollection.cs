@@ -7,7 +7,7 @@ namespace MugenMvvm.Interfaces.Components
     {
         object Owner { get; }
 
-        bool HasItems { get; }
+        int Count { get; }
 
         bool Add(T component, IReadOnlyMetadataContext? metadata = null);
 
@@ -16,6 +16,6 @@ namespace MugenMvvm.Interfaces.Components
         bool Clear(IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
-        T[] GetItems();
+        T[] GetComponents();
     }
 }

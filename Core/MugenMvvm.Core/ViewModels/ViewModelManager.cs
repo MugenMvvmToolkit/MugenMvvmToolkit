@@ -68,7 +68,7 @@ namespace MugenMvvm.ViewModels
 
         protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 var result = (components[i] as IViewModelServiceResolverComponent)?.TryGetService(viewModel, service, metadata);
@@ -81,7 +81,7 @@ namespace MugenMvvm.ViewModels
 
         protected virtual IViewModelBase? TryGetViewModelInternal(IReadOnlyMetadataContext metadata)
         {
-            var components = Components.GetItems();
+            var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 var viewModel = (components[i] as IViewModelProviderComponent)?.TryGetViewModel(metadata);
