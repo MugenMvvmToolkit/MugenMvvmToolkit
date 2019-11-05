@@ -51,8 +51,10 @@ namespace MugenMvvm.Binding.Observers
             if (_handler is IHandler handler)
                 handler.Unsubscribe(_state1, _state2);
             else
-                ((Action<object?, object?>) _handler).Invoke(_state1, _state2);
+                ((Action<object?, object?>)_handler).Invoke(_state1, _state2);
         }
+
+        public void Dispose() => Unsubscribe();
 
         #endregion
 

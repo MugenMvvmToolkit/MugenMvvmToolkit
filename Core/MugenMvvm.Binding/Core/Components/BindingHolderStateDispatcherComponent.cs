@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -30,6 +31,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         public IReadOnlyMetadataContext? OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata)
         {
+            if (metadata != null && metadata.Get(BindingMetadata.SuppressHolderRegistration))
+                return null;
+
             if (lifecycle == BindingLifecycleState.Initialized)
             {
                 for (var i = 0; i < _holders.Length; i++)
