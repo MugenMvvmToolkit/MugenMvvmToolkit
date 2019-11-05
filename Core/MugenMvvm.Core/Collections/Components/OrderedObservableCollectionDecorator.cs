@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class OrderedObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IDecoratorObservableCollectionComponent<T>, IHasPriority
+    public sealed class OrderedObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollection<T>>, IDecoratorObservableCollectionComponent<T>, IHasPriority
     {
         #region Fields
 
@@ -62,7 +62,7 @@ namespace MugenMvvm.Collections.Components
                 index = oldIndex;
             else
             {
-                Owner.OnMoved(this, item, oldIndex, newIndex);
+                Owner.DecoratorManager.OnMoved(this, item, oldIndex, newIndex);
                 index = newIndex;
             }
 
@@ -87,12 +87,13 @@ namespace MugenMvvm.Collections.Components
             if (oldIndex == -1)
                 return false;
 
+            var decoratorManager = Owner.DecoratorManager;
             _items.RemoveAt(oldIndex);
-            Owner.OnRemoved(this, oldItem, oldIndex);
+            decoratorManager.OnRemoved(this, oldItem, oldIndex);
 
             var newIndex = GetInsertIndex(newItem);
             _items.Insert(newIndex, new OrderedItem(index, newItem));
-            Owner.OnAdded(this, newItem, newIndex);
+            decoratorManager.OnAdded(this, newItem, newIndex);
             return false;
         }
 
@@ -141,12 +142,12 @@ namespace MugenMvvm.Collections.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
         {
             Reorder();
         }
 
-        protected override void OnDetachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
         {
             _items.Clear();
         }
@@ -156,10 +157,11 @@ namespace MugenMvvm.Collections.Components
             if (!IsAttached)
                 return;
 
-            using (Owner.Lock())
+            var decoratorManager = Owner.DecoratorManager;
+            using (decoratorManager.Lock())
             {
-                Reset(Owner.DecorateItems(this));
-                Owner.OnReset(this, Items);
+                Reset(decoratorManager.DecorateItems(this));
+                decoratorManager.OnReset(this, Items);
             }
         }
 

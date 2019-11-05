@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -36,7 +35,7 @@ namespace MugenMvvm.Collections
 
         public abstract T this[int index] { get; set; }
 
-        IObservableCollection<T> IObservableCollectionDecoratorManager<T>.Collection => this;
+        public IObservableCollectionDecoratorManager<T> DecoratorManager => this;
 
         #endregion
 
@@ -44,8 +43,8 @@ namespace MugenMvvm.Collections
 
         void ActionToken.IHandler.Invoke(object? state1, object? state2)
         {
-            var hasListeners = (bool)state1!;
-            var hasDecorators = (bool)state2!;
+            var hasListeners = (bool) state1!;
+            var hasDecorators = (bool) state2!;
             using (Lock())
             {
                 if (hasListeners && _batchCount-- == 0)

@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollectionDecoratorManager<T>>, IDecoratorObservableCollectionComponent<T>, IEnumerable<T>, IHasPriority
+    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollection<T>>, IDecoratorObservableCollectionComponent<T>, IEnumerable<T>, IHasPriority
     {
         #region Fields
 
@@ -69,13 +69,14 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
+            var decoratorManager = Owner.DecoratorManager;
             var filterIndex = IndexOfKey(index);
             if (FilterInternal(item))
             {
                 if (filterIndex == -1)
                 {
                     index = Add(index, item);
-                    Owner.OnAdded(this, item, index);
+                    decoratorManager.OnAdded(this, item, index);
                 }
                 else
                     index = filterIndex;
@@ -86,7 +87,7 @@ namespace MugenMvvm.Collections.Components
             if (filterIndex != -1)
             {
                 RemoveAt(filterIndex);
-                Owner.OnRemoved(this, item, filterIndex);
+                decoratorManager.OnRemoved(this, item, filterIndex);
             }
 
             return false;
@@ -110,11 +111,12 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
+            var decoratorManager = Owner.DecoratorManager;
             var filterIndex = IndexOfKey(index);
             if (filterIndex == -1)
             {
                 if (FilterInternal(newItem))
-                    Owner.OnAdded(this, newItem, Add(index, newItem));
+                    decoratorManager.OnAdded(this, newItem, Add(index, newItem));
 
                 return false;
             }
@@ -129,7 +131,7 @@ namespace MugenMvvm.Collections.Components
 
             var oldValue = GetValue(filterIndex);
             RemoveAt(filterIndex);
-            Owner.OnRemoved(this, oldValue, filterIndex);
+            decoratorManager.OnRemoved(this, oldValue, filterIndex);
             return false;
         }
 
@@ -199,12 +201,12 @@ namespace MugenMvvm.Collections.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
         {
             UpdateFilter();
         }
 
-        protected override void OnDetachedInternal(IObservableCollectionDecoratorManager<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
         {
             Clear();
         }
@@ -219,12 +221,13 @@ namespace MugenMvvm.Collections.Components
             if (!IsAttached)
                 return;
 
-            using (Owner.Lock())
+            var decoratorManager = Owner.DecoratorManager;
+            using (decoratorManager.Lock())
             {
                 Clear();
                 if (filter != null)
-                    UpdateItems(Owner.DecorateItems(this), filter);
-                Owner.OnReset(this, this);
+                    UpdateItems(decoratorManager.DecorateItems(this), filter);
+                decoratorManager.OnReset(this, this);
             }
         }
 

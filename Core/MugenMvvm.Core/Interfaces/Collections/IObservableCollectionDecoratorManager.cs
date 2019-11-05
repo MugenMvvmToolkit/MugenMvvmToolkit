@@ -6,8 +6,6 @@ namespace MugenMvvm.Interfaces.Collections
 {
     public interface IObservableCollectionDecoratorManager<T>
     {
-        IObservableCollection<T> Collection { get; }
-
         ActionToken Lock();
 
         IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T> decorator);
