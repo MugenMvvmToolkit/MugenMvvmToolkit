@@ -12,6 +12,7 @@ namespace MugenMvvm.Binding.Metadata
         public static readonly object DoNothing = new object();
 
         private static IMetadataContextKey<IBinding?>? _binding;
+        private static IMetadataContextKey<object?>? _eventArgs;
         private static IMetadataContextKey<bool>? _suppressHolderRegistration;
 
         #endregion
@@ -22,6 +23,12 @@ namespace MugenMvvm.Binding.Metadata
         {
             get => _binding ??= GetBuilder<IBinding?>(nameof(Binding)).Build();
             set => _binding = value;
+        }
+
+        public static IMetadataContextKey<object?> EventArgs
+        {
+            get => _eventArgs ??= GetBuilder<IBinding?>(nameof(EventArgs)).Build();
+            set => _eventArgs = value;
         }
 
         public static IMetadataContextKey<bool> SuppressHolderRegistration

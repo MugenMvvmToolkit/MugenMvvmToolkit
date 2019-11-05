@@ -145,6 +145,11 @@ namespace MugenMvvm.Binding.Core
             Components.Clear();
         }
 
+        public ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> GetComponents()
+        {
+            return ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>.FromRawValue(_components);
+        }
+
         public void UpdateTarget()
         {
             try

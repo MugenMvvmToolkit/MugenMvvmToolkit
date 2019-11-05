@@ -1,7 +1,9 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Core
+﻿using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Binding.Interfaces.Core
 {
     public interface IBindingExpressionValue
     {
-        object? Invoke();
+        object? Invoke(IReadOnlyMetadataContext? metadata = null);
     }
 }

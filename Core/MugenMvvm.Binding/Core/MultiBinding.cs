@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core
@@ -29,8 +30,10 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public object? Invoke()
+        public object? Invoke(IReadOnlyMetadataContext? metadata = null)
         {
+            if (metadata == null)
+                metadata = this;
             ItemOrList<ExpressionValue, ExpressionValue[]> values;
             if (SourceRaw == null)
                 values = Default.EmptyArray<ExpressionValue>();
@@ -39,8 +42,8 @@ namespace MugenMvvm.Binding.Core
                 var expressionValues = new ExpressionValue[sources.Length];
                 for (var i = 0; i < sources.Length; i++)
                 {
-                    var members = sources[i].GetLastMember(this);
-                    var value = members.GetValue(this);
+                    var members = sources[i].GetLastMember(metadata);
+                    var value = members.GetValue(metadata);
                     if (value.IsUnsetValueOrDoNothing())
                         return value;
                     expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.Member.Type, null);
@@ -50,15 +53,15 @@ namespace MugenMvvm.Binding.Core
             }
             else
             {
-                var members = ((IMemberPathObserver) SourceRaw).GetLastMember(this);
-                var value = members.GetValue(this);
+                var members = ((IMemberPathObserver)SourceRaw).GetLastMember(metadata);
+                var value = members.GetValue(metadata);
                 if (value.IsUnsetValueOrDoNothing())
                     return value;
 
                 values = new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
             }
 
-            return _expression!.Invoke(values, this);
+            return _expression!.Invoke(values, metadata);
         }
 
         #endregion

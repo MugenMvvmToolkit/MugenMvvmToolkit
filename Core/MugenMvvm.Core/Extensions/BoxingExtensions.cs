@@ -104,7 +104,7 @@ namespace MugenMvvm
             return value;
         }
 
-        public static object Box<T>(T value)
+        public static object? Box<T>(T value)
         {
             if (BoxBoolDelegate is BoxingDelegate<T> d1)
                 return d1(value);

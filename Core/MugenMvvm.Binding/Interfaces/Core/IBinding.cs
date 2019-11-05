@@ -15,6 +15,8 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> Source { get; }
 
+        ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> GetComponents();
+
         void UpdateTarget();
 
         void UpdateSource();
