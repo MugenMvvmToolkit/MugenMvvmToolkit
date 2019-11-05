@@ -40,6 +40,11 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
+        public IReadOnlyMetadataContext ToContext()
+        {
+            return new SingleValueMetadataContext(this);
+        }
+
         public static MetadataContextValue Create(KeyValuePair<IMetadataContextKey, object?> pair)
         {
             Should.NotBeNull(pair.Key, nameof(pair.Key));

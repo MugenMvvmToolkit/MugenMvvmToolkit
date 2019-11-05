@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public IReadOnlyMetadataContext? OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata)
         {
-            if (metadata != null && metadata.Get(BindingMetadata.SuppressHolderRegistration))
+            if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v) && v)
                 return null;
 
             if (lifecycle == BindingLifecycleState.Initialized)
