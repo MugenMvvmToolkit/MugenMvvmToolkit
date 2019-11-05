@@ -70,7 +70,7 @@ namespace MugenMvvm.BusyIndicator
 
             if (notify.GetValueOrDefault())
                 OnBusyInfoChanged(true);
-            return new ActionToken((o, o1) => ((BusyIndicatorProvider)o).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((BusyIndicatorProvider)o!).EndSuspendNotifications(), this);
         }
 
         public IReadOnlyList<IBusyToken> GetTokens()
@@ -367,7 +367,7 @@ namespace MugenMvvm.BusyIndicator
                     SetSuspendedExternal(true);
 
                 if (withToken)
-                    return new ActionToken((t, _) => ((BusyToken)t).OnEndSuspendExternal(), this);
+                    return new ActionToken((t, _) => ((BusyToken)t!).OnEndSuspendExternal(), this);
                 return default;
             }
 

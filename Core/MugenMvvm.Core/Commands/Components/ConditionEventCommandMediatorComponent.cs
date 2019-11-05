@@ -120,7 +120,7 @@ namespace MugenMvvm.Commands.Components
         public ActionToken Suspend()
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, o1) => ((ConditionEventCommandMediatorComponent)o).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((ConditionEventCommandMediatorComponent)o!).EndSuspendNotifications(), this);
         }
 
         #endregion

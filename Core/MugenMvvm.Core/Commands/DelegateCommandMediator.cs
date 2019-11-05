@@ -192,7 +192,7 @@ namespace MugenMvvm.Commands
                 return default;
             return new ActionToken((o, _) =>
             {
-                var list = (List<ActionToken>)o;
+                var list = (List<ActionToken>)o!;
                 for (int i = 0; i < list.Count; i++)
                     list[i].Dispose();
             }, tokens);
