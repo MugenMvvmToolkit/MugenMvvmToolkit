@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public Unsubscriber TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             return _observer.TryObserve(target, listener!, metadata);
         }

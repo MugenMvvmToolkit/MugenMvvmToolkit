@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        Unsubscriber MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        ActionToken MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return default;

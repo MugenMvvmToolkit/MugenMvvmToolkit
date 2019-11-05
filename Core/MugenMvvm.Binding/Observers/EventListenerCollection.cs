@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class EventListenerCollection : Unsubscriber.IHandler
+    public class EventListenerCollection : ActionToken.IHandler
     {
         #region Fields
 
@@ -17,9 +17,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        void Unsubscriber.IHandler.Unsubscribe(object? state1, object? state2)
+        void ActionToken.IHandler.Invoke(object? state, object? _)
         {
-            if (ReferenceEquals(_listeners, state1))
+            if (ReferenceEquals(_listeners, state))
             {
                 _listeners = null;
                 _size = 0;
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Observers
             {
                 for (var i = 0; i < listeners.Length; i++)
                 {
-                    if (ReferenceEquals(listeners[i], state1))
+                    if (ReferenceEquals(listeners[i], state))
                     {
                         ++_removedSize;
                         listeners[i] = null;
@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Observers
                 WeakEventListener.TryHandle(_listeners, sender, args);
         }
 
-        public Unsubscriber Add(IEventListener listener)
+        public ActionToken Add(IEventListener listener)
         {
             var target = WeakEventListener.GetTarget(listener);
             if (_listeners == null)
@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Observers
                 }
             }
 
-            return new Unsubscriber(this, target, null);
+            return new ActionToken(this, target);
         }
 
         public bool Remove(IEventListener listener)

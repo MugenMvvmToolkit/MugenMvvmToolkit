@@ -7,7 +7,6 @@ using MugenMvvm.Components;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.BusyIndicator.Components;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.BusyIndicator
 {

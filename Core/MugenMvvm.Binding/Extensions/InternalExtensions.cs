@@ -26,12 +26,12 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
-        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IBindingMemberInfo? lastMember, ref Unsubscriber unsubscriber, ref IWeakReference? lastValueRef)
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IBindingMemberInfo? lastMember, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
         {
-            unsubscriber.Unsubscribe();
+            unsubscriber.Dispose();
             if (target == null || !(lastMember is IBindingMemberAccessorInfo propertyInfo))
             {
-                unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                unsubscriber = ActionToken.NoDoToken;
                 return;
             }
 
@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding
             var type = value?.GetType()!;
             if (value.IsNullOrUnsetValue() || type.IsValueType)
             {
-                unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                unsubscriber = ActionToken.NoDoToken;
                 return;
             }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding
             if (member is IObservableBindingMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
             if (unsubscriber.IsEmpty)
-                unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                unsubscriber = ActionToken.NoDoToken;
         }
 
         internal static string GetPath(this StringBuilder memberNameBuilder)

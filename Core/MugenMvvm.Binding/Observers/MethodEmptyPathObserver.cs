@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Observers
         private readonly BindingMemberFlags _memberFlags;
         private readonly string _method;
 
-        private Unsubscriber _unsubscriber;
+        private ActionToken _unsubscriber;
 
         #endregion
 
@@ -81,20 +81,20 @@ namespace MugenMvvm.Binding.Observers
                 return;
             var target = Target;
             if (target == null)
-                _unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                _unsubscriber = ActionToken.NoDoToken;
             else
             {
                 var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _method, BindingMemberType.Method, _memberFlags);
                 if (member is IObservableBindingMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this);
                 if (_unsubscriber.IsEmpty)
-                    _unsubscriber = Unsubscriber.NoDoUnsubscriber;
+                    _unsubscriber = ActionToken.NoDoToken;
             }
         }
 
         protected override void OnListenersRemoved()
         {
-            _unsubscriber.Unsubscribe();
+            _unsubscriber.Dispose();
             _unsubscriber = default;
         }
 

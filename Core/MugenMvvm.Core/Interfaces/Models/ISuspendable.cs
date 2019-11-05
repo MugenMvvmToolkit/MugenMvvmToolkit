@@ -1,6 +1,4 @@
-﻿using MugenMvvm.Internal;
-
-namespace MugenMvvm.Interfaces.Models
+﻿namespace MugenMvvm.Interfaces.Models
 {
     public interface ISuspendable
     {

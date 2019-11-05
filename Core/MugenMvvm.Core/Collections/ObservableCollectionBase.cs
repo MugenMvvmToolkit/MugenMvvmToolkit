@@ -5,7 +5,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {

@@ -9,7 +9,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly Unsubscriber[] _listeners;
+        private readonly ActionToken[] _listeners;
         private IEventListener? _lastMemberListener;
 
         #endregion
@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observers
         public MultiPathObserver(object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
-            _listeners = new Unsubscriber[path.Members.Length];
+            _listeners = new ActionToken[path.Members.Length];
         }
 
         #endregion
@@ -51,11 +51,11 @@ namespace MugenMvvm.Binding.Observers
 
         protected override void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
         {
-            Unsubscriber unsubscriber = default;
+            ActionToken unsubscriber = default;
             if (lastMember is IObservableBindingMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, GetLastMemberListener());
             if (unsubscriber.IsEmpty)
-                _listeners[_listeners.Length - 1] = Unsubscriber.NoDoUnsubscriber;
+                _listeners[_listeners.Length - 1] = ActionToken.NoDoToken;
             else
                 _listeners[_listeners.Length - 1] = unsubscriber;
         }
@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Observers
             var listener = _listeners[_listeners.Length - 1];
             if (!listener.IsEmpty)
             {
-                listener.Unsubscribe();
+                listener.Dispose();
                 _listeners[_listeners.Length - 1] = default;
             }
         }
@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Observers
         {
             for (var index = 0; index < _listeners.Length; index++)
             {
-                _listeners[index].Unsubscribe();
+                _listeners[index].Dispose();
                 _listeners[index] = default;
             }
 

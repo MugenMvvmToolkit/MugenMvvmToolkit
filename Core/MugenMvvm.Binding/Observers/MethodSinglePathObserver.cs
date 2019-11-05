@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Observers
         private readonly string _method;
 
         private IWeakReference? _lastValueRef;
-        private Unsubscriber _unsubscriber;
+        private ActionToken _unsubscriber;
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Observers
 
         protected override void UnsubscribeLastMember()
         {
-            _unsubscriber.Unsubscribe();
+            _unsubscriber.Dispose();
             _unsubscriber = default;
             base.UnsubscribeLastMember();
         }

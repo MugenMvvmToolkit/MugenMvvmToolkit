@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers
         protected readonly BindingMemberFlags MemberFlags;
 
         private object? _lastMemberOrException;
-        private Unsubscriber _lastMemberUnsubscriber;
+        private ActionToken _lastMemberUnsubscriber;
         private byte _state;
 
         #endregion
@@ -101,7 +101,7 @@ namespace MugenMvvm.Binding.Observers
             {
                 var target = Target;
                 if (target == null)
-                    _lastMemberUnsubscriber = Unsubscriber.NoDoUnsubscriber;
+                    _lastMemberUnsubscriber = ActionToken.NoDoToken;
                 else
                     SubscribeLastMember(target, lastMember);
             }
@@ -174,16 +174,16 @@ namespace MugenMvvm.Binding.Observers
 
         protected virtual void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
         {
-            _lastMemberUnsubscriber.Unsubscribe();
+            _lastMemberUnsubscriber.Dispose();
             if (lastMember is IObservableBindingMemberInfo observable)
                 _lastMemberUnsubscriber = observable.TryObserve(target, this);
             if (_lastMemberUnsubscriber.IsEmpty)
-                _lastMemberUnsubscriber = Unsubscriber.NoDoUnsubscriber;
+                _lastMemberUnsubscriber = ActionToken.NoDoToken;
         }
 
         protected virtual void UnsubscribeLastMember()
         {
-            _lastMemberUnsubscriber.Unsubscribe();
+            _lastMemberUnsubscriber.Dispose();
             _lastMemberUnsubscriber = default;
         }
 

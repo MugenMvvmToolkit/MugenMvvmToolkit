@@ -206,7 +206,7 @@ namespace MugenMvvm.Binding
                 propertyInfo.SetValue(target, value, metadata);
         }
 
-        public static Unsubscriber TryObserveBindableMember<TTarget, TValue>(this TTarget target,
+        public static ActionToken TryObserveBindableMember<TTarget, TValue>(this TTarget target,
             BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
@@ -218,7 +218,7 @@ namespace MugenMvvm.Binding
             return propertyInfo.TryObserve(target, listener, metadata);
         }
 
-        public static Unsubscriber TrySubscribeBindableEvent<TTarget>(this TTarget target,
+        public static ActionToken TrySubscribeBindableEvent<TTarget>(this TTarget target,
             BindableEventDescriptor<TTarget> eventMember, IEventListener listener, BindingMemberFlags flags = BindingMemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {

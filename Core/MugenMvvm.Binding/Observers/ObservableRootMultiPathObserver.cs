@@ -8,7 +8,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private Unsubscriber _unsubscriber;
+        private ActionToken _unsubscriber;
 
         #endregion
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Observers
         {
             if (index == 0)
             {
-                _unsubscriber.Unsubscribe();
+                _unsubscriber.Dispose();
                 _unsubscriber = member.TryObserve(target, this);
             }
         }
@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Observers
 
         protected override void ClearListeners()
         {
-            _unsubscriber.Unsubscribe();
+            _unsubscriber.Dispose();
             _unsubscriber = default;
         }
 

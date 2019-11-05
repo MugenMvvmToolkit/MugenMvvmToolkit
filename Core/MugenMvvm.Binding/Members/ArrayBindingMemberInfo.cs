@@ -2,7 +2,6 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
@@ -59,7 +58,7 @@ namespace MugenMvvm.Binding.Members
             ((Array)target!).SetValue(value, _indexes);
         }
 
-        public Unsubscriber TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             return default;
         }

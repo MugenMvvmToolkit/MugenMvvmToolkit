@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace MugenMvvm.Internal
+namespace MugenMvvm
 {
     [StructLayout(LayoutKind.Auto)]
     public struct ActionToken : IDisposable
@@ -29,9 +29,17 @@ namespace MugenMvvm.Internal
         {
         }
 
-        public ActionToken(Action<object?, object?> handler, object? state1, object? state2 = null) : this(handler, state: state1, state2)
+        public ActionToken(Action<object?, object?> handler, object? state1 = null, object? state2 = null) : this(handler, state: state1, state2)
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        public readonly bool IsEmpty => _handler == null;
+
+        public static ActionToken NoDoToken => new ActionToken((_, __) => { }, null);
 
         #endregion
 
@@ -49,7 +57,7 @@ namespace MugenMvvm.Internal
             if (handler is IHandler h)
                 h.Invoke(_state1, _state2);
             else
-                ((Action<object?, object?>) handler).Invoke(_state1, _state2);
+                ((Action<object?, object?>)handler).Invoke(_state1, _state2);
             _state1 = null;
             _state2 = null;
         }

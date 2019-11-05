@@ -10,7 +10,6 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Internal;
 using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Commands.Components

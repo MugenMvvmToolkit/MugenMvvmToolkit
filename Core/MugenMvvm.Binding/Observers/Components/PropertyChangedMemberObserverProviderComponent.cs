@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        Unsubscriber MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        ActionToken MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return default;
@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Nested types
 
-        private sealed class WeakPropertyChangedListener : Unsubscriber.IHandler
+        private sealed class WeakPropertyChangedListener : ActionToken.IHandler
         {
             #region Fields
 
@@ -125,7 +125,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             #region Implementation of interfaces
 
-            void Unsubscriber.IHandler.Unsubscribe(object? state1, object? state2)
+            void ActionToken.IHandler.Invoke(object? state1, object? state2)
             {
                 var propertyName = (string)state2!;
                 for (var i = 0; i < _listeners.Length; i++)
@@ -170,7 +170,7 @@ namespace MugenMvvm.Binding.Observers.Components
                     Cleanup();
             }
 
-            public Unsubscriber Add(IEventListener target, string path)
+            public ActionToken Add(IEventListener target, string path)
             {
                 var weakItem = target.ToWeak();
                 if (_listeners.Length == 0)
@@ -201,7 +201,7 @@ namespace MugenMvvm.Binding.Observers.Components
                     }
                 }
 
-                return new Unsubscriber(this, weakItem.Target, path);
+                return new ActionToken(this, weakItem.Target, path);
             }
 
             private void Cleanup()
