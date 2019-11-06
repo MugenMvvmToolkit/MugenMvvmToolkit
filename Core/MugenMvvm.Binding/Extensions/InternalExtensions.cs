@@ -26,10 +26,10 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
-        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IBindingMemberInfo? lastMember, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
         {
             unsubscriber.Dispose();
-            if (target == null || !(lastMember is IBindingMemberAccessorInfo propertyInfo))
+            if (target == null || !(lastMember is IMemberAccessorInfo propertyInfo))
             {
                 unsubscriber = ActionToken.NoDoToken;
                 return;
@@ -47,9 +47,9 @@ namespace MugenMvvm.Binding
             }
 
             lastValueRef = value.ToWeakReference();
-            var memberFlags = observer.MemberFlags & ~BindingMemberFlags.Static;
-            var member = MugenBindingService.MemberProvider.GetMember(type!, observer.Method, BindingMemberType.Method, memberFlags);
-            if (member is IObservableBindingMemberInfo observable)
+            var memberFlags = observer.MemberFlags & ~MemberFlags.Static;
+            var member = MugenBindingService.MemberProvider.GetMember(type!, observer.Method, MemberType.Method, memberFlags);
+            if (member is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
             if (unsubscriber.IsEmpty)
                 unsubscriber = ActionToken.NoDoToken;
@@ -166,13 +166,13 @@ namespace MugenMvvm.Binding
             return result;
         }
 
-        internal static BindingMemberFlags GetAccessModifiers(this MethodBase? method)
+        internal static MemberFlags GetAccessModifiers(this MethodBase? method)
         {
             if (method == null)
-                return BindingMemberFlags.Instance;
+                return MemberFlags.Instance;
             if (method.IsStatic)
-                return method.IsPublic ? BindingMemberFlags.StaticPublic : BindingMemberFlags.StaticNonPublic;
-            return method.IsPublic ? BindingMemberFlags.InstancePublic : BindingMemberFlags.InstanceNonPublic;
+                return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+            return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
         }
 
         private static string RemoveBounds(this string st, int start = 1) //todo Span?

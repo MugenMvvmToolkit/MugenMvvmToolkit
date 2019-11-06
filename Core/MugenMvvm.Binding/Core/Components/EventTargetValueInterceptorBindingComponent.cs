@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Core.Components
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
         private object? _currentValue;
-        private IBindingMemberAccessorInfo? _enabledMember;
+        private IMemberAccessorInfo? _enabledMember;
         private bool _isDisposed;
         private IWeakReference? _targetRef;
         private ActionToken _unsubscriber;
@@ -86,7 +86,7 @@ namespace MugenMvvm.Binding.Core.Components
                     case ICommand command:
                         command.Execute(GetCommandParameter());
                         break;
-                    case IBindingExpressionValue expression:
+                    case IExpressionValue expression:
                         expression.Invoke(_currentMetadata);
                         break;
                 }
@@ -108,7 +108,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (_unsubscriber.IsEmpty)
             {
-                if (!(targetMember.Member is IBindingEventInfo eventInfo))
+                if (!(targetMember.Member is IEventInfo eventInfo))
                     return false;
 
                 _unsubscriber = eventInfo.TrySubscribe(targetMember.Target, this, metadata);
@@ -138,7 +138,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return true;
             }
 
-            if (value is IBindingExpressionValue expressionValue)
+            if (value is IExpressionValue expressionValue)
             {
                 _currentValue = expressionValue;
                 return true;
@@ -158,7 +158,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private object? GetCommandParameter()
         {
-            if (CommandParameter is IBindingExpressionValue expression)
+            if (CommandParameter is IExpressionValue expression)
                 return expression.Invoke(_currentMetadata);
             return CommandParameter;
         }
@@ -172,8 +172,8 @@ namespace MugenMvvm.Binding.Core.Components
 
             _enabledMember = _memberProvider
                     .ServiceIfNull()
-                    .GetMember(target.GetType(), BindableMembers.Object.Enabled, BindingMemberType.Property, BindingMemberFlags.InstancePublic, _currentMetadata) as
-                IBindingMemberAccessorInfo;
+                    .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Property, MemberFlags.InstancePublic, _currentMetadata) as
+                IMemberAccessorInfo;
             if (_enabledMember == null)
                 return false;
 

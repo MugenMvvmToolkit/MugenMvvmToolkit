@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         public readonly bool HasStablePath;
-        public readonly BindingMemberFlags MemberFlags;
+        public readonly MemberFlags MemberFlags;
         public readonly bool Observable;
         public readonly string? ObservableMethodName;
         public readonly bool Optional;
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MemberPathObserverRequest(IMemberPath path, BindingMemberFlags memberFlags, string? observableMethodName,
+        public MemberPathObserverRequest(IMemberPath path, MemberFlags memberFlags, string? observableMethodName,
             bool hasStablePath, bool observable, bool optional, object? state = null)
         {
             Should.NotBeNull(path, nameof(path));

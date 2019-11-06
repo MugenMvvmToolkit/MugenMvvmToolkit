@@ -10,8 +10,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
     //todo add expando/dynamic objects
     public interface IMemberProvider : IComponentOwner<IMemberProvider>, IComponent<IBindingManager>
     {
-        IBindingMemberInfo? GetMember(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata = null);
+        IMemberInfo? GetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<IBindingMemberInfo> GetMembers(Type type, string name, BindingMemberType memberTypes, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata = null);
+        IReadOnlyList<IMemberInfo> GetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null);
     }
 }

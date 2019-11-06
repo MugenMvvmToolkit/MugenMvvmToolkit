@@ -8,7 +8,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Constructors
 
-        public MultiPathObserverRaw(object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
+        public MultiPathObserverRaw(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
         }
@@ -17,11 +17,11 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected override void SubscribeMember(int index, object target, IObservableBindingMemberInfo member)
+        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member)
         {
         }
 
-        protected override void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember)
         {
         }
 

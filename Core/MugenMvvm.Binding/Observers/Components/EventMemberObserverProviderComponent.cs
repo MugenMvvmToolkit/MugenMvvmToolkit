@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; } = 1;
 
-        public Func<Type, string, IReadOnlyMetadataContext?, IBindingEventInfo?>? EventFinder { get; set; }
+        public Func<Type, string, IReadOnlyMetadataContext?, IEventInfo?>? EventFinder { get; set; }
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         ActionToken MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IBindingEventInfo)member).TrySubscribe(target, listener, metadata);
+            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
         }
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
@@ -91,14 +91,14 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private IBindingEventInfo? TryGetEvent(Type type, string memberName, BindingMemberFlags flags, IReadOnlyMetadataContext? metadata)
+        private IEventInfo? TryGetEvent(Type type, string memberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             if (EventFinder != null)
                 return EventFinder(type, memberName, metadata);
 
             var provider = _memberProvider.ServiceIfNull();
-            return provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, BindingMemberType.Event, flags, metadata) as IBindingEventInfo
-                   ?? provider.GetMember(type, memberName + "Change", BindingMemberType.Event, flags, metadata) as IBindingEventInfo;
+            return provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
+                   ?? provider.GetMember(type, memberName + "Change", MemberType.Event, flags, metadata) as IEventInfo;
         }
 
         #endregion

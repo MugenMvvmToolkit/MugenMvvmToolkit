@@ -9,11 +9,11 @@ namespace MugenMvvm.Binding.Interfaces.Compiling
     {
         Expression MetadataParameter { get; }
 
-        IBindingParameterInfo? TryGetLambdaParameter();
+        IParameterInfo? TryGetLambdaParameter();
 
-        void SetLambdaParameter(IBindingParameterInfo parameter);
+        void SetLambdaParameter(IParameterInfo parameter);
 
-        void ClearLambdaParameter(IBindingParameterInfo parameter);
+        void ClearLambdaParameter(IParameterInfo parameter);
 
         Expression? TryGetExpression(IExpressionNode expression);
 

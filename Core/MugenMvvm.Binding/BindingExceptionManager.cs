@@ -11,13 +11,13 @@ namespace MugenMvvm.Binding
         #region Methods
 
         [DoesNotReturn]
-        public static void ThrowBindingMemberMustBeWritable(IBindingMemberInfo member)
+        public static void ThrowBindingMemberMustBeWritable(IMemberInfo member)
         {
             throw new InvalidOperationException(BindingMemberMustBeWritableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
         }
 
         [DoesNotReturn]
-        public static void ThrowBindingMemberMustBeReadable(IBindingMemberInfo member)
+        public static void ThrowBindingMemberMustBeReadable(IMemberInfo member)
         {
             throw new InvalidOperationException(BindingMemberMustBeReadableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
         }

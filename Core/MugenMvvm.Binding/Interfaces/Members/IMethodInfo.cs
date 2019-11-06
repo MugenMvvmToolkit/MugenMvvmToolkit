@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingMethodInfo : IObservableBindingMemberInfo
+    public interface IMethodInfo : IObservableMemberInfo
     {
         bool IsExtensionMethod { get; }
 
@@ -11,11 +11,11 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool IsGenericMethodDefinition { get; }
 
-        IBindingParameterInfo[] GetParameters();
+        IParameterInfo[] GetParameters();
 
         Type[] GetGenericArguments();
 
-        IBindingMethodInfo MakeGenericMethod(Type[] types);
+        IMethodInfo MakeGenericMethod(Type[] types);
 
         object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
     }

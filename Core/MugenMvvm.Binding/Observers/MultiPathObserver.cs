@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MultiPathObserver(object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
+        public MultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
             _listeners = new ActionToken[path.Members.Length];
@@ -44,15 +44,15 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        protected override void SubscribeMember(int index, object target, IObservableBindingMemberInfo member)
+        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member)
         {
             _listeners[index] = member.TryObserve(target, this);
         }
 
-        protected override void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember)
         {
             ActionToken unsubscriber = default;
-            if (lastMember is IObservableBindingMemberInfo observable)
+            if (lastMember is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, GetLastMemberListener());
             if (unsubscriber.IsEmpty)
                 _listeners[_listeners.Length - 1] = ActionToken.NoDoToken;

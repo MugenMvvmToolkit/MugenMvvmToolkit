@@ -9,33 +9,37 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class BindingPropertyInfo : IBindingMemberAccessorInfo
+    public sealed class IndexerMemberAccessorInfo : IMemberAccessorInfo
     {
         #region Fields
 
+        private readonly object?[] _indexerArgs;
         private readonly IObserverProvider? _observerProvider;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
-        private Func<object?, object?> _getterFunc;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private Func<object?, object?[], object?> _getterIndexerFunc;
 
         private MemberObserver? _observer;
-        private Action<object?, object?> _setterFunc;
+        private Func<object?, object?[], object?> _setterIndexerFunc;
 
         #endregion
 
         #region Constructors
 
-        public BindingPropertyInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public IndexerMemberAccessorInfo(string name, PropertyInfo propertyInfo, object?[] indexerArgs,
+            Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
+            Should.NotBeNull(indexerArgs, nameof(indexerArgs));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
+            _indexerArgs = indexerArgs;
             Name = name;
             Type = _propertyInfo.PropertyType;
 
@@ -43,24 +47,24 @@ namespace MugenMvvm.Binding.Members
             if (getMethod == null)
             {
                 CanRead = false;
-                _getterFunc = MustBeReadable;
+                _getterIndexerFunc = MustBeReadable;
             }
             else
             {
                 CanRead = true;
-                _getterFunc = CompileGetter;
+                _getterIndexerFunc = CompileIndexerGetter;
             }
 
             var setMethod = propertyInfo.GetSetMethod(true);
             if (setMethod == null)
             {
                 CanWrite = false;
-                _setterFunc = MustBeWritable;
+                _setterIndexerFunc = MustBeWritable;
             }
             else
             {
                 CanWrite = true;
-                _setterFunc = CompileSetter;
+                _setterIndexerFunc = CompileIndexerSetter;
             }
 
             AccessModifiers = (getMethod ?? setMethod).GetAccessModifiers();
@@ -76,9 +80,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => _propertyInfo;
 
-        public BindingMemberType MemberType => BindingMemberType.Property;
+        public MemberType MemberType => MemberType.Property;
 
-        public BindingMemberFlags AccessModifiers { get; }
+        public MemberFlags AccessModifiers { get; }
 
         public bool CanRead { get; }
 
@@ -91,45 +95,49 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, _propertyInfo);
+                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, new MemberObserverRequest(Name, _propertyInfo, _indexerArgs));
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            return _getterFunc(target);
+            return _getterIndexerFunc(target, _indexerArgs);
         }
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            _setterFunc(target, value);
+            var args = new object?[_indexerArgs.Length + 1];
+            Array.Copy(_indexerArgs, args, _indexerArgs.Length);
+            args[_indexerArgs.Length] = value;
+            _setterIndexerFunc(target, args);
         }
 
         #endregion
 
         #region Methods
 
-        private void MustBeWritable(object? _, object? __)
+        private object? MustBeWritable(object? _, object? __)
         {
             BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
+            return null;
         }
 
-        private object MustBeReadable(object? _)
+        private object? MustBeReadable(object? _, object?[] __)
         {
             BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
-            return null!;
+            return null;
         }
 
-        private void CompileSetter(object? arg1, object? arg2)
+        private object? CompileIndexerSetter(object? arg1, object?[] arg2)
         {
-            _setterFunc = _propertyInfo.GetMemberSetter<object?>(_reflectionDelegateProvider);
-            _setterFunc(arg1, arg2);
+            _setterIndexerFunc = _propertyInfo.GetSetMethod(true)!.GetMethodInvoker(_reflectionDelegateProvider);
+            return _setterIndexerFunc(arg1, arg2);
         }
 
-        private object? CompileGetter(object? arg)
+        private object? CompileIndexerGetter(object? arg, object?[] values)
         {
-            _getterFunc = _propertyInfo.GetMemberGetter<object>(_reflectionDelegateProvider);
-            return _getterFunc(arg);
+            _getterIndexerFunc = _propertyInfo.GetGetMethod(true)!.GetMethodInvoker(_reflectionDelegateProvider);
+            return _getterIndexerFunc(arg, values);
         }
 
         #endregion

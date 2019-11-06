@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MethodBindingPropertyInfo : IBindingMemberAccessorInfo
+    public sealed class MethodMemberAccessorInfo : IMemberAccessorInfo
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodBindingPropertyInfo(string name, MethodInfo methodInfo, object?[] args,
+        public MethodMemberAccessorInfo(string name, MethodInfo methodInfo, object?[] args,
             Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
@@ -53,9 +53,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => _methodInfo;
 
-        public BindingMemberType MemberType => BindingMemberType.Property;
+        public MemberType MemberType => MemberType.Property;
 
-        public BindingMemberFlags AccessModifiers { get; }
+        public MemberFlags AccessModifiers { get; }
 
         public bool CanRead => true;
 

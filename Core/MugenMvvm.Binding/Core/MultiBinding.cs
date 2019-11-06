@@ -9,7 +9,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class MultiBinding : Binding, IBindingExpressionValue
+    public sealed class MultiBinding : Binding, IExpressionValue
     {
         #region Fields
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            if (BindingMemberType.Event == targetMember.Member.MemberType)
+            if (MemberType.Event == targetMember.Member.MemberType)
                 return this;
             return Invoke();
         }

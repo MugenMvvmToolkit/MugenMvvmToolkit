@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        protected readonly BindingMemberFlags MemberFlags;
+        protected readonly MemberFlags MemberFlags;
 
         private object? _lastMemberOrException;
         private ActionToken _lastMemberUnsubscriber;
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public SinglePathObserver(object target, IMemberPath path, BindingMemberFlags memberFlags, bool observable, bool optional)
+        public SinglePathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
             : base(target)
         {
             Should.NotBeNull(path, nameof(path));
@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Observers
         public override MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
-            if (_lastMemberOrException is IBindingMemberInfo member)
+            if (_lastMemberOrException is IMemberInfo member)
             {
                 var target = Target;
                 if (target == null)
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Observers
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
         {
             UpdateIfNeed();
-            if (_lastMemberOrException is IBindingMemberInfo member)
+            if (_lastMemberOrException is IMemberInfo member)
             {
                 var target = Target;
                 if (target == null)
@@ -97,7 +97,7 @@ namespace MugenMvvm.Binding.Observers
         protected override void OnListenerAdded(IMemberPathObserverListener listener)
         {
             UpdateIfNeed();
-            if (Observable && _lastMemberUnsubscriber.IsEmpty && _lastMemberOrException is IBindingMemberInfo lastMember)
+            if (Observable && _lastMemberUnsubscriber.IsEmpty && _lastMemberOrException is IMemberInfo lastMember)
             {
                 var target = Target;
                 if (target == null)
@@ -140,12 +140,12 @@ namespace MugenMvvm.Binding.Observers
                     return;
                 }
 
-                if (_lastMemberOrException is IBindingMemberInfo)
+                if (_lastMemberOrException is IMemberInfo)
                     return;
 
                 var lastMember = MugenBindingService
                       .MemberProvider
-                      .GetMember(GetTargetType(target, MemberFlags), Path.Path, BindingMemberType.Event | BindingMemberType.Field | BindingMemberType.Property, MemberFlags);
+                      .GetMember(GetTargetType(target, MemberFlags), Path.Path, MemberType.Event | MemberType.Field | MemberType.Property, MemberFlags);
                 if (lastMember == null)
                 {
                     if (Optional)
@@ -166,16 +166,16 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        private void SetLastMember(IBindingMemberInfo? lastMember, Exception? exception)
+        private void SetLastMember(IMemberInfo? lastMember, Exception? exception)
         {
             _lastMemberOrException = (object?)exception ?? lastMember;
             OnLastMemberChanged();
         }
 
-        protected virtual void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
+        protected virtual void SubscribeLastMember(object target, IMemberInfo? lastMember)
         {
             _lastMemberUnsubscriber.Dispose();
-            if (lastMember is IObservableBindingMemberInfo observable)
+            if (lastMember is IObservableMemberInfo observable)
                 _lastMemberUnsubscriber = observable.TryObserve(target, this);
             if (_lastMemberUnsubscriber.IsEmpty)
                 _lastMemberUnsubscriber = ActionToken.NoDoToken;

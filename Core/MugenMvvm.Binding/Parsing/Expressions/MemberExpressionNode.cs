@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Constructors
 
-        private MemberExpressionNode(IExpressionNode? target, IBindingMemberAccessorInfo? memberInfo, string member)
+        private MemberExpressionNode(IExpressionNode? target, IMemberAccessorInfo? memberInfo, string member)
         {
             Should.NotBeNull(member, nameof(member));
             Target = target;
@@ -32,7 +32,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
         }
 
-        public MemberExpressionNode(IExpressionNode? target, IBindingMemberAccessorInfo member)
+        public MemberExpressionNode(IExpressionNode? target, IMemberAccessorInfo member)
             : this(target, member, member?.Name!)
         {
         }
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Member;
 
-        public IBindingMemberAccessorInfo? Member { get; }
+        public IMemberAccessorInfo? Member { get; }
 
         public string MemberName { get; }
 

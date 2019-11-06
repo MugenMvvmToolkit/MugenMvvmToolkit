@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Arguments = arguments;
         }
 
-        public IndexExpressionNode(IExpressionNode? target, IBindingMethodInfo indexer, IReadOnlyList<IExpressionNode> arguments)
+        public IndexExpressionNode(IExpressionNode? target, IMethodInfo indexer, IReadOnlyList<IExpressionNode> arguments)
             : this(target, arguments)
         {
             Should.NotBeNull(indexer, nameof(indexer));
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.Index;
 
-        public IBindingMethodInfo? Indexer { get; private set; }
+        public IMethodInfo? Indexer { get; private set; }
 
         public IExpressionNode? Target { get; }
 

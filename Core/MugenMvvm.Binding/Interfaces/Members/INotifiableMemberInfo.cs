@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface INotifiableBindingMemberInfo : IBindingMemberInfo
+    public interface INotifiableMemberInfo : IMemberInfo
     {
         bool Raise(object? target, object? message, IReadOnlyMetadataContext? metadata = null);
     }

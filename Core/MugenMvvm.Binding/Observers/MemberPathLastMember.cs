@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly IBindingMemberInfo? _member;
+        private readonly IMemberInfo? _member;
         private readonly object? _target;
 
         #endregion
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public MemberPathLastMember(object? target, IBindingMemberInfo member)
+        public MemberPathLastMember(object? target, IMemberInfo member)
         {
             _target = target;
             _member = member;
@@ -59,12 +59,12 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        public IBindingMemberInfo Member
+        public IMemberInfo Member
         {
             get
             {
                 if (_member == null)
-                    return ConstantBindingMemberInfo.Unset;
+                    return ConstantMemberInfo.Unset;
                 return _member;
             }
         }
@@ -82,12 +82,12 @@ namespace MugenMvvm.Binding.Observers
 
         public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IBindingMemberAccessorInfo)_member!).GetValue(_target, metadata);
+            return ((IMemberAccessorInfo)_member!).GetValue(_target, metadata);
         }
 
         public void SetValue(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IBindingMemberAccessorInfo)_member!).SetValue(_target, value, metadata);
+            ((IMemberAccessorInfo)_member!).SetValue(_target, value, metadata);
         }
 
         #endregion

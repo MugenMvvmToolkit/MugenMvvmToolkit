@@ -109,9 +109,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected static Type GetTargetType(object target, BindingMemberFlags flags)
+        protected static Type GetTargetType(object target, MemberFlags flags)
         {
-            if (flags.HasFlagEx(BindingMemberFlags.Static))
+            if (flags.HasFlagEx(MemberFlags.Static))
                 return target as Type ?? target.GetType();
             return target.GetType();
         }
@@ -228,7 +228,7 @@ namespace MugenMvvm.Binding.Observers
 
         internal interface IMethodPathObserver : IMemberPathObserver
         {
-            BindingMemberFlags MemberFlags { get; }
+            MemberFlags MemberFlags { get; }
 
             string Method { get; }
 

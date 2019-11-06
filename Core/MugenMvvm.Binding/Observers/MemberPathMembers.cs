@@ -11,14 +11,14 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly IBindingMemberInfo[]? _members;
+        private readonly IMemberInfo[]? _members;
         private readonly object? _target;
 
         #endregion
 
         #region Constructors
 
-        public MemberPathMembers(object? target, IBindingMemberInfo[]? members)
+        public MemberPathMembers(object? target, IMemberInfo[]? members)
         {
             _target = target;
             _members = members;
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        public IBindingMemberInfo[] Members => _members ?? ConstantBindingMemberInfo.UnsetArray;
+        public IMemberInfo[] Members => _members ?? ConstantMemberInfo.UnsetArray;
 
         #endregion
 

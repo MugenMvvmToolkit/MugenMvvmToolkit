@@ -32,7 +32,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
         private static readonly int[] ArraySize = new int[1];
-        private static readonly MethodInfo InvokeMethod = typeof(IBindingMethodInfo).GetMethodOrThrow(nameof(IBindingMethodInfo.Invoke), BindingFlagsEx.InstancePublic);
+        private static readonly MethodInfo InvokeMethod = typeof(IMethodInfo).GetMethodOrThrow(nameof(IMethodInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
 
         #endregion
@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public int Priority { get; set; } = BindingLinqCompilerPriority.Member;
 
-        public BindingMemberFlags MemberFlags { get; set; } = BindingMemberFlags.All & ~BindingMemberFlags.NonPublic;
+        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
 
         #endregion
 
@@ -289,7 +289,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs);
         }
 
-        private static Expression GenerateMethodCall(ILinqExpressionBuilderContext context, IBindingMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
+        private static Expression GenerateMethodCall(ILinqExpressionBuilderContext context, IMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
         {
             var expressions = ToExpressions(context, args, methodInfo, null);
             if (methodInfo.Member is MethodInfo method)
@@ -413,7 +413,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static bool CheckParamsCompatible(int startIndex, int lastIndex, IBindingParameterInfo[] parameters, in MethodData method, ref float notExactlyEqual)
+        private static bool CheckParamsCompatible(int startIndex, int lastIndex, IParameterInfo[] parameters, in MethodData method, ref float notExactlyEqual)
         {
             float weight = 0;
             var elementType = parameters[lastIndex].ParameterType.GetElementType();
@@ -545,7 +545,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static MethodData TryInferMethod(IBindingMethodInfo method, ArgumentData[] args, Type[] typeArgs)
+        private static MethodData TryInferMethod(IMethodInfo method, ArgumentData[] args, Type[] typeArgs)
         {
             var m = ApplyTypeArgs(method, typeArgs);
             if (m != null)
@@ -555,7 +555,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return TryInferGenericMethod(method, args);
         }
 
-        private static MethodData TryInferGenericMethod(IBindingMethodInfo method, ArgumentData[] args)
+        private static MethodData TryInferGenericMethod(IMethodInfo method, ArgumentData[] args)
         {
             var genericMethod = TryInferGenericMethod(method, args, out var hasUnresolved);
             if (genericMethod == null)
@@ -565,7 +565,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return new MethodData(genericMethod);
         }
 
-        private static IBindingMethodInfo? TryInferGenericMethod(IBindingMethodInfo method, ArgumentData[] args, out bool hasUnresolved)
+        private static IMethodInfo? TryInferGenericMethod(IMethodInfo method, ArgumentData[] args, out bool hasUnresolved)
         {
             hasUnresolved = false;
             var parameters = method.GetParameters();
@@ -643,7 +643,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return null;
         }
 
-        private static IBindingMethodInfo? ApplyTypeArgs(IBindingMethodInfo m, Type[] typeArgs)
+        private static IMethodInfo? ApplyTypeArgs(IMethodInfo m, Type[] typeArgs)
         {
             if (typeArgs.Length == 0)
             {
@@ -683,7 +683,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ToExpressions(ILinqExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IBindingMethodInfo? method, Type? convertType)
+        private static Expression[] ToExpressions(ILinqExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IMethodInfo? method, Type? convertType)
         {
             var parameters = method?.GetParameters();
             var expressions = new Expression[args.Count];
@@ -712,12 +712,12 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var members = _memberProvider
                 .ServiceIfNull()
-                .GetMembers(type, methodName, BindingMemberType.Method, isStatic ? MemberFlags & ~BindingMemberFlags.Instance : MemberFlags, metadata);
+                .GetMembers(type, methodName, MemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags, metadata);
 
             var count = 0;
             for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(BindingMemberFlags.Instance) || method.IsExtensionMethod))
+                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
                     ++count;
             }
 
@@ -728,7 +728,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             count = 0;
             for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IBindingMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(BindingMemberFlags.Instance) || method.IsExtensionMethod))
+                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
                 {
                     var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
@@ -910,19 +910,19 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             #region Fields
 
-            private readonly IBindingMethodInfo? _unresolvedMethod;
+            private readonly IMethodInfo? _unresolvedMethod;
 
             #endregion
 
             #region Constructors
 
-            public MethodData(IBindingMethodInfo method)
+            public MethodData(IMethodInfo method)
                 : this(method, null)
             {
                 Method = method;
             }
 
-            public MethodData(IBindingMethodInfo method, IBindingMethodInfo? unresolvedMethod, object? args = null)
+            public MethodData(IMethodInfo method, IMethodInfo? unresolvedMethod, object? args = null)
             {
                 Method = method;
                 Parameters = method.GetParameters();
@@ -938,9 +938,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public bool IsExtensionMethod => Method?.IsExtensionMethod ?? false;
 
-            public IBindingMethodInfo Method { get; }
+            public IMethodInfo Method { get; }
 
-            public IBindingParameterInfo[] Parameters { get; }
+            public IParameterInfo[] Parameters { get; }
 
             public object? Args { get; }
 

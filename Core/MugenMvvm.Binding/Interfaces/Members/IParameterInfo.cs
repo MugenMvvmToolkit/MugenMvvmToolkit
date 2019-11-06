@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingParameterInfo
+    public interface IParameterInfo
     {
         bool IsParamsArray { get; }
 

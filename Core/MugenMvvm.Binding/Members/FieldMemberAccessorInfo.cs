@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class BindingFieldInfo : IBindingMemberAccessorInfo
+    public sealed class FieldMemberAccessorInfo : IMemberAccessorInfo
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public BindingFieldInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public FieldMemberAccessorInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(fieldInfo, nameof(fieldInfo));
@@ -39,9 +39,9 @@ namespace MugenMvvm.Binding.Members
             _getterFunc = CompileGetter;
             _setterFunc = CompileSetter;
             if (fieldInfo.IsStatic)
-                AccessModifiers = fieldInfo.IsPublic ? BindingMemberFlags.StaticPublic : BindingMemberFlags.StaticNonPublic;
+                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
             else
-                AccessModifiers = fieldInfo.IsPublic ? BindingMemberFlags.InstancePublic : BindingMemberFlags.InstanceNonPublic;
+                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
         }
 
         #endregion
@@ -54,9 +54,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => _fieldInfo;
 
-        public BindingMemberType MemberType => BindingMemberType.Field;
+        public MemberType MemberType => MemberType.Field;
 
-        public BindingMemberFlags AccessModifiers { get; }
+        public MemberFlags AccessModifiers { get; }
 
         public bool CanRead => true;
 

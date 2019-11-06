@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class BindingEventInfo : IBindingEventInfo
+    public sealed class EventMemberInfo : IEventInfo
     {
         #region Fields
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public BindingEventInfo(string name, EventInfo eventInfo, MemberObserver observer)
+        public EventMemberInfo(string name, EventInfo eventInfo, MemberObserver observer)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(eventInfo, nameof(eventInfo));
@@ -40,9 +40,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => _eventInfo;
 
-        public BindingMemberType MemberType => BindingMemberType.Event;
+        public MemberType MemberType => MemberType.Event;
 
-        public BindingMemberFlags AccessModifiers { get; }
+        public MemberFlags AccessModifiers { get; }
 
         #endregion
 

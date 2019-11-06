@@ -5,7 +5,7 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
     public interface IMethodCallExpressionNode : IHasTargetExpressionNode<IMethodCallExpressionNode>, IHasArgumentsExpressionNode<IMethodCallExpressionNode>
     {
-        IBindingMethodInfo? Method { get; }
+        IMethodInfo? Method { get; }
 
         string MethodName { get; }
 

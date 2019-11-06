@@ -38,29 +38,29 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IBindingMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             if (_cache.TryGetValue(new CacheKey(type, name), out var list))
                 return list;
-            return Default.EmptyArray<IBindingMemberInfo>();
+            return Default.EmptyArray<IMemberInfo>();
         }
 
         #endregion
 
         #region Methods
 
-        public void Register(Type type, IBindingMemberInfo member, string? name = null)
+        public void Register(Type type, IMemberInfo member, string? name = null)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
             var key = new CacheKey(type, name ?? member.Name);
             if (!_cache.TryGetValue(key, out var list))
             {
-                list = new List<IBindingMemberInfo>();
+                list = new List<IMemberInfo>();
                 _cache[key] = list;
             }
 
-            if (member.MemberType != BindingMemberType.Method)
+            if (member.MemberType != MemberType.Method)
             {
                 for (var i = 0; i < list.Count; i++)
                 {
@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Members.Components
             (Owner as IHasCache)?.Invalidate();
         }
 
-        public bool Unregister(Type type, BindingMemberType memberType)
+        public bool Unregister(Type type, MemberType memberType)
         {
             Should.NotBeNull(type, nameof(type));
             var removed = false;
@@ -101,7 +101,7 @@ namespace MugenMvvm.Binding.Members.Components
             return removed;
         }
 
-        public bool Unregister(Type type, BindingMemberType memberType, string name)
+        public bool Unregister(Type type, MemberType memberType, string name)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
@@ -127,7 +127,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Nested types
 
-        private sealed class CacheDictionary : LightDictionary<CacheKey, List<IBindingMemberInfo>>
+        private sealed class CacheDictionary : LightDictionary<CacheKey, List<IMemberInfo>>
         {
             #region Constructors
 

@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class ArrayBindingMemberInfo : IBindingMemberAccessorInfo
+    public sealed class ArrayMemberAccessorInfo : IMemberAccessorInfo
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public ArrayBindingMemberInfo(string name, Type arrayType, int[] indexes)
+        public ArrayMemberAccessorInfo(string name, Type arrayType, int[] indexes)
         {
             Should.NotBeNull(indexes, nameof(indexes));
             _indexes = indexes;
@@ -34,9 +34,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => null;
 
-        public BindingMemberType MemberType => BindingMemberType.Property;
+        public MemberType MemberType => MemberType.Property;
 
-        public BindingMemberFlags AccessModifiers => BindingMemberFlags.InstancePublic;
+        public MemberFlags AccessModifiers => MemberFlags.InstancePublic;
 
         public bool CanRead => true;
 

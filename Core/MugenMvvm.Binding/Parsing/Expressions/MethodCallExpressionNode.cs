@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        public MethodCallExpressionNode(IExpressionNode? target, IBindingMethodInfo method,
+        public MethodCallExpressionNode(IExpressionNode? target, IMethodInfo method,
             IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
             : this(target, method?.Name!, arguments, typeArgs)
         {
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType NodeType => ExpressionNodeType.MethodCall;
 
-        public IBindingMethodInfo? Method { get; private set; }
+        public IMethodInfo? Method { get; private set; }
 
         public string MethodName { get; }
 

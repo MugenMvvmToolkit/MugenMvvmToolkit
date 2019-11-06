@@ -7,25 +7,25 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class ConstantBindingMemberInfo : IBindingMemberAccessorInfo
+    public sealed class ConstantMemberInfo : IMemberAccessorInfo
     {
         #region Fields
 
         private readonly object? _result;
 
-        public static readonly ConstantBindingMemberInfo Null = new ConstantBindingMemberInfo(null, false);
-        public static readonly ConstantBindingMemberInfo Unset = new ConstantBindingMemberInfo(BindingMetadata.UnsetValue, false);
-        public static readonly ConstantBindingMemberInfo WritableNull = new ConstantBindingMemberInfo(null, true);
+        public static readonly ConstantMemberInfo Null = new ConstantMemberInfo(null, false);
+        public static readonly ConstantMemberInfo Unset = new ConstantMemberInfo(BindingMetadata.UnsetValue, false);
+        public static readonly ConstantMemberInfo WritableNull = new ConstantMemberInfo(null, true);
 
-        public static readonly IBindingMemberInfo[] NullArray = {Null};
-        public static readonly IBindingMemberInfo[] UnsetArray = {Unset};
-        public static readonly IBindingMemberInfo[] WritableNullArray = {WritableNull};
+        public static readonly IMemberInfo[] NullArray = {Null};
+        public static readonly IMemberInfo[] UnsetArray = {Unset};
+        public static readonly IMemberInfo[] WritableNullArray = {WritableNull};
 
         #endregion
 
         #region Constructors
 
-        private ConstantBindingMemberInfo(object? result, bool canWrite)
+        private ConstantMemberInfo(object? result, bool canWrite)
         {
             _result = result;
             CanWrite = canWrite;
@@ -41,9 +41,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => null;
 
-        public BindingMemberType MemberType => BindingMemberType.Property;
+        public MemberType MemberType => MemberType.Property;
 
-        public BindingMemberFlags AccessModifiers => BindingMemberFlags.StaticPublic;
+        public MemberFlags AccessModifiers => MemberFlags.StaticPublic;
 
         public bool CanRead => true;
 

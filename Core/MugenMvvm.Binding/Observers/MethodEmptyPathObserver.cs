@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly BindingMemberFlags _memberFlags;
+        private readonly MemberFlags _memberFlags;
         private readonly string _method;
 
         private ActionToken _unsubscriber;
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodEmptyPathObserver(string method, object target, BindingMemberFlags memberFlags) : base(target)
+        public MethodEmptyPathObserver(string method, object target, MemberFlags memberFlags) : base(target)
         {
             Should.NotBeNull(method, nameof(method));
             _memberFlags = memberFlags;
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Observers
             if (target == null)
                 return default;
 
-            return new MemberPathMembers(target, ConstantBindingMemberInfo.NullArray);
+            return new MemberPathMembers(target, ConstantMemberInfo.NullArray);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -66,7 +66,7 @@ namespace MugenMvvm.Binding.Observers
             if (target == null)
                 return default;
 
-            return new MemberPathLastMember(target, ConstantBindingMemberInfo.Null);
+            return new MemberPathLastMember(target, ConstantMemberInfo.Null);
         }
 
         protected override void OnDisposed()
@@ -84,8 +84,8 @@ namespace MugenMvvm.Binding.Observers
                 _unsubscriber = ActionToken.NoDoToken;
             else
             {
-                var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _method, BindingMemberType.Method, _memberFlags);
-                if (member is IObservableBindingMemberInfo observable)
+                var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _method, MemberType.Method, _memberFlags);
+                if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this);
                 if (_unsubscriber.IsEmpty)
                     _unsubscriber = ActionToken.NoDoToken;

@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodMultiPathObserver(string method, object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
+        public MethodMultiPathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
             Should.NotBeNull(method, nameof(method));
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Properties
 
-        BindingMemberFlags IMethodPathObserver.MemberFlags => MemberFlags;
+        MemberFlags IMethodPathObserver.MemberFlags => MemberFlags;
 
         string IMethodPathObserver.Method => _method;
 
@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected override void SubscribeLastMember(object target, IBindingMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember)
         {
             base.SubscribeLastMember(target, lastMember);
             this.AddMethodObserver(target, lastMember, ref _unsubscriber, ref _lastValueRef);

@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding
             return observer.GetLastMember().IsAvailable;
         }
 
-        public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, BindingMemberFlags flags,
+        public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, MemberFlags flags,
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)
         {
             Should.NotBeNull(type, nameof(type));
@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding
                 if (src.IsNullOrUnsetValue())
                     return null;
 
-                var member = memberProvider.GetMember(type, item, BindingMemberType.Field | BindingMemberType.Property, flags) as IBindingMemberAccessorInfo;
+                var member = memberProvider.GetMember(type, item, MemberType.Field | MemberType.Property, flags) as IMemberAccessorInfo;
                 if (member == null)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, item);
                 src = member.GetValue(src, metadata);
@@ -141,7 +141,7 @@ namespace MugenMvvm.Binding
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BindingMemberFlags value, BindingMemberFlags flag)
+        public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
         {
             return (value & flag) == flag;
         }
@@ -153,12 +153,12 @@ namespace MugenMvvm.Binding
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BindingMemberType value, BindingMemberType flag)
+        public static bool HasFlagEx(this MemberType value, MemberType flag)
         {
             return (value & flag) == flag;
         }
 
-        public static bool TryConvert(this IGlobalValueConverter? converter, object? value, Type targetType, IBindingMemberInfo? member, IReadOnlyMetadataContext? metadata, out object? result)
+        public static bool TryConvert(this IGlobalValueConverter? converter, object? value, Type targetType, IMemberInfo? member, IReadOnlyMetadataContext? metadata, out object? result)
         {
             try
             {
@@ -173,26 +173,26 @@ namespace MugenMvvm.Binding
         }
 
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, BindingMemberFlags flags = BindingMemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingMemberAccessorInfo;
+                .GetMember(target.GetType(), bindableMember.Name, MemberType.Property | MemberType.Field, flags, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
                 return defaultValue;
-            if (propertyInfo is IBindingMemberAccessorInfo<TTarget, TValue> p)
+            if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
                 return p.GetValue(target, metadata);
             return (TValue)propertyInfo.GetValue(target, metadata)!;
         }
 
         public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue value, bool throwOnError = true, BindingMemberFlags flags = BindingMemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IBindingMemberAccessorInfo;
+                .GetMember(target.GetType(), bindableMember.Name, MemberType.Property | MemberType.Field, flags, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
             {
                 if (throwOnError)
@@ -200,43 +200,43 @@ namespace MugenMvvm.Binding
                 return;
             }
 
-            if (propertyInfo is IBindingMemberAccessorInfo<TTarget, TValue> p)
+            if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
                 p.SetValue(target, value, metadata);
             else
                 propertyInfo.SetValue(target, value, metadata);
         }
 
         public static ActionToken TryObserveBindableMember<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, BindingMemberFlags flags = BindingMemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, BindingMemberType.Property | BindingMemberType.Field, flags, metadata) as IObservableBindingMemberInfo;
+                .GetMember(target.GetType(), bindableMember.Name, MemberType.Property | MemberType.Field, flags, metadata) as IObservableMemberInfo;
             if (propertyInfo == null)
                 return default;
             return propertyInfo.TryObserve(target, listener, metadata);
         }
 
         public static ActionToken TrySubscribeBindableEvent<TTarget>(this TTarget target,
-            BindableEventDescriptor<TTarget> eventMember, IEventListener listener, BindingMemberFlags flags = BindingMemberFlags.All,
+            BindableEventDescriptor<TTarget> eventMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var eventInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), eventMember.Name, BindingMemberType.Event, flags, metadata) as IBindingEventInfo;
+                .GetMember(target.GetType(), eventMember.Name, MemberType.Event, flags, metadata) as IEventInfo;
             if (eventInfo == null)
                 return default;
             return eventInfo.TrySubscribe(target, listener, metadata);
         }
 
         public static object? TryInvokeBindableMethod<TTarget>(this TTarget target,
-            BindableMethodDescriptor<TTarget> methodMember, object?[]? args = null, BindingMemberFlags flags = BindingMemberFlags.All,
+            BindableMethodDescriptor<TTarget> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var methodInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), methodMember.Name, BindingMemberType.Method, flags, metadata) as IBindingMethodInfo;
+                .GetMember(target.GetType(), methodMember.Name, MemberType.Method, flags, metadata) as IMethodInfo;
             return methodInfo?.Invoke(target, args ?? Default.EmptyArray<object>());
         }
 

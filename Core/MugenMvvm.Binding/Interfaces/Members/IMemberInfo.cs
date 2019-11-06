@@ -3,7 +3,7 @@ using MugenMvvm.Binding.Enums;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IBindingMemberInfo
+    public interface IMemberInfo
     {
         string Name { get; }
 
@@ -11,8 +11,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         object? Member { get; }
 
-        BindingMemberType MemberType { get; }
+        MemberType MemberType { get; }
 
-        BindingMemberFlags AccessModifiers { get; }
+        MemberFlags AccessModifiers { get; }
     }
 }

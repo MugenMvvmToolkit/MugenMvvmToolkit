@@ -10,14 +10,14 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class BindingMethodInfo : IBindingMethodInfo
+    public sealed class MethodMemberInfo : IMethodInfo
     {
         #region Fields
 
         private readonly MethodInfo _method;
         private readonly IObserverProvider? _observerProvider;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
-        private readonly IBindingParameterInfo[] _parameters;
+        private readonly IParameterInfo[] _parameters;
         private readonly Type _reflectedType;
         private Func<object?, object?[], object?> _invoker;
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public BindingMethodInfo(string name, MethodInfo method, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public MethodMemberInfo(string name, MethodInfo method, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(method, nameof(method));
@@ -41,10 +41,10 @@ namespace MugenMvvm.Binding.Members
             AccessModifiers = _method.GetAccessModifiers();
             var parameterInfos = method.GetParameters();
             if (parameterInfos.Length == 0)
-                _parameters = Default.EmptyArray<IBindingParameterInfo>();
+                _parameters = Default.EmptyArray<IParameterInfo>();
             else
             {
-                _parameters = new IBindingParameterInfo[parameterInfos.Length];
+                _parameters = new IParameterInfo[parameterInfos.Length];
                 for (var i = 0; i < parameterInfos.Length; i++)
                     _parameters[i] = new Parameter(parameterInfos[i]);
             }
@@ -62,9 +62,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? Member => _method;
 
-        public BindingMemberType MemberType => BindingMemberType.Method;
+        public MemberType MemberType => MemberType.Method;
 
-        public BindingMemberFlags AccessModifiers { get; }
+        public MemberFlags AccessModifiers { get; }
 
         public bool IsExtensionMethod { get; }
 
@@ -83,7 +83,7 @@ namespace MugenMvvm.Binding.Members
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 
-        public IBindingParameterInfo[] GetParameters()
+        public IParameterInfo[] GetParameters()
         {
             return _parameters;
         }
@@ -93,9 +93,9 @@ namespace MugenMvvm.Binding.Members
             return _method.GetGenericArguments();
         }
 
-        public IBindingMethodInfo MakeGenericMethod(Type[] types)
+        public IMethodInfo MakeGenericMethod(Type[] types)
         {
-            return new BindingMethodInfo(Name, _method.MakeGenericMethod(types), _reflectedType, _observerProvider, _reflectionDelegateProvider);
+            return new MethodMemberInfo(Name, _method.MakeGenericMethod(types), _reflectedType, _observerProvider, _reflectionDelegateProvider);
         }
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
@@ -117,7 +117,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Nested types
 
-        private sealed class Parameter : IBindingParameterInfo
+        private sealed class Parameter : IParameterInfo
         {
             #region Fields
 

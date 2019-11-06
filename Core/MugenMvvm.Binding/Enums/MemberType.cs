@@ -3,7 +3,7 @@
 namespace MugenMvvm.Binding.Enums
 {
     [Flags]
-    public enum BindingMemberType : byte
+    public enum MemberType : byte
     {
         Field = 1,
         Property = 1 << 1,

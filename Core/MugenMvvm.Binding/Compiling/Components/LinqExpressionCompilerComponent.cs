@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             private readonly ParameterDictionary _parametersDict;
             private readonly object?[] _values;
 
-            private List<IBindingParameterInfo>? _lambdaParameters;
+            private List<IParameterInfo>? _lambdaParameters;
             private IMetadataContext? _metadata;
 
             private static readonly ParameterExpression ArrayParameter = Expression.Parameter(typeof(object[]), "args");
@@ -188,20 +188,20 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return node;
             }
 
-            public IBindingParameterInfo? TryGetLambdaParameter()
+            public IParameterInfo? TryGetLambdaParameter()
             {
                 return _lambdaParameters?.FirstOrDefault();
             }
 
-            public void SetLambdaParameter(IBindingParameterInfo parameter)
+            public void SetLambdaParameter(IParameterInfo parameter)
             {
                 Should.NotBeNull(parameter, nameof(parameter));
                 if (_lambdaParameters == null)
-                    _lambdaParameters = new List<IBindingParameterInfo>(2);
+                    _lambdaParameters = new List<IParameterInfo>(2);
                 _lambdaParameters.Insert(0, parameter);
             }
 
-            public void ClearLambdaParameter(IBindingParameterInfo parameter)
+            public void ClearLambdaParameter(IParameterInfo parameter)
             {
                 Should.NotBeNull(parameter, nameof(parameter));
                 _lambdaParameters?.Remove(parameter);

@@ -12,8 +12,8 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        protected readonly BindingMemberFlags MemberFlags;
-        protected IBindingMemberInfo[]? Members;
+        protected readonly MemberFlags MemberFlags;
+        protected IMemberInfo[]? Members;
         protected object? PenultimateValueOrException;
         private byte _state;
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        protected MultiPathObserverBase(object target, IMemberPath path, BindingMemberFlags memberFlags, bool hasStablePath, bool optional)
+        protected MultiPathObserverBase(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target)
         {
             MemberFlags = memberFlags;
@@ -59,9 +59,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected abstract void SubscribeMember(int index, object target, IObservableBindingMemberInfo member);
+        protected abstract void SubscribeMember(int index, object target, IObservableMemberInfo member);
 
-        protected abstract void SubscribeLastMember(object target, IBindingMemberInfo? lastMember);
+        protected abstract void SubscribeLastMember(object target, IMemberInfo? lastMember);
 
         protected abstract void UnsubscribeLastMember();
 
@@ -152,7 +152,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 var paths = Path.Members;
-                var members = new IBindingMemberInfo[paths.Length];
+                var members = new IMemberInfo[paths.Length];
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
@@ -160,10 +160,10 @@ namespace MugenMvvm.Binding.Observers
                 for (var i = 0; i < members.Length; i++)
                 {
                     var member = provider.GetMember(type, paths[i],
-                        i == lastIndex ? BindingMemberType.Field | BindingMemberType.Property : BindingMemberType.Field | BindingMemberType.Property | BindingMemberType.Event,
+                        i == lastIndex ? MemberType.Field | MemberType.Property : MemberType.Field | MemberType.Property | MemberType.Event,
                         memberFlags);
                     if (i == 1)
-                        memberFlags &= ~BindingMemberFlags.Static;
+                        memberFlags &= ~MemberFlags.Static;
                     if (member == null)
                     {
                         if (Optional)
@@ -177,10 +177,10 @@ namespace MugenMvvm.Binding.Observers
                     if (i == lastIndex)
                         break;
 
-                    if (member is IObservableBindingMemberInfo observable)
+                    if (member is IObservableMemberInfo observable)
                         SubscribeMember(i, target, observable);
 
-                    target = (member as IBindingMemberAccessorInfo)?.GetValue(target);
+                    target = (member as IMemberAccessorInfo)?.GetValue(target);
                     if (target.IsNullOrUnsetValue())
                     {
                         SetMembers(null, null, null);
@@ -203,15 +203,15 @@ namespace MugenMvvm.Binding.Observers
             return true;
         }
 
-        private void UpdateHasStablePath(IBindingMemberInfo[] members, object target)
+        private void UpdateHasStablePath(IMemberInfo[] members, object target)
         {
             for (var index = 0; index < members.Length - 1; index++)
             {
                 var member = members[index];
-                if (member is IObservableBindingMemberInfo observable)
+                if (member is IObservableMemberInfo observable)
                     SubscribeMember(index, target, observable);
 
-                target = (member as IBindingMemberAccessorInfo)?.GetValue(target)!;
+                target = (member as IMemberAccessorInfo)?.GetValue(target)!;
                 if (target.IsNullOrUnsetValue())
                 {
                     SetMembers(null, members, null);
@@ -225,7 +225,7 @@ namespace MugenMvvm.Binding.Observers
             SetMembers(target.ToWeakReference(), members, null);
         }
 
-        private void SetMembers(IWeakReference? penultimateValue, IBindingMemberInfo[]? members, Exception? exception)
+        private void SetMembers(IWeakReference? penultimateValue, IMemberInfo[]? members, Exception? exception)
         {
             PenultimateValueOrException = (object?)exception ?? penultimateValue;
             Members = members;
