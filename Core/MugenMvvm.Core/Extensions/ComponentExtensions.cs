@@ -12,7 +12,7 @@ namespace MugenMvvm
 
         public static T DefaultIfNull<T>(this T? component) where T : class, IComponent
         {
-            return component ?? Service<T>.Instance;
+            return component ?? MugenService.Instance<T>();
         }
 
         public static void AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class

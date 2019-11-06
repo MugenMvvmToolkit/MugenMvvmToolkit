@@ -29,7 +29,7 @@ namespace MugenMvvm
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static T ServiceIfNull<T>(this T? service) where T : class
         {
-            return service ?? Service<T>.Instance;
+            return service ?? MugenService.Instance<T>();
         }
 
         internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)

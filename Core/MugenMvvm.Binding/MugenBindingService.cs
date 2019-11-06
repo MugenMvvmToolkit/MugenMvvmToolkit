@@ -10,15 +10,15 @@ namespace MugenMvvm.Binding
     {
         #region Properties
 
-        public static IGlobalValueConverter GlobalValueConverter => Service<IGlobalValueConverter>.Instance;
+        public static IGlobalValueConverter GlobalValueConverter => MugenService.Instance<IGlobalValueConverter>();
 
-        public static IBindingManager BindingManager => Service<IBindingManager>.Instance;
+        public static IBindingManager BindingManager => MugenService.Instance<IBindingManager>();
 
-        public static IMemberProvider MemberProvider => Service<IMemberProvider>.Instance;
+        public static IMemberProvider MemberProvider => MugenService.Instance<IMemberProvider>();
 
-        public static IObserverProvider ObserverProvider => Service<IObserverProvider>.Instance;
+        public static IObserverProvider ObserverProvider => MugenService.Instance<IObserverProvider>();
 
-        public static IResourceResolver ResourceResolver => Service<IResourceResolver>.Instance;
+        public static IResourceResolver ResourceResolver => MugenService.Instance<IResourceResolver>();
 
         #endregion
     }

@@ -22,7 +22,7 @@ namespace MugenMvvm
 
         public static Delegate CompileEx(this LambdaExpression lambdaExpression, IReadOnlyMetadataContext? metadata = null)
         {
-            var compiler = Service<ILambdaExpressionCompiler>.InstanceOptional;
+            var compiler = MugenService.Optional<ILambdaExpressionCompiler>();
             if (compiler == null)
                 return lambdaExpression.Compile();
             return compiler.Compile(lambdaExpression, metadata);
@@ -30,7 +30,7 @@ namespace MugenMvvm
 
         public static TDelegate CompileEx<TDelegate>(this Expression<TDelegate> lambdaExpression, IReadOnlyMetadataContext? metadata = null) where TDelegate : Delegate
         {
-            var compiler = Service<ILambdaExpressionCompiler>.InstanceOptional;
+            var compiler = MugenService.Optional<ILambdaExpressionCompiler>();
             if (compiler == null)
                 return lambdaExpression.Compile();
             return compiler.Compile<TDelegate>(lambdaExpression, metadata);

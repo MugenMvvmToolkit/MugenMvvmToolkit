@@ -28,7 +28,7 @@ namespace MugenMvvm.Internal
             return _container.GetService<TService>();
         }
 
-        public TService? InstanceOptional<TService>() where TService : class
+        public TService? Optional<TService>() where TService : class
         {
             if (_container.TryGetService<TService>(out var service))
                 return service;

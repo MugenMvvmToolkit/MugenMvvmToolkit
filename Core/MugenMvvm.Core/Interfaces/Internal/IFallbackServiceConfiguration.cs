@@ -4,6 +4,6 @@
     {
         TService Instance<TService>() where TService : class;
 
-        TService? InstanceOptional<TService>() where TService : class;
+        TService? Optional<TService>() where TService : class;
     }
 }
