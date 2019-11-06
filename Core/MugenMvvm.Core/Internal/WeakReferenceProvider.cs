@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Attributes;
+﻿using System;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -23,6 +24,12 @@ namespace MugenMvvm.Internal
         {
             _providers = Default.EmptyArray<IWeakReferenceProviderComponent>();
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool TrackResurrection { get; set; }
 
         #endregion
 
@@ -68,8 +75,31 @@ namespace MugenMvvm.Internal
                 }
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceProviderComponent).Name);
-            return null!;
+            return new WeakReferenceImpl(item, TrackResurrection);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class WeakReferenceImpl : WeakReference, IWeakReference
+        {
+            #region Constructors
+
+            public WeakReferenceImpl(object target, bool trackResurrection) : base(target, trackResurrection)
+            {
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void Release()
+            {
+                Target = null;
+            }
+
+            #endregion
         }
 
         #endregion
