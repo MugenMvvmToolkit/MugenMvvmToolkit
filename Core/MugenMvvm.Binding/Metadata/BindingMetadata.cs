@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Metadata
 
         public static IMetadataContextKey<object?> EventArgs
         {
-            get => _eventArgs ??= GetBuilder<IBinding?>(nameof(EventArgs)).Build();
+            get => _eventArgs ??= GetBuilder<object?>(nameof(EventArgs)).Build();
             set => _eventArgs = value;
         }
 

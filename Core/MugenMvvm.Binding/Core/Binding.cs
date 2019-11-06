@@ -20,8 +20,6 @@ namespace MugenMvvm.Binding.Core
         #region Fields
 
         private object? _components;
-        private byte _sourceObserverCount;
-        private byte _targetObserverCount;
         private short _state;
 
         private const short TargetUpdatingFlag = 1;
@@ -38,6 +36,8 @@ namespace MugenMvvm.Binding.Core
 
         private const short HasComponentChangingListener = 1 << 8;
         private const short HasComponentChangedListener = 1 << 9;
+        private const short HasTargetObserverListener = 1 << 10;
+        private const short HasSourceObserverListener = 1 << 11;
 
         private const short DisposedFlag = 1 << 14;
 
@@ -118,12 +118,12 @@ namespace MugenMvvm.Binding.Core
             SetFlag(DisposedFlag);
             OnDispose();
             MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, this);
-            if (_targetObserverCount != 0)
+            if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
             Target.Dispose();
             if (SourceRaw is IMemberPathObserver source)
             {
-                if (_sourceObserverCount != 0)
+                if (CheckFlag(HasSourceObserverListener))
                     source.RemoveListener(this);
                 source.Dispose();
             }
@@ -135,7 +135,7 @@ namespace MugenMvvm.Binding.Core
                     for (var i = 0; i < sources.Length; i++)
                     {
                         var observer = sources[i];
-                        if (_sourceObserverCount != 0)
+                        if (CheckFlag(HasSourceObserverListener))
                             observer.RemoveListener(this);
                         observer.Dispose();
                     }
@@ -814,10 +814,14 @@ namespace MugenMvvm.Binding.Core
                 SetFlag(HasComponentChangingListener);
             if (component is IBindingComponentChangedListener)
                 SetFlag(HasComponentChangedListener);
-            if (component is IBindingTargetObserverListener && ++_targetObserverCount == 1)
-                Target.AddListener(this);
-            if (component is IBindingSourceObserverListener && ++_sourceObserverCount == 1)
+            if (!CheckFlag(HasTargetObserverListener) && component is IBindingTargetObserverListener)
             {
+                SetFlag(HasTargetObserverListener);
+                Target.AddListener(this);
+            }
+            if (!CheckFlag(HasSourceObserverListener) && component is IBindingSourceObserverListener)
+            {
+                SetFlag(HasSourceObserverListener);
                 if (SourceRaw is IMemberPathObserver source)
                     source.AddListener(this);
                 else
@@ -875,9 +879,12 @@ namespace MugenMvvm.Binding.Core
         {
             if (isValidState)
             {
-                if (component is IBindingTargetObserverListener && --_targetObserverCount == 0)
+                if (component is IBindingTargetObserverListener && !HasComponent<IBindingTargetObserverListener>())
+                {
                     Target.RemoveListener(this);
-                if (component is IBindingSourceObserverListener && --_sourceObserverCount == 0)
+                    ClearFlag(HasTargetObserverListener);
+                }
+                if (component is IBindingSourceObserverListener && !HasComponent<IBindingSourceObserverListener>())
                 {
                     if (SourceRaw is IMemberPathObserver source)
                         source.RemoveListener(this);
@@ -890,6 +897,7 @@ namespace MugenMvvm.Binding.Core
                                 observers[i].RemoveListener(this);
                         }
                     }
+                    ClearFlag(HasSourceObserverListener);
                 }
                 if (CheckFlag(HasComponentChangedListener))
                 {
@@ -904,6 +912,23 @@ namespace MugenMvvm.Binding.Core
                 }
             }
             MugenExtensions.OnRemovedComponentHandler(this, component, metadata);
+        }
+
+        private bool HasComponent<TComponent>() where TComponent : IComponent<IBinding>
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is TComponent)
+                        return true;
+                }
+
+                return false;
+            }
+
+            return components is TComponent;
         }
 
         #endregion
