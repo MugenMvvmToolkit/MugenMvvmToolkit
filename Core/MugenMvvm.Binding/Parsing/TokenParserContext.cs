@@ -115,6 +115,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public void Initialize(string source, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(source, nameof(source));
             Position = 0;
             Limit = null;
             Source = source;
