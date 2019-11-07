@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Parsing
             get => _position;
             set
             {
-                Should.BeValid(nameof(value), value >= Length);
+                Should.BeValid(nameof(value), value < Length);
                 _position = value;
             }
         }
@@ -115,10 +115,10 @@ namespace MugenMvvm.Binding.Parsing
 
         public void Initialize(string source, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(source, nameof(source));
+            Should.NotBeNullOrEmpty(source, nameof(source));
+            Source = source;
             Position = 0;
             Limit = null;
-            Source = source;
             _metadata?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);

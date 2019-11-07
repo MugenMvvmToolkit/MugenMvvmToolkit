@@ -1,7 +1,7 @@
 ﻿using System;
 using JetBrains.Annotations;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
-using TraceLevel = MugenMvvm.Enums.TraceLevel;
 
 namespace MugenMvvm.Internal
 {
@@ -31,6 +31,8 @@ namespace MugenMvvm.Internal
 
         public static bool TraceError { get; set; }
 
+        private static ITracer? Instance => MugenService.Optional<ITracer>();
+
         #endregion
 
         #region Implementation of interfaces
@@ -56,35 +58,35 @@ namespace MugenMvvm.Internal
 
         public static void Info(string message)
         {
-            MugenService.Tracer.Trace(TraceLevel.Information, message);
+            Instance?.Trace(TraceLevel.Information, message);
         }
 
         public static void Warn(string message)
         {
-            MugenService.Tracer.Trace(TraceLevel.Warning, message);
+            Instance?.Trace(TraceLevel.Warning, message);
         }
 
         public static void Error(string message)
         {
-            MugenService.Tracer.Trace(TraceLevel.Error, message);
+            Instance?.Trace(TraceLevel.Error, message);
         }
 
         [StringFormatMethod("format")]
         public static void Info(string format, params object[] args)
         {
-            MugenService.Tracer.Trace(TraceLevel.Information, format, args);
+            Instance?.Trace(TraceLevel.Information, format, args);
         }
 
         [StringFormatMethod("format")]
         public static void Warn(string format, params object[] args)
         {
-            MugenService.Tracer.Trace(TraceLevel.Warning, format, args);
+            Instance?.Trace(TraceLevel.Warning, format, args);
         }
 
         [StringFormatMethod("format")]
         public static void Error(string format, params object[] args)
         {
-            MugenService.Tracer.Trace(TraceLevel.Error, format, args);
+            Instance?.Trace(TraceLevel.Error, format, args);
         }
 
         #endregion
