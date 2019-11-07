@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (!context.IsIdentifier(out var endPosition, position))
                 return null;
 
-            context.SetPosition(endPosition);
+            context.Position = endPosition;
             return MemberExpressionNode.Get(expression, context.GetValue(position, endPosition));
         }
 

@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (!context.IsToken('(', position))
                 return null;
 
-            context.SetPosition(position + 1);
+            context.Position = position + 1;
             var node = context.TryParseWhileNotNull();
             if (context.SkipWhitespaces().IsToken(')'))
             {
@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return node;
             }
 
-            context.SetPosition(p);
+            context.Position = p;
             return null;
         }
 

@@ -13,7 +13,7 @@
         public const string IndexMustBeWithinBounds = "Index must be within the bounds of the collection";
         public const string UnhandledEnumFormat1 = "Unhandled enum - '{0}'";
         public const string ArgumentCannotBeNull = "Argument '{0}' cannot be null or empty";
-        public const string ArgumentIsNotValid = "Argument '{0}' is not valid";
+        public const string ArgumentNotValid = "Argument '{0}' is not valid";
         public const string ArgumentShouldBeOfType = "Type '{0}' should be of type '{1}', but is not";
         public const string WrapperTypeShouldBeNonAbstractFormat1 = "The wrapper type '{0}' must be non abstract";
         public const string WrapperTypeNotSupportedFormat1 = "There are no wrapper type for type '{0}'";

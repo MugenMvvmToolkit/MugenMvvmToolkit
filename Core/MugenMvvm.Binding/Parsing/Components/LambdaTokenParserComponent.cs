@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var p = context.Position;
             var node = TryParseInternal(context, expression);
             if (node == null)
-                context.SetPosition(p);
+                context.Position = p;
             return node;
         }
 
@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 if (context.IsIdentifier(out var end) && _currentParameters.TryGetValue(context.GetValue(context.Position, end), out var value))
                 {
-                    context.SetPosition(end);
+                    context.Position = end;
                     return value;
                 }
             }
@@ -88,7 +88,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                     return null;
 
                 args = new IParameterExpressionNode[] { new ParameterExpressionNode(context.GetValue(context.Position, end), 0) };
-                context.SetPosition(position);
+                context.Position = position;
             }
 
 

@@ -106,7 +106,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             {
                 var result = convert(value, integer, postfix);
                 if (result != null)
-                    context.SetPosition(end);
+                    context.Position = end;
                 return result;
             }
 

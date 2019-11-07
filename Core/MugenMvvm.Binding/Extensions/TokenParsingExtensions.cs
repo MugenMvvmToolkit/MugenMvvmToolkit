@@ -142,7 +142,7 @@ namespace MugenMvvm.Binding
         public static ITokenParserContext SkipWhitespaces(this ITokenParserContext context,
             int? position = null)
         {
-            context.SetPosition(context.SkipWhitespacesPosition(position));
+            context.Position = context.SkipWhitespacesPosition(position);
             return context;
         }
 
@@ -150,7 +150,7 @@ namespace MugenMvvm.Binding
             int value = 1)
         {
             if (!context.IsEof(context.Position))
-                context.SetPosition(context.Position + value);
+                context.Position += value;
             return context;
         }
 
@@ -271,7 +271,7 @@ namespace MugenMvvm.Binding
                 if (context.IsIdentifier(out var position))
                 {
                     end = position;
-                    context.SetPosition(position);
+                    context.Position = position;
                     continue;
                 }
 
@@ -308,12 +308,12 @@ namespace MugenMvvm.Binding
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
         {
             var delimiterPos = context.SkipWhitespaces().FindAnyOf(TargetDelimiters);
-            var length = context.Length;
+            var oldLimit = context.Limit;
             if (delimiterPos > 0)
-                context.SetLimit(delimiterPos);
+                context.Limit = delimiterPos;
 
             var target = context.ParseWhileAnyOf(Delimiters);
-            context.SetLimit(length);
+            context.Limit = oldLimit;
 
             IExpressionNode? source = null;
             if (context.IsToken(' '))
@@ -386,7 +386,8 @@ namespace MugenMvvm.Binding
 
             public readonly void Dispose()
             {
-                _context?.SetPosition(_position);
+                if (_context != null)
+                    _context.Position = _position;
             }
 
             #endregion

@@ -7,17 +7,15 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
 {
     public interface ITokenParserContext : IMetadataOwner<IMetadataContext>
     {
-        int Position { get; }
+        int Position { get; set; }
+
+        int? Limit { get; set; }
 
         int Length { get; }
 
         char TokenAt(int position);
 
         string GetValue(int start, int end);
-
-        void SetPosition(int position);
-
-        void SetLimit(int? limit);
 
         IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserComponent, bool>? condition = null);
     }

@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var p = context.Position;
             var node = TryParseInternal(context, expression);
             if (node == null)
-                context.SetPosition(p);
+                context.Position = p;
             return node;
         }
 

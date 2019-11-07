@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var p = context.Position;
             var node = TryParseInternal(context, expression);
             if (node == null)
-                context.SetPosition(p);
+                context.Position = p;
             return node;
         }
 
@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             var nameStart = context.Position;
-            context.SetPosition(nameEndPos);
+            context.Position = nameEndPos;
             context.SkipWhitespaces();
 
             List<string>? typeArgs = null;

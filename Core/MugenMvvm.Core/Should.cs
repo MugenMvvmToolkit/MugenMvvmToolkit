@@ -45,7 +45,7 @@ namespace MugenMvvm
             bool validation)
         {
             if (!validation)
-                throw new ArgumentException(MessageConstants.ArgumentIsNotValid.Format(paramName));
+                throw new ArgumentException(MessageConstants.ArgumentNotValid.Format(paramName));
         }
 
         [DebuggerStepThrough]

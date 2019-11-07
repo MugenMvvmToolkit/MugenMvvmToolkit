@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (!LiteralToExpression.TryGetValue(context.GetValue(start, end), out expression))
                 return null;
 
-            context.SetPosition(end);
+            context.Position = end;
             return expression;
         }
 
