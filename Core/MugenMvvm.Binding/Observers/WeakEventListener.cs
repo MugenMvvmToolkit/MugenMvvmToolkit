@@ -34,10 +34,14 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public bool TryHandle(object sender, object? message) => TryHandle(Target, sender, message);
+        public bool TryHandle(object sender, object? message)
+        {
+            return TryHandle(Target, sender, message);
+        }
 
         public static object GetTarget(IEventListener listener)
         {
+            Should.NotBeNull(listener, nameof(listener));
             if (listener.IsWeak)
                 return listener;
             return listener.ToWeakReference();
@@ -49,7 +53,7 @@ namespace MugenMvvm.Binding.Observers
                 return false;
             if (target is IEventListener listener)
                 return listener.IsAlive;
-            listener = (IEventListener)((IWeakReference)target).Target!;
+            listener = (IEventListener) ((IWeakReference) target).Target!;
             return listener != null && listener.IsAlive;
         }
 
@@ -59,7 +63,7 @@ namespace MugenMvvm.Binding.Observers
                 return null;
             if (target is IEventListener listener)
                 return listener;
-            return (IEventListener?)((IWeakReference)target).Target;
+            return (IEventListener?) ((IWeakReference) target).Target;
         }
 
         public static bool TryHandle(object? target, object sender, object? message)
@@ -70,7 +74,7 @@ namespace MugenMvvm.Binding.Observers
             if (target is IEventListener listener)
                 return listener.TryHandle(sender, message);
 
-            listener = (IEventListener)((IWeakReference)target).Target!;
+            listener = (IEventListener) ((IWeakReference) target).Target!;
             return listener != null && listener.TryHandle(sender, message);
         }
 

@@ -108,7 +108,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             #region Fields
 
-            private KeyValuePair<WeakEventListener, string>[] _listeners;
+            private WeakEventListener<string>[] _listeners;
             private ushort _removedSize;
             private ushort _size;
 
@@ -118,24 +118,26 @@ namespace MugenMvvm.Binding.Observers.Components
 
             public WeakPropertyChangedListener()
             {
-                _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
+                _listeners = Default.EmptyArray<WeakEventListener<string>>();
             }
 
             #endregion
 
             #region Implementation of interfaces
 
-            void ActionToken.IHandler.Invoke(object? state1, object? state2)
+            void ActionToken.IHandler.Invoke(object? target, object? state2)
             {
                 var propertyName = (string)state2!;
-                for (var i = 0; i < _listeners.Length; i++)
+                var listeners = _listeners;
+                var size = _size;
+                for (var i = 0; i < size; i++)
                 {
-                    var pair = _listeners[i];
-                    if (!pair.Key.IsEmpty && pair.Value == propertyName && ReferenceEquals(pair.Key.Target, state1))
+                    var listener = listeners[i];
+                    if (ReferenceEquals(listener.Target, target) && listener.State == propertyName)
                     {
-                        ++_removedSize;
-                        _listeners[i] = default;
-                        return;
+                        if (RemoveAt(listeners, i))
+                            TrimIfNeed();
+                        break;
                     }
                 }
             }
@@ -148,55 +150,36 @@ namespace MugenMvvm.Binding.Observers.Components
             {
                 var hasDeadRef = false;
                 var listeners = _listeners;
-                for (var i = 0; i < listeners.Length; i++)
+                var size = _size;
+                for (var i = 0; i < size; i++)
                 {
-                    if (i >= _size)
-                        break;
-                    var pair = listeners[i];
-                    if (pair.Key.IsEmpty)
-                    {
+                    var listener = listeners[i];
+                    if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(args.PropertyName, listener.State, true) && !listener.TryHandle(sender, args) && RemoveAt(listeners, i))
                         hasDeadRef = true;
-                        continue;
-                    }
-
-                    if (MugenExtensions.MemberNameEqual(args.PropertyName, pair.Value, true))
-                    {
-                        if (!pair.Key.TryHandle(sender, args))
-                            hasDeadRef = true;
-                    }
                 }
 
                 if (hasDeadRef)
-                    Cleanup();
+                    TrimIfNeed();
             }
 
             public ActionToken Add(IEventListener target, string path)
             {
-                var weakItem = target.ToWeak();
-                if (_listeners.Length == 0)
+                var weakItem = target.ToWeak(path);
+                if (_removedSize == 0)
                 {
-                    _listeners = new[] { new KeyValuePair<WeakEventListener, string>(weakItem, path) };
-                    _size = 1;
-                    _removedSize = 0;
+                    if (_size == _listeners.Length)
+                        Array.Resize(ref _listeners, _size + 2);
+                    _listeners[_size++] = weakItem;
                 }
                 else
                 {
-                    if (_removedSize == 0)
+                    for (var i = 0; i < _size; i++)
                     {
-                        if (_size == _listeners.Length)
-                            EventListenerCollection.EnsureCapacity(ref _listeners, _size, _size + 1);
-                        _listeners[_size++] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
-                    }
-                    else
-                    {
-                        for (var i = 0; i < _size; i++)
+                        if (_listeners[i].IsEmpty)
                         {
-                            if (_listeners[i].Key.IsEmpty)
-                            {
-                                _listeners[i] = new KeyValuePair<WeakEventListener, string>(weakItem, path);
-                                --_removedSize;
-                                break;
-                            }
+                            _listeners[i] = weakItem;
+                            --_removedSize;
+                            break;
                         }
                     }
                 }
@@ -204,26 +187,52 @@ namespace MugenMvvm.Binding.Observers.Components
                 return new ActionToken(this, weakItem.Target, path);
             }
 
-            private void Cleanup()
+            private bool RemoveAt(WeakEventListener<string>[] listeners, int index)
             {
+                if (!ReferenceEquals(listeners, _listeners))
+                    return false;
+
+                listeners[index] = default;
+                if (index == _size - 1)
+                    --_size;
+                else
+                    ++_removedSize;
+                return true;
+            }
+
+            private void TrimIfNeed()
+            {
+                if (_size == _removedSize)
+                {
+                    _size = 0;
+                    _removedSize = 0;
+                    _listeners = null;
+                    return;
+                }
+
+                if (_listeners.Length / (float)(_size - _removedSize) <= 2)
+                    return;
+
                 var size = _size;
                 _size = 0;
                 _removedSize = 0;
                 for (var i = 0; i < size; i++)
                 {
                     var reference = _listeners[i];
-                    if (reference.Key.IsAlive)
+                    _listeners[i] = default;
+                    if (WeakEventListener.GetIsAlive(reference))
                         _listeners[_size++] = reference;
                 }
 
                 if (_size == 0)
-                    _listeners = Default.EmptyArray<KeyValuePair<WeakEventListener, string>>();
-                else if (_listeners.Length / (float)_size > 2)
                 {
-                    var listeners = new KeyValuePair<WeakEventListener, string>[_size + (_size >> 2)];
-                    Array.Copy(_listeners, 0, listeners, 0, _size);
-                    _listeners = listeners;
+                    _listeners = Default.EmptyArray<WeakEventListener<string>>();
+                    return;
                 }
+
+                var capacity = _size + 1;
+                if (size != capacity)
+                    Array.Resize(ref _listeners, capacity);
             }
 
             #endregion

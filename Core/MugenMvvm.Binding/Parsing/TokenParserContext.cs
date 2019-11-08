@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Parsing
             get => _position;
             set
             {
-                Should.BeValid(nameof(value), value < Length);
+                Should.BeValid(nameof(value), value <= Length);
                 _position = value;
             }
         }

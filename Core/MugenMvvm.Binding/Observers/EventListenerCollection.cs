@@ -17,9 +17,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        void ActionToken.IHandler.Invoke(object? state, object? _)
+        void ActionToken.IHandler.Invoke(object? target, object? _)
         {
-            if (ReferenceEquals(_listeners, state))
+            if (ReferenceEquals(_listeners, target))
             {
                 _listeners = null;
                 _size = 0;
@@ -27,13 +27,15 @@ namespace MugenMvvm.Binding.Observers
             }
             else if (_listeners is object?[] listeners)
             {
-                for (var i = 0; i < listeners.Length; i++)
+                var size = _size;
+                for (var i = 0; i < size; i++)
                 {
-                    if (ReferenceEquals(listeners[i], state))
+                    var t = listeners[i];
+                    if (ReferenceEquals(target, t))
                     {
-                        ++_removedSize;
-                        listeners[i] = null;
-                        return;
+                        if (RemoveAt(listeners, i))
+                            TrimIfNeed(listeners);
+                        break;
                     }
                 }
             }
@@ -57,19 +59,18 @@ namespace MugenMvvm.Binding.Observers
         [Preserve(Conditional = true)]
         public void Raise<TArg>(object sender, TArg args)
         {
-            if (_listeners is object[] listeners)
+            if (_listeners is object?[] listeners)
             {
                 var hasDeadRef = false;
-                for (var i = 0; i < listeners.Length; i++)
+                var size = _size;
+                for (var i = 0; i < size; i++)
                 {
-                    if (i >= _size)
-                        break;
-                    if (!WeakEventListener.TryHandle(listeners[i], sender, args))
+                    if (!WeakEventListener.TryHandle(listeners[i], sender, args) && RemoveAt(listeners, i))
                         hasDeadRef = true;
                 }
 
-                if (hasDeadRef)
-                    Cleanup(listeners);
+                if (hasDeadRef && ReferenceEquals(_listeners, listeners))
+                    TrimIfNeed(listeners);
             }
             else
                 WeakEventListener.TryHandle(_listeners, sender, args);
@@ -86,13 +87,13 @@ namespace MugenMvvm.Binding.Observers
             }
             else
             {
-                if (_listeners is object[] listeners)
+                if (_listeners is object?[] listeners)
                 {
                     if (_removedSize == 0)
                     {
                         if (_size == listeners.Length)
                         {
-                            EnsureCapacity(ref listeners, _size, _size + 1);
+                            Array.Resize(ref listeners, _size + 2);
                             _listeners = listeners;
                         }
 
@@ -113,7 +114,7 @@ namespace MugenMvvm.Binding.Observers
                 }
                 else
                 {
-                    _listeners = new[] { _listeners, target };
+                    _listeners = new[] { _listeners, target, null };
                     _size = 2;
                     _removedSize = 0;
                 }
@@ -129,12 +130,13 @@ namespace MugenMvvm.Binding.Observers
 
             if (_listeners is object?[] listeners)
             {
-                for (var i = 0; i < listeners.Length; i++)
+                var size = _size;
+                for (var i = 0; i < size; i++)
                 {
                     if (ReferenceEquals(WeakEventListener.GetListener(listeners[i]), listener))
                     {
-                        ++_removedSize;
-                        listeners[i] = null;
+                        if (RemoveAt(listeners, i))
+                            TrimIfNeed(listeners);
                         return true;
                     }
                 }
@@ -157,46 +159,55 @@ namespace MugenMvvm.Binding.Observers
             _removedSize = 0;
         }
 
-        private void Cleanup(object[] listeners)
+        private bool RemoveAt(object?[] listeners, int index)
         {
+            if (!ReferenceEquals(listeners, _listeners))
+                return false;
+
+            listeners[index] = null;
+            if (index == _size - 1)
+                --_size;
+            else
+                ++_removedSize;
+            return true;
+        }
+
+        private void TrimIfNeed(object?[] listeners)
+        {
+            if (_size == _removedSize)
+            {
+                _size = 0;
+                _removedSize = 0;
+                _listeners = null;
+                return;
+            }
+
+            if (listeners.Length / (float)(_size - _removedSize) <= 2)
+                return;
+
             var size = _size;
             _size = 0;
             _removedSize = 0;
             for (var i = 0; i < size; i++)
             {
                 var reference = listeners[i];
+                listeners[i] = null;
                 if (WeakEventListener.GetIsAlive(reference))
                     listeners[_size++] = reference;
             }
 
             if (_size == 0)
+            {
                 _listeners = null;
-            else if (listeners.Length / (float)_size > 2)
-            {
-                var array = new object[_size + (_size >> 2)];
-                Array.Copy(listeners, 0, array, 0, _size);
-                _listeners = array;
-            }
-        }
-
-        internal static void EnsureCapacity<T>(ref T[] listeners, int size, int min)
-        {
-            if (listeners.Length >= min)
                 return;
-            var length = listeners.Length;
-            if (length <= 4)
-                ++length;
-            else
-                length = length + (length >> 2);
-            if (length > 0)
-            {
-                var objArray = new T[length];
-                if (size > 0)
-                    Array.Copy(listeners, 0, objArray, 0, size);
-                listeners = objArray;
             }
-            else
-                listeners = Default.EmptyArray<T>();
+
+            var capacity = _size + 1;
+            if (size == capacity)
+                return;
+
+            Array.Resize(ref listeners, capacity);
+            _listeners = listeners;
         }
 
         #endregion

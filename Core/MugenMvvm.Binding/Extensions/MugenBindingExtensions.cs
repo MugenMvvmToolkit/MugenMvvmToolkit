@@ -245,6 +245,11 @@ namespace MugenMvvm.Binding
             return new WeakEventListener(listener);
         }
 
+        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state)
+        {
+            return new WeakEventListener<TState>(listener, state);
+        }
+
         #endregion
     }
 }
