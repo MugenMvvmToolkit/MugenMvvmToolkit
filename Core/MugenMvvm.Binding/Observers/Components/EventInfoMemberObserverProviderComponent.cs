@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly Func<object, EventInfo, object?, EventListenerCollection?> _createWeakListenerDelegate;
+        private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly FuncEx<EventInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverEventDelegate;
         private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Observers.Components
             var eventInfo = (EventInfo) member;
             var listenerInternal = _attachedValueManager
                 .ServiceIfNull()
-                .GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, null, _createWeakListenerDelegate);
+                .GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
@@ -90,7 +90,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private EventListenerCollection? CreateWeakListener(object target, EventInfo eventInfo, object? _)
+        private EventListenerCollection? CreateWeakListener(object target, EventInfo eventInfo)
         {
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)

@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface ITracer : IComponent<IMugenApplication>//todo review
+    public interface ITracer : IComponent<IMugenApplication>
     {
         bool CanTrace(TraceLevel level);
 

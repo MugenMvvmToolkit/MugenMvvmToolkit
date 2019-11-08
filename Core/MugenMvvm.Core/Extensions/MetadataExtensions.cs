@@ -113,14 +113,14 @@ namespace MugenMvvm
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Combine(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Combine(currentValue, value));
         }
 
         public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
             where T : Delegate
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?)null, (object?)null, (item, value, currentValue, state1, state2) => (T)Delegate.Remove(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Remove(currentValue, value));
         }
 
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
@@ -148,38 +148,27 @@ namespace MugenMvvm
             }
         }
 
-        public static T GetOrAdd<T, TState1>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, TState1 state1,
-            Func<IMetadataContext, TState1, T> valueFactory)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.GetOrAdd(contextKey, state1, valueFactory, (ctx, s1, s2) => s2(ctx, s1));
-        }
-
         public static T GetOrAdd<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, T> valueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.GetOrAdd(contextKey, valueFactory, valueFactory, (ctx, s1, _) => s1(ctx));
+            return metadataContext.GetOrAdd(contextKey, valueFactory, (ctx, s) => s(ctx));
         }
 
         public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, T> valueFactory,
             UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, T>, T> updateValueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.AddOrUpdate(contextKey, valueFactory, updateValueFactory, (ctx, s1, _) => s1(ctx), (ctx, _, cV, s1, s2) => s2(ctx, s1, cV));
-        }
-
-        public static T AddOrUpdate<T, TState1>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue, TState1 state1,
-            UpdateValueDelegate<IMetadataContext, T, T, TState1> updateValueFactory)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.AddOrUpdate(contextKey, addValue, state1, updateValueFactory, (ctx, v, cV, s1, s2) => s2(ctx, v, cV, s1));
+            var pair = new KeyValuePair<Func<IMetadataContext, T>, UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, T>, T>>(valueFactory, updateValueFactory);
+            return metadataContext
+                .AddOrUpdate(contextKey, pair, (ctx, s) => s.Key(ctx),
+                    (ctx, _, cV, s) => s.Value(ctx, s.Key, cV));
         }
 
         public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue,
             UpdateValueDelegate<IMetadataContext, T, T> updateValueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, updateValueFactory, (ctx, v, cV, s1, _) => s1(ctx, v, cV));
+            return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, (ctx, v, cV, s) => s(ctx, v, cV));
         }
 
         #endregion

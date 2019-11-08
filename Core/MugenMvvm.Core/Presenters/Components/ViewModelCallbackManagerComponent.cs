@@ -125,7 +125,7 @@ namespace MugenMvvm.Presenters.Components
             var callback = new NavigationCallbackInternal(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationOperationId);
             var key = GetKeyByCallback(callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (object?)null, (context, o, arg3) => new List<NavigationCallbackInternal?>())!;
+            var callbacks = viewModel.Metadata.GetOrAdd(key!, (object?)null, (context, _) => new List<NavigationCallbackInternal?>())!;
             lock (callback)
             {
                 callbacks.Add(callback);

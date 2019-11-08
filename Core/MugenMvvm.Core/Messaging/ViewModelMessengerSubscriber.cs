@@ -47,7 +47,7 @@ namespace MugenMvvm.Messaging
 
         #region Properties
 
-        private IViewModelBase? Target => (IViewModelBase?) _reference.Target;
+        private IViewModelBase? Target => (IViewModelBase?)_reference.Target;
 
         private bool BroadcastAllMessages { get; set; }
 
@@ -132,7 +132,7 @@ namespace MugenMvvm.Messaging
                 return null;
 
             if (createIfNeed)
-                return viewModel.Metadata.GetOrAdd(MetadataKey, viewModel, viewModel, (ctx, vm, _) => new ViewModelMessengerSubscriber(vm));
+                return viewModel.Metadata.GetOrAdd(MetadataKey, viewModel, (ctx, vm) => new ViewModelMessengerSubscriber(vm));
             return viewModel.Metadata.Get(MetadataKey);
         }
 

@@ -120,8 +120,8 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, T addValue, TState1 state1, TState2 state2,
-            UpdateValueDelegate<IMetadataContext, T, T, TState1, TState2> updateValueFactory)
+        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state,
+            UpdateValueDelegate<IMetadataContext, T, T, TState> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -132,7 +132,7 @@ namespace MugenMvvm.Metadata
             {
                 if (_dictionary.TryGetValue(contextKey, out oldValue))
                 {
-                    result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state1, state2);
+                    result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state);
                     added = false;
                 }
                 else
@@ -152,8 +152,8 @@ namespace MugenMvvm.Metadata
             return result;
         }
 
-        public T AddOrUpdate<T, TState1, TState2>(IMetadataContextKey<T> contextKey, TState1 state1, TState2 state2, Func<IMetadataContext, TState1, TState2, T> valueFactory,
-            UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState1, TState2, T>, T, TState1, TState2> updateValueFactory)
+        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, TState, T> valueFactory,
+            UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState, T>, T, TState> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -164,12 +164,12 @@ namespace MugenMvvm.Metadata
             {
                 if (_dictionary.TryGetValue(contextKey, out oldValue))
                 {
-                    result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state1, state2);
+                    result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state);
                     added = false;
                 }
                 else
                 {
-                    result = valueFactory(this, state1, state2);
+                    result = valueFactory(this, state);
                     added = true;
                 }
 
@@ -209,7 +209,7 @@ namespace MugenMvvm.Metadata
             return value;
         }
 
-        public T GetOrAdd<T, TState1, TState2>(IMetadataContextKey<T> contextKey, TState1 state1, TState2 state2, Func<IMetadataContext, TState1, TState2, T> valueFactory)
+        public T GetOrAdd<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, TState, T> valueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
@@ -225,7 +225,7 @@ namespace MugenMvvm.Metadata
                 }
                 else
                 {
-                    newValue = valueFactory(this, state1, state2);
+                    newValue = valueFactory(this, state);
                     value = contextKey.SetValue(this, null, newValue);
                     _dictionary[contextKey] = value;
                     added = true;

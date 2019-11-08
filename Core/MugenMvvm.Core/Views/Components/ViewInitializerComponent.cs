@@ -58,7 +58,7 @@ namespace MugenMvvm.Views.Components
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (object?)null, (context, vm, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
             ViewInfo viewInfo;
             lock (views)
             {

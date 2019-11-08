@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private const string BindPrefix = "@#b";
 
-        private static readonly UpdateValueDelegate<object, IBinding, IBinding, IBinding, IBinding> UpdateBindingDelegate = UpdateBinding;
+        private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return false;
 
             var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(target, metadata);
-            attachedValueProvider.AddOrUpdate(target, GetPath(binding.Target.Path), binding, binding, binding, UpdateBindingDelegate);
+            attachedValueProvider.AddOrUpdate(target, GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
         }
 
@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Core.Components
             return BindPrefix + memberPath.Path;
         }
 
-        private static IBinding UpdateBinding(object item, IBinding addValue, IBinding currentValue, IBinding state1, IBinding state2)
+        private static IBinding UpdateBinding(object item, IBinding addValue, IBinding currentValue, object? _)
         {
             currentValue?.Dispose();
             return addValue;

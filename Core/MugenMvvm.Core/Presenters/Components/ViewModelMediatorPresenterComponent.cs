@@ -170,8 +170,7 @@ namespace MugenMvvm.Presenters.Components
 
         protected virtual IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (object?)null,
-                (context, o, arg3) => new List<IViewModelPresenterMediator>())!;
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (context, _) => new List<IViewModelPresenterMediator>())!;
 
             var components = Owner.GetComponents();
             lock (mediators)

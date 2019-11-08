@@ -47,7 +47,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue) result!;
+                    value = (TValue)result!;
                     return true;
                 }
 
@@ -68,8 +68,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
-            UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory) where TItem : class
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -79,9 +78,9 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValue, (TValue) value!, state1, state2);
+                    value = updateValueFactory(item, addValue, (TValue)value!, state);
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 dictionary.Add(path, addValue);
@@ -89,9 +88,8 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2,
-            Func<TItem, TState1, TState2, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory) where TItem : class
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state,
+            Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -102,14 +100,14 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = updateValueFactory(item, addValueFactory, (TValue) value!, state1, state2);
+                    value = updateValueFactory(item, addValueFactory, (TValue)value!, state);
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
-                value = addValueFactory(item, state1, state2);
+                value = addValueFactory(item, state);
                 dictionary.Add(path, value);
-                return (TValue) value!;
+                return (TValue)value!;
             }
         }
 
@@ -121,13 +119,13 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 dictionary.Add(path, value);
                 return value;
             }
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
+        public virtual TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory)
             where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
@@ -137,10 +135,10 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
-                oldValue = valueFactory(item, state1, state2);
+                    return (TValue)oldValue!;
+                oldValue = valueFactory(item, state);
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue!;
+                return (TValue)oldValue!;
             }
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
@@ -27,7 +28,7 @@ namespace MugenMvvm
         }
 
         public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null, 
+            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null,
             IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
@@ -101,9 +102,10 @@ namespace MugenMvvm
 
         public static IComponentCollection<object> GetOrAddWrappersCollection(this IViewInfo viewInfo, IComponentCollectionProvider? componentCollectionProvider = null)
         {
+            var pair = new KeyValuePair<IComponentCollectionProvider?, IViewInfo>(componentCollectionProvider, viewInfo);
             return viewInfo
                 .Metadata
-                .GetOrAdd(ViewMetadata.Wrappers, viewInfo, componentCollectionProvider, (context, v, p) => p.ServiceIfNull().GetComponentCollection<object>(v, context))!;
+                .GetOrAdd(ViewMetadata.Wrappers, pair, (context, s) => s.Key.ServiceIfNull().GetComponentCollection<object>(s.Value, context))!;
         }
 
         private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)

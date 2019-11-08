@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly FuncEx<string, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverStringDelegate;
         private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
-        private static readonly Func<INotifyPropertyChanged, object?, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
+        private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 return default;
             return _attachedValueManager
                 .ServiceIfNull()
-                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, null, CreateWeakPropertyListenerDelegate)
+                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string)member);
         }
 
@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _, object? __)
+        private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _)
         {
             var listener = new WeakPropertyChangedListener();
             propertyChanged.PropertyChanged += listener.Handle;

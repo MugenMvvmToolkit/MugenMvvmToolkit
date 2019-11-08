@@ -15,18 +15,17 @@ namespace MugenMvvm.Interfaces.Internal
 
         bool Contains<TItem>(TItem item, string path) where TItem : class;
 
-        TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TValue addValue, TState1 state1, TState2 state2,
-            UpdateValueDelegate<TItem, TValue, TValue, TState1, TState2> updateValueFactory)
+        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory)
             where TItem : class;
 
-        TValue AddOrUpdate<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState1, TState2, TValue>, TValue, TState1, TState2> updateValueFactory)
+        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state1, Func<TItem, TState, TValue> addValueFactory,
+            UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory)
             where TItem : class;
 
         TValue GetOrAdd<TItem, TValue>(TItem item, string path, TValue value)
             where TItem : class;
 
-        TValue GetOrAdd<TItem, TValue, TState1, TState2>(TItem item, string path, TState1 state1, TState2 state2, Func<TItem, TState1, TState2, TValue> valueFactory)
+        TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory)
             where TItem : class;
 
         void SetValue<TItem, TValue>(TItem item, string path, TValue value)
