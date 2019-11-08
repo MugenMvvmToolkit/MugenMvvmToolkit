@@ -21,7 +21,7 @@ namespace MugenMvvm.Threading
         public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext)
         {
             _synchronizationContext = synchronizationContext;
-            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
         #endregion
@@ -34,7 +34,7 @@ namespace MugenMvvm.Threading
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public void Execute(ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state = null,
+        public void Execute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state = default,
             CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(handler, nameof(handler));
@@ -48,7 +48,7 @@ namespace MugenMvvm.Threading
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(null), handler);
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler<TState>)o).Execute(default!), handler);
                 else
                 {
                     if (handler is IValueHolder<Delegate> valueHolder)
@@ -89,7 +89,7 @@ namespace MugenMvvm.Threading
             ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
         }
 
-        public void Execute(ThreadExecutionMode executionMode, Action<object?> action, object? state = null,
+        public void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> action, TState state = default,
             CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(action, nameof(action));
@@ -103,18 +103,18 @@ namespace MugenMvvm.Threading
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((Action<object?>) o).Invoke(null), action);
+                    _synchronizationContext.Post(o => ((Action<TState>)o).Invoke(default!), action);
                 else
-                    _synchronizationContext.Post(new SendOrPostCallback(action), state);
+                    _synchronizationContext.Post(action.Invoke, state);
                 return;
             }
 
             if (executionMode == ThreadExecutionMode.Background)
             {
                 if (state == null)
-                    ThreadPool.QueueUserWorkItem(o => ((Action<object?>) o).Invoke(null), action);
+                    ThreadPool.QueueUserWorkItem(o => ((Action<TState>)o).Invoke(default!), action);
                 else
-                    ThreadPool.QueueUserWorkItem(new WaitCallback(action), state);
+                    ThreadPool.QueueUserWorkItem(action.Invoke, state);
                 return;
             }
 

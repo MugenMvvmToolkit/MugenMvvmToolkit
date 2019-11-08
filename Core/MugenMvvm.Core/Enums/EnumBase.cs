@@ -123,7 +123,7 @@ namespace MugenMvvm.Enums
 
         public static bool TryParse(TValue value, out TEnumeration result)
         {
-            if (Default.IsNullable<TValue>() && value == null)
+            if (value == null)
             {
                 result = default!;
                 return false;

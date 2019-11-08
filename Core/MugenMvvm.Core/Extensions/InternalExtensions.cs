@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.Threading;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -90,6 +91,16 @@ namespace MugenMvvm
         {
             for (var i = 0; i < target.Length; i++)
                 target[i] = (T)source[i];
+        }
+
+        internal static void Execute<TState>(this IThreadDispatcherHandler<TState> handler, object state)
+        {
+            handler.Execute((TState)state);
+        }
+
+        internal static void Invoke<TState>(this Action<TState> handler, object state)
+        {
+            handler.Invoke((TState)state);
         }
 
         #endregion

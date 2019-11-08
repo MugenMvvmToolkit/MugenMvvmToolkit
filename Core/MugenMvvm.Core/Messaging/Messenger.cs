@@ -260,7 +260,7 @@ namespace MugenMvvm.Messaging
             #endregion
         }
 
-        private sealed class MessageThreadExecutor : List<object>, IThreadDispatcherHandler, IValueHolder<Delegate>
+        private sealed class MessageThreadExecutor : List<object>, IThreadDispatcherHandler<IMessageContext>, IValueHolder<Delegate>
         {
             #region Fields
 
@@ -285,9 +285,8 @@ namespace MugenMvvm.Messaging
 
             #region Implementation of interfaces
 
-            public void Execute(object? state)
+            public void Execute(IMessageContext messageContext)
             {
-                var messageContext = (IMessageContext)state!;
                 var handlers = _messenger._handlerComponents;
                 var listeners = _messenger._listeners;
                 for (var i = 0; i < Count; i++)

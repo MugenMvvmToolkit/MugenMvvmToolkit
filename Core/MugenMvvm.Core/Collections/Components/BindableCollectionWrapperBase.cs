@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -9,12 +10,13 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Collections.Components
 {
     public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener<T>, INotifyCollectionChanged, INotifyPropertyChanged,
-        IObservableCollectionBatchUpdateListener<T>
+        IObservableCollectionBatchUpdateListener<T>, IThreadDispatcherHandler<BindableCollectionWrapperBase<T>.CollectionChangedEvent>, IValueHolder<Delegate>
     {
         #region Fields
 
@@ -58,6 +60,8 @@ namespace MugenMvvm.Collections.Components
         protected virtual bool IsLockRequired => ExecutionMode != ThreadExecutionMode.Main && ExecutionMode != ThreadExecutionMode.MainAsync;
 
         public bool IsDecoratorComponent { get; set; } = true;
+
+        Delegate? IValueHolder<Delegate>.Value { get; set; }
 
         #endregion
 
@@ -117,6 +121,11 @@ namespace MugenMvvm.Collections.Components
             OnCleared();
         }
 
+        void IThreadDispatcherHandler<CollectionChangedEvent>.Execute(CollectionChangedEvent state)
+        {
+            AddEventInternal(ref state);
+        }
+
         #endregion
 
         #region Methods
@@ -134,18 +143,12 @@ namespace MugenMvvm.Collections.Components
 
         protected void OnBeginBatchUpdate()
         {
-            if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                OnBeginBatchUpdateImpl();
-            else
-                ThreadDispatcher.Execute(ExecutionMode, o => ((BindableCollectionWrapperBase<T>)o!).OnBeginBatchUpdateImpl(), this);
+            ThreadDispatcher.Execute(ExecutionMode, o => o.OnBeginBatchUpdateImpl(), this);
         }
 
         protected void OnEndBatchUpdate()
         {
-            if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                OnEndBatchUpdateImpl();
-            else
-                ThreadDispatcher.Execute(ExecutionMode, o => ((BindableCollectionWrapperBase<T>)o!).OnEndBatchUpdateImpl(), this);
+            ThreadDispatcher.Execute(ExecutionMode, o => o.OnEndBatchUpdateImpl(), this);
         }
 
         protected void OnItemChanged(T item, int index, object? args)
@@ -339,7 +342,7 @@ namespace MugenMvvm.Collections.Components
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
                 AddEventInternal(ref collectionChangedEvent);
             else
-                ThreadDispatcher.Execute(ExecutionMode, collectionChangedEvent, this);
+                ThreadDispatcher.Execute(ExecutionMode, this, collectionChangedEvent);
         }
 
         private void OnBeginBatchUpdateImpl()
@@ -423,7 +426,7 @@ namespace MugenMvvm.Collections.Components
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        protected struct CollectionChangedEvent : IThreadDispatcherHandler
+        protected struct CollectionChangedEvent
         {
             #region Fields
 
@@ -451,11 +454,6 @@ namespace MugenMvvm.Collections.Components
             #endregion
 
             #region Implementation of interfaces
-
-            void IThreadDispatcherHandler.Execute(object? state)
-            {
-                ((BindableCollectionWrapperBase<T>)state!).AddEventInternal(ref this);
-            }
 
             public readonly void Raise(BindableCollectionWrapperBase<T> listener, bool batch)
             {

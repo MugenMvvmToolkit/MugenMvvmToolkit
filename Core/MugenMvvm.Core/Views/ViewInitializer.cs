@@ -157,7 +157,7 @@ namespace MugenMvvm.Views
 
         #region Nested types
 
-        private sealed class ViewManagerInitializerHandler : TaskCompletionSource<IViewInitializerResult>, IThreadDispatcherHandler
+        private sealed class ViewManagerInitializerHandler : TaskCompletionSource<IViewInitializerResult>, IThreadDispatcherHandler<object?>
         {
             #region Fields
 
@@ -185,7 +185,7 @@ namespace MugenMvvm.Views
 
             #region Implementation of interfaces
 
-            public void Execute(object? state)
+            public void Execute(object? _)
             {
                 try
                 {
@@ -212,7 +212,7 @@ namespace MugenMvvm.Views
             #endregion
         }
 
-        private sealed class CleanupHandler : TaskCompletionSource<IReadOnlyMetadataContext>, IThreadDispatcherHandler
+        private sealed class CleanupHandler : TaskCompletionSource<IReadOnlyMetadataContext>, IThreadDispatcherHandler<object?>
         {
             #region Fields
 
@@ -238,7 +238,7 @@ namespace MugenMvvm.Views
 
             #region Implementation of interfaces
 
-            public void Execute(object? state)
+            public void Execute(object? _)
             {
                 try
                 {

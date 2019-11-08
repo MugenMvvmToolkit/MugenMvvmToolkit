@@ -289,11 +289,11 @@ namespace MugenMvvm.Presenters
             }
         }
 
-        private void ViewInitializedCallback(object? state)
+        private void ViewInitializedCallback(INavigationContext state)
         {
             try
             {
-                _showingContext = (INavigationContext)state!;
+                _showingContext = state;
                 ShowView(_showingContext.Metadata);
             }
             catch (Exception e)
@@ -304,9 +304,9 @@ namespace MugenMvvm.Presenters
             }
         }
 
-        private void RefreshCallback(object? state)
+        private void RefreshCallback(IReadOnlyMetadataContext? state)
         {
-            var ctx = NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Refresh, (IReadOnlyMetadataContext)state!);
+            var ctx = NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Refresh, state);
             try
             {
                 _showingContext = ctx;
@@ -324,9 +324,8 @@ namespace MugenMvvm.Presenters
             }
         }
 
-        private void CloseViewCallback(object? state)
+        private void CloseViewCallback(INavigationContext navigationContext)
         {
-            var navigationContext = (INavigationContext)state!;
             try
             {
                 if (_cancelArgs != null)

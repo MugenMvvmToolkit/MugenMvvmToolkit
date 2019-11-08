@@ -14,7 +14,7 @@ using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
+    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IThreadDispatcherHandler<object?>, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
 
@@ -111,7 +111,7 @@ namespace MugenMvvm.Commands.Components
             _subscriber = null;
         }
 
-        void IThreadDispatcherHandler.Execute(object? state)
+        void IThreadDispatcherHandler<object?>.Execute(object? state)
         {
             _canExecuteChanged?.Invoke(_command, EventArgs.Empty);
         }

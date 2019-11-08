@@ -1,7 +1,7 @@
 ﻿namespace MugenMvvm.Interfaces.Threading
 {
-    public interface IThreadDispatcherHandler
+    public interface IThreadDispatcherHandler<TState>
     {
-        void Execute(object? state);
+        void Execute(TState state);
     }
 }
