@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Input;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly IMemberProvider? _memberProvider;
+        private readonly IBindingManager? _bindingManager;
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
         private object? _currentValue;
@@ -27,15 +27,13 @@ namespace MugenMvvm.Binding.Core.Components
         private IWeakReference? _targetRef;
         private ActionToken _unsubscriber;
 
-        private static readonly List<object> CurrentEventSources = new List<object>();
-
         #endregion
 
         #region Constructors
 
-        public EventTargetValueInterceptorBindingComponent(object? commandParameter, bool toggleEnabledState, IMemberProvider? memberProvider = null)
+        public EventTargetValueInterceptorBindingComponent(object? commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
         {
-            _memberProvider = memberProvider;
+            _bindingManager = bindingManager;
             CommandParameter = commandParameter;
             ToggleEnabledState = toggleEnabledState;
         }
@@ -78,26 +76,29 @@ namespace MugenMvvm.Binding.Core.Components
 
             try
             {
-                if (sender != null)
-                    CurrentEventSources.Add(sender);
+                OnBeginEvent(sender, message);
                 EventArgs = message;
                 switch (_currentValue)
                 {
                     case ICommand command:
                         command.Execute(GetCommandParameter());
-                        break;
+                        return true;
                     case IExpressionValue expression:
                         expression.Invoke(_currentMetadata);
-                        break;
+                        return true;
                 }
 
+                return false;
+            }
+            catch (Exception e)
+            {
+                OnEventError(e, sender, message);
                 return true;
             }
             finally
             {
                 EventArgs = null;
-                if (sender != null)
-                    CurrentEventSources.Remove(sender);
+                OnEndEvent(sender, message);
             }
         }
 
@@ -122,7 +123,6 @@ namespace MugenMvvm.Binding.Core.Components
             if (value == null)
             {
                 _unsubscriber.Dispose();
-                _unsubscriber = default;
                 return true;
             }
 
@@ -144,17 +144,13 @@ namespace MugenMvvm.Binding.Core.Components
                 return true;
             }
 
+            _unsubscriber.Dispose();
             return false;
         }
 
         #endregion
 
         #region Methods
-
-        public static object[] GetCurrentEventSources()
-        {
-            return CurrentEventSources.ToArray();
-        }
 
         private object? GetCommandParameter()
         {
@@ -170,7 +166,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (command is IMediatorCommand m && !m.HasCanExecute)
                 return false;
 
-            _enabledMember = _memberProvider
+            _enabledMember = GetMemberProvider()
                     .ServiceIfNull()
                     .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Property, MemberFlags.InstancePublic, _currentMetadata) as
                 IMemberAccessorInfo;
@@ -224,6 +220,51 @@ namespace MugenMvvm.Binding.Core.Components
             _enabledMember = null;
             _currentMetadata = null;
             _currentValue = null;
+        }
+
+        private void OnBeginEvent(object sender, object? message)
+        {
+            var components = _bindingManager.ServiceIfNull().GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IBindingEventHandlerComponent)?.OnBeginEvent(sender, message, _currentMetadata);
+        }
+
+        private void OnEndEvent(object sender, object? message)
+        {
+            var components = _bindingManager.ServiceIfNull().GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IBindingEventHandlerComponent)?.OnEndEvent(sender, message, _currentMetadata);
+        }
+
+        private void OnEventError(Exception exception, object sender, object? message)
+        {
+            var binding = _currentMetadata?.Get(BindingMetadata.Binding);
+            if (binding != null)
+                OnSourceUpdateFailed(binding, exception);
+
+            var components = _bindingManager.ServiceIfNull().GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IBindingEventHandlerComponent)?.OnEventError(exception, sender, message, _currentMetadata);
+        }
+
+        private void OnSourceUpdateFailed(IBinding binding, Exception error)
+        {
+            var components = binding.GetComponents();
+            var list = components.List;
+            if (list == null)
+                (components.Item as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata);
+            else
+            {
+                for (var i = 0; i < list.Length; i++)
+                    (list[i] as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata);
+            }
+        }
+
+        private IMemberProvider GetMemberProvider()
+        {
+            if (_bindingManager == null)
+                return MugenBindingService.MemberProvider;
+            return _bindingManager.GetComponent<IBindingManager, IMemberProvider>(true).ServiceIfNull();
         }
 
         #endregion

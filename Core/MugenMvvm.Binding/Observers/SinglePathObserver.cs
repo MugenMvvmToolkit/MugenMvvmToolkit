@@ -184,7 +184,6 @@ namespace MugenMvvm.Binding.Observers
         protected virtual void UnsubscribeLastMember()
         {
             _lastMemberUnsubscriber.Dispose();
-            _lastMemberUnsubscriber = default;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

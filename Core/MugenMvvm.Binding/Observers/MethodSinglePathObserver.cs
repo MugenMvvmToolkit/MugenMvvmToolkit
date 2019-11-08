@@ -62,7 +62,6 @@ namespace MugenMvvm.Binding.Observers
         protected override void UnsubscribeLastMember()
         {
             _unsubscriber.Dispose();
-            _unsubscriber = default;
             base.UnsubscribeLastMember();
         }
 

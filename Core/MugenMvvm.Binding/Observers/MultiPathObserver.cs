@@ -62,21 +62,13 @@ namespace MugenMvvm.Binding.Observers
 
         protected override void UnsubscribeLastMember()
         {
-            var listener = _listeners[_listeners.Length - 1];
-            if (!listener.IsEmpty)
-            {
-                listener.Dispose();
-                _listeners[_listeners.Length - 1] = default;
-            }
+            _listeners[_listeners.Length - 1].Dispose();
         }
 
         protected override void ClearListeners()
         {
             for (var index = 0; index < _listeners.Length; index++)
-            {
                 _listeners[index].Dispose();
-                _listeners[index] = default;
-            }
 
             UnsubscribeLastMember();
         }

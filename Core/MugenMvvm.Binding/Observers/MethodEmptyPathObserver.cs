@@ -95,7 +95,6 @@ namespace MugenMvvm.Binding.Observers
         protected override void OnListenersRemoved()
         {
             _unsubscriber.Dispose();
-            _unsubscriber = default;
         }
 
         #endregion
