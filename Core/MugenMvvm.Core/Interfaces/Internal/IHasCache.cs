@@ -1,7 +1,9 @@
-﻿namespace MugenMvvm.Interfaces.Internal
+﻿using MugenMvvm.Interfaces.Metadata;
+
+namespace MugenMvvm.Interfaces.Internal
 {
     public interface IHasCache
     {
-        void Invalidate();
+        void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

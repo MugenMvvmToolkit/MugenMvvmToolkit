@@ -73,7 +73,7 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             list.Add(member);
-            (Owner as IHasCache)?.Invalidate();
+            (Owner as IHasCache)?.Invalidate(type);
         }
 
         public bool Unregister(Type type, MemberType memberType)
@@ -97,7 +97,7 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             if (removed)
-                (Owner as IHasCache)?.Invalidate();
+                (Owner as IHasCache)?.Invalidate(type);
             return removed;
         }
 
@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             if (removed)
-                (Owner as IHasCache)?.Invalidate();
+                (Owner as IHasCache)?.Invalidate(type);
             return removed;
         }
 

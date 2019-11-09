@@ -10,7 +10,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Internal;
 
-
 namespace MugenMvvm.Collections
 {
     [DebuggerDisplay("Count = {Count}")]

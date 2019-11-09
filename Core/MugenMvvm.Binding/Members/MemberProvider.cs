@@ -54,9 +54,9 @@ namespace MugenMvvm.Binding.Members
             Invalidate();
         }
 
-        public void Invalidate()
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
-            InvalidateCacheInternal();
+            InvalidateCacheInternal(state, metadata);
         }
 
         public IMemberInfo? GetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
@@ -115,8 +115,7 @@ namespace MugenMvvm.Binding.Members
             return result;
         }
 
-        protected virtual IReadOnlyList<IMemberInfo> GetMembersInternal(Type type, string name, MemberType memberTypes, MemberFlags flags,
-            IReadOnlyMetadataContext? metadata)
+        protected virtual IReadOnlyList<IMemberInfo> GetMembersInternal(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
             if (TempMembersCache.TryGetValue(cacheKey, out var result))
@@ -141,22 +140,32 @@ namespace MugenMvvm.Binding.Members
                 }
             }
 
-            result = (IReadOnlyList<IMemberInfo>?)list ?? Default.EmptyArray<IMemberInfo>();
+            result = (IReadOnlyList<IMemberInfo>?) list ?? Default.EmptyArray<IMemberInfo>();
             TempMembersCache[cacheKey] = result;
             return result;
         }
 
-        protected virtual void InvalidateCacheInternal()
+        protected virtual void InvalidateCacheInternal(object? state, IReadOnlyMetadataContext? metadata)
         {
-            TempCache.Clear();
-            TempMembersCache.Clear();
+            if (state is Type type)
+            {
+                List<CacheKey>? keys = null;
+                Invalidate(TempCache, type, ref keys);
+                keys?.Clear();
+                Invalidate(TempMembersCache, type, ref keys);
+            }
+            else
+            {
+                TempCache.Clear();
+                TempMembersCache.Clear();
+            }
+
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IHasCache)?.Invalidate();
+                (components[i] as IHasCache)?.Invalidate(state, metadata);
         }
 
-        protected IMemberInfo? SelectMember(IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags,
-            IReadOnlyMetadataContext? metadata)
+        protected IMemberInfo? SelectMember(IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             for (var i = 0; i < members.Count; i++)
             {
@@ -166,6 +175,23 @@ namespace MugenMvvm.Binding.Members
             }
 
             return null;
+        }
+
+        private static void Invalidate<TItem>(LightDictionary<CacheKey, TItem> dictionary, Type type, ref List<CacheKey>? keys)
+        {
+            foreach (var pair in dictionary)
+            {
+                if (pair.Key.Type != type)
+                    continue;
+                if (keys == null)
+                    keys = new List<CacheKey>();
+                keys.Add(pair.Key);
+            }
+
+            if (keys == null || keys.Count == 0)
+                return;
+            for (var i = 0; i < keys.Count; i++)
+                dictionary.Remove(keys[i]);
         }
 
         #endregion
@@ -224,8 +250,8 @@ namespace MugenMvvm.Binding.Members
                 if (name == null)
                     name = string.Empty;
                 Name = name;
-                MemberType = (byte)memberType;
-                MemberFlags = (byte)memberFlags;
+                MemberType = (byte) memberType;
+                MemberFlags = (byte) memberFlags;
             }
 
             #endregion
