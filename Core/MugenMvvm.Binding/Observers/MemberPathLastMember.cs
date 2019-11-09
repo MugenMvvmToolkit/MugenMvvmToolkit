@@ -85,9 +85,10 @@ namespace MugenMvvm.Binding.Observers
             return ((IMemberAccessorInfo)_member!).GetValue(_target, metadata);
         }
 
-        public void SetValue(object? value, IReadOnlyMetadataContext? metadata = null)
+        public void SetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            ((IMemberAccessorInfo)_member!).SetValue(_target, value, metadata);
+            if (_member is IMemberAccessorInfo member)
+                member.SetValue(_target, MugenBindingService.GlobalValueConverter.Convert(value, member.Type, member, metadata), metadata);
         }
 
         #endregion
