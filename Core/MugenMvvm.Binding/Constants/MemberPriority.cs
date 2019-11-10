@@ -7,6 +7,7 @@
         public const int Attached = 100;
         public const int Dynamic = 10;
         public const int Default = 0;
+        public const int Extension = -10;
 
         #endregion
     }
