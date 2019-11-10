@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Properties
 
-        public int Priority { get; set; } = BindingLinqCompilerPriority.Member;
+        public int Priority { get; set; } = LinqCompilerPriority.Member;
 
         public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
 

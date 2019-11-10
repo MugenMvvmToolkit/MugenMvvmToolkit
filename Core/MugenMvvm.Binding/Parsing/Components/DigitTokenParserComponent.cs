@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
-        public int Priority { get; set; } = BindingParserPriority.Constant;
+        public int Priority { get; set; } = ParserPriority.Constant;
 
         #endregion
 

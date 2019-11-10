@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    public static class BindingParserPriority
+    public static class ParserPriority
     {
         #region Fields
 
