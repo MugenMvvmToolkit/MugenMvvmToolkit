@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        protected readonly TempCacheDictionary<IMemberInfo?> TempCache;
-        protected readonly TempCacheDictionary<IReadOnlyList<IMemberInfo>> TempMembersCache;
+        private readonly TempCacheDictionary<IMemberInfo?> _tempCache;
+        private readonly TempCacheDictionary<IReadOnlyList<IMemberInfo>> _tempMembersCache;
 
         protected IMemberProviderComponent[] MemberProviders;
         protected ISelectorMemberProviderComponent[] MemberSelectors;
@@ -32,10 +32,10 @@ namespace MugenMvvm.Binding.Members
         public MemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
+            _tempCache = new TempCacheDictionary<IMemberInfo?>();
+            _tempMembersCache = new TempCacheDictionary<IReadOnlyList<IMemberInfo>>();
             MemberProviders = Default.EmptyArray<IMemberProviderComponent>();
             MemberSelectors = Default.EmptyArray<ISelectorMemberProviderComponent>();
-            TempCache = new TempCacheDictionary<IMemberInfo?>();
-            TempMembersCache = new TempCacheDictionary<IReadOnlyList<IMemberInfo>>();
         }
 
         #endregion
@@ -67,7 +67,13 @@ namespace MugenMvvm.Binding.Members
             Should.NotBeNull(name, nameof(name));
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
-            return GetMemberInternal(type, name, memberTypes, flags, metadata);
+            var cacheKey = new CacheKey(type, name, memberTypes, flags);
+            if (_tempCache.TryGetValue(cacheKey, out var result))
+                return result;
+
+            result = GetMemberInternal(type, name, memberTypes, flags, metadata);
+            _tempCache[cacheKey] = result;
+            return result;
         }
 
         public IReadOnlyList<IMemberInfo> GetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags,
@@ -77,7 +83,13 @@ namespace MugenMvvm.Binding.Members
             Should.NotBeNull(name, nameof(name));
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
-            return GetMembersInternal(type, name, memberTypes, flags, metadata);
+            var cacheKey = new CacheKey(type, name, memberTypes, flags);
+            if (_tempMembersCache.TryGetValue(cacheKey, out var result))
+                return result;
+
+            result = GetMembersInternal(type, name, memberTypes, flags, metadata);
+            _tempMembersCache[cacheKey] = result;
+            return result;
         }
 
         #endregion
@@ -100,28 +112,31 @@ namespace MugenMvvm.Binding.Members
 
         protected virtual IMemberInfo? GetMemberInternal(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var cacheKey = new CacheKey(type, name, memberTypes, flags);
-            if (TempCache.TryGetValue(cacheKey, out var result))
-                return result;
-
             var selectors = MemberSelectors;
             for (var i = 0; i < selectors.Length; i++)
             {
-                result = selectors[i].TryGetMember(type, name, memberTypes, flags, metadata);
+                var result = selectors[i].TryGetMember(type, name, memberTypes, flags, metadata);
                 if (result != null)
-                    break;
+                    return result;
             }
 
-            TempCache[cacheKey] = result;
-            return result;
+            var memberProviders = MemberProviders;
+            for (var i = 0; i < memberProviders.Length; i++)
+            {
+                var members = memberProviders[i].TryGetMembers(type, name, metadata);
+                if (members == null || members.Count == 0)
+                    continue;
+
+                var result = SelectMember(members, memberTypes, flags, metadata);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
         }
 
         protected virtual IReadOnlyList<IMemberInfo> GetMembersInternal(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var cacheKey = new CacheKey(type, name, memberTypes, flags);
-            if (TempMembersCache.TryGetValue(cacheKey, out var result))
-                return result;
-
             List<IMemberInfo>? list = null;
             var memberProviders = MemberProviders;
             for (var i = 0; i < memberProviders.Length; i++)
@@ -141,9 +156,7 @@ namespace MugenMvvm.Binding.Members
                 }
             }
 
-            result = (IReadOnlyList<IMemberInfo>?) list ?? Default.EmptyArray<IMemberInfo>();
-            TempMembersCache[cacheKey] = result;
-            return result;
+            return list ?? (IReadOnlyList<IMemberInfo>)Default.EmptyArray<IMemberInfo>();
         }
 
         protected virtual void InvalidateCacheInternal(object? state, IReadOnlyMetadataContext? metadata)
@@ -151,14 +164,14 @@ namespace MugenMvvm.Binding.Members
             if (state is Type type)
             {
                 List<CacheKey>? keys = null;
-                Invalidate(TempCache, type, ref keys);
+                Invalidate(_tempCache, type, ref keys);
                 keys?.Clear();
-                Invalidate(TempMembersCache, type, ref keys);
+                Invalidate(_tempMembersCache, type, ref keys);
             }
             else
             {
-                TempCache.Clear();
-                TempMembersCache.Clear();
+                _tempCache.Clear();
+                _tempMembersCache.Clear();
             }
 
             var components = Components.GetComponents();
@@ -181,6 +194,18 @@ namespace MugenMvvm.Binding.Members
                 return;
             for (var i = 0; i < keys.Count; i++)
                 dictionary.Remove(keys[i]);
+        }
+
+        private static IMemberInfo? SelectMember(IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        {
+            for (var i = 0; i < members.Count; i++)
+            {
+                var member = members[i];
+                if (memberTypes.HasFlagEx(member.MemberType) && flags.HasFlagEx(member.AccessModifiers))
+                    return member;
+            }
+
+            return null;
         }
 
         #endregion
@@ -239,8 +264,8 @@ namespace MugenMvvm.Binding.Members
                 if (name == null)
                     name = string.Empty;
                 Name = name;
-                MemberType = (byte) memberType;
-                MemberFlags = (byte) memberFlags;
+                MemberType = (byte)memberType;
+                MemberFlags = (byte)memberFlags;
             }
 
             #endregion
