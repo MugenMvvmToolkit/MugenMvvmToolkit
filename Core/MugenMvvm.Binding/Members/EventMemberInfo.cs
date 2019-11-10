@@ -36,6 +36,8 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
+        public Type DeclaringType => _eventInfo.DeclaringType;
+
         public Type Type { get; }
 
         public object? Member => _eventInfo;

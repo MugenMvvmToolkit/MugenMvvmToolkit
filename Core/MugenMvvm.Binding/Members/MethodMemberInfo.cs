@@ -58,6 +58,8 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
+        public Type DeclaringType => _method.DeclaringType;
+
         public Type Type => _method.ReturnType;
 
         public object? Member => _method;

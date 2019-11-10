@@ -175,6 +175,52 @@ namespace MugenMvvm.Binding
             return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
         }
 
+        internal static IMemberInfo? FindBestMember(List<KeyValuePair<Type, IMemberInfo>> members)
+        {
+            if (members.Count == 0)
+                return null;
+            if (members.Count == 1)
+                return members[0].Value;
+
+            for (int i = 0; i < members.Count; i++)
+            {
+                KeyValuePair<Type, IMemberInfo> currentMemberPair = members[i];
+                bool isInterface = currentMemberPair.Key.IsInterface;
+                for (int j = 0; j < members.Count; j++)
+                {
+                    if (i == j)
+                        continue;
+                    var nextMemberPair = members[j];
+                    if (isInterface && currentMemberPair.Key.IsAssignableFrom(nextMemberPair.Key))
+                    {
+                        members.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+
+                    if (nextMemberPair.Key.IsSubclassOf(currentMemberPair.Key))
+                    {
+                        members.RemoveAt(i);
+                        i--;
+                        break;
+                    }
+                }
+            }
+            return members[0].Value;
+        }
+
+
+        internal static Type? FindCommonType(Type genericDefinition, Type type)
+        {
+            foreach (var baseType in SelfAndBaseTypes(type))
+            {
+                if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericDefinition)
+                    return baseType;
+            }
+
+            return null;
+        }
+
         private static string RemoveBounds(this string st, int start = 1) //todo Span?
         {
             return st.Substring(start, st.Length - start - 1);

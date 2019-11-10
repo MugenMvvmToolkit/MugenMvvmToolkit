@@ -66,9 +66,9 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
         {
-            if (request.Member is PropertyInfo p)
+            if (request.ReflectionMember is PropertyInfo p)
                 return TryGetMemberObserver(p, type, metadata);
-            if (request.Member is MethodInfo m)
+            if (request.ReflectionMember is MethodInfo m)
                 return TryGetMemberObserver(m, type, metadata);
             return default;
         }

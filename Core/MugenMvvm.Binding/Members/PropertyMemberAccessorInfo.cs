@@ -72,6 +72,8 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
+        public Type DeclaringType => _propertyInfo.DeclaringType;
+
         public Type Type { get; }
 
         public object? Member => _propertyInfo;

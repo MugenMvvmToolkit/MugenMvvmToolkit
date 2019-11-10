@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
+using MugenMvvm.Binding.Interfaces.Members;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -9,20 +10,22 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         public readonly object?[] Arguments;
-        public readonly MemberInfo Member;
+        public readonly MemberInfo ReflectionMember;
+        public readonly IMemberInfo? MemberInfo;
         public readonly string Path;
 
         #endregion
 
         #region Constructors
 
-        public MemberObserverRequest(string path, MemberInfo member, object?[] arguments)
+        public MemberObserverRequest(string path, MemberInfo reflectionMember, object?[] arguments, IMemberInfo? memberInfo = null)
         {
-            Should.NotBeNull(member, nameof(member));
+            Should.NotBeNull(reflectionMember, nameof(reflectionMember));
             Should.NotBeNull(arguments, nameof(arguments));
             Should.NotBeNull(path, nameof(path));
+            MemberInfo = memberInfo;
             Path = path;
-            Member = member;
+            ReflectionMember = reflectionMember;
             Arguments = arguments;
         }
 
@@ -30,7 +33,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Properties
 
-        public bool IsEmpty => ReferenceEquals(Member, null);
+        public bool IsEmpty => ReferenceEquals(ReflectionMember, null);
 
         #endregion
     }

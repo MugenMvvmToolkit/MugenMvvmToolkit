@@ -626,7 +626,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             if (source.IsGenericType)
             {
-                inputType = FindCommonType(source.GetGenericTypeDefinition(), inputType)!;
+                inputType = MugenBindingExtensions.FindCommonType(source.GetGenericTypeDefinition(), inputType)!;
                 if (inputType == null)
                     return null;
 
@@ -652,17 +652,6 @@ namespace MugenMvvm.Binding.Compiling.Components
             }
             else if (m.IsGenericMethodDefinition && m.GetGenericArguments().Length == typeArgs.Length)
                 return m.MakeGenericMethod(typeArgs);
-
-            return null;
-        }
-
-        private static Type? FindCommonType(Type genericDefinition, Type type)
-        {
-            foreach (var baseType in MugenBindingExtensions.SelfAndBaseTypes(type))
-            {
-                if (baseType.IsGenericType && baseType.GetGenericTypeDefinition() == genericDefinition)
-                    return baseType;
-            }
 
             return null;
         }

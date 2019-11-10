@@ -7,6 +7,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
     {
         string Name { get; }
 
+        Type DeclaringType { get; }
+
         Type Type { get; }
 
         object? Member { get; }

@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
         {
-            if (request.Member is PropertyInfo)
+            if (request.ReflectionMember is PropertyInfo)
                 return TryGetMemberObserver(request.Path, type, metadata);
             return default;
         }
@@ -206,7 +206,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 {
                     _size = 0;
                     _removedSize = 0;
-                    _listeners = null;
+                    _listeners = Default.EmptyArray<WeakEventListener<string>>();
                     return;
                 }
 

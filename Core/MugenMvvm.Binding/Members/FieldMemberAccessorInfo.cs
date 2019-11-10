@@ -14,19 +14,20 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly FieldInfo _fieldInfo;
-        private readonly Type _reflectedType;
         private readonly IObserverProvider? _observerProvider;
+        private readonly Type _reflectedType;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private Func<object?, object?> _getterFunc;
 
         private MemberObserver? _observer;
-        private Func<object?, object?> _getterFunc;
         private Action<object?, object?> _setterFunc;
 
         #endregion
 
         #region Constructors
 
-        public FieldMemberAccessorInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public FieldMemberAccessorInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider,
+            IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(fieldInfo, nameof(fieldInfo));
@@ -49,6 +50,8 @@ namespace MugenMvvm.Binding.Members
         #region Properties
 
         public string Name { get; }
+
+        public Type DeclaringType => _fieldInfo.DeclaringType;
 
         public Type Type => _fieldInfo.FieldType;
 

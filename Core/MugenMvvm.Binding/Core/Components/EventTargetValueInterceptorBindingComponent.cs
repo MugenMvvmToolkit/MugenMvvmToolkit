@@ -252,11 +252,11 @@ namespace MugenMvvm.Binding.Core.Components
             var components = binding.GetComponents();
             var list = components.List;
             if (list == null)
-                (components.Item as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata);
+                (components.Item as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata.DefaultIfNull());
             else
             {
                 for (var i = 0; i < list.Length; i++)
-                    (list[i] as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata);
+                    (list[i] as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata.DefaultIfNull());
             }
         }
 

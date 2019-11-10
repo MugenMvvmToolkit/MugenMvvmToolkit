@@ -49,6 +49,8 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
+        public Type DeclaringType => _methodInfo.DeclaringType;
+
         public Type Type => _methodInfo.ReturnType;
 
         public object? Member => _methodInfo;
@@ -68,7 +70,7 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, new MemberObserverRequest(Name, _methodInfo, _args));
+                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, new MemberObserverRequest(Name, _methodInfo, _args, this));
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 
