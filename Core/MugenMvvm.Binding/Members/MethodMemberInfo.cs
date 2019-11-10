@@ -48,8 +48,8 @@ namespace MugenMvvm.Binding.Members
                 for (var i = 0; i < parameterInfos.Length; i++)
                     _parameters[i] = new Parameter(parameterInfos[i]);
             }
-
-            IsExtensionMethod = method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) && _parameters.Length > 0;
+            if (method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) && _parameters.Length > 0)
+                AccessModifiers |= MemberFlags.Extension;
         }
 
         #endregion
@@ -67,8 +67,6 @@ namespace MugenMvvm.Binding.Members
         public MemberType MemberType => MemberType.Method;
 
         public MemberFlags AccessModifiers { get; }
-
-        public bool IsExtensionMethod { get; }
 
         public bool IsGenericMethod => _method.IsGenericMethod;
 

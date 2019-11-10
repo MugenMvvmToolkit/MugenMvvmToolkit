@@ -11,8 +11,9 @@ namespace MugenMvvm.Binding.Enums
         NonPublic = 1 << 3,
         Attached = 1 << 4,
         Dynamic = 1 << 5,
+        Extension = 1 << 6,
 
-        All = Static | Instance | Public | NonPublic | Attached | Dynamic,
+        All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension,
         InstancePublic = Instance | Public,
         InstanceNonPublic = Instance | NonPublic,
         StaticPublic = Static | Public,

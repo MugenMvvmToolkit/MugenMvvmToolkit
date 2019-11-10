@@ -5,8 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IMethodInfo : IObservableMemberInfo
     {
-        bool IsExtensionMethod { get; }
-
         bool IsGenericMethod { get; }
 
         bool IsGenericMethodDefinition { get; }

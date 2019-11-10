@@ -706,7 +706,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var count = 0;
             for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
+                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.AccessModifiers.HasFlagEx(MemberFlags.Extension)))
                     ++count;
             }
 
@@ -717,7 +717,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             count = 0;
             for (var i = 0; i < members.Count; i++)
             {
-                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.IsExtensionMethod))
+                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.AccessModifiers.HasFlagEx(MemberFlags.Extension)))
                 {
                     var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
@@ -771,7 +771,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
-                if (method.Method.IsExtensionMethod)
+                if (method.IsExtensionMethod)
                 {
                     var newArgs = new object?[args.Length + 1];
                     newArgs[0] = target;
@@ -925,7 +925,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public bool IsEmpty => Method == null;
 
-            public bool IsExtensionMethod => Method?.IsExtensionMethod ?? false;
+            public bool IsExtensionMethod => Method?.AccessModifiers.HasFlagEx(MemberFlags.Extension) ?? false;
 
             public IMethodInfo Method { get; }
 
