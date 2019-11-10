@@ -9,15 +9,15 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core
 {
-    public class BindingManager : ComponentOwnerBase<IBindingManager>, IBindingManager,
-        IComponentOwnerAddedCallback<IComponent<IBindingManager>>, IComponentOwnerRemovedCallback<IComponent<IBindingManager>>
+    public sealed class BindingManager : ComponentOwnerBase<IBindingManager>, IBindingManager, IComponentOwnerAddedCallback<IComponent<IBindingManager>>,
+        IComponentOwnerRemovedCallback<IComponent<IBindingManager>>
     {
         #region Fields
 
-        protected IBindingBuilderComponent[] BindingBuilders;
-        protected IBindingExpressionBuilderComponent[] ExpressionBuilders;
-        protected IBindingHolderComponent[] Holders;
-        protected IBindingStateDispatcherComponent[] StateDispatchers;
+        private IBindingBuilderComponent[] _bindingBuilders;
+        private IBindingExpressionBuilderComponent[] _expressionBuilders;
+        private IBindingHolderComponent[] _holders;
+        private IBindingStateDispatcherComponent[] _stateDispatchers;
 
         #endregion
 
@@ -26,85 +26,20 @@ namespace MugenMvvm.Binding.Core
         public BindingManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            BindingBuilders = Default.EmptyArray<IBindingBuilderComponent>();
-            ExpressionBuilders = Default.EmptyArray<IBindingExpressionBuilderComponent>();
-            Holders = Default.EmptyArray<IBindingHolderComponent>();
-            StateDispatchers = Default.EmptyArray<IBindingStateDispatcherComponent>();
+            _bindingBuilders = Default.EmptyArray<IBindingBuilderComponent>();
+            _expressionBuilders = Default.EmptyArray<IBindingExpressionBuilderComponent>();
+            _holders = Default.EmptyArray<IBindingHolderComponent>();
+            _stateDispatchers = Default.EmptyArray<IBindingStateDispatcherComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
-        {
-            var result = BuildBindingExpressionInternal(expression, metadata);
-            if (result.IsNullOrEmpty())
-                BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return result;
-        }
-
-        public ItemOrList<IBinding?, IReadOnlyList<IBinding>> BuildBinding<TExpression>(in TExpression expression, object target, ItemOrList<object?, IReadOnlyList<object?>> sources = default,
+        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(target, nameof(target));
-            var result = BuildBindingInternal(expression, target, sources, metadata);
-            if (result.IsNullOrEmpty())
-                BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return result;
-        }
-
-        public ItemOrList<IBinding?, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(target, nameof(target));
-            return GetBindingsInternal(target, path, metadata);
-        }
-
-        public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(lifecycle, nameof(lifecycle));
-            return OnLifecycleChangedInternal(binding, lifecycle, metadata) ?? Default.Metadata;
-        }
-
-        void IComponentOwnerAddedCallback<IComponent<IBindingManager>>.OnComponentAdded(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentAdded(collection, component, metadata);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IBindingManager>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentRemoved(collection, component, metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref BindingBuilders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref ExpressionBuilders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref Holders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref StateDispatchers, collection, component);
-        }
-
-        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref BindingBuilders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref ExpressionBuilders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref Holders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref StateDispatchers, component);
-        }
-
-        protected virtual ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> BuildBindingExpressionInternal<TExpression>(in TExpression expression,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            var builders = ExpressionBuilders;
+            var builders = _expressionBuilders;
             for (var i = 0; i < builders.Length; i++)
             {
                 var result = builders[i].TryBuildBindingExpression(expression, metadata);
@@ -112,14 +47,15 @@ namespace MugenMvvm.Binding.Core
                     return result!;
             }
 
+            BindingExceptionManager.ThrowCannotParseExpression(expression);
             return default;
         }
 
-        protected virtual ItemOrList<IBinding?, IReadOnlyList<IBinding>> BuildBindingInternal<TExpression>(in TExpression expression, object target,
-            ItemOrList<object?, IReadOnlyList<object?>> sources = default,
-            IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBinding?, IReadOnlyList<IBinding>> BuildBinding<TExpression>(in TExpression expression, object target,
+            ItemOrList<object?, IReadOnlyList<object?>> sources = default, IReadOnlyMetadataContext? metadata = null)
         {
-            var builders = BindingBuilders;
+            Should.NotBeNull(target, nameof(target));
+            var builders = _bindingBuilders;
             for (var i = 0; i < builders.Length; i++)
             {
                 var result = builders[i].TryBuildBinding(expression, target, sources, metadata);
@@ -127,12 +63,14 @@ namespace MugenMvvm.Binding.Core
                     return result;
             }
 
+            BindingExceptionManager.ThrowCannotParseExpression(expression);
             return default;
         }
 
-        protected virtual ItemOrList<IBinding?, IReadOnlyList<IBinding>> GetBindingsInternal(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBinding?, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
         {
-            var holders = Holders;
+            Should.NotBeNull(target, nameof(target));
+            var holders = _holders;
             if (holders.Length == 0)
                 return default;
             if (holders.Length == 1)
@@ -145,28 +83,21 @@ namespace MugenMvvm.Binding.Core
                 var bindings = holders[i].TryGetBindings(target, path, metadata);
                 bindings.Merge(ref item, ref list);
             }
+
             if (list == null)
                 return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(item);
             return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(list);
         }
 
-        protected virtual IReadOnlyMetadataContext? OnLifecycleChangedInternal(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata = null)
         {
-            if (lifecycle == BindingLifecycleState.Disposed)
-            {
-                var holders = Holders;
-                for (var i = 0; i < holders.Length; i++)
-                {
-                    if (holders[i].TryUnregister(binding, metadata))
-                        break;
-                }
-            }
-
-            var dispatchers = StateDispatchers;
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(lifecycle, nameof(lifecycle));
+            var dispatchers = _stateDispatchers;
             if (dispatchers.Length == 0)
-                return null;
+                return Default.Metadata;
             if (dispatchers.Length == 1)
-                return dispatchers[0].OnLifecycleChanged(binding, lifecycle, metadata);
+                return dispatchers[0].OnLifecycleChanged(binding, lifecycle, metadata) ?? Default.Metadata;
 
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < dispatchers.Length; i++)
@@ -175,7 +106,25 @@ namespace MugenMvvm.Binding.Core
                 m.Aggregate(ref result);
             }
 
-            return result;
+            return result ?? Default.Metadata;
+        }
+
+        void IComponentOwnerAddedCallback<IComponent<IBindingManager>>.OnComponentAdded(IComponentCollection<IComponent<IBindingManager>> collection,
+            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnAdded(ref _bindingBuilders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _expressionBuilders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _holders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _stateDispatchers, collection, component);
+        }
+
+        void IComponentOwnerRemovedCallback<IComponent<IBindingManager>>.OnComponentRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
+            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentTrackerOnRemoved(ref _bindingBuilders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _expressionBuilders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _holders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _stateDispatchers, component);
         }
 
         #endregion

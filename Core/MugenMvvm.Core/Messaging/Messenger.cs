@@ -149,22 +149,13 @@ namespace MugenMvvm.Messaging
             if (ctx == null)
                 ctx = new MessageContext(this, sender, message, metadata);
 
-            PublishInternal(ctx);
+            Publish(ctx);
             return ctx;
         }
 
         public void Publish(IMessageContext messageContext)
         {
             Should.NotBeNull(messageContext, nameof(messageContext));
-            PublishInternal(messageContext);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void PublishInternal(IMessageContext messageContext)
-        {
             var threadDispatcher = _threadDispatcher.ServiceIfNull();
             ThreadExecutionModeDictionary? dictionary;
             lock (_subscribers)
@@ -210,6 +201,10 @@ namespace MugenMvvm.Messaging
                     threadDispatcher.Execute(dispatcherExecutor.Key, dispatcherExecutor.Value, messageContext);
             }
         }
+
+        #endregion
+
+        #region Methods
 
         private bool AddSubscriber(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {

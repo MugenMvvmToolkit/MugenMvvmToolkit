@@ -8,7 +8,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public class CloseHandlerViewModelPresenterComponent : ICloseablePresenterComponent, IHasPriority
+    public sealed class CloseHandlerViewModelPresenterComponent : ICloseablePresenterComponent, IHasPriority
     {
         #region Constructors
 

@@ -15,18 +15,18 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent,
+    public sealed class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent,
         INavigationDispatcherNavigatedListener, IHasComponentPriority, IHasPriority
     {
         #region Fields
 
-        protected static readonly IMetadataContextKey<List<IViewModelPresenterMediator>?> NavigationMediators = MetadataContextKey
+        private readonly IViewManager? _viewManager;
+        private INavigationDispatcher? _navigationDispatcher;
+
+        private static readonly IMetadataContextKey<List<IViewModelPresenterMediator>?> NavigationMediators = MetadataContextKey
             .Create<List<IViewModelPresenterMediator>?>(typeof(ViewModelMediatorPresenterComponent), nameof(NavigationMediators))
             .NotNull()
             .Build();
-
-        private readonly IViewManager? _viewManager;
-        private INavigationDispatcher? _navigationDispatcher;
 
         #endregion
 
@@ -43,10 +43,6 @@ namespace MugenMvvm.Presenters.Components
 
         #region Properties
 
-        protected IViewManager ViewManager => _viewManager.ServiceIfNull();
-
-        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.ServiceIfNull();
-
         public int Priority { get; set; }
 
         public int NavigationDispatcherListenerPriority { get; set; }
@@ -55,80 +51,9 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public int GetPriority(object owner)
-        {
-            return owner is INavigationDispatcher ? NavigationDispatcherListenerPriority : Priority;
-        }
-
         public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            return TryCloseInternal(metadata);
-        }
-
-        void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
-        {
-            if (!navigationContext.NavigationMode.IsClose || !(navigationContext.NavigationProvider is IViewModelPresenterMediator mediator))
-                return;
-
-            var mediators = mediator.ViewModel.Metadata.Get(NavigationMediators);
-            if (mediators == null)
-                return;
-
-            lock (mediators)
-            {
-                mediators.Remove(mediator);
-            }
-        }
-
-        public IPresenterResult? TryShow(IMetadataContext metadata)
-        {
-            Should.NotBeNull(metadata, nameof(metadata));
-            return TryShowInternal(metadata);
-        }
-
-        public IReadOnlyList<IPresenterResult> TryRestore(IMetadataContext metadata)
-        {
-            Should.NotBeNull(metadata, nameof(metadata));
-            return TryRestoreInternal(metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
-        {
-            if (_navigationDispatcher == null)
-                _navigationDispatcher = MugenService.NavigationDispatcher;
-            _navigationDispatcher.AddComponent(this);
-        }
-
-        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
-        {
-            _navigationDispatcher?.RemoveComponent(this);
-            _navigationDispatcher = null;
-        }
-
-        protected virtual IPresenterResult? TryShowInternal(IMetadataContext metadata)
-        {
-            var viewModel = metadata.Get(NavigationMetadata.ViewModel);
-            if (viewModel == null)
-                return null;
-
-            var initializers = ViewManager.GetInitializersByViewModel(viewModel, metadata);
-            for (var i = 0; i < initializers.Count; i++)
-            {
-                var mediator = TryGetMediator(viewModel, initializers[i], metadata);
-                if (mediator != null)
-                    return mediator.Show(metadata);
-            }
-
-            return null;
-        }
-
-        protected virtual IReadOnlyList<IPresenterResult> TryCloseInternal(IMetadataContext metadata)
-        {
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
             var mediators = viewModel?.Metadata.Get(NavigationMediators);
             if (mediators == null || mediators.Count == 0)
@@ -154,8 +79,47 @@ namespace MugenMvvm.Presenters.Components
             return results;
         }
 
-        protected virtual IReadOnlyList<IPresenterResult> TryRestoreInternal(IMetadataContext metadata)
+        int IHasComponentPriority.GetPriority(object owner)
         {
+            return owner is INavigationDispatcher ? NavigationDispatcherListenerPriority : Priority;
+        }
+
+        void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        {
+            if (!navigationContext.NavigationMode.IsClose || !(navigationContext.NavigationProvider is IViewModelPresenterMediator mediator))
+                return;
+
+            var mediators = mediator.ViewModel.Metadata.Get(NavigationMediators);
+            if (mediators == null)
+                return;
+
+            lock (mediators)
+            {
+                mediators.Remove(mediator);
+            }
+        }
+
+        public IPresenterResult? TryShow(IMetadataContext metadata)
+        {
+            Should.NotBeNull(metadata, nameof(metadata));
+            var viewModel = metadata.Get(NavigationMetadata.ViewModel);
+            if (viewModel == null)
+                return null;
+
+            var initializers = _viewManager.ServiceIfNull().GetInitializersByViewModel(viewModel, metadata);
+            for (var i = 0; i < initializers.Count; i++)
+            {
+                var mediator = TryGetMediator(viewModel, initializers[i], metadata);
+                if (mediator != null)
+                    return mediator.Show(metadata);
+            }
+
+            return null;
+        }
+
+        public IReadOnlyList<IPresenterResult> TryRestore(IMetadataContext metadata)
+        {
+            Should.NotBeNull(metadata, nameof(metadata));
             var viewInfo = metadata.Get(NavigationInternalMetadata.RestoredView);
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
             if (viewInfo == null || viewModel == null)
@@ -165,13 +129,29 @@ namespace MugenMvvm.Presenters.Components
             if (mediator == null)
                 return Default.EmptyArray<IPresenterResult>();
 
-            return new[] { mediator.Restore(viewInfo, metadata) };
+            return new[] {mediator.Restore(viewInfo, metadata)};
         }
 
-        protected virtual IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
-        {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (context, _) => new List<IViewModelPresenterMediator>())!;
+        #endregion
 
+        #region Methods
+
+        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
+        {
+            if (_navigationDispatcher == null)
+                _navigationDispatcher = MugenService.NavigationDispatcher;
+            _navigationDispatcher.AddComponent(this);
+        }
+
+        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
+        {
+            _navigationDispatcher?.RemoveComponent(this);
+            _navigationDispatcher = null;
+        }
+
+        private IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
+        {
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (context, _) => new List<IViewModelPresenterMediator>())!;
             var components = Owner.GetComponents();
             lock (mediators)
             {

@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Navigation
 {
-    public class NavigationDispatcher : ComponentOwnerBase<INavigationDispatcher>, INavigationDispatcher
+    public sealed class NavigationDispatcher : ComponentOwnerBase<INavigationDispatcher>, INavigationDispatcher
     {
         #region Constructors
 
@@ -30,42 +30,23 @@ namespace MugenMvvm.Navigation
         public void OnNavigated(INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            OnNavigatedInternal(navigationContext);
+            var components = Components.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as INavigationDispatcherNavigatedListener)?.OnNavigated(this, navigationContext);
         }
 
         public void OnNavigationFailed(INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             Should.NotBeNull(exception, nameof(exception));
-            OnNavigationFailedInternal(navigationContext, exception);
-        }
-
-        public void OnNavigationCanceled(INavigationContext navigationContext)
-        {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            OnNavigationCanceledInternal(navigationContext);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
-        {
-            var components = Components.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationDispatcherNavigatedListener)?.OnNavigated(this, navigationContext);
-        }
-
-        protected virtual void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
-        {
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationDispatcherErrorListener)?.OnNavigationFailed(this, navigationContext, exception);
         }
 
-        protected virtual void OnNavigationCanceledInternal(INavigationContext navigationContext)
+        public void OnNavigationCanceled(INavigationContext navigationContext)
         {
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as INavigationDispatcherErrorListener)?.OnNavigationCanceled(this, navigationContext);
@@ -75,7 +56,7 @@ namespace MugenMvvm.Navigation
 
         #region Nested types
 
-        protected sealed class NavigatingResult : TaskCompletionSource<bool>
+        private sealed class NavigatingResult : TaskCompletionSource<bool>
         {
             #region Fields
 
@@ -144,7 +125,7 @@ namespace MugenMvvm.Navigation
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult)state).OnExecuted(task);
+                ((NavigatingResult) state).OnExecuted(task);
             }
 
             #endregion

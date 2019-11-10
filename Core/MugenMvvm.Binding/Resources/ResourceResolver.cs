@@ -10,14 +10,14 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Resources
 {
-    public class ResourceResolver : ComponentOwnerBase<IResourceResolver>, IResourceResolver, IComponentOwnerAddedCallback<IComponent<IResourceResolver>>,
+    public sealed class ResourceResolver : ComponentOwnerBase<IResourceResolver>, IResourceResolver, IComponentOwnerAddedCallback<IComponent<IResourceResolver>>,
         IComponentOwnerRemovedCallback<IComponent<IResourceResolver>>
     {
         #region Fields
 
-        protected IBindingValueConverterResolverComponent[] ConverterResolvers;
-        protected IResourceResolverComponent[] ResourceResolvers;
-        protected ITypeResolverComponent[] TypeResolvers;
+        private IBindingValueConverterResolverComponent[] _converterResolvers;
+        private IResourceResolverComponent[] _resourceResolvers;
+        private ITypeResolverComponent[] _typeResolvers;
 
         #endregion
 
@@ -25,9 +25,9 @@ namespace MugenMvvm.Binding.Resources
 
         public ResourceResolver(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            TypeResolvers = Default.EmptyArray<ITypeResolverComponent>();
-            ResourceResolvers = Default.EmptyArray<IResourceResolverComponent>();
-            ConverterResolvers = Default.EmptyArray<IBindingValueConverterResolverComponent>();
+            _typeResolvers = Default.EmptyArray<ITypeResolverComponent>();
+            _resourceResolvers = Default.EmptyArray<IResourceResolverComponent>();
+            _converterResolvers = Default.EmptyArray<IBindingValueConverterResolverComponent>();
             Converters = new Dictionary<string, IBindingValueConverter>();
             Resources = new Dictionary<string, IResourceValue>();
             Types = new Dictionary<string, Type>
@@ -89,31 +89,65 @@ namespace MugenMvvm.Binding.Resources
         void IComponentOwnerAddedCallback<IComponent<IResourceResolver>>.OnComponentAdded(IComponentCollection<IComponent<IResourceResolver>> collection,
             IComponent<IResourceResolver> component, IReadOnlyMetadataContext? metadata)
         {
-            OnComponentAdded(collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnAdded(ref _converterResolvers, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _resourceResolvers, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _typeResolvers, collection, component);
         }
 
         void IComponentOwnerRemovedCallback<IComponent<IResourceResolver>>.OnComponentRemoved(IComponentCollection<IComponent<IResourceResolver>> collection,
             IComponent<IResourceResolver> component, IReadOnlyMetadataContext? metadata)
         {
-            OnComponentRemoved(collection, component, metadata);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _converterResolvers, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _resourceResolvers, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _typeResolvers, component);
         }
 
         public IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(name, nameof(name));
-            return TryGetResourceValueInternal(name, metadata);
+            var resolvers = _resourceResolvers;
+            for (var i = 0; i < resolvers.Length; i++)
+            {
+                var value = resolvers[i].TryGetResourceValue(name, metadata);
+                if (value != null)
+                    return value;
+            }
+
+            if (Resources.TryGetValue(name, out var v))
+                return v;
+            return null;
         }
 
         public IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(name, nameof(name));
-            return TryGetConverterInternal(name, metadata);
+            var resolvers = _converterResolvers;
+            for (var i = 0; i < resolvers.Length; i++)
+            {
+                var converter = resolvers[i].TryGetConverter(name, metadata);
+                if (converter != null)
+                    return converter;
+            }
+
+            if (Converters.TryGetValue(name, out var v))
+                return v;
+            return null;
         }
 
         public Type? TryGetType(string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(name, nameof(name));
-            return TryGetTypeInternal(name, metadata);
+            var resolvers = _typeResolvers;
+            for (var i = 0; i < resolvers.Length; i++)
+            {
+                var type = resolvers[i].TryGetType(name, metadata);
+                if (type != null)
+                    return type;
+            }
+
+            if (Types.TryGetValue(name, out var v))
+                return v;
+            return null;
         }
 
         #endregion
@@ -127,67 +161,6 @@ namespace MugenMvvm.Binding.Resources
             var fullName = type.FullName;
             if (fullName != null)
                 Types[fullName] = type;
-        }
-
-        protected virtual void OnComponentAdded(IComponentCollection<IComponent<IResourceResolver>> collection, IComponent<IResourceResolver> component,
-            IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref ConverterResolvers, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref ResourceResolvers, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref TypeResolvers, collection, component);
-        }
-
-        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<IResourceResolver>> collection, IComponent<IResourceResolver> component,
-            IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref ConverterResolvers, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref ResourceResolvers, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref TypeResolvers, component);
-        }
-
-        protected virtual IResourceValue? TryGetResourceValueInternal(string name, IReadOnlyMetadataContext? metadata)
-        {
-            var resolvers = ResourceResolvers;
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var value = resolvers[i].TryGetResourceValue(name, metadata);
-                if (value != null)
-                    return value;
-            }
-
-            if (Resources.TryGetValue(name, out var v))
-                return v;
-            return null;
-        }
-
-        protected virtual IBindingValueConverter? TryGetConverterInternal(string name, IReadOnlyMetadataContext? metadata)
-        {
-            var resolvers = ConverterResolvers;
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var converter = resolvers[i].TryGetConverter(name, metadata);
-                if (converter != null)
-                    return converter;
-            }
-
-            if (Converters.TryGetValue(name, out var v))
-                return v;
-            return null;
-        }
-
-        protected virtual Type? TryGetTypeInternal(string name, IReadOnlyMetadataContext? metadata)
-        {
-            var resolvers = TypeResolvers;
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var type = resolvers[i].TryGetType(name, metadata);
-                if (type != null)
-                    return type;
-            }
-
-            if (Types.TryGetValue(name, out var v))
-                return v;
-            return null;
         }
 
         #endregion

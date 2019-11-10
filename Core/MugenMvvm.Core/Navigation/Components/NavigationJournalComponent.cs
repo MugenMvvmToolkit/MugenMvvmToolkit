@@ -4,6 +4,7 @@ using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -11,12 +12,13 @@ using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public class NavigationJournalComponent : AttachableComponentBase<INavigationDispatcher>, INavigationJournalComponent, INavigationDispatcherNavigatedListener, IHasPriority
+    public sealed class NavigationJournalComponent : AttachableComponentBase<INavigationDispatcher>, INavigationJournalComponent, INavigationDispatcherNavigatedListener,
+        IHasPriority
     {
         #region Fields
 
-        protected readonly Dictionary<NavigationType, List<INavigationEntry>> NavigationEntries;
         private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly Dictionary<NavigationType, List<INavigationEntry>> _navigationEntries;
 
         #endregion
 
@@ -26,16 +28,14 @@ namespace MugenMvvm.Navigation.Components
         public NavigationJournalComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
-            NavigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
+            _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
         }
 
         #endregion
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
-
-        public int Priority => int.MaxValue;
+        public int Priority { get; set; } = int.MaxValue;
 
         #endregion
 
@@ -44,57 +44,32 @@ namespace MugenMvvm.Navigation.Components
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            OnNavigatedInternal(navigationContext);
-        }
-
-        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetNavigationEntriesInternal(type, metadata);
-        }
-
-        public INavigationEntry? GetNavigationEntryById(string navigationOperationId, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
-            return GetNavigationEntryByIdInternal(navigationOperationId, metadata);
-        }
-
-        public INavigationEntry? GetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
-            return GetPreviousNavigationEntryInternal(navigationEntry, metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual void OnNavigatedInternal(INavigationContext navigationContext)
-        {
+            var components = Owner.GetComponents();
             INavigationEntry? addedEntry = null;
             INavigationEntry? updatedEntry = null;
             INavigationEntry? removedEntry = null;
-            lock (NavigationEntries)
+            lock (_navigationEntries)
             {
-                if (CanAddNavigationEntry(navigationContext))
+                if (CanAddNavigationEntry(components, navigationContext))
                 {
-                    if (!NavigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
+                    if (!_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
                     {
                         list = new List<INavigationEntry>();
-                        NavigationEntries[navigationContext.NavigationType] = list;
+                        _navigationEntries[navigationContext.NavigationType] = list;
                     }
 
                     updatedEntry = FindEntry(list, navigationContext.NavigationOperationId);
                     if (updatedEntry == null)
                     {
-                        addedEntry = GetNavigationEntry(navigationContext);
+                        addedEntry = GetNavigationEntry(components, navigationContext);
                         list.Add(addedEntry);
                     }
                     else if (updatedEntry is NavigationEntry entry)
                         entry.UpdateNavigationDate();
                 }
-                else if (CanRemoveNavigationEntry(navigationContext))
+                else if (CanRemoveNavigationEntry(components, navigationContext))
                 {
-                    if (NavigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
+                    if (_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
                     {
                         removedEntry = FindEntry(list, navigationContext.NavigationOperationId);
                         if (removedEntry != null)
@@ -104,21 +79,30 @@ namespace MugenMvvm.Navigation.Components
             }
 
             if (addedEntry != null)
-                OnNavigationEntryAdded(addedEntry);
+            {
+                for (var i = 0; i < components.Length; i++)
+                    (components[i] as INavigationJournalListener)?.OnNavigationEntryAdded(this, addedEntry);
+            }
             else if (updatedEntry != null)
-                OnNavigationEntryUpdated(updatedEntry);
+            {
+                for (var i = 0; i < components.Length; i++)
+                    (components[i] as INavigationJournalListener)?.OnNavigationEntryUpdated(this, updatedEntry);
+            }
             else if (removedEntry != null)
-                OnNavigationEntryRemoved(removedEntry);
+            {
+                for (var i = 0; i < components.Length; i++)
+                    (components[i] as INavigationJournalListener)?.OnNavigationEntryRemoved(this, removedEntry);
+            }
         }
 
-        protected virtual IReadOnlyList<INavigationEntry> GetNavigationEntriesInternal(NavigationType? type, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata = null)
         {
-            lock (NavigationEntries)
+            lock (_navigationEntries)
             {
                 List<INavigationEntry>? result = null;
                 if (type == null)
                 {
-                    foreach (var t in NavigationEntries)
+                    foreach (var t in _navigationEntries)
                         AddNavigationEntries(t.Key, ref result);
                 }
                 else
@@ -130,21 +114,22 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        protected INavigationEntry? GetNavigationEntryByIdInternal(string navigationOperationId, IReadOnlyMetadataContext? metadata)
+        public INavigationEntry? GetNavigationEntryById(string navigationOperationId, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
             IEnumerable<INavigationEntry>? entries = null;
-            lock (NavigationEntries)
+            lock (_navigationEntries)
             {
                 var components = Owner.GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
                     var navigationEntry = (components[i] as INavigationEntryFinderComponent)
-                        ?.TryGetGetNavigationEntryById(entries ??= NavigationEntries.SelectMany(pair => pair.Value), navigationOperationId, metadata);
+                        ?.TryGetGetNavigationEntryById(entries ??= _navigationEntries.SelectMany(pair => pair.Value), navigationOperationId, metadata);
                     if (navigationEntry != null)
                         return navigationEntry;
                 }
 
-                foreach (var navigationEntry in NavigationEntries)
+                foreach (var navigationEntry in _navigationEntries)
                 {
                     var findEntry = FindEntry(navigationEntry.Value, navigationOperationId);
                     if (findEntry != null)
@@ -155,16 +140,17 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        protected virtual INavigationEntry? GetPreviousNavigationEntryInternal(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata)
+        public INavigationEntry? GetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             IEnumerable<INavigationEntry>? entries = null;
-            lock (NavigationEntries)
+            lock (_navigationEntries)
             {
                 var components = Owner.GetComponents();
                 for (var i = 0; i < components.Length; i++)
                 {
                     var result = (components[i] as INavigationEntryFinderComponent)
-                        ?.TryGetPreviousNavigationEntry(entries ??= NavigationEntries.SelectMany(pair => pair.Value), navigationEntry, metadata);
+                        ?.TryGetPreviousNavigationEntry(entries ??= _navigationEntries.SelectMany(pair => pair.Value), navigationEntry, metadata);
                     if (result != null)
                         return result;
                 }
@@ -174,7 +160,7 @@ namespace MugenMvvm.Navigation.Components
 
                 if (navigationEntry.NavigationType.IsNestedNavigation)
                 {
-                    if (!NavigationEntries.TryGetValue(navigationEntry.NavigationType, out var list))
+                    if (!_navigationEntries.TryGetValue(navigationEntry.NavigationType, out var list))
                         return null;
                     return list
                         .Where(entry => entry.NavigationProvider.Id == navigationEntry.NavigationProvider.Id)
@@ -182,9 +168,9 @@ namespace MugenMvvm.Navigation.Components
                         .FirstOrDefault();
                 }
 
-                if (navigationEntry.NavigationType.IsSystemNavigation || !NavigationEntries.TryGetValue(navigationEntry.NavigationType, out var navigationEntries))
+                if (navigationEntry.NavigationType.IsSystemNavigation || !_navigationEntries.TryGetValue(navigationEntry.NavigationType, out var navigationEntries))
                 {
-                    return NavigationEntries
+                    return _navigationEntries
                         .SelectMany(pair => pair.Value)
                         .Where(entry => entry.NavigationType.IsRootNavigation)
                         .OrderByDescending(entry => entry.NavigationDate)
@@ -198,9 +184,12 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        protected virtual INavigationEntry GetNavigationEntry(INavigationContext context)
+        #endregion
+
+        #region Methods
+
+        private INavigationEntry GetNavigationEntry(IComponent<INavigationDispatcher>[] components, INavigationContext context)
         {
-            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 var result = (components[i] as INavigationEntryProviderComponent)?.TryGetNavigationEntry(context);
@@ -208,33 +197,11 @@ namespace MugenMvvm.Navigation.Components
                     return result;
             }
 
-            return new NavigationEntry(context, MetadataContextProvider.GetReadOnlyMetadataContext(this, context.Metadata));
+            return new NavigationEntry(context, _metadataContextProvider.ServiceIfNull().GetReadOnlyMetadataContext(this, context.Metadata));
         }
 
-        protected virtual void OnNavigationEntryAdded(INavigationEntry navigationEntry)
+        private static bool CanAddNavigationEntry(IComponent<INavigationDispatcher>[] components, INavigationContext navigationContext)
         {
-            var components = Owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationJournalListener)?.OnNavigationEntryAdded(this, navigationEntry);
-        }
-
-        protected virtual void OnNavigationEntryUpdated(INavigationEntry navigationEntry)
-        {
-            var components = Owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationJournalListener)?.OnNavigationEntryUpdated(this, navigationEntry);
-        }
-
-        protected virtual void OnNavigationEntryRemoved(INavigationEntry navigationEntry)
-        {
-            var components = Owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationJournalListener)?.OnNavigationEntryRemoved(this, navigationEntry);
-        }
-
-        protected virtual bool CanAddNavigationEntry(INavigationContext navigationContext)
-        {
-            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionNavigationJournalComponent component && component.CanAddNavigationEntry(navigationContext))
@@ -244,9 +211,8 @@ namespace MugenMvvm.Navigation.Components
             return navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsBack || navigationContext.NavigationMode.IsNew;
         }
 
-        protected virtual bool CanRemoveNavigationEntry(INavigationContext navigationContext)
+        private static bool CanRemoveNavigationEntry(IComponent<INavigationDispatcher>[] components, INavigationContext navigationContext)
         {
-            var components = Owner.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i] is IConditionNavigationJournalComponent component && component.CanRemoveNavigationEntry(navigationContext))
@@ -256,7 +222,7 @@ namespace MugenMvvm.Navigation.Components
             return navigationContext.NavigationMode.IsClose;
         }
 
-        protected static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
+        private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
         {
             for (var i = 0; i < entries.Count; i++)
             {
@@ -269,7 +235,7 @@ namespace MugenMvvm.Navigation.Components
 
         private void AddNavigationEntries(NavigationType type, ref List<INavigationEntry>? result)
         {
-            if (NavigationEntries.TryGetValue(type, out var list))
+            if (_navigationEntries.TryGetValue(type, out var list))
             {
                 if (result == null)
                     result = list.ToList();
@@ -282,7 +248,7 @@ namespace MugenMvvm.Navigation.Components
 
         #region Nested types
 
-        protected sealed class NavigationEntry : INavigationEntry
+        private sealed class NavigationEntry : INavigationEntry
         {
             #region Constructors
 

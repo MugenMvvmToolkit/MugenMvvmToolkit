@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.ViewModels.Components;
 
 namespace MugenMvvm.ViewModels
 {
-    public class ViewModelManager : ComponentOwnerBase<IViewModelManager>, IViewModelManager
+    public sealed class ViewModelManager : ComponentOwnerBase<IViewModelManager>, IViewModelManager
     {
         #region Constructors
 
@@ -27,34 +27,6 @@ namespace MugenMvvm.ViewModels
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
-            return OnLifecycleChangedInternal(viewModel, lifecycleState, metadata).DefaultIfNull();
-        }
-
-        public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(service, nameof(service));
-            var result = GetServiceInternal(viewModel, service, metadata);
-            if (result == null)
-                ExceptionManager.ThrowIocCannotFindBinding(service);
-
-            return result!;
-        }
-
-        public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(metadata, nameof(metadata));
-            return TryGetViewModelInternal(metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual IReadOnlyMetadataContext? OnLifecycleChangedInternal(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
-        {
-            //            if (lifecycleState != ViewModelLifecycleState.Finalized)
-            //                viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);//todo move to component
             IReadOnlyMetadataContext? result = null;
             var components = GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -63,11 +35,13 @@ namespace MugenMvvm.ViewModels
                 m.Aggregate(ref result);
             }
 
-            return result;
+            return result.DefaultIfNull();
         }
 
-        protected virtual object? GetServiceInternal(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
+        public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(service, nameof(service));
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
@@ -76,11 +50,13 @@ namespace MugenMvvm.ViewModels
                     return result;
             }
 
-            return null;
+            ExceptionManager.ThrowIocCannotFindBinding(service);
+            return null!;
         }
 
-        protected virtual IViewModelBase? TryGetViewModelInternal(IReadOnlyMetadataContext metadata)
+        public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(metadata, nameof(metadata));
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {

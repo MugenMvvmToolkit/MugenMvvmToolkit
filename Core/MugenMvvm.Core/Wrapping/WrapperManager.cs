@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Wrapping.Components;
 
 namespace MugenMvvm.Wrapping
 {
-    public class WrapperManager : ComponentOwnerBase<IWrapperManager>, IWrapperManager
+    public sealed class WrapperManager : ComponentOwnerBase<IWrapperManager>, IWrapperManager
     {
         #region Constructors
 
@@ -26,22 +26,6 @@ namespace MugenMvvm.Wrapping
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            return CanWrapInternal(type, wrapperType, metadata);
-        }
-
-        public object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(wrapperType, nameof(wrapperType));
-            return WrapInternal(item, wrapperType, metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected virtual bool CanWrapInternal(Type type, Type wrapperType, IReadOnlyMetadataContext? metadata)
-        {
             if (wrapperType.IsAssignableFrom(type))
                 return true;
 
@@ -55,8 +39,10 @@ namespace MugenMvvm.Wrapping
             return false;
         }
 
-        protected virtual object WrapInternal(object item, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
         {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(wrapperType, nameof(wrapperType));
             object? wrapper = null;
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
