@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -45,13 +46,12 @@ namespace MugenMvvm.Binding.Core.Components
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             BindingMemberPriorities = new Dictionary<string, int>
             {
-                {BindableMembers.Object.DataContext, int.MaxValue - 1000},
-                {"BindingContext", int.MaxValue - 1000},
-                {"ItemTemplate", 10},
-                {"ItemTemplateSelector", 10},
-                {"ContentTemplate", 10},
-                {"ContentTemplateSelector", 10},
-                {"CommandParameter", 10}
+                {BindableMembers.Object.DataContext, BindingMemberPriority.DataContext},
+                {"BindingContext", BindingMemberPriority.DataContext},
+                {"ItemTemplate", BindingMemberPriority.Template},
+                {"ItemTemplateSelector", BindingMemberPriority.Template},
+                {"ContentTemplate", BindingMemberPriority.Template},
+                {"ContentTemplateSelector", BindingMemberPriority.Template}
             };
         }
 
@@ -63,13 +63,14 @@ namespace MugenMvvm.Binding.Core.Components
 
         public Dictionary<string, int> BindingMemberPriorities { get; }
 
-        public List<IBindingComponentBuilder> DefaultBindingComponents { get; }//todo add values
+        public List<IBindingComponentBuilder> DefaultBindingComponents { get; } //todo add values
 
         #endregion
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression,
+            IReadOnlyMetadataContext? metadata)
         {
             var parserResult = _parser.ServiceIfNull().Parse(expression, metadata);
             var list = parserResult.List;
@@ -91,7 +92,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
         {
-            return ((BindingExpressionBase)y).Priority.CompareTo(((BindingExpressionBase)x).Priority);
+            return ((BindingExpressionBase) y).Priority.CompareTo(((BindingExpressionBase) x).Priority);
         }
 
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
@@ -134,7 +135,7 @@ namespace MugenMvvm.Binding.Core.Components
                 ? new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.Item)
                 : new ItemOrList<IExpressionNode?, List<IExpressionNode>>(new List<IExpressionNode>(list));
 
-            for (int i = 0; i < _expressionInterceptors.Length; i++)
+            for (var i = 0; i < _expressionInterceptors.Length; i++)
                 _expressionInterceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
             parameters = parametersList.Cast<IReadOnlyList<IExpressionNode>>();
 
@@ -161,11 +162,11 @@ namespace MugenMvvm.Binding.Core.Components
         {
             #region Fields
 
-            protected readonly IReadOnlyMetadataContext? MetadataRaw;
-            protected readonly IBindingMemberExpressionNode TargetExpression;
-
             private readonly BindingExpressionBuilderComponent _builder;
             private readonly object? _parametersRaw;
+
+            protected readonly IReadOnlyMetadataContext? MetadataRaw;
+            protected readonly IBindingMemberExpressionNode TargetExpression;
 
             private IBindingComponentBuilder[]? _componentBuilders;
 
@@ -213,7 +214,8 @@ namespace MugenMvvm.Binding.Core.Components
                     _componentBuilders = BuildComponents(binding, target, source, metadata);
 
                 if (_componentBuilders.Length == 1)
-                    binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
+                    binding.AddOrderedComponents(
+                        new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
                     var components = new IComponent<IBinding>[_componentBuilders.Length];
@@ -333,7 +335,7 @@ namespace MugenMvvm.Binding.Core.Components
                 }
                 else
                 {
-                    var observer = ((IBindingMemberExpressionNode)_sourceRaw).GetSourceObserver(target, source, metadata);
+                    var observer = ((IBindingMemberExpressionNode) _sourceRaw).GetSourceObserver(target, source, metadata);
                     sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
                 }
 
