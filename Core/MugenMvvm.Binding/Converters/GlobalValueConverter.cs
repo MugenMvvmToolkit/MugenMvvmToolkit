@@ -3,6 +3,7 @@ using System.Globalization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -15,6 +16,7 @@ namespace MugenMvvm.Binding.Converters
         #region Fields
 
         private IGlobalValueConverterComponent[] _converters;
+        private static readonly TypeLightDictionary<object?> DefaultValueCache = new TypeLightDictionary<object?>(23);
 
         #endregion
 
@@ -58,13 +60,32 @@ namespace MugenMvvm.Binding.Converters
             }
 
             if (value == null)
-                return targetType.GetDefaultValue();
+                return GetDefaultValue(targetType);
             if (targetType.IsInstanceOfType(value))
                 return value;
-            if (value is IConvertible)
-                return System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider?.Invoke() ?? CultureInfo.CurrentCulture);
             if (targetType == typeof(string))
                 return value.ToString();
+            if (value is IConvertible)
+                return System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider?.Invoke() ?? CultureInfo.CurrentCulture);
+            return value;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private static object? GetDefaultValue(Type type)
+        {
+            if (typeof(bool) == type)
+                return BoxingExtensions.TrueObject;
+            if (!typeof(ValueType).IsAssignableFrom(type))
+                return null;
+            if (!DefaultValueCache.TryGetValue(type, out var value))
+            {
+                value = Activator.CreateInstance(type);
+                DefaultValueCache[type] = value;
+            }
+
             return value;
         }
 

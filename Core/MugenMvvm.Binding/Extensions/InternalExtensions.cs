@@ -26,6 +26,16 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
+        internal static object?[] InsertFirstArg(this object?[]? args, object? firstArg)
+        {
+            if (args == null || args.Length == 0)
+                return new[] { firstArg };
+            var objects = new object?[args.Length + 1];
+            objects[0] = firstArg;
+            Array.Copy(args, 0, objects, 1, args.Length);
+            return objects;
+        }
+
         internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
         {
             unsubscriber.Dispose();
@@ -93,7 +103,8 @@ namespace MugenMvvm.Binding
 
         internal static HashSet<Type> SelfAndBaseTypes(Type type)
         {
-            var types = new HashSet<Type>(SelfAndBaseClasses(type));
+            var types = new HashSet<Type>();
+            AddSelfAndBaseClasses(types, type);
             AddInterface(types, type, true);
             return types;
         }
@@ -142,7 +153,7 @@ namespace MugenMvvm.Binding
         }
 
         internal static object?[] ConvertValues(this IGlobalValueConverter? converter, string[] args, ParameterInfo[]? parameters,
-            Type? castType, IReadOnlyMetadataContext? metadata)
+            Type? castType, IReadOnlyMetadataContext? metadata, int parametersStartIndex = 0)
         {
             if (parameters == null)
                 Should.NotBeNull(castType, nameof(castType));
@@ -157,10 +168,10 @@ namespace MugenMvvm.Binding
             {
                 var s = args[i];
                 if (parameters != null)
-                    castType = parameters[i].ParameterType;
+                    castType = parameters[i + parametersStartIndex].ParameterType;
                 if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
                     s = s.RemoveBounds();
-                result[i] = s == "null" ? null : converter.Convert(s, castType!, parameters?[i], metadata);
+                result[i] = s == "null" ? null : converter.Convert(s, castType!, parameters?[i + parametersStartIndex], metadata);
             }
 
             return result;
@@ -174,41 +185,6 @@ namespace MugenMvvm.Binding
                 return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
             return method.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
         }
-
-        internal static IMemberInfo? FindBestMember(List<KeyValuePair<Type, IMemberInfo>> members)
-        {
-            if (members.Count == 0)
-                return null;
-            if (members.Count == 1)
-                return members[0].Value;
-
-            for (int i = 0; i < members.Count; i++)
-            {
-                KeyValuePair<Type, IMemberInfo> currentMemberPair = members[i];
-                bool isInterface = currentMemberPair.Key.IsInterface;
-                for (int j = 0; j < members.Count; j++)
-                {
-                    if (i == j)
-                        continue;
-                    var nextMemberPair = members[j];
-                    if (isInterface && currentMemberPair.Key.IsAssignableFrom(nextMemberPair.Key))
-                    {
-                        members.RemoveAt(i);
-                        i--;
-                        break;
-                    }
-
-                    if (nextMemberPair.Key.IsSubclassOf(currentMemberPair.Key))
-                    {
-                        members.RemoveAt(i);
-                        i--;
-                        break;
-                    }
-                }
-            }
-            return members[0].Value;
-        }
-
 
         internal static Type? FindCommonType(Type genericDefinition, Type type)
         {
@@ -248,11 +224,11 @@ namespace MugenMvvm.Binding
             builder.Insert(0, value);
         }
 
-        private static IEnumerable<Type> SelfAndBaseClasses(Type type)
+        private static void AddSelfAndBaseClasses(HashSet<Type> types, Type type)
         {
             while (type != null)
             {
-                yield return type;
+                types.Add(type);
                 type = type.BaseType;
             }
         }

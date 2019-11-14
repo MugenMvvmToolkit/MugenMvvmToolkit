@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Members
 
         public Type Type => typeof(object);
 
-        public object? Member => null;
+        public object? UnderlyingMember => null;
 
         public MemberType MemberType => MemberType.Property;
 

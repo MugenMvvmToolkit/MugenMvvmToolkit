@@ -182,13 +182,6 @@ namespace MugenMvvm
             return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method).Invoke(target, parameters);
         }
 
-        public static object? GetDefaultValue(this Type type)
-        {
-            if (type.IsValueType)
-                return Activator.CreateInstance(type);
-            return null;
-        }
-
         public static Expression ConvertIfNeed(this Expression? expression, Type type, bool exactly)
         {
             if (expression == null)

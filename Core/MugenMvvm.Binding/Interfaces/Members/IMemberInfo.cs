@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         Type Type { get; }
 
-        object? Member { get; }
+        object? UnderlyingMember { get; }
 
         MemberType MemberType { get; }
 

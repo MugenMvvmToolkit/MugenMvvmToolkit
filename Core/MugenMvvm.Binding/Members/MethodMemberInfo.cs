@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Members
 
         public Type Type => _method.ReturnType;
 
-        public object? Member => _method;
+        public object? UnderlyingMember => _method;
 
         public MemberType MemberType => MemberType.Method;
 
@@ -100,6 +100,8 @@ namespace MugenMvvm.Binding.Members
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {
+            if (target != null && AccessModifiers.HasFlagEx(MemberFlags.Extension))
+                return _invoker(null, args.InsertFirstArg(target));
             return _invoker(target, args);
         }
 

@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Members
 
         public Type Type => _fieldInfo.FieldType;
 
-        public object? Member => _fieldInfo;
+        public object? UnderlyingMember => _fieldInfo;
 
         public MemberType MemberType => MemberType.Field;
 

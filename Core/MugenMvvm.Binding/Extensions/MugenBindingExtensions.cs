@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -156,20 +155,6 @@ namespace MugenMvvm.Binding
         public static bool HasFlagEx(this MemberType value, MemberType flag)
         {
             return (value & flag) == flag;
-        }
-
-        public static bool TryConvert(this IGlobalValueConverter? converter, object? value, Type targetType, IMemberInfo? member, IReadOnlyMetadataContext? metadata, out object? result)
-        {
-            try
-            {
-                result = converter.ServiceIfNull().Convert(value, targetType, member, metadata);
-                return true;
-            }
-            catch
-            {
-                result = null;
-                return false;
-            }
         }
 
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,

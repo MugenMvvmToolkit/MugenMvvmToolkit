@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class ArrayMemberAccessorInfo : IMemberAccessorInfo
+    public sealed class ArrayMemberAccessorInfo : IMemberAccessorInfo//todo indexer values
     {
         #region Fields
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Members
 
         public Type Type { get; }
 
-        public object? Member => null;
+        public object? UnderlyingMember => null;
 
         public MemberType MemberType => MemberType.Property;
 
@@ -52,13 +52,13 @@ namespace MugenMvvm.Binding.Members
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            return ((Array) target!).GetValue(_indexes);
+            return ((Array)target!).GetValue(_indexes);
         }
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            ((Array) target!).SetValue(value, _indexes);
+            ((Array)target!).SetValue(value, _indexes);
         }
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)

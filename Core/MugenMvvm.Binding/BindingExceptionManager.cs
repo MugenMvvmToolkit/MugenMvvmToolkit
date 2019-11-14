@@ -13,13 +13,13 @@ namespace MugenMvvm.Binding
         [DoesNotReturn]
         public static void ThrowBindingMemberMustBeWritable(IMemberInfo member)
         {
-            throw new InvalidOperationException(BindingMemberMustBeWritableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
+            throw new InvalidOperationException(BindingMemberMustBeWritableFormat4.Format(member.Name, member.Type, member.MemberType, member.UnderlyingMember));
         }
 
         [DoesNotReturn]
         public static void ThrowBindingMemberMustBeReadable(IMemberInfo member)
         {
-            throw new InvalidOperationException(BindingMemberMustBeReadableFormat4.Format(member.Name, member.Type, member.MemberType, member.Member));
+            throw new InvalidOperationException(BindingMemberMustBeReadableFormat4.Format(member.Name, member.Type, member.MemberType, member.UnderlyingMember));
         }
 
         [DoesNotReturn]

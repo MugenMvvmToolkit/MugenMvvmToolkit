@@ -86,7 +86,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     context.MetadataParameter);
             }
 
-            var result = TryCompile(target, member.Member);
+            var result = TryCompile(target, member.UnderlyingMember);
             if (result != null)
                 return result;
 

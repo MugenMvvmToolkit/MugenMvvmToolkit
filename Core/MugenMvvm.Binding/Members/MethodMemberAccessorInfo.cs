@@ -14,7 +14,6 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly object?[] _args;
-
         private readonly MethodInfo _methodInfo;
         private readonly IObserverProvider? _observerProvider;
         private readonly Type _reflectedType;
@@ -26,7 +25,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberAccessorInfo(string name, MethodInfo methodInfo, object?[] args,
+        public MethodMemberAccessorInfo(string name, MethodInfo methodInfo, object?[] args, bool isExtensionMethod,
             Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
@@ -41,6 +40,8 @@ namespace MugenMvvm.Binding.Members
             _invoker = CompileInvoker;
             Name = name;
             AccessModifiers = methodInfo.GetAccessModifiers();
+            if (isExtensionMethod)
+                AccessModifiers |= MemberFlags.Extension;
         }
 
         #endregion
@@ -53,7 +54,7 @@ namespace MugenMvvm.Binding.Members
 
         public Type Type => _methodInfo.ReturnType;
 
-        public object? Member => _methodInfo;
+        public object? UnderlyingMember => _methodInfo;
 
         public MemberType MemberType => MemberType.Property;
 
@@ -76,6 +77,8 @@ namespace MugenMvvm.Binding.Members
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
+            if (target != null && AccessModifiers.HasFlagEx(MemberFlags.Extension))
+                return _invoker(null, _args.InsertFirstArg(target));
             return _invoker(target, _args);
         }
 

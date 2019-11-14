@@ -279,7 +279,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var result = methods[resultIndex];
             var resultArgs = ConvertParameters(context, result, resultHasParams);
 
-            if (result.Method.Member is MethodInfo m)
+            if (result.Method.UnderlyingMember is MethodInfo m)
                 return Expression.Call(result.IsExtensionMethod ? null : target.Expression, m, resultArgs);
 
             var invokeArgs = new Expression[3];
@@ -292,7 +292,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static Expression GenerateMethodCall(ILinqExpressionBuilderContext context, IMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
         {
             var expressions = ToExpressions(context, args, methodInfo, null);
-            if (methodInfo.Member is MethodInfo method)
+            if (methodInfo.UnderlyingMember is MethodInfo method)
                 return Expression.Call(target, method, expressions);
 
             var invokeArgs = new Expression[3];

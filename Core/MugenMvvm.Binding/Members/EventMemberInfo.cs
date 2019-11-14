@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Members
 
         public Type Type { get; }
 
-        public object? Member => _eventInfo;
+        public object? UnderlyingMember => _eventInfo;
 
         public MemberType MemberType => MemberType.Event;
 
