@@ -237,11 +237,10 @@ namespace MugenMvvm.Collections
 
         public TKey[] KeysToArray()
         {
-            if (_buckets == null)
-                RestoreState();
-            if (_count == 0)
+            var count = Count;
+            if (count == 0)
                 return Default.EmptyArray<TKey>();
-            var result = new TKey[Count];
+            var result = new TKey[count];
             var index = 0;
             for (var i = 0; i < _count; i++)
             {
@@ -255,11 +254,10 @@ namespace MugenMvvm.Collections
 
         public TValue[] ValuesToArray()
         {
-            if (_buckets == null)
-                RestoreState();
-            if (_count == 0)
+            var count = Count;
+            if (count == 0)
                 return Default.EmptyArray<TValue>();
-            var result = new TValue[Count];
+            var result = new TValue[count];
             var index = 0;
             for (var i = 0; i < _count; i++)
             {

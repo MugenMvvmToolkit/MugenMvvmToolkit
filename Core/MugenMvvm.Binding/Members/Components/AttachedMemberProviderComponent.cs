@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
+using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Collections;
+using MugenMvvm.Binding.Internal;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IMemberProviderComponent
+    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedMemberProviderComponent, IEqualityComparer<IMemberInfo>, IHasPriority
     {
         #region Fields
 
-        private readonly CacheDictionary _cache;
+        private readonly TypeStringLightDictionary<List<IMemberInfo>?> _cache;
+        private readonly StringOrdinalLightDictionary<HashSet<IMemberInfo>> _registeredMembers;
 
         #endregion
 
@@ -26,7 +29,8 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public AttachedMemberProviderComponent()
         {
-            _cache = new CacheDictionary();
+            _registeredMembers = new StringOrdinalLightDictionary<HashSet<IMemberInfo>>(59);
+            _cache = new TypeStringLightDictionary<List<IMemberInfo>?>(59);
         }
 
         #endregion
@@ -41,140 +45,125 @@ namespace MugenMvvm.Binding.Members.Components
 
         public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
-            if (_cache.TryGetValue(new CacheKey(type, name), out var list))
-                return list;
-            return Default.EmptyArray<IMemberInfo>();
+            var key = new TypeStringKey(type, name);
+            if (!_cache.TryGetValue(key, out var list))
+            {
+                if (_registeredMembers.TryGetValue(name, out var set))
+                {
+                    List<IMemberInfo>? result = null;
+                    foreach (var memberInfo in set)
+                    {
+                        if (!memberInfo.DeclaringType.IsAssignableFrom(type))
+                            continue;
+
+                        if (result == null)
+                            result = new List<IMemberInfo>();
+                        result.Add(memberInfo);
+                    }
+
+                    list = result;
+                }
+
+                _cache[key] = list;
+            }
+
+            return (IReadOnlyList<IMemberInfo>?)list ?? Default.EmptyArray<IMemberInfo>();
+        }
+
+        public IReadOnlyList<IMemberInfo> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
+        {
+            return _registeredMembers.SelectMany(pair => pair.Value).ToList();
+        }
+
+        bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo x, IMemberInfo y)
+        {
+            return x.EqualsEx(y);
+        }
+
+        int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo obj)
+        {
+            return obj.GetHashCodeEx();
         }
 
         #endregion
 
         #region Methods
 
-        public void Register(Type type, IMemberInfo member, string? name = null)
+        public void Register(IMemberInfo member, string? name = null)
         {
-            Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
-            var key = new CacheKey(type, name ?? member.Name);
-            if (!_cache.TryGetValue(key, out var list))
-            {
-                list = new List<IMemberInfo>();
-                _cache[key] = list;
-            }
-
-            if (member.MemberType != MemberType.Method)
-            {
-                for (var i = 0; i < list.Count; i++)
-                {
-                    if (list[i].MemberType == member.MemberType)
-                    {
-                        list.RemoveAt(i);
-                        break;
-                    }
-                }
-            }
-
-            list.Add(member);
-            (Owner as IHasCache)?.Invalidate(type);
+            AddMember(name ?? member.Name, member);
+            ClearCache();
         }
 
-        public bool Unregister(Type type, MemberType memberType)
+        public void Unregister(IMemberInfo member)
         {
-            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(member, nameof(member));
             var removed = false;
-            foreach (var keyValuePair in _cache)
+            foreach (var pair in _registeredMembers)
             {
-                if (keyValuePair.Key.Type != type)
+                if (pair.Value.Remove(member))
+                    removed = true;
+            }
+
+            if (!removed)
+                return;
+
+            var hasCache = Owner as IHasCache;
+            foreach (var cachePair in _cache)
+            {
+                if (cachePair.Value != null && cachePair.Value.Remove(member))
+                    hasCache?.Invalidate(cachePair.Key.Type);
+            }
+        }
+
+        public void Unregister(Type? type = null, string? name = null, MemberType memberType = MemberType.All)
+        {
+            var hasCache = Owner as IHasCache;
+            foreach (var pair in _registeredMembers)
+            {
+                if (name != null && pair.Key != name)
                     continue;
 
-                var list = keyValuePair.Value;
-                for (var i = 0; i < list.Count; i++)
+                foreach (var member in pair.Value)
                 {
-                    if (memberType.HasFlagEx(list[i].MemberType))
+                    if (!memberType.HasFlagEx(member.MemberType))
+                        continue;
+
+                    if (type != null && member.DeclaringType != type)
+                        continue;
+
+                    foreach (var cachePair in _cache)
                     {
-                        list.RemoveAt(i--);
-                        removed = true;
+                        if (cachePair.Value != null && cachePair.Value.Remove(member))
+                            hasCache?.Invalidate(cachePair.Key.Type);
                     }
                 }
             }
-
-            if (removed)
-                (Owner as IHasCache)?.Invalidate(type);
-            return removed;
         }
 
-        public bool Unregister(Type type, MemberType memberType, string name)
+        public void Clear()
         {
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
-            if (!_cache.TryGetValue(new CacheKey(type, name), out var list))
-                return false;
-
-            var removed = false;
-            for (var i = 0; i < list.Count; i++)
-            {
-                if (memberType.HasFlagEx(list[i].MemberType))
-                {
-                    list.RemoveAt(i--);
-                    removed = true;
-                }
-            }
-
-            if (removed)
-                (Owner as IHasCache)?.Invalidate(type);
-            return removed;
+            _registeredMembers.Clear();
+            ClearCache();
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class CacheDictionary : LightDictionary<CacheKey, List<IMemberInfo>>
+        private void ClearCache()
         {
-            #region Constructors
-
-            public CacheDictionary() : base(59)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(CacheKey x, CacheKey y)
-            {
-                return x.Name.Equals(y.Name) && x.Type == y.Type;
-            }
-
-            protected override int GetHashCode(CacheKey key)
-            {
-                unchecked
-                {
-                    return (key.Type.GetHashCode() * 397 ^ key.Name.GetHashCode()) * 397;
-                }
-            }
-
-            #endregion
+            _cache.Clear();
+            (Owner as IHasCache)?.Invalidate();
         }
 
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct CacheKey
+        private void AddMember(string key, IMemberInfo member)
         {
-            #region Fields
-
-            public readonly string Name;
-            public readonly Type Type;
-
-            #endregion
-
-            #region Constructors
-
-            public CacheKey(Type type, string name)
+            if (!_registeredMembers.TryGetValue(key, out var list))
             {
-                Type = type;
-                Name = name;
+                list = new HashSet<IMemberInfo>(this);
+                _registeredMembers[key] = list;
             }
 
-            #endregion
+            list.Remove(member);
+            list.Add(member);
         }
 
         #endregion

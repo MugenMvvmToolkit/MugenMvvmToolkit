@@ -135,8 +135,9 @@ namespace MugenMvvm.Binding.Core.Components
                 ? new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.Item)
                 : new ItemOrList<IExpressionNode?, List<IExpressionNode>>(new List<IExpressionNode>(list));
 
-            for (var i = 0; i < _expressionInterceptors.Length; i++)
-                _expressionInterceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
+            var interceptors = _expressionInterceptors;
+            for (var i = 0; i < interceptors.Length; i++)
+                interceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
             parameters = parametersList.Cast<IReadOnlyList<IExpressionNode>>();
 
             if (!(targetExpression is IBindingMemberExpressionNode targetMember))

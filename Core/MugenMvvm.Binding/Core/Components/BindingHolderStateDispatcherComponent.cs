@@ -36,17 +36,19 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (lifecycle == BindingLifecycleState.Initialized)
             {
-                for (var i = 0; i < _holders.Length; i++)
+                var holders = _holders;
+                for (var i = 0; i < holders.Length; i++)
                 {
-                    if (_holders[i].TryRegister(binding, metadata))
+                    if (holders[i].TryRegister(binding, metadata))
                         break;
                 }
             }
             else if (lifecycle == BindingLifecycleState.Disposed)
             {
-                for (var i = 0; i < _holders.Length; i++)
+                var holders = _holders;
+                for (var i = 0; i < holders.Length; i++)
                 {
-                    if (_holders[i].TryUnregister(binding, metadata))
+                    if (holders[i].TryUnregister(binding, metadata))
                         break;
                 }
             }

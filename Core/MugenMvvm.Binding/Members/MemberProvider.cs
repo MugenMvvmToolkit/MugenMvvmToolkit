@@ -89,26 +89,13 @@ namespace MugenMvvm.Binding.Members
                 return result;
 
             var selectors = _memberSelectors;
+            if (selectors.Length == 0)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(ISelectorMemberProviderComponent).Name);
             for (var i = 0; i < selectors.Length; i++)
             {
                 result = selectors[i].TryGetMember(type, name, memberTypes, flags, metadata);
                 if (result != null)
                     break;
-            }
-
-            if (result == null)
-            {
-                var memberProviders = _memberProviders;
-                for (var i = 0; i < memberProviders.Length; i++)
-                {
-                    var members = memberProviders[i].TryGetMembers(type, name, metadata);
-                    if (members == null || members.Count == 0)
-                        continue;
-
-                    result = SelectMember(members, memberTypes, flags, metadata);
-                    if (result != null)
-                        break;
-                }
             }
 
             _tempCache[cacheKey] = result;
@@ -126,26 +113,16 @@ namespace MugenMvvm.Binding.Members
             if (_tempMembersCache.TryGetValue(cacheKey, out var result))
                 return result;
 
-            List<IMemberInfo>? list = null;
-            var memberProviders = _memberProviders;
-            for (var i = 0; i < memberProviders.Length; i++)
+            var selectors = _memberSelectors;
+            if (selectors.Length == 0)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(ISelectorMemberProviderComponent).Name);
+            for (var i = 0; i < selectors.Length; i++)
             {
-                var members = memberProviders[i].TryGetMembers(type, name, metadata);
-                if (members == null || members.Count == 0)
-                    continue;
-
-                if (list == null)
-                    list = new List<IMemberInfo>();
-
-                for (var j = 0; j < members.Count; j++)
-                {
-                    var member = members[j];
-                    if (memberTypes.HasFlagEx(member.MemberType) && flags.HasFlagEx(member.AccessModifiers))
-                        list.Add(member);
-                }
+                result = selectors[i].TryGetMembers(type, name, memberTypes, flags, metadata)!;
+                if (result != null)
+                    break;
             }
 
-            result = list ?? (IReadOnlyList<IMemberInfo>) Default.EmptyArray<IMemberInfo>();
             _tempMembersCache[cacheKey] = result;
             return result;
         }
@@ -169,18 +146,6 @@ namespace MugenMvvm.Binding.Members
                 return;
             for (var i = 0; i < keys.Count; i++)
                 dictionary.Remove(keys[i]);
-        }
-
-        private static IMemberInfo? SelectMember(IReadOnlyList<IMemberInfo> members, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
-        {
-            for (var i = 0; i < members.Count; i++)
-            {
-                var member = members[i];
-                if (memberTypes.HasFlagEx(member.MemberType) && flags.HasFlagEx(member.AccessModifiers))
-                    return member;
-            }
-
-            return null;
         }
 
         #endregion
@@ -210,8 +175,8 @@ namespace MugenMvvm.Binding.Members
                 {
                     var hashCode = key.Name.GetHashCode();
                     hashCode = hashCode * 397 ^ key.Type.GetHashCode();
-                    hashCode = hashCode * 397 ^ key.MemberType.GetHashCode();
-                    hashCode = hashCode * 397 ^ key.MemberFlags.GetHashCode();
+                    hashCode = hashCode * 397 ^ (int) key.MemberType;
+                    hashCode = hashCode * 397 ^ (int) key.MemberFlags;
                     return hashCode;
                 }
             }
@@ -226,8 +191,8 @@ namespace MugenMvvm.Binding.Members
 
             public readonly string Name;
             public readonly Type Type;
-            public readonly byte MemberType;
-            public readonly byte MemberFlags;
+            public readonly MemberType MemberType;
+            public readonly MemberFlags MemberFlags;
 
             #endregion
 
@@ -239,8 +204,8 @@ namespace MugenMvvm.Binding.Members
                 if (name == null)
                     name = string.Empty;
                 Name = name;
-                MemberType = (byte) memberType;
-                MemberFlags = (byte) memberFlags;
+                MemberType = memberType;
+                MemberFlags = memberFlags;
             }
 
             #endregion

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Collections;
+using MugenMvvm.Binding.Internal;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -20,10 +18,10 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly IObserverProvider? _bindingObserverProvider;
+        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>> _cache;
+        private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
-        private readonly CacheDictionary _cache;
 
         #endregion
 
@@ -36,7 +34,7 @@ namespace MugenMvvm.Binding.Members.Components
             _globalValueConverter = globalValueConverter;
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
-            _cache = new CacheDictionary();
+            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>>(59);
         }
 
         #endregion
@@ -51,7 +49,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
-            var cacheKey = new CacheKey(type, name);
+            var cacheKey = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(cacheKey, out var list))
             {
                 list = GetMembers(type, name, metadata);
@@ -67,187 +65,130 @@ namespace MugenMvvm.Binding.Members.Components
 
         private List<IMemberInfo> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
-            var indexerArgs = MugenBindingExtensions.GetIndexerArgsRaw(name);
-            var types = MugenBindingExtensions.SelfAndBaseTypes(type);
             var hasProperty = false;
             var hasEvent = false;
             var hasField = false;
+            var indexerArgs = MugenBindingExtensions.GetIndexerArgsRaw(name);
             var result = new List<IMemberInfo>();
-            foreach (var t in types)
+            foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type))
             {
                 if (!hasProperty)
-                {
-                    if (indexerArgs == null)
-                    {
-                        var property = t.GetProperty(name, BindingFlagsEx.All);
-                        if (property != null)
-                        {
-                            result.Add(new PropertyMemberAccessorInfo(name, property, type, _bindingObserverProvider, _reflectionDelegateProvider));
-                            hasProperty = true;
-                        }
-                    }
-                    else
-                    {
-                        var candidate = SelectMember(t.GetProperties(BindingFlagsEx.All), name, indexerArgs, metadata, (info, _) => info.GetIndexParameters(), out var indexerValues);
-                        if (candidate != null)
-                        {
-                            result.Add(new IndexerMemberAccessorInfo(name, candidate, indexerValues!, type, _bindingObserverProvider, _reflectionDelegateProvider));
-                            hasProperty = true;
-                        }
-                        else if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
-                        {
-                            result.Add(new ArrayMemberAccessorInfo(name, t, _globalValueConverter.ConvertValues<int>(indexerArgs, metadata)));
-                            hasProperty = true;
-                        }
-                    }
-                }
+                    hasProperty = AddProperties(type, t, name, indexerArgs, result, metadata);
 
                 if (!hasEvent)
-                {
-                    var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
-                    if (eventInfo != null)
-                    {
-                        var memberObserver = _bindingObserverProvider.ServiceIfNull().TryGetMemberObserver(type, eventInfo, metadata);
-                        if (!memberObserver.IsEmpty)
-                        {
-                            result.Add(new EventMemberInfo(name, eventInfo, memberObserver));
-                            hasEvent = true;
-                        }
-                    }
-                }
+                    hasEvent = AddEvents(type, t, name, result, metadata);
 
                 if (!hasField)
-                {
-                    var field = t.GetField(name, BindingFlagsEx.All);
-                    if (field != null)
-                    {
-                        result.Add(new FieldMemberAccessorInfo(name, field, type, _bindingObserverProvider, _reflectionDelegateProvider));
-                        hasField = true;
-                    }
-                }
+                    hasField = AddFields(type, t, name, result);
 
                 if (hasEvent && hasField && hasProperty)
                     break;
             }
 
             var methodArgs = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
-            if (methodArgs == null)
+            var methods = type.GetMethods(BindingFlagsEx.All);
+            for (var index = 0; index < methods.Length; index++)
             {
-                foreach (var methodInfo in type.GetMethods(BindingFlagsEx.All))
+                var methodInfo = methods[index];
+                if (methodInfo.Name != name)
+                    continue;
+                if (methodArgs == null)
                 {
-                    if (methodInfo.Name.Equals(name))
-                        result.Add(new MethodMemberInfo(name, methodInfo, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                    result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                    continue;
                 }
-            }
-            else
-            {
-                var method = SelectMember(type.GetMethods(BindingFlagsEx.All), methodName, methodArgs, metadata, (info, n) => info.Name == n ? info.GetParameters() : null, out var args);
-                if (method != null)
-                    result.Add(new MethodMemberAccessorInfo(name, method, args!, type, _bindingObserverProvider, _reflectionDelegateProvider));
+
+                var parameters = methodInfo.GetParameters();
+                if (parameters.Length != methodArgs.Length)
+                    continue;
+
+                try
+                {
+                    var values = _globalValueConverter.ConvertValues(methodArgs, parameters, null, metadata);
+                    result.Add(new MethodMemberAccessorInfo(name, methodInfo, values, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                }
+                catch
+                {
+                    ;
+                }
             }
 
             return result;
         }
 
-        private T? SelectMember<T, TState>(T[] members, TState state, string[] args, IReadOnlyMetadataContext? metadata, Func<T, TState, ParameterInfo[]?> getParameters, out object?[]? indexerValues) where T : MemberInfo
+        private bool AddEvents(Type requestedType, Type t, string name, List<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
         {
-            T? candidate = null;
-            var valueTypeCount = -1;
-            ParameterInfo[]? indexParameters = null;
-            foreach (var member in members)
+            var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
+            if (eventInfo == null)
+                return false;
+
+            var memberObserver = _bindingObserverProvider.ServiceIfNull().TryGetMemberObserver(requestedType, eventInfo, metadata);
+            if (memberObserver.IsEmpty)
+                return false;
+
+            result.Add(new EventMemberInfo(name, eventInfo, memberObserver));
+            return true;
+        }
+
+        private bool AddFields(Type requestedType, Type t, string name, List<IMemberInfo> result)
+        {
+            var field = t.GetField(name, BindingFlagsEx.All);
+            if (field == null)
+                return false;
+
+            result.Add(new FieldMemberAccessorInfo(name, field, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+            return true;
+        }
+
+        private bool AddProperties(Type requestedType, Type t, string name, string[]? indexerArgs, List<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
+        {
+            if (indexerArgs == null)
             {
-                indexParameters = getParameters(member, state);
-                if (indexParameters == null || indexParameters.Length != args.Length)
+                var property = t.GetProperty(name, BindingFlagsEx.All);
+                if (property == null)
+                    return false;
+
+                result.Add(new PropertyMemberAccessorInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+                return true;
+            }
+
+            if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
+            {
+                try
+                {
+                    result.Add(new ArrayMemberAccessorInfo(name, t, _globalValueConverter.ConvertValues<int>(indexerArgs, metadata)));
+                    return true;
+                }
+                catch
+                {
+                    ;
+                }
+
+                return false;
+            }
+
+            var hasProperty = false;
+            var properties = t.GetProperties(BindingFlagsEx.All);
+            for (var i = 0; i < properties.Length; i++)
+            {
+                var property = properties[i];
+                var parameters = property.GetIndexParameters();
+                if (parameters.Length != indexerArgs.Length)
                     continue;
 
-                var count = 0;
-                for (var i = 0; i < indexParameters.Length; i++)
+                try
                 {
-                    var arg = args[i];
-                    var paramType = indexParameters[i].ParameterType;
-                    if (arg.StartsWith("\"", StringComparison.Ordinal) && arg.EndsWith("\"", StringComparison.Ordinal))
-                    {
-                        if (paramType != typeof(string))
-                        {
-                            count = -1;
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (!_globalValueConverter.TryConvert(arg, paramType, null, metadata, out _))
-                        {
-                            count = -1;
-                            break;
-                        }
-
-                        if (paramType.IsValueType)
-                            count++;
-                    }
+                    var values = _globalValueConverter.ConvertValues(indexerArgs, parameters, null, metadata);
+                    result.Add(new IndexerMemberAccessorInfo(name, property, values, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+                    hasProperty = true;
                 }
-
-                if (valueTypeCount < count)
+                catch
                 {
-                    candidate = member;
-                    valueTypeCount = count;
+                    ;
                 }
             }
 
-            indexerValues = candidate == null ? null : _globalValueConverter.ConvertValues(args, indexParameters, null, metadata);
-            return candidate;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct CacheKey
-        {
-            #region Fields
-
-            public readonly string Name;
-            public readonly Type Type;
-
-            #endregion
-
-            #region Constructors
-
-            public CacheKey(Type type, string name)
-            {
-                Type = type;
-                Name = name;
-            }
-
-            #endregion
-        }
-
-        private sealed class CacheDictionary : LightDictionary<CacheKey, IReadOnlyList<IMemberInfo>>
-        {
-            #region Constructors
-
-            public CacheDictionary() : base(59)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(CacheKey x, CacheKey y)
-            {
-                return x.Type == y.Type && string.Equals(x.Name, y.Name);
-            }
-
-            protected override int GetHashCode(CacheKey key)
-            {
-                unchecked
-                {
-                    return key.Type.GetHashCode() * 397 ^ key.Name.GetHashCode();
-                }
-            }
-
-            #endregion
+            return hasProperty;
         }
 
         #endregion
