@@ -1,6 +1,8 @@
 ﻿using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -10,6 +12,13 @@ namespace MugenMvvm.Binding
     public static partial class MugenBindingExtensions
     {
         #region Methods
+
+        public static bool IsMacros(this IUnaryExpressionNode? expression)
+        {
+            if (expression == null)
+                return false;
+            return expression.Token == UnaryTokenType.DynamicExpression || expression.Token == UnaryTokenType.StaticExpression;
+        }
 
         [Preserve(Conditional = true)]
         public static IBinding? GetBinding(IReadOnlyMetadataContext? metadata = null)

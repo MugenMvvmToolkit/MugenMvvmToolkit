@@ -11,9 +11,12 @@ namespace MugenMvvm.Binding
 {
     public static partial class MugenBindingExtensions
     {
-        public static readonly HashSet<char> TargetDelimiters = new HashSet<char> { ',', ';', ' ' };
-        public static readonly HashSet<char> Delimiters = new HashSet<char> { ',', ';' };
-        private static readonly MemberExpressionNode EmptyMember = new MemberExpressionNode(null, string.Empty);
+        #region Fields
+
+        public static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> { ',', ';', ' ' };
+        public static readonly HashSet<char> BindingDelimiters = new HashSet<char> { ',', ';' };
+
+        #endregion
 
         #region Methods
 
@@ -307,23 +310,23 @@ namespace MugenMvvm.Binding
 
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
         {
-            var delimiterPos = context.SkipWhitespaces().FindAnyOf(TargetDelimiters);
+            var delimiterPos = context.SkipWhitespaces().FindAnyOf(BindingTargetDelimiters);
             var oldLimit = context.Limit;
             if (delimiterPos > 0)
                 context.Limit = delimiterPos;
 
-            var target = context.ParseWhileAnyOf(Delimiters);
+            var target = context.ParseWhileAnyOf(BindingDelimiters);
             context.Limit = oldLimit;
 
             IExpressionNode? source = null;
             if (context.IsToken(' '))
-                source = context.ParseWhileAnyOf(Delimiters);
+                source = context.ParseWhileAnyOf(BindingDelimiters);
 
             List<IExpressionNode>? parameters = null;
             IExpressionNode? parameter = null;
             while (context.IsToken(','))
             {
-                var param = context.MoveNext().ParseWhileAnyOf(Delimiters);
+                var param = context.MoveNext().ParseWhileAnyOf(BindingDelimiters);
                 if (parameter == null)
                     parameter = param;
                 else
@@ -338,7 +341,7 @@ namespace MugenMvvm.Binding
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
-                return new ExpressionParserResult(target, source ?? EmptyMember, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
+                return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
             }
 
             BindingExceptionManager.ThrowCannotParseExpression(context);

@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Members.Components
                     List<IMemberInfo>? result = null;
                     foreach (var memberInfo in set)
                     {
-                        if (!memberInfo.DeclaringType.IsAssignableFrom(type))
+                        if (!memberInfo.DeclaringType.IsAssignableFromGeneric(type))
                             continue;
 
                         if (result == null)

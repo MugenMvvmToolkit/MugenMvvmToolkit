@@ -193,6 +193,16 @@ namespace MugenMvvm
             return Expression.Convert(expression, type);
         }
 
+        internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
+        {
+            property.SetValue(target, value, Default.EmptyArray<object>());
+        }
+
+        internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
+        {
+            field.SetValue(target, value);
+        }
+
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
         {
             if (sender is INotifyPropertyChanged notifyPropertyChanged)

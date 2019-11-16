@@ -67,6 +67,8 @@ namespace MugenMvvm.Binding.Converters
                 return value.ToString();
             if (value is IConvertible)
                 return System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider?.Invoke() ?? CultureInfo.CurrentCulture);
+            if (targetType.IsEnum)
+                return Enum.Parse(targetType, value.ToString());
             return value;
         }
 

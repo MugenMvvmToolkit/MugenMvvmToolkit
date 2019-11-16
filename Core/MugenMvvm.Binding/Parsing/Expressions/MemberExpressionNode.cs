@@ -10,11 +10,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Fields
 
-        internal static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstants.Source);
-        internal static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstants.Target);
-        internal static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstants.Context);
-        internal static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstants.Binding);
-        internal static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstants.Args);
+        public static readonly MemberExpressionNode Empty = new MemberExpressionNode(null, string.Empty);
+        public static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstants.Source);
+        public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstants.Target);
+        public static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstants.Context);
+        public static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstants.Binding);
+        public static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstants.Args);
 
         #endregion
 

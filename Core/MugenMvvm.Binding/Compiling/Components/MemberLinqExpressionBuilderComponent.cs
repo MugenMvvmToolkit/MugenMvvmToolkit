@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System;
+using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
@@ -60,10 +61,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                 MemberFlags flags;
                 if (target == null)
                 {
-                    var @enum = type.TryParseEnum(memberExpression.MemberName);
-                    if (@enum != null)
-                        return Expression.Constant(@enum);
-
+                    if (type.IsEnum)
+                        return Expression.Constant(Enum.Parse(type, memberExpression.MemberName));
                     flags = MemberFlags & ~MemberFlags.Instance;
                 }
                 else
