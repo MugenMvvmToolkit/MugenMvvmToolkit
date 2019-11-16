@@ -46,12 +46,12 @@ namespace MugenMvvm.Binding.Core.Components
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             BindingMemberPriorities = new Dictionary<string, int>
             {
-                {BindableMembers.Object.DataContext, BindingMemberPriority.DataContext},
-                {"BindingContext", BindingMemberPriority.DataContext},
-                {"ItemTemplate", BindingMemberPriority.Template},
-                {"ItemTemplateSelector", BindingMemberPriority.Template},
-                {"ContentTemplate", BindingMemberPriority.Template},
-                {"ContentTemplateSelector", BindingMemberPriority.Template}
+                {BindableMembers.Object.DataContext, BindableMemberPriority.DataContext},
+                {"BindingContext", BindableMemberPriority.DataContext},
+                {"ItemTemplate", BindableMemberPriority.Template},
+                {"ItemTemplateSelector", BindableMemberPriority.Template},
+                {"ContentTemplate", BindableMemberPriority.Template},
+                {"ContentTemplateSelector", BindableMemberPriority.Template}
             };
         }
 
