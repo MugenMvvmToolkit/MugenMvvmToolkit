@@ -103,7 +103,7 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.ServiceIfNull().TryGetMemberObserver(_reflectedType, new MemberObserverRequest(Name, _propertyInfo, _indexerArgs, this));
+                _observer = _observerProvider.DefaultIfNull().TryGetMemberObserver(_reflectedType, new MemberObserverRequest(Name, _propertyInfo, _indexerArgs, this));
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 

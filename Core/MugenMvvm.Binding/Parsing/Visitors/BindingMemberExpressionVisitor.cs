@@ -125,12 +125,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.ContextOnly);
 
                 //type -> $string, $int, etc
-                var type = _resourceResolver.ServiceIfNull().TryGetType(memberExpression.MemberName);
+                var type = _resourceResolver.DefaultIfNull().TryGetType(memberExpression.MemberName);
                 if (type != null)
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
-                        var value = _observerProvider.ServiceIfNull()
+                        var value = _observerProvider.DefaultIfNull()
                             .GetMemberPath(_memberBuilder.GetPath())
                             .GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
                         return ConstantExpressionNode.Get(value);
@@ -142,14 +142,14 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //resource -> $i18n, $color, etc
                 if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                 {
-                    var resourceValue = _resourceResolver.ServiceIfNull().TryGetResourceValue(memberExpression.MemberName);
+                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.MemberName);
                     if (resourceValue == null)
                         BindingExceptionManager.ThrowCannotResolveResource(memberExpression.MemberName);
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
 
                     var value = _observerProvider
-                        .ServiceIfNull()
+                        .DefaultIfNull()
                         .GetMemberPath(_memberBuilder.GetPath())
                         .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags & ~MemberFlags.Static, memberProvider: _memberProvider);
                     return ConstantExpressionNode.Get(value);

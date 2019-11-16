@@ -30,7 +30,7 @@ namespace MugenMvvm.Serialization
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
+        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.DefaultIfNull();
 
         public abstract bool IsOnSerializingSupported { get; }
 

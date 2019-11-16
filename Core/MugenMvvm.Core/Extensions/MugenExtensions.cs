@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -11,7 +10,6 @@ using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -19,53 +17,6 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class?, IReadOnlyCollection<TItem>
-        {
-            return (object?)itemOrList.Item ?? itemOrList.List;
-        }
-
-        public static void Merge<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)
-            where TItem : class
-            where TList : class?, IReadOnlyCollection<TItem>
-        {
-            var list = itemOrList.List;
-            var item = itemOrList.Item;
-            if (item == null && list == null)
-                return;
-
-            if (list == null)
-            {
-                if (currentItem == null)
-                    currentItem = item;
-                else
-                {
-                    if (items == null)
-                        items = new List<TItem>();
-                    if (items.Count == 0)
-                        items.Add(currentItem);
-                    items.Add(item!);
-                }
-            }
-            else
-            {
-                if (items == null)
-                    items = new List<TItem>();
-                if (currentItem != null && items.Count == 0)
-                    items.Add(currentItem);
-                items.AddRange(list);
-            }
-        }
-
-        public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class?, IReadOnlyCollection<TItem>
-        {
-            return itemOrList.Item == null && itemOrList.List == null;
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BatchUpdateCollectionMode value, BatchUpdateCollectionMode flag)
@@ -88,12 +39,6 @@ namespace MugenMvvm
         public static TTo ConvertGenericValue<TFrom, TTo>(TFrom value)
         {
             return ((Func<TFrom, TTo>)(object)GenericConverter<TFrom>.Convert).Invoke(value);
-        }
-
-        public static Task<IReadOnlyMetadataContext> CleanupAsync(this IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(viewInfo, nameof(viewInfo));
-            return viewInfo.Initializer.CleanupAsync(viewInfo, viewModel, metadata);
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -134,11 +79,6 @@ namespace MugenMvvm
             }
 
             return false;
-        }
-
-        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class
-        {
-            return componentCollection?.GetComponents() ?? Default.EmptyArray<T>();
         }
 
         [StringFormatMethod("format")]

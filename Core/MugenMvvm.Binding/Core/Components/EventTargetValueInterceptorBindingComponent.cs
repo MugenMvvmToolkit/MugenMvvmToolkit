@@ -167,7 +167,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return false;
 
             _enabledMember = GetMemberProvider()
-                    .ServiceIfNull()
+                    .DefaultIfNull()
                     .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.InstancePublic, _currentMetadata) as
                 IMemberAccessorInfo;
             if (_enabledMember == null)
@@ -224,14 +224,14 @@ namespace MugenMvvm.Binding.Core.Components
 
         private void OnBeginEvent(object sender, object? message)
         {
-            var components = _bindingManager.ServiceIfNull().GetComponents();
+            var components = _bindingManager.DefaultIfNull().GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IBindingEventHandlerComponent)?.OnBeginEvent(sender, message, _currentMetadata);
         }
 
         private void OnEndEvent(object sender, object? message)
         {
-            var components = _bindingManager.ServiceIfNull().GetComponents();
+            var components = _bindingManager.DefaultIfNull().GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IBindingEventHandlerComponent)?.OnEndEvent(sender, message, _currentMetadata);
         }
@@ -242,7 +242,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (binding != null)
                 OnSourceUpdateFailed(binding, exception);
 
-            var components = _bindingManager.ServiceIfNull().GetComponents();
+            var components = _bindingManager.DefaultIfNull().GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IBindingEventHandlerComponent)?.OnEventError(exception, sender, message, _currentMetadata);
         }
@@ -264,7 +264,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (_bindingManager == null)
                 return MugenBindingService.MemberProvider;
-            return _bindingManager.GetComponent<IBindingManager, IMemberProvider>(true).ServiceIfNull();
+            return _bindingManager.GetComponent<IBindingManager, IMemberProvider>(true).DefaultIfNull();
         }
 
         #endregion

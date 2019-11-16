@@ -65,7 +65,7 @@ namespace MugenMvvm
             object? target, IReadOnlyCollection<MetadataContextValue>? values = null)
         {
             return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextProvider
-                       .ServiceIfNull()
+                       .DefaultIfNull()
                        .GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values)));
         }
 
@@ -73,7 +73,7 @@ namespace MugenMvvm
         {
             if (metadata is IMetadataContext m)
                 return m;
-            return metadataContextProvider.ServiceIfNull().GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(metadata));
+            return metadataContextProvider.DefaultIfNull().GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(metadata));
         }
 
         public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextProvider metadataContextProvider, object? target = null, IReadOnlyCollection<MetadataContextValue>? values = null)

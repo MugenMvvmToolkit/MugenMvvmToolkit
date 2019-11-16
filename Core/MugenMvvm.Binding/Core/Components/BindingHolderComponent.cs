@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Core.Components
         public ItemOrList<IBinding?, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetAttachedValueProvider(target, metadata);
+            var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetAttachedValueProvider(target, metadata);
             if (attachedValueProvider == null)
                 return default;
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetOrAddAttachedValueProvider(target, metadata);
+            var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetOrAddAttachedValueProvider(target, metadata);
             attachedValueProvider.AddOrUpdate(target, GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
         }
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.ServiceIfNull().GetAttachedValueProvider(target, metadata);
+            var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetAttachedValueProvider(target, metadata);
             if (attachedValueProvider == null)
                 return false;
 

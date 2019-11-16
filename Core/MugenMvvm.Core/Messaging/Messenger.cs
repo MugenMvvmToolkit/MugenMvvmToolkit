@@ -156,7 +156,7 @@ namespace MugenMvvm.Messaging
         public void Publish(IMessageContext messageContext)
         {
             Should.NotBeNull(messageContext, nameof(messageContext));
-            var threadDispatcher = _threadDispatcher.ServiceIfNull();
+            var threadDispatcher = _threadDispatcher.DefaultIfNull();
             ThreadExecutionModeDictionary? dictionary;
             lock (_subscribers)
             {

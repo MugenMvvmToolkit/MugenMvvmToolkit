@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
+using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -8,6 +10,53 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class?, IReadOnlyCollection<TItem>
+        {
+            return (object?)itemOrList.Item ?? itemOrList.List;
+        }
+
+        public static void Merge<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)
+            where TItem : class
+            where TList : class?, IReadOnlyCollection<TItem>
+        {
+            var list = itemOrList.List;
+            var item = itemOrList.Item;
+            if (item == null && list == null)
+                return;
+
+            if (list == null)
+            {
+                if (currentItem == null)
+                    currentItem = item;
+                else
+                {
+                    if (items == null)
+                        items = new List<TItem>();
+                    if (items.Count == 0)
+                        items.Add(currentItem);
+                    items.Add(item!);
+                }
+            }
+            else
+            {
+                if (items == null)
+                    items = new List<TItem>();
+                if (currentItem != null && items.Count == 0)
+                    items.Add(currentItem);
+                items.AddRange(list);
+            }
+        }
+
+        public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class?, IReadOnlyCollection<TItem>
+        {
+            return itemOrList.Item == null && itemOrList.List == null;
+        }
 
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)
         {
@@ -20,15 +69,6 @@ namespace MugenMvvm
             foreach (var item in collection)
                 array[count++] = selector(item);
             return array;
-        }
-
-        public static void AddOrdered<T>(List<T> list, T item, IComparer<T> comparer)
-        {
-            Should.NotBeNull(list, nameof(list));
-            var binarySearch = list.BinarySearch(item, comparer);
-            if (binarySearch < 0)
-                binarySearch = ~binarySearch;
-            list.Insert(binarySearch, item);
         }
 
         public static void AddComponentOrdered<T>(ref T[] items, T item, object owner) where T : class
@@ -60,6 +100,15 @@ namespace MugenMvvm
             if (binarySearch < size)
                 Array.Copy(items, binarySearch, items, binarySearch + 1, size - binarySearch);
             items[binarySearch] = item;
+        }
+
+        public static void AddOrdered<T>(List<T> list, T item, IComparer<T> comparer)
+        {
+            Should.NotBeNull(list, nameof(list));
+            var binarySearch = list.BinarySearch(item, comparer);
+            if (binarySearch < 0)
+                binarySearch = ~binarySearch;
+            list.Insert(binarySearch, item);
         }
 
         public static bool Remove<T>(ref T[] items, T item) where T : class

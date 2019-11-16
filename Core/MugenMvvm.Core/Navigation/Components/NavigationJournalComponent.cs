@@ -197,7 +197,7 @@ namespace MugenMvvm.Navigation.Components
                     return result;
             }
 
-            return new NavigationEntry(context, _metadataContextProvider.ServiceIfNull().GetReadOnlyMetadataContext(this, context.Metadata));
+            return new NavigationEntry(context, _metadataContextProvider.DefaultIfNull().GetReadOnlyMetadataContext(this, context.Metadata));
         }
 
         private static bool CanAddNavigationEntry(IComponent<INavigationDispatcher>[] components, INavigationContext navigationContext)

@@ -47,12 +47,12 @@ namespace MugenMvvm.Binding.Observers
 
         public static EventListenerCollection GetOrAdd(object item, string path, IAttachedValueManager? valueManager = null)
         {
-            return valueManager.ServiceIfNull().GetOrAdd(item, path, (object?)null, (_, __) => new EventListenerCollection());
+            return valueManager.DefaultIfNull().GetOrAdd(item, path, (object?)null, (_, __) => new EventListenerCollection());
         }
 
         public static void Raise(object item, string path, object message, IAttachedValueManager? valueManager = null)
         {
-            valueManager.ServiceIfNull().TryGetValue(item, path, out EventListenerCollection collection);
+            valueManager.DefaultIfNull().TryGetValue(item, path, out EventListenerCollection collection);
             collection?.Raise(item, message);
         }
 

@@ -106,7 +106,7 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return null;
 
-            var initializers = _viewManager.ServiceIfNull().GetInitializersByViewModel(viewModel, metadata);
+            var initializers = _viewManager.DefaultIfNull().GetInitializersByViewModel(viewModel, metadata);
             for (var i = 0; i < initializers.Count; i++)
             {
                 var mediator = TryGetMediator(viewModel, initializers[i], metadata);

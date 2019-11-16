@@ -53,9 +53,9 @@ namespace MugenMvvm.Presenters
 
         public IViewInitializer ViewInitializer { get; private set; }
 
-        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.ServiceIfNull();
+        protected INavigationDispatcher NavigationDispatcher => _navigationDispatcher.DefaultIfNull();
 
-        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
+        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
         protected TView? View { get; private set; }
 

@@ -103,53 +103,53 @@ namespace MugenMvvm
 
         public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().CanCreateDelegate(delegateType, method);
+            return reflectionDelegateProvider.DefaultIfNull().CanCreateDelegate(delegateType, method);
         }
 
         public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().TryCreateDelegate(delegateType, target, method);
+            return reflectionDelegateProvider.DefaultIfNull().TryCreateDelegate(delegateType, target, method);
         }
 
         public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetActivator(constructor);
+            return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor);
         }
 
         public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
             where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(typeof(TDelegate), method);
+            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(typeof(TDelegate), method);
         }
 
         public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(delegateType, method);
+            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(delegateType, method);
         }
 
         public static Func<object?, object?[], object?> GetMethodInvoker(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method);
+            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method);
         }
 
         public static Func<object?, TType> GetMemberGetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMemberGetter<TType>(member);
+            return reflectionDelegateProvider.DefaultIfNull().GetMemberGetter<TType>(member);
         }
 
         public static Action<object?, TType> GetMemberSetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMemberSetter<TType>(member);
+            return reflectionDelegateProvider.DefaultIfNull().GetMemberSetter<TType>(member);
         }
 
         public static T GetValueEx<T>(this MemberInfo member, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMemberGetter<T>(member).Invoke(target);
+            return reflectionDelegateProvider.DefaultIfNull().GetMemberGetter<T>(member).Invoke(target);
         }
 
         public static void SetValueEx<T>(this MemberInfo member, object target, T value, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            reflectionDelegateProvider.ServiceIfNull().GetMemberSetter<T>(member).Invoke(target, value);
+            reflectionDelegateProvider.DefaultIfNull().GetMemberSetter<T>(member).Invoke(target, value);
         }
 
         public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
@@ -164,7 +164,7 @@ namespace MugenMvvm
 
         public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetActivator(constructor).Invoke(parameters);
+            return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor).Invoke(parameters);
         }
 
         public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
@@ -179,7 +179,7 @@ namespace MugenMvvm
 
         public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
         {
-            return reflectionDelegateProvider.ServiceIfNull().GetMethodInvoker(method).Invoke(target, parameters);
+            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method).Invoke(target, parameters);
         }
 
         public static Expression ConvertIfNeed(this Expression? expression, Type type, bool exactly)

@@ -101,7 +101,7 @@ namespace MugenMvvm.Commands.Components
                 return;
             }
 
-            _threadDispatcher.ServiceIfNull().Execute(_eventExecutionMode, this);
+            _threadDispatcher.DefaultIfNull().Execute(_eventExecutionMode, this);
         }
 
         public void Dispose()

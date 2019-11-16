@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -10,6 +11,13 @@ namespace MugenMvvm
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class
+        {
+            return componentCollection?.GetComponents() ?? Default.EmptyArray<T>();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T DefaultIfNull<T>(this T? component) where T : class, IComponent
         {
             return component ?? MugenService.Instance<T>();
@@ -64,7 +72,7 @@ namespace MugenMvvm
             IReadOnlyMetadataContext? metadata = null)
             where T : class
         {
-            return item == null && LazyInitialize(ref item, componentCollectionProvider.ServiceIfNull().GetComponentCollection<T>(target, metadata));
+            return item == null && LazyInitialize(ref item, componentCollectionProvider.DefaultIfNull().GetComponentCollection<T>(target, metadata));
         }
 
         public static int GetComponentPriority(object component, object? owner)

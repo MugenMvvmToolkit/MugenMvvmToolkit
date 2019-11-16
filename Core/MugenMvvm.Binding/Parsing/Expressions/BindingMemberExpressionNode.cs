@@ -77,7 +77,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Should.NotBeNull(target, nameof(target));
             if (IsResource)
             {
-                var resourceValue = _resourceResolver.ServiceIfNull().TryGetResourceValue((string) Target!);
+                var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue((string) Target!);
                 if (resourceValue == null)
                     BindingExceptionManager.ThrowCannotResolveResource((string) Target!);
                 Target = resourceValue;
@@ -94,7 +94,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             else if (ContextOnly)
                 source = null;
 
-            var provider = _observerProvider.ServiceIfNull();
+            var provider = _observerProvider.DefaultIfNull();
             var request = new MemberPathObserverRequest(GetPath(provider, source, metadata), MemberFlags, ObservableMethod ? ObservableMethodName : null, HasStablePath, Observable,
                 Optional);
             return provider.GetMemberPathObserver(Target ?? (source ?? target).ToWeakReference(), request, metadata);

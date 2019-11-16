@@ -55,9 +55,9 @@ namespace MugenMvvm.Views
 
         public string Id { get; }
 
-        private IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
+        private IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
-        private IViewManager ViewManager => _viewManager.ServiceIfNull();
+        private IViewManager ViewManager => _viewManager.DefaultIfNull();
 
         private ThreadExecutionMode InitializeExecutionMode { get; }
 

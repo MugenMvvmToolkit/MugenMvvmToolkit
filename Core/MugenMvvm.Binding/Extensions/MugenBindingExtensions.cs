@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)
         {
             Should.NotBeNull(type, nameof(type));
-            memberProvider = memberProvider.ServiceIfNull();
+            memberProvider = memberProvider.DefaultIfNull();
             for (int index = firstMemberIndex; index < path.Members.Length; index++)
             {
                 string item = path.Members[index];
@@ -168,7 +168,7 @@ namespace MugenMvvm.Binding
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
                 return defaultValue;
@@ -182,7 +182,7 @@ namespace MugenMvvm.Binding
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
             {
@@ -202,7 +202,7 @@ namespace MugenMvvm.Binding
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IObservableMemberInfo;
             if (propertyInfo == null)
                 return default;
@@ -214,7 +214,7 @@ namespace MugenMvvm.Binding
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var eventInfo = provider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetMember(target.GetType(), eventMember.Name, MemberType.Event, flags, metadata) as IEventInfo;
             if (eventInfo == null)
                 return default;
@@ -226,7 +226,7 @@ namespace MugenMvvm.Binding
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var methodInfo = provider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetMember(target.GetType(), methodMember.Name, MemberType.Method, flags, metadata) as IMethodInfo;
             return methodInfo?.Invoke(target, args ?? Default.EmptyArray<object>());
         }

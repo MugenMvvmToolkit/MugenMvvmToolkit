@@ -112,7 +112,6 @@ namespace MugenMvvm
             return provider.Clear(item);
         }
 
-
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class
         {

@@ -169,7 +169,7 @@ namespace MugenMvvm.Binding
 
         internal static TItem[] ConvertValues<TItem>(this IGlobalValueConverter? converter, string[] args, IReadOnlyMetadataContext? metadata)
         {
-            converter = converter.ServiceIfNull();
+            converter = converter.DefaultIfNull();
             var result = new TItem[args.Length];
             for (var i = 0; i < args.Length; i++)
             {
@@ -192,7 +192,7 @@ namespace MugenMvvm.Binding
             if (args.Length == 0)
                 return Default.EmptyArray<object?>();
 
-            converter = converter.ServiceIfNull();
+            converter = converter.DefaultIfNull();
             var result = new object?[args.Length];
             for (var i = 0; i < args.Length; i++)
             {

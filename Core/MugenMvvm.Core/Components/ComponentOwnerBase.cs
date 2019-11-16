@@ -22,7 +22,7 @@ namespace MugenMvvm.Components
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.ServiceIfNull();
+        protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.DefaultIfNull();
 
         public bool HasComponents => _components != null && _components.Count != 0;
 

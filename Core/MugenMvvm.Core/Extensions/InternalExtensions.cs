@@ -22,15 +22,10 @@ namespace MugenMvvm
             valueHolder.Value?.Release();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item)
         {
             return MugenService.WeakReferenceProvider.GetWeakReference(item);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static T ServiceIfNull<T>(this T? service) where T : class
-        {
-            return service ?? MugenService.Instance<T>();
         }
 
         internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)

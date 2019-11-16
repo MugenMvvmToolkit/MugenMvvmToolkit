@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Observers.Components
             if (target == null)
                 return default;
             return _attachedValueManager
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstants.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string)member);
         }

@@ -43,9 +43,9 @@ namespace MugenMvvm.Views.Components
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
             var metadataContext = _metadataContextProvider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetReadOnlyMetadataContext(this, MetadataContextValue.Create(ViewModelMetadata.Type, initializer.ViewModelType));
-            var viewModel = _viewModelDispatcher.ServiceIfNull().TryGetViewModel(metadataContext);
+            var viewModel = _viewModelDispatcher.DefaultIfNull().TryGetViewModel(metadataContext);
             if (viewModel != null)
             {
                 var components = Owner.GetComponents();

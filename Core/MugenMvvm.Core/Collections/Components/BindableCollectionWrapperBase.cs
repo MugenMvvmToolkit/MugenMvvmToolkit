@@ -45,7 +45,7 @@ namespace MugenMvvm.Collections.Components
 
         protected List<CollectionChangedEvent> Events { get; }
 
-        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.ServiceIfNull();
+        protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
         protected bool IgnoreItemChangedEvent { get; set; }
 

@@ -159,7 +159,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             if (types == null || types.Count == 0)
                 return Default.EmptyArray<Type>();
-            var resolver = _resourceResolver.ServiceIfNull();
+            var resolver = _resourceResolver.DefaultIfNull();
             var typeArgs = new Type[types.Count];
             for (var i = 0; i < types.Count; i++)
             {
@@ -617,7 +617,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private MethodData[] GetMethods(Type type, string methodName, bool isStatic, Type[]? typeArgs, IReadOnlyMetadataContext? metadata)
         {
             var members = _memberProvider
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetMembers(type, methodName, MemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags & ~MemberFlags.Static, metadata);
 
             var methods = new MethodData[members.Count];

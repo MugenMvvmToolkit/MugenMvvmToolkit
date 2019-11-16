@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             var eventInfo = (EventInfo) member;
             var listenerInternal = _attachedValueManager
-                .ServiceIfNull()
+                .DefaultIfNull()
                 .GetOrAdd(target, BindingInternalConstants.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;

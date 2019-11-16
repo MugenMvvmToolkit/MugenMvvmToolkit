@@ -28,7 +28,7 @@ namespace MugenMvvm.Views
 
         #region Properties
 
-        public IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.ServiceIfNull();
+        public IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.DefaultIfNull();
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 

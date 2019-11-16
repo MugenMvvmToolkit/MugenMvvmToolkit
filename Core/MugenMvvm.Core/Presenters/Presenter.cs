@@ -31,7 +31,7 @@ namespace MugenMvvm.Presenters
         public IPresenterResult Show(IReadOnlyMetadataContext metadata)
         {
             var operationId = Default.NextCounter().ToString();
-            var metadataContext = _metadataContextProvider.ServiceIfNull().GetMetadataContext(this, metadata);
+            var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
             var components = Components.GetComponents();
 
             try
@@ -71,7 +71,7 @@ namespace MugenMvvm.Presenters
         public IReadOnlyList<IPresenterResult> TryClose(IReadOnlyMetadataContext metadata)
         {
             var operationId = Default.NextCounter().ToString();
-            var metadataContext = _metadataContextProvider.ServiceIfNull().GetMetadataContext(this, metadata);
+            var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
             var components = Components.GetComponents();
 
             try
@@ -108,7 +108,7 @@ namespace MugenMvvm.Presenters
         public IReadOnlyList<IPresenterResult> TryRestore(IReadOnlyMetadataContext metadata)
         {
             var operationId = Default.NextCounter().ToString();
-            var metadataContext = _metadataContextProvider.ServiceIfNull().GetMetadataContext(this, metadata);
+            var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
             var components = Components.GetComponents();
 
             try

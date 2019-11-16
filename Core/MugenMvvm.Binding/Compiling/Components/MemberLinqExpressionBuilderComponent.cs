@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     flags = MemberFlags & ~MemberFlags.Static;
 
                 member = _memberProvider
-                    .ServiceIfNull()
+                    .DefaultIfNull()
                     .GetMember(type, memberExpression.MemberName, MemberType.Accessor, flags, context.GetMetadataOrDefault()) as IMemberAccessorInfo;
             }
 

@@ -48,7 +48,7 @@ namespace MugenMvvm.ViewModels.Components
         public object? TryGetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
             if (service == typeof(IMetadataContext))
-                return _metadataContextProvider.ServiceIfNull().GetMetadataContext(viewModel);
+                return _metadataContextProvider.DefaultIfNull().GetMetadataContext(viewModel);
             if (service == typeof(IMessenger))
             {
                 var messenger = new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
