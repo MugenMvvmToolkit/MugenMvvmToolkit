@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
@@ -9,9 +10,9 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         bool IsGenericMethodDefinition { get; }
 
-        IParameterInfo[] GetParameters();
+        IReadOnlyList<IParameterInfo> GetParameters();
 
-        Type[] GetGenericArguments();
+        IReadOnlyList<Type> GetGenericArguments();
 
         IMethodInfo MakeGenericMethod(Type[] types);
 

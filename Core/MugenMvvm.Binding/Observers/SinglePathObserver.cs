@@ -145,7 +145,7 @@ namespace MugenMvvm.Binding.Observers
 
                 var lastMember = MugenBindingService
                       .MemberProvider
-                      .GetMember(GetTargetType(target, MemberFlags), Path.Path, MemberType.Event | MemberType.Field | MemberType.Property, MemberFlags);
+                      .GetMember(GetTargetType(target, MemberFlags), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags);
                 if (lastMember == null)
                 {
                     if (Optional)

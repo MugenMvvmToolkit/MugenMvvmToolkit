@@ -183,32 +183,30 @@ namespace MugenMvvm.Binding.Compiling.Components
                         continue;
 
                     methods[index] = default;
-                    var args = GetMethodArgs(methodInfo.IsExtensionMethod, target, arguments);
-                    var methodData = TryInferMethod(methodInfo.Method, args, typeArgs);
+                    var methodData = TryInferMethod(methodInfo.Method, arguments, typeArgs);
                     if (methodData.IsEmpty)
                         continue;
 
                     var parameters = methodInfo.Parameters;
                     var optionalCount = parameters.Count(info => info.HasDefaultValue);
-                    var requiredCount = parameters.Length - optionalCount;
+                    var requiredCount = parameters.Count - optionalCount;
                     var hasParams = false;
-                    if (parameters.Length != 0)
+                    if (parameters.Count != 0)
                     {
-                        hasParams = parameters[parameters.Length - 1].IsParamsArray;
+                        hasParams = parameters[parameters.Count - 1].IsParamArray();
                         if (hasParams)
                             requiredCount -= 1;
                     }
 
-                    if (requiredCount > args.Length)
+                    if (requiredCount > arguments.Length)
                         continue;
-                    if (parameters.Length < args.Length && !hasParams)
+                    if (parameters.Count < arguments.Length && !hasParams)
                         continue;
-                    var count = parameters.Length > args.Length ? args.Length : parameters.Length;
+                    var count = parameters.Count > arguments.Length ? arguments.Length : parameters.Count;
                     var valid = true;
                     for (var i = 0; i < count; i++)
                     {
-                        var arg = args[i];
-                        if (!IsCompatible(parameters[i].ParameterType, arg.Node))
+                        if (!IsCompatible(parameters[i].ParameterType, arguments[i].Node))
                         {
                             valid = false;
                             break;
@@ -240,11 +238,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                     if (method.IsEmpty)
                         continue;
 
-                    var args = GetMethodArgs(method.IsExtensionMethod, target, arguments);
-                    var expressions = new Expression[args.Length];
-                    for (var index = 0; index < args.Length; index++)
+                    var expressions = new Expression[arguments.Length];
+                    for (var index = 0; index < arguments.Length; index++)
                     {
-                        var data = args[index];
+                        var data = arguments[index];
                         if (data.IsLambda)
                         {
                             var lambdaParameter = method.Parameters[index];
@@ -258,13 +255,13 @@ namespace MugenMvvm.Binding.Compiling.Components
                                 context.ClearLambdaParameter(lambdaParameter);
                             }
 
-                            args[index] = data;
+                            arguments[index] = data;
                         }
 
                         expressions[index] = data.Expression!;
                     }
 
-                    methods[i] = method.TryResolve(args, expressions);
+                    methods[i] = method.TryResolve(arguments, expressions);
                 }
                 catch
                 {
@@ -278,15 +275,24 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             var result = methods[resultIndex];
             var resultArgs = ConvertParameters(context, result, resultHasParams);
-
             if (result.Method.UnderlyingMember is MethodInfo m)
-                return Expression.Call(result.IsExtensionMethod ? null : target.Expression, m, resultArgs);
+            {
+                Expression? targetExp;
+                if (result.Method.AccessModifiers.HasFlagEx(MemberFlags.Extension))
+                {
+                    targetExp = null;
+                    resultArgs = resultArgs.InsertFirstArg(target.Expression!);
+                }
+                else
+                    targetExp = target.Expression;
+                return Expression.Call(targetExp, m, resultArgs);
+            }
 
             var invokeArgs = new Expression[3];
-            invokeArgs[0] = (result.IsExtensionMethod ? null : target.Expression).ConvertIfNeed(typeof(object), false);
+            invokeArgs[0] = target.Expression.ConvertIfNeed(typeof(object), false);
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
             invokeArgs[2] = context.MetadataParameter;
-            return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs);
+            return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs).ConvertIfNeed(result.Method.Type, true);
         }
 
         private static Expression GenerateMethodCall(ILinqExpressionBuilderContext context, IMethodInfo methodInfo, Expression target, IReadOnlyList<IExpressionNode> args)
@@ -299,7 +305,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             invokeArgs[0] = target.ConvertIfNeed(typeof(object), false);
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), expressions.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
             invokeArgs[2] = context.MetadataParameter;
-            return Expression.Call(Expression.Constant(methodInfo), InvokeMethod, invokeArgs);
+            return Expression.Call(Expression.Constant(methodInfo), InvokeMethod, invokeArgs).ConvertIfNeed(methodInfo.Type, true);
         }
 
         private static int TrySelectMethod(MethodData[] methods, ArgumentData[]? args, out bool resultHasParams)
@@ -322,13 +328,13 @@ namespace MugenMvvm.Binding.Compiling.Components
                     var hasParams = false;
                     var lastIndex = 0;
                     var usageCount = 0;
-                    if (parameters.Length != 0)
+                    if (parameters.Count != 0)
                     {
-                        lastIndex = parameters.Length - 1;
-                        hasParams = parameters[lastIndex].IsParamsArray;
+                        lastIndex = parameters.Count - 1;
+                        hasParams = parameters[lastIndex].IsParamArray();
                     }
 
-                    float notExactlyEqual = 0;
+                    float notExactlyEqual = methodInfo.Method.AccessModifiers.HasFlagEx(MemberFlags.Extension) ? NotExactlyEqualBoxWeight : 0;
                     var valid = true;
                     for (var j = 0; j < methodInfo.ExpectedParameterCount; j++)
                     {
@@ -413,7 +419,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static bool CheckParamsCompatible(int startIndex, int lastIndex, IParameterInfo[] parameters, in MethodData method, ref float notExactlyEqual)
+        private static bool CheckParamsCompatible(int startIndex, int lastIndex, IReadOnlyList<IParameterInfo> parameters, in MethodData method, ref float notExactlyEqual)
         {
             float weight = 0;
             var elementType = parameters[lastIndex].ParameterType.GetElementType();
@@ -445,16 +451,16 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var parameters = method.Parameters;
             var args = (Expression[])method.Args!;
-            var result = new Expression[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
+            var result = new Expression[parameters.Count];
+            for (var i = 0; i < parameters.Count; i++)
             {
                 //optional or params
                 if (i > args.Length - 1)
                 {
-                    for (var j = i; j < parameters.Length; j++)
+                    for (var j = i; j < parameters.Count; j++)
                     {
                         var parameter = parameters[j];
-                        if (j == parameters.Length - 1 && hasParams)
+                        if (j == parameters.Count - 1 && hasParams)
                         {
                             var type = parameter.ParameterType.GetElementType();
                             result[j] = Expression.NewArrayInit(type, Default.EmptyArray<Expression>());
@@ -471,7 +477,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     break;
                 }
 
-                if (i == parameters.Length - 1 && hasParams && !args[i].Type.IsCompatibleWith(parameters[i].ParameterType))
+                if (i == parameters.Count - 1 && hasParams && !args[i].Type.IsCompatibleWith(parameters[i].ParameterType))
                 {
                     var arrayType = parameters[i].ParameterType.GetElementType();
                     var arrayArgs = new Expression[args.Length - i];
@@ -489,16 +495,16 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams, IReadOnlyMetadataContext? metadata)
         {
             var parameters = method.Parameters!;
-            var result = args.Length == parameters.Length ? args : new object?[parameters.Length];
-            for (var i = 0; i < parameters.Length; i++)
+            var result = args.Length == parameters.Count ? args : new object?[parameters.Count];
+            for (var i = 0; i < parameters.Count; i++)
             {
                 //optional or params
                 if (i > args.Length - 1)
                 {
-                    for (var j = i; j < parameters.Length; j++)
+                    for (var j = i; j < parameters.Count; j++)
                     {
                         var parameter = parameters[j];
-                        if (j == parameters.Length - 1 && hasParams)
+                        if (j == parameters.Count - 1 && hasParams)
                         {
                             ArraySize[0] = 0;
                             result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
@@ -515,7 +521,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     break;
                 }
 
-                if (i == parameters.Length - 1 && hasParams && !parameters[i].ParameterType.IsInstanceOfType(args[i]))
+                if (i == parameters.Count - 1 && hasParams && !parameters[i].ParameterType.IsInstanceOfType(args[i]))
                 {
                     ArraySize[0] = args.Length - i;
                     var array = Array.CreateInstance(parameters[i].ParameterType.GetElementType(), ArraySize);
@@ -531,17 +537,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                     result[i] = args[i];
             }
 
-            return result;
-        }
-
-        private static ArgumentData[] GetMethodArgs(bool isExtensionMethod, in TargetData target, ArgumentData[] args)
-        {
-            if (!isExtensionMethod || target.IsStatic)
-                return args;
-
-            var result = new ArgumentData[args.Length + 1];
-            result[0] = new ArgumentData(target.Node, target.Expression, target.Type);
-            Array.Copy(args, 0, result, 1, args.Length);
             return result;
         }
 
@@ -567,80 +562,11 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private static IMethodInfo? TryInferGenericMethod(IMethodInfo method, ArgumentData[] args, out bool hasUnresolved)
         {
-            hasUnresolved = false;
             var parameters = method.GetParameters();
-            var count = parameters.Length > args.Length ? args.Length : parameters.Length;
-
-            var genericArguments = method.GetGenericArguments();
-            var inferredTypes = new Type[genericArguments.Length];
-            for (var i = 0; i < genericArguments.Length; i++)
-            {
-                var argument = genericArguments[i];
-                Type? inferred = null;
-                for (var index = 0; index < count; index++)
-                {
-                    var parameter = parameters[index];
-                    var arg = args[index];
-                    if (arg.Type != null)
-                    {
-                        inferred = TryInferParameter(parameter.ParameterType, argument, arg.Type);
-                        if (inferred != null)
-                            break;
-                    }
-                }
-
-                if (inferred == null)
-                {
-                    inferred = argument;
-                    hasUnresolved = true;
-                }
-
-                inferredTypes[i] = inferred ?? argument;
-            }
-
-            for (var i = 0; i < genericArguments.Length; i++)
-            {
-                var inferredType = inferredTypes[i];
-                var arg = genericArguments[i];
-                if (ReferenceEquals(inferredType, arg))
-                    continue;
-                if (!IsCompatible(inferredType, arg.GenericParameterAttributes))
-                    return null;
-                var constraints = arg.GetGenericParameterConstraints();
-                for (var j = 0; j < constraints.Length; j++)
-                {
-                    if (!constraints[j].IsAssignableFrom(inferredType))
-                        return null;
-                }
-            }
-
+            var inferredTypes = MugenBindingExtensions.TryInferGenericParameters(method.GetGenericArguments(), parameters, info => info.ParameterType, args, (data, i) => data[i].Type, args.Length, out hasUnresolved);
+            if (inferredTypes == null)
+                return null;
             return method.MakeGenericMethod(inferredTypes);
-        }
-
-        private static Type? TryInferParameter(Type source, Type argumentType, Type inputType)
-        {
-            if (source == argumentType)
-                return inputType;
-            if (source.IsArray)
-                return inputType.IsArray ? inputType.GetElementType() : null;
-
-            if (source.IsGenericType)
-            {
-                inputType = MugenBindingExtensions.FindCommonType(source.GetGenericTypeDefinition(), inputType)!;
-                if (inputType == null)
-                    return null;
-
-                var srcArgs = source.GetGenericArguments();
-                var inputArgs = inputType.GetGenericArguments();
-                for (var index = 0; index < srcArgs.Length; index++)
-                {
-                    var parameter = TryInferParameter(srcArgs[index], argumentType, inputArgs[index]);
-                    if (parameter != null)
-                        return parameter;
-                }
-            }
-
-            return null;
         }
 
         private static IMethodInfo? ApplyTypeArgs(IMethodInfo m, Type[] typeArgs)
@@ -650,7 +576,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (!m.IsGenericMethodDefinition)
                     return m;
             }
-            else if (m.IsGenericMethodDefinition && m.GetGenericArguments().Length == typeArgs.Length)
+            else if (m.IsGenericMethodDefinition && m.GetGenericArguments().Count == typeArgs.Length)
                 return m.MakeGenericMethod(typeArgs);
 
             return null;
@@ -681,43 +607,24 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var expression = context.Build(args[i]);
                 if (convertType != null)
                     expression = expression.ConvertIfNeed(convertType, true);
-                else if (parameters != null && parameters.Length > i)
+                else if (parameters != null && parameters.Count > i)
                     expression = expression.ConvertIfNeed(parameters[i].ParameterType, true);
                 expressions[i] = expression;
             }
             return expressions;
         }
 
-        private static bool IsCompatible(Type type, GenericParameterAttributes attributes)
-        {
-            if (attributes.HasFlagEx(GenericParameterAttributes.ReferenceTypeConstraint) && type.IsValueType)
-                return false;
-            if (attributes.HasFlagEx(GenericParameterAttributes.NotNullableValueTypeConstraint) && !type.IsValueType)
-                return false;
-            return true;
-        }
-
         private MethodData[] GetMethods(Type type, string methodName, bool isStatic, Type[]? typeArgs, IReadOnlyMetadataContext? metadata)
         {
             var members = _memberProvider
                 .ServiceIfNull()
-                .GetMembers(type, methodName, MemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags, metadata);
+                .GetMembers(type, methodName, MemberType.Method, isStatic ? MemberFlags & ~MemberFlags.Instance : MemberFlags & ~MemberFlags.Static, metadata);
 
+            var methods = new MethodData[members.Count];
             var count = 0;
-            for (var i = 0; i < members.Count; i++)
+            for (int i = 0; i < methods.Length; i++)
             {
-                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.AccessModifiers.HasFlagEx(MemberFlags.Extension)))
-                    ++count;
-            }
-
-            if (count == 0)
-                return Default.EmptyArray<MethodData>();
-
-            var methods = new MethodData[count];
-            count = 0;
-            for (var i = 0; i < members.Count; i++)
-            {
-                if (members[i] is IMethodInfo method && (isStatic || method.AccessModifiers.HasFlagEx(MemberFlags.Instance) || method.AccessModifiers.HasFlagEx(MemberFlags.Extension)))
+                if (members[i] is IMethodInfo method)
                 {
                     var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
@@ -761,9 +668,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     _type = type;
                     var methods = _component.GetMethods(type, methodName, false, typeArgs, metadata);
-                    Type[]? instanceArgs = null, extArgs = null;
+                    Type[]? instanceArgs = null;
                     for (var i = 0; i < methods.Length; i++)
-                        methods[i] = methods[i].WithArgs(target, args, ref instanceArgs, ref extArgs);
+                        methods[i] = methods[i].WithArgs(args, ref instanceArgs);
                     var resultIndex = TrySelectMethod(methods, null, out _);
                     method = resultIndex >= 0 ? methods[resultIndex] : default;
                     this[types] = method;
@@ -771,15 +678,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
-                if (method.IsExtensionMethod)
-                {
-                    var newArgs = new object?[args.Length + 1];
-                    newArgs[0] = target;
-                    Array.Copy(args, 0, newArgs, 1, args.Length);
-                    args = newArgs;
-                }
-
-                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamsArray ?? false, metadata), metadata);
+                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamArray() ?? false, metadata), metadata);
             }
 
             private static Type[] GetArgTypes(object?[]? args)
@@ -925,11 +824,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public bool IsEmpty => Method == null;
 
-            public bool IsExtensionMethod => Method?.AccessModifiers.HasFlagEx(MemberFlags.Extension) ?? false;
-
             public IMethodInfo Method { get; }
 
-            public IParameterInfo[] Parameters { get; }
+            public IReadOnlyList<IParameterInfo> Parameters { get; }
 
             public object? Args { get; }
 
@@ -956,21 +853,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return ((Type[])Args!)[index];
             }
 
-            public MethodData WithArgs(object target, object?[] args, ref Type[]? instanceArgs, ref Type[]? extArgs)
+            public MethodData WithArgs(object?[] args, ref Type[]? instanceArgs)
             {
-                if (IsExtensionMethod)
-                {
-                    if (extArgs == null)
-                    {
-                        extArgs = new Type[args.Length + 1];
-                        extArgs[0] = target.GetType();
-                        for (var i = 0; i < args.Length; i++)
-                            extArgs[i + 1] = args[i]?.GetType() ?? typeof(object);
-                    }
-
-                    return new MethodData(Method, null, extArgs);
-                }
-
                 if (instanceArgs == null)
                 {
                     if (args.Length == 0)

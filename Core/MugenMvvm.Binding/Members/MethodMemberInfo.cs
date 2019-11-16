@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -14,11 +14,13 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
+        private readonly Type[]? _genericArguments;
+
         private readonly MethodInfo _method;
         private readonly IObserverProvider? _observerProvider;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly IParameterInfo[] _parameters;
         private readonly Type _reflectedType;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private Func<object?, object?[], object?> _invoker;
 
         private MemberObserver? _observer;
@@ -27,7 +29,14 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberInfo(string name, MethodInfo method, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public MethodMemberInfo(string name, MethodInfo method, bool checkExtensionMethod, Type reflectedType, IObserverProvider? observerProvider,
+            IReflectionDelegateProvider? reflectionDelegateProvider)
+            : this(name, method, checkExtensionMethod, reflectedType, observerProvider, reflectionDelegateProvider, null, null)
+        {
+        }
+
+        internal MethodMemberInfo(string name, MethodInfo method, bool checkExtensionMethod, Type reflectedType,
+            IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider, ParameterInfo[]? parameterInfos, Type[]? genericArguments)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(method, nameof(method));
@@ -38,18 +47,29 @@ namespace MugenMvvm.Binding.Members
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _invoker = CompileMethod;
             Name = name;
-            AccessModifiers = _method.GetAccessModifiers();
-            var parameterInfos = method.GetParameters();
-            if (parameterInfos.Length == 0)
+            if (_method.IsGenericMethod || _method.IsGenericMethodDefinition)
+                _genericArguments = genericArguments ?? _method.GetGenericArguments();
+
+            if (parameterInfos == null)
+                parameterInfos = _method.GetParameters();
+            AccessModifiers = _method.GetAccessModifiers(checkExtensionMethod, ref parameterInfos);
+            DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType;
+            if (parameterInfos!.Length == 0)
+            {
+                _parameters = Default.EmptyArray<IParameterInfo>();
+                return;
+            }
+
+            var startIndex = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? 1 : 0;
+            var l = parameterInfos.Length - startIndex;
+            if (l == 0)
                 _parameters = Default.EmptyArray<IParameterInfo>();
             else
             {
-                _parameters = new IParameterInfo[parameterInfos.Length];
-                for (var i = 0; i < parameterInfos.Length; i++)
-                    _parameters[i] = new Parameter(parameterInfos[i]);
+                _parameters = new IParameterInfo[l];
+                for (var i = 0; i < _parameters.Length; i++)
+                    _parameters[i] = new Parameter(parameterInfos[i + startIndex]);
             }
-            if (method.IsStatic && method.IsDefined(typeof(ExtensionAttribute), false) && _parameters.Length > 0)
-                AccessModifiers |= MemberFlags.Extension;
         }
 
         #endregion
@@ -58,7 +78,7 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type DeclaringType => _method.DeclaringType;
+        public Type DeclaringType { get; }
 
         public Type Type => _method.ReturnType;
 
@@ -70,7 +90,7 @@ namespace MugenMvvm.Binding.Members
 
         public bool IsGenericMethod => _method.IsGenericMethod;
 
-        public bool IsGenericMethodDefinition => _method.IsGenericMethodDefinition;
+        public bool IsGenericMethodDefinition => IsNotResolvedGeneric();
 
         #endregion
 
@@ -83,19 +103,23 @@ namespace MugenMvvm.Binding.Members
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 
-        public IParameterInfo[] GetParameters()
+        public IReadOnlyList<IParameterInfo> GetParameters()
         {
             return _parameters;
         }
 
-        public Type[] GetGenericArguments()
+        public IReadOnlyList<Type> GetGenericArguments()
         {
-            return _method.GetGenericArguments();
+            return _genericArguments ?? _method.GetGenericArguments();
         }
 
         public IMethodInfo MakeGenericMethod(Type[] types)
         {
-            return new MethodMemberInfo(Name, _method.MakeGenericMethod(types), _reflectedType, _observerProvider, _reflectionDelegateProvider);
+            var method = _method;
+            if (!method.IsGenericMethodDefinition && IsNotResolvedGeneric())
+                method = _method.GetGenericMethodDefinition();
+            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider,
+                _reflectionDelegateProvider);
         }
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
@@ -108,6 +132,19 @@ namespace MugenMvvm.Binding.Members
         #endregion
 
         #region Methods
+
+        private bool IsNotResolvedGeneric()
+        {
+            if (_genericArguments == null)
+                return false;
+            for (var i = 0; i < _genericArguments.Length; i++)
+            {
+                if (_genericArguments[i].IsGenericParameter)
+                    return true;
+            }
+
+            return false;
+        }
 
         private object? CompileMethod(object? target, object?[] args)
         {
@@ -132,20 +169,28 @@ namespace MugenMvvm.Binding.Members
             public Parameter(ParameterInfo parameterInfo)
             {
                 _parameterInfo = parameterInfo;
-                IsParamsArray = parameterInfo.IsDefined(typeof(ParamArrayAttribute), true);
             }
 
             #endregion
 
             #region Properties
 
-            public bool IsParamsArray { get; }
+            public object? UnderlyingParameter => _parameterInfo;
 
             public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
 
             public Type ParameterType => _parameterInfo.ParameterType;
 
             public object? DefaultValue => _parameterInfo.DefaultValue;
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public bool IsDefined(Type type)
+            {
+                return _parameterInfo.IsDefined(typeof(ParamArrayAttribute), false);
+            }
 
             #endregion
         }

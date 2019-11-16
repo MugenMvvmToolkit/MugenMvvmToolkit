@@ -159,9 +159,7 @@ namespace MugenMvvm.Binding.Observers
                 var type = GetTargetType(target, memberFlags);
                 for (var i = 0; i < members.Length; i++)
                 {
-                    var member = provider.GetMember(type, paths[i],
-                        i == lastIndex ? MemberType.Field | MemberType.Property : MemberType.Field | MemberType.Property | MemberType.Event,
-                        memberFlags);
+                    var member = provider.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor : MemberType.Accessor | MemberType.Event, memberFlags);
                     if (i == 1)
                         memberFlags &= ~MemberFlags.Static;
                     if (member == null)

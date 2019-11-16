@@ -19,7 +19,8 @@ namespace MugenMvvm.Binding
         {
             if (left.Type == right.Type)
                 return;
-
+            if (left.Type.IsValueType != right.Type.IsValueType)
+                return;
             if (left.Type.IsCompatibleWith(right.Type))
                 left = left.ConvertIfNeed(right.Type, exactly);
             else if (right.Type.IsCompatibleWith(left.Type))
@@ -70,6 +71,7 @@ namespace MugenMvvm.Binding
                         case TypeCode.Byte:
                         case TypeCode.Int16:
                         case TypeCode.UInt16:
+                        case TypeCode.Char:
                         case TypeCode.Int32:
                         case TypeCode.UInt32:
                         case TypeCode.Int64:
@@ -95,9 +97,11 @@ namespace MugenMvvm.Binding
 
                     break;
                 case TypeCode.UInt16:
+                case TypeCode.Char:
                     switch (tc)
                     {
                         case TypeCode.UInt16:
+                        case TypeCode.Char:
                         case TypeCode.Int32:
                         case TypeCode.UInt32:
                         case TypeCode.Int64:
@@ -165,13 +169,9 @@ namespace MugenMvvm.Binding
                     }
 
                     break;
-                default:
-                    if (st == tt)
-                        return true;
-                    break;
             }
 
-            return false;
+            return st == tt;
         }
 
         public static Type GetTargetType(ref Expression target)

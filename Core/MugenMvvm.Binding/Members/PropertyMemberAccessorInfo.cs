@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Members
 
         public object? UnderlyingMember => _propertyInfo;
 
-        public MemberType MemberType => MemberType.Property;
+        public MemberType MemberType => MemberType.Accessor;
 
         public MemberFlags AccessModifiers { get; }
 

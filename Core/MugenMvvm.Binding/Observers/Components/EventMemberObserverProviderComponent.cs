@@ -84,7 +84,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
-            var observableMember = TryGetEvent(type, member.Name, (member.GetGetMethod(true) ?? member.GetSetMethod(true)).GetAccessModifiers(), metadata);
+            var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
                 return new MemberObserver(this, observableMember);
 

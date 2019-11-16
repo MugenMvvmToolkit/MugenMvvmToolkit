@@ -18,6 +18,12 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
+        public static bool IsParamArray(this IParameterInfo parameter)
+        {
+            Should.NotBeNull(parameter, nameof(parameter));
+            return parameter.IsDefined(typeof(ParamArrayAttribute));
+        }
+
         public static bool IsAllMembersAvailable(this ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> observers)
         {
             var list = observers.List;
@@ -52,7 +58,7 @@ namespace MugenMvvm.Binding
                 if (src.IsNullOrUnsetValue())
                     return null;
 
-                var member = memberProvider.GetMember(type, item, MemberType.Field | MemberType.Property, flags) as IMemberAccessorInfo;
+                var member = memberProvider.GetMember(type, item, MemberType.Accessor, flags) as IMemberAccessorInfo;
                 if (member == null)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, item);
                 src = member.GetValue(src, metadata);
@@ -163,7 +169,7 @@ namespace MugenMvvm.Binding
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, MemberType.Property | MemberType.Field, flags, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
                 return defaultValue;
             if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
@@ -177,7 +183,7 @@ namespace MugenMvvm.Binding
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, MemberType.Property | MemberType.Field, flags, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
             {
                 if (throwOnError)
@@ -197,7 +203,7 @@ namespace MugenMvvm.Binding
         {
             var propertyInfo = provider
                 .ServiceIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, MemberType.Property | MemberType.Field, flags, metadata) as IObservableMemberInfo;
+                .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IObservableMemberInfo;
             if (propertyInfo == null)
                 return default;
             return propertyInfo.TryObserve(target, listener, metadata);

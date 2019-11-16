@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -9,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class IndexerMemberAccessorInfo : IMemberAccessorInfo
+    public sealed class IndexerMemberAccessorInfo : IMemberAccessorInfo, IHasArgsMemberInfo
     {
         #region Fields
 
@@ -82,7 +83,7 @@ namespace MugenMvvm.Binding.Members
 
         public object? UnderlyingMember => _propertyInfo;
 
-        public MemberType MemberType => MemberType.Property;
+        public MemberType MemberType => MemberType.Accessor;
 
         public MemberFlags AccessModifiers { get; }
 
@@ -93,6 +94,11 @@ namespace MugenMvvm.Binding.Members
         #endregion
 
         #region Implementation of interfaces
+
+        public IReadOnlyList<object?> GetArgs()
+        {
+            return _indexerArgs;
+        }
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {

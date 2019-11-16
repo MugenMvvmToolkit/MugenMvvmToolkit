@@ -4,12 +4,14 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IParameterInfo
     {
-        bool IsParamsArray { get; }
+        object? UnderlyingParameter { get; }
 
         bool HasDefaultValue { get; }
 
         Type ParameterType { get; }
 
         object? DefaultValue { get; }
+
+        bool IsDefined(Type type);
     }
 }

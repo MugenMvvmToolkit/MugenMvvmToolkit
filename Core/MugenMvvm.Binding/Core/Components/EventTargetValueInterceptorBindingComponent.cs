@@ -168,7 +168,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             _enabledMember = GetMemberProvider()
                     .ServiceIfNull()
-                    .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Property, MemberFlags.InstancePublic, _currentMetadata) as
+                    .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.InstancePublic, _currentMetadata) as
                 IMemberAccessorInfo;
             if (_enabledMember == null)
                 return false;

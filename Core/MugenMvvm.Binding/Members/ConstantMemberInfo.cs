@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Members
 
         public object? UnderlyingMember => null;
 
-        public MemberType MemberType => MemberType.Property;
+        public MemberType MemberType => MemberType.Accessor;
 
         public MemberFlags AccessModifiers => MemberFlags.StaticPublic;
 

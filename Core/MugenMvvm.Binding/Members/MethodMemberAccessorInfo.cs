@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -9,7 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MethodMemberAccessorInfo : IMemberAccessorInfo
+    public sealed class MethodMemberAccessorInfo : IMemberAccessorInfo, IHasArgsMemberInfo
     {
         #region Fields
 
@@ -25,7 +26,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberAccessorInfo(string name, MethodInfo methodInfo, object?[] args, bool isExtensionMethod,
+        public MethodMemberAccessorInfo(string name, MethodInfo methodInfo, object?[] args,
             Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
@@ -39,9 +40,9 @@ namespace MugenMvvm.Binding.Members
             _args = args;
             _invoker = CompileInvoker;
             Name = name;
-            AccessModifiers = methodInfo.GetAccessModifiers();
-            if (isExtensionMethod)
-                AccessModifiers |= MemberFlags.Extension;
+            ParameterInfo[]? parameters = null;
+            AccessModifiers = methodInfo.GetAccessModifiers(true, ref parameters);
+            DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameters![0].ParameterType : methodInfo.DeclaringType;
         }
 
         #endregion
@@ -50,13 +51,13 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type DeclaringType => _methodInfo.DeclaringType;
+        public Type DeclaringType { get; }
 
         public Type Type => _methodInfo.ReturnType;
 
         public object? UnderlyingMember => _methodInfo;
 
-        public MemberType MemberType => MemberType.Property;
+        public MemberType MemberType => MemberType.Accessor;
 
         public MemberFlags AccessModifiers { get; }
 
@@ -67,6 +68,11 @@ namespace MugenMvvm.Binding.Members
         #endregion
 
         #region Implementation of interfaces
+
+        public IReadOnlyList<object?> GetArgs()
+        {
+            return _args;
+        }
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
