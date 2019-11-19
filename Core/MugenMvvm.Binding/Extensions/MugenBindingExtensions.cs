@@ -196,12 +196,12 @@ namespace MugenMvvm.Binding
             return src;
         }
 
-        public static bool TryBuildBindingMember(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
+        public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
         {
-            return TryBuildBindingMember(target, builder, null, out firstExpression);
+            return TryBuildBindingMemberPath(target, builder, null, out firstExpression);
         }
 
-        public static bool TryBuildBindingMember(this IExpressionNode? target, StringBuilder builder, Func<IExpressionNode, bool>? condition, out IExpressionNode? firstExpression)
+        public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, Func<IExpressionNode, bool>? condition, out IExpressionNode? firstExpression)
         {
             Should.NotBeNull(builder, nameof(builder));
             firstExpression = null;

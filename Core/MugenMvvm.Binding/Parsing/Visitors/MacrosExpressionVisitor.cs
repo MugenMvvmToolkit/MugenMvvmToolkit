@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                         continue;
                     }
 
-                    if (!expressionNode.TryBuildBindingMember(_memberBuilder, n => n is IMemberExpressionNode, out _))
+                    if (!expressionNode.TryBuildBindingMemberPath(_memberBuilder, n => n is IMemberExpressionNode, out _))
                         return expression;
 
                     args[i] = ConstantExpressionNode.Get(_memberBuilder.GetPath(), typeof(string));

@@ -131,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private IExpressionNode? GetOrAddBindingParameter(IExpressionNode target, string? methodName)
         {
-            if (target.TryBuildBindingMember(_memberBuilder, _condition, out var firstExpression))
+            if (target.TryBuildBindingMemberPath(_memberBuilder, _condition, out var firstExpression))
                 return GetOrAddBindingParameter(methodName);
 
             if (firstExpression is UnaryExpressionNode unaryExpression && unaryExpression.IsMacros() &&
