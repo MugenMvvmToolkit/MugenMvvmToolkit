@@ -477,7 +477,8 @@ namespace MugenMvvm.Binding.Core
                     return false;
                 }
 
-                newValue = CheckFlag(HasTargetValueGetterFlag) ? TryGetTargetValue(pathLastMember) : GetTargetValue(pathLastMember);
+                if (!CheckFlag(HasTargetValueGetterFlag) || !TryGetTargetValue(pathLastMember, out newValue))
+                    newValue = GetTargetValue(pathLastMember);
 
                 if (CheckFlag(HasSourceValueInterceptorFlag))
                     newValue = InterceptSourceValue(pathLastMember, newValue);
@@ -513,7 +514,8 @@ namespace MugenMvvm.Binding.Core
                 return false;
             }
 
-            newValue = CheckFlag(HasSourceValueGetterFlag) ? TryGetSourceValue(pathLastMember) : GetSourceValue(pathLastMember);
+            if (!CheckFlag(HasSourceValueGetterFlag) || !TryGetSourceValue(pathLastMember, out newValue))
+                newValue = GetSourceValue(pathLastMember);
 
             if (CheckFlag(HasTargetValueInterceptorFlag))
                 newValue = InterceptTargetValue(pathLastMember, newValue);
@@ -661,21 +663,22 @@ namespace MugenMvvm.Binding.Core
             return value;
         }
 
-        protected object? TryGetTargetValue(MemberPathLastMember sourceMember)
+        protected bool TryGetTargetValue(MemberPathLastMember sourceMember, out object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out var v))
-                        return v;
+                    if (c[i] is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out value))
+                        return true;
                 }
             }
-            else if (components is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out var v))
-                return v;
+            else if (components is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out value))
+                return true;
 
-            return GetTargetValue(sourceMember);
+            value = null;
+            return false;
         }
 
         protected bool TrySetTargetValue(MemberPathLastMember targetMember, object? newValue)
@@ -695,21 +698,22 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        protected object? TryGetSourceValue(MemberPathLastMember targetMember)
+        protected bool TryGetSourceValue(MemberPathLastMember targetMember, out object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out var v))
-                        return v;
+                    if (c[i] is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out value))
+                        return true;
                 }
             }
-            else if (components is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out var v))
-                return v;
+            else if (components is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out value))
+                return true;
 
-            return GetSourceValue(targetMember);
+            value = null;
+            return false;
         }
 
         protected bool TrySetSourceValue(MemberPathLastMember sourceMember, object? newValue)
