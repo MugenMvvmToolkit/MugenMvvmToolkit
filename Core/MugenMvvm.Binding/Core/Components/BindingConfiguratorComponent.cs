@@ -36,7 +36,9 @@ namespace MugenMvvm.Binding.Core.Components
             BindingParameterNameConstants.Optional,
             BindingParameterNameConstants.HasStablePath,
             BindingParameterNameConstants.Observable,
-            BindingParameterNameConstants.ToggleEnabled
+            BindingParameterNameConstants.ToggleEnabled,
+            BindingParameterNameConstants.SuppressMethod,
+            BindingParameterNameConstants.SuppressIndex
         };
 
         private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor();
@@ -125,18 +127,20 @@ namespace MugenMvvm.Binding.Core.Components
             ref ItemOrList<IExpressionNode?, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             //source is empty, target is expression
-//            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.MemberName)
-//                                                                 && !(targetExpression is IMemberExpressionNode)
-//                                                                 && !(targetExpression is IBindingMemberExpressionNode))
-//            {
-//                sourceExpression = targetExpression;
-//                targetExpression = new MemberExpressionNode(null, "F" + Default.NextCounter()); //todo review fake
-//            }
+            //            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.MemberName)
+            //                                                                 && !(targetExpression is IMemberExpressionNode)
+            //                                                                 && !(targetExpression is IBindingMemberExpressionNode))
+            //            {
+            //                sourceExpression = targetExpression;
+            //                targetExpression = new MemberExpressionNode(null, "F" + Default.NextCounter()); //todo review fake
+            //            }
 
             bool? toggleEnabledState = null;
             int? delay = null, targetDelay = null;
             IExpressionNode? converter = null, converterParameter = null, fallback = null, targetNullValue = null, commandParameter = null;
             var flags = Flags;
+            bool suppressMethodMembers = false;
+            bool suppressIndexMembers = false;
             for (var i = 0; i < parameters.Count(); i++)
             {
                 var node = parameters.GetItemAt(i);
@@ -180,6 +184,10 @@ namespace MugenMvvm.Binding.Core.Components
                 {
                     if (name == BindingParameterNameConstants.ToggleEnabled)
                         toggleEnabledState = b.Value;
+                    else if (name == BindingParameterNameConstants.SuppressMethod)
+                        suppressMethodMembers = b.Value;
+                    else if (name == BindingParameterNameConstants.SuppressIndex)
+                        suppressIndexMembers = b.Value;
                     else
                         flags = ApplyFlags(flags, name, b.Value);
                 }
@@ -189,6 +197,8 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             MemberExpressionVisitor.Flags = flags;
+            MemberExpressionVisitor.SuppressIndexMembers = suppressIndexMembers;
+            MemberExpressionVisitor.SuppressMethodMembers = suppressMethodMembers;
             targetExpression = MemberExpressionVisitor.Accept(targetExpression)!;
             sourceExpression = MemberExpressionVisitor.Accept(sourceExpression)!;
 

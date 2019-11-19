@@ -8,6 +8,8 @@
         public const string HasStablePath = nameof(HasStablePath);
         public const string Observable = nameof(Observable);
         public const string ToggleEnabled = nameof(ToggleEnabled);
+        public const string SuppressMethod = nameof(SuppressMethod);
+        public const string SuppressIndex = nameof(SuppressIndex);
 
         public const string Converter = nameof(Converter);
         public const string ConverterParameter = nameof(ConverterParameter);
