@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
@@ -127,13 +128,13 @@ namespace MugenMvvm.Binding.Core.Components
             ref ItemOrList<IExpressionNode?, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             //source is empty, target is expression
-            //            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.MemberName)
-            //                                                                 && !(targetExpression is IMemberExpressionNode)
-            //                                                                 && !(targetExpression is IBindingMemberExpressionNode))
-            //            {
-            //                sourceExpression = targetExpression;
-            //                targetExpression = new MemberExpressionNode(null, "F" + Default.NextCounter()); //todo review fake
-            //            }
+            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.MemberName)
+                                                                 && !(targetExpression is IMemberExpressionNode)
+                                                                 && !(targetExpression is IBindingMemberExpressionNode))
+            {
+                sourceExpression = targetExpression;
+                targetExpression = new MemberExpressionNode(null, FakeMemberProviderComponent.FakeMemberPrefixSymbol + Default.NextCounter().ToString());
+            }
 
             bool? toggleEnabledState = null;
             int? delay = null, targetDelay = null;

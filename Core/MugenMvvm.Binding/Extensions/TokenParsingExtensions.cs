@@ -310,8 +310,15 @@ namespace MugenMvvm.Binding
 
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
         {
-            context.SkipWhitespaces();
-            var delimiterPos = context.FindAnyOf(context.IsToken('@') ? BindingDelimiters : BindingTargetDelimiters);
+            var isActionToken = context.SkipWhitespaces().IsToken('@');
+            int delimiterPos;
+            if (isActionToken)
+            {
+                context.MoveNext();
+                delimiterPos = -1;
+            }
+            else
+                delimiterPos = context.FindAnyOf(BindingTargetDelimiters);
             var oldLimit = context.Limit;
             if (delimiterPos > 0)
                 context.Limit = delimiterPos;

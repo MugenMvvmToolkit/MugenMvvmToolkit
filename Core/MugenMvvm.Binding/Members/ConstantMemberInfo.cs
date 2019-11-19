@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Members
 
         public MemberType MemberType => MemberType.Accessor;
 
-        public MemberFlags AccessModifiers => MemberFlags.StaticPublic;
+        public MemberFlags AccessModifiers => MemberFlags.Public | MemberFlags.Dynamic;
 
         public bool CanRead => true;
 
