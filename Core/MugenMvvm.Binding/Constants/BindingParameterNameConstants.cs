@@ -10,6 +10,7 @@
         public const string ToggleEnabled = nameof(ToggleEnabled);
         public const string IgnoreMethodMembers = nameof(IgnoreMethodMembers);
         public const string IgnoreIndexMembers = nameof(IgnoreIndexMembers);
+        public const string ObservableMethod = nameof(ObservableMethod);
 
         public const string Converter = nameof(Converter);
         public const string ConverterParameter = nameof(ConverterParameter);

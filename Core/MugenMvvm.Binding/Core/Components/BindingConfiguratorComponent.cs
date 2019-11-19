@@ -39,7 +39,8 @@ namespace MugenMvvm.Binding.Core.Components
             BindingParameterNameConstants.Observable,
             BindingParameterNameConstants.ToggleEnabled,
             BindingParameterNameConstants.IgnoreMethodMembers,
-            BindingParameterNameConstants.IgnoreIndexMembers
+            BindingParameterNameConstants.IgnoreIndexMembers,
+            BindingParameterNameConstants.ObservableMethod
         };
 
         private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor();
@@ -62,7 +63,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public Dictionary<string, IBindingComponentBuilder> Builders { get; }
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
+        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
 
         public bool IgnoreMethodMembers { get; set; }
 
@@ -301,6 +302,7 @@ namespace MugenMvvm.Binding.Core.Components
                 BindingParameterNameConstants.Observable => ApplyFlags(flags, hasFlag, BindingMemberExpressionFlags.Observable),
                 BindingParameterNameConstants.Optional => ApplyFlags(flags, hasFlag, BindingMemberExpressionFlags.Optional),
                 BindingParameterNameConstants.HasStablePath => ApplyFlags(flags, hasFlag, BindingMemberExpressionFlags.StablePath),
+                BindingParameterNameConstants.ObservableMethod => ApplyFlags(flags, hasFlag, BindingMemberExpressionFlags.ObservableMethod),
                 _ => flags
             };
         }

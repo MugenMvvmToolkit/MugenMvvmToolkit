@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.StaticNonPublic;
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
+        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
 
         public bool IgnoreMethodMembers { get; set; }
 
@@ -182,7 +182,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
 
                 _memberBuilder.Insert(0, nameof(IResourceValue.Value));
-                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags) (1 << 7), false, memberExpression.MemberName);
+                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags)(1 << 7), false, memberExpression.MemberName);
             }
 
             return null;
@@ -236,8 +236,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     var hashCode = key.Path.GetHashCode();
                     hashCode = hashCode * 397 ^ (key.MethodName != null ? key.MethodName.GetHashCode() : 0);
-                    hashCode = hashCode * 397 ^ (int) key.MemberFlags;
-                    hashCode = hashCode * 397 ^ (int) key.Flags;
+                    hashCode = hashCode * 397 ^ (int)key.MemberFlags;
+                    hashCode = hashCode * 397 ^ (int)key.Flags;
                     hashCode = hashCode * 397 ^ (key.Target != null ? key.Target.GetHashCode() : 0);
                     return hashCode;
                 }
