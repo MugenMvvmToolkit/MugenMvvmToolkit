@@ -135,7 +135,7 @@ namespace MugenMvvm.Binding.Members.Components
                     }
 
                     if (parameters.Length - 1 != methodArgs.Length)
-                        continue;
+                        continue;//todo default value
 
                     try
                     {

@@ -100,7 +100,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                 var parameters = methodInfo.GetParameters();
                 if (parameters.Length != methodArgs.Length)
-                    continue;
+                    continue;//todo default value
 
                 try
                 {

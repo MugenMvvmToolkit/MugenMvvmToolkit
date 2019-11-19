@@ -65,9 +65,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
 
-        public bool IgnoreMethodMembers { get; set; }
+        public bool IgnoreMethodMembers { get; set; } = true;
 
-        public bool IgnoreIndexMembers { get; set; }
+        public bool IgnoreIndexMembers { get; set; } = true;
 
         public bool ToggleEnabledState { get; set; }
 
@@ -132,15 +132,6 @@ namespace MugenMvvm.Binding.Core.Components
         public void Intercept(ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
             ref ItemOrList<IExpressionNode?, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
-            //source is empty, target is expression
-            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.MemberName)
-                                                                 && !(targetExpression is IMemberExpressionNode)
-                                                                 && !(targetExpression is IBindingMemberExpressionNode))
-            {
-                sourceExpression = targetExpression;
-                targetExpression = new MemberExpressionNode(null, FakeMemberProviderComponent.FakeMemberPrefixSymbol + Default.NextCounter().ToString());
-            }
-
             bool? toggleEnabledState = null;
             int? delay = null, targetDelay = null;
             IExpressionNode? converter = null, converterParameter = null, fallback = null, targetNullValue = null, commandParameter = null;

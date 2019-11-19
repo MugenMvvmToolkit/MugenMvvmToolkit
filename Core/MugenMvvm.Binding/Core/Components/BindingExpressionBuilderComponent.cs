@@ -146,12 +146,12 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             if (sourceExpression is IBindingMemberExpressionNode memberExpression)
-                return new BindingExpression(this, targetMember, memberExpression, parameters, metadata);
+                return new BindingExpression(this, targetMember, memberExpression, parameters.GetRawValue(), metadata);
 
             var memberExpressions = _expressionCollectorVisitor.Collect(sourceExpression);
             var compiledExpression = _expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
 
-            return new MultiBindingExpression(this, targetMember, memberExpressions.GetRawValue(), compiledExpression, parameters, metadata);
+            return new MultiBindingExpression(this, targetMember, memberExpressions.GetRawValue(), compiledExpression, parameters.GetRawValue(), metadata);
         }
 
         #endregion
@@ -175,12 +175,12 @@ namespace MugenMvvm.Binding.Core.Components
             #region Constructors
 
             protected BindingExpressionBase(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression,
-                ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
+                object? parametersRaw, IReadOnlyMetadataContext? metadata)
             {
                 _builder = builder;
                 TargetExpression = targetExpression;
                 MetadataRaw = metadata;
-                _parametersRaw = parameters.GetRawValue();
+                _parametersRaw = parametersRaw;
                 if (TargetExpression is IHasPriority hasPriority)
                     Priority = hasPriority.Priority;
                 else if (builder.BindingMemberPriorities.TryGetValue(targetExpression.Name, out var p))
@@ -280,9 +280,9 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Constructors
 
-            public BindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression, IBindingMemberExpressionNode sourceExpression,
-                ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
-                : base(builder, targetExpression, parameters, metadata)
+            public BindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression,
+                IBindingMemberExpressionNode sourceExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
+                : base(builder, targetExpression, parametersRaw, metadata)
             {
                 _sourceExpression = sourceExpression;
             }
@@ -315,8 +315,8 @@ namespace MugenMvvm.Binding.Core.Components
             #region Constructors
 
             public MultiBindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression, object? sourceRaw,
-                ICompiledExpression compiledExpression, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
-                : base(builder, targetExpression, parameters, metadata)
+                ICompiledExpression compiledExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
+                : base(builder, targetExpression, parametersRaw, metadata)
             {
                 _compiledExpression = compiledExpression;
                 _sourceRaw = sourceRaw;
