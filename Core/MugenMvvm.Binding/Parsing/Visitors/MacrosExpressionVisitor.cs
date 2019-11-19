@@ -82,9 +82,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Implementation of interfaces
 
-        public virtual IExpressionNode? Visit(IExpressionNode node)
+        public virtual IExpressionNode? Visit(IExpressionNode expression)
         {
-            if (node is IMethodCallExpressionNode method && ConstantParametersMethods.TryGetValue(method.MethodName, out var methodName))
+            if (expression is IMethodCallExpressionNode method && ConstantParametersMethods.TryGetValue(method.MethodName, out var methodName))
             {
                 var arguments = method.Arguments;
                 if (arguments.Count == 0)
@@ -108,7 +108,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     }
 
                     if (!expressionNode.TryBuildBindingMember(_memberBuilder, n => n is IMemberExpressionNode, out _))
-                        return node;
+                        return expression;
 
                     args[i] = ConstantExpressionNode.Get(_memberBuilder.GetPath(), typeof(string));
                 }
@@ -116,7 +116,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 return new MethodCallExpressionNode(method.Target, methodName, args, method.TypeArgs);
             }
 
-            if (node is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
+            if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
             {
                 if (unaryExpression.Operand is IMemberExpressionNode memberExpression && MacrosMethods.TryGetValue(memberExpression.MemberName, out var m))
                     return m;
@@ -131,7 +131,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
             }
 
-            return node;
+            return expression;
         }
 
         #endregion

@@ -123,6 +123,7 @@ namespace MugenMvvm.Binding.Members
                     break;
             }
 
+            result ??= Default.EmptyArray<IMemberInfo>();
             _tempMembersCache[cacheKey] = result;
             return result;
         }
@@ -175,8 +176,8 @@ namespace MugenMvvm.Binding.Members
                 {
                     var hashCode = key.Name.GetHashCode();
                     hashCode = hashCode * 397 ^ key.Type.GetHashCode();
-                    hashCode = hashCode * 397 ^ (int) key.MemberType;
-                    hashCode = hashCode * 397 ^ (int) key.MemberFlags;
+                    hashCode = hashCode * 397 ^ (int)key.MemberType;
+                    hashCode = hashCode * 397 ^ (int)key.MemberFlags;
                     return hashCode;
                 }
             }

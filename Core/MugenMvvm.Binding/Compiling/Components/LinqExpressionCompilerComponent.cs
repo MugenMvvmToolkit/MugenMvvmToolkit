@@ -175,17 +175,17 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
-            IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
+            IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression)
             {
-                if (node.NodeType == ExpressionNodeType.BindingMember)
+                if (expression.NodeType == ExpressionNodeType.BindingMember)
                 {
-                    var parameterExpression = (IParameterExpressionNode)node;
+                    var parameterExpression = (IParameterExpressionNode)expression;
                     if (parameterExpression.Index < 0)
                         BindingExceptionManager.ThrowCannotCompileExpression(parameterExpression);
                     _parametersDict[parameterExpression] = null;
                 }
 
-                return node;
+                return expression;
             }
 
             public IParameterInfo? TryGetLambdaParameter()

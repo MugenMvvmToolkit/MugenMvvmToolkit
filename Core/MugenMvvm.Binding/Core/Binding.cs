@@ -383,17 +383,12 @@ namespace MugenMvvm.Binding.Core
                 return;
 
             var list = components.List;
-            var item = components.Item;
-
             if (list == null)
             {
-                if (item == null)
-                    return;
-
-                if (OnComponentAdding(item, metadata))
+                if (components.Item != null && OnComponentAdding(components.Item, metadata))
                 {
-                    OnComponentAdded(item, metadata);
-                    MergeComponents(item);
+                    MergeComponents(components.Item);
+                    OnComponentAdded(components.Item, metadata);
                 }
                 return;
             }
@@ -401,45 +396,64 @@ namespace MugenMvvm.Binding.Core
             int currentLength = 0;
             for (var i = 0; i < list.Length; i++)
             {
-                var component = list[i];
-                if (!OnComponentAdding(component, metadata))
-                    continue;
-
-                OnComponentAdded(component, metadata);
-                list[currentLength++] = list[i];
+                if (OnComponentAdding(list[i], metadata))
+                    list[currentLength++] = list[i];
             }
+
+            if (currentLength == 0)
+                return;
 
             if (currentLength == 1)
-                MergeComponents(list[0]);
-            else if (currentLength != 0)
             {
-                if (_components != null)
+                MergeComponents(list[0]);
+                OnComponentAdded(list[0], metadata);
+                return;
+            }
+
+            if (_components != null)
+            {
+                if (_components is IComponent<IBinding>[] array)
                 {
-                    if (_components is IComponent<IBinding>[] array)
+                    var oldList = list;
+                    var newSize = array.Length + currentLength;
+                    if (newSize != list.Length)
+                        Array.Resize(ref list, newSize);
+                    for (int i = 0; i < array.Length; i++)
+                        MugenExtensions.AddOrdered(list, array[i], currentLength++, this);
+                    _components = list;
+                    if (ReferenceEquals(oldList, list))
                     {
-                        var newSize = array.Length + currentLength;
-                        if (newSize != list.Length)
-                            Array.Resize(ref list, newSize);
-                        for (int i = 0; i < array.Length; i++)
-                            MugenExtensions.AddOrdered(list, array[i], currentLength++, this);
-                        _components = list;
-                        return;
+                        for (int i = 0; i < list.Length; i++)
+                        {
+                            if (Array.IndexOf(array, oldList[i]) < 0)
+                                OnComponentAdded(oldList[i], metadata);
+                        }
                     }
-
-                    if (list.Length == currentLength)
+                    else
                     {
-                        _components = MergeComponents(list, (IComponent<IBinding>)_components);
-                        return;
+                        for (int i = 0; i < currentLength; i++)
+                            OnComponentAdded(oldList[i], metadata);
                     }
-
-                    MugenExtensions.AddOrdered(list, (IComponent<IBinding>)_components, currentLength, this);
-                    ++currentLength;
+                    return;
                 }
 
-                if (list.Length != currentLength)
-                    Array.Resize(ref list, currentLength);
-                _components = list;
+                if (list.Length == currentLength)
+                {
+                    _components = MergeComponents(list, (IComponent<IBinding>)_components);
+                    for (int i = 0; i < list.Length; i++)
+                        OnComponentAdded(list[i], metadata);
+                    return;
+                }
+
+                MugenExtensions.AddOrdered(list, (IComponent<IBinding>)_components, currentLength, this);
+                ++currentLength;
             }
+
+            if (list.Length != currentLength)
+                Array.Resize(ref list, currentLength);
+            _components = list;
+            for (int i = 0; i < list.Length; i++)
+                OnComponentAdded(list[i], metadata);
         }
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
@@ -461,18 +475,19 @@ namespace MugenMvvm.Binding.Core
                 }
 
                 newValue = GetTargetValue(pathLastMember);
-                if (newValue.IsUnsetValueOrDoNothing())
-                    return false;
 
                 if (CheckFlag(HasSourceValueInterceptorFlag))
-                {
-                    newValue = InterceptSourceValue(sourceObserver, pathLastMember, newValue);
-                    if (newValue.IsUnsetValueOrDoNothing())
-                        return false;
-                }
+                    newValue = InterceptSourceValue(pathLastMember, newValue);
 
-                if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(sourceObserver, pathLastMember, newValue))
+                if (newValue.IsDoNothing())
+                    return false;
+
+                if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(pathLastMember, newValue))
+                {
+                    if (newValue.IsUnsetValue())
+                        return false;
                     pathLastMember.SetValueWithConvert(newValue, this);
+                }
                 return true;
             }
             newValue = null;
@@ -496,18 +511,19 @@ namespace MugenMvvm.Binding.Core
             }
 
             newValue = GetSourceValue(pathLastMember);
-            if (newValue.IsUnsetValueOrDoNothing())
-                return false;
 
             if (CheckFlag(HasTargetValueInterceptorFlag))
-            {
-                newValue = InterceptTargetValue(Target, pathLastMember, newValue);
-                if (newValue.IsUnsetValueOrDoNothing())
-                    return false;
-            }
+                newValue = InterceptTargetValue(pathLastMember, newValue);
 
-            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(Target, pathLastMember, newValue))
+            if (newValue.IsDoNothing())
+                return false;
+
+            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(pathLastMember, newValue))
+            {
+                if (newValue.IsUnsetValue())
+                    return false;
                 pathLastMember.SetValueWithConvert(newValue, this);
+            }
             return true;
         }
 
@@ -515,7 +531,8 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual IEnumerator<MetadataContextValue> GetMetadataEnumerator()
         {
-            yield return MetadataContextValue.Create(BindingMetadata.Binding, this);
+            IEnumerable<MetadataContextValue> v = new[] { MetadataContextValue.Create(BindingMetadata.Binding, this) };
+            return v.GetEnumerator();
         }
 
         protected virtual bool TryGetMetadata<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
@@ -607,7 +624,7 @@ namespace MugenMvvm.Binding.Core
                 (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, this);
         }
 
-        protected object? InterceptTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value)
+        protected object? InterceptTargetValue(MemberPathLastMember targetMember, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -615,16 +632,16 @@ namespace MugenMvvm.Binding.Core
                 for (var i = 0; i < c.Length; i++)
                 {
                     if (c[i] is ITargetValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, this);
+                        value = interceptor.InterceptTargetValue(this, targetMember, value, this);
                 }
             }
             else if (components is ITargetValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptTargetValue(targetObserver, targetMember, value, this);
+                value = interceptor.InterceptTargetValue(this, targetMember, value, this);
 
             return value;
         }
 
-        protected object? InterceptSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? value)
+        protected object? InterceptSourceValue(MemberPathLastMember sourceMember, object? value)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
@@ -632,44 +649,44 @@ namespace MugenMvvm.Binding.Core
                 for (var i = 0; i < c.Length; i++)
                 {
                     if (c[i] is ISourceValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, this);
+                        value = interceptor.InterceptSourceValue(this, sourceMember, value, this);
                 }
             }
             else if (components is ISourceValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptSourceValue(sourceObserver, sourceMember, value, this);
+                value = interceptor.InterceptSourceValue(this, sourceMember, value, this);
 
             return value;
         }
 
-        protected bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? newValue)
+        protected bool TrySetTargetValue(MemberPathLastMember targetMember, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, this))
+                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(this, targetMember, newValue, this))
                         return true;
                 }
             }
-            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(targetObserver, targetMember, newValue, this))
+            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(this, targetMember, newValue, this))
                 return true;
 
             return false;
         }
 
-        protected bool TrySetSourceValue(IMemberPathObserver sourceObserver, MemberPathLastMember sourceMember, object? newValue)
+        protected bool TrySetSourceValue(MemberPathLastMember sourceMember, object? newValue)
         {
             var components = _components;
             if (components is IComponent<IBinding>[] c)
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, this))
+                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(this, sourceMember, newValue, this))
                         return true;
                 }
             }
-            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(sourceObserver, sourceMember, newValue, this))
+            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(this, sourceMember, newValue, this))
                 return true;
 
             return false;

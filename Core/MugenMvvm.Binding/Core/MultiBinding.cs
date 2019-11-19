@@ -1,11 +1,13 @@
-﻿using MugenMvvm.Binding.Compiling;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
@@ -32,36 +34,7 @@ namespace MugenMvvm.Binding.Core
 
         public object? Invoke(IReadOnlyMetadataContext? metadata = null)
         {
-            if (metadata == null)
-                metadata = this;
-            ItemOrList<ExpressionValue, ExpressionValue[]> values;
-            if (SourceRaw == null)
-                values = Default.EmptyArray<ExpressionValue>();
-            else if (SourceRaw is IMemberPathObserver[] sources)
-            {
-                var expressionValues = new ExpressionValue[sources.Length];
-                for (var i = 0; i < sources.Length; i++)
-                {
-                    var members = sources[i].GetLastMember(metadata);
-                    var value = members.GetValue(metadata);
-                    if (value.IsUnsetValueOrDoNothing())
-                        return value;
-                    expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.Member.Type, null);
-                }
-
-                values = expressionValues;
-            }
-            else
-            {
-                var members = ((IMemberPathObserver)SourceRaw).GetLastMember(metadata);
-                var value = members.GetValue(metadata);
-                if (value.IsUnsetValueOrDoNothing())
-                    return value;
-
-                values = new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
-            }
-
-            return _expression!.Invoke(values, metadata);
+            return _expression.Invoke(SourceRaw, metadata ?? this);
         }
 
         #endregion
@@ -77,7 +50,37 @@ namespace MugenMvvm.Binding.Core
         {
             if (MemberType.Event == targetMember.Member.MemberType)
                 return this;
-            return Invoke();
+            return _expression.Invoke(SourceRaw, this);
+        }
+
+        protected override IEnumerator<MetadataContextValue> GetMetadataEnumerator()
+        {
+            IEnumerable<MetadataContextValue> v = new[]
+            {
+                MetadataContextValue.Create(BindingMetadata.Binding, this),
+                MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true),
+            };
+            return v.GetEnumerator();
+        }
+
+        protected override int GetMetadataCount()
+        {
+            return base.GetMetadataCount() + 1;
+        }
+
+        protected override bool ContainsMetadata(IMetadataContextKey contextKey)
+        {
+            return BindingMetadata.IsMultiBinding.Equals(contextKey) || base.ContainsMetadata(contextKey);
+        }
+
+        protected override bool TryGetMetadata<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
+        {
+            if (BindingMetadata.IsMultiBinding.Equals(contextKey))
+            {
+                value = MugenExtensions.ConvertGenericValue<bool, T>(true);
+                return true;
+            }
+            return base.TryGetMetadata(contextKey, out value, defaultValue);
         }
 
         #endregion

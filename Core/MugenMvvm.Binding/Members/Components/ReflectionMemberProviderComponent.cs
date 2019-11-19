@@ -90,7 +90,7 @@ namespace MugenMvvm.Binding.Members.Components
             for (var index = 0; index < methods.Length; index++)
             {
                 var methodInfo = methods[index];
-                if (methodInfo.Name != name)
+                if (methodInfo.Name != methodName)
                     continue;
                 if (methodArgs == null)
                 {

@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = BindingComponentsPriority.Mode;
+        public int Priority { get; set; } = BindingComponentPriority.Mode;
 
         #endregion
 

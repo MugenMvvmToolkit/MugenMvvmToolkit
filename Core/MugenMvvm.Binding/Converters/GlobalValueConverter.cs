@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Converters
 
         #region Methods
 
-        private static object? GetDefaultValue(Type type)
+        public static object? GetDefaultValue(Type type)
         {
             if (typeof(bool) == type)
                 return BoxingExtensions.TrueObject;

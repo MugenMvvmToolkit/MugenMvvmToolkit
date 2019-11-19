@@ -43,34 +43,41 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.StaticNonPublic;
 
+        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
+
         #endregion
 
         #region Implementation of interfaces
 
-        public IExpressionNode? Visit(IExpressionNode node)
+        public IExpressionNode? Visit(IExpressionNode expression)
         {
-            if (node is IMethodCallExpressionNode methodCall)
+            if (expression is IMethodCallExpressionNode methodCall)
                 return VisitMethodCall(methodCall);
 
-            if (node is IMemberExpressionNode memberExpressionNode)
+            if (expression is IMemberExpressionNode memberExpressionNode)
                 return VisitMemberExpression(memberExpressionNode);
 
-            if (node is IIndexExpressionNode indexExpression)
+            if (expression is IIndexExpressionNode indexExpression)
                 return VisitIndexExpression(indexExpression);
 
-            if (node is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
-                return GetOrAddBindingParameter(node, null) ?? node;
+            if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
+                return GetOrAddBindingParameter(expression, null) ?? expression;
 
-            return node;
+            return expression;
         }
 
         #endregion
 
         #region Methods
 
-        public void Clear()
+        public IExpressionNode? Accept(IExpressionNode? expression)
         {
+            if (expression == null)
+                return null;
             _members.Clear();
+            expression = expression.Accept(this);
+            _members.Clear();
+            return expression;
         }
 
         private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)
@@ -164,7 +171,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private IExpressionNode GetOrAddBindingParameter(string? methodName = null, BindingMemberExpressionFlags flags = 0, bool isStatic = false, object? target = null)
         {
-            flags |= BindingMemberExpressionFlags.Observable;
+            flags |= Flags;
             var memberFlags = isStatic ? (MemberFlags | MemberFlags.Static) & ~MemberFlags.Instance : (MemberFlags | MemberFlags.Instance) & ~MemberFlags.Static;
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, memberFlags, target, flags);
             if (!_members.TryGetValue(key, out var node))

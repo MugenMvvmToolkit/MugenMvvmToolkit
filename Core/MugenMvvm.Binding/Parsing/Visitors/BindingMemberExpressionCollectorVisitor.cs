@@ -26,27 +26,33 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public bool IsPostOrder => false;
 
+        public bool IsMultiExpression { get; private set; }
+
         #endregion
 
         #region Implementation of interfaces
 
-        IExpressionNode IExpressionVisitor.Visit(IExpressionNode node)
+        IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression)
         {
-            if (node is IBindingMemberExpressionNode bindingMember && !_members.Contains(bindingMember))
+            if (expression is IBindingMemberExpressionNode bindingMember && !_members.Contains(bindingMember))
             {
                 bindingMember.SetIndex(_members.Count);
                 _members.Add(bindingMember);
             }
 
-            return node;
+            return expression;
         }
 
         #endregion
 
         #region Methods
 
-        public ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]> Collect(IExpressionNode expression)
+        public ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]> Collect(IExpressionNode? expression)
         {
+            if (expression == null)
+                return default;
+
+            IsMultiExpression = false;
             expression.Accept(this);
             if (_members.Count == 0)
                 return Default.EmptyArray<IBindingMemberExpressionNode>();

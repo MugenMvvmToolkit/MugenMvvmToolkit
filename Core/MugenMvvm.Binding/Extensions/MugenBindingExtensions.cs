@@ -3,8 +3,11 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -28,6 +31,37 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        public static object? Invoke(this ICompiledExpression expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)
+        {
+            ItemOrList<ExpressionValue, ExpressionValue[]> values;
+            if (sourceRaw == null)
+                values = Default.EmptyArray<ExpressionValue>();
+            else if (sourceRaw is IMemberPathObserver[] sources)
+            {
+                var expressionValues = new ExpressionValue[sources.Length];
+                for (var i = 0; i < sources.Length; i++)
+                {
+                    var members = sources[i].GetLastMember(metadata);
+                    var value = members.GetValue(metadata);
+                    if (value.IsUnsetValueOrDoNothing())
+                        return value;
+                    expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.Member.Type, null);
+                }
+
+                values = expressionValues;
+            }
+            else
+            {
+                var members = ((IMemberPathObserver)sourceRaw).GetLastMember(metadata);
+                var value = members.GetValue(metadata);
+                if (value.IsUnsetValueOrDoNothing())
+                    return value;
+
+                values = new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
+            }
+            return expression.Invoke(values, metadata);
+        }
 
         public static bool EqualsEx(this IMemberInfo x, IMemberInfo y)
         {
@@ -223,6 +257,7 @@ namespace MugenMvvm.Binding
 
                         builder.Insert(0, '(');
                         builder.Insert(0, methodCallExpression.MethodName);
+                        builder.Insert(0, '.');
                         target = methodCallExpression.Target;
                     }
                     else
@@ -364,12 +399,12 @@ namespace MugenMvvm.Binding
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
-        public static string[]? GetMethodArgsRaw(string path, out string? methodName)
+        public static string[]? GetMethodArgsRaw(string path, out string methodName)
         {
             var startIndex = path.IndexOf('(');
             if (startIndex < 0 || !path.EndsWith(")", StringComparison.Ordinal))
             {
-                methodName = null;
+                methodName = path;
                 return null;
             }
 
@@ -407,6 +442,18 @@ namespace MugenMvvm.Binding
         internal static bool IsUnsetValueOrDoNothing(this object? value)
         {
             return ReferenceEquals(value, BindingMetadata.UnsetValue) || ReferenceEquals(value, BindingMetadata.DoNothing);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsDoNothing(this object? value)
+        {
+            return ReferenceEquals(value, BindingMetadata.DoNothing);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static bool IsUnsetValue(this object? value)
+        {
+            return ReferenceEquals(value, BindingMetadata.UnsetValue);
         }
 
         internal static string GetPath(this StringBuilder memberNameBuilder)

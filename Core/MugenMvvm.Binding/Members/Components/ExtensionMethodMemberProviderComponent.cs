@@ -96,8 +96,6 @@ namespace MugenMvvm.Binding.Members.Components
         {
             List<IMemberInfo>? members = null;
             var methodArgs = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
-            if (methodName == null)
-                methodName = name;
             foreach (var exType in _types)
             {
                 var methods = exType.GetMethods(BindingFlagsEx.All);

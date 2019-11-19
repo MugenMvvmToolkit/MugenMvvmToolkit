@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
     {
         bool IsPostOrder { get; }
 
-        IExpressionNode? Visit(IExpressionNode node);
+        IExpressionNode? Visit(IExpressionNode expression);
     }
 }
