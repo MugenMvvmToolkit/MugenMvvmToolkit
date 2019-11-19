@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -11,10 +12,12 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class EventTargetValueInterceptorBindingComponent : ITargetValueSetterBindingComponent, IDetachableComponent, IEventListener, IHasEventArgsBindingComponent
+    public sealed class EventTargetValueInterceptorBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent, 
+        IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority//todo check mode
     {
         #region Fields
 
@@ -31,8 +34,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public EventTargetValueInterceptorBindingComponent(object? commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
+        public EventTargetValueInterceptorBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
         {
+            _currentValue = BindingMetadata.DoNothing;
             _bindingManager = bindingManager;
             CommandParameter = commandParameter;
             ToggleEnabledState = toggleEnabledState;
@@ -42,7 +46,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public object? CommandParameter { get; }
+        public static int Priority { get; set; } = BindingComponentPriority.EventHandler;
+
+        int IHasPriority.Priority => Priority;
+
+        public BindingParameterValue CommandParameter { get; private set; }
 
         public bool ToggleEnabledState { get; }
 
@@ -56,6 +64,16 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            return true;
+        }
+
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        {
+            ((IBinding)owner).UpdateTarget();
+        }
+
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             return true;
@@ -66,6 +84,8 @@ namespace MugenMvvm.Binding.Core.Components
             _unsubscriber.Dispose();
             ClearValue();
             _canExecuteHandler = null;
+            CommandParameter.Dispose();
+            CommandParameter = default;
             _isDisposed = true;
         }
 
@@ -81,10 +101,13 @@ namespace MugenMvvm.Binding.Core.Components
                 switch (_currentValue)
                 {
                     case ICommand command:
-                        command.Execute(GetCommandParameter());
+                        command.Execute(CommandParameter.GetValue<object?>(_currentMetadata));
                         return true;
                     case IExpressionValue expression:
                         expression.Invoke(_currentMetadata);
+                        return true;
+                    case IBinding binding:
+                        binding.UpdateTarget();
                         return true;
                 }
 
@@ -102,7 +125,7 @@ namespace MugenMvvm.Binding.Core.Components
             }
         }
 
-        public bool TrySetTargetValue(IMemberPathObserver targetObserver, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
+        public bool TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
         {
             if (ReferenceEquals(value, _currentValue))
                 return true;
@@ -119,12 +142,6 @@ namespace MugenMvvm.Binding.Core.Components
 
             ClearValue();
             _currentMetadata = metadata;
-
-            if (value == null)
-            {
-                _unsubscriber.Dispose();
-                return true;
-            }
 
             if (value is ICommand command)
             {
@@ -144,20 +161,13 @@ namespace MugenMvvm.Binding.Core.Components
                 return true;
             }
 
-            _unsubscriber.Dispose();
-            return false;
+            _currentValue = binding;
+            return true;
         }
 
         #endregion
 
         #region Methods
-
-        private object? GetCommandParameter()
-        {
-            if (CommandParameter is IExpressionValue expression)
-                return expression.Invoke(_currentMetadata);
-            return CommandParameter;
-        }
 
         private bool InitializeCanExecute(object? target, ICommand command)
         {
@@ -167,9 +177,8 @@ namespace MugenMvvm.Binding.Core.Components
                 return false;
 
             _enabledMember = GetMemberProvider()
-                    .DefaultIfNull()
-                    .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.InstancePublic, _currentMetadata) as
-                IMemberAccessorInfo;
+                .DefaultIfNull()
+                .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.InstancePublic, _currentMetadata) as IMemberAccessorInfo;
             if (_enabledMember == null)
                 return false;
 
@@ -191,7 +200,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             var target = _targetRef?.Target;
             if (target != null)
-                SetEnabled(cmd.CanExecute(GetCommandParameter()), target);
+                SetEnabled(cmd.CanExecute(CommandParameter.GetValue<object?>(_currentMetadata)), target);
         }
 
         private void SetEnabled(bool value, object? target = null)
