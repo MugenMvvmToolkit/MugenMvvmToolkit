@@ -13,8 +13,8 @@ namespace MugenMvvm.Binding
     {
         #region Fields
 
-        public static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> { ',', ';', ' ' };
-        public static readonly HashSet<char> BindingDelimiters = new HashSet<char> { ',', ';' };
+        private static readonly HashSet<char> BindingTargetDelimiters = new HashSet<char> { ',', ';', ' ' };
+        private static readonly HashSet<char> BindingDelimiters = new HashSet<char> { ',', ';' };
 
         #endregion
 
@@ -310,7 +310,8 @@ namespace MugenMvvm.Binding
 
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
         {
-            var delimiterPos = context.SkipWhitespaces().FindAnyOf(BindingTargetDelimiters);
+            context.SkipWhitespaces();
+            var delimiterPos = context.FindAnyOf(context.IsToken('@') ? BindingDelimiters : BindingTargetDelimiters);
             var oldLimit = context.Limit;
             if (delimiterPos > 0)
                 context.Limit = delimiterPos;
