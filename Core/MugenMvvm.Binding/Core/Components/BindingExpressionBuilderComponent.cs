@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly IExpressionParser? _parser;
 
         private IBindingComponentProviderComponent[] _componentProviders;
-        private IBindingExpressionInterceptor[] _expressionInterceptors;
+        private IBindingExpressionInterceptorComponent[] _expressionInterceptors;
 
         #endregion
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             _parser = parser;
             _expressionCompiler = expressionCompiler;
-            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptor>();
+            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptorComponent>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
             DefaultBindingComponents = new List<IBindingComponentBuilder>();
             _componentsDictionary = new StringOrdinalLightDictionary<IBindingComponentBuilder>(7);
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
         {
-            return ((BindingExpressionBase) y).Priority.CompareTo(((BindingExpressionBase) x).Priority);
+            return ((BindingExpressionBase)y).Priority.CompareTo(((BindingExpressionBase)x).Priority);
         }
 
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
@@ -115,7 +115,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            _expressionInterceptors = owner.Components.GetComponents().OfType<IBindingExpressionInterceptor>().ToArray();
+            _expressionInterceptors = owner.Components.GetComponents().OfType<IBindingExpressionInterceptorComponent>().ToArray();
             _componentProviders = owner.Components.GetComponents().OfType<IBindingComponentProviderComponent>().ToArray();
             owner.Components.Components.Add(this);
         }
@@ -123,7 +123,7 @@ namespace MugenMvvm.Binding.Core.Components
         protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
             owner.Components.Components.Remove(this);
-            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptor>();
+            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptorComponent>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
         }
 
@@ -247,13 +247,21 @@ namespace MugenMvvm.Binding.Core.Components
                         continue;
 
                     if (list == null)
-                        dictionary[item!.Name] = item;
+                    {
+                        if (item.IsEmpty)
+                            dictionary.Remove(item.Name);
+                        else
+                            dictionary[item!.Name] = item;
+                    }
                     else
                     {
                         for (var j = 0; j < list.Count; j++)
                         {
                             item = list[j];
-                            dictionary[item.Name] = item;
+                            if (item.IsEmpty)
+                                dictionary.Remove(item.Name);
+                            else
+                                dictionary[item.Name] = item;
                         }
                     }
                 }
@@ -336,7 +344,7 @@ namespace MugenMvvm.Binding.Core.Components
                 }
                 else
                 {
-                    var observer = ((IBindingMemberExpressionNode) _sourceRaw).GetSourceObserver(target, source, metadata);
+                    var observer = ((IBindingMemberExpressionNode)_sourceRaw).GetSourceObserver(target, source, metadata);
                     sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
                 }
 
