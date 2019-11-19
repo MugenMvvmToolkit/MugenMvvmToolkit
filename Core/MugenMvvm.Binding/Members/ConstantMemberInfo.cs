@@ -13,9 +13,9 @@ namespace MugenMvvm.Binding.Members
 
         private readonly object? _result;
 
-        public static readonly ConstantMemberInfo Null = new ConstantMemberInfo(null, false);
-        public static readonly ConstantMemberInfo Unset = new ConstantMemberInfo(BindingMetadata.UnsetValue, false);
-        public static readonly ConstantMemberInfo WritableNull = new ConstantMemberInfo(null, true);
+        public static readonly ConstantMemberInfo Null = new ConstantMemberInfo("", null, false);
+        public static readonly ConstantMemberInfo Unset = new ConstantMemberInfo("", BindingMetadata.UnsetValue, false);
+        public static readonly ConstantMemberInfo WritableNull = new ConstantMemberInfo("", null, true);
 
         public static readonly IMemberInfo[] NullArray = { Null };
         public static readonly IMemberInfo[] UnsetArray = { Unset };
@@ -25,9 +25,11 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        private ConstantMemberInfo(object? result, bool canWrite)
+        public ConstantMemberInfo(string name, object? result, bool canWrite)
         {
+            Should.NotBeNull(name, nameof(name));
             _result = result;
+            Name = name;
             CanWrite = canWrite;
         }
 
@@ -35,7 +37,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Properties
 
-        public string Name => string.Empty;
+        public string Name { get; }
 
         public Type DeclaringType => typeof(object);
 
