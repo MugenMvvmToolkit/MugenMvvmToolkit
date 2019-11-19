@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using System.Text;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
@@ -15,6 +16,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
     public sealed class BindingMemberExpressionVisitor : IExpressionVisitor
     {
         #region Fields
+
+        private readonly Func<IExpressionNode, bool> _condition;
 
         private readonly StringBuilder _memberBuilder;
         private readonly IMemberProvider? _memberProvider;
@@ -33,6 +36,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             _memberProvider = memberProvider;
             _members = new MemberDictionary();
             _memberBuilder = new StringBuilder();
+            _condition = Condition;
         }
 
         #endregion
@@ -44,6 +48,10 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.StaticNonPublic;
 
         public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
+
+        public bool SuppressMethodMembers { get; set; }
+
+        public bool SuppressIndexMembers { get; set; }
 
         #endregion
 
@@ -69,6 +77,16 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         #endregion
 
         #region Methods
+
+        private bool Condition(IExpressionNode arg)
+        {
+            if (SuppressIndexMembers && arg is IIndexExpressionNode)
+                return false;
+
+            if (SuppressMethodMembers && arg is IMethodCallExpressionNode)
+                return false;
+            return true;
+        }
 
         public IExpressionNode? Accept(IExpressionNode? expression)
         {
@@ -113,14 +131,15 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private IExpressionNode? GetOrAddBindingParameter(IExpressionNode target, string? methodName)
         {
-            if (target.TryBuildBindingMember(_memberBuilder, out var firstExpression))
+            if (target.TryBuildBindingMember(_memberBuilder, _condition, out var firstExpression))
                 return GetOrAddBindingParameter(methodName);
 
             if (firstExpression is UnaryExpressionNode unaryExpression && unaryExpression.IsMacros() &&
                 unaryExpression.Operand is IMemberExpressionNode memberExpression)
             {
                 //$target, $self, $this
-                if (memberExpression.MemberName == MacrosConstants.Target || memberExpression.MemberName == MacrosConstants.Self || memberExpression.MemberName == MacrosConstants.This)
+                if (memberExpression.MemberName == MacrosConstants.Target || memberExpression.MemberName == MacrosConstants.Self ||
+                    memberExpression.MemberName == MacrosConstants.This)
                     return GetOrAddBindingParameter(methodName, BindingMemberExpressionFlags.TargetOnly);
 
                 //$source
@@ -163,7 +182,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
 
                 _memberBuilder.Insert(0, nameof(IResourceValue.Value));
-                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags)(1 << 7), false, memberExpression.MemberName);
+                return GetOrAddBindingParameter(methodName, (BindingMemberExpressionFlags) (1 << 7), false, memberExpression.MemberName);
             }
 
             return null;
@@ -217,8 +236,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     var hashCode = key.Path.GetHashCode();
                     hashCode = hashCode * 397 ^ (key.MethodName != null ? key.MethodName.GetHashCode() : 0);
-                    hashCode = hashCode * 397 ^ (int)key.MemberFlags;
-                    hashCode = hashCode * 397 ^ (int)key.Flags;
+                    hashCode = hashCode * 397 ^ (int) key.MemberFlags;
+                    hashCode = hashCode * 397 ^ (int) key.Flags;
                     hashCode = hashCode * 397 ^ (key.Target != null ? key.Target.GetHashCode() : 0);
                     return hashCode;
                 }
