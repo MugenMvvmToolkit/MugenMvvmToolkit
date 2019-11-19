@@ -92,11 +92,11 @@ namespace MugenMvvm.Binding.Members.Components
                 var methodInfo = methods[index];
                 if (methodInfo.Name != methodName)
                     continue;
+
+                result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
+
                 if (methodArgs == null)
-                {
-                    result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
                     continue;
-                }
 
                 var parameters = methodInfo.GetParameters();
                 if (parameters.Length != methodArgs.Length)
