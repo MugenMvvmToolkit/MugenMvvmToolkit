@@ -38,8 +38,8 @@ namespace MugenMvvm.Binding.Core.Components
             BindingParameterNameConstants.HasStablePath,
             BindingParameterNameConstants.Observable,
             BindingParameterNameConstants.ToggleEnabled,
-            BindingParameterNameConstants.SuppressMethod,
-            BindingParameterNameConstants.SuppressIndex
+            BindingParameterNameConstants.IgnoreMethodMembers,
+            BindingParameterNameConstants.IgnoreIndexMembers
         };
 
         private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor();
@@ -185,9 +185,9 @@ namespace MugenMvvm.Binding.Core.Components
                 {
                     if (name == BindingParameterNameConstants.ToggleEnabled)
                         toggleEnabledState = b.Value;
-                    else if (name == BindingParameterNameConstants.SuppressMethod)
+                    else if (name == BindingParameterNameConstants.IgnoreMethodMembers)
                         suppressMethodMembers = b.Value;
-                    else if (name == BindingParameterNameConstants.SuppressIndex)
+                    else if (name == BindingParameterNameConstants.IgnoreIndexMembers)
                         suppressIndexMembers = b.Value;
                     else
                         flags = ApplyFlags(flags, name!, b.Value);
@@ -198,8 +198,8 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             MemberExpressionVisitor.Flags = flags;
-            MemberExpressionVisitor.SuppressIndexMembers = suppressIndexMembers;
-            MemberExpressionVisitor.SuppressMethodMembers = suppressMethodMembers;
+            MemberExpressionVisitor.IgnoreIndexMembers = suppressIndexMembers;
+            MemberExpressionVisitor.IgnoreMethodMembers = suppressMethodMembers;
             targetExpression = MemberExpressionVisitor.Accept(targetExpression)!;
             sourceExpression = MemberExpressionVisitor.Accept(sourceExpression)!;
 

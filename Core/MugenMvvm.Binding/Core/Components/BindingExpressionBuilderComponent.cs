@@ -63,14 +63,13 @@ namespace MugenMvvm.Binding.Core.Components
 
         public Dictionary<string, int> BindingMemberPriorities { get; }
 
-        public List<IBindingComponentBuilder> DefaultBindingComponents { get; } //todo add values
+        public List<IBindingComponentBuilder> DefaultBindingComponents { get; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression,
-            IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             var parserResult = _parser.DefaultIfNull().Parse(expression, metadata);
             var list = parserResult.List;

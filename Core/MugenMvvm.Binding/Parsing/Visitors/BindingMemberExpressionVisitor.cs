@@ -49,9 +49,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
 
-        public bool SuppressMethodMembers { get; set; }
+        public bool IgnoreMethodMembers { get; set; }
 
-        public bool SuppressIndexMembers { get; set; }
+        public bool IgnoreIndexMembers { get; set; }
 
         #endregion
 
@@ -80,10 +80,10 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private bool Condition(IExpressionNode arg)
         {
-            if (SuppressIndexMembers && arg is IIndexExpressionNode)
+            if (IgnoreIndexMembers && arg is IIndexExpressionNode)
                 return false;
 
-            if (SuppressMethodMembers && arg is IMethodCallExpressionNode)
+            if (IgnoreMethodMembers && arg is IMethodCallExpressionNode)
                 return false;
             return true;
         }
