@@ -64,6 +64,10 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
 
+        public bool IgnoreMethodMembers { get; set; }
+
+        public bool IgnoreIndexMembers { get; set; }
+
         public bool ToggleEnabledState { get; set; }
 
         public int Priority { get; set; } = int.MinValue;
@@ -140,8 +144,8 @@ namespace MugenMvvm.Binding.Core.Components
             int? delay = null, targetDelay = null;
             IExpressionNode? converter = null, converterParameter = null, fallback = null, targetNullValue = null, commandParameter = null;
             var flags = Flags;
-            bool suppressMethodMembers = false;
-            bool suppressIndexMembers = false;
+            bool ignoreMethodMembers = IgnoreMethodMembers;
+            bool ignoreIndexMembers = IgnoreIndexMembers;
             for (var i = 0; i < parameters.Count(); i++)
             {
                 var node = parameters.GetItemAt(i);
@@ -186,9 +190,9 @@ namespace MugenMvvm.Binding.Core.Components
                     if (name == BindingParameterNameConstants.ToggleEnabled)
                         toggleEnabledState = b.Value;
                     else if (name == BindingParameterNameConstants.IgnoreMethodMembers)
-                        suppressMethodMembers = b.Value;
+                        ignoreMethodMembers = b.Value;
                     else if (name == BindingParameterNameConstants.IgnoreIndexMembers)
-                        suppressIndexMembers = b.Value;
+                        ignoreIndexMembers = b.Value;
                     else
                         flags = ApplyFlags(flags, name!, b.Value);
                 }
@@ -198,8 +202,8 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             MemberExpressionVisitor.Flags = flags;
-            MemberExpressionVisitor.IgnoreIndexMembers = suppressIndexMembers;
-            MemberExpressionVisitor.IgnoreMethodMembers = suppressMethodMembers;
+            MemberExpressionVisitor.IgnoreIndexMembers = ignoreIndexMembers;
+            MemberExpressionVisitor.IgnoreMethodMembers = ignoreMethodMembers;
             targetExpression = MemberExpressionVisitor.Accept(targetExpression)!;
             sourceExpression = MemberExpressionVisitor.Accept(sourceExpression)!;
 
