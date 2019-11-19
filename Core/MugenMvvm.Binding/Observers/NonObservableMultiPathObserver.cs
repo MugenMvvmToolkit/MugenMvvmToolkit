@@ -4,11 +4,11 @@ using MugenMvvm.Binding.Interfaces.Observers;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class MultiPathObserverRaw : MultiPathObserverBase
+    public sealed class NonObservableMultiPathObserver : MultiPathObserverBase
     {
         #region Constructors
 
-        public MultiPathObserverRaw(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+        public NonObservableMultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
         }

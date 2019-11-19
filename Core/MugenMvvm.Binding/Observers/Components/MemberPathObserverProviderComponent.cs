@@ -64,14 +64,14 @@ namespace MugenMvvm.Binding.Observers.Components
                     return new MultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
                 if (ObservableRootMembers.Contains(path.Members[0]))
                     return new ObservableRootMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
-                return new MultiPathObserverRaw(target, path, memberFlags, request.HasStablePath, request.Optional);
+                return new NonObservableMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
             }
 
             if (path.IsSingle)
-                return new MethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional);
+                return new ObservableMethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional);
             if (path.Members.Length == 0)
-                return new MethodEmptyPathObserver(observableMethod!, target, memberFlags);
-            return new MethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional);
+                return new ObservableMethodEmptyPathObserver(observableMethod!, target, memberFlags);
+            return new ObservableMethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional);
         }
 
         #endregion

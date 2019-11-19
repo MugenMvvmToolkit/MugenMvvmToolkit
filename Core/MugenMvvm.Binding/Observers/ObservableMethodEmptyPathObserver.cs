@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class MethodEmptyPathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
+    public sealed class ObservableMethodEmptyPathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodEmptyPathObserver(string method, object target, MemberFlags memberFlags) : base(target)
+        public ObservableMethodEmptyPathObserver(string method, object target, MemberFlags memberFlags) : base(target)
         {
             Should.NotBeNull(method, nameof(method));
             _memberFlags = memberFlags;

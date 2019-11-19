@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class MethodSinglePathObserver : SinglePathObserver, ObserverBase.IMethodPathObserver
+    public sealed class ObservableMethodMultiPathObserver : MultiPathObserver, ObserverBase.IMethodPathObserver
     {
         #region Fields
 
@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MethodSinglePathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool optional)
-            : base(target, path, memberFlags, true, optional)
+        public ObservableMethodMultiPathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+            : base(target, path, memberFlags, hasStablePath, optional)
         {
             Should.NotBeNull(method, nameof(method));
             _method = method;
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Observers
 
         IEventListener IMethodPathObserver.GetMethodListener()
         {
-            return this;
+            return GetLastMemberListener();
         }
 
         #endregion
