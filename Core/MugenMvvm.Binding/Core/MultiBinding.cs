@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Core
 
         public object? Invoke(IReadOnlyMetadataContext? metadata = null)
         {
-            return _expression.Invoke(SourceRaw, metadata ?? this);
+            return _expression!.Invoke(SourceRaw, metadata ?? this);
         }
 
         #endregion
@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Core
         {
             if (MemberType.Event == targetMember.Member.MemberType)
                 return this;
-            return _expression.Invoke(SourceRaw, this);
+            return _expression!.Invoke(SourceRaw, this);
         }
 
         protected override IEnumerator<MetadataContextValue> GetMetadataEnumerator()

@@ -24,11 +24,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         private readonly IExpressionCompiler? _compiler;
 
-        private readonly Func<ValueTuple<ValueTuple<object?, ICompiledExpression?>, bool>, IBinding, object, object?, IReadOnlyMetadataContext, IComponent<IBinding>>
+        private readonly Func<ValueTuple<ValueTuple<object?, ICompiledExpression?>, bool>, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>>
             _getEventHandlerDelegate;
 
         private static readonly Func<ValueTuple<ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>,
-            ValueTuple<object?, ICompiledExpression?>>, IBinding, object, object?, IReadOnlyMetadataContext, IComponent<IBinding>> GetParametersComponentDelegate =
+            ValueTuple<object?, ICompiledExpression?>>, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> GetParametersComponentDelegate =
             GetParametersComponent;
 
         private static readonly HashSet<string> BoolParameters = new HashSet<string>
@@ -168,10 +168,10 @@ namespace MugenMvvm.Binding.Core.Components
                                 commandParameter = binary.Right;
                                 break;
                             case BindingParameterNameConstants.Delay:
-                                delay = (int)((IConstantExpressionNode)binary.Right).Value;
+                                delay = (int)((IConstantExpressionNode)binary.Right).Value!;
                                 break;
                             case BindingParameterNameConstants.TargetDelay:
-                                targetDelay = (int)((IConstantExpressionNode)binary.Right).Value;
+                                targetDelay = (int)((IConstantExpressionNode)binary.Right).Value!;
                                 break;
                             default:
                                 continue;
@@ -189,7 +189,7 @@ namespace MugenMvvm.Binding.Core.Components
                     else if (name == BindingParameterNameConstants.SuppressIndex)
                         suppressIndexMembers = b.Value;
                     else
-                        flags = ApplyFlags(flags, name, b.Value);
+                        flags = ApplyFlags(flags, name!, b.Value);
                 }
 
                 parameters.RemoveAt(i);
@@ -305,7 +305,7 @@ namespace MugenMvvm.Binding.Core.Components
             return hasFlag ? flags | value : flags & ~value;
         }
 
-        private static bool? TryGetBoolValue(HashSet<string> parameterNames, IExpressionNode node, out string parameterName)
+        private static bool? TryGetBoolValue(HashSet<string> parameterNames, IExpressionNode node, out string? parameterName)
         {
             //Optional, HasStablePath etc
             if (node is IMemberExpressionNode memberExpression)

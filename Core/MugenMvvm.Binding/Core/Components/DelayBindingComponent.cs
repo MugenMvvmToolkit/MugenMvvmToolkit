@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _timer.Dispose();
+            _timer?.Dispose();
             _binding = null;
         }
 
@@ -80,7 +80,7 @@ namespace MugenMvvm.Binding.Core.Components
                     return;
 
                 _isUpdating = true;
-                _timer.Change(Timeout.Infinite, Timeout.Infinite);
+                _timer?.Change(Timeout.Infinite, Timeout.Infinite);
                 Update(binding);
             }
             catch (ObjectDisposedException)
@@ -98,7 +98,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private static void Callback(object state)
         {
-            var component = (DelayBindingComponent) ((IWeakReference) state).Target;
+            var component = (DelayBindingComponent?) ((IWeakReference) state).Target;
             if (component != null)
                 MugenService.ThreadDispatcher.Execute(ExecutionMode, component);
         }
@@ -120,7 +120,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (value.IsDoNothing() || _isUpdating)
                 return value;
 
-            _timer.Change(_delay, Timeout.Infinite);
+            _timer?.Change(_delay, Timeout.Infinite);
             return BindingMetadata.DoNothing;
         }
 

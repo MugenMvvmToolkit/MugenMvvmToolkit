@@ -16,8 +16,8 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class EventTargetValueInterceptorBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent, 
-        IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority//todo check mode
+    public sealed class EventTargetValueInterceptorBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent,
+        IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority
     {
         #region Fields
 
@@ -36,7 +36,6 @@ namespace MugenMvvm.Binding.Core.Components
 
         public EventTargetValueInterceptorBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
         {
-            _currentValue = BindingMetadata.DoNothing;
             _bindingManager = bindingManager;
             CommandParameter = commandParameter;
             ToggleEnabledState = toggleEnabledState;
@@ -66,6 +65,13 @@ namespace MugenMvvm.Binding.Core.Components
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
+            var targetMember = ((IBinding)owner).Target.GetLastMember();
+            if (!(targetMember.Member is IEventInfo eventInfo))
+                return false;
+
+            _unsubscriber = eventInfo.TrySubscribe(targetMember.Target, this, metadata);
+            if (_unsubscriber.IsEmpty)
+                return false;
             return true;
         }
 
@@ -106,12 +112,9 @@ namespace MugenMvvm.Binding.Core.Components
                     case IExpressionValue expression:
                         expression.Invoke(_currentMetadata);
                         return true;
-                    case IBinding binding:
-                        binding.UpdateTarget();
-                        return true;
                 }
 
-                return false;
+                return true;
             }
             catch (Exception e)
             {
@@ -130,16 +133,6 @@ namespace MugenMvvm.Binding.Core.Components
             if (ReferenceEquals(value, _currentValue))
                 return true;
 
-            if (_unsubscriber.IsEmpty)
-            {
-                if (!(targetMember.Member is IEventInfo eventInfo))
-                    return false;
-
-                _unsubscriber = eventInfo.TrySubscribe(targetMember.Target, this, metadata);
-                if (_unsubscriber.IsEmpty)
-                    return false;
-            }
-
             ClearValue();
             _currentMetadata = metadata;
 
@@ -152,16 +145,9 @@ namespace MugenMvvm.Binding.Core.Components
                 }
 
                 _currentValue = value;
-                return true;
             }
-
-            if (value is IExpressionValue expressionValue)
-            {
-                _currentValue = expressionValue;
-                return true;
-            }
-
-            _currentValue = binding;
+            else if (value is IExpressionValue)
+                _currentValue = value;
             return true;
         }
 
@@ -177,7 +163,6 @@ namespace MugenMvvm.Binding.Core.Components
                 return false;
 
             _enabledMember = GetMemberProvider()
-                .DefaultIfNull()
                 .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.InstancePublic, _currentMetadata) as IMemberAccessorInfo;
             if (_enabledMember == null)
                 return false;

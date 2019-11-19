@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Methods
 
-        public ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]> Collect(IExpressionNode? expression)
+        public ItemOrList<IBindingMemberExpressionNode?, IBindingMemberExpressionNode[]> Collect(IExpressionNode? expression)
         {
             if (expression == null)
                 return default;
@@ -59,7 +59,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             if (_members.Count == 1)
             {
-                var r = new ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]>(_members[0]);
+                var r = new ItemOrList<IBindingMemberExpressionNode?, IBindingMemberExpressionNode[]>(_members[0]);
                 _members.Clear();
                 return r;
             }

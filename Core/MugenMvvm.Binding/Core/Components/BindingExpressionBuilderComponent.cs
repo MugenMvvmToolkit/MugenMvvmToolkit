@@ -247,10 +247,10 @@ namespace MugenMvvm.Binding.Core.Components
 
                     if (list == null)
                     {
-                        if (item.IsEmpty)
+                        if (item!.IsEmpty)
                             dictionary.Remove(item.Name);
                         else
-                            dictionary[item!.Name] = item;
+                            dictionary[item.Name] = item;
                     }
                     else
                     {

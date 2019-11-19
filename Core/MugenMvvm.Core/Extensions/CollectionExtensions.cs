@@ -11,8 +11,8 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
+        public static int Count<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList)
+            where TItem : class
             where TList : class?, IReadOnlyCollection<TItem>
         {
             if (itemOrList.List != null)
@@ -20,24 +20,24 @@ namespace MugenMvvm
             return itemOrList.Item == null ? 0 : 1;
         }
 
-        public static int Count<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
-            where TItem : class?
+        public static int Count<TItem>(this ItemOrList<TItem?, List<TItem>> itemOrList)
+            where TItem : class
         {
             if (itemOrList.List != null)
                 return itemOrList.List.Count;
             return itemOrList.Item == null ? 0 : 1;
         }
 
-        public static int Count<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
-            where TItem : class?
+        public static int Count<TItem>(this ItemOrList<TItem?, TItem[]> itemOrList)
+            where TItem : class
         {
             if (itemOrList.List != null)
                 return itemOrList.List.Length;
             return itemOrList.Item == null ? 0 : 1;
         }
 
-        public static TItem GetItemAt<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class?
+        public static TItem GetItemAt<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, int index)
+            where TItem : class
             where TList : class?, IReadOnlyList<TItem>
         {
             if (itemOrList.List != null)
@@ -50,8 +50,8 @@ namespace MugenMvvm
             return null;
         }
 
-        public static TItem GetItemAt<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, int index)
-            where TItem : class?
+        public static TItem GetItemAt<TItem>(this ItemOrList<TItem?, List<TItem>> itemOrList, int index)
+            where TItem : class
         {
             if (itemOrList.List != null)
                 return itemOrList.List[index];
@@ -63,8 +63,8 @@ namespace MugenMvvm
             return null;
         }
 
-        public static TItem GetItemAt<TItem>(this ItemOrList<TItem, TItem[]> itemOrList, int index)
-            where TItem : class?
+        public static TItem GetItemAt<TItem>(this ItemOrList<TItem?, TItem[]> itemOrList, int index)
+            where TItem : class
         {
             if (itemOrList.List != null)
                 return itemOrList.List[index];
@@ -76,8 +76,8 @@ namespace MugenMvvm
             return null;
         }
 
-        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item)
-            where TItem : class?
+        public static void Add<TItem>(this ref ItemOrList<TItem?, List<TItem>> itemOrList, TItem item)
+            where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             if (itemOrList.List != null)
@@ -92,11 +92,11 @@ namespace MugenMvvm
                 return;
             }
 
-            itemOrList = new ItemOrList<TItem, List<TItem>>(new List<TItem> { itemOrList.Item, item });
+            itemOrList = new ItemOrList<TItem?, List<TItem>>(new List<TItem> { itemOrList.Item, item });
         }
 
-        public static void Set<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item, int index)
-            where TItem : class?
+        public static void Set<TItem>(this ref ItemOrList<TItem?, List<TItem>> itemOrList, TItem item, int index)
+            where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             if (itemOrList.List != null)
@@ -114,8 +114,8 @@ namespace MugenMvvm
             ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
         }
 
-        public static bool Remove<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item)
-            where TItem : class?
+        public static bool Remove<TItem, TList>(this ref ItemOrList<TItem?, TList> itemOrList, TItem item)
+            where TItem : class
             where TList : class?, ICollection<TItem>, IReadOnlyList<TItem>
         {
             if (itemOrList.List != null)
@@ -130,8 +130,8 @@ namespace MugenMvvm
             return false;
         }
 
-        public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class?
+        public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem?, TList> itemOrList, int index)
+            where TItem : class
             where TList : class?, IList<TItem>, IReadOnlyList<TItem>
         {
             if (itemOrList.List != null)
@@ -150,8 +150,8 @@ namespace MugenMvvm
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
+        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList)
+            where TItem : class
             where TList : class?, IReadOnlyCollection<TItem>
         {
             return (object?)itemOrList.Item ?? itemOrList.List;

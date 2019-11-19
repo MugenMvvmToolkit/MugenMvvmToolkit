@@ -33,13 +33,13 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public T GetValue<T>(IReadOnlyMetadataContext metadata)
+        public T GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
             if (Expression != null)
-                return (T)Expression.Invoke(Parameter, metadata);
+                return (T)Expression.Invoke(Parameter, metadata)!;
             if (Parameter is IMemberPathObserver observer)
-                return (T)observer.GetLastMember(metadata).GetValue(metadata);
-            return (T)Parameter;
+                return (T)observer.GetLastMember(metadata).GetValue(metadata)!;
+            return (T)Parameter!;
         }
 
         public void Dispose()
