@@ -30,6 +30,20 @@ namespace MugenMvvm.Binding.Core
 
         #endregion
 
+        #region Properties
+
+        public ICompiledExpression Expression
+        {
+            get
+            {
+                if (State == BindingState.Disposed)
+                    ExceptionManager.ThrowObjectDisposed(this);
+                return _expression!;
+            }
+        }
+
+        #endregion
+
         #region Implementation of interfaces
 
         public object? Invoke(IReadOnlyMetadataContext? metadata = null)
@@ -58,7 +72,7 @@ namespace MugenMvvm.Binding.Core
             IEnumerable<MetadataContextValue> v = new[]
             {
                 MetadataContextValue.Create(BindingMetadata.Binding, this),
-                MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true),
+                MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true)
             };
             return v.GetEnumerator();
         }
@@ -80,6 +94,7 @@ namespace MugenMvvm.Binding.Core
                 value = MugenExtensions.ConvertGenericValue<bool, T>(true);
                 return true;
             }
+
             return base.TryGetMetadata(contextKey, out value, defaultValue);
         }
 

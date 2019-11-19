@@ -60,7 +60,7 @@ namespace MugenMvvm.Components
         public bool Add(T component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (!MugenExtensions.OnAddingComponentHandler(this, component, metadata))
+            if (!MugenExtensions.OnComponentAddingHandler(this, component, metadata))
                 return false;
 
             var components = MugenExtensions.GetComponents(this);
@@ -78,7 +78,7 @@ namespace MugenMvvm.Components
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionChangedListener<T>)?.OnAdded(this, component, metadata);
-            MugenExtensions.OnAddedComponentHandler(this, component, metadata);
+            MugenExtensions.OnComponentAddedHandler(this, component, metadata);
             return true;
         }
 
@@ -91,7 +91,7 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (!MugenExtensions.OnRemovingComponentHandler(this, component, metadata))
+            if (!MugenExtensions.OnComponentRemovingHandler(this, component, metadata))
                 return false;
 
             var components = MugenExtensions.GetComponents(this);
@@ -110,7 +110,7 @@ namespace MugenMvvm.Components
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionChangedListener<T>)?.OnRemoved(this, component, metadata);
-            MugenExtensions.OnRemovedComponentHandler(this, component, metadata);
+            MugenExtensions.OnComponentRemovedHandler(this, component, metadata);
             return true;
         }
 
@@ -129,7 +129,7 @@ namespace MugenMvvm.Components
                 var oldItem = oldItems[i];
                 for (var j = 0; j < components.Length; j++)
                     (components[j] as IComponentCollectionChangedListener<T>)?.OnRemoved(this, oldItem, metadata);
-                MugenExtensions.OnRemovedComponentHandler(this, oldItem, metadata);
+                MugenExtensions.OnComponentRemovedHandler(this, oldItem, metadata);
             }
 
             return true;

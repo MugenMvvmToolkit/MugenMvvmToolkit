@@ -128,7 +128,7 @@ namespace MugenMvvm
                 currentComponent = null;
         }
 
-        public static void OnAddedComponentHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static void OnComponentAddedHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (component is IAttachableComponent attachable)
                 attachable.OnAttached(collection.Owner, metadata);
@@ -136,7 +136,7 @@ namespace MugenMvvm
             (collection.Owner as IComponentOwnerAddedCallback<T>)?.OnComponentAdded(collection, component, metadata);
         }
 
-        public static void OnRemovedComponentHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static void OnComponentRemovedHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (component is IDetachableComponent detachable)
                 detachable.OnDetached(collection.Owner, metadata);
@@ -144,7 +144,7 @@ namespace MugenMvvm
             (collection.Owner as IComponentOwnerRemovedCallback<T>)?.OnComponentRemoved(collection, component, metadata);
         }
 
-        public static bool OnAddingComponentHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static bool OnComponentAddingHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (collection.Owner is IComponentOwnerAddingCallback<T> callback && !callback.OnComponentAdding(collection, component, metadata))
                 return false;
@@ -154,7 +154,7 @@ namespace MugenMvvm
             return true;
         }
 
-        public static bool OnRemovingComponentHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static bool OnComponentRemovingHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
         {
             if (collection.Owner is IComponentOwnerRemovingCallback<T> callback && !callback.OnComponentRemoving(collection, component, metadata))
                 return false;

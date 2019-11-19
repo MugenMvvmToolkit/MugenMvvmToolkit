@@ -22,24 +22,27 @@ namespace MugenMvvm.Binding.Core
         private object? _components;
         private short _state;
 
-        private const short TargetUpdatingFlag = 1;
-        private const short SourceUpdatingFlag = 1 << 1;
+        protected const short TargetUpdatingFlag = 1;
+        protected const short SourceUpdatingFlag = 1 << 1;
 
-        private const short HasTargetValueInterceptorFlag = 1 << 2;
-        private const short HasSourceValueInterceptorFlag = 1 << 3;
+        protected const short HasTargetValueInterceptorFlag = 1 << 2;
+        protected const short HasSourceValueInterceptorFlag = 1 << 3;
 
-        private const short HasTargetListenerFlag = 1 << 4;
-        private const short HasSourceListenerFlag = 1 << 5;
+        protected const short HasTargetListenerFlag = 1 << 4;
+        protected const short HasSourceListenerFlag = 1 << 5;
 
-        private const short HasTargetValueSetterFlag = 1 << 6;
-        private const short HasSourceValueSetterFlag = 1 << 7;
+        protected const short HasTargetValueSetterFlag = 1 << 6;
+        protected const short HasSourceValueSetterFlag = 1 << 7;
 
-        private const short HasComponentChangingListener = 1 << 8;
-        private const short HasComponentChangedListener = 1 << 9;
-        private const short HasTargetObserverListener = 1 << 10;
-        private const short HasSourceObserverListener = 1 << 11;
+        protected const short HasComponentChangingListener = 1 << 8;
+        protected const short HasComponentChangedListener = 1 << 9;
+        protected const short HasTargetObserverListener = 1 << 10;
+        protected const short HasSourceObserverListener = 1 << 11;
 
-        private const short DisposedFlag = 1 << 14;
+        protected const short HasTargetValueGetterFlag = 1 << 12;
+        protected const short HasSourceValueGetterFlag = 1 << 13;
+
+        protected const short DisposedFlag = 1 << 14;
 
         #endregion
 
@@ -474,7 +477,7 @@ namespace MugenMvvm.Binding.Core
                     return false;
                 }
 
-                newValue = GetTargetValue(pathLastMember);
+                newValue = CheckFlag(HasTargetValueGetterFlag) ? TryGetTargetValue(pathLastMember) : GetTargetValue(pathLastMember);
 
                 if (CheckFlag(HasSourceValueInterceptorFlag))
                     newValue = InterceptSourceValue(pathLastMember, newValue);
@@ -510,7 +513,7 @@ namespace MugenMvvm.Binding.Core
                 return false;
             }
 
-            newValue = GetSourceValue(pathLastMember);
+            newValue = CheckFlag(HasSourceValueGetterFlag) ? TryGetSourceValue(pathLastMember) : GetSourceValue(pathLastMember);
 
             if (CheckFlag(HasTargetValueInterceptorFlag))
                 newValue = InterceptTargetValue(pathLastMember, newValue);
@@ -658,6 +661,23 @@ namespace MugenMvvm.Binding.Core
             return value;
         }
 
+        protected object? TryGetTargetValue(MemberPathLastMember sourceMember)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out var v))
+                        return v;
+                }
+            }
+            else if (components is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out var v))
+                return v;
+
+            return GetTargetValue(sourceMember);
+        }
+
         protected bool TrySetTargetValue(MemberPathLastMember targetMember, object? newValue)
         {
             var components = _components;
@@ -673,6 +693,23 @@ namespace MugenMvvm.Binding.Core
                 return true;
 
             return false;
+        }
+
+        protected object? TryGetSourceValue(MemberPathLastMember targetMember)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out var v))
+                        return v;
+                }
+            }
+            else if (components is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out var v))
+                return v;
+
+            return GetSourceValue(targetMember);
         }
 
         protected bool TrySetSourceValue(MemberPathLastMember sourceMember, object? newValue)
@@ -788,7 +825,7 @@ namespace MugenMvvm.Binding.Core
 
         private bool OnComponentAdding(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
         {
-            if (!MugenExtensions.OnAddingComponentHandler(this, component, metadata))
+            if (!MugenExtensions.OnComponentAddingHandler(this, component, metadata))
                 return false;
 
             if (CheckFlag(HasComponentChangingListener))
@@ -827,6 +864,10 @@ namespace MugenMvvm.Binding.Core
                 SetFlag(HasComponentChangingListener);
             if (component is IBindingComponentChangedListener)
                 SetFlag(HasComponentChangedListener);
+            if (component is ISourceValueGetterBindingComponent)
+                SetFlag(HasSourceValueGetterFlag);
+            if (component is ITargetValueGetterBindingComponent)
+                SetFlag(HasTargetValueGetterFlag);
             if (!CheckFlag(HasTargetObserverListener) && component is IBindingTargetObserverListener)
             {
                 SetFlag(HasTargetObserverListener);
@@ -863,12 +904,12 @@ namespace MugenMvvm.Binding.Core
                 else if (!ReferenceEquals(components, component))
                     (components as IBindingComponentChangedListener)?.OnAdded(this, component, this);
             }
-            MugenExtensions.OnAddedComponentHandler(this, component, metadata);
+            MugenExtensions.OnComponentAddedHandler(this, component, metadata);
         }
 
         private bool OnComponentRemoving(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
         {
-            if (!MugenExtensions.OnRemovingComponentHandler(this, component, metadata))
+            if (!MugenExtensions.OnComponentRemovingHandler(this, component, metadata))
                 return false;
             if (CheckFlag(HasComponentChangingListener))
             {
@@ -924,7 +965,7 @@ namespace MugenMvvm.Binding.Core
                         (components as IBindingComponentChangedListener)?.OnRemoved(this, component, this);
                 }
             }
-            MugenExtensions.OnRemovedComponentHandler(this, component, metadata);
+            MugenExtensions.OnComponentRemovedHandler(this, component, metadata);
         }
 
         private bool HasComponent<TComponent>() where TComponent : IComponent<IBinding>
