@@ -20,29 +20,29 @@ namespace MugenMvvm.Binding.Core
         #region Fields
 
         private object? _components;
-        private short _state;
+        private ushort _state;
 
-        protected const short TargetUpdatingFlag = 1;
-        protected const short SourceUpdatingFlag = 1 << 1;
+        protected const ushort TargetUpdatingFlag = 1;
+        protected const ushort SourceUpdatingFlag = 1 << 1;
 
-        protected const short HasTargetValueInterceptorFlag = 1 << 2;
-        protected const short HasSourceValueInterceptorFlag = 1 << 3;
+        protected const ushort HasTargetValueInterceptorFlag = 1 << 2;
+        protected const ushort HasSourceValueInterceptorFlag = 1 << 3;
 
-        protected const short HasTargetListenerFlag = 1 << 4;
-        protected const short HasSourceListenerFlag = 1 << 5;
+        protected const ushort HasTargetListenerFlag = 1 << 4;
+        protected const ushort HasSourceListenerFlag = 1 << 5;
 
-        protected const short HasTargetValueSetterFlag = 1 << 6;
-        protected const short HasSourceValueSetterFlag = 1 << 7;
+        protected const ushort HasTargetValueSetterFlag = 1 << 6;
+        protected const ushort HasSourceValueSetterFlag = 1 << 7;
 
-        protected const short HasComponentChangingListener = 1 << 8;
-        protected const short HasComponentChangedListener = 1 << 9;
-        protected const short HasTargetObserverListener = 1 << 10;
-        protected const short HasSourceObserverListener = 1 << 11;
+        protected const ushort HasComponentChangingListener = 1 << 8;
+        protected const ushort HasComponentChangedListener = 1 << 9;
+        protected const ushort HasTargetObserverListener = 1 << 10;
+        protected const ushort HasSourceObserverListener = 1 << 11;
 
-        protected const short HasTargetValueGetterFlag = 1 << 12;
-        protected const short HasSourceValueGetterFlag = 1 << 13;
+        protected const ushort HasTargetValueGetterFlag = 1 << 12;
+        protected const ushort HasSourceValueGetterFlag = 1 << 13;
 
-        protected const short DisposedFlag = 1 << 14;
+        protected const ushort DisposedFlag = 1 << 15;
 
         #endregion
 
@@ -118,7 +118,7 @@ namespace MugenMvvm.Binding.Core
         {
             if (CheckFlag(DisposedFlag))
                 return;
-            SetFlag(DisposedFlag);
+            SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
             OnDispose();
             MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, this);
             if (CheckFlag(HasTargetObserverListener))
@@ -738,21 +738,21 @@ namespace MugenMvvm.Binding.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CheckFlag(short flag)
+        protected bool CheckFlag(ushort flag)
         {
             return (_state & flag) == flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetFlag(short flag)
+        protected void SetFlag(ushort flag)
         {
             _state |= flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ClearFlag(short flag)
+        protected void ClearFlag(ushort flag)
         {
-            _state = (short)(_state & ~flag);
+            _state = (ushort)(_state & ~flag);
         }
 
         private void MergeComponents(IComponent<IBinding> component)
