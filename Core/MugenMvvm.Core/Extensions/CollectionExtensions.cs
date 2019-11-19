@@ -11,6 +11,144 @@ namespace MugenMvvm
     {
         #region Methods
 
+        public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class?, IReadOnlyCollection<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List.Count;
+            return itemOrList.Item == null ? 0 : 1;
+        }
+
+        public static int Count<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
+            where TItem : class?
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List.Count;
+            return itemOrList.Item == null ? 0 : 1;
+        }
+
+        public static int Count<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
+            where TItem : class?
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List.Length;
+            return itemOrList.Item == null ? 0 : 1;
+        }
+
+        public static TItem GetItemAt<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
+            where TItem : class?
+            where TList : class?, IReadOnlyList<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static TItem GetItemAt<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, int index)
+            where TItem : class?
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static TItem GetItemAt<TItem>(this ItemOrList<TItem, TItem[]> itemOrList, int index)
+            where TItem : class?
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item)
+            where TItem : class?
+        {
+            Should.NotBeNull(item, nameof(item));
+            if (itemOrList.List != null)
+            {
+                itemOrList.List.Add(item);
+                return;
+            }
+
+            if (itemOrList.Item == null)
+            {
+                itemOrList = item;
+                return;
+            }
+
+            itemOrList = new ItemOrList<TItem, List<TItem>>(new List<TItem> { itemOrList.Item, item });
+        }
+
+        public static void Set<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item, int index)
+            where TItem : class?
+        {
+            Should.NotBeNull(item, nameof(item));
+            if (itemOrList.List != null)
+            {
+                itemOrList.List[index] = item;
+                return;
+            }
+
+            if (index == 0 && itemOrList.Item != null)
+            {
+                itemOrList = item;
+                return;
+            }
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+        }
+
+        public static bool Remove<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item)
+            where TItem : class?
+            where TList : class?, ICollection<TItem>, IReadOnlyList<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List.Remove(item);
+
+            if (Equals(itemOrList.Item, item))
+            {
+                itemOrList = default;
+                return true;
+            }
+
+            return false;
+        }
+
+        public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, int index)
+            where TItem : class?
+            where TList : class?, IList<TItem>, IReadOnlyList<TItem>
+        {
+            if (itemOrList.List != null)
+            {
+                itemOrList.List.RemoveAt(index);
+                return;
+            }
+
+            if (index == 0 && itemOrList.Item != null)
+            {
+                itemOrList = default;
+                return;
+            }
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
