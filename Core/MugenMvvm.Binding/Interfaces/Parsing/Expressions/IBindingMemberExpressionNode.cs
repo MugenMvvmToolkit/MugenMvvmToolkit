@@ -10,6 +10,10 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 
         void SetIndex(int index);
 
+        object GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
+
+        object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
+
         IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
 
         IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
