@@ -14,12 +14,15 @@ namespace MugenMvvm.Binding.Enums
         Dynamic = Instance | 1 << 5,
         Extension = Instance | 1 << 6,
 
-        All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension,
         InstancePublic = Instance | Public,
         InstanceNonPublic = Instance | NonPublic,
+
         StaticPublic = Static | Public,
         StaticNonPublic = Static | NonPublic,
-        StaticOnly = StaticPublic | NonPublic,
-        InstanceOnly = InstancePublic | NonPublic
+
+        StaticOnly = StaticPublic | StaticNonPublic,
+        InstanceOnly = InstancePublic | InstanceNonPublic,
+
+        All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension
     }
 }
