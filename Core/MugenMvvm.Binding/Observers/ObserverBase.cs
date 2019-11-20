@@ -39,8 +39,8 @@ namespace MugenMvvm.Binding.Observers
         {
             get
             {
-                if (_target is IWeakReference w)
-                    return w.Target != null;
+                if (_target is IWeakItem w)
+                    return w.IsAlive;
                 return true;
             }
         }
@@ -108,13 +108,6 @@ namespace MugenMvvm.Binding.Observers
         #endregion
 
         #region Methods
-
-        protected static Type GetTargetType(object target, MemberFlags flags)
-        {
-            if (flags.HasFlagEx(MemberFlags.Static))
-                return target as Type ?? target.GetType();
-            return target.GetType();
-        }
 
         protected virtual void OnListenerAdded(IMemberPathObserverListener listener)
         {

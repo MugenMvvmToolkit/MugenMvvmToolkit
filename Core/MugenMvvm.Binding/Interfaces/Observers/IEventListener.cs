@@ -1,9 +1,9 @@
-﻿namespace MugenMvvm.Binding.Interfaces.Observers
-{
-    public interface IEventListener
-    {
-        bool IsAlive { get; }
+﻿using MugenMvvm.Interfaces.Internal;
 
+namespace MugenMvvm.Binding.Interfaces.Observers
+{
+    public interface IEventListener : IWeakItem
+    {
         bool IsWeak { get; }
 
         bool TryHandle(object sender, object? message);

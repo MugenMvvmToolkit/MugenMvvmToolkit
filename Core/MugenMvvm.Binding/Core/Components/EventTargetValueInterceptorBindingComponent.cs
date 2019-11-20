@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public bool ToggleEnabledState { get; }
 
-        bool IEventListener.IsAlive => !_isDisposed;
+        bool IWeakItem.IsAlive => !_isDisposed;
 
         bool IEventListener.IsWeak => false;
 
@@ -163,7 +163,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return false;
 
             _enabledMember = GetMemberProvider()
-                .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.InstancePublic, _currentMetadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.Public | MemberFlags.Extension | MemberFlags.Dynamic, _currentMetadata) as IMemberAccessorInfo;
             if (_enabledMember == null)
                 return false;
 

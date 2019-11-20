@@ -156,12 +156,12 @@ namespace MugenMvvm.Binding.Observers
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
-                var type = GetTargetType(target, memberFlags);
+                var type = memberFlags.GetTargetType(target);
                 for (var i = 0; i < members.Length; i++)
                 {
-                    var member = provider.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor : MemberType.Accessor | MemberType.Event, memberFlags);
                     if (i == 1)
-                        memberFlags &= ~MemberFlags.Static;
+                        memberFlags = memberFlags.SetInstanceOrStaticFlags(false);
+                    var member = provider.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags);
                     if (member == null)
                     {
                         if (Optional)

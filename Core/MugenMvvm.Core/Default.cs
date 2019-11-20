@@ -106,6 +106,8 @@ namespace MugenMvvm
 
             public string Id => string.Empty;
 
+            bool IWeakItem.IsAlive => false;
+
             object? IWeakReference.Target => null;
 
             #endregion

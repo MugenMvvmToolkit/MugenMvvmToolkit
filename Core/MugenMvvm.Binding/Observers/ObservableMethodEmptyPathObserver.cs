@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Observers
             if (target == null)
                 return default;
 
-            return new MemberPathMembers(target, ConstantMemberInfo.NullArray);
+            return new MemberPathMembers(target, ConstantMemberInfo.TargetArray);
         }
 
         public override MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null)
@@ -66,7 +66,7 @@ namespace MugenMvvm.Binding.Observers
             if (target == null)
                 return default;
 
-            return new MemberPathLastMember(target, ConstantMemberInfo.Null);
+            return new MemberPathLastMember(target, ConstantMemberInfo.Target);
         }
 
         protected override void OnDisposed()
@@ -84,7 +84,7 @@ namespace MugenMvvm.Binding.Observers
                 _unsubscriber = ActionToken.NoDoToken;
             else
             {
-                var member = MugenBindingService.MemberProvider.GetMember(GetTargetType(target, _memberFlags), _method, MemberType.Method, _memberFlags);
+                var member = MugenBindingService.MemberProvider.GetMember(_memberFlags.GetTargetType(target), _method, MemberType.Method, _memberFlags);
                 if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this);
                 if (_unsubscriber.IsEmpty)

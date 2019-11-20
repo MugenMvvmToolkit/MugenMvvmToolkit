@@ -13,13 +13,15 @@ namespace MugenMvvm.Binding.Members
 
         private readonly object? _result;
 
+        private static readonly object TargetObj = new object();
+
+        public static readonly ConstantMemberInfo Target = new ConstantMemberInfo("", TargetObj, false);
         public static readonly ConstantMemberInfo Null = new ConstantMemberInfo("", null, false);
         public static readonly ConstantMemberInfo Unset = new ConstantMemberInfo("", BindingMetadata.UnsetValue, false);
-        public static readonly ConstantMemberInfo WritableNull = new ConstantMemberInfo("", null, true);
 
         public static readonly IMemberInfo[] NullArray = { Null };
+        public static readonly IMemberInfo[] TargetArray = { Target };
         public static readonly IMemberInfo[] UnsetArray = { Unset };
-        public static readonly IMemberInfo[] WritableNullArray = { WritableNull };
 
         #endregion
 
@@ -64,6 +66,8 @@ namespace MugenMvvm.Binding.Members
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
+            if (ReferenceEquals(TargetObj, _result))
+                return target;
             return _result;
         }
 
