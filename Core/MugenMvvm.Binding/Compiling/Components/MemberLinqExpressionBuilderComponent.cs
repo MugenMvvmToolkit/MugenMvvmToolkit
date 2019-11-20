@@ -63,10 +63,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     if (type.IsEnum)
                         return Expression.Constant(Enum.Parse(type, memberExpression.MemberName));
-                    flags = MemberFlags & ~MemberFlags.Instance;
+                    flags = MemberFlags.SetInstanceOrStaticFlags(true);
                 }
                 else
-                    flags = MemberFlags & ~MemberFlags.Static;
+                    flags = MemberFlags.SetInstanceOrStaticFlags(false);
 
                 member = _memberProvider
                     .DefaultIfNull()
@@ -104,8 +104,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             var property = MugenBindingService
                     .MemberProvider
-                    .GetMember(target.GetType(), member, MemberType.Accessor, MemberFlags & ~MemberFlags.Static, metadata) as
-                IMemberAccessorInfo;
+                    .GetMember(target.GetType(), member, MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), metadata) as IMemberAccessorInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property!.GetValue(target, metadata);

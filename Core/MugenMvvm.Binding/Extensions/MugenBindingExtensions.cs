@@ -181,13 +181,15 @@ namespace MugenMvvm.Binding
             memberProvider = memberProvider.DefaultIfNull();
             for (var index = firstMemberIndex; index < path.Members.Length; index++)
             {
-                var item = path.Members[index];
+                var pathMember = path.Members[index];
                 if (src.IsNullOrUnsetValue())
                     return null;
 
-                var member = memberProvider.GetMember(type, item, MemberType.Accessor, flags) as IMemberAccessorInfo;
+                if (index == 1)
+                    flags = flags.SetInstanceOrStaticFlags(false);
+                var member = memberProvider.GetMember(type, pathMember, MemberType.Accessor, flags) as IMemberAccessorInfo;
                 if (member == null)
-                    BindingExceptionManager.ThrowInvalidBindingMember(type, item);
+                    BindingExceptionManager.ThrowInvalidBindingMember(type, pathMember);
                 src = member.GetValue(src, metadata);
                 if (src != null)
                     type = src.GetType();
@@ -414,6 +416,13 @@ namespace MugenMvvm.Binding
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
         }
 
+        public static Type GetTargetType(this MemberFlags flags, object target)
+        {
+            if (flags.HasFlagEx(MemberFlags.Static))
+                return target as Type ?? target.GetType();
+            return target.GetType();
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
         {
@@ -430,6 +439,18 @@ namespace MugenMvvm.Binding
         public static bool HasFlagEx(this MemberType value, MemberType flag)
         {
             return (value & flag) == flag;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static MemberFlags SetInstanceOrStaticFlags(this MemberFlags value, bool isStatic)
+        {
+            return isStatic ? (value | MemberFlags.Static) & ~MemberFlags.Instance : (value | MemberFlags.Instance) & ~MemberFlags.Static;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static MemberFlags ClearInstanceOrStaticFlags(this MemberFlags value, bool isStatic)
+        {
+            return isStatic ? value & ~MemberFlags.Instance : value & ~MemberFlags.Static;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -494,8 +515,7 @@ namespace MugenMvvm.Binding
             }
 
             lastValueRef = value.ToWeakReference();
-            var memberFlags = observer.MemberFlags & ~MemberFlags.Static;
-            var member = MugenBindingService.MemberProvider.GetMember(type!, observer.Method, MemberType.Method, memberFlags);
+            var member = MugenBindingService.MemberProvider.GetMember(type!, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false));
             if (member is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
             if (unsubscriber.IsEmpty)

@@ -204,41 +204,22 @@ namespace MugenMvvm.Internal.Components
 
         public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
-            var isVoid = method.ReturnType == typeof(void);
             var expressions = GetParametersExpression(method, out var parameterExpression);
-            Expression callExpression;
             if (method.IsStatic)
             {
-                callExpression = Expression.Call(null, method, expressions);
-                if (isVoid)
-                {
-                    return Expression
-                        .Lambda<Func<object?, object?[], object?>>(
-                            Expression.Block(callExpression, MugenExtensions.NullConstantExpression), EmptyParameterExpression,
-                            parameterExpression)
-                        .CompileEx();
-                }
-
-                callExpression = callExpression.ConvertIfNeed(typeof(object), false);
                 return Expression
-                    .Lambda<Func<object?, object?[], object?>>(callExpression, EmptyParameterExpression, parameterExpression)
+                    .Lambda<Func<object?, object?[], object?>>(Expression
+                        .Call(null, method, expressions)
+                        .ConvertIfNeed(typeof(object), false), EmptyParameterExpression, parameterExpression)
                     .CompileEx();
             }
 
             var declaringType = method.DeclaringType;
             var targetExp = Expression.Parameter(typeof(object), "target");
-            callExpression = Expression.Call(targetExp.ConvertIfNeed(declaringType, false), method, expressions);
-            if (isVoid)
-            {
-                return Expression
-                    .Lambda<Func<object?, object?[], object?>>(Expression.Block(callExpression, MugenExtensions.NullConstantExpression),
-                        targetExp, parameterExpression)
-                    .CompileEx();
-            }
-
-            callExpression = callExpression.ConvertIfNeed(typeof(object), false);
             return Expression
-                .Lambda<Func<object?, object?[], object?>>(callExpression, targetExp, parameterExpression)
+                .Lambda<Func<object?, object?[], object?>>(Expression
+                    .Call(targetExp.ConvertIfNeed(declaringType, false), method, expressions)
+                    .ConvertIfNeed(typeof(object), false), targetExp, parameterExpression)
                 .CompileEx();
         }
 
@@ -275,9 +256,7 @@ namespace MugenMvvm.Internal.Components
                 callExpression = Expression.Call(@this, method, expressions.ToArray());
             }
 
-            if (delegateMethod.ReturnType != typeof(void))
-                callExpression = callExpression.ConvertIfNeed(delegateMethod.ReturnType, false);
-            var lambdaExpression = Expression.Lambda(delegateType, callExpression, parameters);
+            var lambdaExpression = Expression.Lambda(delegateType, callExpression.ConvertIfNeed(delegateMethod.ReturnType, false), parameters);
             return lambdaExpression.CompileEx();
         }
 

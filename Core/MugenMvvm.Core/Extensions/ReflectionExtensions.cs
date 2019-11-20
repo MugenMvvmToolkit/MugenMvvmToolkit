@@ -188,6 +188,8 @@ namespace MugenMvvm
                 return null!;
             if (type == typeof(void) || type == expression.Type)
                 return expression;
+            if (expression.Type == typeof(void))
+                return Expression.Block(expression, type == typeof(object) ? NullConstantExpression : (Expression)Expression.Default(type));
             if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;
             return Expression.Convert(expression, type);
