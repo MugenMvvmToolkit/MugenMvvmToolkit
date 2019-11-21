@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
@@ -6,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
     {
         bool IsPostOrder { get; }
 
-        IExpressionNode? Visit(IExpressionNode expression);
+        IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata);
     }
 }

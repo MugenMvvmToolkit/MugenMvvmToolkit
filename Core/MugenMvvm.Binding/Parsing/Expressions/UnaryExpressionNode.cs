@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -30,10 +31,10 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
+        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             var changed = false;
-            var operand = VisitWithCheck(visitor, Operand, true, ref changed);
+            var operand = VisitWithCheck(visitor, Operand, true, ref changed, metadata);
             if (changed)
                 return new UnaryExpressionNode(Token, operand);
             return this;

@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -33,7 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
+        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             return this;
         }

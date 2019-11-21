@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
@@ -6,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
     {
         ExpressionNodeType NodeType { get; }
 
-        IExpressionNode Accept(IExpressionVisitor visitor);
+        IExpressionNode Accept(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata = null);
     }
 }

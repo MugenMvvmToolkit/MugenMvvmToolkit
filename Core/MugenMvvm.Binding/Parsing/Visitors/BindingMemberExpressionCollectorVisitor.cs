@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
@@ -32,7 +33,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Implementation of interfaces
 
-        IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression)
+        IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is IBindingMemberExpressionNode bindingMember && !_members.Contains(bindingMember))
             {
@@ -47,13 +48,13 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Methods
 
-        public ItemOrList<IBindingMemberExpressionNode?, IBindingMemberExpressionNode[]> Collect(IExpressionNode? expression)
+        public ItemOrList<IBindingMemberExpressionNode?, IBindingMemberExpressionNode[]> Collect(IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
                 return default;
 
             IsMultiExpression = false;
-            expression.Accept(this);
+            expression.Accept(this, metadata);
             if (_members.Count == 0)
                 return Default.EmptyArray<IBindingMemberExpressionNode>();
 

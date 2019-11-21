@@ -3,6 +3,7 @@ using System.Linq;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -31,16 +32,16 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
+        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             var changed = false;
-            var body = VisitWithCheck(visitor, Body, true, ref changed);
+            var body = VisitWithCheck(visitor, Body, true, ref changed, metadata);
 
             var itemsChanged = false;
             IParameterExpressionNode[]? newParams = null;
             for (var i = 0; i < Parameters.Count; i++)
             {
-                var node = VisitWithCheck(visitor, Parameters[i], true, ref itemsChanged);
+                var node = VisitWithCheck(visitor, Parameters[i], true, ref itemsChanged, metadata);
                 if (itemsChanged)
                     newParams = Parameters.ToArray();
                 if (newParams != null)

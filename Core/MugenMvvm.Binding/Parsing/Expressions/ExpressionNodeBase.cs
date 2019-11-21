@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -14,21 +15,21 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Implementation of interfaces
 
-        public IExpressionNode Accept(IExpressionVisitor visitor)
+        public IExpressionNode Accept(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(visitor, nameof(visitor));
             IExpressionNode? node;
             var changed = false;
             if (!visitor.IsPostOrder)
             {
-                node = VisitWithCheck(visitor, this, true, ref changed);
+                node = VisitWithCheck(visitor, this, true, ref changed, metadata);
                 if (changed)
                     return node;
             }
 
-            node = VisitInternal(visitor);
+            node = VisitInternal(visitor, metadata);
             if (visitor.IsPostOrder)
-                return VisitWithCheck(visitor, node, true, ref changed);
+                return VisitWithCheck(visitor, node, true, ref changed, metadata);
             return node;
         }
 
@@ -36,17 +37,17 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        protected abstract IExpressionNode VisitInternal(IExpressionVisitor visitor);
+        protected abstract IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata);
 
-        protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed)
+        protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode
         {
-            var result = ReferenceEquals(this, node) ? visitor.Visit(node) : node.Accept(visitor);
+            var result = ReferenceEquals(this, node) ? visitor.Visit(node, metadata) : node.Accept(visitor, metadata);
             if (!changed && result != node)
                 changed = true;
             if (notNull && result == null)
                 BindingExceptionManager.ThrowExpressionNodeCannotBeNull(GetType());
-            return (T) result!;
+            return (T)result!;
         }
 
         #endregion

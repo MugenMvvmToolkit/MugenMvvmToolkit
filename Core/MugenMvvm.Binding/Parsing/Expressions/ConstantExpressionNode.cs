@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -139,7 +140,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return new ConstantExpressionNode(value, type);
         }
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
+        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             return this;
         }

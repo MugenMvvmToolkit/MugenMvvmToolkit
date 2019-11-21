@@ -11,6 +11,7 @@ using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Collections;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
@@ -58,10 +59,10 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Implementation of interfaces
 
-        public IExpressionNode? Visit(IExpressionNode expression)
+        IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is IMethodCallExpressionNode methodCall)
-                return VisitMethodCall(methodCall);
+                return VisitMethodCall(methodCall, metadata);
 
             if (expression is IMemberExpressionNode memberExpressionNode)
                 return VisitMemberExpression(memberExpressionNode);
@@ -89,17 +90,17 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             return true;
         }
 
-        public IExpressionNode? Accept(IExpressionNode? expression)
+        public IExpressionNode? Visit(IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
                 return null;
             _members.Clear();
-            expression = expression.Accept(this);
+            expression = expression.Accept(this, metadata);
             _members.Clear();
             return expression;
         }
 
-        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall)
+        private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall, IReadOnlyMetadataContext? metadata)
         {
             var member = GetOrAddBindingMember(methodCall, null);
             if (member != null)
@@ -117,7 +118,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     return methodCall;
             }
 
-            return methodCall.UpdateTarget(member).Accept(this);
+            return methodCall.UpdateTarget(member).Accept(this, metadata);
         }
 
         private IExpressionNode VisitMemberExpression(IMemberExpressionNode memberExpression)

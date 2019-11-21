@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -74,17 +75,17 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor)
+        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             var changed = false;
             IExpressionNode? target = null;
             if (Target != null)
-                target = VisitWithCheck(visitor, Target, false, ref changed);
+                target = VisitWithCheck(visitor, Target, false, ref changed, metadata);
             var itemsChanged = false;
             IExpressionNode[]? newArgs = null;
             for (var i = 0; i < Arguments.Count; i++)
             {
-                var node = VisitWithCheck(visitor, Arguments[i], true, ref itemsChanged);
+                var node = VisitWithCheck(visitor, Arguments[i], true, ref itemsChanged, metadata);
                 if (itemsChanged)
                     newArgs = Arguments.ToArray();
                 if (newArgs != null)
@@ -92,7 +93,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             if (changed || itemsChanged)
-                return new MethodCallExpressionNode(target, MethodName, newArgs ?? Arguments, TypeArgs) {Method = Method};
+                return new MethodCallExpressionNode(target, MethodName, newArgs ?? Arguments, TypeArgs) { Method = Method };
             return this;
         }
 

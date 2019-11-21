@@ -109,7 +109,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 _compiler = compiler;
                 _inputMetadata = metadata;
                 _parametersDict = new ParameterDictionary();
-                _expression = expression.Accept(this);
+                _expression = expression.Accept(this, metadata);
                 _values = new object[_parametersDict.Count + 1];
                 MetadataParameter = GetIndexExpression(_parametersDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
             }
@@ -175,7 +175,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
             }
 
-            IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression)
+            IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
             {
                 if (expression.NodeType == ExpressionNodeType.BindingMember)
                 {
