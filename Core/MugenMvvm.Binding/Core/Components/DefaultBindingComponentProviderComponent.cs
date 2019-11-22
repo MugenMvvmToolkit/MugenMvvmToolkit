@@ -29,8 +29,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingComponentBuilder?, IReadOnlyList<IBindingComponentBuilder>> TryGetComponentBuilders(IExpressionNode targetExpression, IExpressionNode sourceExpression,
-            ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingComponentBuilder, IReadOnlyList<IBindingComponentBuilder>> TryGetComponentBuilders(IExpressionNode targetExpression, IExpressionNode sourceExpression,
+            ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             return DefaultBindingComponents;
         }

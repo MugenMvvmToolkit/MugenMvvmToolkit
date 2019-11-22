@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing
             Metadata = metadata ?? Default.Metadata;
         }
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters,
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
             IMetadataOwner<IReadOnlyMetadataContext> context)
             : this(target, source, parameters, context.HasMetadata ? context.Metadata : Default.Metadata)
         {
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public bool IsEmpty => Target == null;
 
-        public ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> Parameters => ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>.FromRawValue(_parametersRaw);
+        public ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> Parameters => ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>.FromRawValue(_parametersRaw);
 
         #endregion
     }

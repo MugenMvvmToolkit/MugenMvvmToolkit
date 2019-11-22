@@ -349,7 +349,7 @@ namespace MugenMvvm.Binding
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
-                return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>(parameter), context);
+                return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter), context);
             }
 
             BindingExceptionManager.ThrowCannotParseExpression(context);

@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression,
+        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata = null)
         {
             var builders = _expressionBuilders;
@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Core
             return default;
         }
 
-        public ItemOrList<IBinding?, IReadOnlyList<IBinding>> BuildBinding<TExpression>(in TExpression expression, object target,
+        public ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildBinding<TExpression>(in TExpression expression, object target,
             ItemOrList<object?, IReadOnlyList<object?>> sources = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Core
             return default;
         }
 
-        public ItemOrList<IBinding?, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
             var holders = _holders;
@@ -79,14 +79,11 @@ namespace MugenMvvm.Binding.Core
             IBinding? item = null;
             List<IBinding>? list = null;
             for (var i = 0; i < holders.Length; i++)
-            {
-                var bindings = holders[i].TryGetBindings(target, path, metadata);
-                bindings.Merge(ref item, ref list);
-            }
+                holders[i].TryGetBindings(target, path, metadata).Merge(ref item, ref list);
 
             if (list == null)
-                return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(item);
-            return new ItemOrList<IBinding?, IReadOnlyList<IBinding>>(list);
+                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(item);
+            return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(list);
         }
 
         public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata = null)

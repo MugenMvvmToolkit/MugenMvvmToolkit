@@ -7,7 +7,7 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingHolderComponent : IComponent<IBindingManager>
     {
-        ItemOrList<IBinding?, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata);
+        ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata);
 
         bool TryRegister(IBinding binding, IReadOnlyMetadataContext? metadata);
 

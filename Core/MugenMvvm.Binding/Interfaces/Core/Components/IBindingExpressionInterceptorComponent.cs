@@ -11,6 +11,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
         bool IsCachePerTypeRequired { get; }
 
         void Intercept(object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
-            ref ItemOrList<IExpressionNode?, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
+            ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
     }
 }

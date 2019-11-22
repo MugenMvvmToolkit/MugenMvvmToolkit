@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void Intercept(object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression, ref ItemOrList<IExpressionNode?, List<IExpressionNode>> parameters,
+        public void Intercept(object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression, ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters,
             IReadOnlyMetadataContext? metadata)
         {
             //source is empty, target is expression

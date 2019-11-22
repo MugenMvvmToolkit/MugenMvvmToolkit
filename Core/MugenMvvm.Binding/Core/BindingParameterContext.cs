@@ -63,7 +63,7 @@ namespace MugenMvvm.Binding.Core
             return node;
         }
 
-        public void Initialize<TList>(ItemOrList<IExpressionNode?, TList> parameters)
+        public void Initialize<TList>(ItemOrList<IExpressionNode, TList> parameters)
             where TList : class?, IReadOnlyList<IExpressionNode>
         {
             var list = parameters.List;
@@ -83,13 +83,13 @@ namespace MugenMvvm.Binding.Core
             InlineParameters.Clear();
         }
 
-        public ItemOrList<IBindingComponentBuilder?, IReadOnlyList<IBindingComponentBuilder>> GetComponents()
+        public ItemOrList<IBindingComponentBuilder, IReadOnlyList<IBindingComponentBuilder>> GetComponents()
         {
             if (ComponentBuilders.Count == 0)
                 return default;
             if (ComponentBuilders.Count == 1)
-                return new ItemOrList<IBindingComponentBuilder?, IReadOnlyList<IBindingComponentBuilder>>(ComponentBuilders.First().Value);
-            return new ItemOrList<IBindingComponentBuilder?, IReadOnlyList<IBindingComponentBuilder>>(ComponentBuilders.Values.ToArray());
+                return new ItemOrList<IBindingComponentBuilder, IReadOnlyList<IBindingComponentBuilder>>(ComponentBuilders.First().Value);
+            return new ItemOrList<IBindingComponentBuilder, IReadOnlyList<IBindingComponentBuilder>>(ComponentBuilders.Values.ToArray());
         }
 
         private void AddParameter(IExpressionNode expression)

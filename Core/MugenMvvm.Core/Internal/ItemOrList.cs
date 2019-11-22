@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -11,6 +12,7 @@ namespace MugenMvvm.Internal
     {
         #region Fields
 
+        [MaybeNull]
         public readonly TItem Item;
         public readonly TList? List;
 
@@ -19,7 +21,7 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrList(TItem item)
+        public ItemOrList([AllowNull]TItem item)
         {
             Item = item;
             List = null;

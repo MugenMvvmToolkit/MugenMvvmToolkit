@@ -115,7 +115,7 @@ namespace MugenMvvm.Binding.Core
 
         public IMemberPathObserver Target { get; }
 
-        public ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> Source => ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>.FromRawValue(SourceRaw);
+        public ItemOrList<IMemberPathObserver, IMemberPathObserver[]> Source => ItemOrList<IMemberPathObserver, IMemberPathObserver[]>.FromRawValue(SourceRaw);
 
         protected object? SourceRaw { get; }
 
@@ -159,9 +159,9 @@ namespace MugenMvvm.Binding.Core
             Components.Clear();
         }
 
-        public ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> GetComponents()
+        public ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> GetComponents()
         {
-            return ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>.FromRawValue(_components);
+            return ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>.FromRawValue(_components);
         }
 
         public void UpdateTarget()
@@ -391,7 +391,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public void AddOrderedComponents(ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
+        public void AddOrderedComponents(ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;

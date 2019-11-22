@@ -59,7 +59,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             var parserResult = _parser.DefaultIfNull().Parse(expression, metadata);
             var list = parserResult.List;
@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             var item = parserResult.Item;
-            return new ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters, metadata));
+            return new ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters, metadata));
         }
 
         int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
@@ -125,7 +125,7 @@ namespace MugenMvvm.Binding.Core.Components
         }
 
         private IBindingExpression GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
-            ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
+            ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             if (_isCachePerTypeRequired)
                 return new BindingExpressionCache(this, targetExpression, sourceExpression, parameters.GetRawValue(), metadata);
@@ -298,7 +298,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             private IBinding CreateMultiBinding(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> sources;
+                ItemOrList<IMemberPathObserver, IMemberPathObserver[]> sources;
                 if (_compiledExpressionSource == null)
                     sources = default;
                 else if (_compiledExpressionSource is IBindingMemberExpressionNode[] expressions)
@@ -311,7 +311,7 @@ namespace MugenMvvm.Binding.Core.Components
                 else
                 {
                     var observer = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetSourceObserver(target, source, metadata);
-                    sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
+                    sources = new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>(observer);
                 }
 
                 return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression!), target, source, metadata);
@@ -321,7 +321,7 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
                 if (_componentBuilders!.Length == 1)
-                    binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
+                    binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
                     var components = new IComponent<IBinding>[_componentBuilders.Length];
@@ -337,7 +337,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                var parameters = ItemOrList<IExpressionNode?, List<IExpressionNode>>.FromRawValue(_parametersRaw);
+                var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
                 var interceptors = _owner._expressionInterceptors;
                 for (var i = 0; i < interceptors.Length; i++)
                     interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);

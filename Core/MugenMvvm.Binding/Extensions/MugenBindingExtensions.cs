@@ -155,7 +155,7 @@ namespace MugenMvvm.Binding
             return null;
         }
 
-        public static bool IsAllMembersAvailable(this ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> observers)
+        public static bool IsAllMembersAvailable(this ItemOrList<IMemberPathObserver, IMemberPathObserver[]> observers)
         {
             var list = observers.List;
             if (list == null)
