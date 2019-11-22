@@ -8,7 +8,9 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingExpressionInterceptorComponent : IComponent<IBindingManager>
     {
-        void Intercept(ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
+        bool IsCachePerTypeRequired { get; }
+
+        void Intercept(object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
             ref ItemOrList<IExpressionNode?, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
     }
 }

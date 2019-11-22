@@ -8,7 +8,7 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingComponentProviderComponent : IComponent<IBindingManager>
     {
-        ItemOrList<IBindingComponentBuilder?, IReadOnlyList<IBindingComponentBuilder>> TryGetComponentBuilders(IBinding binding,
-            object target, object? source, ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
+        ItemOrList<IBindingComponentBuilder?, IReadOnlyList<IBindingComponentBuilder>> TryGetComponentBuilders(IExpressionNode targetExpression, IExpressionNode sourceExpression,
+            ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata);
     }
 }
