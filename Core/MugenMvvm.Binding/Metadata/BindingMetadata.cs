@@ -11,7 +11,6 @@ namespace MugenMvvm.Binding.Metadata
         public static readonly object UnsetValue = new object();
         public static readonly object DoNothing = new object();
 
-        private static IMetadataContextKey<bool>? _isMultiBinding;
         private static IMetadataContextKey<IBinding?>? _binding;
         private static IMetadataContextKey<object?>? _eventArgs;
         private static IMetadataContextKey<bool>? _suppressHolderRegistration;
@@ -30,12 +29,6 @@ namespace MugenMvvm.Binding.Metadata
         {
             get => _eventArgs ??= GetBuilder<object?>(nameof(EventArgs)).Build();
             set => _eventArgs = value;
-        }
-
-        public static IMetadataContextKey<bool> IsMultiBinding
-        {
-            get => _isMultiBinding ??= GetBuilder<bool>(nameof(IsMultiBinding)).Build();
-            set => _isMultiBinding = value;
         }
 
         public static IMetadataContextKey<bool> SuppressHolderRegistration
