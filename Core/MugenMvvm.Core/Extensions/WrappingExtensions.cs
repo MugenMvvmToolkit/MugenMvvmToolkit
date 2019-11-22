@@ -41,7 +41,7 @@ namespace MugenMvvm
                     ?.GetActivator(reflectionDelegateProvider);
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(implementation);
-                wrapperFactory = (manager, o, arg3, arg4) => constructor!.Invoke(new[] {o});
+                wrapperFactory = (manager, o, arg3, arg4) => constructor.Invoke(new[] {o});
             }
 
             return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType == arg3, wrapperFactory); //todo closure check

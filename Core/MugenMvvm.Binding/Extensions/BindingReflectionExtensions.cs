@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -242,11 +243,10 @@ namespace MugenMvvm.Binding
             return st == tt;
         }
 
-        public static Type GetTargetType(ref Expression target)
+        public static Type GetTargetType([MaybeNull]ref Expression target)
         {
-            var constant = target as ConstantExpression;
             var type = target.Type;
-            if (constant?.Value is Type value)
+            if (target is ConstantExpression constant && constant.Value is Type value)
             {
                 type = value;
                 target = null!;
@@ -285,7 +285,7 @@ namespace MugenMvvm.Binding
             return method.GetAccessModifiers(false, ref parameters);
         }
 
-        public static MemberFlags GetAccessModifiers(this MethodBase? method, bool checkExtension, ref ParameterInfo[]? extensionParameters)
+        public static MemberFlags GetAccessModifiers(this MethodBase? method, bool checkExtension, [NotNullIfNotNull("extensionParameters")]ref ParameterInfo[]? extensionParameters)
         {
             if (method == null)
                 return MemberFlags.Instance;
@@ -343,7 +343,7 @@ namespace MugenMvvm.Binding
 
             if (parameterType.IsGenericType)
             {
-                inputType = MugenBindingExtensions.FindCommonType(parameterType.GetGenericTypeDefinition(), inputType)!;
+                inputType = FindCommonType(parameterType.GetGenericTypeDefinition(), inputType)!;
                 if (inputType == null)
                     return null;
 

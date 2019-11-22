@@ -50,7 +50,7 @@ namespace MugenMvvm.Validation
             {
                 if (_metadata == null)
                     _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata!;
+                return _metadata;
             }
         }
 
@@ -60,7 +60,7 @@ namespace MugenMvvm.Validation
             {
                 if (_validators == null)
                     ComponentCollectionProvider.LazyInitialize(ref _validators, this);
-                return _validators!;
+                return _validators;
             }
         }
 
@@ -233,12 +233,12 @@ namespace MugenMvvm.Validation
         {
             if (_inlineValidator == null && MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
             {
-                _inlineValidator!.Initialize(this, null);
+                _inlineValidator.Initialize(this, null);
                 _inlineValidator.AddComponent(this);
                 Validators.Add(_inlineValidator);
             }
 
-            _inlineValidator!.SetErrors(memberName, errors, metadata);
+            _inlineValidator.SetErrors(memberName, errors, metadata);
         }
 
         protected virtual bool HasErrorsInternal()

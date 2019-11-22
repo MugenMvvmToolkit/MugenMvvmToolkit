@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Parsing
             {
                 if (_metadata == null)
                     _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata!;
+                return _metadata;
             }
         }
 

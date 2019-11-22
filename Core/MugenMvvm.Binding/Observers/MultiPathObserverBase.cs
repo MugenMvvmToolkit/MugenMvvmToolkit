@@ -185,7 +185,7 @@ namespace MugenMvvm.Binding.Observers
                         return true;
                     }
 
-                    type = target!.GetType();
+                    type = target.GetType();
                 }
 
                 if (HasListeners)

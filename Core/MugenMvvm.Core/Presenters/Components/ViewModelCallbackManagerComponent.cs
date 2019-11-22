@@ -240,9 +240,9 @@ namespace MugenMvvm.Presenters.Components
         private static IMetadataContextKey<List<NavigationCallbackInternal?>?>? GetKeyByCallback(NavigationCallbackType callbackType)
         {
             if (callbackType == NavigationCallbackType.Showing)
-                return ShowingCallbacks!;
+                return ShowingCallbacks;
             if (callbackType == NavigationCallbackType.Closing)
-                return ClosingCallbacks!;
+                return ClosingCallbacks;
             if (callbackType == NavigationCallbackType.Close)
                 return CloseCallbacks;
             return null;

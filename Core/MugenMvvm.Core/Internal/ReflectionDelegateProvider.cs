@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
@@ -95,7 +96,7 @@ namespace MugenMvvm.Internal
             }
 
             ThrowNotInitialized();
-            return null!;
+            return null;
         }
 
         public Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
@@ -110,7 +111,7 @@ namespace MugenMvvm.Internal
             }
 
             ThrowNotInitialized();
-            return null!;
+            return null;
         }
 
         public Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
@@ -126,7 +127,7 @@ namespace MugenMvvm.Internal
             }
 
             ThrowNotInitialized();
-            return null!;
+            return null;
         }
 
         public Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
@@ -141,7 +142,7 @@ namespace MugenMvvm.Internal
             }
 
             ThrowNotInitialized();
-            return null!;
+            return null;
         }
 
         public Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
@@ -156,13 +157,14 @@ namespace MugenMvvm.Internal
             }
 
             ThrowNotInitialized();
-            return null!;
+            return null;
         }
 
         #endregion
 
         #region Methods
 
+        [DoesNotReturn]
         private void ThrowNotInitialized()
         {
             ExceptionManager.ThrowObjectNotInitialized(this, typeof(IReflectionDelegateProviderComponent).Name);

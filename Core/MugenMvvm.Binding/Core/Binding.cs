@@ -79,7 +79,7 @@ namespace MugenMvvm.Binding.Core
             get
             {
                 ExceptionManager.ThrowNotSupported(nameof(Components));
-                return null!;
+                return null;
             }
         }
 

@@ -91,7 +91,7 @@ namespace MugenMvvm.Messaging
             var added = false;
             for (var i = 0; i < components.Length; i++)
             {
-                var handler = (components[i] as IMessengerSubscriberComponent)?.TryGetSubscriber(subscriber, executionMode, metadata)!;
+                var handler = (components[i] as IMessengerSubscriberComponent)?.TryGetSubscriber(subscriber, executionMode, metadata);
                 if (handler == null)
                     continue;
 

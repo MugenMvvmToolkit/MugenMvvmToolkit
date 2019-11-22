@@ -68,7 +68,7 @@ namespace MugenMvvm
             return null;
         }
 
-        public static bool LazyInitialize<T>(this IComponentCollectionProvider? componentCollectionProvider, [EnsuresNotNull] ref IComponentCollection<T>? item, object target,
+        public static bool LazyInitialize<T>(this IComponentCollectionProvider? componentCollectionProvider, [NotNull] ref IComponentCollection<T>? item, object target,
             IReadOnlyMetadataContext? metadata = null)
             where T : class
         {

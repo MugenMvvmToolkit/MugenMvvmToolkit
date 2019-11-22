@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -133,7 +134,7 @@ namespace MugenMvvm.IoC
                 else
                 {
                     ExceptionManager.ThrowEnumOutOfRange(nameof(lifecycle), lifecycle);
-                    binding = null!;
+                    binding = null;
                 }
 
                 if (binding.HasCondition)
@@ -166,7 +167,7 @@ namespace MugenMvvm.IoC
                 else
                 {
                     ExceptionManager.ThrowEnumOutOfRange(nameof(lifecycle), lifecycle);
-                    binding = null!;
+                    binding = null;
                 }
 
                 if (binding.HasCondition)
@@ -198,10 +199,10 @@ namespace MugenMvvm.IoC
                 return Parent.GetImpl(service, typeCache, parameterInfo, metadata);
 
             if (TryResolve(typeCache ?? GetTypeCache(service), parameterInfo, metadata, out var value))
-                return value!;
+                return value;
 
             ExceptionManager.ThrowIocCannotFindBinding(service);
-            return null!;
+            return null;
         }
 
         private object?[] GetAllImpl(Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
@@ -243,7 +244,7 @@ namespace MugenMvvm.IoC
             return Default.EmptyArray<object>();
         }
 
-        private bool TryResolve(TypeCache service, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata, out object? value)
+        private bool TryResolve(TypeCache service, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out object? value)
         {
             if (service.IsArray)
             {
@@ -640,7 +641,7 @@ namespace MugenMvvm.IoC
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(type.Type);
 
-                var result = constructor!.Invoke(container._reflectionDelegateProvider, GetParameters(container, constructor!, parameters, metadata));
+                var result = constructor.Invoke(container._reflectionDelegateProvider, GetParameters(container, constructor!, parameters, metadata));
                 if (parameters.Count != 0)
                     type.SetProperties(container._reflectionDelegateProvider, result, parameters);
                 return result;
@@ -757,17 +758,13 @@ namespace MugenMvvm.IoC
 
             public bool CanResolve(IIocContainer container, Type service, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata)
             {
-                switch (_state)
+                return _state switch
                 {
-                    case BothCondition:
-                        return _name!.Equals(metadata?.Get(IocMetadata.Name)) && _condition!.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
-                    case NameCondition:
-                        return _name!.Equals(metadata?.Get(IocMetadata.Name));
-                    case DelegateCondition:
-                        return _condition!.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata);
-                }
-
-                return true;
+                    BothCondition => (_name!.Equals(metadata?.Get(IocMetadata.Name)) && _condition!.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata)),
+                    NameCondition => _name!.Equals(metadata?.Get(IocMetadata.Name)),
+                    DelegateCondition => _condition!.Invoke(container, service, parameterInfo?.ParameterInfo, Metadata, metadata),
+                    _ => true
+                };
             }
 
             public abstract object? Resolve(MugenIocContainer container, Type service, TypeCache? typeCache, ParameterInfoCache? parameterInfo, IReadOnlyMetadataContext? metadata);
@@ -943,7 +940,7 @@ namespace MugenMvvm.IoC
                     var constructorInfo = Type.GetConstructor(ArrayConstructorTypes);
                     if (constructorInfo == null)
                         ExceptionManager.ThrowCannotFindConstructor(Type);
-                    _arrayActivator = constructorInfo!.GetActivator(reflectionDelegateProvider);
+                    _arrayActivator = constructorInfo.GetActivator(reflectionDelegateProvider);
                 }
 
                 var array = _arrayActivator(new[] { BoxingExtensions.Box(items.Length) });

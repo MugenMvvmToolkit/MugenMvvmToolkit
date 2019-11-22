@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
@@ -32,7 +33,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual bool TryGetValue<TItem, TValue>(TItem item, string path, out TValue value) where TItem : class
+        public virtual bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhen(true)] out TValue value) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));

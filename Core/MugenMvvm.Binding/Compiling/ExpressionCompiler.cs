@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Compiling
             }
 
             BindingExceptionManager.ThrowCannotCompileExpression(expression);
-            return null!;
+            return null;
         }
 
         #endregion

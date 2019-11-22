@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Members
         private object MustBeReadable(object? _)
         {
             BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
-            return null!;
+            return null;
         }
 
         private void CompileSetter(object? arg1, object? arg2)

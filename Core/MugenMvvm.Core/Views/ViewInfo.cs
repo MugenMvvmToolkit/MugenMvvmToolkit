@@ -38,7 +38,7 @@ namespace MugenMvvm.Views
             {
                 if (_metadata == null)
                     _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata!;
+                return _metadata;
             }
         }
 

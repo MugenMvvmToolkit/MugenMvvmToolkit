@@ -98,7 +98,7 @@ namespace MugenMvvm
         }
 
         [Pure]
-        public static bool TryGetService<T>(this IServiceProvider serviceProvider, out T service)
+        public static bool TryGetService<T>(this IServiceProvider serviceProvider, [NotNullWhen(true)] out T service)
         {
             Should.NotBeNull(serviceProvider, nameof(serviceProvider));
             try

@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Core
             {
                 var result = builders[i].TryBuildBindingExpression(expression, metadata);
                 if (!result.IsNullOrEmpty())
-                    return result!;
+                    return result;
             }
 
             BindingExceptionManager.ThrowCannotParseExpression(expression);

@@ -31,7 +31,7 @@ namespace MugenMvvm.Components
             {
                 if (_components == null)
                     this.LazyInitialize(ref _components, this);
-                return _components!;
+                return _components;
             }
         }
 
@@ -47,7 +47,7 @@ namespace MugenMvvm.Components
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IComponentCollectionProviderListener)?.OnComponentCollectionCreated(this, result, metadata);
 
-            return result!;
+            return result;
         }
 
         #endregion

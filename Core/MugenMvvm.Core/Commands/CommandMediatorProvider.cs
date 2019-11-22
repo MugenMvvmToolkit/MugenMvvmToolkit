@@ -42,7 +42,7 @@ namespace MugenMvvm.Commands
             for (var i = 0; i < components.Length; i++)
                 (components[i] as ICommandMediatorProviderListener)?.OnCommandMediatorCreated<TParameter>(this, result, command, metadata);
 
-            return result!;
+            return result;
         }
 
         #endregion

@@ -170,7 +170,7 @@ namespace MugenMvvm
                 if (_fallbackConfiguration != null)
                     return _fallbackConfiguration.Instance<TService>();
                 ExceptionManager.ThrowObjectNotInitialized(typeof(Configuration<TService>), typeof(TService).Name);
-                return null!;
+                return null;
             }
 
             private static void InitializeInternal(TService? service)

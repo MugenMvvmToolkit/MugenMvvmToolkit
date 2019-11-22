@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -17,13 +18,14 @@ namespace MugenMvvm.Components
 
         #region Properties
 
+        [AllowNull]
         protected T Owner
         {
             get
             {
                 if (_owner == null)
                     ExceptionManager.ThrowObjectNotInitialized(this, nameof(Owner));
-                return _owner!;
+                return _owner;
             }
             private set => _owner = value;
         }
@@ -65,7 +67,7 @@ namespace MugenMvvm.Components
             if (owner is T o && ReferenceEquals(Owner, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
             {
                 OnDetachedInternal(o, metadata);
-                Owner = null!;
+                Owner = null;
             }
         }
 

@@ -124,9 +124,9 @@ namespace MugenMvvm.Binding.Observers.Components
 
             #region Implementation of interfaces
 
-            void ActionToken.IHandler.Invoke(object? target, object? state2)
+            void ActionToken.IHandler.Invoke(object? target, object? state)
             {
-                var propertyName = (string)state2!;
+                var propertyName = (string)state!;
                 var listeners = _listeners;
                 var size = _size;
                 for (var i = 0; i < size; i++)

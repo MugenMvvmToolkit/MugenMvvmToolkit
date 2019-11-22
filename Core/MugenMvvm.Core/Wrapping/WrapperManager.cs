@@ -58,7 +58,7 @@ namespace MugenMvvm.Wrapping
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IWrapperManagerListener)?.OnWrapped(this, wrapper!, item, wrapperType, metadata);
 
-            return wrapper!;
+            return wrapper;
         }
 
         #endregion

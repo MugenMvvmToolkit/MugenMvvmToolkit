@@ -15,8 +15,7 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [EnsuresNotNull]
-            object? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] object? argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
                 throw new ArgumentNullException(paramName);
@@ -25,8 +24,7 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] [EnsuresNotNull]
-            string? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
                 throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
@@ -41,28 +39,27 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-            bool validation)
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool validation)
         {
             if (!validation)
                 throw new ArgumentException(MessageConstants.ArgumentNotValid.Format(paramName));
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType([EnsuresNotNull] object instance, string paramName, Type requiredType)
+        public static void BeOfType(object instance, string paramName, Type requiredType)
         {
             NotBeNull(instance, paramName);
             BeOfType(instance.GetType(), paramName, requiredType);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>([EnsuresNotNull] object instance, string paramName)
+        public static void BeOfType<T>(object instance, string paramName)
         {
             BeOfType(instance, paramName, typeof(T));
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType([EnsuresNotNull] Type type, string paramName, [EnsuresNotNull] Type requiredType)
+        public static void BeOfType(Type type, string paramName, Type requiredType)
         {
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -33,8 +34,10 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
-        public static object? Invoke(this ICompiledExpression expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)
+        public static object? Invoke(this ICompiledExpression? expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {
+            if (expression == null)
+                return BindingMetadata.UnsetValue;
             ItemOrList<ExpressionValue, ExpressionValue[]> values;
             if (sourceRaw == null)
                 values = Default.EmptyArray<ExpressionValue>();
@@ -197,14 +200,12 @@ namespace MugenMvvm.Binding
             for (var index = firstMemberIndex; index < path.Members.Length; index++)
             {
                 var pathMember = path.Members[index];
-                if (target.IsNullOrUnsetValue())
-                    return null;
-
                 if (index == 1)
                     flags = flags.SetInstanceOrStaticFlags(false);
                 target = memberProvider.GetValue(type, target, pathMember, flags, metadata);
-                if (target != null)
-                    type = target.GetType();
+                if (target.IsNullOrUnsetValue())
+                    return target;
+                type = target.GetType();
             }
 
             return target;
@@ -343,6 +344,7 @@ namespace MugenMvvm.Binding
             return result;
         }
 
+        [return: MaybeNull]
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
             BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
@@ -358,7 +360,7 @@ namespace MugenMvvm.Binding
         }
 
         public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, [MaybeNull] TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -527,7 +529,7 @@ namespace MugenMvvm.Binding
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static bool IsNullOrUnsetValue(this object? value)
+        internal static bool IsNullOrUnsetValue([NotNullWhen(false)]this object? value)
         {
             return value == null || ReferenceEquals(value, BindingMetadata.UnsetValue);
         }
@@ -580,15 +582,21 @@ namespace MugenMvvm.Binding
             if (ReferenceEquals(value, lastValueRef?.Target))
                 return;
 
-            var type = value?.GetType()!;
-            if (value.IsNullOrUnsetValue() || type.IsValueType)
+            if (value.IsNullOrUnsetValue())
+            {
+                unsubscriber = ActionToken.NoDoToken;
+                return;
+            }
+
+            var type = value.GetType();
+            if (type.IsValueType)
             {
                 unsubscriber = ActionToken.NoDoToken;
                 return;
             }
 
             lastValueRef = value.ToWeakReference();
-            var member = MugenBindingService.MemberProvider.GetMember(type!, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false));
+            var member = MugenBindingService.MemberProvider.GetMember(type, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false));
             if (member is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
             if (unsubscriber.IsEmpty)

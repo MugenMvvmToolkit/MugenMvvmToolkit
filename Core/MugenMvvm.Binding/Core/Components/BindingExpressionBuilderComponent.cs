@@ -242,7 +242,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             private readonly IReadOnlyMetadataContext? _metadata;
             private readonly BindingExpressionBuilderComponent _owner;
-            private ICompiledExpression _compiledExpression;
+            private ICompiledExpression? _compiledExpression;
             private object? _compiledExpressionSource;
             private IBindingComponentBuilder[]? _componentBuilders;
             private object? _parametersRaw;
@@ -314,13 +314,13 @@ namespace MugenMvvm.Binding.Core.Components
                     sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
                 }
 
-                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression), target, source, metadata);
+                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression!), target, source, metadata);
             }
 
             private Binding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
-                if (_componentBuilders.Length == 1)
+                if (_componentBuilders!.Length == 1)
                     binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
@@ -335,7 +335,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return binding;
             }
 
-            private void Initialize(object target, object? source, IReadOnlyMetadataContext metadata)
+            private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var parameters = ItemOrList<IExpressionNode?, List<IExpressionNode>>.FromRawValue(_parametersRaw);
                 var interceptors = _owner._expressionInterceptors;

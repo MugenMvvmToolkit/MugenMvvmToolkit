@@ -47,7 +47,7 @@ namespace MugenMvvm.Metadata
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IMetadataContextProviderListener)?.OnReadOnlyContextCreated(this, result!, target);
-            return result!;
+            return result;
         }
 
         public IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
@@ -66,7 +66,7 @@ namespace MugenMvvm.Metadata
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IMetadataContextProviderListener)?.OnContextCreated(this, result!, target);
-            return result!;
+            return result;
         }
 
         #endregion

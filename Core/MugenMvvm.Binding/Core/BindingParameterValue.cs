@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Metadata;
@@ -33,6 +34,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
+        [return: MaybeNull]
         public T GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
             if (Expression != null)

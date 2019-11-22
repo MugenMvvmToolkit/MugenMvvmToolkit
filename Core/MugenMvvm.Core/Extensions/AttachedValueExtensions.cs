@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
 
@@ -10,7 +11,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool TryGetValue<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, out TValue value)
+        public static bool TryGetValue<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, [NotNullWhen(true)] out TValue value)
             where TItem : class
         {
             Should.NotBeNull(valueManager, nameof(valueManager));

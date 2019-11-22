@@ -140,9 +140,6 @@ namespace System.Diagnostics.CodeAnalysis
 
         #endregion
     }
-
-    [AttributeUsage(AttributeTargets.Parameter)]
-    internal sealed class EnsuresNotNullAttribute : Attribute { }
 }
 
 namespace MugenMvvm.Attributes

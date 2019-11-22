@@ -126,7 +126,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     if (_metadata == null)
                         _compiler._metadataContextProvider.LazyInitialize(ref _metadata, this, _inputMetadata);
-                    return _metadata!;
+                    return _metadata;
                 }
             }
 
@@ -244,7 +244,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     return exp;
 
                 BindingExceptionManager.ThrowCannotCompileExpression(expression);
-                return null!;
+                return null;
             }
 
             #endregion

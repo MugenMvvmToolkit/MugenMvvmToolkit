@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
 using MugenMvvm.Binding.Constants;
@@ -90,6 +91,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             return true;
         }
 
+        [return:NotNullIfNotNull("expression")]
         public IExpressionNode? Visit(IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)

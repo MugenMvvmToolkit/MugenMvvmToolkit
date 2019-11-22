@@ -52,8 +52,7 @@ namespace MugenMvvm
             }
         }
 
-        public static IMetadataContext LazyInitializeNonReadonly(this IMetadataContextProvider? metadataContextProvider,
-            [EnsuresNotNull] ref IReadOnlyMetadataContext? metadataContext, object? target)
+        public static IMetadataContext LazyInitializeNonReadonly(this IMetadataContextProvider? metadataContextProvider, [NotNull] ref IReadOnlyMetadataContext? metadataContext, object? target)
         {
             if (metadataContext is IMetadataContext m)
                 return m;
@@ -61,7 +60,7 @@ namespace MugenMvvm
             return (IMetadataContext)metadataContext;
         }
 
-        public static bool LazyInitialize(this IMetadataContextProvider? metadataContextProvider, [EnsuresNotNull] ref IMetadataContext? metadataContext,
+        public static bool LazyInitialize(this IMetadataContextProvider? metadataContextProvider, [NotNull] ref IMetadataContext? metadataContext,
             object? target, IReadOnlyCollection<MetadataContextValue>? values = null)
         {
             return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextProvider

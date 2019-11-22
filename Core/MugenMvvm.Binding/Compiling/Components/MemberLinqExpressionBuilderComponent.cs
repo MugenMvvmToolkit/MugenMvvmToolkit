@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(expression is IMemberExpressionNode memberExpression) || memberExpression.Target == null)
                 return null;
 
-            var target = context.Build(memberExpression.Target);
+            Expression? target = context.Build(memberExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
             var member = memberExpression.Member;
             if (member == null)
@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     .GetMember(target.GetType(), member, MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), metadata) as IMemberAccessorInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
-            return property!.GetValue(target, metadata);
+            return property.GetValue(target, metadata);
         }
 
         private static Expression? TryCompile(Expression? target, object? member)

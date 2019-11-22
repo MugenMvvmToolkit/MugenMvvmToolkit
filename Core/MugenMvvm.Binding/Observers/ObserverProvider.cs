@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Observers
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberPathProviderComponent).Name);
-            return null!;
+            return null;
         }
 
         public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata = null)
@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Observers
             }
 
             ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberObserverProviderComponent).Name);
-            return null!;
+            return null;
         }
 
         #endregion

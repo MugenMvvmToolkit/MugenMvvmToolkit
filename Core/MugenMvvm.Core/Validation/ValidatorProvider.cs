@@ -63,7 +63,7 @@ namespace MugenMvvm.Validation
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IValidatorProviderListener)?.OnAggregatorValidatorCreated(this, result!, metadata);
-            return result!;
+            return result;
         }
 
         #endregion

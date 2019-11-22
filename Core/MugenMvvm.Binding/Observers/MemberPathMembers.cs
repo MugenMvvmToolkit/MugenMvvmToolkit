@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
@@ -42,7 +43,7 @@ namespace MugenMvvm.Binding.Observers
             get
             {
                 if (_members == null)
-                    return (Exception?) _target;
+                    return (Exception?)_target;
                 return null;
             }
         }
@@ -63,10 +64,11 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ThrowIfError()
         {
             if (Error != null)
-                throw Error!;
+                throw Error;
         }
 
         #endregion

@@ -71,14 +71,14 @@ namespace MugenMvvm.Binding.Core.Components
             _context.Initialize(parameters);
             SetMemberVisitorSettings();
 
-            targetExpression = MemberExpressionVisitor.Visit(targetExpression, metadata)!;
+            targetExpression = MemberExpressionVisitor.Visit(targetExpression, metadata);
             if (IsEvent(target, source, targetExpression, metadata))
             {
                 var ignoreMethodMembers = MemberExpressionVisitor.IgnoreMethodMembers;
                 var ignoreIndexMembers = MemberExpressionVisitor.IgnoreIndexMembers;
                 MemberExpressionVisitor.IgnoreIndexMembers = true;
                 MemberExpressionVisitor.IgnoreMethodMembers = true;
-                sourceExpression = MemberExpressionVisitor.Visit(sourceExpression, metadata)!;
+                sourceExpression = MemberExpressionVisitor.Visit(sourceExpression, metadata);
                 MemberExpressionVisitor.IgnoreIndexMembers = ignoreIndexMembers;
                 MemberExpressionVisitor.IgnoreMethodMembers = ignoreMethodMembers;
 
@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return;
             }
 
-            sourceExpression = MemberExpressionVisitor.Visit(sourceExpression, metadata)!;
+            sourceExpression = MemberExpressionVisitor.Visit(sourceExpression, metadata);
 
             if (_context.ComponentBuilders.ContainsKey(BindingParameterNameConstants.Parameters))
                 return;

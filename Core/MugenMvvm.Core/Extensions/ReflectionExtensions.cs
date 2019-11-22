@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -67,7 +68,7 @@ namespace MugenMvvm
         {
             var method = types == null ? type.GetMethod(name, flags) : type.GetMethod(name, flags, null, types, null);
             Should.BeSupported(method != null, type.Name + "." + name);
-            return method!;
+            return method;
         }
 
         public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object, TArg> invokeAction,
@@ -182,10 +183,11 @@ namespace MugenMvvm
             return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method).Invoke(target, parameters);
         }
 
-        public static Expression ConvertIfNeed(this Expression? expression, Type type, bool exactly)
+        [return:NotNullIfNotNull("expression")]
+        public static Expression? ConvertIfNeed(this Expression? expression, Type type, bool exactly)
         {
             if (expression == null)
-                return null!;
+                return null;
             if (type == typeof(void) || type == expression.Type)
                 return expression;
             if (expression.Type == typeof(void))
@@ -261,11 +263,10 @@ namespace MugenMvvm
                 {
                     if (_unsubscribeAction != null)
                     {
-                        var action = _unsubscribeAction as Action<object, TDelegate>;
-                        if (action == null)
-                            ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
-                        else
+                        if (_unsubscribeAction is Action<object, TDelegate> action)
                             action.Invoke(sender, HandlerDelegate!);
+                        else
+                            ((Action<object, IWeakEventHandler<TArg>>) _unsubscribeAction).Invoke(sender, this);
                     }
                 }
                 else

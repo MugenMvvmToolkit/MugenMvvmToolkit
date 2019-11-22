@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text;
 using MugenMvvm.Binding.Constants;
@@ -127,7 +128,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
 
                     InitializeBuilder(context, start, prevEnd, ref builder);
-                    builder!.Append(result);
+                    builder.Append(result);
                     continue;
                 }
 
@@ -153,7 +154,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         args = new List<IExpressionNode>();
 
                     InitializeBuilder(context, start, intStart, ref builder);
-                    builder!.Append('{').Append(args.Count.ToString(CultureInfo.InvariantCulture));
+                    builder.Append('{').Append(args.Count.ToString(CultureInfo.InvariantCulture));
                     args.Add(node);
 
                     if (context.IsToken(':'))
@@ -184,7 +185,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                         {
                             context.MoveNext(token.Length);
                             InitializeBuilder(context, start, endPos, ref builder);
-                            builder!.Append('"');
+                            builder.Append('"');
                             continue;
                         }
                     }
@@ -211,11 +212,10 @@ namespace MugenMvvm.Binding.Parsing.Components
             return new MethodCallExpressionNode(StringType, "Format", args);
         }
 
-        private static void InitializeBuilder(ITokenParserContext context, int start, int end, ref StringBuilder? builder)
+        private static void InitializeBuilder(ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder)
         {
-            if (builder != null)
-                return;
-            builder = new StringBuilder(context.GetValue(start, end));
+            if (builder == null)
+                builder = new StringBuilder(context.GetValue(start, end));
         }
 
         private string? GetQuoteToken(ITokenParserContext context)

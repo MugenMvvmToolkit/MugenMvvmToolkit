@@ -108,7 +108,7 @@ namespace MugenMvvm.Views
             }
 
             ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewProviderComponent).Name);
-            return null!;
+            return null;
         }
 
         private IViewModelBase GetViewModelForView(ViewInitializer initializer, object view, IMetadataContext metadata)
@@ -122,7 +122,7 @@ namespace MugenMvvm.Views
             }
 
             ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewModelProviderViewManagerComponent).Name);
-            return null!;
+            return null;
         }
 
         private IViewInitializerResult Initialize(ViewInitializer initializer, IViewModelBase viewModel, object view, IMetadataContext metadata)
@@ -136,7 +136,7 @@ namespace MugenMvvm.Views
             }
 
             ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewInitializerComponent).Name);
-            return null!;
+            return null;
         }
 
         private IReadOnlyMetadataContext Cleanup(ViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
@@ -150,7 +150,7 @@ namespace MugenMvvm.Views
             }
 
             ExceptionManager.ThrowObjectNotInitialized(ViewManager, typeof(IViewInitializerComponent).Name);
-            return null!;
+            return null;
         }
 
         #endregion

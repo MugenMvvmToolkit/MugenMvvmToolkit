@@ -303,8 +303,8 @@ namespace MugenMvvm.Internal.Components
                 if (propertyInfo != null)
                     setMethod = propertyInfo.GetSetMethod(true);
                 Should.MethodBeSupported(propertyInfo != null && setMethod != null, MessageConstants.ShouldSupportOnlyFieldsReadonlyFields);
-                var valueExpression = valueParameter.ConvertIfNeed(propertyInfo!.PropertyType, false);
-                expression = Expression.Call(setMethod!.IsStatic ? null : target.ConvertIfNeed(declaringType, false), setMethod, valueExpression);
+                var valueExpression = valueParameter.ConvertIfNeed(propertyInfo.PropertyType, false);
+                expression = Expression.Call(setMethod.IsStatic ? null : target.ConvertIfNeed(declaringType, false), setMethod, valueExpression);
             }
             else
             {

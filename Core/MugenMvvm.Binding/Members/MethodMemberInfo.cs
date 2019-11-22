@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Members
                 parameterInfos = _method.GetParameters();
             AccessModifiers = _method.GetAccessModifiers(checkExtensionMethod, ref parameterInfos);
             DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType;
-            if (parameterInfos!.Length == 0)
+            if (parameterInfos.Length == 0)
             {
                 _parameters = Default.EmptyArray<IParameterInfo>();
                 return;

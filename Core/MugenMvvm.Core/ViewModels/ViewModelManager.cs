@@ -51,7 +51,7 @@ namespace MugenMvvm.ViewModels
             }
 
             ExceptionManager.ThrowIocCannotFindBinding(service);
-            return null!;
+            return null;
         }
 
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
