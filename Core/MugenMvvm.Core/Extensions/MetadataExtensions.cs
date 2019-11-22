@@ -122,6 +122,7 @@ namespace MugenMvvm
             metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Remove(currentValue, value));
         }
 
+        [return: MaybeNull, NotNullIfNotNull("defaultValue")]
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));

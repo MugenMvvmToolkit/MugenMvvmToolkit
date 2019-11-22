@@ -70,7 +70,9 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < results.Count; i++)
             {
                 var presenterResult = results[i];
-                presenterResult.Metadata.Set(NavigationInternalMetadata.ClosingCallback, AddCallback(presenterResult, NavigationCallbackType.Closing));
+                var callback = AddCallback(presenterResult, NavigationCallbackType.Closing);
+                if (callback != null)
+                    presenterResult.Metadata.Set(NavigationInternalMetadata.ClosingCallback, callback);
             }
 
             _dispatcherListener.EndSuspend(operationId);
@@ -88,8 +90,12 @@ namespace MugenMvvm.Presenters.Components
 
         public void OnShown(IPresenter presenter, string operationId, IPresenterResult result, IMetadataContext metadata)
         {
-            result.Metadata.Set(NavigationInternalMetadata.ShowingCallback, AddCallback(result, NavigationCallbackType.Showing));
-            result.Metadata.Set(NavigationInternalMetadata.CloseCallback, AddCallback(result, NavigationCallbackType.Close));
+            var callback = AddCallback(result, NavigationCallbackType.Showing);
+            if (callback != null)
+                result.Metadata.Set(NavigationInternalMetadata.ShowingCallback, callback);
+            callback = AddCallback(result, NavigationCallbackType.Close);
+            if (callback != null)
+                result.Metadata.Set(NavigationInternalMetadata.CloseCallback, callback);
             _dispatcherListener.EndSuspend(operationId);
         }
 

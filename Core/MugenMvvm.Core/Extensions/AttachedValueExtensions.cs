@@ -30,6 +30,7 @@ namespace MugenMvvm
             return provider != null && provider.Contains(item, path);
         }
 
+        [return: NotNullIfNotNull("addValue")]
         public static TValue AddOrUpdate<TItem, TValue, TState>(this IAttachedValueManager valueManager, TItem item, string path, TValue addValue, TState state,
             UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory)
             where TItem : class
@@ -56,6 +57,7 @@ namespace MugenMvvm
                 .AddOrUpdate(item, path, addValueFactory, updateValueFactory);
         }
 
+        [return: NotNullIfNotNull("addValue")]
         public static TValue AddOrUpdate<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, TValue addValue,
             UpdateValueDelegate<TItem, TValue, TValue> updateValueFactory)
             where TItem : class
@@ -66,6 +68,7 @@ namespace MugenMvvm
                 .AddOrUpdate(item, path, addValue, updateValueFactory);
         }
 
+        [return: NotNullIfNotNull("value")]
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, TValue value)
             where TItem : class
         {

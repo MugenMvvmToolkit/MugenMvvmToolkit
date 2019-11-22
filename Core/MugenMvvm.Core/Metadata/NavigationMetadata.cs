@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Metadata
@@ -7,26 +8,29 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IViewModelBase?>? _viewModel;
-        private static IMetadataContextKey<string?>? _viewName;
+        private static IMetadataContextKey<IViewModelBase>? _viewModel;
+        private static IMetadataContextKey<string>? _viewName;
         private static IMetadataContextKey<bool>? _isDialog;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<IViewModelBase?> ViewModel
+        [AllowNull]
+        public static IMetadataContextKey<IViewModelBase> ViewModel
         {
-            get => _viewModel ??= GetBuilder<IViewModelBase?>(nameof(ViewModel)).NotNull().Serializable().Build();
+            get => _viewModel ??= GetBuilder<IViewModelBase>(nameof(ViewModel)).NotNull().Serializable().Build();
             set => _viewModel = value;
         }
 
-        public static IMetadataContextKey<string?> ViewName
+        [AllowNull]
+        public static IMetadataContextKey<string> ViewName
         {
-            get => _viewName ??= GetBuilder<string?>(nameof(ViewName)).Serializable().Build();
+            get => _viewName ??= GetBuilder<string>(nameof(ViewName)).Serializable().NotNull().Build();
             set => _viewName = value;
         }
 
+        [AllowNull]
         public static IMetadataContextKey<bool> IsDialog
         {
             get => _isDialog ??= GetBuilder<bool>(nameof(IsDialog)).Serializable().Build();

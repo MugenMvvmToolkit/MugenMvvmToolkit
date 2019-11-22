@@ -15,6 +15,7 @@ namespace MugenMvvm.Interfaces.Internal
 
         bool Contains<TItem>(TItem item, string path) where TItem : class;
 
+        [return: NotNullIfNotNull("addValue")]
         TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory)
             where TItem : class;
 
@@ -22,6 +23,7 @@ namespace MugenMvvm.Interfaces.Internal
             UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory)
             where TItem : class;
 
+        [return:NotNullIfNotNull("value")]
         TValue GetOrAdd<TItem, TValue>(TItem item, string path, TValue value)
             where TItem : class;
 

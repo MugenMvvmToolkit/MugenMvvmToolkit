@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
@@ -7,15 +8,16 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IComponentCollection<object>?>? _wrappers;
+        private static IMetadataContextKey<IComponentCollection<object>>? _wrappers;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<IComponentCollection<object>?> Wrappers
+        [AllowNull]
+        public static IMetadataContextKey<IComponentCollection<object>> Wrappers
         {
-            get => _wrappers ??= GetBuilder<IComponentCollection<object>?>(nameof(Wrappers)).Build();
+            get => _wrappers ??= GetBuilder<IComponentCollection<object>>(nameof(Wrappers)).NotNull().Build();
             set => _wrappers = value;
         }
 

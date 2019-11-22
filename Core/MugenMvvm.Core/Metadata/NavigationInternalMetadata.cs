@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Views;
 
@@ -8,50 +9,56 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IViewInfo?>? _restoredView;
+        private static IMetadataContextKey<IViewInfo>? _restoredView;
         private static IMetadataContextKey<bool>? _isRestorableCallback;
         private static IMetadataContextKey<bool>? _closeAll;
-        private static IMetadataContextKey<INavigationCallback?>? _showingCallback;
-        private static IMetadataContextKey<INavigationCallback?>? _closingCallback;
-        private static IMetadataContextKey<INavigationCallback?>? _closeCallback;
+        private static IMetadataContextKey<INavigationCallback>? _showingCallback;
+        private static IMetadataContextKey<INavigationCallback>? _closingCallback;
+        private static IMetadataContextKey<INavigationCallback>? _closeCallback;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<IViewInfo?> RestoredView
+        [AllowNull]
+        public static IMetadataContextKey<IViewInfo> RestoredView
         {
-            get => _restoredView ??= GetBuilder<IViewInfo?>(nameof(RestoredView)).NotNull().Build();
+            get => _restoredView ??= GetBuilder<IViewInfo>(nameof(RestoredView)).NotNull().Build();
             set => _restoredView = value;
         }
 
+        [AllowNull]
         public static IMetadataContextKey<bool> IsRestorableCallback
         {
             get => _isRestorableCallback ??= GetBuilder<bool>(nameof(IsRestorableCallback)).Serializable().Build();
             set => _isRestorableCallback = value;
         }
 
+        [AllowNull]
         public static IMetadataContextKey<bool> CloseAll
         {
             get => _closeAll ??= GetBuilder<bool>(nameof(CloseAll)).Build();
             set => _closeAll = value;
         }
 
-        public static IMetadataContextKey<INavigationCallback?> ShowingCallback
+        [AllowNull]
+        public static IMetadataContextKey<INavigationCallback> ShowingCallback
         {
-            get => _showingCallback ??= GetBuilder<INavigationCallback?>(nameof(ShowingCallback)).NotNull().Build();
+            get => _showingCallback ??= GetBuilder<INavigationCallback>(nameof(ShowingCallback)).NotNull().Build();
             set => _showingCallback = value;
         }
 
-        public static IMetadataContextKey<INavigationCallback?> ClosingCallback
+        [AllowNull]
+        public static IMetadataContextKey<INavigationCallback> ClosingCallback
         {
-            get => _closingCallback ??= GetBuilder<INavigationCallback?>(nameof(ClosingCallback)).NotNull().Build();
+            get => _closingCallback ??= GetBuilder<INavigationCallback>(nameof(ClosingCallback)).NotNull().Build();
             set => _closingCallback = value;
         }
 
-        public static IMetadataContextKey<INavigationCallback?> CloseCallback
+        [AllowNull]
+        public static IMetadataContextKey<INavigationCallback> CloseCallback
         {
-            get => _closeCallback ??= GetBuilder<INavigationCallback?>(nameof(CloseCallback)).NotNull().Build();
+            get => _closeCallback ??= GetBuilder<INavigationCallback>(nameof(CloseCallback)).NotNull().Build();
             set => _closeCallback = value;
         }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
@@ -7,15 +8,16 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<ICollection<string>?>? _ignoredMembers;
+        private static IMetadataContextKey<ICollection<string>>? _ignoredMembers;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<ICollection<string>?> IgnoredMembers
+        [AllowNull]
+        public static IMetadataContextKey<ICollection<string>> IgnoredMembers
         {
-            get => _ignoredMembers ??= GetBuilder<ICollection<string>?>(nameof(IgnoredMembers)).NotNull().Build();
+            get => _ignoredMembers ??= GetBuilder<ICollection<string>>(nameof(IgnoredMembers)).NotNull().Build();
             set => _ignoredMembers = value;
         }
 

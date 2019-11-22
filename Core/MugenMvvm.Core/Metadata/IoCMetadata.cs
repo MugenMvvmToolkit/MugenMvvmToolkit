@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.IoC;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,29 +10,32 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<string?>? _name;
-        private static IMetadataContextKey<IReadOnlyCollection<IIocParameter>?>? _parameters;
-        private static IMetadataContextKey<IocConditionDelegate?>? _condition;
+        private static IMetadataContextKey<string>? _name;
+        private static IMetadataContextKey<IReadOnlyCollection<IIocParameter>>? _parameters;
+        private static IMetadataContextKey<IocConditionDelegate>? _condition;
 
         #endregion
 
         #region Properties
 
-        public static IMetadataContextKey<string?> Name
+        [AllowNull]
+        public static IMetadataContextKey<string> Name
         {
-            get => _name ??= GetBuilder<string?>(nameof(Name)).Serializable().Build();
+            get => _name ??= GetBuilder<string>(nameof(Name)).Serializable().NotNull().Build();
             set => _name = value;
         }
 
-        public static IMetadataContextKey<IReadOnlyCollection<IIocParameter>?> Parameters
+        [AllowNull]
+        public static IMetadataContextKey<IReadOnlyCollection<IIocParameter>> Parameters
         {
-            get => _parameters ??= GetBuilder<IReadOnlyCollection<IIocParameter>?>(nameof(Parameters)).Serializable().Build();
+            get => _parameters ??= GetBuilder<IReadOnlyCollection<IIocParameter>>(nameof(Parameters)).Serializable().NotNull().Build();
             set => _parameters = value;
         }
 
-        public static IMetadataContextKey<IocConditionDelegate?> Condition
+        [AllowNull]
+        public static IMetadataContextKey<IocConditionDelegate> Condition
         {
-            get => _condition ??= GetBuilder<IocConditionDelegate?>(nameof(Condition)).Build();
+            get => _condition ??= GetBuilder<IocConditionDelegate>(nameof(Condition)).NotNull().Build();
             set => _condition = value;
         }
 

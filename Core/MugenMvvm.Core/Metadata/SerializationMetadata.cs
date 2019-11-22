@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
 {
@@ -12,6 +13,7 @@ namespace MugenMvvm.Metadata
 
         #region Properties
 
+        [AllowNull]
         public static IMetadataContextKey<bool> NoCache
         {
             get => _noCache ??= GetBuilder<bool>(nameof(NoCache)).Serializable().Build();
