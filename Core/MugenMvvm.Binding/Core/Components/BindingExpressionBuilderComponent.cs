@@ -1,6 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
+using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
@@ -27,9 +28,11 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
+        private bool _isCachePerTypeRequired;
 
         private IBindingComponentProviderComponent[] _componentProviders;
         private IBindingExpressionInterceptorComponent[] _expressionInterceptors;
+        private IBindingExpressionPriorityProviderComponent[] _priorityProviders;
 
         #endregion
 
@@ -41,18 +44,9 @@ namespace MugenMvvm.Binding.Core.Components
             _expressionCompiler = expressionCompiler;
             _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptorComponent>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
-            DefaultBindingComponents = new List<IBindingComponentBuilder>();
+            _priorityProviders = Default.EmptyArray<IBindingExpressionPriorityProviderComponent>();
             _componentsDictionary = new StringOrdinalLightDictionary<IBindingComponentBuilder>(7);
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
-            BindingMemberPriorities = new Dictionary<string, int>
-            {
-                {BindableMembers.Object.DataContext, BindableMemberPriority.DataContext},
-                {"BindingContext", BindableMemberPriority.DataContext},
-                {"ItemTemplate", BindableMemberPriority.Template},
-                {"ItemTemplateSelector", BindableMemberPriority.Template},
-                {"ContentTemplate", BindableMemberPriority.Template},
-                {"ContentTemplateSelector", BindableMemberPriority.Template}
-            };
         }
 
         #endregion
@@ -60,10 +54,6 @@ namespace MugenMvvm.Binding.Core.Components
         #region Properties
 
         public int Priority { get; set; }
-
-        public Dictionary<string, int> BindingMemberPriorities { get; }
-
-        public List<IBindingComponentBuilder> DefaultBindingComponents { get; }
 
         #endregion
 
@@ -86,12 +76,12 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             var item = parserResult.Item;
-            return GetBindingExpression(item.Target, item.Source, item.Parameters, metadata);
+            return new ItemOrList<IBindingExpression?, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters, metadata));
         }
 
         int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
         {
-            return ((BindingExpressionBase)y).Priority.CompareTo(((BindingExpressionBase)x).Priority);
+            return GetPriority(y).CompareTo(GetPriority(x));
         }
 
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
@@ -99,6 +89,8 @@ namespace MugenMvvm.Binding.Core.Components
         {
             MugenExtensions.ComponentTrackerOnAdded(ref _expressionInterceptors, collection, component);
             MugenExtensions.ComponentTrackerOnAdded(ref _componentProviders, collection, component);
+            MugenExtensions.ComponentTrackerOnAdded(ref _priorityProviders, collection, component);
+            OnComponentsChanged();
         }
 
         void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
@@ -106,6 +98,8 @@ namespace MugenMvvm.Binding.Core.Components
         {
             MugenExtensions.ComponentTrackerOnRemoved(ref _expressionInterceptors, component);
             MugenExtensions.ComponentTrackerOnRemoved(ref _componentProviders, component);
+            MugenExtensions.ComponentTrackerOnRemoved(ref _priorityProviders, component);
+            OnComponentsChanged();
         }
 
         #endregion
@@ -116,7 +110,9 @@ namespace MugenMvvm.Binding.Core.Components
         {
             _expressionInterceptors = owner.Components.GetComponents().OfType<IBindingExpressionInterceptorComponent>().ToArray();
             _componentProviders = owner.Components.GetComponents().OfType<IBindingComponentProviderComponent>().ToArray();
+            _priorityProviders = owner.Components.GetComponents().OfType<IBindingExpressionPriorityProviderComponent>().ToArray();
             owner.Components.Components.Add(this);
+            OnComponentsChanged();
         }
 
         protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
@@ -124,94 +120,226 @@ namespace MugenMvvm.Binding.Core.Components
             owner.Components.Components.Remove(this);
             _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptorComponent>();
             _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
+            _priorityProviders = Default.EmptyArray<IBindingExpressionPriorityProviderComponent>();
+            OnComponentsChanged();
         }
 
-        private BindingExpressionBase GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
+        private IBindingExpression GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
             ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
-            var list = parameters.List;
-            var parametersList = list == null
-                ? new ItemOrList<IExpressionNode?, List<IExpressionNode>>(parameters.Item)
-                : new ItemOrList<IExpressionNode?, List<IExpressionNode>>(new List<IExpressionNode>(list));
+            if (_isCachePerTypeRequired)
+                return new BindingExpressionCache(this, targetExpression, sourceExpression, parameters.GetRawValue(), metadata);
+            return new BindingExpression(this, targetExpression, sourceExpression, parameters.GetRawValue(), metadata);
+        }
 
-            var interceptors = _expressionInterceptors;
-            for (var i = 0; i < interceptors.Length; i++)
-                interceptors[i].Intercept(ref targetExpression, ref sourceExpression, ref parametersList, metadata);
-            parameters = parametersList.Cast<IReadOnlyList<IExpressionNode>>();
+        private int GetPriority(IBindingExpression expression)
+        {
+            if (expression is BindingExpressionCache expressionCache)
+                return GetPriority(expressionCache.TargetExpression);
+            return GetPriority(((BindingExpression)expression).TargetExpression);
+        }
 
-            if (!(targetExpression is IBindingMemberExpressionNode targetMember))
+        private int GetPriority(IExpressionNode expression)
+        {
+            for (int i = 0; i < _priorityProviders.Length; i++)
             {
-                BindingExceptionManager.ThrowCannotUseExpressionExpected(targetExpression, typeof(IBindingMemberExpressionNode));
-                return null;
+                if (_priorityProviders[i].TryGetPriority(expression, out var priority))
+                    return priority;
             }
 
-            if (sourceExpression is IBindingMemberExpressionNode memberExpression)
-                return new BindingExpression(this, targetMember, memberExpression, parameters.GetRawValue(), metadata);
+            return 0;
+        }
 
-            var memberExpressions = _expressionCollectorVisitor.Collect(sourceExpression);
-            var compiledExpression = _expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
+        private void OnComponentsChanged()
+        {
+            for (int i = 0; i < _expressionInterceptors.Length; i++)
+            {
+                if (_expressionInterceptors[i].IsCachePerTypeRequired)
+                {
+                    _isCachePerTypeRequired = true;
+                    return;
+                }
+            }
 
-            return new MultiBindingExpression(this, targetMember, memberExpressions.GetRawValue(), compiledExpression, parameters.GetRawValue(), metadata);
+            _isCachePerTypeRequired = false;
         }
 
         #endregion
 
         #region Nested types
 
-        private abstract class BindingExpressionBase : IBindingExpression
+        private sealed class BindingExpressionCache : LightDictionary<CacheKey, BindingExpression>, IBindingExpression
         {
             #region Fields
 
-            private readonly BindingExpressionBuilderComponent _builder;
+            private readonly IReadOnlyMetadataContext? _metadata;
+            private readonly BindingExpressionBuilderComponent _owner;
             private readonly object? _parametersRaw;
-
-            protected readonly IReadOnlyMetadataContext? MetadataRaw;
-            protected readonly IBindingMemberExpressionNode TargetExpression;
-
-            private IBindingComponentBuilder[]? _componentBuilders;
+            private readonly IExpressionNode _sourceExpression;
 
             #endregion
 
             #region Constructors
 
-            protected BindingExpressionBase(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression,
-                object? parametersRaw, IReadOnlyMetadataContext? metadata)
+            public BindingExpressionCache(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
             {
-                _builder = builder;
+                _owner = owner;
                 TargetExpression = targetExpression;
-                MetadataRaw = metadata;
+                _sourceExpression = sourceExpression;
                 _parametersRaw = parametersRaw;
-                if (TargetExpression is IHasPriority hasPriority)
-                    Priority = hasPriority.Priority;
-                else if (builder.BindingMemberPriorities.TryGetValue(targetExpression.Name, out var p))
-                    Priority = p;
+                _metadata = metadata;
             }
 
             #endregion
 
             #region Properties
 
-            public bool HasMetadata => !MetadataRaw.IsNullOrEmpty();
+            public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-            public IReadOnlyMetadataContext Metadata => MetadataRaw ?? Default.Metadata;
+            public IReadOnlyMetadataContext Metadata => _metadata ?? Default.Metadata;
 
-            public int Priority { get; }
+            public IExpressionNode TargetExpression { get; }
 
             #endregion
 
             #region Implementation of interfaces
 
-            public abstract IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null);
+            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
+            {
+                var cacheKey = new CacheKey(target, source);
+                if (!TryGetValue(cacheKey, out var value))
+                {
+                    value = new BindingExpression(_owner, TargetExpression, _sourceExpression, _parametersRaw, _metadata);
+                    this[cacheKey] = value;
+                }
+
+                return value.Build(target, source, metadata);
+            }
 
             #endregion
 
             #region Methods
 
-            protected void InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+            protected override bool Equals(CacheKey x, CacheKey y)
             {
-                _builder.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
+                return x.SourceType == y.SourceType && x.TargetType == y.TargetType;
+            }
+
+            protected override int GetHashCode(CacheKey key)
+            {
+                unchecked
+                {
+                    return (key.SourceType != null ? key.SourceType.GetHashCode() : 0) * 397 ^ key.TargetType.GetHashCode();
+                }
+            }
+
+            #endregion
+        }
+
+        private sealed class BindingExpression : IBindingExpression
+        {
+            #region Fields
+
+            private readonly IReadOnlyMetadataContext? _metadata;
+            private readonly BindingExpressionBuilderComponent _owner;
+            private ICompiledExpression _compiledExpression;
+            private object? _compiledExpressionSource;
+            private IBindingComponentBuilder[]? _componentBuilders;
+            private object? _parametersRaw;
+            private IExpressionNode _sourceExpression;
+            private IExpressionNode _targetExpression;
+
+            #endregion
+
+            #region Constructors
+
+            public BindingExpression(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
+            {
+                _owner = owner;
+                _targetExpression = targetExpression;
+                _sourceExpression = sourceExpression;
+                _parametersRaw = parametersRaw;
+                _metadata = metadata;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public bool HasMetadata => !_metadata.IsNullOrEmpty();
+
+            public IReadOnlyMetadataContext Metadata => _metadata ?? Default.Metadata;
+
+            public IExpressionNode TargetExpression => _targetExpression;
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
+            {
+                if (metadata == null)
+                    metadata = _metadata;
                 if (_componentBuilders == null)
-                    _componentBuilders = BuildComponents(binding, target, source, metadata);
+                    Initialize(target, source, metadata);
+
+                if (_compiledExpression == null)
+                {
+                    return InitializeBinding(new Binding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata),
+                        ((IBindingMemberExpressionNode)_sourceExpression).GetSourceObserver(target, source, metadata)), target, source, metadata);
+                }
+
+                return CreateMultiBinding(target, source, metadata);
+            }
+
+            #endregion
+
+            #region Methods
+
+            private IBinding CreateMultiBinding(object target, object? source, IReadOnlyMetadataContext? metadata)
+            {
+                ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> sources;
+                if (_compiledExpressionSource == null)
+                    sources = default;
+                else if (_compiledExpressionSource is IBindingMemberExpressionNode[] expressions)
+                {
+                    var array = new IMemberPathObserver[expressions.Length];
+                    for (var i = 0; i < array.Length; i++)
+                        array[i] = expressions[i].GetSourceObserver(target, source, metadata);
+                    sources = array;
+                }
+                else
+                {
+                    var observer = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetSourceObserver(target, source, metadata);
+                    sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
+                }
+
+                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression), target, source, metadata);
+            }
+
+            private void Initialize(object target, object? source, IReadOnlyMetadataContext metadata)
+            {
+                var parametersList = ItemOrList<IExpressionNode?, List<IExpressionNode>>.FromRawValue(_parametersRaw);
+                var interceptors = _owner._expressionInterceptors;
+                for (var i = 0; i < interceptors.Length; i++)
+                    interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parametersList, metadata);
+
+                if (!(_targetExpression is IBindingMemberExpressionNode))
+                    BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));
+
+                _parametersRaw = parametersList.GetRawValue();
+                if (_sourceExpression is IBindingMemberExpressionNode)
+                    return;
+
+                _compiledExpressionSource = _owner._expressionCollectorVisitor.Collect(_sourceExpression, metadata).GetRawValue();
+                _compiledExpression = _owner._expressionCompiler.DefaultIfNull().Compile(_sourceExpression, metadata);
+            }
+
+            private Binding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+            {
+                _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
+                if (_componentBuilders == null)
+                    _componentBuilders = BuildComponents(metadata);
 
                 if (_componentBuilders.Length == 1)
                     binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
@@ -224,21 +352,20 @@ namespace MugenMvvm.Binding.Core.Components
                 }
 
                 if (binding.State != BindingState.Disposed)
-                    _builder.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, metadata);
+                    _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, metadata);
+                return binding;
             }
 
-            private IBindingComponentBuilder[] BuildComponents(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+            private IBindingComponentBuilder[] BuildComponents(IReadOnlyMetadataContext? metadata)
             {
-                var dictionary = _builder._componentsDictionary;
+                var dictionary = _owner._componentsDictionary;
                 dictionary.Clear();
-                foreach (var builder in _builder.DefaultBindingComponents)
-                    dictionary[builder.Name] = builder;
 
                 var parameters = ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>.FromRawValue(_parametersRaw);
-                var providers = _builder._componentProviders;
+                var providers = _owner._componentProviders;
                 for (var i = 0; i < providers.Length; i++)
                 {
-                    var builders = providers[i].TryGetComponentBuilders(binding, target, source, parameters, metadata);
+                    var builders = providers[i].TryGetComponentBuilders(_targetExpression, _sourceExpression, parameters, metadata);
                     var list = builders.List;
                     var item = builders.Item;
                     if (item == null && list == null)
@@ -264,91 +391,28 @@ namespace MugenMvvm.Binding.Core.Components
                     }
                 }
 
+                _parametersRaw = null;
                 return dictionary.ValuesToArray();
             }
 
             #endregion
         }
 
-        private sealed class BindingExpression : BindingExpressionBase
+        private readonly struct CacheKey
         {
             #region Fields
 
-            private readonly IBindingMemberExpressionNode _sourceExpression;
+            public readonly Type? SourceType;
+            public readonly Type TargetType;
 
             #endregion
 
             #region Constructors
 
-            public BindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression,
-                IBindingMemberExpressionNode sourceExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
-                : base(builder, targetExpression, parametersRaw, metadata)
+            public CacheKey(object target, object? source)
             {
-                _sourceExpression = sourceExpression;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public override IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                if (metadata == null)
-                    metadata = MetadataRaw;
-                var binding = new Binding(TargetExpression.GetTargetObserver(target, source, metadata), _sourceExpression.GetSourceObserver(target, source, metadata));
-                InitializeBinding(binding, target, source, metadata);
-                return binding;
-            }
-
-            #endregion
-        }
-
-        private sealed class MultiBindingExpression : BindingExpressionBase
-        {
-            #region Fields
-
-            private readonly ICompiledExpression _compiledExpression;
-            private readonly object? _sourceRaw;
-
-            #endregion
-
-            #region Constructors
-
-            public MultiBindingExpression(BindingExpressionBuilderComponent builder, IBindingMemberExpressionNode targetExpression, object? sourceRaw,
-                ICompiledExpression compiledExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
-                : base(builder, targetExpression, parametersRaw, metadata)
-            {
-                _compiledExpression = compiledExpression;
-                _sourceRaw = sourceRaw;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public override IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                if (metadata == null)
-                    metadata = MetadataRaw;
-                ItemOrList<IMemberPathObserver?, IMemberPathObserver[]> sources;
-                if (_sourceRaw == null)
-                    sources = default;
-                else if (_sourceRaw is IBindingMemberExpressionNode[] expressions)
-                {
-                    var array = new IMemberPathObserver[expressions.Length];
-                    for (var i = 0; i < array.Length; i++)
-                        array[i] = expressions[i].GetSourceObserver(target, source, metadata);
-                    sources = array;
-                }
-                else
-                {
-                    var observer = ((IBindingMemberExpressionNode)_sourceRaw).GetSourceObserver(target, source, metadata);
-                    sources = new ItemOrList<IMemberPathObserver?, IMemberPathObserver[]>(observer);
-                }
-
-                var binding = new MultiBinding(TargetExpression.GetTargetObserver(target, source, metadata), sources, _compiledExpression);
-                InitializeBinding(binding, target, source, metadata);
-                return binding;
+                TargetType = target.GetType();
+                SourceType = source?.GetType();
             }
 
             #endregion
