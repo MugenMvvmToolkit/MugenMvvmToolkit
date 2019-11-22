@@ -254,12 +254,12 @@ namespace MugenMvvm.Collections
 
         public void Clone(LightDictionary<TKey, TValue> clone, Func<TValue, TValue>? valueConverter = null)
         {
-            clone._buckets = _buckets?.ToArray()!;
+            clone._buckets = _buckets.ToArray();
             clone._count = _count;
             if (_entries != null)
             {
                 if (valueConverter == null)
-                    clone._entries = _entries?.ToArray()!;
+                    clone._entries = _entries.ToArray();
                 else
                 {
                     var entries = new Entry[_entries.Length];
