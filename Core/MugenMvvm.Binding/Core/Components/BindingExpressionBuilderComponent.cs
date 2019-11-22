@@ -108,9 +108,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            _expressionInterceptors = owner.Components.GetComponents().OfType<IBindingExpressionInterceptorComponent>().ToArray();
-            _componentProviders = owner.Components.GetComponents().OfType<IBindingComponentProviderComponent>().ToArray();
-            _priorityProviders = owner.Components.GetComponents().OfType<IBindingExpressionPriorityProviderComponent>().ToArray();
+            owner.ComponentTrackerInitialize(out _priorityProviders);
+            owner.ComponentTrackerInitialize(out _expressionInterceptors);
+            owner.ComponentTrackerInitialize(out _componentProviders);
             owner.Components.Components.Add(this);
             OnComponentsChanged();
         }

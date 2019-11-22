@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            _holders = owner.Components.GetComponents().OfType<IBindingHolderComponent>().ToArray();
+            owner.ComponentTrackerInitialize(out _holders);
             owner.Components.Components.Add(this);
         }
 

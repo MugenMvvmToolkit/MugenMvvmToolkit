@@ -1,8 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -84,21 +86,43 @@ namespace MugenMvvm
             return 0;
         }
 
-        public static void ComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent[] items,
+        public static void ComponentTrackerInitialize<TComponent, TComponentBase>(this IComponentOwner<TComponentBase> owner, out TComponent[] components, TComponent? ignoreComponent = null)
+            where TComponent : class
+            where TComponentBase : class
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            var c = owner.GetComponents();
+            if (c.Length == 0)
+            {
+                components = Default.EmptyArray<TComponent>();
+                return;
+            }
+
+            ItemOrList<TComponent, List<TComponent>> list = default;
+            for (int i = 0; i < c.Length; i++)
+            {
+                if (c[i] is TComponent component && !ReferenceEquals(component, ignoreComponent))
+                    list.Add(component);
+            }
+
+            components = list.ToArray();
+        }
+
+        public static void ComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent[] components,
             IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component)
             where TComponent : class
             where TComponentBase : class
         {
             if (component is TComponent c)
-                AddComponentOrdered(ref items, c, collection.Owner);
+                AddComponentOrdered(ref components, c, collection.Owner);
         }
 
-        public static void ComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent[] items, IComponent<TComponentBase> component)
+        public static void ComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent[] components, IComponent<TComponentBase> component)
             where TComponent : class
             where TComponentBase : class
         {
             if (component is TComponent c)
-                Remove(ref items, c);
+                Remove(ref components, c);
         }
 
         public static void SingletonComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent? currentComponent, bool autoDetachOld,

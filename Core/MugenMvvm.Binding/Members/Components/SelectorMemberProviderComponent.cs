@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
@@ -8,19 +7,16 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class SelectorMemberProviderComponent : AttachableComponentBase<IMemberProvider>, ISelectorMemberProviderComponent,
-        IComponentCollectionChangedListener<IComponent<IMemberProvider>>
+    public sealed class SelectorMemberProviderComponent : ComponentTrackerBase<IMemberProvider, IMemberProviderComponent>, ISelectorMemberProviderComponent, IHasPriority
     {
         #region Fields
 
         private readonly SelectorDictionary _dictionary;
-
-        private IMemberProviderComponent[] _memberProviders;
 
         #endregion
 
@@ -28,31 +24,24 @@ namespace MugenMvvm.Binding.Members.Components
 
         public SelectorMemberProviderComponent()
         {
-            _memberProviders = Default.EmptyArray<IMemberProviderComponent>();
             _dictionary = new SelectorDictionary();
         }
 
         #endregion
 
+        #region Properties
+
+        public int Priority { get; set; }
+
+        #endregion
+
         #region Implementation of interfaces
-
-        void IComponentCollectionChangedListener<IComponent<IMemberProvider>>.OnAdded(IComponentCollection<IComponent<IMemberProvider>> collection,
-            IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _memberProviders, collection, component);
-        }
-
-        void IComponentCollectionChangedListener<IComponent<IMemberProvider>>.OnRemoved(IComponentCollection<IComponent<IMemberProvider>> collection,
-            IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _memberProviders, component);
-        }
 
         public IMemberInfo? TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             var currentPriority = int.MinValue;
             IMemberInfo? currentMember = null;
-            var providers = _memberProviders;
+            var providers = Components;
             for (var i = 0; i < providers.Length; i++)
             {
                 var members = providers[i].TryGetMembers(type, name, metadata);
@@ -83,7 +72,7 @@ namespace MugenMvvm.Binding.Members.Components
         public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             _dictionary.Clear();
-            var providers = _memberProviders;
+            var providers = Components;
             for (var i = 0; i < providers.Length; i++)
             {
                 var members = providers[i].TryGetMembers(type, name, metadata);
@@ -104,18 +93,6 @@ namespace MugenMvvm.Binding.Members.Components
         #endregion
 
         #region Methods
-
-        protected override void OnAttachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
-        {
-            _memberProviders = owner.Components.GetComponents().OfType<IMemberProviderComponent>().ToArray();
-            owner.Components.Components.Add(this);
-        }
-
-        protected override void OnDetachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
-        {
-            owner.Components.Components.Remove(this);
-            _memberProviders = Default.EmptyArray<IMemberProviderComponent>();
-        }
 
         private static int GetPriority(IMemberInfo member)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.Internal;
@@ -167,6 +168,24 @@ namespace MugenMvvm
             }
 
             ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+        }
+
+        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class
+            where TList : class, IReadOnlyList<TItem>
+        {
+            var list = itemOrList.List;
+            if (list != null)
+            {
+                var items = new TItem[list.Count];
+                for (int i = 0; i < list.Count; i++)
+                    items[i] = list[i];
+                return items;
+            }
+
+            if (itemOrList.Item == null)
+                return Default.EmptyArray<TItem>();
+            return new[] { itemOrList.Item };
         }
 
         public static void Merge<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)

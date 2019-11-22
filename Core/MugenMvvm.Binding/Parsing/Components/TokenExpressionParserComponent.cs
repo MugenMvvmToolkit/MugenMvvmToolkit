@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
@@ -70,7 +69,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            _parserContext.Parsers = owner.Components.GetComponents().OfType<ITokenParserComponent>().ToArray();
+            owner.ComponentTrackerInitialize(out ITokenParserComponent[] parsers);
+            _parserContext.Parsers = parsers;
             owner.Components.Components.Add(this);
         }
 
