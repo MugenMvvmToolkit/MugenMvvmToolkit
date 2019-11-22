@@ -76,6 +76,12 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(string.Format(CannotResolveResourceFormat1, resource));
         }
 
+        [DoesNotReturn]
+        public static void ThrowCannotParseBindingParameter(string parameterName, object expectedValue, object currentValue)
+        {
+            throw new InvalidOperationException(string.Format(CannotParseBindingParameterFormat3, parameterName, expectedValue, currentValue));
+        }
+
         #endregion
     }
 }

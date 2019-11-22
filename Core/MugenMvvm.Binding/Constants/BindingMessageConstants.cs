@@ -28,6 +28,8 @@
 
         internal const string CannotUseExpressionExpected = "Cannot use expression '{0}' expected type '{1}'";
 
+        internal const string CannotParseBindingParameterFormat3 = "Cannot parse binding parameter '{0}' expected parameter value '{1}' current value '{2}'";
+
         #endregion
     }
 }
