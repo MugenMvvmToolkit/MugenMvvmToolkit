@@ -317,30 +317,9 @@ namespace MugenMvvm.Binding.Core.Components
                 return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression), target, source, metadata);
             }
 
-            private void Initialize(object target, object? source, IReadOnlyMetadataContext metadata)
-            {
-                var parametersList = ItemOrList<IExpressionNode?, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                var interceptors = _owner._expressionInterceptors;
-                for (var i = 0; i < interceptors.Length; i++)
-                    interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parametersList, metadata);
-
-                if (!(_targetExpression is IBindingMemberExpressionNode))
-                    BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));
-
-                _parametersRaw = parametersList.GetRawValue();
-                if (_sourceExpression is IBindingMemberExpressionNode)
-                    return;
-
-                _compiledExpressionSource = _owner._expressionCollectorVisitor.Collect(_sourceExpression, metadata).GetRawValue();
-                _compiledExpression = _owner._expressionCompiler.DefaultIfNull().Compile(_sourceExpression, metadata);
-            }
-
             private Binding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
-                if (_componentBuilders == null)
-                    _componentBuilders = BuildComponents(metadata);
-
                 if (_componentBuilders.Length == 1)
                     binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
@@ -356,43 +335,42 @@ namespace MugenMvvm.Binding.Core.Components
                 return binding;
             }
 
-            private IBindingComponentBuilder[] BuildComponents(IReadOnlyMetadataContext? metadata)
+            private void Initialize(object target, object? source, IReadOnlyMetadataContext metadata)
             {
+                var parameters = ItemOrList<IExpressionNode?, List<IExpressionNode>>.FromRawValue(_parametersRaw);
+                var interceptors = _owner._expressionInterceptors;
+                for (var i = 0; i < interceptors.Length; i++)
+                    interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
+
+                if (!(_targetExpression is IBindingMemberExpressionNode))
+                    BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));
+
+                if (!(_sourceExpression is IBindingMemberExpressionNode))
+                {
+                    _compiledExpressionSource = _owner._expressionCollectorVisitor.Collect(_sourceExpression, metadata).GetRawValue();
+                    _compiledExpression = _owner._expressionCompiler.DefaultIfNull().Compile(_sourceExpression, metadata);
+                }
+
                 var dictionary = _owner._componentsDictionary;
                 dictionary.Clear();
 
-                var parameters = ItemOrList<IExpressionNode?, IReadOnlyList<IExpressionNode>>.FromRawValue(_parametersRaw);
+                var parametersReadonly = parameters.Cast<IReadOnlyList<IExpressionNode>>();
                 var providers = _owner._componentProviders;
                 for (var i = 0; i < providers.Length; i++)
                 {
-                    var builders = providers[i].TryGetComponentBuilders(_targetExpression, _sourceExpression, parameters, metadata);
-                    var list = builders.List;
-                    var item = builders.Item;
-                    if (item == null && list == null)
-                        continue;
-
-                    if (list == null)
+                    var builders = providers[i].TryGetComponentBuilders(_targetExpression, _sourceExpression, parametersReadonly, metadata);
+                    for (var j = 0; j < builders.Count(); j++)
                     {
-                        if (item!.IsEmpty)
+                        var item = builders.Get(j);
+                        if (item.IsEmpty)
                             dictionary.Remove(item.Name);
                         else
                             dictionary[item.Name] = item;
                     }
-                    else
-                    {
-                        for (var j = 0; j < list.Count; j++)
-                        {
-                            item = list[j];
-                            if (item.IsEmpty)
-                                dictionary.Remove(item.Name);
-                            else
-                                dictionary[item.Name] = item;
-                        }
-                    }
                 }
 
                 _parametersRaw = null;
-                return dictionary.ValuesToArray();
+                _componentBuilders = dictionary.ValuesToArray();
             }
 
             #endregion

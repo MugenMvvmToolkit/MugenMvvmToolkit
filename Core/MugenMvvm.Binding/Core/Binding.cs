@@ -42,6 +42,7 @@ namespace MugenMvvm.Binding.Core
         protected const ushort HasTargetValueGetterFlag = 1 << 12;
         protected const ushort HasSourceValueGetterFlag = 1 << 13;
 
+        protected const ushort InvalidFlag = 1 << 14;
         protected const ushort DisposedFlag = 1 << 15;
 
         #endregion
@@ -100,7 +101,17 @@ namespace MugenMvvm.Binding.Core
 
         IReadOnlyMetadataContext IMetadataOwner<IReadOnlyMetadataContext>.Metadata => this;
 
-        public BindingState State => CheckFlag(DisposedFlag) ? BindingState.Disposed : BindingState.Attached;
+        public BindingState State
+        {
+            get
+            {
+                if (CheckFlag(InvalidFlag))
+                    return BindingState.Invalid;
+                if (CheckFlag(DisposedFlag))
+                    return BindingState.Disposed;
+                return BindingState.Valid;
+            }
+        }
 
         public IMemberPathObserver Target { get; }
 

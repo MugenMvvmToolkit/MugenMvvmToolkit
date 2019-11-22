@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Enums
     {
         #region Fields
 
-        public static readonly BindingState Attached = new BindingState(1);
+        public static readonly BindingState Valid = new BindingState(1);
         public static readonly BindingState Disposed = new BindingState(2);
         public static readonly BindingState Invalid = new BindingState(3);
 
