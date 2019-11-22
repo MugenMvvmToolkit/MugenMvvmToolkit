@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
@@ -18,8 +19,6 @@ namespace MugenMvvm.Collections
     public class LightDictionary<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
     {
         #region Fields
-
-        private static readonly IEqualityComparer<TKey> DefaultComparer = EqualityComparer<TKey>.Default;
 
         [IgnoreDataMember]
         [XmlIgnore]
@@ -46,18 +45,15 @@ namespace MugenMvvm.Collections
         [NonSerialized]
         private int _freeList;
 
+        private static readonly IEqualityComparer<TKey> DefaultComparer = EqualityComparer<TKey>.Default;
+
         #endregion
 
         #region Constructors
 
 #pragma warning disable CS8618
-        protected LightDictionary(bool initialize)
-        {
-            if (initialize)
-                Initialize(3);
-        }
-
-        public LightDictionary() : this(3)
+        public LightDictionary()
+            : this(3)
         {
         }
 
@@ -76,25 +72,23 @@ namespace MugenMvvm.Collections
         internal KeyValuePair<TKey, TValue>[] ValuesInternal
         {
             get => ToArray();
-            set => Restore(value);
-        }
-
-        public int Count
-        {
-            get
+            set
             {
-                if (_buckets == null)
-                    RestoreState();
-                return _count - _freeCount;
+                Initialize(value.Length);
+                for (var i = 0; i < value.Length; i++)
+                {
+                    var pair = value[i];
+                    Add(pair.Key, pair.Value);
+                }
             }
         }
+
+        public int Count => _count - _freeCount;
 
         public TValue this[TKey key]
         {
             get
             {
-                if (_buckets == null)
-                    RestoreState();
                 var hashCode = GetHashCode(key) & int.MaxValue;
                 for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
                 {
@@ -103,7 +97,7 @@ namespace MugenMvvm.Collections
                 }
 
                 ExceptionManager.ThrowKeyNotFound();
-                return default!;
+                return default;
             }
 
             set => Insert(key, value, false);
@@ -134,8 +128,6 @@ namespace MugenMvvm.Collections
 
         public void Clear()
         {
-            if (_buckets == null)
-                RestoreState();
             if (_count <= 0)
                 return;
             for (var index = 0; index < _buckets!.Length; index++)
@@ -148,21 +140,18 @@ namespace MugenMvvm.Collections
 
         public bool ContainsKey(TKey key)
         {
-            if (_buckets == null)
-                RestoreState();
             var hashCode = GetHashCode(key) & int.MaxValue;
             for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
             {
                 if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
                     return true;
             }
+
             return false;
         }
 
         public bool Remove(TKey key)
         {
-            if (_buckets == null)
-                RestoreState();
             var hashCode = GetHashCode(key) & int.MaxValue;
             var bucket = hashCode % _buckets!.Length;
             var last = -1;
@@ -192,10 +181,8 @@ namespace MugenMvvm.Collections
             return false;
         }
 
-        public bool TryGetValue(TKey key, out TValue value)
+        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue value)
         {
-            if (_buckets == null)
-                RestoreState();
             var hashCode = GetHashCode(key) & int.MaxValue;
             for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
             {
@@ -212,15 +199,11 @@ namespace MugenMvvm.Collections
 
         public Enumerator GetEnumerator()
         {
-            if (_buckets == null)
-                RestoreState();
             return new Enumerator(this);
         }
 
         public KeyValuePair<TKey, TValue>[] ToArray()
         {
-            if (_buckets == null)
-                RestoreState();
             if (_count == 0)
                 return Default.EmptyArray<KeyValuePair<TKey, TValue>>();
             var result = new KeyValuePair<TKey, TValue>[Count];
@@ -280,7 +263,7 @@ namespace MugenMvvm.Collections
                 else
                 {
                     var entries = new Entry[_entries.Length];
-                    for (int i = 0; i < entries.Length; i++)
+                    for (var i = 0; i < entries.Length; i++)
                     {
                         var old = _entries[i];
                         entries[i] = new Entry
@@ -312,6 +295,12 @@ namespace MugenMvvm.Collections
 
         protected void Initialize(int capacity)
         {
+            if (capacity == 0)
+            {
+                _buckets = Default.EmptyArray<int>();
+                _entries = Default.EmptyArray<Entry>();
+                return;
+            }
             var prime = PrimeNumberHelper.GetPrime(capacity);
             _buckets = new int[prime];
             for (var i = 0; i < _buckets.Length; i++)
@@ -323,8 +312,6 @@ namespace MugenMvvm.Collections
 
         private void Insert(TKey key, TValue value, bool add)
         {
-            if (_buckets == null)
-                RestoreState();
             var hashCode = GetHashCode(key) & int.MaxValue;
             var targetBucket = hashCode % _buckets!.Length;
             for (var i = _buckets[targetBucket]; i >= 0; i = _entries[i].Next)
@@ -420,30 +407,6 @@ namespace MugenMvvm.Collections
             _entries = entryArray;
         }
 
-        private void Restore(IList<KeyValuePair<TKey, TValue>> value)
-        {
-            Initialize(value.Count);
-            for (var i = 0; i < value.Count; i++)
-            {
-                var pair = value[i];
-                Add(pair.Key, pair.Value);
-            }
-        }
-
-        private void RestoreState()
-        {
-            if (_buckets != null)
-                return;
-            var oldValues = new List<KeyValuePair<TKey, TValue>>();
-            for (var index = 0; index < _count; ++index)
-            {
-                if (_entries[index].HashCode >= 0)
-                    oldValues.Add(new KeyValuePair<TKey, TValue>(_entries[index].Key, _entries[index].Value));
-            }
-
-            Restore(oldValues);
-        }
-
         #endregion
 
         #region Nested types
@@ -511,7 +474,6 @@ namespace MugenMvvm.Collections
             public void Dispose()
             {
             }
-
 
             void IEnumerator.Reset()
             {

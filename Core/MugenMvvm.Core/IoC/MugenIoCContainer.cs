@@ -1218,7 +1218,7 @@ namespace MugenMvvm.IoC
             {
             }
 
-            private BindingDictionary(bool initialize) : base(initialize)
+            private BindingDictionary(bool _) : base(0)
             {
             }
 
