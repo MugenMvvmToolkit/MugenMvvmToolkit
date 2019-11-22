@@ -36,46 +36,6 @@ namespace MugenMvvm
             return itemOrList.Item == null ? 0 : 1;
         }
 
-        public static TItem GetItemAt<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, int index)
-            where TItem : class
-            where TList : class?, IReadOnlyList<TItem>
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static TItem GetItemAt<TItem>(this ItemOrList<TItem?, List<TItem>> itemOrList, int index)
-            where TItem : class
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static TItem GetItemAt<TItem>(this ItemOrList<TItem?, TItem[]> itemOrList, int index)
-            where TItem : class
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
         public static void Add<TItem>(this ref ItemOrList<TItem?, List<TItem>> itemOrList, TItem item)
             where TItem : class
         {
@@ -95,8 +55,68 @@ namespace MugenMvvm
             itemOrList = new ItemOrList<TItem?, List<TItem>>(new List<TItem> { itemOrList.Item, item });
         }
 
+        public static TItem Get<TItem, TList>(this ItemOrList<TItem?, TList> itemOrList, int index)
+            where TItem : class
+            where TList : class?, IReadOnlyList<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static TItem Get<TItem>(this ItemOrList<TItem?, List<TItem>> itemOrList, int index)
+            where TItem : class
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static TItem Get<TItem>(this ItemOrList<TItem?, TItem[]> itemOrList, int index)
+            where TItem : class
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
         public static void Set<TItem>(this ref ItemOrList<TItem?, List<TItem>> itemOrList, TItem item, int index)
             where TItem : class
+        {
+            Should.NotBeNull(item, nameof(item));
+            if (itemOrList.List != null)
+            {
+                itemOrList.List[index] = item;
+                return;
+            }
+
+            if (index == 0 && itemOrList.Item != null)
+            {
+                itemOrList = item;
+                return;
+            }
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+        }
+
+        public static void Set<TItem, TList>(this ref ItemOrList<TItem?, TList> itemOrList, TItem item, int index)
+            where TItem : class
+            where TList : class?, IList<TItem>, IReadOnlyCollection<TItem>
         {
             Should.NotBeNull(item, nameof(item));
             if (itemOrList.List != null)

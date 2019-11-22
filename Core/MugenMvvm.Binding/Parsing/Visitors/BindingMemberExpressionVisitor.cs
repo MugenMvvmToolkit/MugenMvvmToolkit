@@ -65,13 +65,13 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 return VisitMethodCall(methodCall, metadata);
 
             if (expression is IMemberExpressionNode memberExpressionNode)
-                return VisitMemberExpression(memberExpressionNode);
+                return VisitMemberExpression(memberExpressionNode, metadata);
 
             if (expression is IIndexExpressionNode indexExpression)
-                return VisitIndexExpression(indexExpression);
+                return VisitIndexExpression(indexExpression, metadata);
 
             if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
-                return GetOrAddBindingMember(expression, null) ?? expression;
+                return GetOrAddBindingMember(expression, null, metadata) ?? expression;
 
             return expression;
         }
@@ -102,7 +102,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         private IExpressionNode VisitMethodCall(IMethodCallExpressionNode methodCall, IReadOnlyMetadataContext? metadata)
         {
-            var member = GetOrAddBindingMember(methodCall, null);
+            var member = GetOrAddBindingMember(methodCall, null, metadata);
             if (member != null)
                 return member;
 
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             }
             else
             {
-                member = GetOrAddBindingMember(methodCall.Target, methodCall.MethodName);
+                member = GetOrAddBindingMember(methodCall.Target, methodCall.MethodName, metadata);
                 if (member == null)
                     return methodCall;
             }
@@ -121,17 +121,17 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             return methodCall.UpdateTarget(member).Accept(this, metadata);
         }
 
-        private IExpressionNode VisitMemberExpression(IMemberExpressionNode memberExpression)
+        private IExpressionNode VisitMemberExpression(IMemberExpressionNode memberExpression, IReadOnlyMetadataContext? metadata)
         {
-            return GetOrAddBindingMember(memberExpression, null) ?? memberExpression;
+            return GetOrAddBindingMember(memberExpression, null, metadata) ?? memberExpression;
         }
 
-        private IExpressionNode VisitIndexExpression(IIndexExpressionNode indexExpression)
+        private IExpressionNode VisitIndexExpression(IIndexExpressionNode indexExpression, IReadOnlyMetadataContext? metadata)
         {
-            return GetOrAddBindingMember(indexExpression, null) ?? indexExpression;
+            return GetOrAddBindingMember(indexExpression, null, metadata) ?? indexExpression;
         }
 
-        private IExpressionNode? GetOrAddBindingMember(IExpressionNode target, string? methodName)
+        private IExpressionNode? GetOrAddBindingMember(IExpressionNode target, string? methodName, IReadOnlyMetadataContext? metadata)
         {
             if (target.TryBuildBindingMemberPath(_memberBuilder, _condition, out var firstExpression))
                 return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.Default, methodName);
@@ -162,8 +162,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
                         var value = _observerProvider.DefaultIfNull()
-                            .GetMemberPath(_memberBuilder.GetPath())
-                            .GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, memberProvider: _memberProvider);
+                            .GetMemberPath(_memberBuilder.GetPath(), metadata)
+                            .GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, 0, metadata, _memberProvider);
                         return ConstantExpressionNode.Get(value);
                     }
 
@@ -173,7 +173,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //resource -> $i18n, $color, etc
                 if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                 {
-                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.MemberName);
+                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.MemberName, metadata);
                     if (resourceValue == null)
                         BindingExceptionManager.ThrowCannotResolveResource(memberExpression.MemberName);
                     if (resourceValue.Value == null)
@@ -181,8 +181,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
                     var value = _observerProvider
                         .DefaultIfNull()
-                        .GetMemberPath(_memberBuilder.GetPath())
-                        .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags.SetInstanceOrStaticFlags(false), memberProvider: _memberProvider);
+                        .GetMemberPath(_memberBuilder.GetPath(), metadata)
+                        .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags.SetInstanceOrStaticFlags(false), 0, metadata, _memberProvider);
                     return ConstantExpressionNode.Get(value);
                 }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -174,28 +175,70 @@ namespace MugenMvvm.Binding
             return observer.GetLastMember().IsAvailable;
         }
 
-        public static object? GetValueFromPath(this IMemberPath path, Type type, object? src, MemberFlags flags,
+        public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
             int firstMemberIndex = 0, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)
         {
             Should.NotBeNull(type, nameof(type));
             memberProvider = memberProvider.DefaultIfNull();
+            if (path.IsSingle)
+            {
+                if (firstMemberIndex > 1)
+                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
+
+                if (firstMemberIndex == 1)
+                    return target;
+
+                return memberProvider.GetValue(type, target, path.Path, flags, metadata);
+            }
+
+            if (firstMemberIndex > path.Members.Length)
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
+
             for (var index = firstMemberIndex; index < path.Members.Length; index++)
             {
                 var pathMember = path.Members[index];
-                if (src.IsNullOrUnsetValue())
+                if (target.IsNullOrUnsetValue())
                     return null;
 
                 if (index == 1)
                     flags = flags.SetInstanceOrStaticFlags(false);
-                var member = memberProvider.GetMember(type, pathMember, MemberType.Accessor, flags) as IMemberAccessorInfo;
-                if (member == null)
-                    BindingExceptionManager.ThrowInvalidBindingMember(type, pathMember);
-                src = member.GetValue(src, metadata);
-                if (src != null)
-                    type = src.GetType();
+                target = memberProvider.GetValue(type, target, pathMember, flags, metadata);
+                if (target != null)
+                    type = target.GetType();
             }
 
-            return src;
+            return target;
+        }
+
+        public static IMemberInfo? GetLastMemberFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
+            MemberType lastMemberType, IReadOnlyMetadataContext? metadata = null, IMemberProvider? memberProvider = null)
+        {
+            Should.NotBeNull(type, nameof(type));
+            memberProvider = memberProvider.DefaultIfNull();
+            string lastMemberName;
+            if (path.IsSingle)
+                lastMemberName = path.Path;
+            else
+            {
+                for (var i = 0; i < path.Members.Length - 1; i++)
+                {
+                    if (i == 1)
+                        flags = flags.SetInstanceOrStaticFlags(false);
+                    var member = memberProvider.GetMember(type, path.Members[i], MemberType.Accessor, flags, metadata);
+                    if (!(member is IMemberAccessorInfo accessor) || !accessor.CanRead)
+                        return null;
+
+                    target = accessor.GetValue(target, metadata);
+                    if (target.IsNullOrUnsetValue())
+                        return null;
+                    type = target.GetType();
+                }
+
+                flags = flags.SetInstanceOrStaticFlags(false);
+                lastMemberName = path.Members[path.Members.Length - 1];
+            }
+
+            return memberProvider.GetMember(type, lastMemberName, lastMemberType, flags, metadata);
         }
 
         public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
@@ -268,6 +311,36 @@ namespace MugenMvvm.Binding
             }
 
             return true;
+        }
+
+        public static IExpressionNode? TryGetRootMemberExpression(this IExpressionNode? target, Func<IExpressionNode, bool>? condition = null)
+        {
+            if (target == null)
+                return null;
+            IExpressionNode? result = null;
+            while (target != null)
+            {
+                result = target;
+                if (condition != null && !condition(target))
+                    return null;
+
+                switch (target)
+                {
+                    case IMemberExpressionNode memberExpressionNode:
+                        target = memberExpressionNode.Target;
+                        break;
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                        target = indexExpressionNode.Target;
+                        break;
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                        target = methodCallExpression.Target;
+                        break;
+                    default:
+                        return null;
+                }
+            }
+
+            return result;
         }
 
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
@@ -520,6 +593,14 @@ namespace MugenMvvm.Binding
                 unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
             if (unsubscriber.IsEmpty)
                 unsubscriber = ActionToken.NoDoToken;
+        }
+
+        private static object? GetValue(this IMemberProvider memberProvider, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        {
+            var member = memberProvider.GetMember(type, path, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
+            if (member == null)
+                BindingExceptionManager.ThrowInvalidBindingMember(type, path);
+            return member.GetValue(target, metadata);
         }
 
         private static string RemoveBounds(this string st, int start = 1) //todo Span?
