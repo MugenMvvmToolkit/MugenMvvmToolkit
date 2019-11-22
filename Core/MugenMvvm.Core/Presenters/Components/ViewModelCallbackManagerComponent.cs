@@ -243,7 +243,7 @@ namespace MugenMvvm.Presenters.Components
                 (components[i] as IViewModelCallbackManagerListener)?.OnCallbackExecuted(callback, viewModel, navigationContext);
         }
 
-        private static IMetadataContextKey<List<NavigationCallbackInternal?>?>? GetKeyByCallback(NavigationCallbackType callbackType)
+        private static IMetadataContextKey<List<NavigationCallbackInternal?>?> GetKeyByCallback(NavigationCallbackType callbackType)
         {
             if (callbackType == NavigationCallbackType.Showing)
                 return ShowingCallbacks;
@@ -251,6 +251,7 @@ namespace MugenMvvm.Presenters.Components
                 return ClosingCallbacks;
             if (callbackType == NavigationCallbackType.Close)
                 return CloseCallbacks;
+            ExceptionManager.ThrowEnumOutOfRange(nameof(callbackType), callbackType);
             return null;
         }
 

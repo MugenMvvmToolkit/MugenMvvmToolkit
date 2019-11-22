@@ -61,7 +61,7 @@ namespace MugenMvvm
             var pair = new KeyValuePair<IComponentCollectionProvider?, IViewInfo>(componentCollectionProvider, viewInfo);
             return viewInfo
                 .Metadata
-                .GetOrAdd(ViewMetadata.Wrappers, pair, (context, s) => s.Key.DefaultIfNull().GetComponentCollection<object>(s.Value, context))!;
+                .GetOrAdd(ViewMetadata.Wrappers, pair, (context, s) => s.Key.DefaultIfNull().GetComponentCollection<object>(s.Value, context));
         }
 
         private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)

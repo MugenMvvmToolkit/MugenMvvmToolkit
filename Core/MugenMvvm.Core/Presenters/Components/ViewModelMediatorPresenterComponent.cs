@@ -23,8 +23,8 @@ namespace MugenMvvm.Presenters.Components
         private readonly IViewManager? _viewManager;
         private INavigationDispatcher? _navigationDispatcher;
 
-        private static readonly IMetadataContextKey<List<IViewModelPresenterMediator>?> NavigationMediators = MetadataContextKey
-            .Create<List<IViewModelPresenterMediator>?>(typeof(ViewModelMediatorPresenterComponent), nameof(NavigationMediators))
+        private static readonly IMetadataContextKey<List<IViewModelPresenterMediator>> NavigationMediators = MetadataContextKey
+            .Create<List<IViewModelPresenterMediator>>(typeof(ViewModelMediatorPresenterComponent), nameof(NavigationMediators))
             .NotNull()
             .Build();
 
@@ -151,7 +151,7 @@ namespace MugenMvvm.Presenters.Components
 
         private IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (context, _) => new List<IViewModelPresenterMediator>())!;
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (context, _) => new List<IViewModelPresenterMediator>());
             var components = Owner.GetComponents();
             lock (mediators)
             {
