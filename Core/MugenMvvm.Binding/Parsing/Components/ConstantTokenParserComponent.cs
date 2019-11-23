@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public Dictionary<string, IExpressionNode> LiteralToExpression { get; }
 
-        public int Priority { get; set; } = ParserPriority.Constant;
+        public int Priority { get; set; } = ParserComponentPriority.Constant;
 
         #endregion
 

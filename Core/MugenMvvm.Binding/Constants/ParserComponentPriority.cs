@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    public static class ParserPriority
+    public static class ParserComponentPriority
     {
         #region Fields
 
@@ -13,6 +13,8 @@
         public const int Paren = 960;
         public const int Binary = 950;
         public const int Condition = 940;
+
+        public const int TokenParser = 0;
 
         #endregion
     }

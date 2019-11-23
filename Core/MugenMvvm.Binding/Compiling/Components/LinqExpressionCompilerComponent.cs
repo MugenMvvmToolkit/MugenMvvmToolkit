@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ExpressionCompilerComponentPriority.LinqCompiler;
+        public int Priority { get; set; } = CompilerComponentPriority.LinqCompiler;
 
         #endregion
 

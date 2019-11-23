@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ParserPriority.Paren;
+        public int Priority { get; set; } = ParserComponentPriority.Paren;
 
         #endregion
 

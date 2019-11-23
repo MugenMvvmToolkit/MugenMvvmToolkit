@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public List<string> QuoteTokens { get; }
 
-        public int Priority { get; set; } = ParserPriority.Constant;
+        public int Priority { get; set; } = ParserComponentPriority.Constant;
 
         #endregion
 

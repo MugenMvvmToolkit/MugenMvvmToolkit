@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ParserPriority.Method;
+        public int Priority { get; set; } = ParserComponentPriority.Method;
 
         #endregion
 

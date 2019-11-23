@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Dictionary<UnaryTokenType, Func<Expression, Expression>> UnaryTokenMapping { get; }
 
-        public int Priority { get; set; } = ExpressionCompilerComponentPriority.Unary;
+        public int Priority { get; set; } = CompilerComponentPriority.Unary;
 
         #endregion
 

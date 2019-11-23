@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public Dictionary<char, UnaryTokenType[]> TokensMapping { get; }
 
-        public int Priority { get; set; } = ParserPriority.Unary;
+        public int Priority { get; set; } = ParserComponentPriority.Unary;
 
         #endregion
 
