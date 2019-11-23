@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
@@ -232,26 +231,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         private void OnEventError(Exception exception, object sender, object? message)
         {
-            var binding = _currentMetadata?.Get(BindingMetadata.Binding);
-            if (binding != null)
-                OnSourceUpdateFailed(binding, exception);
-
             var components = _bindingManager.DefaultIfNull().GetComponents();
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IBindingEventHandlerComponent)?.OnEventError(exception, sender, message, _currentMetadata);
-        }
-
-        private void OnSourceUpdateFailed(IBinding binding, Exception error)
-        {
-            var components = binding.GetComponents();
-            var list = components.List;
-            if (list == null)
-                (components.Item as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata.DefaultIfNull());
-            else
-            {
-                for (var i = 0; i < list.Length; i++)
-                    (list[i] as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, _currentMetadata.DefaultIfNull());
-            }
         }
 
         private IMemberProvider GetMemberProvider()
