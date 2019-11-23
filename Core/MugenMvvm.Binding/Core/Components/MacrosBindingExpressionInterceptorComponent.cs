@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -25,7 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public List<IExpressionVisitor> Visitors { get; }
 
-        public int Priority { get; set; } = int.MaxValue;
+        public int Priority { get; set; } = ComponentPriority.DefaultPreInitializer;
 
         public bool IsCachePerTypeRequired => false;
 

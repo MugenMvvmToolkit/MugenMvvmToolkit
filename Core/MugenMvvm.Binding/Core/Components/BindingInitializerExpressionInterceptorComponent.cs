@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -56,7 +57,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public bool ToggleEnabledState { get; set; }
 
-        public int Priority { get; set; } = int.MinValue;
+        public int Priority { get; set; } = ComponentPriority.DefaultPostInitializer;
 
         public bool IsCachePerTypeRequired { get; set; }
 

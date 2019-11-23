@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -34,7 +35,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = BindingComponentPriority.BindingHolder;
 
         #endregion
 

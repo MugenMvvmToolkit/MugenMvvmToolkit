@@ -10,7 +10,10 @@
         public const int Mode = -100;
 
         public const int ComponentProvider = 0;
-        public const int DefaultComponentProvider = int.MinValue + 10;
+        public const int ExpressionBuilder = 0;
+        public const int ExpressionPriorityProvider = 0;
+        public const int BindingHolder = 0;
+        public const int BindingInitializer = 0;
 
         #endregion
     }

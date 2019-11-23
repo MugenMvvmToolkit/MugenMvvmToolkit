@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -13,7 +14,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ComponentPriority.Decorator;
 
         #endregion
 

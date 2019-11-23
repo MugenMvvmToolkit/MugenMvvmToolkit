@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public Dictionary<string, int> BindingMemberPriorities { get; }
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = BindingComponentPriority.ExpressionPriorityProvider;
 
         #endregion
 
