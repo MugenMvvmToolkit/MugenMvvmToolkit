@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    public static class LinqCompilerPriority
+    public static class ExpressionCompilerComponentPriority
     {
         #region Fields
 
@@ -11,6 +11,8 @@
         public const int NullConditionalMember = 960;
         public const int Member = 950;
         public const int Constant = 940;
+
+        public const int LinqCompiler = 0;
 
         #endregion
     }

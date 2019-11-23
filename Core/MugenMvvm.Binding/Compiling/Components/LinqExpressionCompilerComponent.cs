@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
@@ -40,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ExpressionCompilerComponentPriority.LinqCompiler;
 
         #endregion
 

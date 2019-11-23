@@ -62,7 +62,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>> BinaryTokenMapping { get; }
 
-        public int Priority { get; set; } = LinqCompilerPriority.Binary;
+        public int Priority { get; set; } = ExpressionCompilerComponentPriority.Binary;
 
         #endregion
 
