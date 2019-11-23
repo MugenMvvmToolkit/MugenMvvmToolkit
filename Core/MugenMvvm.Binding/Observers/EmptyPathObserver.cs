@@ -9,6 +9,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
+        internal static readonly EmptyPathObserver Empty = new EmptyPathObserver(Default.WeakReference);
         private object? _target;
 
         #endregion
