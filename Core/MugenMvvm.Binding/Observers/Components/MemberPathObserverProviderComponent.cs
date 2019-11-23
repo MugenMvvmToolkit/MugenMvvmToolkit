@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
@@ -29,7 +30,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ObserverComponentPriority.ObserverProvider;
 
         public HashSet<string> ObservableRootMembers { get; }
 

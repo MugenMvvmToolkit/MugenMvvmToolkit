@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
@@ -33,7 +34,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Properties
 
-        public int Priority { get; set; } = 10;
+        public int Priority { get; set; } = ObserverComponentPriority.PathProvider;
 
         public bool UseCache { get; set; } = true;
 

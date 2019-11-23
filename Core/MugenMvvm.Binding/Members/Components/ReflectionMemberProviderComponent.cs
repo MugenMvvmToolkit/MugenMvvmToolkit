@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = MemberComponentPriority.Default;
+        public int Priority { get; set; } = MemberComponentPriority.Reflection;
 
         #endregion
 

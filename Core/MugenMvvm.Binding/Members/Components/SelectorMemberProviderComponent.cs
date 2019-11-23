@@ -102,7 +102,7 @@ namespace MugenMvvm.Binding.Members.Components
                 return MemberComponentPriority.Extension;
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Dynamic))
                 return MemberComponentPriority.Dynamic;
-            return MemberComponentPriority.Default;
+            return MemberComponentPriority.Reflection;
         }
 
         #endregion
