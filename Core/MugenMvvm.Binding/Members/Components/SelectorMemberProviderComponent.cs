@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = MemberComponentPriority.Selector;
 
         #endregion
 
@@ -97,12 +97,12 @@ namespace MugenMvvm.Binding.Members.Components
         private static int GetPriority(IMemberInfo member)
         {
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Attached))
-                return MemberPriority.Attached;
+                return MemberComponentPriority.Attached;
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Extension))
-                return MemberPriority.Extension;
+                return MemberComponentPriority.Extension;
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Dynamic))
-                return MemberPriority.Dynamic;
-            return MemberPriority.Default;
+                return MemberComponentPriority.Dynamic;
+            return MemberComponentPriority.Default;
         }
 
         #endregion

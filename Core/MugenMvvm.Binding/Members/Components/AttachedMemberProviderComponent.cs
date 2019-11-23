@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = MemberPriority.Attached;
+        public int Priority { get; set; } = MemberComponentPriority.Attached;
 
         #endregion
 

@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = MemberPriority.Extension;
+        public int Priority { get; set; } = MemberComponentPriority.Extension;
 
         #endregion
 

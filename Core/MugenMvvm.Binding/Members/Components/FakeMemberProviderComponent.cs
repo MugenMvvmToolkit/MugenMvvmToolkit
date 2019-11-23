@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = MemberPriority.Dynamic;
+        public int Priority { get; set; } = MemberComponentPriority.Dynamic;
 
         #endregion
 
