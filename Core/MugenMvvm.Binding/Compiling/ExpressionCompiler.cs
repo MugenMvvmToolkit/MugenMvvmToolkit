@@ -43,7 +43,6 @@ namespace MugenMvvm.Binding.Compiling
         public ICompiledExpression Compile(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(expression, nameof(expression));
-
             var compilers = _compilers;
             for (var i = 0; i < compilers.Length; i++)
             {
