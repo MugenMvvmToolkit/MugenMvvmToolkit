@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.IoC;
 namespace MugenMvvm.IoC
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public class IocParameter : IIocParameter
     {
         #region Constructors

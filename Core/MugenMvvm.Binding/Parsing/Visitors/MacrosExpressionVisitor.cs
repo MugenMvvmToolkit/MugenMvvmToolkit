@@ -31,9 +31,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 Default.EmptyArray<IExpressionNode>());
             MacrosMethods = new Dictionary<string, IMethodCallExpressionNode>
             {
-                {MacrosConstants.Binding, new MethodCallExpressionNode(argsMethod.Target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
-                {MacrosConstants.Args, argsMethod},
-                {MacrosConstants.Arg, argsMethod}
+                {MacrosConstant.Binding, new MethodCallExpressionNode(argsMethod.Target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
+                {MacrosConstant.Args, argsMethod},
+                {MacrosConstant.Arg, argsMethod}
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {

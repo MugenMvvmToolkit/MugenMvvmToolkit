@@ -9,6 +9,9 @@
         public const int ParameterHandler = 1000;
         public const int Mode = -100;
 
+        public const int ComponentProvider = 0;
+        public const int DefaultComponentProvider = int.MinValue + 10;
+
         #endregion
     }
 }

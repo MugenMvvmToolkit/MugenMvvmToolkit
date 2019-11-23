@@ -246,7 +246,7 @@ namespace MugenMvvm.Commands
             {
                 if (!CanExecute(parameter))
                 {
-                    Tracer.Warn(MessageConstants.CommandCannotBeExecutedString);
+                    Tracer.Warn(MessageConstant.CommandCannotBeExecutedString);
                     RaiseCanExecuteChanged();
                     return Default.CompletedTask;
                 }

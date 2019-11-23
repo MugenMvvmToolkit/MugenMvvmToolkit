@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Internal;
 namespace MugenMvvm.Serialization
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     public sealed class SerializableWeakReference//todo check
     {

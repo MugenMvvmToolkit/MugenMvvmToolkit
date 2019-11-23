@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Metadata;
-using static MugenMvvm.Constants.MessageConstants;
+using static MugenMvvm.Constants.MessageConstant;
 
 namespace MugenMvvm
 {

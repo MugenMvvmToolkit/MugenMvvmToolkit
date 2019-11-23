@@ -36,8 +36,8 @@ namespace MugenMvvm
         {
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(action, nameof(action));
-            Should.BeSupported(action.Target != null, MessageConstants.StaticDelegateCannotBeWeak);
-            Should.BeSupported(!action.Target!.GetType().IsAnonymousClass(), MessageConstants.AnonymousDelegateCannotBeWeak);
+            Should.BeSupported(action.Target != null, MessageConstant.StaticDelegateCannotBeWeak);
+            Should.BeSupported(!action.Target!.GetType().IsAnonymousClass(), MessageConstant.AnonymousDelegateCannotBeWeak);
             var methodInvoker = action.GetMethodInfo().GetMethodInvoker<Action<object, TMessage, IMessageContext>>(reflectionDelegateProvider);
             var subscriber = new WeakDelegateMessengerSubscriber<object, TMessage>(action.Target.ToWeakReference(), methodInvoker);
             messenger.Subscribe(subscriber, executionMode, metadata);

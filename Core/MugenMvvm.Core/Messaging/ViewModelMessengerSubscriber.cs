@@ -158,7 +158,7 @@ namespace MugenMvvm.Messaging
         #region Nested types
 
         [Serializable]
-        [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+        [DataContract(Namespace = BuildConstant.DataContractNamespace)]
         [Preserve(Conditional = true, AllMembers = true)]
         public sealed class ViewModelMessengerSubscriberMemento : IMemento
         {

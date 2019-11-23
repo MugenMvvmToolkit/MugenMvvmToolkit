@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    public static class MacrosConstants
+    public static class MacrosConstant
     {
         #region Fields
 

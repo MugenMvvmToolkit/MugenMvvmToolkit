@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    internal static class BindingInternalConstants
+    internal static class BindingInternalConstant
     {
         #region Fields
         public const string ChangedEventPostfix = "Changed";

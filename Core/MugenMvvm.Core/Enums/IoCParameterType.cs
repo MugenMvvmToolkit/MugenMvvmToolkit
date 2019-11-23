@@ -7,7 +7,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Enums
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
 #pragma warning disable 660,661
     public class IocParameterType : EnumBase<IocParameterType, int>
 #pragma warning restore 660,661

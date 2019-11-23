@@ -12,11 +12,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         #region Fields
 
         public static readonly MemberExpressionNode Empty = new MemberExpressionNode(null, string.Empty);
-        public static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstants.Source);
-        public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstants.Target);
-        public static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstants.Context);
-        public static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstants.Binding);
-        public static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstants.Args);
+        public static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstant.Source);
+        public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstant.Target);
+        public static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstant.Context);
+        public static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstant.Binding);
+        public static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstant.Args);
 
         #endregion
 
@@ -71,15 +71,15 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (target == null)
             {
-                if (member == MacrosConstants.Self || member == MacrosConstants.This || member == MacrosConstants.Target)
+                if (member == MacrosConstant.Self || member == MacrosConstant.This || member == MacrosConstant.Target)
                     return Self;
-                if (member == MacrosConstants.Context)
+                if (member == MacrosConstant.Context)
                     return Context;
-                if (member == MacrosConstants.Source)
+                if (member == MacrosConstant.Source)
                     return Source;
-                if (member == MacrosConstants.Args)
+                if (member == MacrosConstant.Args)
                     return Args;
-                if (member == MacrosConstants.Binding)
+                if (member == MacrosConstant.Binding)
                     return Binding;
             }
 

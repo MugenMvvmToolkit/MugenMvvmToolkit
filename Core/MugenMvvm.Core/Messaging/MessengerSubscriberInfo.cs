@@ -8,7 +8,7 @@ using MugenMvvm.Enums;
 namespace MugenMvvm.Messaging
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     [StructLayout(LayoutKind.Auto)]
     public readonly struct MessengerSubscriberInfo

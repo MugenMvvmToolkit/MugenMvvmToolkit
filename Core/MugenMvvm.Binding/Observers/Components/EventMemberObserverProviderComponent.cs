@@ -97,7 +97,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 return EventFinder(type, memberName, metadata);
 
             var provider = _memberProvider.DefaultIfNull();
-            return provider.GetMember(type, memberName + BindingInternalConstants.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
+            return provider.GetMember(type, memberName + BindingInternalConstant.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
                    ?? provider.GetMember(type, memberName + "Change", MemberType.Event, flags, metadata) as IEventInfo;
         }
 

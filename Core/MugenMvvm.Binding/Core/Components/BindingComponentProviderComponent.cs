@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -29,7 +30,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = int.MinValue;
+        public int Priority { get; set; } = BindingComponentPriority.DefaultComponentProvider;
 
         public IList<IProvider> Providers => _providers;
 

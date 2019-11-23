@@ -5,7 +5,7 @@ using MugenMvvm.Constants;
 namespace MugenMvvm.Serialization
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     public sealed class SerializableNullValue
     {
         #region Fields

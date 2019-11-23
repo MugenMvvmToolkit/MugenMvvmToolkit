@@ -82,32 +82,32 @@ namespace MugenMvvm.Binding.Core.Components
                 MemberExpressionVisitor.IgnoreIndexMembers = ignoreIndexMembers;
                 MemberExpressionVisitor.IgnoreMethodMembers = ignoreMethodMembers;
 
-                if (!_context.ComponentBuilders.ContainsKey(BindingParameterNameConstants.EventHandler))
+                if (!_context.ComponentBuilders.ContainsKey(BindingParameterNameConstant.EventHandler))
                 {
                     bool _ = false;
-                    var parameter = GetValueOrExpression(BindingParameterNameConstants.CommandParameter, metadata, ref _);
-                    var toggle = _context.TryGetBool(BindingParameterNameConstants.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
+                    var parameter = GetValueOrExpression(BindingParameterNameConstant.CommandParameter, metadata, ref _);
+                    var toggle = _context.TryGetBool(BindingParameterNameConstant.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
                     parameters.Add(new DelegateBindingComponentBuilder<ValueTuple<ValueTuple<object?, ICompiledExpression?>, bool>>(_getEventHandlerDelegate,
-                        BindingParameterNameConstants.EventHandler, (parameter, toggle)));
+                        BindingParameterNameConstant.EventHandler, (parameter, toggle)));
                 }
                 return;
             }
 
             sourceExpression = MemberExpressionVisitor.Visit(sourceExpression, metadata);
 
-            if (_context.ComponentBuilders.ContainsKey(BindingParameterNameConstants.ParameterHandler))
+            if (_context.ComponentBuilders.ContainsKey(BindingParameterNameConstant.ParameterHandler))
                 return;
 
             bool hasResult = false;
-            var converter = GetValueOrExpression(BindingParameterNameConstants.Converter, metadata, ref hasResult);
-            var converterParameter = GetValueOrExpression(BindingParameterNameConstants.ConverterParameter, metadata, ref hasResult);
-            var fallback = GetValueOrExpression(BindingParameterNameConstants.Fallback, metadata, ref hasResult);
-            var targetNullValue = GetValueOrExpression(BindingParameterNameConstants.TargetNullValue, metadata, ref hasResult);
+            var converter = GetValueOrExpression(BindingParameterNameConstant.Converter, metadata, ref hasResult);
+            var converterParameter = GetValueOrExpression(BindingParameterNameConstant.ConverterParameter, metadata, ref hasResult);
+            var fallback = GetValueOrExpression(BindingParameterNameConstant.Fallback, metadata, ref hasResult);
+            var targetNullValue = GetValueOrExpression(BindingParameterNameConstant.TargetNullValue, metadata, ref hasResult);
             if (hasResult)
             {
                 parameters.Add(new DelegateBindingComponentBuilder<ValueTuple<ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>,
                     ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>>>(GetParametersComponentDelegate,
-                    BindingParameterNameConstants.ParameterHandler, (converter, converterParameter, fallback, targetNullValue)));
+                    BindingParameterNameConstant.ParameterHandler, (converter, converterParameter, fallback, targetNullValue)));
             }
         }
 
@@ -118,12 +118,12 @@ namespace MugenMvvm.Binding.Core.Components
         private void SetMemberVisitorSettings()
         {
             MemberExpressionVisitor.Flags = Flags;
-            MemberExpressionVisitor.IgnoreMethodMembers = _context.TryGetBool(BindingParameterNameConstants.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
-            MemberExpressionVisitor.IgnoreIndexMembers = _context.TryGetBool(BindingParameterNameConstants.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);
-            ApplyFlags(BindingParameterNameConstants.Observable, BindingMemberExpressionFlags.Observable);
-            ApplyFlags(BindingParameterNameConstants.Optional, BindingMemberExpressionFlags.Optional);
-            ApplyFlags(BindingParameterNameConstants.HasStablePath, BindingMemberExpressionFlags.StablePath);
-            ApplyFlags(BindingParameterNameConstants.ObservableMethod, BindingMemberExpressionFlags.ObservableMethod);
+            MemberExpressionVisitor.IgnoreMethodMembers = _context.TryGetBool(BindingParameterNameConstant.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
+            MemberExpressionVisitor.IgnoreIndexMembers = _context.TryGetBool(BindingParameterNameConstant.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);
+            ApplyFlags(BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable);
+            ApplyFlags(BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
+            ApplyFlags(BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
+            ApplyFlags(BindingParameterNameConstant.ObservableMethod, BindingMemberExpressionFlags.ObservableMethod);
         }
 
         private void ApplyFlags(string parameterName, BindingMemberExpressionFlags value)

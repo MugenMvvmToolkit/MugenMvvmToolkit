@@ -142,16 +142,16 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 unaryExpression.Operand is IMemberExpressionNode memberExpression)
             {
                 //$target, $self, $this
-                if (memberExpression.MemberName == MacrosConstants.Target || memberExpression.MemberName == MacrosConstants.Self ||
-                    memberExpression.MemberName == MacrosConstants.This)
+                if (memberExpression.MemberName == MacrosConstant.Target || memberExpression.MemberName == MacrosConstant.Self ||
+                    memberExpression.MemberName == MacrosConstant.This)
                     return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.TargetOnly, methodName);
 
                 //$source
-                if (memberExpression.MemberName == MacrosConstants.Source)
+                if (memberExpression.MemberName == MacrosConstant.Source)
                     return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.SourceOnly, methodName);
 
                 //$context
-                if (memberExpression.MemberName == MacrosConstants.Context)
+                if (memberExpression.MemberName == MacrosConstant.Context)
                 {
                     _memberBuilder.Insert(0, BindableMembers.Object.DataContext);
                     return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.TargetOnly, methodName);

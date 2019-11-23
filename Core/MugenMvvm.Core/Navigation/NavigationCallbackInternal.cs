@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Navigation;
 namespace MugenMvvm.Navigation
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     internal sealed class NavigationCallbackInternal : INavigationCallback<bool>
     {

@@ -4,7 +4,7 @@
 
 namespace MugenMvvm.Constants
 {
-    public static class BuildConstants
+    public static class BuildConstant
     {
         #region Fields
 

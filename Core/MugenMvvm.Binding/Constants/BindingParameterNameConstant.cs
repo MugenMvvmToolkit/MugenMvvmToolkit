@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    public static class BindingParameterNameConstants
+    public static class BindingParameterNameConstant
     {
         #region Fields
 

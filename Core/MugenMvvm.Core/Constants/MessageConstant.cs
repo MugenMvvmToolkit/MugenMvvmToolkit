@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Constants
 {
-    internal static class MessageConstants
+    internal static class MessageConstant
     {
         #region Fields
 

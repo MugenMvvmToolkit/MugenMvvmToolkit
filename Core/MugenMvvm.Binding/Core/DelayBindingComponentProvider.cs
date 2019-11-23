@@ -11,8 +11,8 @@ namespace MugenMvvm.Binding.Core
 
         public void Initialize(IExpressionNode targetExpression, IExpressionNode sourceExpression, BindingParameterContext context, IReadOnlyMetadataContext? metadata)
         {
-            TryAddDelay(context, BindingParameterNameConstants.Delay);
-            TryAddDelay(context, BindingParameterNameConstants.TargetDelay);
+            TryAddDelay(context, BindingParameterNameConstant.Delay);
+            TryAddDelay(context, BindingParameterNameConstant.TargetDelay);
         }
 
         #endregion
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Core
             var delay = context.TryGetValue<int?>(parameterName, null);
             if (delay != null)
             {
-                var builder = parameterName == BindingParameterNameConstants.Delay
+                var builder = parameterName == BindingParameterNameConstant.Delay
                     ? new DelegateBindingComponentBuilder<int>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), parameterName, delay.Value)
                     : new DelegateBindingComponentBuilder<int>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), parameterName, delay.Value);
                 context.ComponentBuilders[parameterName] = builder;

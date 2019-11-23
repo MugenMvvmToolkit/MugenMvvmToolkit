@@ -11,7 +11,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Serialization
 {
     [Serializable]
-    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     public sealed class StaticMemberMemento : IMemento
     {
@@ -83,7 +83,7 @@ namespace MugenMvvm.Serialization
             if (member == null)
             {
                 if (Tracer.TraceError)
-                    Tracer.Error(MessageConstants.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
+                    Tracer.Error(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
                 return null;
             }
 

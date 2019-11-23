@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Binding.Constants
 {
-    internal static class BindingMessageConstants
+    internal static class BindingMessageConstant
     {
         #region Fields
 

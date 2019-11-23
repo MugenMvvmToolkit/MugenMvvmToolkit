@@ -15,22 +15,22 @@ namespace MugenMvvm.Binding.Core
         #region Fields
 
         public static readonly IBindingComponentBuilder OneTimeMode =
-            new InstanceBindingComponentBuilder(BindingParameterNameConstants.Mode, OneTimeBindingModeComponent.Instance);
+            new InstanceBindingComponentBuilder(BindingParameterNameConstant.Mode, OneTimeBindingModeComponent.Instance);
 
         public static readonly IBindingComponentBuilder OneWayMode =
-            new InstanceBindingComponentBuilder(BindingParameterNameConstants.Mode, OneWayBindingModeComponent.Instance);
+            new InstanceBindingComponentBuilder(BindingParameterNameConstant.Mode, OneWayBindingModeComponent.Instance);
 
         public static readonly IBindingComponentBuilder OneWayToSourceMode =
-            new InstanceBindingComponentBuilder(BindingParameterNameConstants.Mode, OneWayToSourceBindingModeComponent.Instance);
+            new InstanceBindingComponentBuilder(BindingParameterNameConstant.Mode, OneWayToSourceBindingModeComponent.Instance);
 
         public static readonly IBindingComponentBuilder TwoWayMode =
-            new InstanceBindingComponentBuilder(BindingParameterNameConstants.Mode, TwoWayBindingModeComponent.Instance);
+            new InstanceBindingComponentBuilder(BindingParameterNameConstant.Mode, TwoWayBindingModeComponent.Instance);
 
         public static readonly IBindingComponentBuilder OneTimeDisposeMode =
-            new InstanceBindingComponentBuilder(BindingParameterNameConstants.Mode, OneTimeBindingModeComponent.DisposeBindingInstance);
+            new InstanceBindingComponentBuilder(BindingParameterNameConstant.Mode, OneTimeBindingModeComponent.DisposeBindingInstance);
 
         public static readonly IBindingComponentBuilder NoneMode =
-            new InstanceBindingComponentBuilder(BindingParameterNameConstants.Mode);
+            new InstanceBindingComponentBuilder(BindingParameterNameConstant.Mode);
 
         #endregion
 

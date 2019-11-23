@@ -27,7 +27,7 @@ namespace MugenMvvm
         public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
-                throw new ArgumentException(MessageConstants.ArgumentCannotBeNull.Format(paramName), paramName);
+                throw new ArgumentException(MessageConstant.ArgumentCannotBeNull.Format(paramName), paramName);
         }
 
         public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
@@ -42,7 +42,7 @@ namespace MugenMvvm
         public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool validation)
         {
             if (!validation)
-                throw new ArgumentException(MessageConstants.ArgumentNotValid.Format(paramName));
+                throw new ArgumentException(MessageConstant.ArgumentNotValid.Format(paramName));
         }
 
         [DebuggerStepThrough]
@@ -64,7 +64,7 @@ namespace MugenMvvm
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));
             if (!requiredType.IsAssignableFrom(type))
-                throw new ArgumentException(MessageConstants.ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
+                throw new ArgumentException(MessageConstant.ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
         }
 
         [DebuggerStepThrough]
@@ -72,7 +72,7 @@ namespace MugenMvvm
         public static void MethodBeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool isSupported, string methodName)
         {
-            BeSupported(isSupported, MessageConstants.ShouldMethodBeSupportedFormat1.Format(methodName));
+            BeSupported(isSupported, MessageConstant.ShouldMethodBeSupportedFormat1.Format(methodName));
         }
 
         [DebuggerStepThrough]

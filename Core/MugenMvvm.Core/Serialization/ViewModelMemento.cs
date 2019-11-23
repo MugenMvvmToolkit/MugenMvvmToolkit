@@ -18,7 +18,7 @@
 //namespace MugenMvvm.Serialization
 //{
 //    [Serializable]
-//    [DataContract(Namespace = BuildConstants.DataContractNamespace)]
+//    [DataContract(Namespace = BuildConstant.DataContractNamespace)]
 //    [Preserve(Conditional = true, AllMembers = true)]
 //    public class ViewModelMemento : IMemento //todo saving/restoring state/ cancel restore/ split methods to control default behavior
 //    {
