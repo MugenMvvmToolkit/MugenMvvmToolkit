@@ -28,12 +28,14 @@ namespace MugenMvvm.Components
         {
             if (!ReferenceEquals(component, this))
                 MugenExtensions.ComponentTrackerOnAdded(ref Components, collection, component);
+            OnComponentAdded(collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<T>>.OnRemoved(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
         {
             if (!ReferenceEquals(component, this))
                 MugenExtensions.ComponentTrackerOnRemoved(ref Components, component);
+            OnComponentRemoved(collection, component, metadata);
         }
 
         #endregion
@@ -50,6 +52,14 @@ namespace MugenMvvm.Components
         {
             owner.Components.Components.Remove(this);
             Components = Default.EmptyArray<TComponent>();
+        }
+
+        protected virtual void OnComponentAdded(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        protected virtual void OnComponentRemoved(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
+        {
         }
 
         #endregion

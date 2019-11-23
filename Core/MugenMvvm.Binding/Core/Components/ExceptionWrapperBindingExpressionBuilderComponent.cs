@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.Decorator;
+        public int Priority { get; set; } = ComponentPriority.DecoratorLow;
 
         #endregion
 
