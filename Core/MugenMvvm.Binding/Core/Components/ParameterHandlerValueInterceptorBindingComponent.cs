@@ -10,7 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingParametersValueInterceptorComponent : ISourceValueInterceptorBindingComponent,
+    public sealed class ParameterHandlerValueInterceptorBindingComponent : ISourceValueInterceptorBindingComponent,
         ITargetValueInterceptorBindingComponent, IHasPriority, IDetachableComponent
     {
         #region Fields
@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingParametersValueInterceptorComponent(BindingParameterValue converter, BindingParameterValue converterParameter, BindingParameterValue fallback,
+        public ParameterHandlerValueInterceptorBindingComponent(BindingParameterValue converter, BindingParameterValue converterParameter, BindingParameterValue fallback,
             BindingParameterValue targetNullValue)
         {
             _converter = converter;
@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public static int Priority { get; set; } = BindingComponentPriority.Parameters;
+        public static int Priority { get; set; } = BindingComponentPriority.ParameterHandler;
 
         int IHasPriority.Priority => Priority;
 

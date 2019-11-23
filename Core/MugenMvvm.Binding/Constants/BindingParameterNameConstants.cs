@@ -21,7 +21,8 @@
         public const string Delay = nameof(Delay);
         public const string TargetDelay = nameof(TargetDelay);
         public const string Mode = nameof(Mode);
-        public const string Parameters = nameof(Parameters);
+
+        public const string ParameterHandler = nameof(ParameterHandler);
         public const string EventHandler = nameof(EventHandler);
 
         #endregion

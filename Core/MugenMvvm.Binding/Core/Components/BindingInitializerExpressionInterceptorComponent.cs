@@ -95,7 +95,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             sourceExpression = MemberExpressionVisitor.Visit(sourceExpression, metadata);
 
-            if (_context.ComponentBuilders.ContainsKey(BindingParameterNameConstants.Parameters))
+            if (_context.ComponentBuilders.ContainsKey(BindingParameterNameConstants.ParameterHandler))
                 return;
 
             bool hasResult = false;
@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 parameters.Add(new DelegateBindingComponentBuilder<ValueTuple<ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>,
                     ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>>>(GetParametersComponentDelegate,
-                    BindingParameterNameConstants.Parameters, (converter, converterParameter, fallback, targetNullValue)));
+                    BindingParameterNameConstants.ParameterHandler, (converter, converterParameter, fallback, targetNullValue)));
             }
         }
 
@@ -155,7 +155,7 @@ namespace MugenMvvm.Binding.Core.Components
             ValueTuple<object?, ICompiledExpression?>> state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var (converter, converterParameter, fallback, targetNullValue) = state;
-            return new BindingParametersValueInterceptorComponent(GetValueOrExpression(converter, target, source, metadata),
+            return new ParameterHandlerValueInterceptorBindingComponent(GetValueOrExpression(converter, target, source, metadata),
                 GetValueOrExpression(converterParameter, target, source, metadata), GetValueOrExpression(fallback, target, source, metadata),
                 GetValueOrExpression(targetNullValue, target, source, metadata));
         }
