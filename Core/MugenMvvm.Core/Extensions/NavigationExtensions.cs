@@ -5,8 +5,10 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Metadata;
+using MugenMvvm.Presenters;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -14,6 +16,20 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IPresenterResult GetPresenterResult(this INavigationProvider provider, NavigationType navigationType, IViewModelBase viewModel,
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+        {
+            return GetPresenterResult(provider, provider.GetUniqueNavigationOperationId(viewModel), navigationType, viewModel, metadata, metadataContextProvider);
+        }
+
+        public static IPresenterResult GetPresenterResult(this INavigationProvider provider, string navigationOperationId, NavigationType navigationType, IViewModelBase viewModel,
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+        {
+            var result = new PresenterResult(provider, navigationOperationId, navigationType, metadataContextProvider, metadata);
+            result.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
+            return result;
+        }
 
         public static INavigationJournalComponent GetNavigationJournal(this INavigationDispatcher dispatcher)
         {

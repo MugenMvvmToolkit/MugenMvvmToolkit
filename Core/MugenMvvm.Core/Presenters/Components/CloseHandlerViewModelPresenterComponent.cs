@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
@@ -21,7 +22,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = PresenterComponentPriority.Default;
 
         #endregion
 

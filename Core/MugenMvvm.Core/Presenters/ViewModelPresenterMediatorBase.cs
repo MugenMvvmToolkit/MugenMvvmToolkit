@@ -122,13 +122,13 @@ namespace MugenMvvm.Presenters
                 NavigationDispatcher
                     .WaitNavigationAsync(ShouldWaitNavigationBeforeShow, metadata)
                     .ContinueWith(ShowAfterWaitNavigation, metadata, TaskContinuationOptions.ExecuteSynchronously);
-                return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+                return this.GetPresenterResult(NavigationType, ViewModel);
             }
 
             if (IsOpen)
             {
                 ThreadDispatcher.Execute(ExecutionMode, RefreshCallback, metadata);
-                return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+                return this.GetPresenterResult(NavigationType, ViewModel);
             }
 
             NavigationDispatcher
@@ -140,7 +140,7 @@ namespace MugenMvvm.Presenters
                         .ContinueWith(OnViewInitialized, context, TaskContinuationOptions.ExecuteSynchronously);
                     return false;
                 });
-            return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+            return this.GetPresenterResult(NavigationType, ViewModel);
         }
 
         protected virtual IPresenterResult CloseInternal(bool shouldWaitNavigation, IReadOnlyMetadataContext? metadata)
@@ -148,18 +148,18 @@ namespace MugenMvvm.Presenters
             if (!IsOpen)
             {
                 Tracer.Error(MessageConstant.CannotCloseMediator);
-                return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+                return this.GetPresenterResult(NavigationType, ViewModel);
             }
 
             if (IsClosing)
-                return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+                return this.GetPresenterResult(NavigationType, ViewModel);
 
             if (shouldWaitNavigation)
             {
                 NavigationDispatcher
                     .WaitNavigationAsync(ShouldWaitNavigationBeforeClose, metadata)
                     .ContinueWith(CloseAfterWaitNavigation, metadata, TaskContinuationOptions.ExecuteSynchronously);
-                return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+                return this.GetPresenterResult(NavigationType, ViewModel);
             }
 
             _closingContext = NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Back, metadata);
@@ -168,14 +168,14 @@ namespace MugenMvvm.Presenters
                 ThreadDispatcher.Execute(ExecutionMode, CloseViewCallback, context);
                 return false;
             }, (dispatcher, context, arg3) => _closingContext = null);
-            return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+            return this.GetPresenterResult(NavigationType, ViewModel);
         }
 
         protected virtual IPresenterResult RestoreInternal(IViewInfo viewInfo, IReadOnlyMetadataContext? metadata)
         {
             UpdateView(viewInfo, true, metadata);
             NavigationDispatcher.OnNavigated(NavigationDispatcher.GetNavigationContext(ViewModel, this, NavigationType, NavigationMode.Restore, metadata));
-            return PresenterResult.ViewModelResult(this, NavigationType, ViewModel);
+            return this.GetPresenterResult(NavigationType, ViewModel);
         }
 
         protected virtual bool ShouldWaitNavigationBeforeShow(INavigationCallback callback)

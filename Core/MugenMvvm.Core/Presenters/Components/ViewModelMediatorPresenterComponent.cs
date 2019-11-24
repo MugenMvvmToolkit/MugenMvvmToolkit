@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -43,9 +44,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Properties
 
-        public int Priority { get; set; }
-
-        public int NavigationDispatcherListenerPriority { get; set; }
+        public int Priority { get; set; } = PresenterComponentPriority.Modal;
 
         #endregion
 
@@ -81,7 +80,7 @@ namespace MugenMvvm.Presenters.Components
 
         int IHasComponentPriority.GetPriority(object owner)
         {
-            return owner is INavigationDispatcher ? NavigationDispatcherListenerPriority : Priority;
+            return owner is INavigationDispatcher ? 0 : Priority;
         }
 
         void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -129,7 +128,7 @@ namespace MugenMvvm.Presenters.Components
             if (mediator == null)
                 return Default.EmptyArray<IPresenterResult>();
 
-            return new[] {mediator.Restore(viewInfo, metadata)};
+            return new[] { mediator.Restore(viewInfo, metadata) };
         }
 
         #endregion
@@ -151,7 +150,7 @@ namespace MugenMvvm.Presenters.Components
 
         private IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (context, _) => new List<IViewModelPresenterMediator>());
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (context, _) => new List<IViewModelPresenterMediator>());
             var components = Owner.GetComponents();
             lock (mediators)
             {

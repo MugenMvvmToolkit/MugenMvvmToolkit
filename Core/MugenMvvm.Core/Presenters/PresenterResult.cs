@@ -55,23 +55,5 @@ namespace MugenMvvm.Presenters
         public NavigationType NavigationType { get; }
 
         #endregion
-
-        #region Methods
-
-        public static IPresenterResult ViewModelResult(INavigationProvider provider, NavigationType navigationType, IViewModelBase viewModel,
-            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-        {
-            return ViewModelResult(provider, provider.GetUniqueNavigationOperationId(viewModel), navigationType, viewModel, metadata, metadataContextProvider);
-        }
-
-        public static IPresenterResult ViewModelResult(INavigationProvider provider, string navigationOperationId, NavigationType navigationType, IViewModelBase viewModel,
-            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-        {
-            var result = new PresenterResult(provider, navigationOperationId, navigationType, metadataContextProvider, metadata);
-            result.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
-            return result;
-        }
-
-        #endregion
     }
 }

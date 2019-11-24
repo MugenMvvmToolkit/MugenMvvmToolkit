@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -11,13 +12,12 @@ using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelCallbackManagerComponent : AttachableComponentBase<IPresenter>, IPresenterShowListener, IPresenterCloseListener, IHasPriority
+    public sealed class ViewModelCallbackManagerComponent : AttachableComponentBase<IPresenter>, IPresenterComponent, ICloseablePresenterComponent, IHasPriority
     {
         #region Fields
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Presenters.Components
 
         private static readonly IMetadataContextKey<List<NavigationCallbackInternal?>> CloseCallbacks = GetBuilder<List<NavigationCallbackInternal?>>(nameof(CloseCallbacks))
             .Serializable(CanSerializeCloseCallbacks)
-            .SerializableConverter(SerializeCloseCallbacks, DeserializeCloseCallbacks)
+            .SerializableConverter(SerializeCloseCallbacks, (key, o, arg3) => o)
             .Build();
 
         #endregion
@@ -52,56 +52,75 @@ namespace MugenMvvm.Presenters.Components
 
         public bool IsSerializable { get; set; }
 
-        public int NavigationDispatcherListenerPriority { get; set; }
-
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ComponentPriority.Decorator;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public void OnClosing(IPresenter presenter, string operationId, IMetadataContext metadata)
+        public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
         {
-            _dispatcherListener.BeginSuspend(operationId);
-        }
-
-        public void OnClosed(IPresenter presenter, string operationId, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata)
-        {
-            for (var i = 0; i < results.Count; i++)
+            _dispatcherListener.BeginSuspend();
+            var components = Owner.GetComponents();
+            try
             {
-                var presenterResult = results[i];
-                var callback = AddCallback(presenterResult, NavigationCallbackType.Closing);
-                if (callback != null)
-                    presenterResult.Metadata.Set(NavigationInternalMetadata.ClosingCallback, callback);
+                var results = new List<IPresenterResult>();
+                for (var i = 0; i < components.Length; i++)
+                {
+                    if (!(components[i] is ICloseablePresenterComponent presenter) || MugenExtensions.GetComponentPriority(presenter, Owner) >= Priority)
+                        continue;
+
+                    var operations = presenter.TryClose(metadata);
+                    if (operations != null)
+                        results.AddRange(operations);
+                }
+
+                for (var i = 0; i < results.Count; i++)
+                {
+                    var presenterResult = results[i];
+                    var callback = AddCallback(presenterResult, NavigationCallbackType.Closing);
+                    if (callback != null)
+                        presenterResult.Metadata.Set(NavigationInternalMetadata.ClosingCallback, callback);
+                }
+
+                return results;
             }
-
-            _dispatcherListener.EndSuspend(operationId);
+            finally
+            {
+                _dispatcherListener.EndSuspend();
+            }
         }
 
-        public void OnCloseError(IPresenter presenter, string operationId, Exception exception, IMetadataContext metadata)
+        public IPresenterResult? TryShow(IMetadataContext metadata)
         {
-            _dispatcherListener.EndSuspend(operationId);
-        }
+            _dispatcherListener.BeginSuspend();
+            var components = Owner.GetComponents();
+            try
+            {
+                for (var i = 0; i < components.Length; i++)
+                {
+                    if (!(components[i] is IPresenterComponent presenter) || MugenExtensions.GetComponentPriority(presenter, Owner) >= Priority)
+                        continue;
 
-        public void OnShowing(IPresenter presenter, string operationId, IMetadataContext metadata)
-        {
-            _dispatcherListener.BeginSuspend(operationId);
-        }
+                    var result = presenter.TryShow(metadata);
+                    if (result != null)
+                    {
+                        var callback = AddCallback(result, NavigationCallbackType.Showing);
+                        if (callback != null)
+                            result.Metadata.Set(NavigationInternalMetadata.ShowingCallback, callback);
+                        callback = AddCallback(result, NavigationCallbackType.Close);
+                        if (callback != null)
+                            result.Metadata.Set(NavigationInternalMetadata.CloseCallback, callback);
+                        return result;
+                    }
+                }
 
-        public void OnShown(IPresenter presenter, string operationId, IPresenterResult result, IMetadataContext metadata)
-        {
-            var callback = AddCallback(result, NavigationCallbackType.Showing);
-            if (callback != null)
-                result.Metadata.Set(NavigationInternalMetadata.ShowingCallback, callback);
-            callback = AddCallback(result, NavigationCallbackType.Close);
-            if (callback != null)
-                result.Metadata.Set(NavigationInternalMetadata.CloseCallback, callback);
-            _dispatcherListener.EndSuspend(operationId);
-        }
-
-        public void OnShowError(IPresenter presenter, string operationId, Exception exception, IMetadataContext metadata)
-        {
-            _dispatcherListener.EndSuspend(operationId);
+                return null;
+            }
+            finally
+            {
+                _dispatcherListener.EndSuspend();
+            }
         }
 
         #endregion
@@ -137,7 +156,9 @@ namespace MugenMvvm.Presenters.Components
                 callbacks.Add(callback);
             }
 
-            OnCallbackAdded(callback, viewModel, presenterResult.Metadata);
+            var components = Owner.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IViewModelCallbackManagerListener)?.OnCallbackAdded(callback, viewModel, presenterResult.Metadata);
             return callback;
         }
 
@@ -151,16 +172,6 @@ namespace MugenMvvm.Presenters.Components
             }
             else
                 InvokeCallbacks(navigationContext, ShowingCallbacks, true, null, false);
-        }
-
-        private void OnNavigationFailedInternal(INavigationContext navigationContext, Exception exception)
-        {
-            OnNavigationFailed(navigationContext, exception, false);
-        }
-
-        private void OnNavigationCanceledInternal(INavigationContext navigationContext)
-        {
-            OnNavigationFailed(navigationContext, null, true);
         }
 
         private void OnNavigationFailed(INavigationContext navigationContext, Exception? e, bool canceled)
@@ -224,22 +235,11 @@ namespace MugenMvvm.Presenters.Components
                     callback.SetCanceled();
                 else
                     callback.SetResult(result);
-                OnCallbackExecuted(callback, vm!, navigationContext);
+
+                var components = Owner.GetComponents();
+                for (var j = 0; j < components.Length; i++)
+                    (components[j] as IViewModelCallbackManagerListener)?.OnCallbackExecuted(callback, vm, navigationContext);
             }
-        }
-
-        private void OnCallbackAdded(INavigationCallback callback, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
-        {
-            var components = Owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as IViewModelCallbackManagerListener)?.OnCallbackAdded(callback, viewModel, metadata);
-        }
-
-        private void OnCallbackExecuted(INavigationCallback callback, IViewModelBase viewModel, INavigationContext navigationContext)
-        {
-            var components = Owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as IViewModelCallbackManagerListener)?.OnCallbackExecuted(callback, viewModel, navigationContext);
         }
 
         private static IMetadataContextKey<List<NavigationCallbackInternal?>> GetKeyByCallback(NavigationCallbackType callbackType)
@@ -289,22 +289,15 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
-        private static object? DeserializeCloseCallbacks(IMetadataContextKey<List<NavigationCallbackInternal?>> key, object? value, ISerializationContext context)
-        {
-            return value;
-        }
-
         #endregion
 
         #region Nested types
 
-        private sealed class NavigationDispatcherListener : INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener,
-            INavigationCallbackProviderComponent, IHasPriority
+        private sealed class NavigationDispatcherListener : INavigationDispatcherNavigatedListener, INavigationDispatcherErrorListener, INavigationCallbackProviderComponent
         {
             #region Fields
 
             private readonly ViewModelCallbackManagerComponent _callbackManager;
-            private readonly HashSet<string> _operations;
             private readonly List<KeyValuePair<INavigationContext, object?>> _suspendedEvents;
             private int _suspendCount;
 
@@ -316,14 +309,7 @@ namespace MugenMvvm.Presenters.Components
             {
                 _callbackManager = callbackManager;
                 _suspendedEvents = new List<KeyValuePair<INavigationContext, object?>>();
-                _operations = new HashSet<string>();
             }
-
-            #endregion
-
-            #region Properties
-
-            public int Priority => _callbackManager.NavigationDispatcherListenerPriority;
 
             #endregion
 
@@ -352,7 +338,7 @@ namespace MugenMvvm.Presenters.Components
                     }
                 }
 
-                _callbackManager.OnNavigationFailedInternal(navigationContext, exception);
+                _callbackManager.OnNavigationFailed(navigationContext, exception, false);
             }
 
             public void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -366,7 +352,7 @@ namespace MugenMvvm.Presenters.Components
                     }
                 }
 
-                _callbackManager.OnNavigationCanceledInternal(navigationContext);
+                _callbackManager.OnNavigationFailed(navigationContext, null, true);
             }
 
             public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -387,23 +373,19 @@ namespace MugenMvvm.Presenters.Components
 
             #region Methods
 
-            public void BeginSuspend(string id)
+            public void BeginSuspend()
             {
                 lock (_suspendedEvents)
                 {
-                    if (_operations.Add(id))
-                        ++_suspendCount;
+                    ++_suspendCount;
                 }
             }
 
-            public void EndSuspend(string id)
+            public void EndSuspend()
             {
                 KeyValuePair<INavigationContext, object?>[] events;
                 lock (_suspendedEvents)
                 {
-                    if (!_operations.Remove(id))
-                        return;
-
                     if (--_suspendCount != 0)
                         return;
                     events = _suspendedEvents.ToArray();
