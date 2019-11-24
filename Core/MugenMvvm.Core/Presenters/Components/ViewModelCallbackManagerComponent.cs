@@ -67,7 +67,8 @@ namespace MugenMvvm.Presenters.Components
                 var results = new List<IPresenterResult>();
                 for (var i = 0; i < components.Length; i++)
                 {
-                    if (!(components[i] is ICloseablePresenterComponent presenter) || MugenExtensions.GetComponentPriority(presenter, Owner) >= Priority)
+                    if (!(components[i] is ICloseablePresenterComponent presenter) || MugenExtensions.GetComponentPriority(presenter, Owner) >= Priority
+                                                                                   || !Owner.CanClose(presenter, results, metadata))
                         continue;
 
                     var operations = presenter.TryClose(metadata);
@@ -99,7 +100,8 @@ namespace MugenMvvm.Presenters.Components
             {
                 for (var i = 0; i < components.Length; i++)
                 {
-                    if (!(components[i] is IPresenterComponent presenter) || MugenExtensions.GetComponentPriority(presenter, Owner) >= Priority)
+                    if (!(components[i] is IPresenterComponent presenter) || MugenExtensions.GetComponentPriority(presenter, Owner) >= Priority
+                                                                          || !Owner.CanShow(presenter, metadata))
                         continue;
 
                     var result = presenter.TryShow(metadata);
@@ -150,7 +152,7 @@ namespace MugenMvvm.Presenters.Components
             var callback = new NavigationCallbackInternal(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationOperationId);
             var key = GetKeyByCallback(callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?)null, (context, _) => new List<NavigationCallbackInternal?>());
+            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?) null, (context, _) => new List<NavigationCallbackInternal?>());
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -274,13 +276,13 @@ namespace MugenMvvm.Presenters.Components
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallbackInternal?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallbackInternal>?)value;
+            var callbacks = (IList<NavigationCallbackInternal>?) value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 
         private static object? SerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallbackInternal?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallbackInternal>?)value;
+            var callbacks = (IList<NavigationCallbackInternal>?) value;
             if (callbacks == null)
                 return null;
             lock (callbacks)

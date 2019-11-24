@@ -33,7 +33,7 @@ namespace MugenMvvm.Presenters
             var components = Components.GetComponents();
             for (var i = 0; i < components.Length; i++)
             {
-                if (!(components[i] is IPresenterComponent presenter))
+                if (!(components[i] is IPresenterComponent presenter) || !this.CanShow(presenter, metadataContext))
                     continue;
 
                 var result = presenter.TryShow(metadataContext);
@@ -52,7 +52,7 @@ namespace MugenMvvm.Presenters
             var results = new List<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (!(components[i] is ICloseablePresenterComponent presenter))
+                if (!(components[i] is ICloseablePresenterComponent presenter) || !this.CanClose(presenter, results, metadataContext))
                     continue;
 
                 var operations = presenter.TryClose(metadataContext);
@@ -70,7 +70,7 @@ namespace MugenMvvm.Presenters
             var results = new List<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (!(components[i] is IRestorablePresenterComponent presenter))
+                if (!(components[i] is IRestorablePresenterComponent presenter) || !this.CanRestore(presenter, results, metadataContext))
                     continue;
 
                 var operations = presenter.TryRestore(metadataContext);
