@@ -152,7 +152,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 var paths = Path.Members;
-                var members = new IMemberInfo[paths.Length];
+                var members = new IMemberInfo[paths.Count];
                 var provider = MugenBindingService.MemberProvider;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;

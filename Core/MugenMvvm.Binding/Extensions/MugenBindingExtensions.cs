@@ -183,7 +183,7 @@ namespace MugenMvvm.Binding
         {
             Should.NotBeNull(type, nameof(type));
             memberProvider = memberProvider.DefaultIfNull();
-            if (path.IsSingle)
+            if (path.Members.Count == 0)
             {
                 if (firstMemberIndex > 1)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
@@ -194,10 +194,10 @@ namespace MugenMvvm.Binding
                 return memberProvider.GetValue(type, target, path.Path, flags, metadata);
             }
 
-            if (firstMemberIndex > path.Members.Length)
+            if (firstMemberIndex > path.Members.Count)
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
 
-            for (var index = firstMemberIndex; index < path.Members.Length; index++)
+            for (var index = firstMemberIndex; index < path.Members.Count; index++)
             {
                 var pathMember = path.Members[index];
                 if (index == 1)
@@ -217,11 +217,11 @@ namespace MugenMvvm.Binding
             Should.NotBeNull(type, nameof(type));
             memberProvider = memberProvider.DefaultIfNull();
             string lastMemberName;
-            if (path.IsSingle)
+            if (path.Members.Count == 0)
                 lastMemberName = path.Path;
             else
             {
-                for (var i = 0; i < path.Members.Length - 1; i++)
+                for (var i = 0; i < path.Members.Count - 1; i++)
                 {
                     if (i == 1)
                         flags = flags.SetInstanceOrStaticFlags(false);
@@ -236,7 +236,7 @@ namespace MugenMvvm.Binding
                 }
 
                 flags = flags.SetInstanceOrStaticFlags(false);
-                lastMemberName = path.Members[path.Members.Length - 1];
+                lastMemberName = path.Members[path.Members.Count - 1];
             }
 
             return memberProvider.GetMember(type, lastMemberName, lastMemberType, flags, metadata);

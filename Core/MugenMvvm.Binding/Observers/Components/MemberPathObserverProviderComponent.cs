@@ -54,25 +54,27 @@ namespace MugenMvvm.Binding.Observers.Components
             var memberFlags = request.MemberFlags;
             var path = request.Path;
             var observableMethod = request.ObservableMethodName;
-            if (string.IsNullOrEmpty(observableMethod))
+            var membersCount = path.Members.Count;
+            if (!string.IsNullOrEmpty(observableMethod))
             {
-                if (path.IsSingle)
-                    return new SinglePathObserver(target, path, memberFlags, request.Observable || ObservableRootMembers.Contains(path.Path), request.Optional);
-                if (path.Members.Length == 0)
-                    return new EmptyPathObserver(target);
-
-                if (request.Observable)
-                    return new MultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
-                if (ObservableRootMembers.Contains(path.Members[0]))
-                    return new ObservableRootMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
-                return new NonObservableMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
+                return membersCount switch
+                {
+                    0 => new ObservableMethodEmptyPathObserver(observableMethod!, target, memberFlags),
+                    1 => new ObservableMethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional),
+                    _ => new ObservableMethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional)
+                };
             }
 
-            if (path.IsSingle)
-                return new ObservableMethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional);
-            if (path.Members.Length == 0)
-                return new ObservableMethodEmptyPathObserver(observableMethod!, target, memberFlags);
-            return new ObservableMethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional);
+            if (membersCount == 0)
+                return new EmptyPathObserver(target);
+            if (membersCount == 1)
+                return new SinglePathObserver(target, path, memberFlags, request.Observable || ObservableRootMembers.Contains(path.Path), request.Optional);
+
+            if (request.Observable)
+                return new MultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
+            if (ObservableRootMembers.Contains(path.Members[0]))
+                return new ObservableRootMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
+            return new NonObservableMultiPathObserver(target, path, memberFlags, request.HasStablePath, request.Optional);
         }
 
         #endregion

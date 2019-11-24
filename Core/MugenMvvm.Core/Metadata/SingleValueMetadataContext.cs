@@ -32,7 +32,7 @@ namespace MugenMvvm.Metadata
 
         public IEnumerator<MetadataContextValue> GetEnumerator()
         {
-            yield return _value;
+            return Default.SingleValueEnumerator(_value);
         }
 
         IEnumerator IEnumerable.GetEnumerator()

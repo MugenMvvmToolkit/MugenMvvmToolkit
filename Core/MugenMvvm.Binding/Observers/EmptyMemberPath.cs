@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Interfaces.Observers;
+﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
@@ -23,9 +24,7 @@ namespace MugenMvvm.Binding.Observers
 
         public string Path => "";
 
-        public string[] Members => Default.EmptyArray<string>();
-
-        public bool IsSingle => false;
+        public IReadOnlyList<string> Members => Default.EmptyArray<string>();
 
         string? IValueHolder<string>.Value { get; set; }
 

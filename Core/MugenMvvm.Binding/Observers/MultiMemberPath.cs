@@ -9,6 +9,10 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Constructors
 
+        public MultiMemberPath(string path) : this(path, path.IndexOf('[') >= 0)
+        {
+        }
+
         public MultiMemberPath(string path, bool hasIndexer)
         {
             Should.NotBeNull(path, nameof(path));
@@ -18,7 +22,7 @@ namespace MugenMvvm.Binding.Observers
             if (hasIndexer)
             {
                 var items = new List<string>();
-                for (var index = 0; index < Members.Length; index++)
+                for (var index = 0; index < Members.Count; index++)
                 {
                     var s = Members[index];
                     var start = s.IndexOf('[');
@@ -34,13 +38,8 @@ namespace MugenMvvm.Binding.Observers
                     items.Add(indexer);
                 }
 
-
-                Members = items.ToArray();
+                Members = items;
             }
-        }
-
-        public MultiMemberPath(string path) : this(path, path.IndexOf('[') >= 0)
-        {
         }
 
         #endregion
@@ -49,9 +48,7 @@ namespace MugenMvvm.Binding.Observers
 
         public string Path { get; }
 
-        public string[] Members { get; }
-
-        public bool IsSingle => false;
+        public IReadOnlyList<string> Members { get; }
 
         string? IValueHolder<string>.Value { get; set; }
 

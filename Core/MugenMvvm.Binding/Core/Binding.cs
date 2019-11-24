@@ -547,8 +547,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual IEnumerator<MetadataContextValue> GetMetadataEnumerator()
         {
-            IEnumerable<MetadataContextValue> v = new[] { MetadataContextValue.Create(BindingMetadata.Binding, this) };
-            return v.GetEnumerator();
+            return Default.SingleValueEnumerator(MetadataContextValue.Create(BindingMetadata.Binding, this));
         }
 
         protected virtual bool TryGetMetadata<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)

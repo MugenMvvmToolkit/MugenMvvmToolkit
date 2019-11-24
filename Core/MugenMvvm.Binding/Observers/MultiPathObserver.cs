@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observers
         public MultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
-            _listeners = new ActionToken[path.Members.Length];
+            _listeners = new ActionToken[path.Members.Count];
         }
 
         #endregion

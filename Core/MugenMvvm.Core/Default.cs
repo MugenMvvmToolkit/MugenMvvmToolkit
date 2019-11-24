@@ -43,6 +43,11 @@ namespace MugenMvvm
 
         #region Methods
 
+        public static IEnumerator<T> SingleValueEnumerator<T>(T value)
+        {
+            yield return value;
+        }
+
         public static T[] EmptyArray<T>()
         {
             return EmptyArrayImpl<T>.Instance;
