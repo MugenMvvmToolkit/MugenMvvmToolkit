@@ -346,7 +346,7 @@ namespace MugenMvvm.Binding
 
         [return: MaybeNull]
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
+            BindableAccessorDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -360,7 +360,7 @@ namespace MugenMvvm.Binding
         }
 
         public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, [MaybeNull] TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
+            BindableAccessorDescriptor<TTarget, TValue> bindableMember, [MaybeNull] TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -380,7 +380,7 @@ namespace MugenMvvm.Binding
         }
 
         public static ActionToken TryObserveBindableMember<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
+            BindableAccessorDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null) where TTarget : class
         {
             var propertyInfo = provider
