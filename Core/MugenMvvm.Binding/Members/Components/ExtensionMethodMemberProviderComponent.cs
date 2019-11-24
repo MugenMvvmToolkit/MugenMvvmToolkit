@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (_types.Add(type))
             {
                 _cache.Clear();
-                (Owner as IHasCache)?.Invalidate();
+                Owner.TryInvalidateCache();
             }
         }
 
@@ -88,7 +88,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (_types.Remove(type))
             {
                 _cache.Clear();
-                (Owner as IHasCache)?.Invalidate();
+                Owner.TryInvalidateCache();
             }
         }
 

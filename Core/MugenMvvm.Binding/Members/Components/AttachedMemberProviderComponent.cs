@@ -109,17 +109,15 @@ namespace MugenMvvm.Binding.Members.Components
             if (!removed)
                 return;
 
-            var hasCache = Owner as IHasCache;
             foreach (var cachePair in _cache)
             {
                 if (cachePair.Value != null && cachePair.Value.Remove(member))
-                    hasCache?.Invalidate(cachePair.Key.Type);
+                    Owner?.TryInvalidateCache(cachePair.Key.Type);
             }
         }
 
         public void Unregister(Type? type = null, string? name = null, MemberType memberType = MemberType.All)
         {
-            var hasCache = Owner as IHasCache;
             foreach (var pair in _registeredMembers)
             {
                 if (name != null && pair.Key != name)
@@ -136,7 +134,7 @@ namespace MugenMvvm.Binding.Members.Components
                     foreach (var cachePair in _cache)
                     {
                         if (cachePair.Value != null && cachePair.Value.Remove(member))
-                            hasCache?.Invalidate(cachePair.Key.Type);
+                            Owner.TryInvalidateCache(cachePair.Key.Type);
                     }
                 }
             }
@@ -151,7 +149,7 @@ namespace MugenMvvm.Binding.Members.Components
         private void ClearCache()
         {
             _cache.Clear();
-            (Owner as IHasCache)?.Invalidate();
+            Owner.TryInvalidateCache();
         }
 
         private void AddMember(string key, IMemberInfo member)

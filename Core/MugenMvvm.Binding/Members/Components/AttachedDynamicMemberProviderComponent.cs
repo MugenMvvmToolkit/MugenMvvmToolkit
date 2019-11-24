@@ -102,7 +102,7 @@ namespace MugenMvvm.Binding.Members.Components
         private void ClearCache()
         {
             _cache.Clear();
-            (Owner as IHasCache)?.Invalidate();
+            Owner.TryInvalidateCache();
         }
 
         #endregion
