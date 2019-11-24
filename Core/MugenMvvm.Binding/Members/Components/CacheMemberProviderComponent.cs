@@ -88,6 +88,8 @@ namespace MugenMvvm.Binding.Members.Components
                     if (result != null)
                         break;
                 }
+
+                result ??= Default.EmptyArray<IMemberInfo>();
                 _tempMembersCache[cacheKey] = result;
             }
             return result;

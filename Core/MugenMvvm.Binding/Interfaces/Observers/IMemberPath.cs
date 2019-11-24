@@ -4,7 +4,7 @@
     {
         string Path { get; }
 
-        string[] Members { get; }
+        string[] Members { get; }//todo review
 
         bool IsSingle { get; }
     }

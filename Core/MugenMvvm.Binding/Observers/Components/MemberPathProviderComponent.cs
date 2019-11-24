@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Constants;
+﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Collections;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -16,19 +11,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly CacheDictionary _cache;
-        private readonly FuncEx<string, IReadOnlyMetadataContext?, IMemberPath?> _getMemberPathStringDelegate;
-
-        #endregion
-
-        #region Constructors
-
-        [Preserve(Conditional = true)]
-        public MemberPathProviderComponent()
-        {
-            _cache = new CacheDictionary();
-            _getMemberPathStringDelegate = TryGetMemberPath;
-        }
+        private static readonly FuncEx<string, IMemberPath?> GetMemberPathStringDelegate = TryGetMemberPath;
 
         #endregion
 
@@ -36,16 +19,14 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; } = ObserverComponentPriority.PathProvider;
 
-        public bool UseCache { get; set; } = true;
-
         #endregion
 
         #region Implementation of interfaces
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            if (_getMemberPathStringDelegate is FuncEx<TPath, IReadOnlyMetadataContext?, IMemberPath?> provider)
-                return provider.Invoke(path, metadata);
+            if (GetMemberPathStringDelegate is FuncEx<TPath, IMemberPath?> provider)
+                return provider.Invoke(path);
             return null;
         }
 
@@ -53,149 +34,15 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
+        private static IMemberPath? TryGetMemberPath(in string path)
         {
             if (path.Length == 0)
                 return EmptyMemberPath.Instance;
 
-            if (UseCache)
-                return GetFromCache(path);
-
-            return GetObserver(path);
-        }
-
-        private IMemberPath GetFromCache(string path)
-        {
-            if (!_cache.TryGetValue(path, out var value))
-            {
-                value = GetObserver(path);
-                _cache[path] = value;
-            }
-
-            return value;
-        }
-
-        private static IMemberPath GetObserver(string path)
-        {
             var hasBracket = path.IndexOf('[') >= 0;
             if (path.IndexOf('.') >= 0 || hasBracket)
                 return new MultiMemberPath(path, hasBracket);
             return new SingleMemberPath(path);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class CacheDictionary : LightDictionary<string, IMemberPath>
-        {
-            #region Constructors
-
-            public CacheDictionary() : base(59)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(string x, string y)
-            {
-                return x.Equals(y);
-            }
-
-            protected override int GetHashCode(string key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
-        private sealed class SingleMemberPath : IMemberPath, IValueHolder<string>
-        {
-            #region Fields
-
-            private string[]? _members;
-
-            #endregion
-
-            #region Constructors
-
-            public SingleMemberPath(string path)
-            {
-                Path = path;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public string Path { get; }
-
-            public string[] Members
-            {
-                get
-                {
-                    if (_members == null)
-                        _members = new[] {Path};
-                    return _members;
-                }
-            }
-
-            public bool IsSingle => true;
-
-            string? IValueHolder<string>.Value { get; set; }
-
-            #endregion
-        }
-
-        private sealed class MultiMemberPath : IMemberPath, IValueHolder<string>
-        {
-            #region Constructors
-
-            public MultiMemberPath(string path, bool hasIndexer)
-            {
-                Path = path;
-                Members = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
-
-                if (hasIndexer)
-                {
-                    var items = new List<string>();
-                    for (var index = 0; index < Members.Length; index++)
-                    {
-                        var s = Members[index];
-                        var start = s.IndexOf('[');
-                        var end = s.IndexOf(']');
-                        if (start <= 0 || end < 0)
-                        {
-                            items.Add(s.Trim());
-                            continue;
-                        }
-
-                        var indexer = s.Substring(start, end - start + 1).Trim();
-                        items.Add(s.Substring(0, start).Trim());
-                        items.Add(indexer);
-                    }
-
-
-                    Members = items.ToArray();
-                }
-            }
-
-            #endregion
-
-            #region Properties
-
-            public string Path { get; }
-
-            public string[] Members { get; }
-
-            public bool IsSingle => false;
-
-            string? IValueHolder<string>.Value { get; set; }
-
-            #endregion
         }
 
         #endregion
