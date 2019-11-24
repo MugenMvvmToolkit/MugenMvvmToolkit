@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly FuncEx<MemberPathObserverRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver?> _tryGetMemberPathObserverDelegate;
+        private readonly FuncEx<MemberPathObserverRequest, object, IMemberPathObserver?> _tryGetMemberPathObserverDelegate;
 
         #endregion
 
@@ -40,8 +40,8 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberPathObserverDelegate is FuncEx<TRequest, object, IReadOnlyMetadataContext?, IMemberPathObserver> provider)
-                return provider.Invoke(request, target, metadata);
+            if (_tryGetMemberPathObserverDelegate is FuncEx<TRequest, object, IMemberPathObserver> provider)
+                return provider.Invoke(request, target);
             return null;
         }
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object target, IReadOnlyMetadataContext? metadata)
+        private IMemberPathObserver? TryGetMemberPathObserver(in MemberPathObserverRequest request, object target)
         {
             var memberFlags = request.MemberFlags;
             var path = request.Path;

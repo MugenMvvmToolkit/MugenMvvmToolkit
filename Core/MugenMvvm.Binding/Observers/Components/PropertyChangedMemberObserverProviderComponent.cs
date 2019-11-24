@@ -17,9 +17,9 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
-        private readonly FuncEx<string, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverStringDelegate;
-        private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
+        private readonly FuncEx<PropertyInfo, Type, MemberObserver> _tryGetMemberObserverPropertyDelegate;
+        private readonly FuncEx<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
+        private readonly FuncEx<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
@@ -58,12 +58,12 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
-                return provider1.Invoke(member, type, metadata);
-            if (_tryGetMemberObserverStringDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
-                return provider2.Invoke(member, type, metadata);
-            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider3)
-                return provider3.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, MemberObserver> provider1)
+                return provider1.Invoke(member, type);
+            if (_tryGetMemberObserverStringDelegate is FuncEx<TMember, Type, MemberObserver> provider2)
+                return provider2.Invoke(member, type);
+            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, MemberObserver> provider3)
+                return provider3.Invoke(member, type);
             return default;
         }
 
@@ -71,21 +71,21 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type)
         {
             if (request.ReflectionMember is PropertyInfo)
-                return TryGetMemberObserver(request.Path, type, metadata);
+                return TryGetMemberObserver(request.Path, type);
             return default;
         }
 
-        private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFrom(type) && !member.IsStatic())
                 return new MemberObserver(this, member.Name);
             return default;
         }
 
-        private MemberObserver TryGetMemberObserver(in string member, Type type, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserver(in string member, Type type)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
                 return new MemberObserver(this, member);
