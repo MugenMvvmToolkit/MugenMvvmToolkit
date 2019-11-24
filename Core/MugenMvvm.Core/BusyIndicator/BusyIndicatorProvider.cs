@@ -95,7 +95,7 @@ namespace MugenMvvm.BusyIndicator
         {
             if (millisecondsDelay != 0)
             {
-                Task.Delay(millisecondsDelay).ContinueWith(task => BeginBusyInternal(busyToken, 0));
+                Task.Delay(millisecondsDelay).ContinueWith(task => BeginBusyInternal(busyToken, 0));//todo review
                 return;
             }
 
