@@ -9,8 +9,6 @@ using JetBrains.Annotations;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.IoC;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 
@@ -88,76 +86,6 @@ namespace MugenMvvm
         public static string Format(this string format, params object?[] args)
         {
             return string.Format(format, args);
-        }
-
-        [Pure]
-        public static T GetService<T>(this IServiceProvider serviceProvider)
-        {
-            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            return (T)serviceProvider.GetService(typeof(T));
-        }
-
-        [Pure]
-        public static bool TryGetService<T>(this IServiceProvider serviceProvider, [NotNullWhen(true)] out T service)
-        {
-            Should.NotBeNull(serviceProvider, nameof(serviceProvider));
-            try
-            {
-                if (serviceProvider is IIocContainer container)
-                {
-                    if (container.TryGet(typeof(T), out var o))
-                    {
-                        service = (T)o!;
-                        return true;
-                    }
-
-                    service = default!;
-                    return false;
-                }
-
-                service = (T)serviceProvider.GetService(typeof(T));
-                return true;
-            }
-            catch
-            {
-                service = default!;
-                return false;
-            }
-        }
-
-        public static bool TryGet<T>(this IIocContainer iocContainer, [NotNullWhen(true)] out T service, IReadOnlyMetadataContext? metadata = null)
-        {
-            var tryGet = iocContainer.TryGet(typeof(T), out var objService, metadata);
-            if (tryGet)
-            {
-                service = (T)objService!;
-                return true;
-            }
-
-            service = default!;
-            return false;
-        }
-
-        public static bool TryGet(this IIocContainer iocContainer, Type serviceType, [NotNullWhen(true)] out object? service, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(iocContainer, nameof(iocContainer));
-            Should.NotBeNull(serviceType, nameof(serviceType));
-            if (iocContainer.CanResolve(serviceType, metadata))
-            {
-                try
-                {
-                    service = iocContainer.Get(serviceType, metadata);
-                    return true;
-                }
-                catch
-                {
-                    service = null;
-                    return false;
-                }
-            }
-
-            service = null;
-            return false;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

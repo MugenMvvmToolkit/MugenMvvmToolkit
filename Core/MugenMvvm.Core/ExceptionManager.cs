@@ -90,27 +90,9 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowIocCannotFindBinding(Type service)
+        public static void ThrowCannotResolveService(Type service)
         {
-            throw new InvalidOperationException(IocCannotFindBindingFormat1.Format(service));
-        }
-
-        [DoesNotReturn]
-        public static void ThrowIocCyclicalDependency(Type service)
-        {
-            throw new InvalidOperationException(IocCyclicalDependencyFormat1.Format(service));
-        }
-
-        [DoesNotReturn]
-        public static void ThrowIocMoreThatOneBinding(Type service)
-        {
-            throw new InvalidOperationException(IocMoreThatOneBindingFormat1.Format(service));
-        }
-
-        [DoesNotReturn]
-        public static void ThrowCannotGetViewModel(IReadOnlyMetadataContext metadata)
-        {
-            throw new InvalidOperationException(CannotGetViewModelFormat1.Format(metadata.Dump()));
+            throw new InvalidOperationException(CannotResolveService.Format(service));
         }
 
         [DoesNotReturn]

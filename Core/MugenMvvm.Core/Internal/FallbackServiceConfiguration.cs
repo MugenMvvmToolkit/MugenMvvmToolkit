@@ -25,14 +25,19 @@ namespace MugenMvvm.Internal
 
         public TService Instance<TService>() where TService : class
         {
-            return _container.GetService<TService>();
+            if (typeof(TService) == typeof(IServiceProvider))
+                return (TService)_container;
+            var service = _container.GetService(typeof(TService));
+            if (service == null)
+                ExceptionManager.ThrowCannotResolveService(typeof(TService));
+            return (TService)service;
         }
 
         public TService? Optional<TService>() where TService : class
         {
-            if (_container.TryGetService<TService>(out var service))
-                return service;
-            return null;
+            if (typeof(TService) == typeof(IServiceProvider))
+                return (TService)_container;
+            return (TService?)_container.GetService(typeof(TService));
         }
 
         #endregion

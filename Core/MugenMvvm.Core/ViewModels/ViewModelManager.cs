@@ -50,7 +50,7 @@ namespace MugenMvvm.ViewModels
                     return result;
             }
 
-            ExceptionManager.ThrowIocCannotFindBinding(service);
+            ExceptionManager.ThrowCannotResolveService(service);
             return null;
         }
 
