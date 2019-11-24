@@ -240,7 +240,7 @@ namespace MugenMvvm.Presenters.Components
 
                 var components = Owner.GetComponents();
                 for (var j = 0; j < components.Length; i++)
-                    (components[j] as IViewModelCallbackManagerListener)?.OnCallbackExecuted(callback, vm, navigationContext);
+                    (components[j] as IViewModelCallbackManagerListener)?.OnCallbackExecuted(callback, vm!, navigationContext);
             }
         }
 
