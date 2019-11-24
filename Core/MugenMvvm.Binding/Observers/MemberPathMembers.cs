@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -12,14 +13,14 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly IMemberInfo[]? _members;
+        private readonly IReadOnlyList<IMemberInfo>? _members;
         private readonly object? _target;
 
         #endregion
 
         #region Constructors
 
-        public MemberPathMembers(object? target, IMemberInfo[]? members)
+        public MemberPathMembers(object? target, IReadOnlyList<IMemberInfo>? members)
         {
             _target = target;
             _members = members;
@@ -58,7 +59,7 @@ namespace MugenMvvm.Binding.Observers
             }
         }
 
-        public IMemberInfo[] Members => _members ?? ConstantMemberInfo.UnsetArray;
+        public IReadOnlyList<IMemberInfo> Members => _members ?? ConstantMemberInfo.UnsetArray;
 
         #endregion
 
