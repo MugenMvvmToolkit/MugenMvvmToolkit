@@ -2,8 +2,6 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Presenters;
-using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters
 {

@@ -65,25 +65,6 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowPresenterInvalidRequest(IReadOnlyMetadataContext request, IReadOnlyMetadataContext response)
-        {
-            throw new ArgumentException(PresenterCannotHandleRequestFormat1.Format(request.Dump() + response.Dump()));
-        }
-
-        [DoesNotReturn]
-        public static void ThrowNavigatingResultHasCallback()
-        {
-            throw new InvalidOperationException(NavigatingResultHasCallback);
-        }
-
-        [DoesNotReturn]
-        public static void ThrowViewNotFound(Type viewModelType, Type? viewType = null)
-        {
-            var viewName = viewType == null ? "view" : viewType.FullName;
-            throw new InvalidOperationException(ViewNotFoundFormat2.Format(viewName, viewModelType));
-        }
-
-        [DoesNotReturn]
         public static void ThrowCannotFindConstructor(Type service)
         {
             throw new InvalidOperationException(CannotFindConstructorFormat1.Format(service));
