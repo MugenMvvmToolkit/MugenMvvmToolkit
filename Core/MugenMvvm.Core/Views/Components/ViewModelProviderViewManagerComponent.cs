@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -31,7 +32,7 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.ViewModelProvider;
 
         #endregion
 
@@ -45,14 +46,7 @@ namespace MugenMvvm.Views.Components
             var metadataContext = _metadataContextProvider
                 .DefaultIfNull()
                 .GetReadOnlyMetadataContext(this, MetadataContextValue.Create(ViewModelMetadata.Type, initializer.ViewModelType));
-            var viewModel = _viewModelDispatcher.DefaultIfNull().TryGetViewModel(metadataContext);
-            if (viewModel != null)
-            {
-                var components = Owner.GetComponents();
-                for (var i = 0; i < components.Length; i++)
-                    (components[i] as IViewManagerListener)?.OnViewModelCreated(Owner, viewModel, view, metadata);
-            }
-            return viewModel;
+            return _viewModelDispatcher.DefaultIfNull().TryGetViewModel(metadataContext);
         }
 
         #endregion

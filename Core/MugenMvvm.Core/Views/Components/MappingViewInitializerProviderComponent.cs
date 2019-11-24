@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -20,8 +21,8 @@ namespace MugenMvvm.Views.Components
         #region Fields
 
         private readonly List<MappingInfo> _mappings;
-        private readonly IThreadDispatcher? _threadDispatcher;
         private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
 
@@ -41,7 +42,7 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.InitializerProvider;
 
         public ThreadExecutionMode InitializeExecutionMode { get; set; }
 
@@ -63,8 +64,8 @@ namespace MugenMvvm.Views.Components
                     var viewModelType = mapping.GetViewModelType(view, metadata);
                     if (viewModelType != null)
                     {
-                        initializers.Add(new ViewInitializer(Owner, _threadDispatcher, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
-                              view.GetType(), viewModelType, mapping.Metadata));
+                        initializers.Add(new ViewInitializer(InitializeExecutionMode, CleanupExecutionMode, mapping.Id, view.GetType(),
+                            viewModelType, mapping.Metadata, Owner, _threadDispatcher, _metadataContextProvider));
                     }
                 }
             }
@@ -84,8 +85,8 @@ namespace MugenMvvm.Views.Components
                     var viewType = mapping.GetViewType(viewModel, metadata);
                     if (viewType != null)
                     {
-                        initializers.Add(new ViewInitializer(Owner, _threadDispatcher, _metadataContextProvider, InitializeExecutionMode, CleanupExecutionMode, mapping.Id,
-                            viewType, viewModel.GetType(), mapping.Metadata));
+                        initializers.Add(new ViewInitializer(InitializeExecutionMode, CleanupExecutionMode, mapping.Id, viewType,
+                            viewModel.GetType(), mapping.Metadata, Owner, _threadDispatcher, _metadataContextProvider));
                     }
                 }
             }

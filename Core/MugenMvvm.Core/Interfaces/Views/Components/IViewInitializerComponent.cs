@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewInitializerComponent : IComponent<IViewManager>
     {
-        IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase viewModel, object view, IMetadataContext metadata);
+        IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata);
 
         IReadOnlyMetadataContext? TryCleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata);
     }

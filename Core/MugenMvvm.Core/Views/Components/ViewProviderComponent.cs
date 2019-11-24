@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -27,7 +28,7 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.ViewProvider;
 
         #endregion
 
@@ -38,11 +39,7 @@ namespace MugenMvvm.Views.Components
             Should.NotBeNull(initializer, nameof(initializer));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(metadata, nameof(metadata));
-            var view = (_serviceProvider ?? MugenService.Instance<IServiceProvider>()).GetService(initializer.ViewType);
-            var components = Owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-                (components[i] as IViewManagerListener)?.OnViewCreated(Owner, view, viewModel, metadata);
-            return view;
+            return (_serviceProvider ?? MugenService.Instance<IServiceProvider>()).GetService(initializer.ViewType);
         }
 
         #endregion

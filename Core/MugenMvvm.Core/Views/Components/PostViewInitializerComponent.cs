@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -21,19 +22,11 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
 
         #endregion
 
         #region Implementation of interfaces
-
-        public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata)
-        {
-        }
-
-        public void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata)
-        {
-        }
 
         public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {

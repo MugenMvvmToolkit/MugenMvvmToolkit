@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections.Internal;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -39,28 +40,20 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public void OnViewModelCreated(IViewManager viewManager, IViewModelBase viewModel, object view, IMetadataContext metadata)
-        {
-        }
-
-        public void OnViewCreated(IViewManager viewManager, object view, IViewModelBase viewModel, IMetadataContext metadata)
-        {
-        }
-
         public void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] {viewModel, viewInfo, metadata, BoxingExtensions.FalseObject}); //todo initialize wrappers
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, BoxingExtensions.FalseObject }); //todo initialize wrappers
         }
 
         public void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] {viewModel, viewInfo, metadata, BoxingExtensions.TrueObject}); //todo initialize wrappers
+            GetUpdateViewMethod(viewModel, viewInfo.View)?.Invoke(this, new[] { viewModel, viewInfo, metadata, BoxingExtensions.TrueObject }); //todo initialize wrappers
         }
 
         #endregion

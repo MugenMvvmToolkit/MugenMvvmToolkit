@@ -2,6 +2,7 @@
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -34,7 +35,7 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.ViewInitializer;
 
         #endregion
 
@@ -52,12 +53,16 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        public IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase viewModel, object view, IMetadataContext metadata)
+        public IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata)
         {
+            if (view == null && viewModel == null)
+                return null;
             Should.NotBeNull(initializer, nameof(initializer));
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(metadata, nameof(metadata));
+            if (viewModel == null)
+                viewModel = GetViewModelForView(initializer, view!, metadata);
+            if (view == null)
+                view = GetViewForViewModel(initializer, viewModel, metadata);
             var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
             ViewInfo viewInfo;
             lock (views)
@@ -98,6 +103,34 @@ namespace MugenMvvm.Views.Components
         #endregion
 
         #region Methods
+
+        private object GetViewForViewModel(IViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata)
+        {
+            var components = Owner.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var view = (components[i] as IViewProviderComponent)?.TryGetViewForViewModel(initializer, viewModel, metadata);
+                if (view != null)
+                    return view;
+            }
+
+            ExceptionManager.ThrowObjectNotInitialized(Owner, typeof(IViewProviderComponent).Name);
+            return null;
+        }
+
+        private IViewModelBase GetViewModelForView(IViewInitializer initializer, object view, IMetadataContext metadata)
+        {
+            var components = Owner.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var viewModel = (components[i] as IViewModelProviderViewManagerComponent)?.TryGetViewModelForView(initializer, view, metadata);
+                if (viewModel != null)
+                    return viewModel;
+            }
+
+            ExceptionManager.ThrowObjectNotInitialized(Owner, typeof(IViewModelProviderViewManagerComponent).Name);
+            return null;
+        }
 
         private void OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
