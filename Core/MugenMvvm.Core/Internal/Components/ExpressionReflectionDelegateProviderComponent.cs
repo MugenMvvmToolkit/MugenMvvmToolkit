@@ -375,10 +375,7 @@ namespace MugenMvvm.Internal.Components
 
             protected override int GetHashCode(MemberInfoDelegateCacheKey key)
             {
-                unchecked
-                {
-                    return key.DelegateType.GetHashCode() * 397 ^ key.Member.GetHashCode();
-                }
+                return HashCode.Combine(key.DelegateType, key.Member);
             }
 
             #endregion

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Collections;
+﻿using System;
+using MugenMvvm.Collections;
 
 namespace MugenMvvm.Binding.Internal
 {
@@ -22,10 +23,7 @@ namespace MugenMvvm.Binding.Internal
 
         protected override int GetHashCode(TypeStringKey key)
         {
-            unchecked
-            {
-                return key.Type.GetHashCode() * 397 ^ key.Name.GetHashCode();
-            }
+            return HashCode.Combine(key.Type, key.Name);
         }
 
         #endregion

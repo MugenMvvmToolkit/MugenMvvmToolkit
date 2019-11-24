@@ -151,14 +151,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                unchecked
-                {
-                    var hashCode = key.Name.GetHashCode();
-                    hashCode = hashCode * 397 ^ key.Type.GetHashCode();
-                    hashCode = hashCode * 397 ^ (int)key.MemberType;
-                    hashCode = hashCode * 397 ^ (int)key.MemberFlags;
-                    return hashCode;
-                }
+                return HashCode.Combine(key.Name, key.Type, (int)key.MemberType, (int)key.MemberFlags);
             }
 
             #endregion

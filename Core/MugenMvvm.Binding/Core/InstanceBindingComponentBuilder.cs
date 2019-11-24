@@ -60,7 +60,7 @@ namespace MugenMvvm.Binding.Core
 
         public IComponent<IBinding>? Component { get; }
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.BindingMember;
+        public override ExpressionNodeType NodeType => ExpressionNodeType.BindingParameter;
 
         #endregion
 

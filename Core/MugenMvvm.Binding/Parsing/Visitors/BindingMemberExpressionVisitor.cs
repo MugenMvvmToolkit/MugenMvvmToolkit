@@ -91,7 +91,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             return true;
         }
 
-        [return:NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public IExpressionNode? Visit(IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
@@ -267,20 +267,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.Path == y.Path && x.MethodName == y.MethodName && x.MemberFlags == y.MemberFlags && x.MemberType == y.MemberType && Equals(x.Target, y.Target);
+                return x.MemberFlags == y.MemberFlags && x.MemberType == y.MemberType && x.Path == y.Path && x.MethodName == y.MethodName && Equals(x.Target, y.Target);
             }
 
             protected override int GetHashCode(CacheKey key)
             {
-                unchecked
-                {
-                    var hashCode = key.Path.GetHashCode();
-                    hashCode = hashCode * 397 ^ (key.MethodName != null ? key.MethodName.GetHashCode() : 0);
-                    hashCode = hashCode * 397 ^ (int)key.MemberFlags;
-                    hashCode = hashCode * 397 ^ (int)key.MemberType;
-                    hashCode = hashCode * 397 ^ (key.Target != null ? key.Target.GetHashCode() : 0);
-                    return hashCode;
-                }
+                return HashCode.Combine(key.Path, key.MethodName, (int)key.MemberFlags, (int)key.MemberType, key.Target);
             }
 
             #endregion

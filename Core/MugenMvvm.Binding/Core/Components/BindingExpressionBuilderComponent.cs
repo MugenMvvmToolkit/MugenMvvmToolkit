@@ -228,10 +228,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                unchecked
-                {
-                    return (key.SourceType != null ? key.SourceType.GetHashCode() : 0) * 397 ^ key.TargetType.GetHashCode();
-                }
+                return HashCode.Combine(key.SourceType, key.TargetType);
             }
 
             #endregion

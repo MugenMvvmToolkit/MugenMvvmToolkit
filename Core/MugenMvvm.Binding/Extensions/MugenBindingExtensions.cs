@@ -91,10 +91,7 @@ namespace MugenMvvm.Binding
 
         public static int GetHashCodeEx(this IMemberInfo memberInfo)
         {
-            unchecked
-            {
-                return memberInfo.DeclaringType.GetHashCode() * 397 ^ (int)memberInfo.MemberType * 397 ^ memberInfo.Name.GetHashCode();
-            }
+            return HashCode.Combine(memberInfo.DeclaringType, (int)memberInfo.MemberType, memberInfo.Name);
         }
 
         public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)

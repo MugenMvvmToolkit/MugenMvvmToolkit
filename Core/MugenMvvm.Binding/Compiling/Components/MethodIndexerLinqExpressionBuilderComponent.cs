@@ -707,14 +707,10 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override int GetHashCode(Type[] key)
             {
-                var hash = 0;
-                unchecked
-                {
-                    for (var index = 0; index < key.Length; index++)
-                        hash = hash * 397 ^ key[index].GetHashCode();
-                }
-
-                return hash;
+                var hashCode = new HashCode();
+                for (var index = 0; index < key.Length; index++)
+                    hashCode.Add(key[index]);
+                return hashCode.GetHashCode();
             }
 
             #endregion

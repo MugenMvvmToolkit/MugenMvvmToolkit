@@ -259,19 +259,19 @@ namespace MugenMvvm.Binding.Compiling.Components
                     var expressionValues = values.List;
                     foreach (var value in _parametersDict)
                     {
-                        var ex = value.Key;
-                        if (ex.NodeType == ExpressionNodeType.BindingMember && ex is IParameterExpressionNode parameterExpression)
+                        if (value.Key.NodeType != ExpressionNodeType.BindingMember)
+                            continue;
+
+                        var parameterExpression = (IParameterExpressionNode)value.Key;
+                        var index = GetIndexExpression(parameterExpression.Index);
+                        if (expressionValues == null)
                         {
-                            var index = GetIndexExpression(parameterExpression.Index);
-                            if (expressionValues == null)
-                            {
-                                if (parameterExpression.Index != 0)
-                                    ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(values));
-                                _parametersDict[parameterExpression] = index.ConvertIfNeed(values.Item.Type, false);
-                            }
-                            else
-                                _parametersDict[parameterExpression] = index.ConvertIfNeed(expressionValues[parameterExpression.Index].Type, false);
+                            if (parameterExpression.Index != 0)
+                                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(values));
+                            _parametersDict[parameterExpression] = index.ConvertIfNeed(values.Item.Type, false);
                         }
+                        else
+                            _parametersDict[parameterExpression] = index.ConvertIfNeed(expressionValues[parameterExpression.Index].Type, false);
                     }
 
                     var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
@@ -339,23 +339,20 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (key is Type type)
                     return type.GetHashCode();
 
-                unchecked
+                var hashCode = new HashCode();
+                if (key is ExpressionValue[] values)
                 {
-                    var hash = 0;
-                    if (key is ExpressionValue[] values)
-                    {
-                        for (var index = 0; index < values.Length; index++)
-                            hash = hash * 397 ^ values[index].Type.GetHashCode();
-                    }
-                    else
-                    {
-                        var types = (Type[])key;
-                        for (var index = 0; index < types.Length; index++)
-                            hash = hash * 397 ^ types[index].GetHashCode();
-                    }
-
-                    return hash;
+                    for (var index = 0; index < values.Length; index++)
+                        hashCode.Add(values[index].Type);
                 }
+                else
+                {
+                    var types = (Type[])key;
+                    for (var index = 0; index < types.Length; index++)
+                        hashCode.Add(types[index]);
+                }
+
+                return hashCode.GetHashCode();
             }
 
             private static bool Equals(Type[] types, ExpressionValue[] values)
@@ -403,12 +400,10 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override int GetHashCode(IExpressionNode key)
             {
-                if (key.NodeType == ExpressionNodeType.BindingMember && key is IParameterExpressionNode parameter)
+                if (key.NodeType == ExpressionNodeType.BindingMember)
                 {
-                    unchecked
-                    {
-                        return parameter.Index * 397 ^ parameter.Name.GetHashCode();
-                    }
+                    var parameter = (IParameterExpressionNode)key;
+                    return HashCode.Combine(parameter.Index, parameter.Name);
                 }
 
                 return RuntimeHelpers.GetHashCode(key);

@@ -90,7 +90,7 @@ namespace MugenMvvm.Enums
         public sealed override int GetHashCode()
         {
             // ReSharper disable once NonReadonlyMemberInGetHashCode
-            return Value.GetHashCode();
+            return HashCode.Combine(Value);
         }
 
         public sealed override string ToString()

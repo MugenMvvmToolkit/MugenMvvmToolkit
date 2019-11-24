@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\MugenMvvm.Core\MugenMvvm.Core.csproj" />
   </ItemGroup>
 

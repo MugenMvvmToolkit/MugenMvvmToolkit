@@ -164,10 +164,7 @@ namespace MugenMvvm.Messaging
 
             protected override int GetHashCode(CacheKey key)
             {
-                unchecked
-                {
-                    return key.HandlerType.GetHashCode() * 397 ^ key.MessageType.GetHashCode();
-                }
+                return HashCode.Combine(key.HandlerType, key.MessageType);
             }
 
             protected override bool Equals(CacheKey x, CacheKey y)
