@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -12,6 +13,17 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static void TryInvalidateCache<TComponent>(this IComponentOwner<TComponent>? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
+            where TComponent : class
+        {
+            if (owner == null)
+                return;
+            (owner as IHasCache)?.Invalidate(state, metadata);
+            var components = owner.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+                (components[i] as IHasCache)?.Invalidate(state, metadata);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class
@@ -86,7 +98,7 @@ namespace MugenMvvm
             return 0;
         }
 
-        public static void ComponentTrackerInitialize<TComponent, TComponentBase>(this IComponentOwner<TComponentBase> owner, out TComponent[] components, TComponent? ignoreComponent = null)
+        public static void ComponentTrackerInitialize<TComponent, TComponentBase>(this IComponentOwner<TComponentBase> owner, out TComponent[] components, TComponent? decoratorComponent = null)
             where TComponent : class
             where TComponentBase : class
         {
@@ -99,9 +111,10 @@ namespace MugenMvvm
             }
 
             ItemOrList<TComponent, List<TComponent>> list = default;
-            for (int i = 0; i < c.Length; i++)
+            for (var i = 0; i < c.Length; i++)
             {
-                if (c[i] is TComponent component && !ReferenceEquals(component, ignoreComponent))
+                var component = TryGetComponentForDecorator(c[i], decoratorComponent, owner);
+                if (component != null)
                     list.Add(component);
             }
 
@@ -186,6 +199,22 @@ namespace MugenMvvm
             if (component is IDetachableComponent detachable)
                 return detachable.OnDetaching(collection.Owner, metadata);
             return true;
+        }
+
+        internal static TComponent? TryGetComponentForDecorator<TComponent>(object component, TComponent? decoratorComponent, object owner) where TComponent : class
+        {
+            if (ReferenceEquals(component, decoratorComponent))
+                return null;
+
+            if (decoratorComponent == null)
+                return component as TComponent;
+
+            if (!(component is TComponent c))
+                return null;
+
+            if (GetComponentPriority(decoratorComponent, owner) > GetComponentPriority(component, owner))
+                return c;
+            return null;
         }
 
         #endregion

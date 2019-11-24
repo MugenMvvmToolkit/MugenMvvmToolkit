@@ -10,11 +10,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class ExceptionWrapperBindingExpressionBuilderComponent : ComponentTrackerBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IHasPriority
+    public sealed class ExceptionWrapperBindingExpressionBuilderComponent : DecoratorComponentBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.DecoratorLow;
+        public int Priority { get; set; } = ComponentPriority.Decorator;
 
         #endregion
 

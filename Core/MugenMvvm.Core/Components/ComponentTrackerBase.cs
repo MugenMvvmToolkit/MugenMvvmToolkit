@@ -26,15 +26,11 @@ namespace MugenMvvm.Components
 
         void IComponentCollectionChangedListener<IComponent<T>>.OnAdded(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
         {
-            if (!ReferenceEquals(component, this))
-                MugenExtensions.ComponentTrackerOnAdded(ref Components, collection, component);
             OnComponentAdded(collection, component, metadata);
         }
 
         void IComponentCollectionChangedListener<IComponent<T>>.OnRemoved(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
         {
-            if (!ReferenceEquals(component, this))
-                MugenExtensions.ComponentTrackerOnRemoved(ref Components, component);
             OnComponentRemoved(collection, component, metadata);
         }
 
@@ -44,7 +40,7 @@ namespace MugenMvvm.Components
 
         protected override void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
-            owner.ComponentTrackerInitialize(out Components, this as TComponent);
+            owner.ComponentTrackerInitialize(out Components);
             owner.Components.Components.Add(this);
         }
 
@@ -56,10 +52,12 @@ namespace MugenMvvm.Components
 
         protected virtual void OnComponentAdded(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
         {
+            MugenExtensions.ComponentTrackerOnAdded(ref Components, collection, component);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection<IComponent<T>> collection, IComponent<T> component, IReadOnlyMetadataContext? metadata)
         {
+            MugenExtensions.ComponentTrackerOnRemoved(ref Components, component);
         }
 
         #endregion
