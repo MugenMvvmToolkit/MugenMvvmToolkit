@@ -27,7 +27,6 @@ namespace MugenMvvm.Messaging.Components
             if (subscriber is IViewModelBase vm)
                 return ViewModelMessengerSubscriber.TryGetSubscriber(vm, true);
             return null;
-
         }
 
         #endregion
