@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
 using System.Windows.Input;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -70,7 +71,7 @@ namespace MugenMvvm.Commands.Components
 
         public bool IsSuspended => _suspendCount != 0;
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = CommandComponentPriority.ConditionEvent;
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 

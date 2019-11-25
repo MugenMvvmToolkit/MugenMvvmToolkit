@@ -1,5 +1,6 @@
 ﻿using System.Windows.Input;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
@@ -41,7 +42,7 @@ namespace MugenMvvm.Commands.Components
 
         public ThreadExecutionMode EventThreadMode { get; set; }
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = CommandComponentPriority.MediatorProvider;
 
         #endregion
 
