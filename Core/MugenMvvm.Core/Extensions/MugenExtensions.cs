@@ -41,7 +41,7 @@ namespace MugenMvvm
         {
             if (typeof(TFrom) == typeof(TTo))
                 return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo)(object)value;
+            return (TTo)(object)value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)

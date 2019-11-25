@@ -124,13 +124,13 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
-            _setterFunc = _propertyInfo.GetMemberSetter<object?>(_reflectionDelegateProvider);
+            _setterFunc = _propertyInfo.GetMemberSetter<object?, object?>(_reflectionDelegateProvider);
             _setterFunc(arg1, arg2);
         }
 
         private object? CompileGetter(object? arg)
         {
-            _getterFunc = _propertyInfo.GetMemberGetter<object>(_reflectionDelegateProvider);
+            _getterFunc = _propertyInfo.GetMemberGetter<object?, object?>(_reflectionDelegateProvider);
             return _getterFunc(arg);
         }
 

@@ -2,14 +2,13 @@
 using System.Linq.Expressions;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal
 {
     public interface ILambdaExpressionCompiler : IComponent<IMugenApplication>
     {
-        Delegate Compile(LambdaExpression lambdaExpression, IReadOnlyMetadataContext? metadata);
+        Delegate Compile(LambdaExpression lambdaExpression);
 
-        TDelegate Compile<TDelegate>(LambdaExpression lambdaExpression, IReadOnlyMetadataContext? metadata) where TDelegate : Delegate;
+        TDelegate Compile<TDelegate>(LambdaExpression lambdaExpression) where TDelegate : Delegate;
     }
 }

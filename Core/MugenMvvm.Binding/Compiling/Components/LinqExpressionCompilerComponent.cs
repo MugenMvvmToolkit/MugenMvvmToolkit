@@ -97,9 +97,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             private List<IParameterInfo>? _lambdaParameters;
             private IMetadataContext? _metadata;
 
-            private static readonly ParameterExpression ArrayParameter = Expression.Parameter(typeof(object[]), "args");
-            private static readonly ParameterExpression[] ArrayParameterArray = { ArrayParameter };
-            private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(25);
+            private static readonly ParameterExpression[] ArrayParameterArray = { MugenExtensions.GetParameterExpression<object[]>() };
 
             #endregion
 
@@ -112,7 +110,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 _parametersDict = new ParameterDictionary();
                 _expression = expression.Accept(this, metadata);
                 _values = new object[_parametersDict.Count + 1];
-                MetadataParameter = GetIndexExpression(_parametersDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
+                MetadataParameter = MugenExtensions.GetIndexExpression(_parametersDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
             }
 
             #endregion
@@ -263,7 +261,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                             continue;
 
                         var parameterExpression = (IParameterExpressionNode)value.Key;
-                        var index = GetIndexExpression(parameterExpression.Index);
+                        var index = MugenExtensions.GetIndexExpression(parameterExpression.Index);
                         if (expressionValues == null)
                         {
                             if (parameterExpression.Index != 0)
@@ -366,21 +364,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
 
                 return true;
-            }
-
-            private static Expression GetIndexExpression(int index)
-            {
-                if (index >= 0 && index < ArrayIndexesCache.Length)
-                    return ArrayIndexesCache[index];
-                return Expression.ArrayIndex(ArrayParameter, MugenExtensions.GetConstantExpression(index));
-            }
-
-            private static Expression[] GenerateArrayIndexes(int length)
-            {
-                var expressions = new Expression[length];
-                for (var i = 0; i < length; i++)
-                    expressions[i] = Expression.ArrayIndex(ArrayParameter, MugenExtensions.GetConstantExpression(i));
-                return expressions;
             }
 
             #endregion

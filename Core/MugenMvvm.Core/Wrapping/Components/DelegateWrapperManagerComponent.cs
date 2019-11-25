@@ -36,14 +36,14 @@ namespace MugenMvvm.Wrapping.Components
 
         #region Implementation of interfaces
 
-        public bool CanWrap(IWrapperManager wrapperManager, Type type, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public bool CanWrap(IWrapperManager wrapperManager, Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
-            return Condition(wrapperManager, type, wrapperType, metadata);
+            return Condition(wrapperManager, targetType, wrapperType, metadata);
         }
 
-        public object? TryWrap(IWrapperManager wrapperManager, object item, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public object? TryWrap(IWrapperManager wrapperManager, object target, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
-            return WrapperFactory(wrapperManager, item, wrapperType, metadata);
+            return WrapperFactory(wrapperManager, target, wrapperType, metadata);
         }
         
         #endregion

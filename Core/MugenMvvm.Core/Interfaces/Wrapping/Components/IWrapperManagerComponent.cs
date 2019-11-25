@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Wrapping.Components
 {
     public interface IWrapperManagerComponent : IComponent<IWrapperManager>
     {
-        bool CanWrap(IWrapperManager wrapperManager, Type type, Type wrapperType, IReadOnlyMetadataContext? metadata);
+        bool CanWrap(IWrapperManager wrapperManager, Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata);
 
-        object? TryWrap(IWrapperManager wrapperManager, object item, Type wrapperType, IReadOnlyMetadataContext? metadata);
+        object? TryWrap(IWrapperManager wrapperManager, object target, Type wrapperType, IReadOnlyMetadataContext? metadata);
     }
 }

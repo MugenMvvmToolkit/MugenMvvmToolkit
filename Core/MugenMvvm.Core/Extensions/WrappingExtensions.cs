@@ -37,14 +37,14 @@ namespace MugenMvvm
             {
                 var constructor = implementation
                     .GetConstructors(BindingFlagsEx.InstanceOnly)
-                    .FirstOrDefault()
-                    ?.GetActivator(reflectionDelegateProvider);
+                    .FirstOrDefault(info => info.GetParameters().Length == 1);
                 if (constructor == null)
                     ExceptionManager.ThrowCannotFindConstructor(implementation);
-                wrapperFactory = (manager, o, arg3, arg4) => constructor.Invoke(new[] {o});
+
+                wrapperFactory = constructor.GetActivator<Func<object, object>>(reflectionDelegateProvider).Invoke;
             }
 
-            return wrapperManager.AddWrapper((manager, type, arg3, arg4) => wrapperType == arg3, wrapperFactory); //todo closure check
+            return wrapperManager.AddWrapper((_, __, requestedWrapperType, ___) => wrapperType == requestedWrapperType, wrapperFactory); //todo closure check
         }
 
         public static IWrapperManagerComponent AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
@@ -60,6 +60,11 @@ namespace MugenMvvm
             where TImplementation : class, TWrapper
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), typeof(TImplementation), wrapperFactory);
+        }
+
+        private static object Invoke(this Func<object, object> activator, IWrapperManager _, object target, Type __, IReadOnlyMetadataContext? ___)
+        {
+            return activator(target);
         }
 
         #endregion

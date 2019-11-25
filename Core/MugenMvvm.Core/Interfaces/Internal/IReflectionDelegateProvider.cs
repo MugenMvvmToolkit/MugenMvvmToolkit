@@ -13,12 +13,14 @@ namespace MugenMvvm.Interfaces.Internal
 
         Func<object?[], object> GetActivator(ConstructorInfo constructor);
 
+        Delegate GetActivator(ConstructorInfo constructor, Type delegateType);
+
         Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method);
 
-        Delegate GetMethodInvoker(Type delegateType, MethodInfo method);
+        Delegate GetMethodInvoker(MethodInfo method, Type delegateType);
 
-        Func<object?, TType> GetMemberGetter<TType>(MemberInfo member);
+        Delegate GetMemberGetter(MemberInfo member, Type delegateType);
 
-        Action<object?, TType> GetMemberSetter<TType>(MemberInfo member);
+        Delegate GetMemberSetter(MemberInfo member, Type delegateType);
     }
 }

@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Internal.Components
     {
         Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method);
 
-        Delegate? TryGetMethodInvoker(Type delegateType, MethodInfo method);
+        Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType);
     }
 }

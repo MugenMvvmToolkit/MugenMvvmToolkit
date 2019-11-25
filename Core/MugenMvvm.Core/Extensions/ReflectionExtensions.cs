@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Metadata;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -21,20 +20,20 @@ namespace MugenMvvm
 
         #region Methods
 
-        public static Delegate CompileEx(this LambdaExpression lambdaExpression, IReadOnlyMetadataContext? metadata = null)
+        public static Delegate CompileEx(this LambdaExpression lambdaExpression)
         {
             var compiler = MugenService.Optional<ILambdaExpressionCompiler>();
             if (compiler == null)
                 return lambdaExpression.Compile();
-            return compiler.Compile(lambdaExpression, metadata);
+            return compiler.Compile(lambdaExpression);
         }
 
-        public static TDelegate CompileEx<TDelegate>(this Expression<TDelegate> lambdaExpression, IReadOnlyMetadataContext? metadata = null) where TDelegate : Delegate
+        public static TDelegate CompileEx<TDelegate>(this Expression<TDelegate> lambdaExpression) where TDelegate : Delegate
         {
             var compiler = MugenService.Optional<ILambdaExpressionCompiler>();
             if (compiler == null)
                 return lambdaExpression.Compile();
-            return compiler.Compile<TDelegate>(lambdaExpression, metadata);
+            return compiler.Compile<TDelegate>(lambdaExpression);
         }
 
         public static bool IsStatic(this MemberInfo member)
@@ -117,15 +116,26 @@ namespace MugenMvvm
             return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor);
         }
 
+        public static TDelegate GetActivator<TDelegate>(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+            where TDelegate : Delegate
+        {
+            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor, typeof(TDelegate));
+        }
+
+        public static Delegate GetActivator(this ConstructorInfo constructor, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        {
+            return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor, delegateType);
+        }
+
         public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
             where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(typeof(TDelegate), method);
+            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method, typeof(TDelegate));
         }
 
         public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(delegateType, method);
+            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method, delegateType);
         }
 
         public static Func<object?, object?[], object?> GetMethodInvoker(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
@@ -133,57 +143,27 @@ namespace MugenMvvm
             return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method);
         }
 
-        public static Func<object?, TType> GetMemberGetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static TDelegate GetMemberGetter<TDelegate>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null) where TDelegate : Delegate
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetMemberGetter<TType>(member);
+            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));
         }
 
-        public static Action<object?, TType> GetMemberSetter<TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static TDelegate GetMemberSetter<TDelegate>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null) where TDelegate : Delegate
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetMemberSetter<TType>(member);
+            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMemberSetter(member, typeof(TDelegate));
         }
 
-        public static T GetValueEx<T>(this MemberInfo member, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Func<TTarget, TType> GetMemberGetter<TTarget, TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetMemberGetter<T>(member).Invoke(target);
+            return (Func<TTarget, TType>)reflectionDelegateProvider.DefaultIfNull().GetMemberGetter(member, typeof(Func<TTarget, TType>));
         }
 
-        public static void SetValueEx<T>(this MemberInfo member, object target, T value, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Action<TTarget, TType> GetMemberSetter<TTarget, TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            reflectionDelegateProvider.DefaultIfNull().GetMemberSetter<T>(member).Invoke(target, value);
+            return (Action<TTarget, TType>)reflectionDelegateProvider.DefaultIfNull().GetMemberSetter(member, typeof(Action<TTarget, TType>));
         }
 
-        public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
-        {
-            return constructor.InvokeEx(reflectionDelegateProvider, Default.EmptyArray<object>());
-        }
-
-        public static object InvokeEx(this ConstructorInfo constructor, params object?[] parameters)
-        {
-            return constructor.InvokeEx(null, parameters);
-        }
-
-        public static object InvokeEx(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
-        {
-            return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor).Invoke(parameters);
-        }
-
-        public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null)
-        {
-            return method.InvokeEx(target, reflectionDelegateProvider, Default.EmptyArray<object>());
-        }
-
-        public static object? InvokeEx(this MethodInfo method, object? target, params object?[] parameters)
-        {
-            return method.InvokeEx(target, null, parameters);
-        }
-
-        public static object? InvokeEx(this MethodInfo method, object? target, IReflectionDelegateProvider? reflectionDelegateProvider = null, params object?[] parameters)
-        {
-            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method).Invoke(target, parameters);
-        }
-
-        [return:NotNullIfNotNull("expression")]
+        [return: NotNullIfNotNull("expression")]
         public static Expression? ConvertIfNeed(this Expression? expression, Type type, bool exactly)
         {
             if (expression == null)
@@ -195,16 +175,6 @@ namespace MugenMvvm
             if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;
             return Expression.Convert(expression, type);
-        }
-
-        internal static void SetValue<TValue>(this PropertyInfo property, object target, TValue value)
-        {
-            property.SetValue(target, value, Default.EmptyArray<object>());
-        }
-
-        internal static void SetValue<TValue>(this FieldInfo field, object target, TValue value)
-        {
-            field.SetValue(target, value);
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)
@@ -266,7 +236,7 @@ namespace MugenMvvm
                         if (_unsubscribeAction is Action<object, TDelegate> action)
                             action.Invoke(sender, HandlerDelegate!);
                         else
-                            ((Action<object, IWeakEventHandler<TArg>>) _unsubscribeAction).Invoke(sender, this);
+                            ((Action<object, IWeakEventHandler<TArg>>)_unsubscribeAction).Invoke(sender, this);
                     }
                 }
                 else

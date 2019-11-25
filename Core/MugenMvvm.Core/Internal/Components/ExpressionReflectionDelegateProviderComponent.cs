@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -19,25 +17,26 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private static readonly ParameterExpression EmptyParameterExpression = Expression.Parameter(typeof(object));
-
         private static readonly MemberInfoDelegateCache<MethodInfo?> CachedDelegates =
             new MemberInfoDelegateCache<MethodInfo?>();
 
         private static readonly MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>> ActivatorCache =
             new MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>>(59);
 
+        private static readonly MemberInfoDelegateCache<Delegate?> ActivatorCacheDelegate =
+            new MemberInfoDelegateCache<Delegate?>();
+
         private static readonly MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>> InvokeMethodCache =
             new MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>>(59);
 
-        private static readonly MemberInfoDelegateCache<Delegate> InvokeMethodCacheDelegate =
-            new MemberInfoDelegateCache<Delegate>();
+        private static readonly MemberInfoDelegateCache<Delegate?> InvokeMethodCacheDelegate =
+            new MemberInfoDelegateCache<Delegate?>();
 
-        private static readonly MemberInfoDelegateCache<Delegate> MemberGetterCache =
-            new MemberInfoDelegateCache<Delegate>();
+        private static readonly MemberInfoDelegateCache<Delegate?> MemberGetterCache =
+            new MemberInfoDelegateCache<Delegate?>();
 
-        private static readonly MemberInfoDelegateCache<Delegate> MemberSetterCache =
-            new MemberInfoDelegateCache<Delegate>();
+        private static readonly MemberInfoDelegateCache<Delegate?> MemberSetterCache =
+            new MemberInfoDelegateCache<Delegate?>();
 
         #endregion
 
@@ -58,7 +57,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public Func<object?[], object>? TryGetActivator(ConstructorInfo constructor)
+        Func<object?[], object>? IActivatorReflectionDelegateProviderComponent.TryGetActivator(ConstructorInfo constructor)
         {
             lock (ActivatorCache)
             {
@@ -72,37 +71,52 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Func<object?, TType>? TryGetMemberGetter<TType>(MemberInfo member)
+        Delegate? IActivatorReflectionDelegateProviderComponent.TryGetActivator(ConstructorInfo constructor, Type delegateType)
         {
-            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
+            var cacheKey = new MemberInfoDelegateCacheKey(constructor, delegateType);
+            lock (ActivatorCacheDelegate)
+            {
+                if (!ActivatorCacheDelegate.TryGetValue(cacheKey, out var value))
+                {
+                    value = TryGetActivator(constructor, delegateType);
+                    ActivatorCacheDelegate[cacheKey] = value;
+                }
+
+                return value;
+            }
+        }
+
+        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberGetter(MemberInfo member, Type delegateType)
+        {
+            var key = new MemberInfoDelegateCacheKey(member, delegateType);
             lock (MemberGetterCache)
             {
                 if (!MemberGetterCache.TryGetValue(key, out var value))
                 {
-                    value = GetMemberGetter<TType>(member);
+                    value = TryGetMemberGetter(member, delegateType);
                     MemberGetterCache[key] = value;
                 }
 
-                return (Func<object?, TType>)value;
+                return value;
             }
         }
 
-        public Action<object?, TType>? TryGetMemberSetter<TType>(MemberInfo member)
+        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(MemberInfo member, Type delegateType)
         {
-            var key = new MemberInfoDelegateCacheKey(member, typeof(TType));
+            var key = new MemberInfoDelegateCacheKey(member, delegateType);
             lock (MemberSetterCache)
             {
                 if (!MemberSetterCache.TryGetValue(key, out var value))
                 {
-                    value = GetMemberSetter<TType>(member);
+                    value = TryGetMemberSetter(member, delegateType);
                     MemberSetterCache[key] = value;
                 }
 
-                return (Action<object?, TType>)value;
+                return value;
             }
         }
 
-        public Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method)
+        Func<object?, object?[], object?>? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(MethodInfo method)
         {
             lock (InvokeMethodCache)
             {
@@ -116,14 +130,14 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Delegate? TryGetMethodInvoker(Type delegateType, MethodInfo method)
+        Delegate? IMethodReflectionDelegateProviderComponent.TryGetMethodInvoker(MethodInfo method, Type delegateType)
         {
             var cacheKey = new MemberInfoDelegateCacheKey(method, delegateType);
             lock (InvokeMethodCacheDelegate)
             {
                 if (!InvokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    value = GetMethodInvoker(delegateType, method);
+                    value = TryGetMethodInvoker(method, delegateType);
                     InvokeMethodCacheDelegate[cacheKey] = value;
                 }
 
@@ -131,12 +145,12 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public bool CanCreateDelegate(Type delegateType, MethodInfo method)
+        bool IReflectionDelegateProviderComponent.CanCreateDelegate(Type delegateType, MethodInfo method)
         {
             return TryGetMethodDelegateInternal(delegateType, method) != null;
         }
 
-        public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
+        Delegate? IReflectionDelegateProviderComponent.TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
         {
             method = TryGetMethodDelegateInternal(delegateType, method)!;
             if (method == null)
@@ -198,8 +212,26 @@ namespace MugenMvvm.Internal.Components
         public static Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
             var expressions = GetParametersExpression(constructor, out var parameterExpression);
-            var newExpression = Expression.New(constructor, expressions).ConvertIfNeed(typeof(object), false);
-            return Expression.Lambda<Func<object?[], object>>(newExpression, parameterExpression).CompileEx();
+            return Expression.Lambda<Func<object?[], object>>(Expression.New(constructor, expressions).ConvertIfNeed(typeof(object), false), parameterExpression).CompileEx();
+        }
+
+        public static Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
+        {
+            var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
+            var methodParameters = constructor.GetParameters();
+            var delegateParameters = delegateMethod.GetParameters();
+            if (methodParameters.Length != delegateParameters.Length)
+                return null;
+
+            var parameters = new ParameterExpression[methodParameters.Length];
+            var args = new Expression[methodParameters.Length];
+            for (int i = 0; i < methodParameters.Length; i++)
+            {
+                parameters[i] = Expression.Parameter(delegateParameters[i].ParameterType);
+                args[i] = parameters[i].ConvertIfNeed(methodParameters[i].ParameterType, false);
+            }
+
+            return Expression.Lambda(delegateType, Expression.New(constructor, args).ConvertIfNeed(delegateMethod.ReturnType, false), parameters).CompileEx();
         }
 
         public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
@@ -210,129 +242,111 @@ namespace MugenMvvm.Internal.Components
                 return Expression
                     .Lambda<Func<object?, object?[], object?>>(Expression
                         .Call(null, method, expressions)
-                        .ConvertIfNeed(typeof(object), false), EmptyParameterExpression, parameterExpression)
+                        .ConvertIfNeed(typeof(object), false), MugenExtensions.GetParameterExpression<object>(), parameterExpression)
                     .CompileEx();
             }
 
-            var declaringType = method.DeclaringType;
-            var targetExp = Expression.Parameter(typeof(object), "target");
+            var target = MugenExtensions.GetParameterExpression<object>();
             return Expression
                 .Lambda<Func<object?, object?[], object?>>(Expression
-                    .Call(targetExp.ConvertIfNeed(declaringType, false), method, expressions)
-                    .ConvertIfNeed(typeof(object), false), targetExp, parameterExpression)
+                    .Call(target.ConvertIfNeed(method.DeclaringType, false), method, expressions)
+                    .ConvertIfNeed(typeof(object), false), target, parameterExpression)
                 .CompileEx();
         }
 
-        public static Delegate GetMethodInvoker(Type delegateType, MethodInfo method)
+        public static Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType)
         {
             var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
-            var delegateParams = delegateMethod.GetParameters().ToList();
-            var methodParams = method.GetParameters();
-            var expressions = new List<Expression>();
-            var parameters = new List<ParameterExpression>();
-            if (!method.IsStatic)
-            {
-                var thisParam = Expression.Parameter(delegateParams[0].ParameterType, "@this");
-                parameters.Add(thisParam);
-                expressions.Add(thisParam.ConvertIfNeed(method.DeclaringType, false));
-                delegateParams.RemoveAt(0);
-            }
-
-            Should.BeValid("delegateType", delegateParams.Count == methodParams.Length);
-            for (var i = 0; i < methodParams.Length; i++)
-            {
-                var parameter = Expression.Parameter(delegateParams[i].ParameterType, i.ToString());
-                parameters.Add(parameter);
-                expressions.Add(parameter.ConvertIfNeed(methodParams[i].ParameterType, false));
-            }
-
+            var methodParameters = method.GetParameters();
+            var delegateParameters = delegateMethod.GetParameters();
             Expression callExpression;
+            ParameterExpression[] parameters;
             if (method.IsStatic)
-                callExpression = Expression.Call(null, method, expressions.ToArray());
+            {
+                if (methodParameters.Length != delegateParameters.Length)
+                    return null;
+
+                parameters = new ParameterExpression[methodParameters.Length];
+                var args = new Expression[methodParameters.Length];
+                for (int i = 0; i < methodParameters.Length; i++)
+                {
+                    parameters[i] = Expression.Parameter(delegateParameters[i].ParameterType);
+                    args[i] = parameters[i].ConvertIfNeed(methodParameters[i].ParameterType, false);
+                }
+
+                callExpression = Expression.Call(null, method, args);
+            }
             else
             {
-                var @this = expressions[0];
-                expressions.RemoveAt(0);
-                callExpression = Expression.Call(@this, method, expressions.ToArray());
+                if (methodParameters.Length != delegateParameters.Length - 1)
+                    return null;
+
+                parameters = new ParameterExpression[methodParameters.Length + 1];
+                parameters[0] = Expression.Parameter(delegateParameters[0].ParameterType);
+                var args = new Expression[methodParameters.Length];
+                for (int i = 1; i < parameters.Length; i++)
+                {
+                    parameters[i] = Expression.Parameter(delegateParameters[i].ParameterType);
+                    args[i - 1] = parameters[i].ConvertIfNeed(methodParameters[i - 1].ParameterType, false);
+                }
+
+                callExpression = Expression.Call(parameters[0].ConvertIfNeed(method.DeclaringType, false), method, args);
             }
 
-            var lambdaExpression = Expression.Lambda(delegateType, callExpression.ConvertIfNeed(delegateMethod.ReturnType, false), parameters);
-            return lambdaExpression.CompileEx();
+            return Expression.Lambda(delegateType, callExpression.ConvertIfNeed(delegateMethod.ReturnType, false), parameters).CompileEx();
         }
 
-        public static Func<object?, TType> GetMemberGetter<TType>(MemberInfo member)
+        public static Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType)
         {
-            var target = Expression.Parameter(typeof(object), "instance");
-            MemberExpression accessExp;
-            if (member.IsStatic())
-                accessExp = Expression.MakeMemberAccess(null, member);
-            else
-            {
-                var declaringType = member.DeclaringType;
-                accessExp = Expression.MakeMemberAccess(target.ConvertIfNeed(declaringType, false), member);
-            }
+            var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
+            var delegateParameters = delegateMethod.GetParameters();
+            if (delegateParameters.Length != 1 || delegateMethod.ReturnType == typeof(void))
+                return null;
 
+            var target = Expression.Parameter(delegateParameters[0].ParameterType);
             return Expression
-                .Lambda<Func<object?, TType>>(accessExp.ConvertIfNeed(typeof(TType), false), target)
+                .Lambda(delegateType, Expression
+                    .MakeMemberAccess(member.IsStatic() ? null : target.ConvertIfNeed(member.DeclaringType, false), member)
+                    .ConvertIfNeed(delegateMethod.ReturnType, false), target)
                 .CompileEx();
         }
 
-        public static Action<object?, TType> GetMemberSetter<TType>(MemberInfo member)
+        public static Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType)
         {
-            var declaringType = member.DeclaringType;
+            var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
+            var delegateParameters = delegateMethod.GetParameters();
+            if (delegateParameters.Length != 2)
+                return null;
+
             var fieldInfo = member as FieldInfo;
-            if (declaringType.IsValueType)
-            {
-                if (fieldInfo == null)
-                {
-                    var propertyInfo = (PropertyInfo)member;
-                    return propertyInfo.SetValue<TType>;
-                }
-
-                return fieldInfo.SetValue<TType>;
-            }
-
             Expression expression;
-            var targetParameter = Expression.Parameter(typeof(object), "instance");
-            var valueParameter = Expression.Parameter(typeof(TType), "value");
-            var target = targetParameter.ConvertIfNeed(declaringType, false);
+            var targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
+            var valueParameter = Expression.Parameter(delegateParameters[1].ParameterType);
             if (fieldInfo == null)
             {
                 var propertyInfo = member as PropertyInfo;
-                MethodInfo? setMethod = null;
-                if (propertyInfo != null)
-                    setMethod = propertyInfo.GetSetMethod(true);
-                Should.MethodBeSupported(propertyInfo != null && setMethod != null, MessageConstant.ShouldSupportOnlyFieldsReadonlyFields);
-                var valueExpression = valueParameter.ConvertIfNeed(propertyInfo.PropertyType, false);
-                expression = Expression.Call(setMethod.IsStatic ? null : target.ConvertIfNeed(declaringType, false), setMethod, valueExpression);
+                Should.MethodBeSupported(propertyInfo != null, MessageConstant.ShouldSupportOnlyFieldsReadonlyFields);
+                expression = Expression.Assign(Expression.Property(propertyInfo.IsStatic() ? null : targetParameter.ConvertIfNeed(member.DeclaringType, false), propertyInfo),
+                    valueParameter.ConvertIfNeed(propertyInfo.PropertyType, false));
             }
             else
             {
-                expression = Expression.Field(fieldInfo.IsStatic ? null : target.ConvertIfNeed(declaringType, false), fieldInfo);
-                expression = Expression.Assign(expression, valueParameter.ConvertIfNeed(fieldInfo.FieldType, false));
+                expression = Expression.Assign(Expression.Field(fieldInfo.IsStatic ? null : targetParameter.ConvertIfNeed(member.DeclaringType, false), fieldInfo),
+                    valueParameter.ConvertIfNeed(fieldInfo.FieldType, false));
             }
 
             return Expression
-                .Lambda<Action<object?, TType>>(expression, targetParameter, valueParameter)
+                .Lambda(delegateType, expression, targetParameter, valueParameter)
                 .CompileEx();
         }
 
         private static Expression[] GetParametersExpression(MethodBase methodBase, out ParameterExpression parameterExpression)
         {
+            parameterExpression = MugenExtensions.GetParameterExpression<object[]>();
             var paramsInfo = methodBase.GetParameters();
-            //create a single param of type object[]
-            parameterExpression = Expression.Parameter(typeof(object[]), "args");
             var argsExp = new Expression[paramsInfo.Length];
-
-            //pick each arg from the params array
-            //and create a typed expression of them
             for (var i = 0; i < paramsInfo.Length; i++)
-            {
-                Expression paramAccessorExp = Expression.ArrayIndex(parameterExpression, MugenExtensions.GetConstantExpression(i));
-                var paramCastExp = paramAccessorExp.ConvertIfNeed(paramsInfo[i].ParameterType, false);
-                argsExp[i] = paramCastExp;
-            }
-
+                argsExp[i] = MugenExtensions.GetIndexExpression(i).ConvertIfNeed(paramsInfo[i].ParameterType, false);
             return argsExp;
         }
 

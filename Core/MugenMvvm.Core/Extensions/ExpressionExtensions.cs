@@ -10,10 +10,16 @@ namespace MugenMvvm
         public static readonly ConstantExpression NullConstantExpression = Expression.Constant(null, typeof(object));
         public static readonly ConstantExpression TrueConstantExpression = Expression.Constant(BoxingExtensions.TrueObject);
         public static readonly ConstantExpression FalseConstantExpression = Expression.Constant(BoxingExtensions.FalseObject);
+        private static readonly Expression[] ArrayIndexesCache = GenerateArrayIndexes(25);
 
         #endregion
 
         #region Methods
+
+        public static ParameterExpression GetParameterExpression<TType>()
+        {
+            return ParameterExpressionCache<TType>.Parameter;
+        }
 
         public static ConstantExpression GetConstantExpression(byte value)
         {
@@ -87,9 +93,33 @@ namespace MugenMvvm
             return Expression.Constant(value);
         }
 
+        internal static Expression GetIndexExpression(int index)
+        {
+            if (index >= 0 && index < ArrayIndexesCache.Length)
+                return ArrayIndexesCache[index];
+            return Expression.ArrayIndex(GetParameterExpression<object[]>(), GetConstantExpression(index));
+        }
+
+        internal static Expression[] GenerateArrayIndexes(int length)
+        {
+            var expressions = new Expression[length];
+            for (var i = 0; i < length; i++)
+                expressions[i] = Expression.ArrayIndex(GetParameterExpression<object[]>(), GetConstantExpression(i));
+            return expressions;
+        }
+
         #endregion
 
         #region Nested types
+
+        private static class ParameterExpressionCache<TType>
+        {
+            #region Fields
+
+            public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
+
+            #endregion
+        }
 
         internal static class ExpressionCache<T>
         {
