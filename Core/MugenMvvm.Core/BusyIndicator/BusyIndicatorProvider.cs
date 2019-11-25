@@ -95,7 +95,12 @@ namespace MugenMvvm.BusyIndicator
         {
             if (millisecondsDelay != 0)
             {
-                Task.Delay(millisecondsDelay).ContinueWith(task => BeginBusyInternal(busyToken, 0));//todo review
+                Task.Delay(millisecondsDelay)
+                    .ContinueWith((_, state) =>
+                    {
+                        var token = (BusyToken)state;
+                        token.Provider.BeginBusyInternal(token, 0);
+                    }, busyToken, TaskContinuationOptions.ExecuteSynchronously);
                 return;
             }
 
@@ -140,7 +145,7 @@ namespace MugenMvvm.BusyIndicator
         {
             #region Fields
 
-            private readonly BusyIndicatorProvider _provider;
+            public readonly BusyIndicatorProvider Provider;
 
             private IBusyTokenCallback[]? _listeners;
             private BusyToken? _next;
@@ -156,14 +161,14 @@ namespace MugenMvvm.BusyIndicator
             public BusyToken(BusyIndicatorProvider provider, object? message)
             {
                 Message = message;
-                _provider = provider;
+                Provider = provider;
             }
 
             public BusyToken(BusyIndicatorProvider provider, IBusyToken token)
             {
                 token.Register(this);
                 Message = token.Message;
-                _provider = provider;
+                Provider = provider;
             }
 
             #endregion
@@ -178,7 +183,7 @@ namespace MugenMvvm.BusyIndicator
 
             public IBusyToken Token => this;
 
-            private object Locker => _provider.Locker;
+            private object Locker => Provider.Locker;
 
             #endregion
 
@@ -189,7 +194,7 @@ namespace MugenMvvm.BusyIndicator
                 Should.NotBeNull(filter, nameof(filter));
                 lock (Locker)
                 {
-                    var token = _provider._busyTail;
+                    var token = Provider._busyTail;
                     while (token != null)
                     {
                         if (filter(token))
@@ -206,7 +211,7 @@ namespace MugenMvvm.BusyIndicator
                 List<IBusyToken>? tokens = null;
                 lock (Locker)
                 {
-                    var token = _provider._busyTail;
+                    var token = Provider._busyTail;
                     while (token != null)
                     {
                         if (tokens == null)
@@ -258,7 +263,7 @@ namespace MugenMvvm.BusyIndicator
 
             public void Dispose()
             {
-                if (_provider == null)
+                if (Provider == null)
                 {
                     _listeners = Default.EmptyArray<IBusyTokenCallback>();
                     return;
@@ -271,7 +276,7 @@ namespace MugenMvvm.BusyIndicator
                     if (_prev != null)
                         _prev._next = _next;
                     if (_next == null)
-                        _provider._busyTail = _prev;
+                        Provider._busyTail = _prev;
                     else
                         _next._prev = _prev;
                     _listeners = Default.EmptyArray<IBusyTokenCallback>();
@@ -283,7 +288,7 @@ namespace MugenMvvm.BusyIndicator
                         listeners[i].OnCompleted(this);
                 }
 
-                _provider.OnBusyInfoChanged();
+                Provider.OnBusyInfoChanged();
             }
 
             public void OnCompleted(IBusyToken token)
@@ -346,17 +351,17 @@ namespace MugenMvvm.BusyIndicator
                 {
                     if (IsCompleted)
                         return false;
-                    if (_provider._busyTail != null)
+                    if (Provider._busyTail != null)
                     {
-                        _prev = _provider._busyTail;
-                        _provider._busyTail._next = this;
+                        _prev = Provider._busyTail;
+                        Provider._busyTail._next = this;
                     }
 
-                    _provider._busyTail = this;
-                    SetSuspendedInternal(_provider.IsSuspended);
+                    Provider._busyTail = this;
+                    SetSuspendedInternal(Provider.IsSuspended);
                 }
 
-                _provider.OnBusyInfoChanged();
+                Provider.OnBusyInfoChanged();
                 return true;
             }
 
@@ -383,7 +388,7 @@ namespace MugenMvvm.BusyIndicator
 
             private void SetSuspendedExternal(bool suspended)
             {
-                if (_provider == null)
+                if (Provider == null)
                     SetSuspended(ref _suspendedExternal, suspended);
                 else
                 {
@@ -394,7 +399,7 @@ namespace MugenMvvm.BusyIndicator
                     }
 
                     if (notify)
-                        _provider.OnBusyInfoChanged();
+                        Provider.OnBusyInfoChanged();
                 }
             }
 
