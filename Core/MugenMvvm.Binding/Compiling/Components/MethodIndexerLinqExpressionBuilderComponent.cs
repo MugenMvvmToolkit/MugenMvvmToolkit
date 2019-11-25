@@ -710,7 +710,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var hashCode = new HashCode();
                 for (var index = 0; index < key.Length; index++)
                     hashCode.Add(key[index]);
-                return hashCode.GetHashCode();
+                return hashCode.ToHashCode();
             }
 
             #endregion

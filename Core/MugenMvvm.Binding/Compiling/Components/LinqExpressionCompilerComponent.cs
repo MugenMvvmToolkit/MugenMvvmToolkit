@@ -352,7 +352,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         hashCode.Add(types[index]);
                 }
 
-                return hashCode.GetHashCode();
+                return hashCode.ToHashCode();
             }
 
             private static bool Equals(Type[] types, ExpressionValue[] values)

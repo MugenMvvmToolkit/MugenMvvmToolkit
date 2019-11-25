@@ -15,7 +15,6 @@ namespace MugenMvvm.Binding.Enums
     {
         #region Fields
 
-        public static readonly BindingLifecycleState Created = new BindingLifecycleState(nameof(Created));
         public static readonly BindingLifecycleState Initialized = new BindingLifecycleState(nameof(Initialized));
         public static readonly BindingLifecycleState Disposed = new BindingLifecycleState(nameof(Disposed));
 

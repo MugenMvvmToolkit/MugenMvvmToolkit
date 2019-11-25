@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
@@ -316,7 +317,6 @@ namespace MugenMvvm.Binding.Core.Components
 
             private Binding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Created, metadata);
                 if (_componentBuilders!.Length == 1)
                     binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
@@ -327,7 +327,7 @@ namespace MugenMvvm.Binding.Core.Components
                     binding.AddOrderedComponents(components, metadata);
                 }
 
-                if (binding.State != BindingState.Disposed)
+                if (binding.State == BindingState.Valid)
                     _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, metadata);
                 return binding;
             }
@@ -373,6 +373,7 @@ namespace MugenMvvm.Binding.Core.Components
             #endregion
         }
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct CacheKey
         {
             #region Fields
