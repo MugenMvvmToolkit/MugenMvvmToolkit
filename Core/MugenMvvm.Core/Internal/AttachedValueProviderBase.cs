@@ -5,7 +5,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Internal.Components
+namespace MugenMvvm.Internal
 {
     public abstract class AttachedValueProviderBase : IAttachedValueProvider
     {

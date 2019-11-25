@@ -55,24 +55,28 @@ namespace MugenMvvm.Internal
             if (item is IWeakReference w)
                 return w;
 
-            var holder = item as IValueHolder<IWeakReference>;
-            if (holder != null)
+            if (item is IValueHolder<IWeakReference> holder)
             {
-                var weakReference = holder.Value;
-                if (weakReference != null)
-                    return weakReference;
+                if (holder.Value == null)
+                    holder.Value = GetWeakReferenceInternal(item, metadata);
+                return holder.Value;
             }
 
+            return GetWeakReferenceInternal(item, metadata);
+        }
+
+        #endregion
+
+        #region Methods
+
+        private IWeakReference GetWeakReferenceInternal(object? item, IReadOnlyMetadataContext? metadata)
+        {
             var providers = _providers;
             for (var i = 0; i < providers.Length; i++)
             {
                 var weakReference = providers[i].TryGetWeakReference(item, metadata);
                 if (weakReference != null)
-                {
-                    if (holder != null)
-                        holder.Value = weakReference;
                     return weakReference;
-                }
             }
 
             return new WeakReferenceImpl(item, TrackResurrection);
