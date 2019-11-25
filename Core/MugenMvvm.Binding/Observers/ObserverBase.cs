@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -57,6 +59,8 @@ namespace MugenMvvm.Binding.Observers
         }
 
         public abstract IMemberPath Path { get; }
+
+        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> Listeners => ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>>.FromRawValue(_listeners);
 
         protected bool HasListeners => _listeners != null;
 

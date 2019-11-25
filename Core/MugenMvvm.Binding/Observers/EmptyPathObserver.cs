@@ -1,7 +1,9 @@
-﻿using MugenMvvm.Binding.Interfaces.Observers;
+﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -9,8 +11,9 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        internal static readonly EmptyPathObserver Empty = new EmptyPathObserver(Default.WeakReference);
         private object? _target;
+
+        internal static readonly EmptyPathObserver Empty = new EmptyPathObserver(Default.WeakReference);
 
         #endregion
 
@@ -47,6 +50,8 @@ namespace MugenMvvm.Binding.Observers
         }
 
         public IMemberPath Path => EmptyMemberPath.Instance;
+
+        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> Listeners => default;
 
         #endregion
 
