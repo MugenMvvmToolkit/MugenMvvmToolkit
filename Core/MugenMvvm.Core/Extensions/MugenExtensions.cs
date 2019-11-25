@@ -37,9 +37,11 @@ namespace MugenMvvm
             return (value & flag) == flag;
         }
 
-        public static TTo ConvertGenericValue<TFrom, TTo>(TFrom value)
+        public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
-            return ((Func<TFrom, TTo>)(object)GenericConverter<TFrom>.Convert).Invoke(value);
+            if (typeof(TFrom) == typeof(TTo))
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -165,11 +167,11 @@ namespace MugenMvvm
 
         #region Nested types
 
-        private static class GenericConverter<T>
+        private static class GenericCaster<T>
         {
             #region Fields
 
-            public static readonly Func<T, T> Convert = arg => arg;
+            public static readonly Func<T, T> Cast = arg => arg;
 
             #endregion
         }
