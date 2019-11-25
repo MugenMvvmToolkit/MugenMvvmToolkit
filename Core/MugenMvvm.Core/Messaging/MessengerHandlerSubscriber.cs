@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
@@ -53,9 +53,9 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
-        public bool CanHandle(IMessageContext messageContext)
+        public bool CanHandle(Type messageType)
         {
-            return GetHandlers(_reflectionDelegateProvider, _handlerType, messageContext.Message) != null;
+            return GetHandler(_reflectionDelegateProvider, _handlerType, messageType) != null;
         }
 
         public MessengerResult Handle(IMessageContext messageContext)
@@ -64,14 +64,10 @@ namespace MugenMvvm.Messaging
             if (target == null)
                 return MessengerResult.Invalid;
 
-            var handlers = GetHandlers(_reflectionDelegateProvider, _handlerType, messageContext.Message);
-            if (handlers == null)
+            var handler = GetHandler(_reflectionDelegateProvider, _handlerType, messageContext.Message.GetType());
+            if (handler == null)
                 return MessengerResult.Ignored;
-
-            var args = new[] { messageContext.Message, messageContext };
-            for (var i = 0; i < handlers.Count; i++)
-                handlers[i].Invoke(target, args);
-
+            handler.Invoke(target, messageContext.Message, messageContext);
             return MessengerResult.Handled;
         }
 
@@ -97,12 +93,12 @@ namespace MugenMvvm.Messaging
             return _hashCode;
         }
 
-        private static List<Func<object?, object?[], object?>>? GetHandlers(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, object message)
+        public static Action<object?, object?, IMessageContext>? GetHandler(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, Type messageType)
         {
-            var key = new CacheKey(handlerType, message.GetType());
+            var key = new CacheKey(handlerType, messageType);
             lock (Cache)
             {
-                if (!Cache.TryGetValue(key, out var items))
+                if (!Cache.TryGetValue(key, out var action))
                 {
                     var interfaces = key.HandlerType
                         .GetInterfaces()
@@ -112,17 +108,13 @@ namespace MugenMvvm.Messaging
                         var typeMessage = @interface.GetGenericArguments()[0];
                         var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
                         if (method != null && typeMessage.IsAssignableFrom(key.MessageType))
-                        {
-                            if (items == null)
-                                items = new List<Func<object?, object?[], object?>>(2);
-                            items.Add(method.GetMethodInvoker(reflectionDelegateProvider));
-                        }
+                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionDelegateProvider);
                     }
 
-                    Cache[key] = items;
+                    Cache[key] = action;
                 }
 
-                return items;
+                return action;
             }
         }
 
@@ -130,6 +122,7 @@ namespace MugenMvvm.Messaging
 
         #region Nested types
 
+        [StructLayout(LayoutKind.Auto)]
         private readonly struct CacheKey
         {
             #region Fields
@@ -150,7 +143,7 @@ namespace MugenMvvm.Messaging
             #endregion
         }
 
-        private sealed class CacheDictionary : LightDictionary<CacheKey, List<Func<object?, object?[], object?>>?>
+        private sealed class CacheDictionary : LightDictionary<CacheKey, Action<object?, object?, IMessageContext>?>
         {
             #region Constructors
 

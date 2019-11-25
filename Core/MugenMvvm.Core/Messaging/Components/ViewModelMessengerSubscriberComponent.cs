@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -16,7 +17,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Properties
 
-        public int Priority { get; set; } = 1;
+        public int Priority { get; set; } = MessengerComponentPriority.Subscriber;
 
         #endregion
 

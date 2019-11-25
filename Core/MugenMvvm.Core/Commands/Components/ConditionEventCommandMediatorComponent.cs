@@ -162,7 +162,7 @@ namespace MugenMvvm.Commands.Components
 
             #region Implementation of interfaces
 
-            public bool CanHandle(IMessageContext messageContext)
+            public bool CanHandle(Type messageType)
             {
                 return true;
             }

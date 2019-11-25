@@ -1,17 +1,18 @@
-﻿using MugenMvvm.Enums;
+﻿using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Messaging.Components
 {
-    public sealed class MessengerHandlerSubscriberComponent : IMessengerSubscriberComponent
+    public sealed class MessengerHandlerSubscriberComponent : IMessengerSubscriberComponent, IHasPriority
     {
         #region Fields
 
         private readonly bool _isWeak;
-
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         public static readonly MessengerHandlerSubscriberComponent Instance = new MessengerHandlerSubscriberComponent(false);
@@ -26,6 +27,12 @@ namespace MugenMvvm.Messaging.Components
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _isWeak = isWeak;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; } = MessengerComponentPriority.Subscriber;
 
         #endregion
 

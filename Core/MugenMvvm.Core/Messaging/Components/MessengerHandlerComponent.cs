@@ -1,11 +1,14 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
+using MugenMvvm.Constants;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Messaging.Components
 {
-    public sealed class MessengerHandlerComponent : IMessengerHandlerComponent, IMessengerSubscriberComponent
+    public sealed class MessengerHandlerComponent : IMessengerHandlerComponent, IMessengerSubscriberComponent, IHasPriority
     {
         #region Fields
 
@@ -13,12 +16,18 @@ namespace MugenMvvm.Messaging.Components
 
         #endregion
 
+        #region Properties
+
+        public int Priority { get; set; } = MessengerComponentPriority.Handler;
+
+        #endregion
+
         #region Implementation of interfaces
 
-        public bool CanHandle(object subscriber, IMessageContext messageContext)
+        public bool CanHandle(object subscriber, Type messageType)
         {
             if (subscriber is IMessengerSubscriber messengerSubscriber)
-                return messengerSubscriber.CanHandle(messageContext);
+                return messengerSubscriber.CanHandle(messageType);
             return false;
         }
 
@@ -40,7 +49,7 @@ namespace MugenMvvm.Messaging.Components
 
         public interface IMessengerSubscriber
         {
-            bool CanHandle(IMessageContext messageContext);
+            bool CanHandle(Type messageType);
 
             MessengerResult Handle(IMessageContext messageContext);
         }

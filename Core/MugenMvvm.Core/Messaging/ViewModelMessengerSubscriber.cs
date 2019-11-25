@@ -65,12 +65,11 @@ namespace MugenMvvm.Messaging
             return new ViewModelMessengerSubscriberMemento(viewModel);
         }
 
-        public bool CanHandle(IMessageContext messageContext)
+        public bool CanHandle(Type messageType)
         {
             if (BroadcastAllMessages)
                 return true;
-            var message = messageContext.Message;
-            return message is IBusyToken || message is IBroadcastMessage || message is PropertyChangedEventArgs;
+            return typeof(IBusyToken).IsAssignableFrom(messageType) || typeof(IBroadcastMessage).IsAssignableFrom(messageType) || typeof(ProgressChangedEventArgs).IsAssignableFrom(messageType);
         }
 
         public MessengerResult Handle(IMessageContext messageContext)

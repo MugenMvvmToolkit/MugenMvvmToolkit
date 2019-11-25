@@ -163,34 +163,7 @@ namespace MugenMvvm.Messaging
                 var key = messageContext.Message.GetType();
                 if (!_cache.TryGetValue(key, out dictionary))
                 {
-                    foreach (var subscriber in _subscribers)
-                    {
-                        var canHandle = false;
-                        var handlerComponents = _handlerComponents;
-                        for (var i = 0; i < handlerComponents.Length; i++)
-                        {
-                            if (handlerComponents[i].CanHandle(subscriber.Subscriber, messageContext))
-                            {
-                                canHandle = true;
-                                break;
-                            }
-                        }
-
-                        if (!canHandle)
-                            continue;
-
-                        if (dictionary == null)
-                            dictionary = new ThreadExecutionModeDictionary();
-
-                        if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
-                        {
-                            value = new MessageThreadExecutor(this);
-                            dictionary[subscriber.ExecutionMode] = value;
-                        }
-
-                        value.Add(subscriber.Subscriber);
-                    }
-
+                    dictionary = GetHandlers(key);
                     _cache[key] = dictionary;
                 }
             }
@@ -205,6 +178,40 @@ namespace MugenMvvm.Messaging
         #endregion
 
         #region Methods
+
+        private ThreadExecutionModeDictionary? GetHandlers(Type messageType)
+        {
+            ThreadExecutionModeDictionary? dictionary = null;
+            foreach (var subscriber in _subscribers)
+            {
+                var canHandle = false;
+                var handlerComponents = _handlerComponents;
+                for (var i = 0; i < handlerComponents.Length; i++)
+                {
+                    if (handlerComponents[i].CanHandle(subscriber.Subscriber, messageType))
+                    {
+                        canHandle = true;
+                        break;
+                    }
+                }
+
+                if (!canHandle)
+                    continue;
+
+                if (dictionary == null)
+                    dictionary = new ThreadExecutionModeDictionary();
+
+                if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
+                {
+                    value = new MessageThreadExecutor(this);
+                    dictionary[subscriber.ExecutionMode] = value;
+                }
+
+                value.Add(subscriber.Subscriber);
+            }
+
+            return dictionary;
+        }
 
         private bool AddSubscriber(object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
@@ -309,7 +316,7 @@ namespace MugenMvvm.Messaging
             #endregion
         }
 
-        private sealed class MessageContext : IMessageContext
+        public sealed class MessageContext : IMessageContext
         {
             #region Fields
 
