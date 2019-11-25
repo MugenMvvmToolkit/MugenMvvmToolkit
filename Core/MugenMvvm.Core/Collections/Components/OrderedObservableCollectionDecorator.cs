@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -35,7 +36,7 @@ namespace MugenMvvm.Collections.Components
 
         private IEnumerable<T> Items => _items.Select(item => item.Item);
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = CollectionComponentPriority.OrderDecorator;
 
         #endregion
 

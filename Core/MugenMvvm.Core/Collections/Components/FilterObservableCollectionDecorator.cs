@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -47,7 +48,7 @@ namespace MugenMvvm.Collections.Components
             }
         }
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = CollectionComponentPriority.FilterDecorator;
 
         private bool HasFilter => Filter != null && IsAttached;
 
