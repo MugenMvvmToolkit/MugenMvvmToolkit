@@ -251,7 +251,7 @@ namespace MugenMvvm.Commands
                     return Default.CompletedTask;
                 }
             }
-            else if (ExecutionMode == CommandExecutionMode.CanExecuteBeforeExecuteWithException)
+            else if (ExecutionMode == CommandExecutionMode.CanExecuteBeforeExecuteException)
             {
                 if (!CanExecute(parameter))
                     ExceptionManager.ThrowCommandCannotBeExecuted();

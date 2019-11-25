@@ -9,9 +9,9 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly CommandExecutionMode None = new CommandExecutionMode(1);//todo review
+        public static readonly CommandExecutionMode None = new CommandExecutionMode(1);
         public static readonly CommandExecutionMode CanExecuteBeforeExecute = new CommandExecutionMode(2);
-        public static readonly CommandExecutionMode CanExecuteBeforeExecuteWithException = new CommandExecutionMode(3);
+        public static readonly CommandExecutionMode CanExecuteBeforeExecuteException = new CommandExecutionMode(3);
 
         #endregion
 
