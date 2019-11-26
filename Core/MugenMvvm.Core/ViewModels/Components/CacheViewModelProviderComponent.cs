@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -37,7 +38,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewModelComponentPriority.Cache;
 
         #endregion
 

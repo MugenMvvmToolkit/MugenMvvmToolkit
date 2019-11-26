@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Attributes;
 using MugenMvvm.BusyIndicator;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
@@ -39,7 +40,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewModelComponentPriority.ServiceResolver;
 
         #endregion
 
