@@ -23,11 +23,6 @@ namespace MugenMvvm.Metadata
 
         public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var list = values.List;
-            var item = values.Item;
-            if (list == null && item.IsEmpty)
-                return Default.Metadata;
-
             var components = Components.GetComponents();
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
@@ -38,12 +33,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (result == null)
-            {
-                if (list == null)
-                    result = new SingleValueMetadataContext(item);
-                else
-                    result = new ReadOnlyMetadataContext(list);
-            }
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IMetadataContextProviderListener)?.OnReadOnlyContextCreated(this, result!, target);
@@ -62,7 +52,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (result == null)
-                result = new MetadataContext(values);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
 
             for (var i = 0; i < components.Length; i++)
                 (components[i] as IMetadataContextProviderListener)?.OnContextCreated(this, result!, target);
