@@ -11,8 +11,7 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool TryGetValue<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, [NotNullWhen(true)] out TValue value)
-            where TItem : class
+        public static bool TryGetValue<TValue>(this IAttachedValueManager valueManager, object item, string path, [NotNullWhen(true)] out TValue value)
         {
             Should.NotBeNull(valueManager, nameof(valueManager));
             var provider = valueManager.GetAttachedValueProvider(item);
@@ -22,8 +21,7 @@ namespace MugenMvvm
             return false;
         }
 
-        public static bool Contains<TItem>(this IAttachedValueManager valueManager, TItem item, string path)
-            where TItem : class
+        public static bool Contains(this IAttachedValueManager valueManager, object item, string path)
         {
             Should.NotBeNull(valueManager, nameof(valueManager));
             var provider = valueManager.GetAttachedValueProvider(item);
@@ -69,8 +67,7 @@ namespace MugenMvvm
         }
 
         [return: NotNullIfNotNull("value")]
-        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, TValue value)
-            where TItem : class
+        public static TValue GetOrAdd<TValue>(this IAttachedValueManager valueManager, object item, string path, TValue value)
         {
             Should.NotBeNull(valueManager, nameof(valueManager));
             return valueManager.GetOrAddAttachedValueProvider(item).GetOrAdd(item, path, value);
@@ -91,14 +88,13 @@ namespace MugenMvvm
             return valueManager.GetOrAddAttachedValueProvider(item).GetOrAdd(item, path, valueFactory: valueFactory);
         }
 
-        public static void SetValue<TItem, TValue>(this IAttachedValueManager valueManager, TItem item, string path, TValue value)
-            where TItem : class
+        public static void SetValue<TValue>(this IAttachedValueManager valueManager, object item, string path, TValue value)
         {
             Should.NotBeNull(valueManager, nameof(valueManager));
             valueManager.GetOrAddAttachedValueProvider(item).SetValue(item, path, value);
         }
 
-        public static bool Clear<TItem>(this IAttachedValueManager valueManager, TItem item, string path) where TItem : class
+        public static bool Clear(this IAttachedValueManager valueManager, object item, string path)
         {
             Should.NotBeNull(valueManager, nameof(valueManager));
             var provider = valueManager.GetAttachedValueProvider(item);
@@ -107,7 +103,7 @@ namespace MugenMvvm
             return provider.Clear(item, path);
         }
 
-        public static bool Clear<TItem>(this IAttachedValueManager valueManager, TItem item) where TItem : class
+        public static bool Clear(this IAttachedValueManager valueManager, object item)
         {
             Should.NotBeNull(valueManager, nameof(valueManager));
             var provider = valueManager.GetAttachedValueProvider(item);

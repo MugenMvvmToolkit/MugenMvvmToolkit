@@ -49,8 +49,8 @@ namespace MugenMvvm.Binding.Core.Components
                 return default;
 
             var values = path == null
-                ? attachedValueProvider.GetValues(target, target, (o, s, v, arg3) => s.StartsWith(BindPrefix, StringComparison.Ordinal))
-                : attachedValueProvider.GetValues(target, path, (o, s, v, arg3) => s.StartsWith(BindPrefix, StringComparison.Ordinal) && s.EndsWith(s, StringComparison.Ordinal));
+                ? attachedValueProvider.GetValues(target, target, (o, pair, arg3) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
+                : attachedValueProvider.GetValues(target, path, (o, pair, arg3) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(pair.Key, StringComparison.Ordinal));
 
             if (values.Count == 0)
                 return default;

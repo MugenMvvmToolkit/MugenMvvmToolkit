@@ -6,10 +6,8 @@ namespace MugenMvvm.Interfaces.Internal.Components
 {
     public interface IAttachedValueManagerComponent : IComponent<IAttachedValueManager>
     {
-        bool TryGetAttachedValueProvider<TItem>(TItem item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
-            where TItem : class;
+        bool TryGetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider);
 
-        bool TryGetOrAddAttachedValueProvider<TItem>(TItem item, IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out IAttachedValueProvider? provider)
-            where TItem : class;
+        bool TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out IAttachedValueProvider? provider);
     }
 }

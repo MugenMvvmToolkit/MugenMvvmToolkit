@@ -11,7 +11,7 @@ namespace MugenMvvm.Internal
     {
         #region Implementation of interfaces
 
-        public virtual IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, string, object?, TState, bool>? predicate = null)
+        public virtual IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
@@ -25,7 +25,7 @@ namespace MugenMvvm.Internal
                 var list = new List<KeyValuePair<string, object?>>();
                 foreach (var keyValue in dictionary)
                 {
-                    if (predicate(item, keyValue.Key, keyValue.Value, state))
+                    if (predicate(item, keyValue, state))
                         list.Add(keyValue);
                 }
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Internal
             }
         }
 
-        public virtual bool TryGetValue<TItem, TValue>(TItem item, string path, [NotNullWhen(true)] out TValue value) where TItem : class
+        public virtual bool TryGetValue<TValue>(object item, string path, [NotNullWhen(true)] out TValue value)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -57,7 +57,7 @@ namespace MugenMvvm.Internal
             }
         }
 
-        public virtual bool Contains<TItem>(TItem item, string path) where TItem : class
+        public virtual bool Contains(object item, string path)
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item);
@@ -112,7 +112,7 @@ namespace MugenMvvm.Internal
             }
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue>(TItem item, string path, TValue value) where TItem : class
+        public virtual TValue GetOrAdd<TValue>(object item, string path, TValue value)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -143,7 +143,7 @@ namespace MugenMvvm.Internal
             }
         }
 
-        public virtual void SetValue<TItem, TValue>(TItem item, string path, TValue value) where TItem : class
+        public virtual void SetValue<TValue>(object item, string path, TValue value)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -154,13 +154,13 @@ namespace MugenMvvm.Internal
             }
         }
 
-        public virtual bool Clear<TItem>(TItem item) where TItem : class
+        public virtual bool Clear(object item)
         {
             Should.NotBeNull(item, nameof(item));
             return ClearInternal(item);
         }
 
-        public virtual bool Clear<TItem>(TItem item, string path) where TItem : class
+        public virtual bool Clear(object item, string path)
         {
             var dictionary = GetAttachedDictionary(item);
             if (dictionary == null)
@@ -182,9 +182,9 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        protected abstract LightDictionary<string, object?> GetAttachedDictionary<TItem>(TItem item) where TItem : class;
+        protected abstract LightDictionary<string, object?> GetAttachedDictionary(object item);
 
-        protected abstract bool ClearInternal<TItem>(TItem item) where TItem : class;
+        protected abstract bool ClearInternal(object item);
 
         #endregion
     }

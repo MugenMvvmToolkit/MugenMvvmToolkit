@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -27,12 +26,6 @@ namespace MugenMvvm.Internal
 
         #endregion
 
-        #region Properties
-
-        public bool TrackResurrection { get; set; }
-
-        #endregion
-
         #region Implementation of interfaces
 
         void IComponentOwnerAddedCallback<IComponent<IWeakReferenceProvider>>.OnComponentAdded(IComponentCollection<IComponent<IWeakReferenceProvider>> collection,
@@ -52,25 +45,6 @@ namespace MugenMvvm.Internal
             if (item == null)
                 return Default.WeakReference;
 
-            if (item is IWeakReference w)
-                return w;
-
-            if (item is IValueHolder<IWeakReference> holder)
-            {
-                if (holder.Value == null)
-                    holder.Value = GetWeakReferenceInternal(item, metadata);
-                return holder.Value;
-            }
-
-            return GetWeakReferenceInternal(item, metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private IWeakReference GetWeakReferenceInternal(object? item, IReadOnlyMetadataContext? metadata)
-        {
             var providers = _providers;
             for (var i = 0; i < providers.Length; i++)
             {
@@ -79,31 +53,8 @@ namespace MugenMvvm.Internal
                     return weakReference;
             }
 
-            return new WeakReferenceImpl(item, TrackResurrection);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class WeakReferenceImpl : WeakReference, IWeakReference
-        {
-            #region Constructors
-
-            public WeakReferenceImpl(object target, bool trackResurrection) : base(target, trackResurrection)
-            {
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public void Release()
-            {
-                Target = null;
-            }
-
-            #endregion
+            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceProviderComponent).Name);
+            return null;
         }
 
         #endregion
