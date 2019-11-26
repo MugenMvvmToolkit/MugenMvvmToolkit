@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Wrapping;
@@ -30,7 +31,7 @@ namespace MugenMvvm.Wrapping.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = WrappingComponentPriority.WrapperManger;
 
         #endregion
 
@@ -45,7 +46,7 @@ namespace MugenMvvm.Wrapping.Components
         {
             return WrapperFactory(wrapperManager, target, wrapperType, metadata);
         }
-        
+
         #endregion
     }
 }
