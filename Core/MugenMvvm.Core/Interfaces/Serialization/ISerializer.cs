@@ -9,14 +9,6 @@ namespace MugenMvvm.Interfaces.Serialization
 {
     public interface ISerializer : IComponentOwner<ISerializer>, IComponent<IMugenApplication>
     {
-        bool IsOnSerializingSupported { get; }
-
-        bool IsOnSerializedSupported { get; }
-
-        bool IsOnDeserializingSupported { get; }
-
-        bool IsOnDeserializedSupported { get; }
-
         [Pure]
         bool CanSerialize(Type type, IReadOnlyMetadataContext? metadata = null);
 

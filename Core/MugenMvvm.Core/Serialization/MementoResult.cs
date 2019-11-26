@@ -3,31 +3,31 @@ using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Serialization
 {
-    public class MementoResult : IMementoResult
+    public sealed class MementoResult : IMementoResult
     {
         #region Fields
 
-        public static readonly IMementoResult Unrestored = new MementoResult();
+        public static readonly IMementoResult Unrestored = new MementoResult(null);
 
         #endregion
 
         #region Constructors
 
-        private MementoResult()
+        public MementoResult(IReadOnlyMetadataContext? metadata)
         {
-            Metadata = Default.Metadata;
+            Metadata = metadata.DefaultIfNull();
         }
 
-        public MementoResult(object? target, IMetadataOwner<IReadOnlyMetadataContext>? metadataOwner = null)
+        public MementoResult(object target, IMetadataOwner<IReadOnlyMetadataContext>? metadataOwner = null)
             : this(target, metadataOwner?.Metadata)
         {
         }
 
-        public MementoResult(object? target, IReadOnlyMetadataContext? metadata = null)
+        public MementoResult(object target, IReadOnlyMetadataContext? metadata = null) : this(metadata)
         {
-            IsRestored = true;
-            Metadata = metadata.DefaultIfNull();
+            Should.NotBeNull(target, nameof(target));
             Target = target;
+            IsRestored = true;
         }
 
         #endregion
