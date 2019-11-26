@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 
@@ -10,7 +11,8 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<IViewModelBase>? _viewModel;
         private static IMetadataContextKey<string>? _viewName;
-        private static IMetadataContextKey<bool>? _isDialog;
+        private static IMetadataContextKey<bool>? _isModal;
+        private static IMetadataContextKey<DateTime>? _navigationDate;
 
         #endregion
 
@@ -31,10 +33,18 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> IsDialog
+        public static IMetadataContextKey<bool> IsModal
         {
-            get => _isDialog ??= GetBuilder<bool>(nameof(IsDialog)).Serializable().Build();
-            set => _isDialog = value;
+            get => _isModal ??= GetBuilder<bool>(nameof(IsModal)).Serializable().Build();
+            set => _isModal = value;
+        }
+
+
+        [AllowNull]
+        public static IMetadataContextKey<DateTime> NavigationDate
+        {
+            get => _navigationDate ??= GetBuilder<DateTime>(nameof(NavigationDate)).Build();
+            set => _navigationDate = value;
         }
 
         #endregion

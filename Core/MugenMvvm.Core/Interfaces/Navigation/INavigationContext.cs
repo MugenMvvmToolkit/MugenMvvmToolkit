@@ -7,10 +7,10 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         string NavigationOperationId { get; }
 
-        INavigationProvider NavigationProvider { get; }
-
         NavigationMode NavigationMode { get; }
 
         NavigationType NavigationType { get; }
+
+        INavigationProvider NavigationProvider { get; }
     }
 }

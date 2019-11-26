@@ -1,14 +1,11 @@
-﻿using System;
-using MugenMvvm.Enums;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationEntry : IMetadataOwner<IReadOnlyMetadataContext>
+    public interface INavigationEntry : IMetadataOwner<IMetadataContext>
     {
         string NavigationOperationId { get; }
-
-        DateTime NavigationDate { get; }
 
         NavigationType NavigationType { get; }
 

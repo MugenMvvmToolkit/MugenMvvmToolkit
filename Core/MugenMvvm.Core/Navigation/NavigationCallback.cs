@@ -11,7 +11,7 @@ namespace MugenMvvm.Navigation
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
-    internal sealed class NavigationCallbackInternal : INavigationCallback<bool>
+    public sealed class NavigationCallback : INavigationCallback<bool>
     {
         #region Fields
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.Navigation
 
         #region Constructors
 
-        public NavigationCallbackInternal(NavigationCallbackType callbackType, NavigationType navigationType, bool isSerializable, string operationId)
+        public NavigationCallback(NavigationCallbackType callbackType, NavigationType navigationType, bool isSerializable, string operationId)
         {
             CallbackType = callbackType;
             NavigationType = navigationType;
@@ -44,7 +44,7 @@ namespace MugenMvvm.Navigation
         }
 
 #pragma warning disable CS8618
-        internal NavigationCallbackInternal()
+        internal NavigationCallback()
         {
         }
 #pragma warning restore CS8618

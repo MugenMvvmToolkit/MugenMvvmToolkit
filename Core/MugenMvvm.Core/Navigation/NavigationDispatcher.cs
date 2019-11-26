@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 
@@ -21,6 +24,24 @@ namespace MugenMvvm.Navigation
         #endregion
 
         #region Implementation of interfaces
+
+        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            List<INavigationEntry>? result = null;
+            var components = Components.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var list = (components[i] as INavigationEntryProviderComponent)?.TryGetNavigationEntries(type, metadata);
+                if (list == null || list.Count == 0)
+                    continue;
+
+                if (result == null)
+                    result = new List<INavigationEntry>();
+                result.AddRange(list);
+            }
+
+            return (IReadOnlyList<INavigationEntry>?)result ?? Default.EmptyArray<INavigationEntry>();
+        }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext)
         {
@@ -125,7 +146,7 @@ namespace MugenMvvm.Navigation
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult) state).OnExecuted(task);
+                ((NavigatingResult)state).OnExecuted(task);
             }
 
             #endregion

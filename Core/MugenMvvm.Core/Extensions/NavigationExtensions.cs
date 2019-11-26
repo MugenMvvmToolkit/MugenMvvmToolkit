@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
@@ -31,21 +32,16 @@ namespace MugenMvvm
             return result;
         }
 
-        public static INavigationJournalComponent GetNavigationJournal(this INavigationDispatcher dispatcher)
+        public static string GetUniqueNavigationOperationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)
         {
-            return dispatcher.GetComponent<INavigationDispatcher, INavigationJournalComponent>(false)!;
-        }
-
-        public static INavigationContextProviderComponent GetNavigationContextProvider(this INavigationDispatcher dispatcher)
-        {
-            return dispatcher.GetComponent<INavigationDispatcher, INavigationContextProviderComponent>(false)!;
+            return null!;//todo review
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider, string navigationOperationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var navigationContext = dispatcher.GetNavigationContextProvider().GetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+            var navigationContext = dispatcher.GetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
             navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
             return navigationContext;
         }
@@ -55,15 +51,9 @@ namespace MugenMvvm
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var navigationContext = dispatcher
-                .GetNavigationContextProvider()
                 .GetNavigationContext(navigationProvider, navigationProvider.GetUniqueNavigationOperationId(viewModel), navigationType, navigationMode, metadata);
             navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
             return navigationContext;
-        }
-
-        public static string GetUniqueNavigationOperationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)
-        {
-            return null!;//todo review
         }
 
         public static void OnNavigating(this INavigationDispatcher dispatcher, INavigationContext context, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
@@ -75,14 +65,30 @@ namespace MugenMvvm
                 .ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback), TaskContinuationOptions.ExecuteSynchronously);
         }
 
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, INavigationProvider navigationProvider, string navigationOperationId,
+            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
+            var components = dispatcher.GetComponents();
+            for (int i = 0; i < components.Length; i++)
+            {
+                var context = (components[i] as INavigationContextProviderComponent)?.TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+                if (context != null)
+                    return context;
+            }
+
+            ExceptionManager.ThrowObjectNotInitialized(dispatcher, typeof(INavigationContextProviderComponent).Name);
+            return null;
+        }
+
         public static IReadOnlyList<INavigationCallback> GetCallbacks(this INavigationDispatcher dispatcher, INavigationEntry entry, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
-            var components = dispatcher.Components.GetComponents();
+            var components = dispatcher.GetComponents();
             List<INavigationCallback>? result = null;
             for (int i = 0; i < components.Length; i++)
             {
-                var callbacks = (components[i] as INavigationCallbackProviderComponent)?.GetCallbacks(entry, metadata);
+                var callbacks = (components[i] as INavigationCallbackProviderComponent)?.TryGetCallbacks(entry, metadata);
                 if (callbacks == null || callbacks.Count == 0)
                     continue;
                 if (result == null)
@@ -93,12 +99,26 @@ namespace MugenMvvm
             return result ?? (IReadOnlyList<INavigationCallback>)Default.EmptyArray<INavigationCallback>();
         }
 
-        public static Task WaitNavigationAsync(this INavigationDispatcher dispatcher, Func<INavigationCallback, bool> filter,
-            IReadOnlyMetadataContext? metadata = null)
+        public static INavigationEntry? GetPreviousNavigationEntry(this INavigationDispatcher dispatcher, INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(dispatcher, nameof(dispatcher));
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
+            var components = dispatcher.GetComponents();
+            for (var i = 0; i < components.Length; i++)
+            {
+                var result = (components[i] as INavigationEntryFinderComponent)?.TryGetPreviousNavigationEntry(navigationEntry, metadata);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        public static Task WaitNavigationAsync(this INavigationDispatcher dispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            var entries = dispatcher.GetNavigationJournal().GetNavigationEntries(null, metadata);
+            var entries = dispatcher.GetNavigationEntries(null, metadata);
             List<Task>? tasks = null;
             for (var i = 0; i < entries.Count; i++)
             {
