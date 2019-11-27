@@ -222,7 +222,7 @@ namespace MugenMvvm.Binding.Core
 
         int IComparer<IComponent<IBinding>>.Compare(IComponent<IBinding> x, IComponent<IBinding> y)
         {
-            return MugenExtensions.GetComponentPriority(y, this).CompareTo(MugenExtensions.GetComponentPriority(x, this));
+            return y.GetPriority(this).CompareTo(x.GetPriority(this));
         }
 
         bool IComponentCollection<IComponent<IBinding>>.Add(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
@@ -777,7 +777,7 @@ namespace MugenMvvm.Binding.Core
 
         private object MergeComponents(IComponent<IBinding> c1, IComponent<IBinding> c2)
         {
-            return MugenExtensions.GetComponentPriority(c1, this) >= MugenExtensions.GetComponentPriority(c2, this)
+            return c1.GetPriority(this) >= c2.GetPriority(this)
                 ? new[] { c1, c2 }
                 : new[] { c2, c1 };
         }

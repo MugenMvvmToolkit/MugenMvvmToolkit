@@ -89,13 +89,20 @@ namespace MugenMvvm
             return item == null && LazyInitialize(ref item, componentCollectionProvider.DefaultIfNull().GetComponentCollection<T>(target, metadata));
         }
 
+        public static int GetPriority(this IComponent component, object? owner = null)
+        {
+            return GetComponentPriority(component, owner);
+        }
+
         public static int GetComponentPriority(object component, object? owner)
         {
-            if (owner != null && component is IHasComponentPriority c)
-                return c.GetPriority(owner);
+            var manager = MugenService.Optional<IComponentPriorityManager>();
+            if (manager != null)
+                return manager.GetPriority(component, owner);
             if (component is IHasPriority p)
                 return p.Priority;
             return 0;
+
         }
 
         public static void ComponentTrackerInitialize<TComponent, TComponentBase>(this IComponentOwner<TComponentBase> owner, out TComponent[] components, TComponent? decoratorComponent = null)
