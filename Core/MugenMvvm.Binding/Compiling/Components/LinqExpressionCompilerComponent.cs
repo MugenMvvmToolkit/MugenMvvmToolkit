@@ -284,6 +284,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     _lambdaParameters?.Clear();
                     if (_metadata != null)
                     {
+                        this.TryGetErrors()?.Clear();
                         _metadata.Clear();
                         if (!_inputMetadata.IsNullOrEmpty())
                             _metadata.Merge(_inputMetadata!);
