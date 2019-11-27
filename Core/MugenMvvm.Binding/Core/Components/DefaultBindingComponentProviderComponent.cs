@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.DefaultPreInitializer;
+        public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
         public List<IBindingComponentBuilder> DefaultBindingComponents { get; }
 

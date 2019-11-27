@@ -59,7 +59,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public bool ToggleEnabledState { get; set; }
 
-        public int Priority { get; set; } = ComponentPriority.DefaultPostInitializer;
+        public int Priority { get; set; } = ComponentPriority.PostInitializer;
 
         public bool IsCachePerTypeRequired { get; set; }
 

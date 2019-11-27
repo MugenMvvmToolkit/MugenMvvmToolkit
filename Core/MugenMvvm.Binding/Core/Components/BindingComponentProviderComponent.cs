@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.DefaultPostInitializer;
+        public int Priority { get; set; } = ComponentPriority.PostInitializer;
 
         public IList<IProvider> Providers => _providers;
 

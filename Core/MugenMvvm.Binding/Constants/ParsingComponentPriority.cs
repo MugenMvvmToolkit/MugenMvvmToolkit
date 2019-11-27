@@ -15,6 +15,7 @@
         public const int Condition = 940;
 
         public const int TokenParser = 0;
+        public const int Converter = 0;
 
         #endregion
     }

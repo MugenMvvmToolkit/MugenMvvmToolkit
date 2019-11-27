@@ -3,26 +3,17 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Components;
-using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingHolderStateDispatcherComponent : AttachableComponentBase<IBindingManager>, IBindingStateDispatcherComponent,
-        IComponentCollectionChangedListener<IComponent<IBindingManager>>
+    public sealed class BindingHolderStateDispatcherComponent : ComponentTrackerBase<IBindingManager, IBindingHolderComponent>, IBindingStateDispatcherComponent, IHasPriority
     {
-        #region Fields
+        #region Properties
 
-        private IBindingHolderComponent[] _holders;
-
-        #endregion
-
-        #region Constructors
-
-        public BindingHolderStateDispatcherComponent()
-        {
-            _holders = Default.EmptyArray<IBindingHolderComponent>();
-        }
+        public int Priority { get; set; } = ComponentPriority.PostInitializer;
 
         #endregion
 
@@ -35,7 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (lifecycle == BindingLifecycleState.Initialized)
             {
-                var holders = _holders;
+                var holders = Components;
                 for (var i = 0; i < holders.Length; i++)
                 {
                     if (holders[i].TryRegister(binding, metadata))
@@ -44,7 +35,7 @@ namespace MugenMvvm.Binding.Core.Components
             }
             else if (lifecycle == BindingLifecycleState.Disposed)
             {
-                var holders = _holders;
+                var holders = Components;
                 for (var i = 0; i < holders.Length; i++)
                 {
                     if (holders[i].TryUnregister(binding, metadata))
@@ -53,34 +44,6 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             return null;
-        }
-
-        void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _holders, collection, component);
-        }
-
-        void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _holders, component);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            owner.ComponentTrackerInitialize(out _holders);
-            owner.Components.Components.Add(this);
-        }
-
-        protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            owner.Components.Components.Remove(this);
-            _holders = Default.EmptyArray<IBindingHolderComponent>();
         }
 
         #endregion

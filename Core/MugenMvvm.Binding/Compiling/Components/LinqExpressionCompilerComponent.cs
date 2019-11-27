@@ -12,20 +12,17 @@ using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class LinqExpressionCompilerComponent : AttachableComponentBase<IExpressionCompiler>, IExpressionCompilerComponent, IHasPriority,
-        IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>
+    public sealed class LinqExpressionCompilerComponent : ComponentTrackerBase<IExpressionCompiler, ILinqExpressionBuilderComponent>, IExpressionCompilerComponent, IHasPriority
     {
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private ILinqExpressionBuilderComponent[] _builders;
 
         #endregion
 
@@ -34,7 +31,6 @@ namespace MugenMvvm.Binding.Compiling.Components
         public LinqExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
-            _builders = Default.EmptyArray<ILinqExpressionBuilderComponent>();
         }
 
         #endregion
@@ -47,37 +43,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>.OnAdded(IComponentCollection<IComponent<IExpressionCompiler>> collection,
-            IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _builders, collection, component);
-        }
-
-        void IComponentCollectionChangedListener<IComponent<IExpressionCompiler>>.OnRemoved(IComponentCollection<IComponent<IExpressionCompiler>> collection,
-            IComponent<IExpressionCompiler> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _builders, component);
-        }
-
         public ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             return new CompiledExpression(this, expression, metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnAttachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
-        {
-            owner.ComponentTrackerInitialize(out _builders);
-            owner.Components.Components.Add(this);
-        }
-
-        protected override void OnDetachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
-        {
-            owner.Components.Components.Remove(this);
-            _builders = Default.EmptyArray<ILinqExpressionBuilderComponent>();
         }
 
         #endregion
@@ -91,7 +59,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             private readonly LinqExpressionCompilerComponent _compiler;
             private readonly IExpressionNode _expression;
             private readonly IReadOnlyMetadataContext? _inputMetadata;
-            private readonly ParameterDictionary _parametersDict;
+            private readonly ExpressionDictionary _expressionsDict;
             private readonly object?[] _values;
 
             private List<IParameterInfo>? _lambdaParameters;
@@ -107,10 +75,10 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 _compiler = compiler;
                 _inputMetadata = metadata;
-                _parametersDict = new ParameterDictionary();
+                _expressionsDict = new ExpressionDictionary();
                 _expression = expression.Accept(this, metadata);
-                _values = new object[_parametersDict.Count + 1];
-                MetadataParameter = MugenExtensions.GetIndexExpression(_parametersDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
+                _values = new object[_expressionsDict.Count + 1];
+                MetadataParameter = MugenExtensions.GetIndexExpression(_expressionsDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
             }
 
             #endregion
@@ -184,7 +152,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         this.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBindingMemberExpressionFormat2.Format(parameterExpression, parameterExpression.Index));
                         this.ThrowCannotCompile(parameterExpression);
                     }
-                    _parametersDict[parameterExpression] = null;
+                    _expressionsDict[parameterExpression] = null;
                 }
 
                 return expression;
@@ -212,7 +180,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             public Expression? TryGetExpression(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                _parametersDict.TryGetValue(expression, out var value);
+                _expressionsDict.TryGetValue(expression, out var value);
                 return value;
             }
 
@@ -220,19 +188,19 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 Should.NotBeNull(expression, nameof(expression));
                 Should.NotBeNull(value, nameof(value));
-                _parametersDict[expression] = value;
+                _expressionsDict[expression] = value;
             }
 
             public void ClearExpression(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                _parametersDict.Remove(expression);
+                _expressionsDict.Remove(expression);
             }
 
             public Expression Build(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                var components = _compiler._builders;
+                var components = _compiler.Components;
                 Expression? exp;
                 foreach (var component in components)
                 {
@@ -258,7 +226,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 try
                 {
                     var expressionValues = values.List;
-                    foreach (var value in _parametersDict)
+                    foreach (var value in _expressionsDict)
                     {
                         if (value.Key.NodeType != ExpressionNodeType.BindingMember)
                             continue;
@@ -269,10 +237,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                         {
                             if (parameterExpression.Index != 0)
                                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(values));
-                            _parametersDict[parameterExpression] = index.ConvertIfNeed(values.Item.Type, false);
+                            _expressionsDict[parameterExpression] = index.ConvertIfNeed(values.Item.Type, false);
                         }
                         else
-                            _parametersDict[parameterExpression] = index.ConvertIfNeed(expressionValues[parameterExpression.Index].Type, false);
+                            _expressionsDict[parameterExpression] = index.ConvertIfNeed(expressionValues[parameterExpression.Index].Type, false);
                     }
 
                     var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
@@ -373,11 +341,11 @@ namespace MugenMvvm.Binding.Compiling.Components
             #endregion
         }
 
-        private sealed class ParameterDictionary : LightDictionary<IExpressionNode, Expression?>
+        private sealed class ExpressionDictionary : LightDictionary<IExpressionNode, Expression?>
         {
             #region Constructors
 
-            public ParameterDictionary() : base(3)
+            public ExpressionDictionary() : base(3)
             {
             }
 

@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public List<IExpressionVisitor> Visitors { get; }
 
-        public int Priority { get; set; } = ComponentPriority.DefaultPreInitializer;
+        public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
         public bool IsCachePerTypeRequired => false;
 
