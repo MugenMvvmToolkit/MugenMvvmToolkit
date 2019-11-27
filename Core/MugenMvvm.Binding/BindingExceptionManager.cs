@@ -41,9 +41,9 @@ namespace MugenMvvm.Binding
         }
 
         [DoesNotReturn]
-        public static void ThrowCannotCompileExpression(IExpressionNode expression)
+        public static void ThrowCannotCompileExpression(IExpressionNode expression, string? hint = null)
         {
-            throw new InvalidOperationException(CannotCompileExpressionFormat1.Format(expression));
+            throw new InvalidOperationException(CannotCompileExpressionFormat2.Format(expression, hint));
         }
 
         [DoesNotReturn]

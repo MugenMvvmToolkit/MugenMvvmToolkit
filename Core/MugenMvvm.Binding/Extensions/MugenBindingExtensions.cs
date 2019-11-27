@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Compiling;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Converters;
@@ -31,6 +33,27 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        [DoesNotReturn]
+        public static void ThrowCannotCompile(this ILinqExpressionBuilderContext context, IExpressionNode expression)
+        {
+            var errors = context.TryGetErrors();
+            if (errors != null && errors.Count != 0)
+            {
+                errors.Reverse();
+                BindingExceptionManager.ThrowCannotCompileExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
+            }
+            else
+                BindingExceptionManager.ThrowCannotCompileExpression(expression);
+        }
+
+        public static List<string>? TryGetErrors(this ILinqExpressionBuilderContext context)
+        {
+            Should.NotBeNull(context, nameof(context));
+            if (context.HasMetadata && context.Metadata.TryGet(CompilingMetadata.CompilingErrors, out var errors))
+                return errors;
+            return null;
+        }
 
         public static object? Invoke(this ICompiledExpression? expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {

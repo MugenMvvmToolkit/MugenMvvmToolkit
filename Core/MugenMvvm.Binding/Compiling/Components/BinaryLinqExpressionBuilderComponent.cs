@@ -70,8 +70,13 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (expression is IBinaryExpressionNode binaryExpression && BinaryTokenMapping.TryGetValue(binaryExpression.Token, out var func))
-                return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));
+            if (expression is IBinaryExpressionNode binaryExpression)
+            {
+                if (BinaryTokenMapping.TryGetValue(binaryExpression.Token, out var func))
+                    return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));
+
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBinaryExpressionFormat2.Format(expression, binaryExpression.Token));
+            }
             return null;
         }
 

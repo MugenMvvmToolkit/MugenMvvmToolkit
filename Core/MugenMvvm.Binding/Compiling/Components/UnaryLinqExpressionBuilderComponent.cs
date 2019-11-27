@@ -44,8 +44,13 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
         {
-            if (expression is IUnaryExpressionNode unaryExpressionNode && UnaryTokenMapping.TryGetValue(unaryExpressionNode.Token, out var func))
-                return func(context.Build(unaryExpressionNode.Operand));
+            if (expression is IUnaryExpressionNode unaryExpressionNode)
+            {
+                if (UnaryTokenMapping.TryGetValue(unaryExpressionNode.Token, out var func))
+                    return func(context.Build(unaryExpressionNode.Operand));
+
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileUnaryExpressionFormat2.Format(expression, unaryExpressionNode.Token));
+            }
             return null;
         }
 

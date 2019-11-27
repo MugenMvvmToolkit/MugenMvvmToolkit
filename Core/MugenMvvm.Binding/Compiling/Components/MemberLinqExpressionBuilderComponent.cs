@@ -76,7 +76,10 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (member == null)
             {
                 if (target == null)
-                    BindingExceptionManager.ThrowInvalidBindingMember(type, memberExpression.MemberName);
+                {
+                    context.TryGetErrors()?.Add(BindingMessageConstant.InvalidBindingMemberFormat2.Format(memberExpression.Member, type));
+                    return null;
+                }
 
                 return Expression.Call(_thisExpression, GetValueDynamicMethod,
                     target.ConvertIfNeed(typeof(object), false),

@@ -47,9 +47,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var variable = Expression.Variable(targetEx.Type);
                 context.SetExpression(nullConditional, variable);
                 var exp = context.Build(expression);
-                if (exp == null)
-                    return null;
-
                 var type = exp.Type;
                 if (type.IsValueType && !type.IsNullableType())
                 {

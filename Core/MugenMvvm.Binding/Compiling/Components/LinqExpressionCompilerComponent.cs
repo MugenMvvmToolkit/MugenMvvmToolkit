@@ -180,7 +180,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     var parameterExpression = (IParameterExpressionNode)expression;
                     if (parameterExpression.Index < 0)
-                        BindingExceptionManager.ThrowCannotCompileExpression(parameterExpression);
+                    {
+                        this.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBindingMemberExpressionFormat2.Format(parameterExpression, parameterExpression.Index));
+                        this.ThrowCannotCompile(parameterExpression);
+                    }
                     _parametersDict[parameterExpression] = null;
                 }
 
@@ -242,7 +245,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (exp != null)
                     return exp;
 
-                BindingExceptionManager.ThrowCannotCompileExpression(expression);
+                this.ThrowCannotCompile(expression);
                 return null;
             }
 

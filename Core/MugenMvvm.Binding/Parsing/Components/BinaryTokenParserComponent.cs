@@ -14,6 +14,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         #region Fields
 
         private readonly BinaryTokenType[] _tokens;
+        private readonly List<KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>> _buffers;
+        private int _nestedIndex;
 
         #endregion
 
@@ -21,6 +23,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public BinaryTokenParserComponent(BinaryTokenType[]? mapping = null)
         {
+            _nestedIndex = -1;
+            _buffers = new List<KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>>();
             if (mapping == null)
             {
                 _tokens = new[]
@@ -62,11 +66,19 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
-            var p = context.Position;
-            var node = TryParseInternal(context, expression);
-            if (node == null)
-                context.Position = p;
-            return node;
+            try
+            {
+                ++_nestedIndex;
+                var p = context.Position;
+                var node = TryParseInternal(context, expression);
+                if (node == null)
+                    context.Position = p;
+                return node;
+            }
+            finally
+            {
+                --_nestedIndex;
+            }
         }
 
         #endregion
@@ -82,8 +94,9 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (token == null)
                 return null;
 
-            var nodes = new List<IExpressionNode> { expression };
-            var tokens = new List<BinaryTokenType> { token };
+            GetBuffers(out var nodes, out var tokens);
+            nodes.Add(expression);
+            tokens.Add(token);
 
             expression = null;
             while (true)
@@ -176,6 +189,17 @@ namespace MugenMvvm.Binding.Parsing.Components
             }
 
             return null;
+        }
+
+        private void GetBuffers(out List<IExpressionNode> nodes, out List<BinaryTokenType> tokens)
+        {
+            if (_nestedIndex >= _buffers.Count)
+                _buffers.Add(new KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>(new List<IExpressionNode>(3), new List<BinaryTokenType>(3)));
+            var pair = _buffers[_nestedIndex];
+            nodes = pair.Key;
+            tokens = pair.Value;
+            nodes.Clear();
+            tokens.Clear();
         }
 
         #endregion

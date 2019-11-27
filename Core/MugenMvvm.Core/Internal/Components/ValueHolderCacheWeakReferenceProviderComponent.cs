@@ -36,7 +36,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        private IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata)
+        private IWeakReference? GetWeakReference(object item, IReadOnlyMetadataContext? metadata)
         {
             var providers = Components;
             for (var i = 0; i < providers.Length; i++)

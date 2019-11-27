@@ -74,7 +74,10 @@ namespace MugenMvvm.Binding.Compiling.Components
         private Expression? TryBuildMethod(ILinqExpressionBuilderContext context, IMethodCallExpressionNode methodCallExpression)
         {
             if (methodCallExpression.Target == null)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileIndexerMethodExpressionNullTargetFormat1.Format(methodCallExpression));
                 return null;
+            }
 
             Expression? target = context.Build(methodCallExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
@@ -96,7 +99,10 @@ namespace MugenMvvm.Binding.Compiling.Components
         private Expression? TryBuildIndex(ILinqExpressionBuilderContext context, IIndexExpressionNode indexExpression)
         {
             if (indexExpression.Target == null)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileIndexerMethodExpressionNullTargetFormat1.Format(indexExpression));
                 return null;
+            }
 
             Expression? target = context.Build(indexExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
@@ -126,14 +132,20 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return expression;
 
             if (targetData.Expression == null)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.InvalidBindingMemberFormat2.Format(methodName, targetData.Type));
                 return null;
+            }
 
             var arrayArgs = new Expression[args.Length];
             for (var i = 0; i < args.Length; i++)
             {
                 var data = args[i];
                 if (data.IsLambda || data.Expression == null)
+                {
+                    context.TryGetErrors()?.Add(BindingMessageConstant.InvalidBindingMemberFormat2.Format(methodName, targetData.Type));
                     return null;
+                }
                 arrayArgs[i] = data.Expression.ConvertIfNeed(typeof(object), false);
             }
 

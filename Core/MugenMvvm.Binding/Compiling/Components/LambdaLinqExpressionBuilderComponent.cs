@@ -26,11 +26,17 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             var method = context.TryGetLambdaParameter()?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
             if (method == null)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileLambdaExpressionDelegateFormat1.Format(lambdaExpression));
                 return null;
+            }
 
             var parameters = method.GetParameters();
             if (lambdaExpression.Parameters.Count != parameters.Length)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileLambdaExpressionParameterCountFormat2.Format(lambdaExpression, method));
                 return null;
+            }
 
             var lambdaParameters = new ParameterExpression[parameters.Length];
             try
@@ -39,7 +45,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     var parameterExp = lambdaExpression.Parameters[i];
                     if (parameterExp.Type != null && !parameterExp.Type.IsAssignableFrom(parameters[i].ParameterType))
+                    {
+                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileLambdaExpressionParameterNotAssignableFormat3.Format(lambdaExpression, parameterExp, parameters[i]));
                         return null;
+                    }
 
                     var parameter = Expression.Parameter(parameters[i].ParameterType, lambdaExpression.Parameters[i].Name);
                     lambdaParameters[i] = parameter;
