@@ -55,13 +55,13 @@ namespace MugenMvvm.Binding.Core
             if (context.ComponentBuilders.ContainsKey(BindingParameterNameConstant.Mode))
                 return;
 
-            if (context.EqualityParameters.TryGetValue(BindingParameterNameConstant.Mode, out var expression))
+            var modeName = context.TryGetValue<string>(BindingParameterNameConstant.Mode);
+            if (modeName != null)
             {
-                if (expression is IMemberExpressionNode memberExpression && _bindingModes.TryGetValue(memberExpression.MemberName, out var mode))
+                if (_bindingModes.TryGetValue(modeName, out var mode))
                     context.ComponentBuilders[BindingParameterNameConstant.Mode] = mode;
                 else
-                    BindingExceptionManager.ThrowCannotParseBindingParameter(BindingParameterNameConstant.Mode, string.Join(",", _bindingModes.Keys), expression);
-                return;
+                    BindingExceptionManager.ThrowCannotParseBindingParameter(BindingParameterNameConstant.Mode, string.Join(",", _bindingModes.Keys), modeName);
             }
 
             foreach (var builder in _bindingModes)

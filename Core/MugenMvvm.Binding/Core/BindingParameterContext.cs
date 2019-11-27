@@ -55,6 +55,9 @@ namespace MugenMvvm.Binding.Core
                         return value;
                     return (TValue)MugenBindingService.GlobalValueConverter.Convert(constant.Value, typeof(TValue));
                 }
+
+                if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)
+                    return (TValue)(object)member.MemberName;
                 BindingExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
             }
             return defaultValue;
