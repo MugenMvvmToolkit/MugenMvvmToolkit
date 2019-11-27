@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
         {
-            string memberName = null;
+            string? memberName = null;
             switch (request.ReflectionMember)
             {
                 case PropertyInfo p:

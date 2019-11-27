@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Binding.Core.Components.Binding
 {
     public abstract class DelayBindingComponent : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler<object?>
     {

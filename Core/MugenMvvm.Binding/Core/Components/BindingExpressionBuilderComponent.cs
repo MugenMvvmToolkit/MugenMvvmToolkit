@@ -283,7 +283,7 @@ namespace MugenMvvm.Binding.Core.Components
 
                 if (_compiledExpression == null)
                 {
-                    return InitializeBinding(new Binding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata),
+                    return InitializeBinding(new Core.Binding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata),
                         ((IBindingMemberExpressionNode)_sourceExpression).GetSourceObserver(target, source, metadata)), target, source, metadata);
                 }
 
@@ -315,7 +315,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression!), target, source, metadata);
             }
 
-            private Binding InitializeBinding(Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+            private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 if (_componentBuilders!.Length == 1)
                     binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);

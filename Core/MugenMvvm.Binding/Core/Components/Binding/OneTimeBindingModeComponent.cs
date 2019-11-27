@@ -7,20 +7,24 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Binding.Core.Components.Binding
 {
-    public sealed class TwoWayBindingModeComponent : IAttachableComponent, IBindingSourceObserverListener, IBindingTargetObserverListener, IHasPriority
+    public sealed class OneTimeBindingModeComponent : IAttachableComponent, IBindingSourceObserverListener, IHasPriority
     {
         #region Fields
 
-        public static readonly TwoWayBindingModeComponent Instance = new TwoWayBindingModeComponent();
+        private readonly bool _disposeBinding;
+
+        public static readonly OneTimeBindingModeComponent Instance = new OneTimeBindingModeComponent(false);
+        public static readonly OneTimeBindingModeComponent DisposeBindingInstance = new OneTimeBindingModeComponent(true);
 
         #endregion
 
         #region Constructors
 
-        private TwoWayBindingModeComponent()
+        private OneTimeBindingModeComponent(bool disposeBinding)
         {
+            _disposeBinding = disposeBinding;
         }
 
         #endregion
@@ -35,40 +39,42 @@ namespace MugenMvvm.Binding.Core.Components
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            return true;
+            return !Invoke((IBinding) owner, false);
         }
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            ((IBinding) owner).UpdateTarget();
         }
 
         void IBindingSourceObserverListener.OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
-            binding.UpdateTarget();
+            Invoke(binding, true);
         }
 
         void IBindingSourceObserverListener.OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
-            binding.UpdateTarget();
+            Invoke(binding, true);
         }
 
         void IBindingSourceObserverListener.OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
         {
         }
 
-        void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
-        {
-            binding.UpdateSource();
-        }
+        #endregion
 
-        void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+        #region Methods
+
+        private bool Invoke(IBinding binding, bool attached)
         {
+            if (!binding.Target.IsAllMembersAvailable() || !binding.Source.IsAllMembersAvailable())
+                return false;
+
             binding.UpdateTarget();
-        }
-
-        void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
-        {
+            if (_disposeBinding)
+                binding.Dispose();
+            else if (attached)
+                binding.Components.Remove(this);
+            return true;
         }
 
         #endregion

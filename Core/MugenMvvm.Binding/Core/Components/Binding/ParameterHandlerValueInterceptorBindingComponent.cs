@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Core.Components
+namespace MugenMvvm.Binding.Core.Components.Binding
 {
     public sealed class ParameterHandlerValueInterceptorBindingComponent : ISourceValueInterceptorBindingComponent,
         ITargetValueInterceptorBindingComponent, IHasPriority, IDetachableComponent
