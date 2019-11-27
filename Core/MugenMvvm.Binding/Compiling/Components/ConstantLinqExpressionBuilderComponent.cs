@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = CompilerComponentPriority.Constant;
+        public int Priority { get; set; } = CompilingComponentPriority.Constant;
 
         #endregion
 

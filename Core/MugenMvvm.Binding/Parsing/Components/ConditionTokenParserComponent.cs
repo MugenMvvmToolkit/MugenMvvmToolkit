@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ParserComponentPriority.Condition;
+        public int Priority { get; set; } = ParsingComponentPriority.Condition;
 
         #endregion
 
@@ -37,11 +37,19 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             var ifTrue = context.MoveNext().TryParseWhileNotNull();
             if (ifTrue == null || !context.SkipWhitespaces().IsToken(':'))
+            {
+                context.TryGetErrors()?.Add(ifTrue == null
+                    ? BindingMessageConstant.CannotParseConditionExpressionFormat1.Format(expression)
+                    : BindingMessageConstant.CannotParseConditionExpressionExpectedTokenFormat2.Format(expression, ifTrue));
                 return null;
+            }
 
             var ifFalse = context.MoveNext().TryParseWhileNotNull();
             if (ifFalse == null)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseConditionExpressionFormat2.Format(expression, ifTrue));
                 return null;
+            }
 
             return new ConditionExpressionNode(expression, ifTrue, ifFalse);
         }

@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ParserComponentPriority.Lambda;
+        public int Priority { get; set; } = ParsingComponentPriority.Lambda;
 
         #endregion
 
@@ -85,7 +85,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
                 var position = context.SkipWhitespacesPosition(end);
                 if (!context.IsToken("=>", position))
+                {
+                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedTokenFormat1.Format(context.GetValue(context.Position, end)));
                     return null;
+                }
 
                 args = new IParameterExpressionNode[] { new ParameterExpressionNode(context.GetValue(context.Position, end), 0) };
                 context.Position = position;
@@ -93,7 +96,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
 
             if (!context.SkipWhitespaces().IsToken("=>"))
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedTokenFormat1.Format(string.Join<IExpressionNode>(",", args)));
                 return null;
+            }
 
             try
             {
@@ -101,15 +107,21 @@ namespace MugenMvvm.Binding.Parsing.Components
                 {
                     var parameter = args[i];
                     if (_currentParameters.ContainsKey(parameter.Name))
-                        BindingExceptionManager.ThrowDuplicateLambdaParameter(parameter.Name);
+                    {
+                        context.TryGetErrors()?.Add(BindingMessageConstant.DuplicateLambdaParameterFormat1.Format(parameter.Name));
+                        return null;
+                    }
 
                     _currentParameters[parameter.Name] = parameter;
                 }
 
-                var node = context.MoveNext(2).TryParseWhileNotNull();
-                if (node == null)
+                var body = context.MoveNext(2).TryParseWhileNotNull();
+                if (body == null)
+                {
+                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseLambdaExpressionExpectedExpressionFormat1.Format(string.Join<IExpressionNode>(",", args)));
                     return null;
-                return new LambdaExpressionNode(node, args);
+                }
+                return new LambdaExpressionNode(body, args);
             }
             finally
             {

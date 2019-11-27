@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ParserComponentPriority.Binary;
+        public int Priority { get; set; } = ParsingComponentPriority.Binary;
 
         #endregion
 
@@ -88,8 +88,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             expression = null;
             while (true)
             {
-                context.SkipWhitespaces();
-                var newNode = context.TryParse(expression, parser => ((parser as IHasPriority)?.Priority ?? 0) >= ParserComponentPriority.Binary);
+                var newNode = context.TryParse(expression, parser => ((parser as IHasPriority)?.Priority ?? 0) >= ParsingComponentPriority.Binary);
                 if (newNode == null)
                 {
                     if (expression != null)
@@ -114,7 +113,10 @@ namespace MugenMvvm.Binding.Parsing.Components
             }
 
             if (nodes.Count - 1 != tokens.Count)
+            {
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseBinaryExpressionFormat2.Format(nodes[nodes.Count - 1], tokens[tokens.Count - 1]));
                 return null;
+            }
 
             var index = GetMaxPriorityTokenIndex(tokens);
             while (index != -1)

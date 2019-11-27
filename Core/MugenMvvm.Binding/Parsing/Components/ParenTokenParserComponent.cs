@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ParserComponentPriority.Paren;
+        public int Priority { get; set; } = ParsingComponentPriority.Paren;
 
         #endregion
 
@@ -34,6 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return node;
             }
 
+            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseParenExpressionExpectedToken);
             context.Position = p;
             return null;
         }

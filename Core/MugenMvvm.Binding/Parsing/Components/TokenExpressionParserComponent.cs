@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ParserComponentPriority.TokenParser;
+        public int Priority { get; set; } = ParsingComponentPriority.TokenParser;
 
         #endregion
 

@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public List<string> QuoteTokens { get; }
 
-        public int Priority { get; set; } = ParserComponentPriority.Constant;
+        public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
         #endregion
 
@@ -107,6 +107,12 @@ namespace MugenMvvm.Binding.Parsing.Components
             int? end;
             while (true)
             {
+                if (context.IsEof())
+                {
+                    AddErrorIfNeed(BindingMessageConstant.CannotParseStringExpressionExpectedTokenFormat2, context, start, context.Position, ref builder, quoteToken);
+                    return null;
+                }
+
                 if (!isVerbatim && context.IsToken('\\'))
                 {
                     var prevEnd = context.Position;
@@ -118,7 +124,10 @@ namespace MugenMvvm.Binding.Parsing.Components
                         if (EscapeSequenceMap.TryGetValue(context.TokenAt(), out result))
                             context.MoveNext();
                         else
+                        {
+                            AddErrorIfNeed(BindingMessageConstant.CannotParseStringExpressionInvalidEscapeSequenceFormat2, context, start, context.Position, ref builder, context.TokenAt());
                             return null;
+                        }
                     }
                     else
                     {
@@ -144,11 +153,17 @@ namespace MugenMvvm.Binding.Parsing.Components
 
                     var node = context.TryParseWhileNotNull();
                     if (node == null)
+                    {
+                        AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionExpectedExpressionFormat1, context, start, intStart, ref builder);
                         return null;
+                    }
 
                     context.SkipWhitespaces();
                     if (!context.IsToken(':') && !context.IsToken('}'))
+                    {
+                        AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionExpectedTokensFormat1, context, start, intStart, ref builder);
                         return null;
+                    }
 
                     if (args == null)
                         args = new List<IExpressionNode>();
@@ -159,15 +174,25 @@ namespace MugenMvvm.Binding.Parsing.Components
 
                     if (context.IsToken(':'))
                     {
+                        int count = builder.Length + 1;
                         while (!context.IsEof() && !context.IsToken('}'))
                         {
                             builder.Append(context.TokenAt());
                             context.MoveNext();
                         }
+
+                        if (count == builder.Length)
+                        {
+                            AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionEmptyFormatFormat1, context, start, intStart, ref builder);
+                            return null;
+                        }
                     }
 
                     if (!context.IsToken('}'))
+                    {
+                        AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionExpectedTokenFormat1, context, start, intStart, ref builder);
                         return null;
+                    }
                     builder.Append('}');
                     context.MoveNext();
                     continue;
@@ -210,6 +235,17 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return new ConstantExpressionNode(st, typeof(string));
             args.Insert(0, new ConstantExpressionNode(st, typeof(string)));
             return new MethodCallExpressionNode(StringType, "Format", args);
+        }
+
+        private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder, object? param = null)
+        {
+            var errors = context.TryGetErrors();
+            if (errors != null)
+            {
+                if (start < end)
+                    InitializeBuilder(context, start, end, ref builder);
+                errors.Add(message.Format(builder, param));
+            }
         }
 
         private static void InitializeBuilder(ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder)

@@ -1,7 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Internal;
@@ -110,18 +113,6 @@ namespace MugenMvvm.Binding
             return !context.IsEof(position) && char.IsDigit(context.TokenAt(position));
         }
 
-        public static int FindToken(this ITokenParserContext context, char token, int? position = null)
-        {
-            var start = context.GetPosition(position);
-            for (var i = start; i < context.Length; i++)
-            {
-                if (TokenAt(context, i) == token)
-                    return i;
-            }
-
-            return -1;
-        }
-
         public static int FindAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)
         {
             var start = context.GetPosition(position);
@@ -157,17 +148,12 @@ namespace MugenMvvm.Binding
             return context;
         }
 
-        public static PositionState SavePosition(this ITokenParserContext context)
-        {
-            return new PositionState(context);
-        }
-
         public static IExpressionNode Parse(this ITokenParserContext context, IExpressionNode? expression = null)
         {
             Should.NotBeNull(context, nameof(context));
             var node = context.TryParse(expression);
             if (node == null)
-                BindingExceptionManager.ThrowCannotParseExpression(context);
+                context.ThrowCannotParse();
             return node;
         }
 
@@ -183,29 +169,11 @@ namespace MugenMvvm.Binding
             }
         }
 
-        public static IExpressionNode ParseWhileToken(this ITokenParserContext context, char token, int? position = null,
-            IExpressionNode? expression = null)
-        {
-            var expressionNode = context.Parse(expression);
-            while (!context.IsToken(token, position) && !context.IsEof(position))
-                expressionNode = context.Parse(expressionNode);
-            return expressionNode;
-        }
-
         public static IExpressionNode ParseWhileAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null,
             IExpressionNode? expression = null)
         {
             var expressionNode = context.Parse(expression);
-            while (!context.IsEofOrAnyOf(tokens, position))
-                expressionNode = context.Parse(expressionNode);
-            return expressionNode;
-        }
-
-        public static IExpressionNode ParseWhileAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null,
-            IExpressionNode? expression = null)
-        {
-            var expressionNode = context.Parse(expression);
-            while (!context.IsEofOrAnyOf(tokens, position))
+            while (!context.SkipWhitespaces().IsEofOrAnyOf(tokens, position))
                 expressionNode = context.Parse(expressionNode);
             return expressionNode;
         }
@@ -221,19 +189,23 @@ namespace MugenMvvm.Binding
                     if (args == null)
                         args = new List<IExpressionNode>();
                     args.Add(node);
+
+                    if (context.SkipWhitespaces().IsToken(','))
+                    {
+                        context.MoveNext();
+                        continue;
+                    }
+
+                    if (context.IsToken(endSymbol))
+                    {
+                        context.MoveNext();
+                        break;
+                    }
                 }
 
-                if (context.SkipWhitespaces().IsToken(','))
-                {
-                    context.MoveNext();
-                    continue;
-                }
-
-                if (context.IsToken(endSymbol))
-                {
-                    context.MoveNext();
-                    break;
-                }
+                context.TryGetErrors()?.Add(node == null
+                    ? BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args == null ? null : string.Join(",", args))
+                    : BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args), endSymbol));
 
                 return null;
             }
@@ -252,7 +224,11 @@ namespace MugenMvvm.Binding
                 if (isEnd || context.IsToken(','))
                 {
                     if (end == null)
+                    {
+
+                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args == null ? null : string.Join(",", args)));
                         return null;
+                    }
 
                     if (args == null)
                         args = new List<string>();
@@ -262,6 +238,7 @@ namespace MugenMvvm.Binding
                         break;
 
                     start = context.SkipWhitespaces().Position;
+                    end = null;
                     continue;
                 }
 
@@ -278,6 +255,7 @@ namespace MugenMvvm.Binding
                     continue;
                 }
 
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args == null ? null : string.Join(",", args)), endSymbol));
                 return null;
             }
 
@@ -308,6 +286,27 @@ namespace MugenMvvm.Binding
             return result;
         }
 
+        [DoesNotReturn]
+        public static void ThrowCannotParse(this ITokenParserContext context)
+        {
+            var errors = context.TryGetErrors();
+            if (errors != null && errors.Count != 0)
+            {
+                errors.Reverse();
+                BindingExceptionManager.ThrowCannotParseExpression(context, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
+            }
+            else
+                BindingExceptionManager.ThrowCannotParseExpression(context);
+        }
+
+        public static List<string>? TryGetErrors(this ITokenParserContext context)
+        {
+            Should.NotBeNull(context, nameof(context));
+            if (context.HasMetadata && context.Metadata.TryGet(ParsingMetadata.ParsingErrors, out var errors))
+                return errors;
+            return null;
+        }
+
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
         {
             var isActionToken = context.SkipWhitespaces().IsToken('@');
@@ -323,12 +322,17 @@ namespace MugenMvvm.Binding
             if (delimiterPos > 0)
                 context.Limit = delimiterPos;
 
+            var errors = context.TryGetErrors();
             var target = context.ParseWhileAnyOf(BindingDelimiters);
             context.Limit = oldLimit;
+            errors?.Clear();
 
             IExpressionNode? source = null;
             if (context.IsToken(' '))
+            {
                 source = context.ParseWhileAnyOf(BindingDelimiters);
+                errors?.Clear();
+            }
 
             List<IExpressionNode>? parameters = null;
             IExpressionNode? parameter = null;
@@ -343,16 +347,17 @@ namespace MugenMvvm.Binding
                         parameters = new List<IExpressionNode> { parameter };
                     parameters.Add(param);
                 }
+                errors?.Clear();
             }
 
-            if (context.IsEof() || context.IsToken(';'))
+            if (context.SkipWhitespaces().IsEof() || context.IsToken(';'))
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
                 return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter), context);
             }
 
-            BindingExceptionManager.ThrowCannotParseExpression(context);
+            context.ThrowCannotParse();
             return default;
         }
 
@@ -361,47 +366,6 @@ namespace MugenMvvm.Binding
             if (firstSymbol)
                 return char.IsLetter(symbol) || symbol == '@' || symbol == '_';
             return char.IsLetterOrDigit(symbol) || symbol == '_';
-        }
-
-        #endregion
-
-        #region Nested types
-
-        [StructLayout(LayoutKind.Auto)]
-        public ref struct PositionState
-        {
-            #region Fields
-
-            private readonly int _position;
-            private ITokenParserContext? _context;
-
-            #endregion
-
-            #region Constructors
-
-            public PositionState(ITokenParserContext context)
-            {
-                Should.NotBeNull(context, nameof(context));
-                _context = context;
-                _position = context.Position;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public void Accept()
-            {
-                _context = null;
-            }
-
-            public readonly void Dispose()
-            {
-                if (_context != null)
-                    _context.Position = _position;
-            }
-
-            #endregion
         }
 
         #endregion

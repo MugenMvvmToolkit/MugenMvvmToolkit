@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
-        public int Priority { get; set; } = ParserComponentPriority.Constant;
+        public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
         #endregion
 
@@ -86,7 +86,12 @@ namespace MugenMvvm.Binding.Parsing.Components
                     ++end;
 
                 if (!context.IsDigit(end))
+                {
+                    if (!context.IsEof(end))
+                        ++end;
+                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseDigitExpressionFormat1.Format(context.GetValue(start, end)));
                     return null;
+                }
 
                 do
                 {
@@ -104,12 +109,15 @@ namespace MugenMvvm.Binding.Parsing.Components
 
             if (PostfixToConverter.TryGetValue(postfix, out var convert))
             {
-                var result = convert(value, integer, postfix);
+                var result = convert(value, integer, postfix, context);
                 if (result != null)
+                {
                     context.Position = end;
-                return result;
+                    return result;
+                }
             }
 
+            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseDigitExpressionFormat1.Format(value + postfix));
             return null;
         }
 
@@ -117,7 +125,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        public static IExpressionNode? Convert(string value, bool integer, string postfix)
+        public static IExpressionNode? Convert(string value, bool integer, string postfix, ITokenParserContext context)
         {
             switch (postfix)
             {
@@ -175,7 +183,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Nested types
 
-        public delegate IExpressionNode? ConvertDelegate(string value, bool integer, string postfix);
+        public delegate IExpressionNode? ConvertDelegate(string value, bool integer, string postfix, ITokenParserContext context);
 
         #endregion
     }

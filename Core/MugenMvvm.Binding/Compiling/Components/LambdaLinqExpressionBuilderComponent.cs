@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = CompilerComponentPriority.Lambda;
+        public int Priority { get; set; } = CompilingComponentPriority.Lambda;
 
         #endregion
 

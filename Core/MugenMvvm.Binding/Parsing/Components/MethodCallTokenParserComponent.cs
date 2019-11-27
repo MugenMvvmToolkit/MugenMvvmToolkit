@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ParserComponentPriority.Method;
+        public int Priority { get; set; } = ParsingComponentPriority.Method;
 
         #endregion
 
@@ -58,7 +58,11 @@ namespace MugenMvvm.Binding.Parsing.Components
 
 
             if (!context.IsToken('('))
+            {
+                if (typeArgs != null)
+                    context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseMethodExpressionExpectedTokenFormat1.Format($"{context.GetValue(nameStart, nameEndPos)}<{string.Join(",", typeArgs)}>"));
                 return null;
+            }
 
             if (context.MoveNext().SkipWhitespaces().IsToken(')'))
             {

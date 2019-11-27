@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public Dictionary<char, UnaryTokenType[]> TokensMapping { get; }
 
-        public int Priority { get; set; } = ParserComponentPriority.Unary;
+        public int Priority { get; set; } = ParsingComponentPriority.Unary;
 
         #endregion
 
@@ -44,34 +44,58 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryParse(ITokenParserContext context, IExpressionNode? expression)
         {
+            var p = context.Position;
+            var node = TryParseInternal(context, expression);
+            if (node == null)
+                context.Position = p;
+            return node;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
+        {
             if (expression != null)
                 return null;
 
             var position = context.SkipWhitespacesPosition();
-            if (context.IsEof(position) || !TokensMapping.TryGetValue(MugenBindingExtensions.TokenAt(context, position), out var values))
+            if (context.IsEof(position) || !TokensMapping.TryGetValue(context.TokenAt(position), out var values))
                 return null;
 
             for (var i = 0; i < values.Length; i++)
             {
                 var value = values[i];
-                if (context.IsToken(value.Value, position))
-                {
-                    context.Position = position + value.Value.Length;
-                    if (value == UnaryTokenType.DynamicExpression || value == UnaryTokenType.StaticExpression)
-                        return new UnaryExpressionNode(value, context.Parse());
+                if (!context.IsToken(value.Value, position))
+                    continue;
 
-                    IExpressionNode? operand = null;
-                    while (true)
+                context.Position = position + value.Value.Length;
+                if (value == UnaryTokenType.DynamicExpression || value == UnaryTokenType.StaticExpression)
+                {
+                    var node = context.TryParse();
+                    if (node == null || node is ConstantExpressionNode)
                     {
-                        operand = context.Parse(operand);
-                        var p = context.SkipWhitespacesPosition();
-                        if (!context.IsToken('.', p) && !context.IsToken('[', p))
-                            break;
+                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position)));
+                        return null;
                     }
-                    return new UnaryExpressionNode(value, operand);
+                    return new UnaryExpressionNode(value, node);
                 }
+
+                IExpressionNode? operand = null;
+                while (true)
+                {
+                    var result = context.TryParse(operand, parser => ((parser as IHasPriority)?.Priority ?? 0) >= ParsingComponentPriority.Unary);
+                    if (result == null)
+                        break;
+                    operand = result;
+                }
+
+                if (operand != null)
+                    return new UnaryExpressionNode(value, operand);
             }
 
+            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position)));
             return null;
         }
 

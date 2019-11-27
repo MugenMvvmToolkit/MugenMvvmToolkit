@@ -126,8 +126,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public override string ToString()
         {
-            return
-                $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
+            return $"Position '{Position.ToString()}' CurrentToken '{GetToken(Position)}' PrevToken '{GetToken(Position - 1)}' NextToken '{GetToken(Position + 1)}' Source '{Source}'";
         }
 
         private string GetToken(int position)

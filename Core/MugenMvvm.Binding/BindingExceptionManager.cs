@@ -35,9 +35,9 @@ namespace MugenMvvm.Binding
         }
 
         [DoesNotReturn]
-        public static void ThrowCannotParseExpression<T>(in T expression)
+        public static void ThrowCannotParseExpression<T>(in T expression, string? hint = null)
         {
-            throw new InvalidOperationException(CannotParseExpressionFormat1.Format(expression!.ToString()));
+            throw new InvalidOperationException(CannotParseExpressionFormat2.Format(expression!.ToString(), hint));
         }
 
         [DoesNotReturn]

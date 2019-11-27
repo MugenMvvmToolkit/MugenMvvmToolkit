@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = CompilerComponentPriority.Condition;
+        public int Priority { get; set; } = CompilingComponentPriority.Condition;
 
         #endregion
 
