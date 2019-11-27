@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Internal;
@@ -153,7 +150,7 @@ namespace MugenMvvm.Binding
             Should.NotBeNull(context, nameof(context));
             var node = context.TryParse(expression);
             if (node == null)
-                context.ThrowCannotParse();
+                context.ThrowCannotParse(context);
             return node;
         }
 
@@ -286,27 +283,6 @@ namespace MugenMvvm.Binding
             return result;
         }
 
-        [DoesNotReturn]
-        public static void ThrowCannotParse(this ITokenParserContext context)
-        {
-            var errors = context.TryGetErrors();
-            if (errors != null && errors.Count != 0)
-            {
-                errors.Reverse();
-                BindingExceptionManager.ThrowCannotParseExpression(context, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
-            }
-            else
-                BindingExceptionManager.ThrowCannotParseExpression(context);
-        }
-
-        public static List<string>? TryGetErrors(this ITokenParserContext context)
-        {
-            Should.NotBeNull(context, nameof(context));
-            if (context.HasMetadata && context.Metadata.TryGet(ParsingMetadata.ParsingErrors, out var errors))
-                return errors;
-            return null;
-        }
-
         private static ExpressionParserResult TryParseNext(ITokenParserContext context)
         {
             var isActionToken = context.SkipWhitespaces().IsToken('@');
@@ -357,7 +333,7 @@ namespace MugenMvvm.Binding
                 return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter), context);
             }
 
-            context.ThrowCannotParse();
+            context.ThrowCannotParse(context);
             return default;
         }
 

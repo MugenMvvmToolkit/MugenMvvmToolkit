@@ -1,11 +1,10 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
-    public interface ITokenParserContext : IMetadataOwner<IMetadataContext>
+    public interface ITokenParserContext : IParserContext
     {
         int Position { get; set; }
 

@@ -12,6 +12,7 @@ using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
@@ -33,6 +34,27 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        [DoesNotReturn]
+        public static void ThrowCannotParse<T>(this IParserContext context, T expression)
+        {
+            var errors = context.TryGetErrors();
+            if (errors != null && errors.Count != 0)
+            {
+                errors.Reverse();
+                BindingExceptionManager.ThrowCannotParseExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
+            }
+            else
+                BindingExceptionManager.ThrowCannotParseExpression(expression);
+        }
+
+        public static List<string>? TryGetErrors(this IParserContext context)
+        {
+            Should.NotBeNull(context, nameof(context));
+            if (context.HasMetadata && context.Metadata.TryGet(ParsingMetadata.ParsingErrors, out var errors))
+                return errors;
+            return null;
+        }
 
         [DoesNotReturn]
         public static void ThrowCannotCompile(this ILinqExpressionBuilderContext context, IExpressionNode expression)
