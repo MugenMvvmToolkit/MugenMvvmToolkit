@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Observers
         #region Fields
 
         public readonly object?[] Arguments;
-        public readonly MemberInfo ReflectionMember;
+        public readonly MemberInfo? ReflectionMember;
         public readonly IMemberInfo? MemberInfo;
         public readonly string Path;
 

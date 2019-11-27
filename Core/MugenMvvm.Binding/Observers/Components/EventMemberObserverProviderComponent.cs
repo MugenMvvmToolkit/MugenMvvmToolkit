@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority//todo check flags
+    public sealed class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority
     {
         #region Fields
 
@@ -57,6 +57,8 @@ namespace MugenMvvm.Binding.Observers.Components
                 return provider1.Invoke(member, type, metadata);
             if (_tryGetMemberObserverMethodDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
                 return provider2.Invoke(member, type, metadata);
+            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider3)
+                return provider3.Invoke(member, type, metadata);
             return default;
         }
 
@@ -66,10 +68,27 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
         {
-            if (request.ReflectionMember is PropertyInfo p)
-                return TryGetMemberObserver(p, type, metadata);
-            if (request.ReflectionMember is MethodInfo m)
-                return TryGetMemberObserver(m, type, metadata);
+            string memberName = null;
+            switch (request.ReflectionMember)
+            {
+                case PropertyInfo p:
+                    if (request.MemberInfo == null)
+                        return TryGetMemberObserver(p, type, metadata);
+                    memberName = p.Name;
+                    break;
+                case MethodInfo m:
+                    if (request.MemberInfo == null)
+                        return TryGetMemberObserver(m, type, metadata);
+                    memberName = m.Name;
+                    break;
+                default:
+                    return default;
+            }
+
+            var observableMember = TryGetEvent(type, memberName, request.MemberInfo.AccessModifiers, metadata);
+            if (observableMember != null)
+                return new MemberObserver(this, observableMember);
+
             return default;
         }
 
