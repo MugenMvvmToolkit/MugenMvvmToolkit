@@ -3,7 +3,6 @@ using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -16,8 +15,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent,
-        INavigationDispatcherNavigatedListener, IHasComponentPriority, IHasPriority
+    public sealed class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent, INavigationDispatcherNavigatedListener, IHasPriority
     {
         #region Fields
 
@@ -76,11 +74,6 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < results.Length; i++)
                 results[i] = m[i].Close(metadata);
             return results;
-        }
-
-        int IHasComponentPriority.GetPriority(object owner)
-        {
-            return owner is INavigationDispatcher ? 0 : Priority;
         }
 
         void INavigationDispatcherNavigatedListener.OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)

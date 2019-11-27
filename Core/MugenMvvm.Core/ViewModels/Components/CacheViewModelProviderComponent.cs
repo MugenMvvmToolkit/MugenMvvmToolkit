@@ -14,7 +14,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class CacheViewModelProviderComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelLifecycleDispatcherComponent, IHasComponentPriority, IHasPriority
+    public sealed class CacheViewModelProviderComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -84,11 +84,6 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             return null;
-        }
-
-        public int GetPriority(object owner)
-        {
-            return owner is IViewModelManager ? Priority : 0;
         }
 
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
