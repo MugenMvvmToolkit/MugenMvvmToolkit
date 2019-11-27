@@ -51,6 +51,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
 
+        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+
         public bool IgnoreMethodMembers { get; set; }
 
         public bool IgnoreIndexMembers { get; set; }
@@ -72,6 +74,7 @@ namespace MugenMvvm.Binding.Core.Components
             _context.Initialize(parameters);
             SetMemberVisitorSettings();
 
+            MemberExpressionVisitor.MemberFlags = MemberFlags;
             targetExpression = MemberExpressionVisitor.Visit(targetExpression, metadata);
             if (IsEvent(target, source, targetExpression, metadata))
             {

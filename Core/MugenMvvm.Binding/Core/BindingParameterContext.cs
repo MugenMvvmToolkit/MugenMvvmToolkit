@@ -49,8 +49,12 @@ namespace MugenMvvm.Binding.Core
             Should.NotBeNull(parameterName, nameof(parameterName));
             if (EqualityParameters.TryGetValue(parameterName, out var node))
             {
-                if (node is IConstantExpressionNode constant && constant.Value is TValue value)
-                    return value;
+                if (node is IConstantExpressionNode constant)
+                {
+                    if (constant.Value is TValue value)
+                        return value;
+                    return (TValue)MugenBindingService.GlobalValueConverter.Convert(constant.Value, typeof(TValue));
+                }
                 BindingExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
             }
             return defaultValue;

@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly int _delay;
+        private readonly ushort _delay;
 
         private IBinding? _binding;
         private bool _isUpdating;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        protected DelayBindingComponent(int delay)
+        protected DelayBindingComponent(ushort delay)
         {
             _delay = delay;
         }
@@ -103,12 +103,12 @@ namespace MugenMvvm.Binding.Core.Components
                 MugenService.ThreadDispatcher.Execute(ExecutionMode, component);
         }
 
-        public static IComponent<IBinding> GetTarget(int delay)
+        public static IComponent<IBinding> GetTarget(ushort delay)
         {
             return new TargetDelay(delay);
         }
 
-        public static IComponent<IBinding> GetSource(int delay)
+        public static IComponent<IBinding> GetSource(ushort delay)
         {
             return new SourceDelay(delay);
         }
@@ -132,7 +132,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             #region Constructors
 
-            public TargetDelay(int delay) : base(delay)
+            public TargetDelay(ushort delay) : base(delay)
             {
             }
 
@@ -161,7 +161,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             #region Constructors
 
-            public SourceDelay(int delay) : base(delay)
+            public SourceDelay(ushort delay) : base(delay)
             {
             }
 

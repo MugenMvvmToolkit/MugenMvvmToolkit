@@ -48,9 +48,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public bool IsPostOrder => false;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public MemberFlags MemberFlags { get; set; }
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
+        public BindingMemberExpressionFlags Flags { get; set; }
 
         public bool IgnoreMethodMembers { get; set; }
 
@@ -80,16 +80,6 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         #endregion
 
         #region Methods
-
-        private bool Condition(IExpressionNode arg)
-        {
-            if (IgnoreIndexMembers && arg is IIndexExpressionNode)
-                return false;
-
-            if (IgnoreMethodMembers && arg is IMethodCallExpressionNode)
-                return false;
-            return true;
-        }
 
         [return: NotNullIfNotNull("expression")]
         public IExpressionNode? Visit(IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
@@ -247,6 +237,16 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             }
 
             return node;
+        }
+
+        private bool Condition(IExpressionNode arg)
+        {
+            if (IgnoreIndexMembers && arg is IIndexExpressionNode)
+                return false;
+
+            if (IgnoreMethodMembers && arg is IMethodCallExpressionNode)
+                return false;
+            return true;
         }
 
         #endregion

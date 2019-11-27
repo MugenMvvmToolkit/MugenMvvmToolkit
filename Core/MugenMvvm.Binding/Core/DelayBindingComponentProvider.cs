@@ -28,8 +28,8 @@ namespace MugenMvvm.Binding.Core
             if (delay != null)
             {
                 var builder = parameterName == BindingParameterNameConstant.Delay
-                    ? new DelegateBindingComponentBuilder<int>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), parameterName, delay.Value)
-                    : new DelegateBindingComponentBuilder<int>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), parameterName, delay.Value);
+                    ? new DelegateBindingComponentBuilder<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), parameterName, (ushort)delay.Value)
+                    : new DelegateBindingComponentBuilder<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), parameterName, (ushort)delay.Value);
                 context.ComponentBuilders[parameterName] = builder;
             }
         }
