@@ -213,9 +213,9 @@ namespace MugenMvvm.Binding
             return true;
         }
 
-        public static bool IsAllMembersAvailable(this IMemberPathObserver observer)
+        public static bool IsAllMembersAvailable(this IMemberPathObserver? observer)
         {
-            return observer.GetLastMember().IsAvailable;
+            return observer != null && observer.GetLastMember().IsAvailable;
         }
 
         public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,

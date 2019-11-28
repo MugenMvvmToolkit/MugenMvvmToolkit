@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
@@ -20,30 +20,33 @@ namespace MugenMvvm.Binding.Core
         #region Fields
 
         private object? _components;
-        private ushort _state;
+        private int _state;
 
-        protected const ushort TargetUpdatingFlag = 1;
-        protected const ushort SourceUpdatingFlag = 1 << 1;
+        protected const int TargetUpdatingFlag = 1;
+        protected const int SourceUpdatingFlag = 1 << 1;
 
-        protected const ushort HasTargetValueInterceptorFlag = 1 << 2;
-        protected const ushort HasSourceValueInterceptorFlag = 1 << 3;
+        protected const int HasTargetValueInterceptorFlag = 1 << 2;
+        protected const int HasSourceValueInterceptorFlag = 1 << 3;
 
-        protected const ushort HasTargetListenerFlag = 1 << 4;
-        protected const ushort HasSourceListenerFlag = 1 << 5;
+        protected const int HasTargetListenerFlag = 1 << 4;
+        protected const int HasSourceListenerFlag = 1 << 5;
 
-        protected const ushort HasTargetValueSetterFlag = 1 << 6;
-        protected const ushort HasSourceValueSetterFlag = 1 << 7;
+        protected const int HasTargetValueSetterFlag = 1 << 6;
+        protected const int HasSourceValueSetterFlag = 1 << 7;
 
-        protected const ushort HasComponentChangingListener = 1 << 8;
-        protected const ushort HasComponentChangedListener = 1 << 9;
-        protected const ushort HasTargetObserverListener = 1 << 10;
-        protected const ushort HasSourceObserverListener = 1 << 11;
+        protected const int HasComponentChangingListener = 1 << 8;
+        protected const int HasComponentChangedListener = 1 << 9;
+        protected const int HasTargetObserverListener = 1 << 10;
+        protected const int HasSourceObserverListener = 1 << 11;
 
-        protected const ushort HasTargetValueGetterFlag = 1 << 12;
-        protected const ushort HasSourceValueGetterFlag = 1 << 13;
+        protected const int HasTargetValueGetterFlag = 1 << 12;
+        protected const int HasSourceValueGetterFlag = 1 << 13;
 
-        protected const ushort InvalidFlag = 1 << 14;
-        protected const ushort DisposedFlag = 1 << 15;
+        protected const int HasTargetLastMemberProviderFlag = 1 << 14;
+        protected const int HasSourceLastMemberProviderFlag = 1 << 15;
+
+        protected const int InvalidFlag = 1 << 30;
+        protected const int DisposedFlag = 1 << 31;
 
         #endregion
 
@@ -477,36 +480,39 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
         {
-            if (SourceRaw is IMemberPathObserver sourceObserver)
+            if (!CheckFlag(HasSourceLastMemberProviderFlag) || !TryGetSourceLastMember(out var pathLastMember))
             {
-                var pathLastMember = sourceObserver.GetLastMember(this);
-                pathLastMember.ThrowIfError();
-
-                if (!pathLastMember.IsAvailable)
+                if (!(SourceRaw is IMemberPathObserver sourceObserver))
                 {
                     newValue = null;
                     return false;
                 }
-
-                if (!CheckFlag(HasTargetValueGetterFlag) || !TryGetTargetValue(pathLastMember, out newValue))
-                    newValue = GetTargetValue(pathLastMember);
-
-                if (CheckFlag(HasSourceValueInterceptorFlag))
-                    newValue = InterceptSourceValue(pathLastMember, newValue);
-
-                if (newValue.IsDoNothing())
-                    return false;
-
-                if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(pathLastMember, newValue))
-                {
-                    if (newValue.IsUnsetValue())
-                        return false;
-                    pathLastMember.SetValueWithConvert(newValue, this);
-                }
-                return true;
+                pathLastMember = sourceObserver.GetLastMember(this);
             }
-            newValue = null;
-            return false;
+
+            pathLastMember.ThrowIfError();
+            if (!pathLastMember.IsAvailable)
+            {
+                newValue = null;
+                return false;
+            }
+
+            if (!CheckFlag(HasTargetValueGetterFlag) || !TryGetTargetValue(pathLastMember, out newValue))
+                newValue = GetTargetValue(pathLastMember);
+
+            if (CheckFlag(HasSourceValueInterceptorFlag))
+                newValue = InterceptSourceValue(pathLastMember, newValue);
+
+            if (newValue.IsDoNothing())
+                return false;
+
+            if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(pathLastMember, newValue))
+            {
+                if (newValue.IsUnsetValue())
+                    return false;
+                pathLastMember.SetValueWithConvert(newValue, this);
+            }
+            return true;
         }
 
         protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
@@ -516,9 +522,10 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual bool UpdateTargetInternal(out object? newValue)
         {
-            var pathLastMember = Target.GetLastMember(this);
+            if (!CheckFlag(HasTargetLastMemberProviderFlag) || !TryGetTargetLastMember(out var pathLastMember))
+                pathLastMember = Target.GetLastMember(this);
+            
             pathLastMember.ThrowIfError();
-
             if (!pathLastMember.IsAvailable)
             {
                 newValue = null;
@@ -743,26 +750,62 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
+        protected bool TryGetTargetLastMember(out MemberPathLastMember targetMember)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ITargetLastMemberProviderBindingComponent provider && provider.TryGetTargetLastMember(this, this, out targetMember))
+                        return true;
+                }
+            }
+            else if (components is ITargetLastMemberProviderBindingComponent provider && provider.TryGetTargetLastMember(this, this, out targetMember))
+                return true;
+
+            targetMember = default;
+            return false;
+        }
+
+        protected bool TryGetSourceLastMember(out MemberPathLastMember sourceMember)
+        {
+            var components = _components;
+            if (components is IComponent<IBinding>[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is ISourceLastMemberProviderBindingComponent provider && provider.TryGetSourceLastMember(this, this, out sourceMember))
+                        return true;
+                }
+            }
+            else if (components is ISourceLastMemberProviderBindingComponent provider && provider.TryGetSourceLastMember(this, this, out sourceMember))
+                return true;
+
+            sourceMember = default;
+            return false;
+        }
+
         protected virtual void OnDispose()
         {
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected bool CheckFlag(ushort flag)
+        protected bool CheckFlag(int flag)
         {
             return (_state & flag) == flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void SetFlag(ushort flag)
+        protected void SetFlag(int flag)
         {
             _state |= flag;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected void ClearFlag(ushort flag)
+        protected void ClearFlag(int flag)
         {
-            _state = (ushort)(_state & ~flag);
+            _state &= ~flag;
         }
 
         private void MergeComponents(IComponent<IBinding> component)
@@ -882,6 +925,10 @@ namespace MugenMvvm.Binding.Core
                 SetFlag(HasSourceValueGetterFlag);
             if (component is ITargetValueGetterBindingComponent)
                 SetFlag(HasTargetValueGetterFlag);
+            if (component is ISourceLastMemberProviderBindingComponent)
+                SetFlag(HasSourceLastMemberProviderFlag);
+            if (component is ITargetLastMemberProviderBindingComponent)
+                SetFlag(HasTargetLastMemberProviderFlag);
             if (!CheckFlag(HasTargetObserverListener) && component is IBindingTargetObserverListener)
             {
                 SetFlag(HasTargetObserverListener);

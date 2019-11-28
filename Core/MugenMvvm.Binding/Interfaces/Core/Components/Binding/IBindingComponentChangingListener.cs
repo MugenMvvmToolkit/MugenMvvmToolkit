@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Interfaces.Core.Components
+namespace MugenMvvm.Binding.Interfaces.Core.Components.Binding
 {
     public interface IBindingComponentChangingListener : IComponent<IBinding>
     {

@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
