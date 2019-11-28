@@ -20,14 +20,16 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public MemberPathMembers(object? target, IReadOnlyList<IMemberInfo>? members)
+        public MemberPathMembers(object? target, IReadOnlyList<IMemberInfo> members)
         {
+            Should.NotBeNull(members, nameof(members));
             _target = target;
             _members = members;
         }
 
         public MemberPathMembers(Exception exception)
         {
+            Should.NotBeNull(exception, nameof(exception));
             _target = exception;
             _target = null;
             _members = null;

@@ -49,14 +49,14 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return source ?? target;
         }
 
-        public override IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             if (_targetType == TargetType.SourceOnly && source != null)
                 target = source;
             return GetObserver(target, GetMemberPath(metadata), metadata);
         }
 
-        public override IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             IMemberPath path;
             if (_targetType == TargetType.Default && source == null)

@@ -26,6 +26,7 @@ namespace MugenMvvm.Metadata
 
         private MetadataContextValue(IMetadataContextKey contextKey, object? value)
         {
+            Should.NotBeNull(contextKey, nameof(contextKey));
             ContextKey = contextKey;
             Value = value;
         }

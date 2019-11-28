@@ -48,9 +48,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         public abstract object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
 
-        public abstract IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
+        public abstract IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata);
 
-        public abstract IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
+        public abstract object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
 
         #endregion
 

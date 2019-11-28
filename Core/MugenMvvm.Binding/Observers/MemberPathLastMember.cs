@@ -23,12 +23,14 @@ namespace MugenMvvm.Binding.Observers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MemberPathLastMember(object? target, IMemberInfo member)
         {
+            Should.NotBeNull(member, nameof(member));
             _target = target;
             _member = member;
         }
 
         public MemberPathLastMember(Exception exception)
         {
+            Should.NotBeNull(exception, nameof(exception));
             _target = exception;
             _member = null;
         }

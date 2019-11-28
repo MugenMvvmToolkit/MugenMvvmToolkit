@@ -409,8 +409,9 @@ namespace MugenMvvm.Validation
 
             #region Constructors
 
-            public ValidationResult(IReadOnlyDictionary<string, IReadOnlyList<object>?>? errors, IReadOnlyMetadataContext? metadata = null)
+            public ValidationResult(IReadOnlyDictionary<string, IReadOnlyList<object>?> errors, IReadOnlyMetadataContext? metadata = null)
             {
+                Should.NotBeNull(errors, nameof(errors));
                 ErrorsRaw = errors;
                 Metadata = metadata.DefaultIfNull();
             }

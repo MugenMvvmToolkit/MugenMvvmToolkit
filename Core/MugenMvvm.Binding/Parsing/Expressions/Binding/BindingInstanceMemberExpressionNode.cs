@@ -39,12 +39,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return Instance;
         }
 
-        public override IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return GetObserver(Instance, GetMemberPath(metadata), metadata);
         }
 
-        public override IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return GetObserver(Instance, GetMemberPath(metadata), metadata);
         }

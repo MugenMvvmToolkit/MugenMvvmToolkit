@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Messaging
 {
-    [Serializable]
+    [Serializable]//todo review serializable
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     [StructLayout(LayoutKind.Auto)]
@@ -27,6 +27,8 @@ namespace MugenMvvm.Messaging
 
         public MessengerSubscriberInfo(object subscriber, ThreadExecutionMode executionMode)
         {
+            Should.NotBeNull(subscriber, nameof(subscriber));
+            Should.NotBeNull(executionMode, nameof(executionMode));
             Subscriber = subscriber;
             ExecutionMode = executionMode;
         }

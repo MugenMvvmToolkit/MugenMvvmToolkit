@@ -15,8 +15,15 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Constructors
 
+        internal ExpressionValue(object? value)
+        {
+            Type = null!;
+            Value = value;
+        }
+
         public ExpressionValue(Type type, object? value)
         {
+            Should.NotBeNull(type, nameof(type));
             Type = type;
             Value = value;
         }

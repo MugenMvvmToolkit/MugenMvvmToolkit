@@ -121,6 +121,7 @@ namespace MugenMvvm.Metadata
 
             public Builder(string key, Type? type, string? fieldOrPropertyName)
             {
+                Should.NotBeNull(key, nameof(key));
                 _key = key;
                 _type = type;
                 _fieldOrPropertyName = fieldOrPropertyName;

@@ -85,7 +85,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (methodCallExpression.Method != null)
                 return GenerateMethodCall(context, methodCallExpression.Method, target, methodCallExpression.Arguments);
 
-            var targetData = new TargetData(methodCallExpression.Target!, type, target);
+            var targetData = new TargetData(type, target);
             var args = new ArgumentData[methodCallExpression.Arguments.Count];
             for (var i = 0; i < args.Length; i++)
             {
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (type.IsArray)
                 return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
 
-            var targetData = new TargetData(indexExpression.Target!, type, target);
+            var targetData = new TargetData(type, target);
             var args = new ArgumentData[indexExpression.Arguments.Count];
             for (var i = 0; i < args.Length; i++)
             {
@@ -734,17 +734,15 @@ namespace MugenMvvm.Binding.Compiling.Components
             #region Fields
 
             public readonly Expression? Expression;
-            public readonly IExpressionNode Node;
             public readonly Type Type;
 
             #endregion
 
             #region Constructors
 
-            public TargetData(IExpressionNode node, Type type, Expression? expression)
+            public TargetData(Type type, Expression? expression)
             {
                 Type = type;
-                Node = node;
                 Expression = expression;
             }
 
@@ -804,6 +802,9 @@ namespace MugenMvvm.Binding.Compiling.Components
             #region Fields
 
             private readonly IMethodInfo? _unresolvedMethod;
+            public readonly IMethodInfo Method;
+            public readonly IReadOnlyList<IParameterInfo> Parameters;
+            public readonly object? Args;
 
             #endregion
 
@@ -828,12 +829,6 @@ namespace MugenMvvm.Binding.Compiling.Components
             #region Properties
 
             public bool IsEmpty => Method == null;
-
-            public IMethodInfo Method { get; }
-
-            public IReadOnlyList<IParameterInfo> Parameters { get; }
-
-            public object? Args { get; }
 
             public int ExpectedParameterCount
             {

@@ -14,8 +14,8 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 
         object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
 
-        IMemberPathObserver GetTargetObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
+        IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata);
 
-        IMemberPathObserver GetSourceObserver(object target, object? source, IReadOnlyMetadataContext? metadata);
+        object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
     }
 }

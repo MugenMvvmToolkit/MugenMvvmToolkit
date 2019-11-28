@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public MultiBinding(IMemberPathObserver target, ItemOrList<IMemberPathObserver, IMemberPathObserver[]> sources, ICompiledExpression expression)
+        public MultiBinding(IMemberPathObserver target, ItemOrList<object, object[]> sources, ICompiledExpression expression)
             : base(target, sources.GetRawValue())
         {
             Should.NotBeNull(expression, nameof(expression));

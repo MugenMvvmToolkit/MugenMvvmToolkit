@@ -52,19 +52,11 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-#pragma warning disable CS8618
-        protected Binding(IMemberPathObserver target, object? sourceRaw)
+        public Binding(IMemberPathObserver target, object? sourceRaw)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
             SourceRaw = sourceRaw;
-        }
-#pragma warning restore CS8618
-
-        public Binding(IMemberPathObserver target, IMemberPathObserver source)
-            : this(target, sourceRaw: source)
-        {
-            Should.NotBeNull(source, nameof(source));
         }
 
         #endregion
@@ -118,7 +110,7 @@ namespace MugenMvvm.Binding.Core
 
         public IMemberPathObserver Target { get; }
 
-        public ItemOrList<IMemberPathObserver, IMemberPathObserver[]> Source => ItemOrList<IMemberPathObserver, IMemberPathObserver[]>.FromRawValue(SourceRaw);
+        public ItemOrList<object, object[]> Source => ItemOrList<object, object[]>.FromRawValue(SourceRaw);
 
         protected object? SourceRaw { get; }
 
@@ -138,25 +130,29 @@ namespace MugenMvvm.Binding.Core
             if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
             Target.Dispose();
-            if (SourceRaw is IMemberPathObserver source)
+            switch (SourceRaw)
             {
-                if (CheckFlag(HasSourceObserverListener))
-                    source.RemoveListener(this);
-                source.Dispose();
-            }
-            else
-            {
-                var sources = (IMemberPathObserver[]?)SourceRaw;
-                if (sources != null)
-                {
-                    for (var i = 0; i < sources.Length; i++)
+                case IMemberPathObserver source:
                     {
-                        var observer = sources[i];
                         if (CheckFlag(HasSourceObserverListener))
-                            observer.RemoveListener(this);
-                        observer.Dispose();
+                            source.RemoveListener(this);
+                        source.Dispose();
+                        break;
                     }
-                }
+                case object[] sources:
+                    {
+                        for (var i = 0; i < sources.Length; i++)
+                        {
+                            var observer = sources[i] as IMemberPathObserver;
+                            if (observer == null)
+                                continue;
+                            if (CheckFlag(HasSourceObserverListener))
+                                observer.RemoveListener(this);
+                            observer.Dispose();
+                        }
+
+                        break;
+                    }
             }
 
             Components.Clear();
@@ -884,16 +880,17 @@ namespace MugenMvvm.Binding.Core
             if (!CheckFlag(HasSourceObserverListener) && component is IBindingSourceObserverListener)
             {
                 SetFlag(HasSourceObserverListener);
-                if (SourceRaw is IMemberPathObserver source)
-                    source.AddListener(this);
-                else
+                switch (SourceRaw)
                 {
-                    var observers = (IMemberPathObserver[]?)SourceRaw;
-                    if (observers != null)
-                    {
-                        for (var i = 0; i < observers.Length; i++)
-                            observers[i].AddListener(this);
-                    }
+                    case IMemberPathObserver source:
+                        source.AddListener(this);
+                        break;
+                    case object[] sources:
+                        {
+                            for (var i = 0; i < sources.Length; i++)
+                                (sources[i] as IMemberPathObserver)?.AddListener(this);
+                            break;
+                        }
                 }
             }
 
@@ -948,17 +945,19 @@ namespace MugenMvvm.Binding.Core
                 }
                 if (component is IBindingSourceObserverListener && !HasComponent<IBindingSourceObserverListener>())
                 {
-                    if (SourceRaw is IMemberPathObserver source)
-                        source.RemoveListener(this);
-                    else
+                    switch (SourceRaw)
                     {
-                        var observers = (IMemberPathObserver[]?)SourceRaw;
-                        if (observers != null)
-                        {
-                            for (var i = 0; i < observers.Length; i++)
-                                observers[i].RemoveListener(this);
-                        }
+                        case IMemberPathObserver source:
+                            source.RemoveListener(this);
+                            break;
+                        case object[] sources:
+                            {
+                                for (var i = 0; i < sources.Length; i++)
+                                    (sources[i] as IMemberPathObserver)?.RemoveListener(this);
+                                break;
+                            }
                     }
+
                     ClearFlag(HasSourceObserverListener);
                 }
                 if (CheckFlag(HasComponentChangedListener))

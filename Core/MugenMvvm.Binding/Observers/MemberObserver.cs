@@ -19,6 +19,8 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberObserver(IHandler handler, object member)
         {
+            Should.NotBeNull(handler, nameof(handler));
+            Should.NotBeNull(member, nameof(member));
             Member = member;
             _handler = handler;
         }

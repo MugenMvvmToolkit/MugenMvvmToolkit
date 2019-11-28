@@ -82,30 +82,32 @@ namespace MugenMvvm.Binding
             if (expression == null)
                 return BindingMetadata.UnsetValue;
             ItemOrList<ExpressionValue, ExpressionValue[]> values;
-            if (sourceRaw == null)
-                values = Default.EmptyArray<ExpressionValue>();
-            else if (sourceRaw is IMemberPathObserver[] sources)
+            switch (sourceRaw)
             {
-                var expressionValues = new ExpressionValue[sources.Length];
-                for (var i = 0; i < sources.Length; i++)
-                {
-                    var members = sources[i].GetLastMember(metadata);
-                    var value = members.GetValue(metadata);
-                    if (value.IsUnsetValueOrDoNothing())
-                        return value;
-                    expressionValues[i] = new ExpressionValue(value?.GetType() ?? members.Member.Type, null);
-                }
+                case null:
+                    values = Default.EmptyArray<ExpressionValue>();
+                    break;
+                case object[] sources:
+                    {
+                        var expressionValues = new ExpressionValue[sources.Length];
+                        for (var i = 0; i < sources.Length; i++)
+                        {
+                            var expressionValue = GetExpressionValue(sources[i], metadata);
+                            if (expressionValue.IsEmpty)
+                                return expressionValue.Value;
+                            expressionValues[i] = expressionValue;
+                        }
 
-                values = expressionValues;
-            }
-            else
-            {
-                var members = ((IMemberPathObserver)sourceRaw).GetLastMember(metadata);
-                var value = members.GetValue(metadata);
-                if (value.IsUnsetValueOrDoNothing())
-                    return value;
-
-                values = new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
+                        values = expressionValues;
+                        break;
+                    }
+                default:
+                    {
+                        values = GetExpressionValue(sourceRaw, metadata);
+                        if (values.Item.IsEmpty)
+                            return values.Item.Value;
+                        break;
+                    }
             }
             return expression.Invoke(values, metadata);
         }
@@ -195,27 +197,24 @@ namespace MugenMvvm.Binding
             return null;
         }
 
-        public static bool IsAllMembersAvailable(this ItemOrList<IMemberPathObserver, IMemberPathObserver[]> observers)
+        public static bool IsAllMembersAvailable(ItemOrList<object, object[]> observers)
         {
             var list = observers.List;
             if (list == null)
-            {
-                var item = observers.Item;
-                return item == null || item.IsAllMembersAvailable();
-            }
+                return !(observers.Item is IMemberPathObserver observer) || observer.IsAllMembersAvailable();
 
             for (var i = 0; i < list.Length; i++)
             {
-                if (!list[i].IsAllMembersAvailable())
+                if (list[i] is IMemberPathObserver observer && !observer.IsAllMembersAvailable())
                     return false;
             }
 
             return true;
         }
 
-        public static bool IsAllMembersAvailable(this IMemberPathObserver? observer)
+        public static bool IsAllMembersAvailable(this IMemberPathObserver observer)
         {
-            return observer != null && observer.GetLastMember().IsAvailable;
+            return observer.GetLastMember().IsAvailable;
         }
 
         public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
@@ -300,53 +299,56 @@ namespace MugenMvvm.Binding
                 if (condition != null && !condition(target))
                     return false;
 
-                if (target is IMemberExpressionNode memberExpressionNode)
+                switch (target)
                 {
-                    var memberName = memberExpressionNode.MemberName.Trim();
-                    builder.Insert(0, memberName);
-                    if (memberExpressionNode.Target != null)
-                        builder.Insert(0, '.');
-                    target = memberExpressionNode.Target;
-                }
-                else
-                {
-                    if (target is IIndexExpressionNode indexExpressionNode && indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant))
-                    {
-                        var args = indexExpressionNode.Arguments;
-                        builder.Insert(0, ']');
-                        if (args.Count > 0)
+                    case IMemberExpressionNode memberExpressionNode:
                         {
-                            args.Last().ToStringValue(builder);
-                            for (var i = args.Count - 2; i >= 0; i--)
-                            {
-                                builder.Insert(0, ',');
-                                args[i].ToStringValue(builder);
-                            }
+                            var memberName = memberExpressionNode.MemberName.Trim();
+                            builder.Insert(0, memberName);
+                            if (memberExpressionNode.Target != null)
+                                builder.Insert(0, '.');
+                            target = memberExpressionNode.Target;
+                            break;
                         }
-
-                        builder.Insert(0, '[');
-                        target = indexExpressionNode.Target;
-                    }
-                    else if (target is IMethodCallExpressionNode methodCallExpression && methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant))
-                    {
-                        var args = methodCallExpression.Arguments;
-                        builder.Insert(0, ')');
-                        if (args.Count > 0)
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
                         {
-                            args.Last().ToStringValue(builder);
-                            for (var i = args.Count - 2; i >= 0; i--)
+                            var args = indexExpressionNode.Arguments;
+                            builder.Insert(0, ']');
+                            if (args.Count > 0)
                             {
-                                builder.Insert(0, ',');
-                                args[i].ToStringValue(builder);
+                                args.Last().ToStringValue(builder);
+                                for (var i = args.Count - 2; i >= 0; i--)
+                                {
+                                    builder.Insert(0, ',');
+                                    args[i].ToStringValue(builder);
+                                }
                             }
-                        }
 
-                        builder.Insert(0, '(');
-                        builder.Insert(0, methodCallExpression.MethodName);
-                        builder.Insert(0, '.');
-                        target = methodCallExpression.Target;
-                    }
-                    else
+                            builder.Insert(0, '[');
+                            target = indexExpressionNode.Target;
+                            break;
+                        }
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                        {
+                            var args = methodCallExpression.Arguments;
+                            builder.Insert(0, ')');
+                            if (args.Count > 0)
+                            {
+                                args.Last().ToStringValue(builder);
+                                for (var i = args.Count - 2; i >= 0; i--)
+                                {
+                                    builder.Insert(0, ',');
+                                    args[i].ToStringValue(builder);
+                                }
+                            }
+
+                            builder.Insert(0, '(');
+                            builder.Insert(0, methodCallExpression.MethodName);
+                            builder.Insert(0, '.');
+                            target = methodCallExpression.Target;
+                            break;
+                        }
+                    default:
                         return false;
                 }
             }
@@ -536,6 +538,22 @@ namespace MugenMvvm.Binding
             if (flags.HasFlagEx(MemberFlags.Static))
                 return target as Type ?? target.GetType();
             return target.GetType();
+        }
+
+        public static ExpressionValue GetExpressionValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
+        {
+            if (sourceRaw == null)
+                return new ExpressionValue(typeof(object), null);
+            if (sourceRaw is IMemberPathObserver observer)
+            {
+                var members = observer.GetLastMember(metadata);
+                var value = members.GetValue(metadata);
+                if (value.IsUnsetValueOrDoNothing())
+                    return new ExpressionValue(value);
+                return new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
+            }
+
+            return new ExpressionValue(sourceRaw.GetType(), sourceRaw);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -269,8 +269,8 @@ namespace MugenMvvm.Binding.Core.Components
 
                 if (_compiledExpression == null)
                 {
-                    return InitializeBinding(new Core.Binding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata),
-                        ((IBindingMemberExpressionNode)_sourceExpression).GetSourceObserver(target, source, metadata)), target, source, metadata);
+                    return InitializeBinding(new Core.Binding(((IBindingMemberExpressionNode)_targetExpression).GetBindingTarget(target, source, metadata),
+                        ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
                 return CreateMultiBinding(target, source, metadata);
@@ -282,23 +282,26 @@ namespace MugenMvvm.Binding.Core.Components
 
             private IBinding CreateMultiBinding(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                ItemOrList<IMemberPathObserver, IMemberPathObserver[]> sources;
-                if (_compiledExpressionSource == null)
-                    sources = default;
-                else if (_compiledExpressionSource is IBindingMemberExpressionNode[] expressions)
+                ItemOrList<object, object[]> sources;
+                switch (_compiledExpressionSource)
                 {
-                    var array = new IMemberPathObserver[expressions.Length];
-                    for (var i = 0; i < array.Length; i++)
-                        array[i] = expressions[i].GetSourceObserver(target, source, metadata);
-                    sources = array;
-                }
-                else
-                {
-                    var observer = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetSourceObserver(target, source, metadata);
-                    sources = new ItemOrList<IMemberPathObserver, IMemberPathObserver[]>(observer);
+                    case null:
+                        sources = default;
+                        break;
+                    case IBindingMemberExpressionNode[] expressions:
+                    {
+                        var array = new object[expressions.Length];
+                        for (var i = 0; i < array.Length; i++)
+                            array[i] = expressions[i].GetBindingSource(target, source, metadata);
+                        sources = array;
+                        break;
+                    }
+                    default:
+                        sources = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetBindingSource(target, source, metadata);
+                        break;
                 }
 
-                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetTargetObserver(target, source, metadata), sources, _compiledExpression!), target, source, metadata);
+                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetBindingTarget(target, source, metadata), sources, _compiledExpression!), target, source, metadata);
             }
 
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)

@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             var binding = (IBinding)owner;
             binding.UpdateSource();
-            if (!binding.Source.IsAllMembersAvailable())
+            if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
                 binding.Components.Add(OneTimeHandlerComponent.Instance);
         }
 
@@ -103,7 +103,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             private void Invoke(IBinding binding)
             {
-                if (binding.Source.IsAllMembersAvailable())
+                if (MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
                 {
                     binding.Components.Remove(this);
                     binding.UpdateSource();

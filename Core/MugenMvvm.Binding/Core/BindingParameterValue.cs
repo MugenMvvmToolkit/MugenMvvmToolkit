@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -7,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 namespace MugenMvvm.Binding.Core
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingParameterValue
+    public readonly struct BindingParameterValue : IDisposable
     {
         #region Fields
 
@@ -38,20 +39,25 @@ namespace MugenMvvm.Binding.Core
         public T GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
             if (Expression != null)
-                return (T)Expression.Invoke(Parameter, metadata)!;
+                return (T) Expression.Invoke(Parameter, metadata)!;
             if (Parameter is IMemberPathObserver observer)
-                return (T)observer.GetLastMember(metadata).GetValue(metadata)!;
-            return (T)Parameter!;
+                return (T) observer.GetLastMember(metadata).GetValue(metadata)!;
+            return (T) Parameter!;
         }
 
         public void Dispose()
         {
-            if (Parameter is IMemberPathObserver observer)
-                observer.Dispose();
-            else if (Parameter is IMemberPathObserver[] observers)
+            switch (Parameter)
             {
-                for (var i = 0; i < observers.Length; i++)
-                    observers[i].Dispose();
+                case IMemberPathObserver observer:
+                    observer.Dispose();
+                    break;
+                case object[] observers:
+                {
+                    for (var i = 0; i < observers.Length; i++)
+                        (observers[i] as IMemberPathObserver)?.Dispose();
+                    break;
+                }
             }
         }
 

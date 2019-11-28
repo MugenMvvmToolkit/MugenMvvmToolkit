@@ -7,7 +7,6 @@ using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Components;
@@ -169,15 +168,15 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (value.Item1 is IBindingMemberExpressionNode v)
             {
-                var observer = v.GetSourceObserver(target, source, metadata);
+                var observer = v.GetBindingSource(target, source, metadata);
                 return new BindingParameterValue(observer, value.Item2);
             }
 
             if (value.Item1 is IBindingMemberExpressionNode[] nodes)
             {
-                var observers = new IMemberPathObserver[nodes.Length];
+                var observers = new object[nodes.Length];
                 for (var i = 0; i < nodes.Length; i++)
-                    observers[i] = nodes[i].GetSourceObserver(target, source, metadata);
+                    observers[i] = nodes[i].GetBindingSource(target, source, metadata);
                 return new BindingParameterValue(observers, value.Item2);
             }
 
