@@ -89,6 +89,8 @@ namespace MugenMvvm.Metadata
 
         protected virtual bool EqualsInternal(IMetadataContextKey other)
         {
+            if (ReferenceEquals(other, this))
+                return true;
             return other is IHasId<string> hasStringId && string.Equals(Id, hasStringId.Id);
         }
 

@@ -83,10 +83,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return false;
 
             var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetAttachedValueProvider(target, metadata);
-            if (attachedValueProvider == null)
-                return false;
-
-            return attachedValueProvider.Clear(target, GetPath(binding.Target.Path));
+            return attachedValueProvider != null && attachedValueProvider.Clear(target, GetPath(binding.Target.Path));
         }
 
         #endregion
