@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IBindingExpression : IMetadataOwner<IReadOnlyMetadataContext>
+    public interface IBindingExpression
     {
         IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null);
     }

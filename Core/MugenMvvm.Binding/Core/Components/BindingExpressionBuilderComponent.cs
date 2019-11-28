@@ -70,14 +70,14 @@ namespace MugenMvvm.Binding.Core.Components
                 for (var i = 0; i < bindingExpressions.Length; i++)
                 {
                     var result = list[i];
-                    MugenExtensions.AddOrdered(bindingExpressions, GetBindingExpression(result.Target, result.Source, result.Parameters, metadata), i, this);
+                    MugenExtensions.AddOrdered(bindingExpressions, GetBindingExpression(result.Target, result.Source, result.Parameters), i, this);
                 }
 
                 return bindingExpressions;
             }
 
             var item = parserResult.Item;
-            return new ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters, metadata));
+            return new ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters));
         }
 
         int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
@@ -126,11 +126,11 @@ namespace MugenMvvm.Binding.Core.Components
         }
 
         private IBindingExpression GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
-            ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
+            ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters)
         {
             if (_isCachePerTypeRequired)
-                return new BindingExpressionCache(this, targetExpression, sourceExpression, parameters.GetRawValue(), metadata);
-            return new BindingExpression(this, targetExpression, sourceExpression, parameters.GetRawValue(), metadata);
+                return new BindingExpressionCache(this, targetExpression, sourceExpression, parameters.GetRawValue());
+            return new BindingExpression(this, targetExpression, sourceExpression, parameters.GetRawValue());
         }
 
         private int GetPriority(IBindingExpression expression)
@@ -173,7 +173,6 @@ namespace MugenMvvm.Binding.Core.Components
         {
             #region Fields
 
-            private readonly IReadOnlyMetadataContext? _metadata;
             private readonly BindingExpressionBuilderComponent _owner;
             private readonly object? _parametersRaw;
             private readonly IExpressionNode _sourceExpression;
@@ -182,22 +181,17 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Constructors
 
-            public BindingExpressionCache(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
+            public BindingExpressionCache(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw)
             {
                 _owner = owner;
                 TargetExpression = targetExpression;
                 _sourceExpression = sourceExpression;
                 _parametersRaw = parametersRaw;
-                _metadata = metadata;
             }
 
             #endregion
 
             #region Properties
-
-            public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-            public IReadOnlyMetadataContext Metadata => _metadata ?? Default.Metadata;
 
             public IExpressionNode TargetExpression { get; }
 
@@ -210,7 +204,7 @@ namespace MugenMvvm.Binding.Core.Components
                 var cacheKey = new CacheKey(target, source);
                 if (!TryGetValue(cacheKey, out var value))
                 {
-                    value = new BindingExpression(_owner, TargetExpression, _sourceExpression, _parametersRaw, _metadata);
+                    value = new BindingExpression(_owner, TargetExpression, _sourceExpression, _parametersRaw);
                     this[cacheKey] = value;
                 }
 
@@ -238,7 +232,6 @@ namespace MugenMvvm.Binding.Core.Components
         {
             #region Fields
 
-            private readonly IReadOnlyMetadataContext? _metadata;
             private readonly BindingExpressionBuilderComponent _owner;
             private ICompiledExpression? _compiledExpression;
             private object? _compiledExpressionSource;
@@ -251,22 +244,17 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Constructors
 
-            public BindingExpression(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw, IReadOnlyMetadataContext? metadata)
+            public BindingExpression(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw)
             {
                 _owner = owner;
                 _targetExpression = targetExpression;
                 _sourceExpression = sourceExpression;
                 _parametersRaw = parametersRaw;
-                _metadata = metadata;
             }
 
             #endregion
 
             #region Properties
-
-            public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-            public IReadOnlyMetadataContext Metadata => _metadata ?? Default.Metadata;
 
             public IExpressionNode TargetExpression => _targetExpression;
 
@@ -276,8 +264,6 @@ namespace MugenMvvm.Binding.Core.Components
 
             public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
             {
-                if (metadata == null)
-                    metadata = _metadata;
                 if (_componentBuilders == null)
                     Initialize(target, source, metadata);
 

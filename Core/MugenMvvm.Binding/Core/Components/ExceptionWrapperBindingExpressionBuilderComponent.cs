@@ -71,14 +71,6 @@ namespace MugenMvvm.Binding.Core.Components
 
             #endregion
 
-            #region Properties
-
-            public bool HasMetadata => _bindingExpression.HasMetadata;
-
-            public IReadOnlyMetadataContext Metadata => _bindingExpression.Metadata;
-
-            #endregion
-
             #region Implementation of interfaces
 
             public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)

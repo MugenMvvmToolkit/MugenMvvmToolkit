@@ -93,7 +93,7 @@ namespace MugenMvvm.Views
 
         #region Methods
 
-        private IViewInitializerResult Initialize(ViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata)
+        private IViewInitializerResult Initialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata)
         {
             var components = _viewManager.DefaultIfNull().GetComponents();
             for (var i = 0; i < components.Length; i++)
@@ -107,7 +107,7 @@ namespace MugenMvvm.Views
             return null;
         }
 
-        private IReadOnlyMetadataContext Cleanup(ViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
+        private IReadOnlyMetadataContext Cleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
             var components = _viewManager.DefaultIfNull().GetComponents();
             for (var i = 0; i < components.Length; i++)
