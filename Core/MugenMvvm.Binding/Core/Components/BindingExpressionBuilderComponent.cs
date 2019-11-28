@@ -304,13 +304,13 @@ namespace MugenMvvm.Binding.Core.Components
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 if (_componentBuilders!.Length == 1)
-                    binding.AddOrderedComponents(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
+                    binding.Initialize(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
                     var components = new IComponent<IBinding>[_componentBuilders.Length];
                     for (var i = 0; i < components.Length; i++)
                         MugenExtensions.AddOrdered(components, _componentBuilders[i].GetComponent(binding, target, source, metadata), i, binding);
-                    binding.AddOrderedComponents(components, metadata);
+                    binding.Initialize(components, metadata);
                 }
 
                 if (binding.State == BindingState.Valid)

@@ -394,17 +394,19 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public void AddOrderedComponents(ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
+        public void Initialize(ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;
+            if (_components != null)
+                ExceptionManager.ThrowObjectInitialized(this);
 
             var list = components.List;
             if (list == null)
             {
                 if (components.Item != null && OnComponentAdding(components.Item, metadata))
                 {
-                    MergeComponents(components.Item);
+                    _components = components.Item;
                     OnComponentAdded(components.Item, metadata);
                 }
                 return;
@@ -422,48 +424,9 @@ namespace MugenMvvm.Binding.Core
 
             if (currentLength == 1)
             {
-                MergeComponents(list[0]);
+                _components = list[0];
                 OnComponentAdded(list[0], metadata);
                 return;
-            }
-
-            if (_components != null)
-            {
-                if (_components is IComponent<IBinding>[] array)
-                {
-                    var oldList = list;
-                    var newSize = array.Length + currentLength;
-                    if (newSize != list.Length)
-                        Array.Resize(ref list, newSize);
-                    for (int i = 0; i < array.Length; i++)
-                        MugenExtensions.AddOrdered(list, array[i], currentLength++, this);
-                    _components = list;
-                    if (ReferenceEquals(oldList, list))
-                    {
-                        for (int i = 0; i < list.Length; i++)
-                        {
-                            if (Array.IndexOf(array, oldList[i]) < 0)
-                                OnComponentAdded(oldList[i], metadata);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < currentLength; i++)
-                            OnComponentAdded(oldList[i], metadata);
-                    }
-                    return;
-                }
-
-                if (list.Length == currentLength)
-                {
-                    _components = MergeComponents(list, (IComponent<IBinding>)_components);
-                    for (int i = 0; i < list.Length; i++)
-                        OnComponentAdded(list[i], metadata);
-                    return;
-                }
-
-                MugenExtensions.AddOrdered(list, (IComponent<IBinding>)_components, currentLength, this);
-                ++currentLength;
             }
 
             if (list.Length != currentLength)
@@ -524,7 +487,7 @@ namespace MugenMvvm.Binding.Core
         {
             if (!CheckFlag(HasTargetLastMemberProviderFlag) || !TryGetTargetLastMember(out var pathLastMember))
                 pathLastMember = Target.GetLastMember(this);
-            
+
             pathLastMember.ThrowIfError();
             if (!pathLastMember.IsAvailable)
             {
@@ -808,27 +771,11 @@ namespace MugenMvvm.Binding.Core
             _state &= ~flag;
         }
 
-        private void MergeComponents(IComponent<IBinding> component)
-        {
-            if (_components == null)
-                _components = component;
-            else if (_components is IComponent<IBinding>[] array)
-                _components = MergeComponents(array, component);
-            else
-                _components = MergeComponents((IComponent<IBinding>)_components, component);
-        }
-
         private object MergeComponents(IComponent<IBinding> c1, IComponent<IBinding> c2)
         {
             return c1.GetPriority(this) >= c2.GetPriority(this)
                 ? new[] { c1, c2 }
                 : new[] { c2, c1 };
-        }
-
-        private object MergeComponents(IComponent<IBinding>[] components, IComponent<IBinding> component)
-        {
-            MugenExtensions.AddOrdered(ref components, component, this);
-            return components;
         }
 
         private bool RemoveComponent(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
