@@ -25,35 +25,30 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public BinaryLinqExpressionBuilderComponent(Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>? binaryTokenMapping = null)
+        public BinaryLinqExpressionBuilderComponent()
         {
-            if (binaryTokenMapping == null)
+            BinaryTokenMapping = new Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>
             {
-                BinaryTokenMapping = new Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>
-                {
-                    [BinaryTokenType.Multiplication] = (l, r) => l.GenerateExpression(r, Expression.Multiply),
-                    [BinaryTokenType.Division] = (l, r) => l.GenerateExpression(r, Expression.Divide),
-                    [BinaryTokenType.Remainder] = (l, r) => l.GenerateExpression(r, Expression.Modulo),
-                    [BinaryTokenType.Addition] = GeneratePlusExpression,
-                    [BinaryTokenType.Subtraction] = (l, r) => l.GenerateExpression(r, Expression.Subtract),
-                    [BinaryTokenType.LeftShift] = (l, r) => l.GenerateExpression(r, Expression.LeftShift),
-                    [BinaryTokenType.RightShift] = (l, r) => l.GenerateExpression(r, Expression.RightShift),
-                    [BinaryTokenType.LessThan] = (l, r) => l.GenerateExpression(r, Expression.LessThan),
-                    [BinaryTokenType.GreaterThan] = (l, r) => l.GenerateExpression(r, Expression.GreaterThan),
-                    [BinaryTokenType.LessThanOrEqual] = (l, r) => l.GenerateExpression(r, Expression.LessThanOrEqual),
-                    [BinaryTokenType.GreaterThanOrEqual] = (l, r) => l.GenerateExpression(r, Expression.GreaterThanOrEqual),
-                    [BinaryTokenType.Equality] = GenerateEqual,
-                    [BinaryTokenType.NotEqual] = (l, r) => l.GenerateExpression(r, Expression.NotEqual),
-                    [BinaryTokenType.LogicalAnd] = (l, r) => l.GenerateExpression(r, Expression.And),
-                    [BinaryTokenType.LogicalXor] = (l, r) => l.GenerateExpression(r, Expression.ExclusiveOr),
-                    [BinaryTokenType.LogicalOr] = (l, r) => l.GenerateExpression(r, Expression.Or),
-                    [BinaryTokenType.ConditionalAnd] = (l, r) => l.GenerateExpression(r, Expression.AndAlso),
-                    [BinaryTokenType.ConditionalOr] = (l, r) => l.GenerateExpression(r, Expression.OrElse),
-                    [BinaryTokenType.NullCoalescing] = (l, r) => l.GenerateExpression(r, Expression.Coalesce)
-                };
-            }
-            else
-                BinaryTokenMapping = binaryTokenMapping;
+                [BinaryTokenType.Multiplication] = (l, r) => l.GenerateExpression(r, Expression.Multiply),
+                [BinaryTokenType.Division] = (l, r) => l.GenerateExpression(r, Expression.Divide),
+                [BinaryTokenType.Remainder] = (l, r) => l.GenerateExpression(r, Expression.Modulo),
+                [BinaryTokenType.Addition] = GeneratePlusExpression,
+                [BinaryTokenType.Subtraction] = (l, r) => l.GenerateExpression(r, Expression.Subtract),
+                [BinaryTokenType.LeftShift] = (l, r) => l.GenerateExpression(r, Expression.LeftShift),
+                [BinaryTokenType.RightShift] = (l, r) => l.GenerateExpression(r, Expression.RightShift),
+                [BinaryTokenType.LessThan] = (l, r) => l.GenerateExpression(r, Expression.LessThan),
+                [BinaryTokenType.GreaterThan] = (l, r) => l.GenerateExpression(r, Expression.GreaterThan),
+                [BinaryTokenType.LessThanOrEqual] = (l, r) => l.GenerateExpression(r, Expression.LessThanOrEqual),
+                [BinaryTokenType.GreaterThanOrEqual] = (l, r) => l.GenerateExpression(r, Expression.GreaterThanOrEqual),
+                [BinaryTokenType.Equality] = GenerateEqual,
+                [BinaryTokenType.NotEqual] = (l, r) => l.GenerateExpression(r, Expression.NotEqual),
+                [BinaryTokenType.LogicalAnd] = (l, r) => l.GenerateExpression(r, Expression.And),
+                [BinaryTokenType.LogicalXor] = (l, r) => l.GenerateExpression(r, Expression.ExclusiveOr),
+                [BinaryTokenType.LogicalOr] = (l, r) => l.GenerateExpression(r, Expression.Or),
+                [BinaryTokenType.ConditionalAnd] = (l, r) => l.GenerateExpression(r, Expression.AndAlso),
+                [BinaryTokenType.ConditionalOr] = (l, r) => l.GenerateExpression(r, Expression.OrElse),
+                [BinaryTokenType.NullCoalescing] = (l, r) => l.GenerateExpression(r, Expression.Coalesce)
+            };
         }
 
         #endregion

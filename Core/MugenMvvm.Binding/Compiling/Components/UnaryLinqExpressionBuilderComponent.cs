@@ -14,20 +14,15 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Constructors
 
-        public UnaryLinqExpressionBuilderComponent(Dictionary<UnaryTokenType, Func<Expression, Expression>>? unaryTokenMapping = null)
+        public UnaryLinqExpressionBuilderComponent()
         {
-            if (unaryTokenMapping == null)
+            UnaryTokenMapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
             {
-                UnaryTokenMapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
-                {
-                    [UnaryTokenType.Minus] = Expression.Negate,
-                    [UnaryTokenType.Plus] = Expression.UnaryPlus,
-                    [UnaryTokenType.LogicalNegation] = Expression.Not,
-                    [UnaryTokenType.BitwiseNegation] = Expression.Not
-                };
-            }
-            else
-                UnaryTokenMapping = unaryTokenMapping;
+                [UnaryTokenType.Minus] = Expression.Negate,
+                [UnaryTokenType.Plus] = Expression.UnaryPlus,
+                [UnaryTokenType.LogicalNegation] = Expression.Not,
+                [UnaryTokenType.BitwiseNegation] = Expression.Not
+            };
         }
 
         #endregion

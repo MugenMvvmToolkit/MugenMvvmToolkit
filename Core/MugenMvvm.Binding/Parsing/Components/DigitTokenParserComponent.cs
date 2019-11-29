@@ -1,4 +1,6 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
@@ -17,7 +19,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         public DigitTokenParserComponent()
         {
             ConvertDelegate defaultConverter = Convert;
-            PostfixToConverter = new StringOrdinalLightDictionary<ConvertDelegate>(17)
+            PostfixToConverter = new Dictionary<string, ConvertDelegate>(17, StringComparer.Ordinal)
             {
                 [""] = defaultConverter,
                 ["f"] = defaultConverter,
@@ -39,7 +41,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public LightDictionary<string, ConvertDelegate> PostfixToConverter { get; }
+        public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
 

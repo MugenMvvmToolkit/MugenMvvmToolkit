@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public UnaryTokenParserComponent()
         {
-            TokenMapping = new CharLightDictionary<UnaryTokenType[]>(7)
+            TokenMapping = new Dictionary<char, UnaryTokenType[]>(7)
             {
                 {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
                 {UnaryTokenType.Plus.Value[0], new[] {UnaryTokenType.Plus}},
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public LightDictionary<char, UnaryTokenType[]> TokenMapping { get; }
+        public Dictionary<char, UnaryTokenType[]> TokenMapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Unary;
 

@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 "'"
             };
 
-            EscapeSequenceMap = new CharLightDictionary<char>(11)
+            EscapeSequenceMap = new Dictionary<char, char>(11)
             {
                 {'\\', '\\'},
                 {'0', '\0'},
@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public LightDictionary<char, char> EscapeSequenceMap { get; }
+        public Dictionary<char, char> EscapeSequenceMap { get; }
 
         public List<string> QuoteTokens { get; }
 

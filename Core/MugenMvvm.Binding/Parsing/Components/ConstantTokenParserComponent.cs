@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Binding.Constants;
+﻿using System;
+using System.Collections.Generic;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -15,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public ConstantTokenParserComponent()
         {
-            LiteralToExpression = new StringOrdinalLightDictionary<IExpressionNode>(3)
+            LiteralToExpression = new Dictionary<string, IExpressionNode>(3, StringComparer.Ordinal)
             {
                 {"null", ConstantExpressionNode.Null},
                 {"true", ConstantExpressionNode.True},
@@ -27,7 +29,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Properties
 
-        public LightDictionary<string, IExpressionNode> LiteralToExpression { get; }
+        public Dictionary<string, IExpressionNode> LiteralToExpression { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
