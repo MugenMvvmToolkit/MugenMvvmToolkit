@@ -1,7 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Internal;
@@ -19,6 +23,43 @@ namespace MugenMvvm.Binding
         #endregion
 
         #region Methods
+
+        [return: NotNullIfNotNull("expression")]
+        public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression)
+        {
+            return expression == null ? null : context.Convert(expression);
+        }
+
+        [return: NotNullIfNotNull("expression")]
+        public static IReadOnlyList<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, IReadOnlyList<Expression> expressions)
+        {
+            var nodes = new IExpressionNode[expressions.Count];
+            for (int i = 0; i < nodes.Length; i++)
+                nodes[i] = context.Convert(expressions[i]);
+            return nodes;
+        }
+
+
+        [DoesNotReturn]
+        public static void ThrowCannotParse<T>(this IParserContext context, T expression)
+        {
+            var errors = context.TryGetErrors();
+            if (errors != null && errors.Count != 0)
+            {
+                errors.Reverse();
+                BindingExceptionManager.ThrowCannotParseExpression(expression, BindingMessageConstant.PossibleReasons + string.Join(Environment.NewLine, errors));
+            }
+            else
+                BindingExceptionManager.ThrowCannotParseExpression(expression);
+        }
+
+        public static List<string>? TryGetErrors(this IParserContext context)
+        {
+            Should.NotBeNull(context, nameof(context));
+            if (context.HasMetadata && context.Metadata.TryGet(ParsingMetadata.ParsingErrors, out var errors))
+                return errors;
+            return null;
+        }
 
         public static int GetPosition(this ITokenParserContext context, int? position = null)
         {

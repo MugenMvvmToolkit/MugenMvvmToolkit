@@ -265,6 +265,15 @@ namespace MugenMvvm.Binding
             return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
         }
 
+        public static MemberFlags GetAccessModifiers(this FieldInfo? fieldInfo)
+        {
+            if (fieldInfo == null)
+                return MemberFlags.Instance;
+            if (fieldInfo.IsStatic)
+                return fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+            return fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+        }
+
         public static MemberFlags GetAccessModifiers(this EventInfo? eventInfo)
         {
             if (eventInfo == null)

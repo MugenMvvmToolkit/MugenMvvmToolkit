@@ -39,10 +39,7 @@ namespace MugenMvvm.Binding.Members
             Name = name;
             _getterFunc = CompileGetter;
             _setterFunc = CompileSetter;
-            if (fieldInfo.IsStatic)
-                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
-            else
-                AccessModifiers = fieldInfo.IsPublic ? MemberFlags.InstancePublic : MemberFlags.InstanceNonPublic;
+            AccessModifiers = fieldInfo.GetAccessModifiers();
         }
 
         #endregion
