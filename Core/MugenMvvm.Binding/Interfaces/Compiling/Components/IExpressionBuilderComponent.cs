@@ -4,8 +4,8 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Binding.Interfaces.Compiling.Components
 {
-    public interface ILinqExpressionBuilderComponent : IComponent<IExpressionCompiler>
+    public interface IExpressionBuilderComponent : IComponent<IExpressionCompiler>
     {
-        Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression);
+        Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression);
     }
 }

@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding
         #region Methods
 
         [DoesNotReturn]
-        public static void ThrowCannotCompile(this ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public static void ThrowCannotCompile(this IExpressionBuilderContext context, IExpressionNode expression)
         {
             var errors = context.TryGetErrors();
             if (errors != null && errors.Count != 0)
@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding
                 BindingExceptionManager.ThrowCannotCompileExpression(expression);
         }
 
-        public static List<string>? TryGetErrors(this ILinqExpressionBuilderContext context)
+        public static List<string>? TryGetErrors(this IExpressionBuilderContext context)
         {
             Should.NotBeNull(context, nameof(context));
             if (context.HasMetadata && context.Metadata.TryGet(CompilingMetadata.CompilingErrors, out var errors))

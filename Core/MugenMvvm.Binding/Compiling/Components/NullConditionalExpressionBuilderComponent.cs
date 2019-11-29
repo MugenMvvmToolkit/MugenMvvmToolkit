@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class NullConditionalLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
+    public sealed class NullConditionalExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             if (!(expression is IHasTargetExpressionNode<IExpressionNode> hasTarget) || !(hasTarget.Target is NullConditionalMemberExpressionNode nullConditional))
                 return null;

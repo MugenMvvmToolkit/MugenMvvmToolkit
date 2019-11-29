@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ConditionLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
+    public sealed class ConditionExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             if (!(expression is IConditionExpressionNode condition))
                 return null;

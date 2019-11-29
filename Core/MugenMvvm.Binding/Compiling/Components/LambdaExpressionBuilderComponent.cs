@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class LambdaLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
+    public sealed class LambdaExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;

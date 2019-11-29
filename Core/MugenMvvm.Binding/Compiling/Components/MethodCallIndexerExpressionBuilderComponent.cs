@@ -19,7 +19,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class MethodIndexerLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
+    public sealed class MethodCallIndexerExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public MethodIndexerLinqExpressionBuilderComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
+        public MethodCallIndexerExpressionBuilderComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
         {
             _memberProvider = memberProvider;
             _resourceResolver = resourceResolver;
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             return expression switch
             {
@@ -71,7 +71,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Methods
 
-        private Expression? TryBuildMethod(ILinqExpressionBuilderContext context, IMethodCallExpressionNode methodCallExpression)
+        private Expression? TryBuildMethod(IExpressionBuilderContext context, IMethodCallExpressionNode methodCallExpression)
         {
             if (methodCallExpression.Target == null)
             {
@@ -96,7 +96,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return TryBuildExpression(context, methodCallExpression.MethodName, targetData, args, GetTypes(methodCallExpression.TypeArgs));
         }
 
-        private Expression? TryBuildIndex(ILinqExpressionBuilderContext context, IIndexExpressionNode indexExpression)
+        private Expression? TryBuildIndex(IExpressionBuilderContext context, IIndexExpressionNode indexExpression)
         {
             if (indexExpression.Target == null)
             {
@@ -124,7 +124,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return TryBuildExpression(context, type == typeof(string) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
         }
 
-        private Expression? TryBuildExpression(ILinqExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
+        private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
         {
             var methods = FindBestMethods(GetMethods(targetData.Type, methodName, targetData.IsStatic, null, context.GetMetadataOrDefault()), args, typeArgs);
             var expression = TryGenerateMethodCall(context, methods, targetData, args);
@@ -234,7 +234,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return methods;
         }
 
-        private static Expression? TryGenerateMethodCall(ILinqExpressionBuilderContext context, MethodData[] methods, in TargetData target, ArgumentData[] arguments)
+        private static Expression? TryGenerateMethodCall(IExpressionBuilderContext context, MethodData[] methods, in TargetData target, ArgumentData[] arguments)
         {
             if (methods.Length == 0)
                 return null;
@@ -304,7 +304,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs).ConvertIfNeed(result.Method.Type, true);
         }
 
-        private static Expression GenerateMethodCall(ILinqExpressionBuilderContext context, IMethodInfo methodInfo, Expression? target, IReadOnlyList<IExpressionNode> args)
+        private static Expression GenerateMethodCall(IExpressionBuilderContext context, IMethodInfo methodInfo, Expression? target, IReadOnlyList<IExpressionNode> args)
         {
             var expressions = ToExpressions(context, args, methodInfo, null);
             if (methodInfo.UnderlyingMember is MethodInfo method)
@@ -456,7 +456,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ConvertParameters(ILinqExpressionBuilderContext context, in MethodData method, bool hasParams)
+        private static Expression[] ConvertParameters(IExpressionBuilderContext context, in MethodData method, bool hasParams)
         {
             var parameters = method.Parameters;
             var args = (Expression[])method.Args!;
@@ -607,7 +607,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ToExpressions(ILinqExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IMethodInfo? method, Type? convertType)
+        private static Expression[] ToExpressions(IExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IMethodInfo? method, Type? convertType)
         {
             var parameters = method?.GetParameters();
             var expressions = new Expression[args.Count];
@@ -653,14 +653,14 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             #region Fields
 
-            private readonly MethodIndexerLinqExpressionBuilderComponent _component;
+            private readonly MethodCallIndexerExpressionBuilderComponent _component;
             private Type? _type;
 
             #endregion
 
             #region Constructors
 
-            public MethodInvoker(MethodIndexerLinqExpressionBuilderComponent component) : base(3)
+            public MethodInvoker(MethodCallIndexerExpressionBuilderComponent component) : base(3)
             {
                 _component = component;
             }

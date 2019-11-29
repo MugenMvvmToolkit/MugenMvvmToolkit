@@ -10,11 +10,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class UnaryLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
+    public sealed class UnaryExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Constructors
 
-        public UnaryLinqExpressionBuilderComponent()
+        public UnaryExpressionBuilderComponent()
         {
             UnaryTokenMapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
             {
@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             if (expression is IUnaryExpressionNode unaryExpressionNode)
             {

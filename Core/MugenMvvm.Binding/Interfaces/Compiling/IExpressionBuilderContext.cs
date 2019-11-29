@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Compiling
 {
-    public interface ILinqExpressionBuilderContext : IMetadataOwner<IMetadataContext>
+    public interface IExpressionBuilderContext : IMetadataOwner<IMetadataContext>
     {
         Expression MetadataParameter { get; }
 

@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ConstantLinqExpressionBuilderComponent : ILinqExpressionBuilderComponent, IHasPriority
+    public sealed class ConstantExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public Expression? TryBuild(ILinqExpressionBuilderContext context, IExpressionNode expression)
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             if (expression is ConstantExpressionNode constantExpression)
                 return constantExpression.ConstantExpression ?? Expression.Constant(constantExpression.Value, constantExpression.Type);

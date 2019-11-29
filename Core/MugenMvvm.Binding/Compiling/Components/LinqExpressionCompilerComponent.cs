@@ -18,7 +18,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class LinqExpressionCompilerComponent : ComponentTrackerBase<IExpressionCompiler, ILinqExpressionBuilderComponent>, IExpressionCompilerComponent, IHasPriority
+    public sealed class LinqExpressionCompilerComponent : ComponentTrackerBase<IExpressionCompiler, IExpressionBuilderComponent>, IExpressionCompilerComponent, IHasPriority
     {
         #region Fields
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Nested types
 
-        private sealed class CompiledExpression : LightDictionary<object, Func<object?[], object?>>, ICompiledExpression, ILinqExpressionBuilderContext, IExpressionVisitor
+        private sealed class CompiledExpression : LightDictionary<object, Func<object?[], object?>>, ICompiledExpression, IExpressionBuilderContext, IExpressionVisitor
         {
             #region Fields
 
