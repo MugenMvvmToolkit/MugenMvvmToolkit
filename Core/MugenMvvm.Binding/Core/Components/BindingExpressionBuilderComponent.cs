@@ -282,26 +282,26 @@ namespace MugenMvvm.Binding.Core.Components
 
             private IBinding CreateMultiBinding(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                ItemOrList<object, object[]> sources;
+                object? sourceRaw;
                 switch (_compiledExpressionSource)
                 {
                     case null:
-                        sources = default;
+                        sourceRaw = null;
                         break;
                     case IBindingMemberExpressionNode[] expressions:
                         {
-                            var array = new object[expressions.Length];
+                            var array = new object?[expressions.Length];
                             for (var i = 0; i < array.Length; i++)
                                 array[i] = expressions[i].GetBindingSource(target, source, metadata);
-                            sources = array;
+                            sourceRaw = array;
                             break;
                         }
                     default:
-                        sources = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetBindingSource(target, source, metadata);
+                        sourceRaw = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetBindingSource(target, source, metadata);
                         break;
                 }
 
-                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetBindingTarget(target, source, metadata), sources, _compiledExpression!), target, source, metadata);
+                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetBindingTarget(target, source, metadata), sourceRaw, _compiledExpression!), target, source, metadata);
             }
 
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)

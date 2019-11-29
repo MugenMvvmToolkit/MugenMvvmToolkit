@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         IMemberPathObserver Target { get; }
 
-        ItemOrList<object, object[]> Source { get; }
+        ItemOrList<object?, object?[]> Source { get; }
 
         ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> GetComponents();
 

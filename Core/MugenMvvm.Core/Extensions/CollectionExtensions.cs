@@ -221,8 +221,8 @@ namespace MugenMvvm
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class
-            where TList : class, IReadOnlyCollection<TItem>
+            where TItem : class?
+            where TList : class?, IReadOnlyCollection<TItem>
         {
             return (object?)itemOrList.Item ?? itemOrList.List;
         }

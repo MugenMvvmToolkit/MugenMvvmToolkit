@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return GetObserver(target, GetMemberPath(metadata), metadata);
         }
 
-        public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             IMemberPath path;
             if (_targetType == TargetType.Default && source == null)

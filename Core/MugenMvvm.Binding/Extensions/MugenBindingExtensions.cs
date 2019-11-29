@@ -87,7 +87,7 @@ namespace MugenMvvm.Binding
                 case null:
                     values = Default.EmptyArray<ExpressionValue>();
                     break;
-                case object[] sources:
+                case object?[] sources:
                     {
                         var expressionValues = new ExpressionValue[sources.Length];
                         for (var i = 0; i < sources.Length; i++)
@@ -197,7 +197,7 @@ namespace MugenMvvm.Binding
             return null;
         }
 
-        public static bool IsAllMembersAvailable(ItemOrList<object, object[]> observers)
+        public static bool IsAllMembersAvailable(ItemOrList<object?, object?[]> observers)
         {
             var list = observers.List;
             if (list == null)

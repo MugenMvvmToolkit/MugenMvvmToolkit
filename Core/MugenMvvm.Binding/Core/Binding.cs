@@ -110,7 +110,7 @@ namespace MugenMvvm.Binding.Core
 
         public IMemberPathObserver Target { get; }
 
-        public ItemOrList<object, object[]> Source => ItemOrList<object, object[]>.FromRawValue(SourceRaw);
+        public ItemOrList<object?, object?[]> Source => ItemOrList<object?, object?[]>.FromRawValue(SourceRaw);
 
         protected object? SourceRaw { get; }
 

@@ -170,7 +170,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                         BindingExceptionManager.ThrowCannotResolveResource(memberExpression.MemberName);
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
-
+                
                     var value = _observerProvider
                         .DefaultIfNull()
                         .GetMemberPath(_memberBuilder.GetPath(), metadata)

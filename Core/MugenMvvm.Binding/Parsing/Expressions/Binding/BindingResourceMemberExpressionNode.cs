@@ -52,9 +52,15 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return GetObserver(GetResource(metadata), GetMemberPath(metadata), metadata);
         }
 
-        public override object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
+        public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return GetObserver(GetResource(metadata), GetMemberPath(metadata), metadata);
+            var resourceValue = GetResource(metadata);
+            var memberPath = GetMemberPath(metadata);
+            if (!resourceValue.IsStatic)
+                return GetObserver(resourceValue, memberPath, metadata);
+            if (resourceValue.Value == null)
+                return null;
+            return memberPath.GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags, 0, metadata);
         }
 
         private IResourceValue GetResource(IReadOnlyMetadataContext? metadata)

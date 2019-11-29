@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         public abstract IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata);
 
-        public abstract object GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
+        public abstract object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
 
         #endregion
 

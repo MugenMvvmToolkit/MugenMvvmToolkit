@@ -174,7 +174,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (value.Item1 is IBindingMemberExpressionNode[] nodes)
             {
-                var observers = new object[nodes.Length];
+                var observers = new object?[nodes.Length];
                 for (var i = 0; i < nodes.Length; i++)
                     observers[i] = nodes[i].GetBindingSource(target, source, metadata);
                 return new BindingParameterValue(observers, value.Item2);
