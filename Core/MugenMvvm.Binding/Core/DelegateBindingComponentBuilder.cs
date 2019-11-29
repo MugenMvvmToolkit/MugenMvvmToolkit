@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.BindingParameter;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingParameter;
 
         public bool IsEmpty => false;
 

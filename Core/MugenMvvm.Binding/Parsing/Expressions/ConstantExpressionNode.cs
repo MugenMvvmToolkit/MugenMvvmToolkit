@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public ConstantExpression? ConstantExpression { get; }
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Constant;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Constant;
 
         public Type Type { get; }
 

@@ -310,7 +310,7 @@ namespace MugenMvvm.Binding
                             target = memberExpressionNode.Target;
                             break;
                         }
-                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
                         {
                             var args = indexExpressionNode.Arguments;
                             builder.Insert(0, ']');
@@ -328,7 +328,7 @@ namespace MugenMvvm.Binding
                             target = indexExpressionNode.Target;
                             break;
                         }
-                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
                         {
                             var args = methodCallExpression.Arguments;
                             builder.Insert(0, ')');
@@ -372,10 +372,10 @@ namespace MugenMvvm.Binding
                     case IMemberExpressionNode memberExpressionNode:
                         target = memberExpressionNode.Target;
                         break;
-                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                    case IIndexExpressionNode indexExpressionNode when indexExpressionNode.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
                         target = indexExpressionNode.Target;
                         break;
-                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.NodeType == ExpressionNodeType.Constant):
+                    case IMethodCallExpressionNode methodCallExpression when methodCallExpression.Arguments.All(arg => arg.ExpressionType == ExpressionNodeType.Constant):
                         target = methodCallExpression.Target;
                         break;
                     default:

@@ -144,7 +144,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
             {
-                if (expression.NodeType == ExpressionNodeType.BindingMember)
+                if (expression.ExpressionType == ExpressionNodeType.BindingMember)
                 {
                     var parameterExpression = (IParameterExpressionNode)expression;
                     if (parameterExpression.Index < 0)
@@ -228,7 +228,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     var expressionValues = values.List;
                     foreach (var value in _expressionsDict)
                     {
-                        if (value.Key.NodeType != ExpressionNodeType.BindingMember)
+                        if (value.Key.ExpressionType != ExpressionNodeType.BindingMember)
                             continue;
 
                         var parameterExpression = (IParameterExpressionNode)value.Key;
@@ -355,7 +355,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override int GetHashCode(IExpressionNode key)
             {
-                if (key.NodeType == ExpressionNodeType.BindingMember)
+                if (key.ExpressionType == ExpressionNodeType.BindingMember)
                 {
                     var parameter = (IParameterExpressionNode)key;
                     return HashCode.Combine(parameter.Index, parameter.Name);
@@ -366,7 +366,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override bool Equals(IExpressionNode x, IExpressionNode y)
             {
-                if (x.NodeType == ExpressionNodeType.BindingMember && y.NodeType == ExpressionNodeType.BindingMember)
+                if (x.ExpressionType == ExpressionNodeType.BindingMember && y.ExpressionType == ExpressionNodeType.BindingMember)
                 {
                     var xP = (IParameterExpressionNode)x;
                     var yP = (IParameterExpressionNode)y;

@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Condition;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Condition;
 
         public IExpressionNode Condition { get; }
 

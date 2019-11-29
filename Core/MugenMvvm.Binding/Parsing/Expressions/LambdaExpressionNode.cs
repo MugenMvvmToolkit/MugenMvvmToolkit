@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Lambda;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Lambda;
 
         public IReadOnlyList<IParameterExpressionNode> Parameters { get; }
 

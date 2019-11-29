@@ -9,7 +9,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Properties
 
-        public abstract ExpressionNodeType NodeType { get; }
+        public abstract ExpressionNodeType ExpressionType { get; }
 
         #endregion
 

@@ -90,7 +90,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             for (var i = 0; i < args.Length; i++)
             {
                 var node = methodCallExpression.Arguments[i];
-                args[i] = new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : context.Build(methodCallExpression.Arguments[i]), null);
+                args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(methodCallExpression.Arguments[i]), null);
             }
 
             return TryBuildExpression(context, methodCallExpression.MethodName, targetData, args, GetTypes(methodCallExpression.TypeArgs));
@@ -118,7 +118,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             for (var i = 0; i < args.Length; i++)
             {
                 var node = indexExpression.Arguments[i];
-                args[i] = new ArgumentData(node, node.NodeType == ExpressionNodeType.Lambda ? null : context.Build(indexExpression.Arguments[i]), null);
+                args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(indexExpression.Arguments[i]), null);
             }
 
             return TryBuildExpression(context, type == typeof(string) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
@@ -782,7 +782,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Properties
 
-            public bool IsLambda => Node.NodeType == ExpressionNodeType.Lambda;
+            public bool IsLambda => Node.ExpressionType == ExpressionNodeType.Lambda;
 
             #endregion
 

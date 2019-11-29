@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding
         [DoesNotReturn]
         public static void ThrowUnexpectedExpressionNode(IExpressionNode node, Type type)
         {
-            throw new InvalidOperationException(UnexpectedExpressionTyperFormat3.Format(node.NodeType, type.Name, node));
+            throw new InvalidOperationException(UnexpectedExpressionTyperFormat3.Format(node.ExpressionType, type.Name, node));
         }
 
         [DoesNotReturn]

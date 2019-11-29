@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.MethodCall;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.MethodCall;
 
         public IMethodInfo? Method { get; private set; }
 

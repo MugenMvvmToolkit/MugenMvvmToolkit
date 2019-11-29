@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Member;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Member;
 
         public IMemberAccessorInfo? Member { get; }
 

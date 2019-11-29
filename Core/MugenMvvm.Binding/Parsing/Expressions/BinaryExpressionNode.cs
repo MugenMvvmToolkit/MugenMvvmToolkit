@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Binary;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Binary;
 
         public IExpressionNode Left { get; }
 

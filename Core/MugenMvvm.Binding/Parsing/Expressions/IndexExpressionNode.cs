@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Index;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Index;
 
         public IMethodInfo? Indexer { get; private set; }
 

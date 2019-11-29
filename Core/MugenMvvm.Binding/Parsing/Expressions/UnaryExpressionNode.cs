@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Unary;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Unary;
 
         public UnaryTokenType Token { get; }
 

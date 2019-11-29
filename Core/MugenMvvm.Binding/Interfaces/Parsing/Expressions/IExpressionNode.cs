@@ -5,7 +5,7 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
     public interface IExpressionNode
     {
-        ExpressionNodeType NodeType { get; }
+        ExpressionNodeType ExpressionType { get; }
 
         IExpressionNode Accept(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata = null);
     }

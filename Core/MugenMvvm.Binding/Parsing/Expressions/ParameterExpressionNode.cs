@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Properties
 
-        public override ExpressionNodeType NodeType => ExpressionNodeType.Parameter;
+        public override ExpressionNodeType ExpressionType => ExpressionNodeType.Parameter;
 
         public int Index { get; protected set; }
 
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override string ToString()
         {
-            if (NodeType == ExpressionNodeType.BindingMember)
+            if (ExpressionType == ExpressionNodeType.BindingMember)
                 return "bindValue" + Index;
             return Name;
         }
