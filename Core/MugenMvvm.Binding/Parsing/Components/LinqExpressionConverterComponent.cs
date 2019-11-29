@@ -16,12 +16,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class LinqExpressionConverterComponent : ComponentTrackerBase<IExpressionParser, IExpressionConverterComponent<Expression>>, IExpressionParserComponent, IHasPriority
+    public sealed class LinqExpressionConverterComponent : ComponentTrackerBase<IExpressionParser, IExpressionConverterParserComponent<Expression>>, IExpressionParserComponent, IHasPriority
     {
         #region Fields
 
-        private readonly ExpressionConverterContext<Expression> _context;
-        private readonly FuncEx<LinqExpressionConverterRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
+        private readonly ExpressionConverterParserContext<Expression> _context;
+        private readonly FuncEx<ExpressionConverterParserRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
 
         #endregion
 
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public LinqExpressionConverterComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
-            _context = new ExpressionConverterContext<Expression>(metadataContextProvider);
+            _context = new ExpressionConverterParserContext<Expression>(metadataContextProvider);
             _tryParseDelegate = Parse;
         }
 
@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             _context.Converters = Components;
         }
 
-        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(in LinqExpressionConverterRequest expression, IReadOnlyMetadataContext? metadata)
+        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(in ExpressionConverterParserRequest expression, IReadOnlyMetadataContext? metadata)
         {
             _context.Initialize(metadata);
             var target = _context.Convert(GetExpression(expression.Target));

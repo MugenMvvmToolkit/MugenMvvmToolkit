@@ -6,24 +6,24 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class ExpressionConverterContext<TExpression> : IExpressionConverterContext<TExpression> where TExpression : class
+    public sealed class ExpressionConverterParserContext<TExpression> : IExpressionConverterParserContext<TExpression> where TExpression : class
     {
         #region Fields
 
         private readonly ExpressionDictionary _expressionsDict;
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private IExpressionConverterComponent<TExpression>[] _converters;
+        private IExpressionConverterParserComponent<TExpression>[] _converters;
         private IMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionConverterParserContext(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
-            _converters = Default.EmptyArray<IExpressionConverterComponent<TExpression>>();
+            _converters = Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
             _expressionsDict = new ExpressionDictionary();
         }
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Parsing
             }
         }
 
-        public IExpressionConverterComponent<TExpression>[] Converters
+        public IExpressionConverterParserComponent<TExpression>[] Converters
         {
             get => _converters;
             set

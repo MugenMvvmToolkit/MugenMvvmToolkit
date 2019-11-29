@@ -1,0 +1,10 @@
+﻿using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Interfaces.Components;
+
+namespace MugenMvvm.Binding.Interfaces.Parsing.Components
+{
+    public interface IExpressionConverterParserComponent<TExpression> : IComponent<IExpressionParser> where TExpression : class
+    {
+        IExpressionNode? TryConvert(IExpressionConverterParserContext<TExpression> context, TExpression expression);
+    }
+}

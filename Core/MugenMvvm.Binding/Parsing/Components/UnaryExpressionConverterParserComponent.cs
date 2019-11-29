@@ -11,11 +11,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class UnaryLinqExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
+    public sealed class UnaryExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
     {
         #region Constructors
 
-        public UnaryLinqExpressionConverterComponent()
+        public UnaryExpressionConverterParserComponent()
         {
             Mapping = new Dictionary<ExpressionType, Func<UnaryExpression, UnaryTokenType?>>(7)
             {
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
+        public IExpressionNode? TryConvert(IExpressionConverterParserContext<Expression> context, Expression expression)
         {
             if (expression is UnaryExpression unaryExpression)
             {
