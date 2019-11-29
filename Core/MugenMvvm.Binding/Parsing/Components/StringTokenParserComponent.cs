@@ -6,7 +6,9 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Internal;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -23,44 +25,34 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public StringTokenParserComponent(List<string>? quoteTokens = null, Dictionary<char, char>? escapeSequenceMap = null)
+        public StringTokenParserComponent()
         {
-            if (quoteTokens == null)
+            QuoteTokens = new List<string>(3)
             {
-                QuoteTokens = new List<string>(3)
-                {
-                    "&amp;",
-                    "\"",
-                    "'"
-                };
-            }
-            else
-                QuoteTokens = quoteTokens;
+                "&amp;",
+                "\"",
+                "'"
+            };
 
-            if (escapeSequenceMap == null)
+            EscapeSequenceMap = new CharLightDictionary<char>(11)
             {
-                EscapeSequenceMap = new Dictionary<char, char>
-                {
-                    {'\\', '\\'},
-                    {'0', '\0'},
-                    {'a', '\a'},
-                    {'b', '\b'},
-                    {'f', '\f'},
-                    {'n', '\n'},
-                    {'r', '\r'},
-                    {'t', '\t'},
-                    {'v', '\v'}
-                };
-            }
-            else
-                EscapeSequenceMap = escapeSequenceMap;
+                {'\\', '\\'},
+                {'0', '\0'},
+                {'a', '\a'},
+                {'b', '\b'},
+                {'f', '\f'},
+                {'n', '\n'},
+                {'r', '\r'},
+                {'t', '\t'},
+                {'v', '\v'}
+            };
         }
 
         #endregion
 
         #region Properties
 
-        public Dictionary<char, char> EscapeSequenceMap { get; }
+        public LightDictionary<char, char> EscapeSequenceMap { get; }
 
         public List<string> QuoteTokens { get; }
 

@@ -13,7 +13,6 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        private readonly BinaryTokenType[] _tokens;
         private readonly List<KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>> _buffers;
         private int _nestedIndex;
 
@@ -21,42 +20,39 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
-        public BinaryTokenParserComponent(BinaryTokenType[]? mapping = null)
+        public BinaryTokenParserComponent()
         {
             _nestedIndex = -1;
             _buffers = new List<KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>>();
-            if (mapping == null)
+            Tokens = new List<BinaryTokenType>
             {
-                _tokens = new[]
-                {
-                    BinaryTokenType.Multiplication,
-                    BinaryTokenType.Division,
-                    BinaryTokenType.Remainder,
-                    BinaryTokenType.Addition,
-                    BinaryTokenType.Subtraction,
-                    BinaryTokenType.LeftShift,
-                    BinaryTokenType.RightShift,
-                    BinaryTokenType.LessThan,
-                    BinaryTokenType.GreaterThan,
-                    BinaryTokenType.LessThanOrEqual,
-                    BinaryTokenType.GreaterThanOrEqual,
-                    BinaryTokenType.Equality,
-                    BinaryTokenType.NotEqual,
-                    BinaryTokenType.LogicalAnd,
-                    BinaryTokenType.LogicalXor,
-                    BinaryTokenType.LogicalOr,
-                    BinaryTokenType.ConditionalAnd,
-                    BinaryTokenType.ConditionalOr,
-                    BinaryTokenType.NullCoalescing
-                };
-            }
-            else
-                _tokens = mapping;
+                BinaryTokenType.Multiplication,
+                BinaryTokenType.Division,
+                BinaryTokenType.Remainder,
+                BinaryTokenType.Addition,
+                BinaryTokenType.Subtraction,
+                BinaryTokenType.LeftShift,
+                BinaryTokenType.RightShift,
+                BinaryTokenType.LessThan,
+                BinaryTokenType.GreaterThan,
+                BinaryTokenType.LessThanOrEqual,
+                BinaryTokenType.GreaterThanOrEqual,
+                BinaryTokenType.Equality,
+                BinaryTokenType.NotEqual,
+                BinaryTokenType.LogicalAnd,
+                BinaryTokenType.LogicalXor,
+                BinaryTokenType.LogicalOr,
+                BinaryTokenType.ConditionalAnd,
+                BinaryTokenType.ConditionalOr,
+                BinaryTokenType.NullCoalescing
+            };
         }
 
         #endregion
 
         #region Properties
+
+        public List<BinaryTokenType> Tokens { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Binary;
 
@@ -166,9 +162,9 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private BinaryTokenType? GetToken(ITokenParserContext context)
         {
-            for (var i = 0; i < _tokens.Length; i++)
+            for (var i = 0; i < Tokens.Count; i++)
             {
-                var token = _tokens[i];
+                var token = Tokens[i];
                 if (context.IsToken(token.Value))
                 {
                     context.MoveNext(token.Value.Length);

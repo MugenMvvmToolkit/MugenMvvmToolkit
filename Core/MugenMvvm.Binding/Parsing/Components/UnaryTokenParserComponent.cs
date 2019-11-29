@@ -4,7 +4,9 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Internal;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -13,28 +15,23 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Constructors
 
-        public UnaryTokenParserComponent(Dictionary<char, UnaryTokenType[]>? mapping = null)
+        public UnaryTokenParserComponent()
         {
-            if (mapping == null)
+            TokenMapping = new CharLightDictionary<UnaryTokenType[]>(7)
             {
-                TokensMapping = new Dictionary<char, UnaryTokenType[]>
-                {
-                    {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
-                    {UnaryTokenType.Plus.Value[0], new[] {UnaryTokenType.Plus}},
-                    {UnaryTokenType.BitwiseNegation.Value[0], new[] {UnaryTokenType.BitwiseNegation}},
-                    {UnaryTokenType.LogicalNegation.Value[0], new[] {UnaryTokenType.LogicalNegation}},
-                    {UnaryTokenType.DynamicExpression.Value[0], new[] {UnaryTokenType.StaticExpression, UnaryTokenType.DynamicExpression}}
-                };
-            }
-            else
-                TokensMapping = mapping;
+                {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
+                {UnaryTokenType.Plus.Value[0], new[] {UnaryTokenType.Plus}},
+                {UnaryTokenType.BitwiseNegation.Value[0], new[] {UnaryTokenType.BitwiseNegation}},
+                {UnaryTokenType.LogicalNegation.Value[0], new[] {UnaryTokenType.LogicalNegation}},
+                {UnaryTokenType.DynamicExpression.Value[0], new[] {UnaryTokenType.StaticExpression, UnaryTokenType.DynamicExpression}}
+            };
         }
 
         #endregion
 
         #region Properties
 
-        public Dictionary<char, UnaryTokenType[]> TokensMapping { get; }
+        public LightDictionary<char, UnaryTokenType[]> TokenMapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Unary;
 
@@ -61,7 +58,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             var position = context.SkipWhitespacesPosition();
-            if (context.IsEof(position) || !TokensMapping.TryGetValue(context.TokenAt(position), out var values))
+            if (context.IsEof(position) || !TokenMapping.TryGetValue(context.TokenAt(position), out var values))
                 return null;
 
             for (var i = 0; i < values.Length; i++)

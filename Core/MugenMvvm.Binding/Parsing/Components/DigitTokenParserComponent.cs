@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
+﻿using System.Globalization;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Collections;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -13,37 +14,32 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Constructors
 
-        public DigitTokenParserComponent(Dictionary<string, ConvertDelegate>? postfixToConverters = null)
+        public DigitTokenParserComponent()
         {
-            if (postfixToConverters == null)
+            ConvertDelegate defaultConverter = Convert;
+            PostfixToConverter = new StringOrdinalLightDictionary<ConvertDelegate>(17)
             {
-                ConvertDelegate defaultConverter = Convert;
-                PostfixToConverter = new Dictionary<string, ConvertDelegate>
-                {
-                    [""] = defaultConverter,
-                    ["f"] = defaultConverter,
-                    ["F"] = defaultConverter,
-                    ["d"] = defaultConverter,
-                    ["D"] = defaultConverter,
-                    ["m"] = defaultConverter,
-                    ["M"] = defaultConverter,
-                    ["u"] = defaultConverter,
-                    ["U"] = defaultConverter,
-                    ["ul"] = defaultConverter,
-                    ["UL"] = defaultConverter,
-                    ["Ul"] = defaultConverter,
-                    ["uL"] = defaultConverter
-                };
-            }
-            else
-                PostfixToConverter = postfixToConverters;
+                [""] = defaultConverter,
+                ["f"] = defaultConverter,
+                ["F"] = defaultConverter,
+                ["d"] = defaultConverter,
+                ["D"] = defaultConverter,
+                ["m"] = defaultConverter,
+                ["M"] = defaultConverter,
+                ["u"] = defaultConverter,
+                ["U"] = defaultConverter,
+                ["ul"] = defaultConverter,
+                ["UL"] = defaultConverter,
+                ["Ul"] = defaultConverter,
+                ["uL"] = defaultConverter
+            };
         }
 
         #endregion
 
         #region Properties
 
-        public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
+        public LightDictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
 

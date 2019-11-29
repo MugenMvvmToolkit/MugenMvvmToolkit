@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Binding.Constants;
+﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Collections;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
@@ -12,26 +13,21 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Constructors
 
-        public ConstantTokenParserComponent(Dictionary<string, IExpressionNode>? literalToExpression = null)
+        public ConstantTokenParserComponent()
         {
-            if (literalToExpression == null)
+            LiteralToExpression = new StringOrdinalLightDictionary<IExpressionNode>(3)
             {
-                LiteralToExpression = new Dictionary<string, IExpressionNode>
-                {
-                    {"null", ConstantExpressionNode.Null},
-                    {"true", ConstantExpressionNode.True},
-                    {"false", ConstantExpressionNode.False}
-                };
-            }
-            else
-                LiteralToExpression = literalToExpression;
+                {"null", ConstantExpressionNode.Null},
+                {"true", ConstantExpressionNode.True},
+                {"false", ConstantExpressionNode.False}
+            };
         }
 
         #endregion
 
         #region Properties
 
-        public Dictionary<string, IExpressionNode> LiteralToExpression { get; }
+        public LightDictionary<string, IExpressionNode> LiteralToExpression { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
