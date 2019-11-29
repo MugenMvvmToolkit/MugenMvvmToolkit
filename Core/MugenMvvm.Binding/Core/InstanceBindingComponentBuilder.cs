@@ -67,9 +67,9 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public IComponent<IBinding> GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        public IComponent<IBinding>? GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return Component!;
+            return Component;
         }
 
         #endregion

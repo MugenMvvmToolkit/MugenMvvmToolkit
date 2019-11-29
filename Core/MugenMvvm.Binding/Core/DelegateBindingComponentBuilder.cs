@@ -13,14 +13,14 @@ namespace MugenMvvm.Binding.Core
     {
         #region Fields
 
-        private readonly Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> _componentFactory;
+        private readonly Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _componentFactory;
         private readonly TState _state;
 
         #endregion
 
         #region Constructors
 
-        public DelegateBindingComponentBuilder(Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> componentFactory,
+        public DelegateBindingComponentBuilder(Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> componentFactory,
             string name, TState state)
         {
             Should.NotBeNull(componentFactory, nameof(componentFactory));
@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public IComponent<IBinding> GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        public IComponent<IBinding>? GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return _componentFactory(_state, binding, target, source, metadata);
         }

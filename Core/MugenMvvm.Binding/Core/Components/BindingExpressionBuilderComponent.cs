@@ -289,13 +289,13 @@ namespace MugenMvvm.Binding.Core.Components
                         sources = default;
                         break;
                     case IBindingMemberExpressionNode[] expressions:
-                    {
-                        var array = new object[expressions.Length];
-                        for (var i = 0; i < array.Length; i++)
-                            array[i] = expressions[i].GetBindingSource(target, source, metadata);
-                        sources = array;
-                        break;
-                    }
+                        {
+                            var array = new object[expressions.Length];
+                            for (var i = 0; i < array.Length; i++)
+                                array[i] = expressions[i].GetBindingSource(target, source, metadata);
+                            sources = array;
+                            break;
+                        }
                     default:
                         sources = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetBindingSource(target, source, metadata);
                         break;
@@ -307,12 +307,17 @@ namespace MugenMvvm.Binding.Core.Components
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 if (_componentBuilders!.Length == 1)
-                    binding.Initialize(new ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
+                    binding.Initialize(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
                 else if (_componentBuilders.Length != 0)
                 {
-                    var components = new IComponent<IBinding>[_componentBuilders.Length];
+                    var components = new IComponent<IBinding>?[_componentBuilders.Length];
+                    int size = 0;
                     for (var i = 0; i < components.Length; i++)
-                        MugenExtensions.AddOrdered(components, _componentBuilders[i].GetComponent(binding, target, source, metadata), i, binding);
+                    {
+                        var component = _componentBuilders[i].GetComponent(binding, target, source, metadata);
+                        if (component != null)
+                            MugenExtensions.AddOrdered(components, component, size++, binding!);
+                    }
                     binding.Initialize(components, metadata);
                 }
 

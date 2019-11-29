@@ -390,7 +390,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Methods
 
-        public void Initialize(ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> components, IReadOnlyMetadataContext? metadata)
+        public void Initialize(ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]> components, IReadOnlyMetadataContext? metadata)
         {
             if (CheckFlag(DisposedFlag))
                 return;
@@ -421,7 +421,7 @@ namespace MugenMvvm.Binding.Core
             if (currentLength == 1)
             {
                 _components = list[0];
-                OnComponentAdded(list[0], metadata);
+                OnComponentAdded(list[0]!, metadata);
                 return;
             }
 
@@ -429,7 +429,7 @@ namespace MugenMvvm.Binding.Core
                 Array.Resize(ref list, currentLength);
             _components = list;
             for (int i = 0; i < list.Length; i++)
-                OnComponentAdded(list[i], metadata);
+                OnComponentAdded(list[i]!, metadata);
         }
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
@@ -823,9 +823,9 @@ namespace MugenMvvm.Binding.Core
             return false;
         }
 
-        private bool OnComponentAdding(IComponent<IBinding> component, IReadOnlyMetadataContext? metadata)
+        private bool OnComponentAdding(IComponent<IBinding>? component, IReadOnlyMetadataContext? metadata)
         {
-            if (!MugenExtensions.OnComponentAddingHandler(this, component, metadata))
+            if (component == null || !MugenExtensions.OnComponentAddingHandler(this, component, metadata))
                 return false;
 
             if (CheckFlag(HasComponentChangingListener))

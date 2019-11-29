@@ -9,6 +9,6 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         string Name { get; }
 
-        IComponent<IBinding> GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata);
+        IComponent<IBinding>? GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata);
     }
 }
