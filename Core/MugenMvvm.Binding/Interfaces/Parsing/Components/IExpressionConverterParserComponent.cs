@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Components
 {
     public interface IExpressionConverterParserComponent<TExpression> : IComponent<IExpressionParser> where TExpression : class
     {
-        IExpressionNode? TryConvert(IExpressionConverterParserContext<TExpression> context, TExpression expression);
+        IExpressionNode? TryConvert(IExpressionConverterContext<TExpression> context, TExpression expression);
     }
 }

@@ -25,13 +25,13 @@ namespace MugenMvvm.Binding
         #region Methods
 
         [return: NotNullIfNotNull("expression")]
-        public static IExpressionNode? ConvertOptional(this IExpressionConverterParserContext<Expression> context, Expression? expression)
+        public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression)
         {
             return expression == null ? null : context.Convert(expression);
         }
 
         [return: NotNullIfNotNull("expression")]
-        public static IReadOnlyList<IExpressionNode> Convert(this IExpressionConverterParserContext<Expression> context, IReadOnlyList<Expression> expressions)
+        public static IReadOnlyList<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, IReadOnlyList<Expression> expressions)
         {
             var nodes = new IExpressionNode[expressions.Count];
             for (int i = 0; i < nodes.Length; i++)

@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Parsing
 {
-    public interface IExpressionConverterParserContext<in TExpression> : IParserContext where TExpression : class
+    public interface IExpressionConverterContext<in TExpression> : IParserContext where TExpression : class
     {
         IExpressionNode? TryGetExpression(TExpression expression);
 

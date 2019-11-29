@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class ExpressionConverterParserContext<TExpression> : IExpressionConverterParserContext<TExpression> where TExpression : class
+    public sealed class ExpressionConverterContext<TExpression> : IExpressionConverterContext<TExpression> where TExpression : class
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionConverterParserContext(IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
             _converters = Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();

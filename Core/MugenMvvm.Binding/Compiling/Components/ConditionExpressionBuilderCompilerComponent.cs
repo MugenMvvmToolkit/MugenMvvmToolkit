@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ConditionExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
+    public sealed class ConditionExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent, IHasPriority
     {
         #region Properties
 

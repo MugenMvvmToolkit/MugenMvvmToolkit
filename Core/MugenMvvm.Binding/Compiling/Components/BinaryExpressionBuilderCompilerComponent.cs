@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class BinaryExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
+    public sealed class BinaryExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent, IHasPriority
     {
         #region Fields
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public BinaryExpressionBuilderComponent()
+        public BinaryExpressionBuilderCompilerComponent()
         {
             BinaryTokenMapping = new Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>
             {

@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class MemberExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
+    public sealed class MemberExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent, IHasPriority
     {
         #region Fields
 
@@ -24,13 +24,13 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static readonly MethodInfo GetValuePropertyMethod =
             typeof(IMemberAccessorInfo).GetMethodOrThrow(nameof(IMemberAccessorInfo.GetValue), BindingFlagsEx.InstancePublic);
 
-        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilderComponent).GetMethodOrThrow(nameof(GetValueDynamic), BindingFlagsEx.InstancePublic);
+        private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilderCompilerComponent).GetMethodOrThrow(nameof(GetValueDynamic), BindingFlagsEx.InstancePublic);
 
         #endregion
 
         #region Constructors
 
-        public MemberExpressionBuilderComponent(IMemberProvider? memberProvider = null)
+        public MemberExpressionBuilderCompilerComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
             _thisExpression = Expression.Constant(this);

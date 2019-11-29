@@ -19,7 +19,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class MethodCallIndexerExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
+    public sealed class MethodCallIndexerExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent, IHasPriority
     {
         #region Fields
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public MethodCallIndexerExpressionBuilderComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
+        public MethodCallIndexerExpressionBuilderCompilerComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
         {
             _memberProvider = memberProvider;
             _resourceResolver = resourceResolver;
@@ -653,14 +653,14 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             #region Fields
 
-            private readonly MethodCallIndexerExpressionBuilderComponent _component;
+            private readonly MethodCallIndexerExpressionBuilderCompilerComponent _component;
             private Type? _type;
 
             #endregion
 
             #region Constructors
 
-            public MethodInvoker(MethodCallIndexerExpressionBuilderComponent component) : base(3)
+            public MethodInvoker(MethodCallIndexerExpressionBuilderCompilerComponent component) : base(3)
             {
                 _component = component;
             }

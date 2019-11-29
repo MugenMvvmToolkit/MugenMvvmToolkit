@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        public IExpressionNode? TryConvert(IExpressionConverterParserContext<Expression> context, Expression expression)
+        public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
             if (!(expression is MemberExpression memberExpression))
                 return null;

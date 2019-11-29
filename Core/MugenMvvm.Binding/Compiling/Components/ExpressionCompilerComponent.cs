@@ -18,7 +18,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class LinqExpressionCompilerComponent : ComponentTrackerBase<IExpressionCompiler, IExpressionBuilderComponent>, IExpressionCompilerComponent, IHasPriority
+    public sealed class ExpressionCompilerComponent : ComponentTrackerBase<IExpressionCompiler, IExpressionBuilderCompilerComponent>, IExpressionCompilerComponent, IHasPriority
     {
         #region Fields
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public LinqExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
         }
@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             #region Fields
 
-            private readonly LinqExpressionCompilerComponent _compiler;
+            private readonly ExpressionCompilerComponent _compiler;
             private readonly IExpressionNode _expression;
             private readonly IReadOnlyMetadataContext? _inputMetadata;
             private readonly ExpressionDictionary _expressionsDict;
@@ -71,7 +71,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Constructors
 
-            public CompiledExpression(LinqExpressionCompilerComponent compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+            public CompiledExpression(ExpressionCompilerComponent compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
             {
                 _compiler = compiler;
                 _inputMetadata = metadata;
