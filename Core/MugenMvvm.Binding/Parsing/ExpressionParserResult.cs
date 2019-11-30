@@ -20,8 +20,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
-            IReadOnlyMetadataContext? metadata)
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(source, nameof(source));
