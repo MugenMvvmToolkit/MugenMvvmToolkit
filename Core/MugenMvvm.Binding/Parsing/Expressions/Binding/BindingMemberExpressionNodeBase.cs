@@ -1,13 +1,14 @@
 ﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 {
-    public abstract class BindingMemberExpressionNodeBase : ParameterExpressionNode, IBindingMemberExpressionNode
+    public abstract class BindingMemberExpressionNodeBase : ExpressionNodeBase, IBindingMemberExpressionNode
     {
         #region Fields
 
@@ -18,8 +19,10 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Constructors
 
-        protected BindingMemberExpressionNodeBase(string path, IObserverProvider? observerProvider) : base(path, -1)
+        protected BindingMemberExpressionNodeBase(string path, IObserverProvider? observerProvider)
         {
+            Should.NotBeNull(path, nameof(path));
+            Path = path;
             ObserverProvider = observerProvider;
         }
 
@@ -31,18 +34,17 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         public BindingMemberExpressionFlags Flags { get; set; }
 
+        public int Index { get; set; }
+
         public MemberFlags MemberFlags { get; set; }
 
         public string? ObservableMethodName { get; set; }
 
+        public string Path { get; }
+
         #endregion
 
         #region Implementation of interfaces
-
-        public virtual void SetIndex(int index)
-        {
-            Index = index;
-        }
 
         public abstract object GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
 
@@ -56,11 +58,16 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
+        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        {
+            return this;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected IMemberPath GetMemberPath(IReadOnlyMetadataContext? metadata)
         {
             if (_memberPath == null)
-                _memberPath = ObserverProvider.DefaultIfNull().GetMemberPath(Name, metadata);
+                _memberPath = ObserverProvider.DefaultIfNull().GetMemberPath(Path, metadata);
             return _memberPath;
         }
 
@@ -71,6 +78,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
                 Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethod) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
             return ObserverProvider.DefaultIfNull().GetMemberPathObserver(target, request, metadata);
+        }
+
+        public override string ToString()
+        {
+            return $"bind{Index}({Path})";
         }
 
         #endregion

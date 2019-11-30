@@ -4,7 +4,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -144,15 +143,14 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
             {
-                if (expression.ExpressionType == ExpressionNodeType.BindingMember)
+                if (expression is IBindingMemberExpressionNode memberExpression)
                 {
-                    var parameterExpression = (IParameterExpressionNode)expression;
-                    if (parameterExpression.Index < 0)
+                    if (memberExpression.Index < 0)
                     {
-                        this.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBindingMemberExpressionFormat2.Format(parameterExpression, parameterExpression.Index));
-                        this.ThrowCannotCompile(parameterExpression);
+                        this.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBindingMemberExpressionFormat2.Format(memberExpression, memberExpression.Index));
+                        this.ThrowCannotCompile(memberExpression);
                     }
-                    _expressionsDict[parameterExpression] = null;
+                    _expressionsDict[memberExpression] = null;
                 }
 
                 return expression;
@@ -228,19 +226,18 @@ namespace MugenMvvm.Binding.Compiling.Components
                     var expressionValues = values.List;
                     foreach (var value in _expressionsDict)
                     {
-                        if (value.Key.ExpressionType != ExpressionNodeType.BindingMember)
+                        if (!(value.Key is IBindingMemberExpressionNode memberExpression))
                             continue;
 
-                        var parameterExpression = (IParameterExpressionNode)value.Key;
-                        var index = MugenExtensions.GetIndexExpression(parameterExpression.Index);
+                        var index = MugenExtensions.GetIndexExpression(memberExpression.Index);
                         if (expressionValues == null)
                         {
-                            if (parameterExpression.Index != 0)
+                            if (memberExpression.Index != 0)
                                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(values));
-                            _expressionsDict[parameterExpression] = index.ConvertIfNeed(values.Item.Type, false);
+                            _expressionsDict[memberExpression] = index.ConvertIfNeed(values.Item.Type, false);
                         }
                         else
-                            _expressionsDict[parameterExpression] = index.ConvertIfNeed(expressionValues[parameterExpression.Index].Type, false);
+                            _expressionsDict[memberExpression] = index.ConvertIfNeed(expressionValues[memberExpression.Index].Type, false);
                     }
 
                     var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
@@ -355,23 +352,15 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override int GetHashCode(IExpressionNode key)
             {
-                if (key.ExpressionType == ExpressionNodeType.BindingMember)
-                {
-                    var parameter = (IParameterExpressionNode)key;
-                    return HashCode.Combine(parameter.Index, parameter.Name);
-                }
-
+                if (key is IBindingMemberExpressionNode member)
+                    return HashCode.Combine(member.Index, member.Path);
                 return RuntimeHelpers.GetHashCode(key);
             }
 
             protected override bool Equals(IExpressionNode x, IExpressionNode y)
             {
-                if (x.ExpressionType == ExpressionNodeType.BindingMember && y.ExpressionType == ExpressionNodeType.BindingMember)
-                {
-                    var xP = (IParameterExpressionNode)x;
-                    var yP = (IParameterExpressionNode)y;
-                    return xP.Index == yP.Index && xP.Name == yP.Name;
-                }
+                if (x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP)
+                    return xP.Index == yP.Index && xP.Path == yP.Path;
 
                 return ReferenceEquals(x, y);
             }

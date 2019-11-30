@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Core.Components
             IReadOnlyMetadataContext? metadata)
         {
             //source is empty, target is expression
-            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.MemberName)
+            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.Member)
                                                                  && !(targetExpression is IMemberExpressionNode)
                                                                  && !(targetExpression is IBindingMemberExpressionNode))
             {

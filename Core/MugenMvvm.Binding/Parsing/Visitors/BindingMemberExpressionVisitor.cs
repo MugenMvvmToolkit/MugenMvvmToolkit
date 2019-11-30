@@ -101,11 +101,11 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             if (methodCall.Target == null)
             {
                 _memberBuilder.Clear();
-                member = GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.Default, methodCall.MethodName);
+                member = GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.Default, methodCall.Method);
             }
             else
             {
-                member = GetOrAddBindingMember(methodCall.Target, methodCall.MethodName, metadata);
+                member = GetOrAddBindingMember(methodCall.Target, methodCall.Method, metadata);
                 if (member == null)
                     return methodCall;
             }
@@ -132,23 +132,23 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 unaryExpression.Operand is IMemberExpressionNode memberExpression)
             {
                 //$target, $self, $this
-                if (memberExpression.MemberName == MacrosConstant.Target || memberExpression.MemberName == MacrosConstant.Self ||
-                    memberExpression.MemberName == MacrosConstant.This)
+                if (memberExpression.Member == MacrosConstant.Target || memberExpression.Member == MacrosConstant.Self ||
+                    memberExpression.Member == MacrosConstant.This)
                     return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.TargetOnly, methodName);
 
                 //$source
-                if (memberExpression.MemberName == MacrosConstant.Source)
+                if (memberExpression.Member == MacrosConstant.Source)
                     return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.SourceOnly, methodName);
 
                 //$context
-                if (memberExpression.MemberName == MacrosConstant.Context)
+                if (memberExpression.Member == MacrosConstant.Context)
                 {
                     _memberBuilder.Insert(0, BindableMembers.Object.DataContext);
                     return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.TargetOnly, methodName);
                 }
 
                 //type -> $string, $int, etc
-                var type = _resourceResolver.DefaultIfNull().TryGetType(memberExpression.MemberName);
+                var type = _resourceResolver.DefaultIfNull().TryGetType(memberExpression.Member);
                 if (type != null)
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
@@ -165,9 +165,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //resource -> $i18n, $color, etc
                 if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                 {
-                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.MemberName, metadata);
+                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.Member, metadata);
                     if (resourceValue == null)
-                        BindingExceptionManager.ThrowCannotResolveResource(memberExpression.MemberName);
+                        BindingExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
                 
@@ -179,7 +179,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
 
                 _memberBuilder.Insert(0, nameof(IResourceValue.Value));
-                return GetOrAddResource(memberExpression.MemberName, methodName);
+                return GetOrAddResource(memberExpression.Member, methodName);
             }
 
             return null;

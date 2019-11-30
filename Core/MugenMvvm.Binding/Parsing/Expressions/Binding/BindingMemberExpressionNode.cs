@@ -77,10 +77,10 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
                 return _dataContextMemberPath;
 
             string path;
-            if (Name.StartsWith("[", StringComparison.Ordinal))
-                path = BindableMembers.Object.DataContext + Name;
+            if (Path.StartsWith("[", StringComparison.Ordinal))
+                path = BindableMembers.Object.DataContext + Path;
             else
-                path = BindableMembers.Object.DataContext + "." + Name;
+                path = BindableMembers.Object.DataContext + "." + Path;
             _dataContextMemberPath = ObserverProvider.DefaultIfNull().GetMemberPath(path, metadata);
             return _dataContextMemberPath;
         }

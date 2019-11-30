@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 for (var i = 0; i < expressions.Count; i++)
                 {
                     var parameterExpression = expressions[i];
-                    context.SetExpression(parameterExpression, new ParameterExpressionNode(parameterExpression.Name, i, parameterExpression.Type));
+                    context.SetExpression(parameterExpression, new ParameterExpressionNode(parameterExpression.Name));
                 }
 
                 return context.Convert(lambda.Body);

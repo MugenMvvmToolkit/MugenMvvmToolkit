@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -12,20 +11,13 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Constructors
 
-        public MethodCallExpressionNode(IExpressionNode? target, IMethodInfo method,
-            IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
-            : this(target, method?.Name!, arguments, typeArgs)
-        {
-            Method = method;
-        }
-
         public MethodCallExpressionNode(IExpressionNode? target, string method,
             IReadOnlyList<IExpressionNode> arguments, IReadOnlyList<string>? typeArgs = null)
         {
             Should.NotBeNull(method, nameof(method));
             Should.NotBeNull(arguments, nameof(arguments));
             Target = target;
-            MethodName = method;
+            Method = method;
             Arguments = arguments;
             TypeArgs = typeArgs ?? Default.EmptyArray<string>();
         }
@@ -36,9 +28,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.MethodCall;
 
-        public IMethodInfo? Method { get; private set; }
-
-        public string MethodName { get; }
+        public string Method { get; }
 
         public IReadOnlyList<string> TypeArgs { get; }
 
@@ -55,9 +45,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Should.NotBeNull(arguments, nameof(arguments));
             if (ReferenceEquals(arguments, Arguments))
                 return this;
-
-            if (Method == null)
-                return new MethodCallExpressionNode(Target, MethodName, arguments, TypeArgs);
             return new MethodCallExpressionNode(Target, Method, arguments, TypeArgs);
         }
 
@@ -65,9 +52,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (ReferenceEquals(target, Target))
                 return this;
-
-            if (Method == null)
-                return new MethodCallExpressionNode(target, MethodName, Arguments, TypeArgs);
             return new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
         }
 
@@ -93,7 +77,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             if (changed || itemsChanged)
-                return new MethodCallExpressionNode(target, MethodName, newArgs ?? Arguments, TypeArgs) { Method = Method };
+                return new MethodCallExpressionNode(target, Method, newArgs ?? Arguments, TypeArgs);
             return this;
         }
 
@@ -104,8 +88,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 typeArgs = $"<{string.Join(", ", TypeArgs)}>";
             var join = string.Join(",", Arguments);
             if (Target == null)
-                return $"{MethodName}{typeArgs}({join})";
-            return $"{Target}.{MethodName}{typeArgs}({join})";
+                return $"{Method}{typeArgs}({join})";
+            return $"{Target}.{Method}{typeArgs}({join})";
         }
 
         #endregion

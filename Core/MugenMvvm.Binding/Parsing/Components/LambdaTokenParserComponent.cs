@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
                 args = new IParameterExpressionNode[stringArgs.Count];
                 for (int i = 0; i < args.Length; i++)
-                    args[i] = new ParameterExpressionNode(stringArgs[i], i);
+                    args[i] = new ParameterExpressionNode(stringArgs[i]);
             }
             else
             {
@@ -90,7 +90,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                     return null;
                 }
 
-                args = new IParameterExpressionNode[] { new ParameterExpressionNode(context.GetValue(context.Position, end), 0) };
+                args = new IParameterExpressionNode[] { new ParameterExpressionNode(context.GetValue(context.Position, end)) };
                 context.Position = position;
             }
 

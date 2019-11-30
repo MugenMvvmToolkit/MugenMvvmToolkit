@@ -85,17 +85,17 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         public virtual IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
-            if (expression is IMethodCallExpressionNode method && ConstantParametersMethods.TryGetValue(method.MethodName, out var methodName))
+            if (expression is IMethodCallExpressionNode method && ConstantParametersMethods.TryGetValue(method.Method, out var methodName))
             {
                 var arguments = method.Arguments;
                 if (arguments.Count == 0)
                 {
-                    if (method.MethodName == methodName)
+                    if (method.Method == methodName)
                         return method;
                     return new MethodCallExpressionNode(method.Target, methodName, Default.EmptyArray<IExpressionNode>(), method.TypeArgs);
                 }
 
-                if (method.MethodName == methodName && arguments.All(n => n is IConstantExpressionNode))
+                if (method.Method == methodName && arguments.All(n => n is IConstantExpressionNode))
                     return method;
 
                 var args = new IExpressionNode[arguments.Count];
@@ -119,15 +119,15 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
             {
-                if (unaryExpression.Operand is IMemberExpressionNode memberExpression && MacrosMethods.TryGetValue(memberExpression.MemberName, out var m))
+                if (unaryExpression.Operand is IMemberExpressionNode memberExpression && MacrosMethods.TryGetValue(memberExpression.Member, out var m))
                     return m;
 
                 if (unaryExpression.Operand is IMethodCallExpressionNode methodCallExpression)
                 {
-                    if (MethodAliases.TryGetValue(methodCallExpression.MethodName, out m))
+                    if (MethodAliases.TryGetValue(methodCallExpression.Method, out m))
                         return m.UpdateArguments(methodCallExpression.Arguments);
 
-                    if (methodCallExpression.Target == null && MacrosTargets.TryGetValue(methodCallExpression.MethodName, out var target))
+                    if (methodCallExpression.Target == null && MacrosTargets.TryGetValue(methodCallExpression.Method, out var target))
                         return methodCallExpression.UpdateTarget(target);
                 }
             }

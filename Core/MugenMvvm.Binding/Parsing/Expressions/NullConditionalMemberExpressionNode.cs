@@ -31,7 +31,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (ReferenceEquals(target, Target))
                 return this;
-
             return new NullConditionalMemberExpressionNode(target!);
         }
 

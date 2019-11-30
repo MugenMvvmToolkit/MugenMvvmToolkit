@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             if (node is IMemberExpressionNode member)
-                return BindingMemberPriorities.TryGetValue(member.MemberName, out priority);
+                return BindingMemberPriorities.TryGetValue(member.Member, out priority);
 
             priority = 0;
             return false;

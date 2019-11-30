@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             if (expression is IBindingMemberExpressionNode bindingMember && !_members.Contains(bindingMember))
             {
-                bindingMember.SetIndex(_members.Count);
+                bindingMember.Index = _members.Count;
                 _members.Add(bindingMember);
             }
 

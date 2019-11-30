@@ -82,9 +82,6 @@ namespace MugenMvvm.Binding.Compiling.Components
             Expression? target = context.Build(methodCallExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
 
-            if (methodCallExpression.Method != null)
-                return GenerateMethodCall(context, methodCallExpression.Method, target, methodCallExpression.Arguments);
-
             var targetData = new TargetData(type, target);
             var args = new ArgumentData[methodCallExpression.Arguments.Count];
             for (var i = 0; i < args.Length; i++)
@@ -93,7 +90,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(methodCallExpression.Arguments[i]), null);
             }
 
-            return TryBuildExpression(context, methodCallExpression.MethodName, targetData, args, GetTypes(methodCallExpression.TypeArgs));
+            return TryBuildExpression(context, methodCallExpression.Method, targetData, args, GetTypes(methodCallExpression.TypeArgs));
         }
 
         private Expression? TryBuildIndex(IExpressionBuilderContext context, IIndexExpressionNode indexExpression)
@@ -106,9 +103,6 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             Expression? target = context.Build(indexExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
-
-            if (indexExpression.Indexer != null)
-                return GenerateMethodCall(context, indexExpression.Indexer, target, indexExpression.Arguments);
 
             if (type.IsArray)
                 return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
@@ -302,19 +296,6 @@ namespace MugenMvvm.Binding.Compiling.Components
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
             invokeArgs[2] = context.MetadataParameter;
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs).ConvertIfNeed(result.Method.Type, true);
-        }
-
-        private static Expression GenerateMethodCall(IExpressionBuilderContext context, IMethodInfo methodInfo, Expression? target, IReadOnlyList<IExpressionNode> args)
-        {
-            var expressions = ToExpressions(context, args, methodInfo, null);
-            if (methodInfo.UnderlyingMember is MethodInfo method)
-                return Expression.Call(target, method, expressions);
-
-            var invokeArgs = new Expression[3];
-            invokeArgs[0] = target.ConvertIfNeed(typeof(object), false) ?? MugenExtensions.NullConstantExpression;
-            invokeArgs[1] = Expression.NewArrayInit(typeof(object), expressions.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
-            invokeArgs[2] = context.MetadataParameter;
-            return Expression.Call(Expression.Constant(methodInfo), InvokeMethod, invokeArgs).ConvertIfNeed(methodInfo.Type, true);
         }
 
         private static int TrySelectMethod(MethodData[] methods, ArgumentData[]? args, out bool resultHasParams)

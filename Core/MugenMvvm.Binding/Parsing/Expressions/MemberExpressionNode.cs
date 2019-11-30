@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -22,21 +21,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         #region Constructors
 
-        private MemberExpressionNode(IExpressionNode? target, IMemberAccessorInfo? memberInfo, string member)
+        public MemberExpressionNode(IExpressionNode? target, string member)
         {
             Should.NotBeNull(member, nameof(member));
             Target = target;
-            Member = memberInfo;
-            MemberName = member;
-        }
-
-        public MemberExpressionNode(IExpressionNode? target, string member) : this(target, null, member)
-        {
-        }
-
-        public MemberExpressionNode(IExpressionNode? target, IMemberAccessorInfo member)
-            : this(target, member, member?.Name!)
-        {
+            Member = member;
         }
 
         #endregion
@@ -45,9 +34,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Member;
 
-        public IMemberAccessorInfo? Member { get; }
-
-        public string MemberName { get; }
+        public string Member { get; }
 
         public IExpressionNode? Target { get; }
 
@@ -59,8 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (ReferenceEquals(target, Target))
                 return this;
-
-            return new MemberExpressionNode(target, Member, MemberName);
+            return new MemberExpressionNode(target, Member);
         }
 
         #endregion
@@ -93,15 +79,15 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             var changed = false;
             var node = VisitWithCheck(visitor, Target, false, ref changed, metadata);
             if (changed)
-                return new MemberExpressionNode(node, Member, MemberName);
+                return new MemberExpressionNode(node, Member);
             return this;
         }
 
         public override string ToString()
         {
             if (Target == null)
-                return MemberName;
-            return $"{Target}.{MemberName}";
+                return Member;
+            return $"{Target}.{Member}";
         }
 
         #endregion

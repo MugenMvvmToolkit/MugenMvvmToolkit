@@ -43,16 +43,9 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 for (var i = 0; i < parameters.Length; i++)
                 {
-                    var parameterExp = lambdaExpression.Parameters[i];
-                    if (parameterExp.Type != null && !parameterExp.Type.IsAssignableFrom(parameters[i].ParameterType))
-                    {
-                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileLambdaExpressionParameterNotAssignableFormat3.Format(lambdaExpression, parameterExp, parameters[i]));
-                        return null;
-                    }
-
                     var parameter = Expression.Parameter(parameters[i].ParameterType, lambdaExpression.Parameters[i].Name);
                     lambdaParameters[i] = parameter;
-                    context.SetExpression(parameterExp, parameter);
+                    context.SetExpression(lambdaExpression.Parameters[i], parameter);
                 }
 
                 return Expression.Lambda(context.Build(lambdaExpression.Body), lambdaParameters);

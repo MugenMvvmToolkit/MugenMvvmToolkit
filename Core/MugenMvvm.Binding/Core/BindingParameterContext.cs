@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Core
                 }
 
                 if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)
-                    return (TValue)(object)member.MemberName;
+                    return (TValue)(object)member.Member;
                 BindingExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
             }
             return defaultValue;
@@ -107,13 +107,13 @@ namespace MugenMvvm.Binding.Core
                     ComponentBuilders[builder.Name] = builder;
                     return;
                 case IBinaryExpressionNode binary when binary.Token == BinaryTokenType.Equality && binary.Left is IMemberExpressionNode memberExpression:
-                    EqualityParameters[memberExpression.MemberName] = binary.Right;
+                    EqualityParameters[memberExpression.Member] = binary.Right;
                     return;
                 case IUnaryExpressionNode unary when unary.Token == UnaryTokenType.LogicalNegation && unary.Operand is IMemberExpressionNode member:
-                    InlineParameters[member.MemberName] = false;
+                    InlineParameters[member.Member] = false;
                     return;
                 case IMemberExpressionNode m:
-                    InlineParameters[m.MemberName] = true;
+                    InlineParameters[m.Member] = true;
                     break;
             }
         }

@@ -1,21 +1,18 @@
-﻿using System;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
-    public class ParameterExpressionNode : ExpressionNodeBase, IParameterExpressionNode
+    public sealed class ParameterExpressionNode : ExpressionNodeBase, IParameterExpressionNode
     {
         #region Constructors
 
-        public ParameterExpressionNode(string name, int index, Type? type = null)
+        public ParameterExpressionNode(string name)
         {
             Should.NotBeNull(name, nameof(name));
-            Index = index;
             Name = name;
-            Type = type;
         }
 
         #endregion
@@ -24,11 +21,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Parameter;
 
-        public int Index { get; protected set; }
-
         public string Name { get; }
-
-        public Type? Type { get; }
 
         #endregion
 
@@ -41,8 +34,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public override string ToString()
         {
-            if (ExpressionType == ExpressionNodeType.BindingMember)
-                return "bindValue" + Index;
             return Name;
         }
 

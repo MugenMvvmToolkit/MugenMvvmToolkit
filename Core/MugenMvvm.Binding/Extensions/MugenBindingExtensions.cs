@@ -282,7 +282,7 @@ namespace MugenMvvm.Binding
                 {
                     case IMemberExpressionNode memberExpressionNode:
                         {
-                            var memberName = memberExpressionNode.MemberName.Trim();
+                            var memberName = memberExpressionNode.Member.Trim();
                             builder.Insert(0, memberName);
                             if (memberExpressionNode.Target != null)
                                 builder.Insert(0, '.');
@@ -322,7 +322,7 @@ namespace MugenMvvm.Binding
                             }
 
                             builder.Insert(0, '(');
-                            builder.Insert(0, methodCallExpression.MethodName);
+                            builder.Insert(0, methodCallExpression.Method);
                             builder.Insert(0, '.');
                             target = methodCallExpression.Target;
                             break;

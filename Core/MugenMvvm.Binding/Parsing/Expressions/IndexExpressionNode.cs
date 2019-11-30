@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,20 +18,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Arguments = arguments;
         }
 
-        public IndexExpressionNode(IExpressionNode? target, IMethodInfo indexer, IReadOnlyList<IExpressionNode> arguments)
-            : this(target, arguments)
-        {
-            Should.NotBeNull(indexer, nameof(indexer));
-            Indexer = indexer;
-        }
-
         #endregion
 
         #region Properties
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Index;
-
-        public IMethodInfo? Indexer { get; private set; }
 
         public IExpressionNode? Target { get; }
 
@@ -47,20 +37,14 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Should.NotBeNull(arguments, nameof(arguments));
             if (ReferenceEquals(arguments, Arguments))
                 return this;
-
-            if (Indexer == null)
-                return new IndexExpressionNode(Target, arguments);
-            return new IndexExpressionNode(Target, Indexer, arguments);
+            return new IndexExpressionNode(Target, arguments);
         }
 
         public IIndexExpressionNode UpdateTarget(IExpressionNode? target)
         {
             if (ReferenceEquals(target, Target))
                 return this;
-
-            if (Indexer == null)
-                return new IndexExpressionNode(target, Arguments);
-            return new IndexExpressionNode(target, Indexer, Arguments);
+            return new IndexExpressionNode(target, Arguments);
         }
 
         #endregion
@@ -85,7 +69,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             }
 
             if (changed || itemsChanged)
-                return new IndexExpressionNode(target!, newArgs ?? Arguments) { Indexer = Indexer };
+                return new IndexExpressionNode(target!, newArgs ?? Arguments);
             return this;
         }
 

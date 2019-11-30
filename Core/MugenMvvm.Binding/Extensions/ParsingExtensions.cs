@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
+using System.Reflection;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -24,6 +25,11 @@ namespace MugenMvvm.Binding
 
         #region Methods
 
+        public static IExpressionNode ConvertTarget(this IExpressionConverterContext<Expression> context, Expression? expression, MemberInfo member)
+        {
+            return context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
+        }
+
         [return: NotNullIfNotNull("expression")]
         public static IExpressionNode? ConvertOptional(this IExpressionConverterContext<Expression> context, Expression? expression)
         {
@@ -31,14 +37,13 @@ namespace MugenMvvm.Binding
         }
 
         [return: NotNullIfNotNull("expression")]
-        public static IReadOnlyList<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, IReadOnlyList<Expression> expressions)
+        public static List<IExpressionNode> Convert(this IExpressionConverterContext<Expression> context, IReadOnlyList<Expression> expressions)
         {
-            var nodes = new IExpressionNode[expressions.Count];
-            for (int i = 0; i < nodes.Length; i++)
-                nodes[i] = context.Convert(expressions[i]);
+            var nodes = new List<IExpressionNode>(expressions.Count);
+            for (int i = 0; i < expressions.Count; i++)
+                nodes.Add(context.Convert(expressions[i]));
             return nodes;
         }
-
 
         [DoesNotReturn]
         public static void ThrowCannotParse<T>(this IParserContext context, T expression)

@@ -4,11 +4,13 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 {
-    public interface IBindingMemberExpressionNode : IParameterExpressionNode
+    public interface IBindingMemberExpressionNode : IExpressionNode
     {
         BindingMemberExpressionFlags Flags { get; set; }
 
-        void SetIndex(int index);
+        int Index { get; set; }
+
+        string Path { get; }
 
         object GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
 

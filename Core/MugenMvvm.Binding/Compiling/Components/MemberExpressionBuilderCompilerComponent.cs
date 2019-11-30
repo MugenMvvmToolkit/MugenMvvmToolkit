@@ -55,23 +55,19 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             Expression? target = context.Build(memberExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
-            var member = memberExpression.Member;
-            if (member == null)
+            MemberFlags flags;
+            if (target == null)
             {
-                MemberFlags flags;
-                if (target == null)
-                {
-                    if (type.IsEnum)
-                        return Expression.Constant(Enum.Parse(type, memberExpression.MemberName));
-                    flags = MemberFlags.SetInstanceOrStaticFlags(true);
-                }
-                else
-                    flags = MemberFlags.SetInstanceOrStaticFlags(false);
-
-                member = _memberProvider
-                    .DefaultIfNull()
-                    .GetMember(type, memberExpression.MemberName, MemberType.Accessor, flags, context.GetMetadataOrDefault()) as IMemberAccessorInfo;
+                if (type.IsEnum)
+                    return Expression.Constant(Enum.Parse(type, memberExpression.Member));
+                flags = MemberFlags.SetInstanceOrStaticFlags(true);
             }
+            else
+                flags = MemberFlags.SetInstanceOrStaticFlags(false);
+
+            var member = _memberProvider
+                .DefaultIfNull()
+                .GetMember(type, memberExpression.Member, MemberType.Accessor, flags, context.GetMetadataOrDefault()) as IMemberAccessorInfo;
 
             if (member == null)
             {
@@ -83,7 +79,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 return Expression.Call(_thisExpression, GetValueDynamicMethod,
                     target.ConvertIfNeed(typeof(object), false),
-                    Expression.Constant(memberExpression.MemberName),
+                    Expression.Constant(memberExpression.Member),
                     context.MetadataParameter);
             }
 
