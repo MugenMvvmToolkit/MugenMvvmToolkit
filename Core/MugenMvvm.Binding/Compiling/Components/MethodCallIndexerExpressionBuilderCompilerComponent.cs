@@ -120,7 +120,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
         {
-            var methods = FindBestMethods(GetMethods(targetData.Type, methodName, targetData.IsStatic, null, context.GetMetadataOrDefault()), args, typeArgs);
+            var methods = GetBestMethodCandidates(GetMethods(targetData.Type, methodName, targetData.IsStatic, typeArgs, context.GetMetadataOrDefault()), args);
             var expression = TryGenerateMethodCall(context, methods, targetData, args);
             if (expression != null)
                 return expression;
@@ -175,7 +175,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return typeArgs;
         }
 
-        private static MethodData[] FindBestMethods(MethodData[] methods, ArgumentData[] arguments, Type[] typeArgs)
+        private static MethodData[] GetBestMethodCandidates(MethodData[] methods, ArgumentData[] arguments)
         {
             for (var index = 0; index < methods.Length; index++)
             {
@@ -186,7 +186,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         continue;
 
                     methods[index] = default;
-                    var methodData = TryInferMethod(methodInfo.Method, arguments, typeArgs);
+                    var methodData = TryInferMethod(methodInfo.Method, arguments);
                     if (methodData.IsEmpty)
                         continue;
 
@@ -247,15 +247,14 @@ namespace MugenMvvm.Binding.Compiling.Components
                         var data = arguments[index];
                         if (data.IsLambda)
                         {
-                            var lambdaParameter = method.Parameters[index];
-                            context.SetLambdaParameter(lambdaParameter);
+                            context.SetLambdaParameter(method.Parameters[index]);
                             try
                             {
                                 data = data.UpdateExpression(context.Build(data.Node));
                             }
                             finally
                             {
-                                context.ClearLambdaParameter(lambdaParameter);
+                                context.ClearLambdaParameter(method.Parameters[index]);
                             }
 
                             arguments[index] = data;
@@ -530,18 +529,10 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
-        private static MethodData TryInferMethod(IMethodInfo method, ArgumentData[] args, Type[] typeArgs)
+        private static MethodData TryInferMethod(IMethodInfo method, ArgumentData[] args)
         {
-            var m = ApplyTypeArgs(method, typeArgs);
-            if (m != null)
-                return new MethodData(m);
-            if (!method.IsGenericMethod || typeArgs.Length != 0)
-                return default;
-            return TryInferGenericMethod(method, args);
-        }
-
-        private static MethodData TryInferGenericMethod(IMethodInfo method, ArgumentData[] args)
-        {
+            if (!method.IsGenericMethodDefinition)
+                return new MethodData(method);
             var genericMethod = TryInferGenericMethod(method, args, out var hasUnresolved);
             if (genericMethod == null)
                 return default;
