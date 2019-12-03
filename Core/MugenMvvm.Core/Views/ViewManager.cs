@@ -26,14 +26,16 @@ namespace MugenMvvm.Views
         public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var components = Components.GetComponents();
+            var components = GetComponents<IViewInfoProviderComponent>(metadata);
             if (components.Length == 0)
                 return Default.EmptyArray<IViewInfo>();
+            if (components.Length == 1)
+                return components[0].GetViews(viewModel, metadata) ?? Default.EmptyArray<IViewInfo>();
 
             var result = new List<IViewInfo>();
             for (var i = 0; i < components.Length; i++)
             {
-                var views = (components[i] as IViewInfoProviderComponent)?.GetViews(viewModel, metadata);
+                var views = components[i].GetViews(viewModel, metadata);
                 if (views != null && views.Count != 0)
                     result.AddRange(views);
             }
@@ -44,14 +46,14 @@ namespace MugenMvvm.Views
         public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(view, nameof(view));
-            var components = Components.GetComponents();
+            var components = GetComponents<IViewInitializerProviderComponent>(metadata);
             if (components.Length == 0)
                 return Default.EmptyArray<IViewInitializer>();
 
             var result = new List<IViewInitializer>();
             for (var i = 0; i < components.Length; i++)
             {
-                var initializers = (components[i] as IViewInitializerProviderComponent)?.GetInitializersByView(view, metadata);
+                var initializers = components[i].GetInitializersByView(view, metadata);
                 if (initializers != null && initializers.Count != 0)
                     result.AddRange(initializers);
             }
@@ -62,14 +64,14 @@ namespace MugenMvvm.Views
         public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var components = Components.GetComponents();
+            var components = GetComponents<IViewInitializerProviderComponent>(metadata);
             if (components.Length == 0)
                 return Default.EmptyArray<IViewInitializer>();
 
             var result = new List<IViewInitializer>();
             for (var i = 0; i < components.Length; i++)
             {
-                var initializers = (components[i] as IViewInitializerProviderComponent)?.GetInitializersByViewModel(viewModel, metadata);
+                var initializers = components[i].GetInitializersByViewModel(viewModel, metadata);
                 if (initializers != null && initializers.Count != 0)
                     result.AddRange(initializers);
             }

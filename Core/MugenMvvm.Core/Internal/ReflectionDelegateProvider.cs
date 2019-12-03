@@ -6,60 +6,27 @@ using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class ReflectionDelegateProvider : ComponentOwnerBase<IReflectionDelegateProvider>, IReflectionDelegateProvider,
-        IComponentOwnerAddedCallback<IComponent<IReflectionDelegateProvider>>, IComponentOwnerRemovedCallback<IComponent<IReflectionDelegateProvider>>
+    public sealed class ReflectionDelegateProvider : ComponentOwnerBase<IReflectionDelegateProvider>, IReflectionDelegateProvider
     {
-        #region Fields
-
-        private IActivatorReflectionDelegateProviderComponent[] _activatorComponents;
-        private IReflectionDelegateProviderComponent[] _delegateComponents;
-        private IMemberReflectionDelegateProviderComponent[] _memberComponents;
-        private IMethodReflectionDelegateProviderComponent[] _methodComponents;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
         public ReflectionDelegateProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            _delegateComponents = Default.EmptyArray<IReflectionDelegateProviderComponent>();
-            _activatorComponents = Default.EmptyArray<IActivatorReflectionDelegateProviderComponent>();
-            _methodComponents = Default.EmptyArray<IMethodReflectionDelegateProviderComponent>();
-            _memberComponents = Default.EmptyArray<IMemberReflectionDelegateProviderComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IReflectionDelegateProvider>>.OnComponentAdded(IComponentCollection<IComponent<IReflectionDelegateProvider>> collection,
-            IComponent<IReflectionDelegateProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _delegateComponents, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _activatorComponents, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _methodComponents, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _memberComponents, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IReflectionDelegateProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IReflectionDelegateProvider>> collection,
-            IComponent<IReflectionDelegateProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _delegateComponents, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _activatorComponents, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _methodComponents, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _memberComponents, component);
-        }
-
         public bool CanCreateDelegate(Type delegateType, MethodInfo method)
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            var components = _delegateComponents;
+            var components = GetComponents<IReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].CanCreateDelegate(delegateType, method))
@@ -73,7 +40,7 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            var components = _delegateComponents;
+            var components = GetComponents<IReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryCreateDelegate(delegateType, target, method);
@@ -87,7 +54,7 @@ namespace MugenMvvm.Internal
         public Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
             Should.NotBeNull(constructor, nameof(constructor));
-            var components = _activatorComponents;
+            var components = GetComponents<IActivatorReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetActivator(constructor);
@@ -103,7 +70,7 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(constructor, nameof(constructor));
             Should.NotBeNull(delegateType, nameof(delegateType));
-            var components = _activatorComponents;
+            var components = GetComponents<IActivatorReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetActivator(constructor, delegateType);
@@ -118,7 +85,7 @@ namespace MugenMvvm.Internal
         public Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
             Should.NotBeNull(method, nameof(method));
-            var components = _methodComponents;
+            var components = GetComponents<IMethodReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetMethodInvoker(method);
@@ -134,7 +101,7 @@ namespace MugenMvvm.Internal
         {
             Should.NotBeNull(delegateType, nameof(delegateType));
             Should.NotBeNull(method, nameof(method));
-            var components = _methodComponents;
+            var components = GetComponents<IMethodReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetMethodInvoker(method, delegateType);
@@ -149,7 +116,7 @@ namespace MugenMvvm.Internal
         public Delegate GetMemberGetter(MemberInfo member, Type delegateType)
         {
             Should.NotBeNull(member, nameof(member));
-            var components = _memberComponents;
+            var components = GetComponents<IMemberReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetMemberGetter(member, delegateType);
@@ -164,7 +131,7 @@ namespace MugenMvvm.Internal
         public Delegate GetMemberSetter(MemberInfo member, Type delegateType)
         {
             Should.NotBeNull(member, nameof(member));
-            var components = _memberComponents;
+            var components = GetComponents<IMemberReflectionDelegateProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetMemberSetter(member, delegateType);

@@ -299,7 +299,7 @@ namespace MugenMvvm.Presenters
             catch (Exception e)
             {
                 _showingContext = null;
-                NavigationDispatcher.OnNavigationFailed((INavigationContext)state!, e);
+                NavigationDispatcher.OnNavigationFailed(state, e);
                 throw;
             }
         }

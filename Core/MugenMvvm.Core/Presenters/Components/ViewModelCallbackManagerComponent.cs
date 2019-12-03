@@ -5,6 +5,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -17,11 +18,13 @@ using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelCallbackManagerComponent : AttachableComponentBase<IPresenter>, IPresenterComponent, ICloseablePresenterComponent, IHasPriority
+    public sealed class ViewModelCallbackManagerComponent : DecoratorTrackerComponentBase<IPresenter, IPresenterComponent>, IPresenterComponent, ICloseablePresenterComponent, IHasPriority
     {
         #region Fields
 
         private readonly NavigationDispatcherListener _dispatcherListener;
+
+        private ICloseablePresenterComponent[] _closeablePresenters;
         private INavigationDispatcher? _navigationDispatcher;
 
         private static readonly IMetadataContextKey<List<NavigationCallback?>> ShowingCallbacks = GetBuilder<List<NavigationCallback?>>(nameof(ShowingCallbacks))
@@ -44,6 +47,7 @@ namespace MugenMvvm.Presenters.Components
         {
             _navigationDispatcher = navigationDispatcher;
             _dispatcherListener = new NavigationDispatcherListener(this);
+            _closeablePresenters = Default.EmptyArray<ICloseablePresenterComponent>();
         }
 
         #endregion
@@ -61,17 +65,13 @@ namespace MugenMvvm.Presenters.Components
         public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
         {
             _dispatcherListener.BeginSuspend();
-            var components = Owner.GetComponents();
+            var components = _closeablePresenters;
             try
             {
                 var results = new List<IPresenterResult>();
                 for (var i = 0; i < components.Length; i++)
                 {
-                    if (!(components[i] is ICloseablePresenterComponent presenter) || presenter.GetPriority(Owner) >= Priority
-                                                                                   || !Owner.CanClose(presenter, results, metadata))
-                        continue;
-
-                    var operations = presenter.TryClose(metadata);
+                    var operations = components[i].TryClose(metadata);
                     if (operations != null)
                         results.AddRange(operations);
                 }
@@ -95,16 +95,12 @@ namespace MugenMvvm.Presenters.Components
         public IPresenterResult? TryShow(IMetadataContext metadata)
         {
             _dispatcherListener.BeginSuspend();
-            var components = Owner.GetComponents();
+            var components = Components;
             try
             {
                 for (var i = 0; i < components.Length; i++)
                 {
-                    if (!(components[i] is IPresenterComponent presenter) || presenter.GetPriority(Owner) >= Priority
-                                                                          || !Owner.CanShow(presenter, metadata))
-                        continue;
-
-                    var result = presenter.TryShow(metadata);
+                    var result = components[i].TryShow(metadata);
                     if (result != null)
                     {
                         var callback = AddCallback(result, NavigationCallbackType.Showing);
@@ -129,8 +125,25 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            ICloseablePresenterComponent[]? _ = null;
+            MugenExtensions.ComponentDecoratorOnAdded(this, collection, component, ref _, ref _closeablePresenters);
+            base.OnComponentAdded(collection, component, metadata);
+        }
+
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            ICloseablePresenterComponent[]? _ = null;
+            MugenExtensions.ComponentDecoratorOnRemoved(this, component, ref _, ref _closeablePresenters);
+            base.OnComponentRemoved(collection, component, metadata);
+        }
+
         protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
+            ICloseablePresenterComponent[]? _ = null;
+            MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _, ref _closeablePresenters);
+            base.OnAttachedInternal(owner, metadata);
             if (_navigationDispatcher == null)
                 _navigationDispatcher = MugenService.NavigationDispatcher;
             _navigationDispatcher.AddComponent(_dispatcherListener);
@@ -138,6 +151,8 @@ namespace MugenMvvm.Presenters.Components
 
         protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
+            base.OnDetachedInternal(owner, metadata);
+            _closeablePresenters = Default.EmptyArray<ICloseablePresenterComponent>();
             _navigationDispatcher?.RemoveComponent(_dispatcherListener);
             _navigationDispatcher = null;
         }
@@ -152,15 +167,15 @@ namespace MugenMvvm.Presenters.Components
             var callback = new NavigationCallback(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationOperationId);
             var key = GetKeyByCallback(callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?)null, (context, _) => new List<NavigationCallback?>());
+            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?) null, (context, _) => new List<NavigationCallback?>());
             lock (callback)
             {
                 callbacks.Add(callback);
             }
 
-            var components = Owner.GetComponents();
+            var components = Owner.GetComponents<IViewModelCallbackManagerListener>(presenterResult.GetMetadataOrDefault());
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IViewModelCallbackManagerListener)?.OnCallbackAdded(callback, viewModel, presenterResult.Metadata);
+                components[i].OnCallbackAdded(callback, viewModel, presenterResult.Metadata);
             return callback;
         }
 
@@ -238,9 +253,9 @@ namespace MugenMvvm.Presenters.Components
                 else
                     callback.SetResult(result);
 
-                var components = Owner.GetComponents();
+                var components = Owner.GetComponents<IViewModelCallbackManagerListener>(navigationContext.GetMetadataOrDefault());
                 for (var j = 0; j < components.Length; i++)
-                    (components[j] as IViewModelCallbackManagerListener)?.OnCallbackExecuted(callback, vm!, navigationContext);
+                    components[j].OnCallbackExecuted(callback, vm!, navigationContext);
             }
         }
 
@@ -276,13 +291,13 @@ namespace MugenMvvm.Presenters.Components
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallback?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallback>?)value;
+            var callbacks = (IList<NavigationCallback>?) value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 
         private static object? SerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallback?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallback>?)value;
+            var callbacks = (IList<NavigationCallback>?) value;
             if (callbacks == null)
                 return null;
             lock (callbacks)

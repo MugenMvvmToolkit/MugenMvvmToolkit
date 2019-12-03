@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces.Components
 {
     public interface IComponentCollectionProviderListener : IComponent<IComponentCollectionProvider>
     {
-        void OnComponentCollectionCreated<T>(IComponentCollectionProvider provider, IComponentCollection<T> componentCollection, IReadOnlyMetadataContext? metadata) where T : class;
+        void OnComponentCollectionCreated(IComponentCollectionProvider provider, IComponentCollection componentCollection, IReadOnlyMetadataContext? metadata);
     }
 }

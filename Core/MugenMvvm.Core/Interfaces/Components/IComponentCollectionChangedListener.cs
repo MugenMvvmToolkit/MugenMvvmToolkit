@@ -2,10 +2,10 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollectionChangedListener<T> : IComponent<IComponentCollection<T>> where T : class
+    public interface IComponentCollectionChangedListener : IComponent<IComponentCollection>
     {
-        void OnAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
+        void OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
 
-        void OnRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
+        void OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }
 }

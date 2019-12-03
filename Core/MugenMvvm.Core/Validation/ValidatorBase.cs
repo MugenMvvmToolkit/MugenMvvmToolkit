@@ -255,23 +255,23 @@ namespace MugenMvvm.Validation
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
         {
-            var components = GetComponents();
+            var components = GetComponents<IValidatorListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IValidatorListener)?.OnErrorsChanged(this, memberName, metadata);
+                components[i].OnErrorsChanged(this, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
-            var components = GetComponents();
+            var components = GetComponents<IValidatorListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IValidatorListener)?.OnAsyncValidation(this, memberName, validationTask, metadata);
+                components[i].OnAsyncValidation(this, memberName, validationTask, metadata);
         }
 
         protected virtual void OnDispose()
         {
-            var components = GetComponents();
+            var components = GetComponents<IValidatorListener>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IValidatorListener)?.OnDisposed(this);
+                components[i].OnDisposed(this);
         }
 
         protected void UpdateErrors(string memberName, IReadOnlyList<object>? errors, bool raiseNotifications, IReadOnlyMetadataContext? metadata)

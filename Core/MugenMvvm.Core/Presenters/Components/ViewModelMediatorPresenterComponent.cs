@@ -15,7 +15,8 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent, INavigationDispatcherNavigatedListener, IHasPriority
+    public sealed class ViewModelMediatorPresenterComponent : AttachableComponentBase<IPresenter>, ICloseablePresenterComponent, IRestorablePresenterComponent, IPresenterComponent, INavigationDispatcherNavigatedListener,
+        IHasPriority
     {
         #region Fields
 
@@ -62,10 +63,10 @@ namespace MugenMvvm.Presenters.Components
                 m = mediators.ToArray();
             }
 
-            var managers = Owner.GetComponents();
+            var managers = Owner.GetComponents<IViewModelMediatorCloseManagerComponent>(metadata);
             for (var i = 0; i < managers.Length; i++)
             {
-                var result = (managers[i] as IViewModelMediatorCloseManagerComponent)?.TryCloseInternal(viewModel!, m, metadata);
+                var result = managers[i].TryCloseInternal(viewModel!, m, metadata);
                 if (result != null)
                     return result;
             }
@@ -121,7 +122,7 @@ namespace MugenMvvm.Presenters.Components
             if (mediator == null)
                 return Default.EmptyArray<IPresenterResult>();
 
-            return new[] { mediator.Restore(viewInfo, metadata) };
+            return new[] {mediator.Restore(viewInfo, metadata)};
         }
 
         #endregion
@@ -143,16 +144,16 @@ namespace MugenMvvm.Presenters.Components
 
         private IViewModelPresenterMediator? TryGetMediator(IViewModelBase viewModel, IViewInitializer viewInitializer, IMetadataContext metadata)
         {
-            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?)null, (context, _) => new List<IViewModelPresenterMediator>());
-            var components = Owner.GetComponents();
+            var mediators = viewModel.Metadata.GetOrAdd(NavigationMediators, (object?) null, (context, _) => new List<IViewModelPresenterMediator>());
             lock (mediators)
             {
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
+                    var components = Owner.GetComponents<IViewModelMediatorProviderComponent>(metadata);
                     for (var i = 0; i < components.Length; i++)
                     {
-                        mediator = (components[i] as IViewModelMediatorProviderComponent)?.TryGetMediator(viewModel, viewInitializer, metadata)!;
+                        mediator = components[i].TryGetMediator(viewModel, viewInitializer, metadata)!;
                         if (mediator != null)
                         {
                             mediators.Add(mediator);

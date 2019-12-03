@@ -14,8 +14,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IEqualityComparer<MessengerSubscriberInfo>,
-        IComponentOwnerAddedCallback<IComponent<IMessenger>>, IComponentOwnerRemovedCallback<IComponent<IMessenger>>
+    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IEqualityComparer<MessengerSubscriberInfo>//todo clear cache component added/removed
     {
         #region Fields
 
@@ -24,9 +23,6 @@ namespace MugenMvvm.Messaging
 
         private readonly HashSet<MessengerSubscriberInfo> _subscribers;
         private readonly IThreadDispatcher? _threadDispatcher;
-        private IMessageContextProviderComponent[] _contextProviders;
-        private IMessengerHandlerComponent[] _handlerComponents;
-        private IMessengerHandlerListener[] _listeners;
 
         #endregion
 
@@ -40,30 +36,11 @@ namespace MugenMvvm.Messaging
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
             _subscribers = new HashSet<MessengerSubscriberInfo>(this);
-            _contextProviders = Default.EmptyArray<IMessageContextProviderComponent>();
-            _handlerComponents = Default.EmptyArray<IMessengerHandlerComponent>();
-            _listeners = Default.EmptyArray<IMessengerHandlerListener>();
         }
 
         #endregion
 
         #region Implementation of interfaces
-
-        void IComponentOwnerAddedCallback<IComponent<IMessenger>>.OnComponentAdded(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
-            IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _contextProviders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _handlerComponents, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _listeners, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IMessenger>>.OnComponentRemoved(IComponentCollection<IComponent<IMessenger>> collection, IComponent<IMessenger> component,
-            IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _contextProviders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _handlerComponents, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _listeners, component);
-        }
 
         bool IEqualityComparer<MessengerSubscriberInfo>.Equals(MessengerSubscriberInfo x, MessengerSubscriberInfo y)
         {
@@ -87,11 +64,11 @@ namespace MugenMvvm.Messaging
             if (executionMode == null)
                 executionMode = ThreadExecutionMode.Current;
 
-            var components = GetComponents();
+            var components = GetComponents<IMessengerSubscriberComponent>(metadata);
             var added = false;
             for (var i = 0; i < components.Length; i++)
             {
-                var handler = (components[i] as IMessengerSubscriberComponent)?.TryGetSubscriber(subscriber, executionMode, metadata);
+                var handler = components[i].TryGetSubscriber(subscriber, executionMode, metadata);
                 if (handler == null)
                     continue;
 
@@ -118,9 +95,9 @@ namespace MugenMvvm.Messaging
 
             if (removed)
             {
-                var components = GetComponents();
+                var components = GetComponents<IMessengerSubscriberListener>(metadata);
                 for (var i = 0; i < components.Length; i++)
-                    (components[i] as IMessengerSubscriberListener)?.OnUnsubscribed(this, subscriber, metadata);
+                    components[i].OnUnsubscribed(this, subscriber, metadata);
             }
 
             return removed;
@@ -138,7 +115,7 @@ namespace MugenMvvm.Messaging
         {
             Should.NotBeNull(message, nameof(message));
             IMessageContext? ctx = null;
-            var providers = _contextProviders;
+            var providers = GetComponents<IMessageContextProviderComponent>(metadata);
             for (var i = 0; i < providers.Length; i++)
             {
                 ctx = providers[i].TryGetMessengerContext(sender, message, metadata);
@@ -185,7 +162,7 @@ namespace MugenMvvm.Messaging
             foreach (var subscriber in _subscribers)
             {
                 var canHandle = false;
-                var handlerComponents = _handlerComponents;
+                var handlerComponents = GetComponents<IMessengerHandlerComponent>(null);
                 for (var i = 0; i < handlerComponents.Length; i++)
                 {
                     if (handlerComponents[i].CanHandle(subscriber.Subscriber, messageType))
@@ -223,11 +200,11 @@ namespace MugenMvvm.Messaging
                     _cache.Clear();
             }
 
-            var components = GetComponents();
+            var components = GetComponents<IMessengerSubscriberListener>(metadata);
             if (added)
             {
                 for (var i = 0; i < components.Length; i++)
-                    (components[i] as IMessengerSubscriberListener)?.OnSubscribed(this, subscriber, executionMode, metadata);
+                    components[i].OnSubscribed(this, subscriber, executionMode, metadata);
             }
 
             return added;
@@ -289,8 +266,9 @@ namespace MugenMvvm.Messaging
 
             public void Execute(IMessageContext messageContext)
             {
-                var handlers = _messenger._handlerComponents;
-                var listeners = _messenger._listeners;
+                var metadata = messageContext.GetMetadataOrDefault();
+                var handlers = _messenger.GetComponents<IMessengerHandlerComponent>(metadata);
+                var listeners = _messenger.GetComponents<IMessengerHandlerListener>(metadata);
                 for (var i = 0; i < Count; i++)
                 {
                     var subscriber = this[i];

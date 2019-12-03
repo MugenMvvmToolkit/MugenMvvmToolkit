@@ -23,11 +23,11 @@ namespace MugenMvvm.Metadata
 
         public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var components = Components.GetComponents();
+            var components = GetComponents<IMetadataContextProviderComponent>(null);
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
             {
-                result = (components[i] as IMetadataContextProviderComponent)?.TryGetReadOnlyMetadataContext(target, values);
+                result = components[i].TryGetReadOnlyMetadataContext(target, values);
                 if (result != null)
                     break;
             }
@@ -35,18 +35,19 @@ namespace MugenMvvm.Metadata
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
 
+            var listeners = GetComponents<IMetadataContextProviderListener>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IMetadataContextProviderListener)?.OnReadOnlyContextCreated(this, result!, target);
+                listeners[i].OnReadOnlyContextCreated(this, result!, target);
             return result;
         }
 
         public IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var components = Components.GetComponents();
+            var components = GetComponents<IMetadataContextProviderComponent>(null);
             IMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
             {
-                result = (components[i] as IMetadataContextProviderComponent)?.TryGetMetadataContext(target, values);
+                result = components[i].TryGetMetadataContext(target, values);
                 if (result != null)
                     break;
             }
@@ -54,8 +55,9 @@ namespace MugenMvvm.Metadata
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
 
+            var listeners = GetComponents<IMetadataContextProviderListener>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IMetadataContextProviderListener)?.OnContextCreated(this, result!, target);
+                listeners[i].OnContextCreated(this, result!, target);
             return result;
         }
 

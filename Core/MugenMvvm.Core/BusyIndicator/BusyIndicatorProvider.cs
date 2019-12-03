@@ -123,18 +123,18 @@ namespace MugenMvvm.BusyIndicator
 
         private void OnBeginBusy(IBusyInfo busyInfo)
         {
-            var items = GetComponents();
+            var items = GetComponents<IBusyIndicatorProviderListener>(null);
             for (var i = 0; i < items.Length; i++)
-                (items[i] as IBusyIndicatorProviderListener)?.OnBeginBusy(this, busyInfo);
+                items[i].OnBeginBusy(this, busyInfo);
         }
 
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
         {
             if (!ignoreSuspend && IsSuspended)
                 return;
-            var items = GetComponents();
+            var items = GetComponents<IBusyIndicatorProviderListener>(null);
             for (var i = 0; i < items.Length; i++)
-                (items[i] as IBusyIndicatorProviderListener)?.OnBusyInfoChanged(this);
+                items[i].OnBusyInfoChanged(this);
         }
 
         #endregion

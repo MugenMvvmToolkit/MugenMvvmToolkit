@@ -41,7 +41,6 @@ namespace MugenMvvm.Navigation.Components
         public void OnNavigated(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            var components = navigationDispatcher.GetComponents();
             INavigationEntry? addedEntry = null;
             INavigationEntry? updatedEntry = null;
             INavigationEntry? removedEntry = null;
@@ -76,18 +75,21 @@ namespace MugenMvvm.Navigation.Components
 
             if (addedEntry != null)
             {
+                var components = navigationDispatcher.GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault());
                 for (var i = 0; i < components.Length; i++)
-                    (components[i] as INavigationDispatcherEntryListener)?.OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationContext);
+                    components[i].OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationContext);
             }
             else if (updatedEntry != null)
             {
+                var components = navigationDispatcher.GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault());
                 for (var i = 0; i < components.Length; i++)
-                    (components[i] as INavigationDispatcherEntryListener)?.OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationContext);
+                    components[i].OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationContext);
             }
             else if (removedEntry != null)
             {
+                var components = navigationDispatcher.GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault());
                 for (var i = 0; i < components.Length; i++)
-                    (components[i] as INavigationDispatcherEntryListener)?.OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationContext);
+                    components[i].OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationContext);
             }
         }
 

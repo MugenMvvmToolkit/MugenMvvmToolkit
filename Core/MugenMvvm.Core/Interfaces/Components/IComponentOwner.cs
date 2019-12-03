@@ -1,9 +1,13 @@
 ﻿namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwner<T> where T : class
+    public interface IComponentOwner
     {
         bool HasComponents { get; }
 
-        IComponentCollection<IComponent<T>> Components { get; }
+        IComponentCollection Components { get; }
+    }
+
+    public interface IComponentOwner<T> : IComponentOwner where T : class
+    {
     }
 }

@@ -27,10 +27,10 @@ namespace MugenMvvm.Commands
             Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(metadata, nameof(metadata));
             ICommandMediator? result = null;
-            var components = Components.GetComponents();
+            var components = GetComponents<ICommandMediatorProviderComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                result = (components[i] as ICommandMediatorProviderComponent)?.TryGetCommandMediator<TParameter>(command, metadata);
+                result = components[i].TryGetCommandMediator<TParameter>(command, metadata);
                 if (result != null)
                     break;
             }
@@ -39,8 +39,9 @@ namespace MugenMvvm.Commands
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, typeof(ICommandMediatorProviderComponent).Name);
 
+            var listeners = GetComponents<ICommandMediatorProviderListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as ICommandMediatorProviderListener)?.OnCommandMediatorCreated<TParameter>(this, result, command, metadata);
+                listeners[i].OnCommandMediatorCreated<TParameter>(this, result, command, metadata);
 
             return result;
         }

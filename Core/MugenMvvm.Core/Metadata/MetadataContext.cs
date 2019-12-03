@@ -15,7 +15,7 @@ namespace MugenMvvm.Metadata
         #region Fields
 
         private readonly MetadataContextLightDictionary _dictionary;
-        private IComponentCollection<IComponent<IMetadataContext>>? _components;
+        private IComponentCollection? _components;
 
         #endregion
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.Metadata
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection<IComponent<IMetadataContext>> Components
+        public IComponentCollection Components
         {
             get
             {
@@ -353,23 +353,23 @@ namespace MugenMvvm.Metadata
 
         private void OnAdded(IMetadataContextKey key, object? newValue)
         {
-            var items = this.GetComponents();
+            var items = this.GetComponents<IMetadataContextListener>(null);
             for (var i = 0; i < items.Length; i++)
-                (items[i] as IMetadataContextListener)?.OnAdded(this, key, newValue);
+                items[i].OnAdded(this, key, newValue);
         }
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
         {
-            var items = this.GetComponents();
+            var items = this.GetComponents<IMetadataContextListener>(null);
             for (var i = 0; i < items.Length; i++)
-                (items[i] as IMetadataContextListener)?.OnChanged(this, key, oldValue, newValue);
+                items[i].OnChanged(this, key, oldValue, newValue);
         }
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
         {
-            var items = this.GetComponents();
+            var items = this.GetComponents<IMetadataContextListener>(null);
             for (var i = 0; i < items.Length; i++)
-                (items[i] as IMetadataContextListener)?.OnRemoved(this, key, oldValue);
+                items[i].OnRemoved(this, key, oldValue);
         }
 
         #endregion

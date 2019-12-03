@@ -2,8 +2,8 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwnerAddingCallback<T> where T : class
+    public interface IComponentOwnerAddingCallback
     {
-        bool OnComponentAdding(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
+        bool OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }
 }

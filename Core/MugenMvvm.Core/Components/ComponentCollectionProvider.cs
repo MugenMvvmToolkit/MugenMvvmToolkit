@@ -8,7 +8,7 @@ namespace MugenMvvm.Components
     {
         #region Fields
 
-        private IComponentCollection<IComponent<IComponentCollectionProvider>>? _components;
+        private IComponentCollection? _components;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Components
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection<IComponent<IComponentCollectionProvider>> Components
+        public IComponentCollection Components
         {
             get
             {
@@ -39,14 +39,13 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        public IComponentCollection<T> GetComponentCollection<T>(object owner, IReadOnlyMetadataContext? metadata = null) where T : class
+        public IComponentCollection GetComponentCollection(object owner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(owner, nameof(owner));
-            var result = GetComponentCollectionInternal<T>(owner, metadata);
-            var components = this.GetComponents();
+            var result = GetComponentCollectionInternal(owner, metadata);
+            var components = this.GetComponents<IComponentCollectionProviderListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IComponentCollectionProviderListener)?.OnComponentCollectionCreated(this, result, metadata);
-
+                components[i].OnComponentCollectionCreated(this, result, metadata);
             return result;
         }
 
@@ -54,20 +53,20 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        private IComponentCollection<T> GetComponentCollectionInternal<T>(object owner, IReadOnlyMetadataContext? metadata) where T : class
+        private IComponentCollection GetComponentCollectionInternal(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (!ReferenceEquals(owner, this))
             {
-                var collectionFactories = this.GetComponents();
+                var collectionFactories = this.GetComponents<IComponentCollectionProviderComponent>(metadata);
                 for (var i = 0; i < collectionFactories.Length; i++)
                 {
-                    var collection = (collectionFactories[i] as IComponentCollectionProviderComponent)?.TryGetComponentCollection<T>(owner, metadata);
+                    var collection = collectionFactories[i].TryGetComponentCollection(owner, metadata);
                     if (collection != null)
                         return collection;
                 }
             }
 
-            return new ComponentCollection<T>(owner);
+            return new ComponentCollection(owner);
         }
 
         #endregion

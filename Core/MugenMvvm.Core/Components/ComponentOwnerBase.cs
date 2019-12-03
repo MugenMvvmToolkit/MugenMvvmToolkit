@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
@@ -7,7 +8,7 @@ namespace MugenMvvm.Components
         #region Fields
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private IComponentCollection<IComponent<T>>? _components;
+        private IComponentCollection? _components;
 
         #endregion
 
@@ -26,7 +27,7 @@ namespace MugenMvvm.Components
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IComponentCollection<IComponent<T>> Components
+        public IComponentCollection Components
         {
             get
             {
@@ -40,11 +41,12 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected IComponent<T>[] GetComponents()
+        protected TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata)
+            where TComponent : class //todo update metadata
         {
-            if (_components == null)
-                return Default.EmptyArray<IComponent<T>>();
-            return _components.GetComponents();
+            if (_components == null || _components.Count == 0)
+                return Default.EmptyArray<TComponent>();
+            return _components.GetComponents<TComponent>(metadata);
         }
 
         #endregion

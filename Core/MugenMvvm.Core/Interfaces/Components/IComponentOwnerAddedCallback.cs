@@ -2,8 +2,8 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwnerAddedCallback<T> where T : class
+    public interface IComponentOwnerAddedCallback//todo rename
     {
-        void OnComponentAdded(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
+        void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }
 }

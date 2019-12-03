@@ -2,8 +2,8 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwnerRemovedCallback<T> where T : class
+    public interface IComponentOwnerRemovedCallback
     {
-        void OnComponentRemoved(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata);
+        void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }
 }

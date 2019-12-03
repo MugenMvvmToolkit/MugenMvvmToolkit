@@ -29,10 +29,10 @@ namespace MugenMvvm.Wrapping
             if (wrapperType.IsAssignableFrom(type))
                 return true;
 
-            var components = Components.GetComponents();
+            var components = GetComponents<IWrapperManagerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is IWrapperManagerComponent component && component.CanWrap(this, type, wrapperType, metadata))
+                if (components[i].CanWrap(this, type, wrapperType, metadata))
                     return true;
             }
 
@@ -44,10 +44,10 @@ namespace MugenMvvm.Wrapping
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             object? wrapper = null;
-            var components = Components.GetComponents();
+            var components = GetComponents<IWrapperManagerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                wrapper = (components[i] as IWrapperManagerComponent)?.TryWrap(this, item.GetType(), wrapperType, metadata);
+                wrapper = components[i].TryWrap(this, item.GetType(), wrapperType, metadata);
                 if (wrapper != null)
                     break;
             }
@@ -55,8 +55,9 @@ namespace MugenMvvm.Wrapping
             if (wrapper == null)
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
+            var listeners = GetComponents<IWrapperManagerListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IWrapperManagerListener)?.OnWrapped(this, wrapper!, item, wrapperType, metadata);
+                listeners[i].OnWrapped(this, wrapper!, item, wrapperType, metadata);
 
             return wrapper;
         }

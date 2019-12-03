@@ -28,10 +28,10 @@ namespace MugenMvvm.Navigation
         public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type = null, IReadOnlyMetadataContext? metadata = null)
         {
             List<INavigationEntry>? result = null;
-            var components = Components.GetComponents();
+            var components = GetComponents<INavigationEntryProviderComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                var list = (components[i] as INavigationEntryProviderComponent)?.TryGetNavigationEntries(type, metadata);
+                var list = components[i].TryGetNavigationEntries(type, metadata);
                 if (list == null || list.Count == 0)
                     continue;
 
@@ -45,32 +45,37 @@ namespace MugenMvvm.Navigation
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext)
         {
-            return new NavigatingResult(this, Components.GetComponents(), navigationContext).Task;
+            var components = GetComponents<INavigationDispatcherNavigatingListener>(navigationContext.GetMetadataOrDefault());
+            if (components.Length == 0)
+                return Default.TrueTask;
+            if (components.Length == 1)
+                return components[0].OnNavigatingAsync(this, navigationContext) ?? Default.TrueTask;
+            return new NavigatingResult(this, components, navigationContext).Task;
         }
 
         public void OnNavigated(INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            var components = Components.GetComponents();
+            var components = GetComponents<INavigationDispatcherNavigatedListener>(navigationContext.GetMetadataOrDefault());
             for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationDispatcherNavigatedListener)?.OnNavigated(this, navigationContext);
+                components[i].OnNavigated(this, navigationContext);
         }
 
         public void OnNavigationFailed(INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             Should.NotBeNull(exception, nameof(exception));
-            var components = Components.GetComponents();
+            var components = GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault());
             for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationDispatcherErrorListener)?.OnNavigationFailed(this, navigationContext, exception);
+                components[i].OnNavigationFailed(this, navigationContext, exception);
         }
 
         public void OnNavigationCanceled(INavigationContext navigationContext)
         {
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            var components = Components.GetComponents();
+            var components = GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault());
             for (var i = 0; i < components.Length; i++)
-                (components[i] as INavigationDispatcherErrorListener)?.OnNavigationCanceled(this, navigationContext);
+                components[i].OnNavigationCanceled(this, navigationContext);
         }
 
         #endregion
@@ -81,7 +86,7 @@ namespace MugenMvvm.Navigation
         {
             #region Fields
 
-            private readonly IComponent<INavigationDispatcher>[] _components;
+            private readonly INavigationDispatcherNavigatingListener[] _components;
             private readonly NavigationDispatcher _dispatcher;
             private readonly INavigationContext _navigationContext;
             private int _index;
@@ -90,7 +95,7 @@ namespace MugenMvvm.Navigation
 
             #region Constructors
 
-            public NavigatingResult(NavigationDispatcher dispatcher, IComponent<INavigationDispatcher>[] components, INavigationContext navigationContext)
+            public NavigatingResult(NavigationDispatcher dispatcher, INavigationDispatcherNavigatingListener[] components, INavigationContext navigationContext)
             {
                 _dispatcher = dispatcher;
                 _components = components;
@@ -124,7 +129,7 @@ namespace MugenMvvm.Navigation
                         return;
                     }
 
-                    var resultTask = (_components[_index] as INavigationDispatcherNavigatingListener)?.OnNavigatingAsync(_dispatcher, _navigationContext) ?? Default.TrueTask;
+                    var resultTask = _components[_index].OnNavigatingAsync(_dispatcher, _navigationContext) ?? Default.TrueTask;
                     ++_index;
                     resultTask.ContinueWith(OnExecuted, this, TaskContinuationOptions.ExecuteSynchronously);
                 }

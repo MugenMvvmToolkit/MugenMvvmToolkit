@@ -30,6 +30,9 @@
         public const string CannotGetComponentFormat2 = "Cannot get component {0} owner {1}";
         public const string DuplicateKeyException = "An item with the same key has already been added.";
 
+        public const string DecoratorComponentWithTheSamePriorityNotSupportedFormat3 =
+            "Decorator component with the same priority '{0}' is not supported please review priority current component '{1}' new component '{2}'";
+
         #endregion
     }
 }

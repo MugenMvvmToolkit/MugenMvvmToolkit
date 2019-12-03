@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
@@ -51,10 +50,10 @@ namespace MugenMvvm.Commands
         {
             get
             {
-                var components = GetComponents();
+                var components = GetComponents<ISuspendable>(null);
                 for (var i = 0; i < components.Length; i++)
                 {
-                    if (components[i] is ISuspendable suspendNotifications && suspendNotifications.IsSuspended)
+                    if (components[i].IsSuspended)
                         return true;
                 }
 
@@ -112,10 +111,10 @@ namespace MugenMvvm.Commands
             if (_hasCanExecuteImpl.HasValue)
                 return _hasCanExecuteImpl.Value;
 
-            var components = GetComponents();
+            var components = GetComponents<IConditionCommandMediatorComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is IConditionCommandMediatorComponent m && m.HasCanExecute())
+                if (components[i].HasCanExecute())
                 {
                     _hasCanExecuteImpl = true;
                     return true;
@@ -134,10 +133,10 @@ namespace MugenMvvm.Commands
             if (!CanExecuteInternal(parameter))
                 return false;
 
-            var components = GetComponents();
+            var components = GetComponents<IConditionCommandMediatorComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i] is IConditionCommandMediatorComponent m && !m.CanExecute(parameter))
+                if (!components[i].CanExecute(parameter))
                     return false;
             }
 
@@ -149,9 +148,9 @@ namespace MugenMvvm.Commands
             if (!HasCanExecute())
                 return;
 
-            var components = GetComponents();
+            var components = GetComponents<IConditionEventCommandMediatorComponent>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IConditionEventCommandMediatorComponent)?.AddCanExecuteChanged(handler);
+                components[i].AddCanExecuteChanged(handler);
         }
 
         public virtual void RemoveCanExecuteChanged(EventHandler handler)
@@ -159,9 +158,9 @@ namespace MugenMvvm.Commands
             if (!HasCanExecute())
                 return;
 
-            var components = GetComponents();
+            var components = GetComponents<IConditionEventCommandMediatorComponent>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IConditionEventCommandMediatorComponent)?.RemoveCanExecuteChanged(handler);
+                components[i].RemoveCanExecuteChanged(handler);
         }
 
         public virtual void RaiseCanExecuteChanged()
@@ -169,31 +168,27 @@ namespace MugenMvvm.Commands
             if (!HasCanExecute())
                 return;
 
-            var components = GetComponents();
+            var components = GetComponents<IConditionEventCommandMediatorComponent>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IConditionEventCommandMediatorComponent)?.RaiseCanExecuteChanged();
+                components[i].RaiseCanExecuteChanged();
         }
 
         public virtual ActionToken Suspend()
         {
-            var components = GetComponents();
-            List<ActionToken>? tokens = null;
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is ISuspendable suspendNotifications)
-                {
-                    if (tokens == null)
-                        tokens = new List<ActionToken>(2);
-                    tokens.Add(suspendNotifications.Suspend());
-                }
-            }
-
-            if (tokens == null)
+            var components = GetComponents<ISuspendable>(null);
+            if (components.Length == 0)
                 return default;
+            if (components.Length == 1)
+                return components[0].Suspend();
+
+            ActionToken[] tokens = new ActionToken[components.Length];
+            for (var i = 0; i < components.Length; i++)
+                tokens[i] = components[i].Suspend();
+
             return new ActionToken((o, _) =>
             {
-                var list = (List<ActionToken>)o!;
-                for (int i = 0; i < list.Count; i++)
+                var list = (ActionToken[])o!;
+                for (int i = 0; i < list.Length; i++)
                     list[i].Dispose();
             }, tokens);
         }
@@ -218,9 +213,9 @@ namespace MugenMvvm.Commands
 
         protected virtual void OnDispose()
         {
-            var components = GetComponents();
+            var components = GetComponents<IDisposable>(null);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IDisposable)?.Dispose();
+                components[i].Dispose();
 
             ExecuteDelegate = Default.NoDoAction;
             CanExecuteDelegate = null;

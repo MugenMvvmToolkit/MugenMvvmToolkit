@@ -8,16 +8,16 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IComponentCollection<object>>? _wrappers;
+        private static IMetadataContextKey<IComponentCollection>? _wrappers;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<IComponentCollection<object>> Wrappers
+        public static IMetadataContextKey<IComponentCollection> Wrappers
         {
-            get => _wrappers ??= GetBuilder<IComponentCollection<object>>(nameof(Wrappers)).NotNull().Build();
+            get => _wrappers ??= GetBuilder<IComponentCollection>(nameof(Wrappers)).NotNull().Build();
             set => _wrappers = value;
         }
 

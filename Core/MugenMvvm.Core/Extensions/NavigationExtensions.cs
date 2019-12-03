@@ -69,10 +69,10 @@ namespace MugenMvvm
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
-            var components = dispatcher.GetComponents();
+            var components = dispatcher.GetComponents<INavigationContextProviderComponent>(metadata);
             for (int i = 0; i < components.Length; i++)
             {
-                var context = (components[i] as INavigationContextProviderComponent)?.TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+                var context = components[i].TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
                 if (context != null)
                     return context;
             }
@@ -84,11 +84,11 @@ namespace MugenMvvm
         public static IReadOnlyList<INavigationCallback> GetCallbacks(this INavigationDispatcher dispatcher, INavigationEntry entry, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
-            var components = dispatcher.GetComponents();
+            var components = dispatcher.GetComponents<INavigationCallbackProviderComponent>(metadata);
             List<INavigationCallback>? result = null;
             for (int i = 0; i < components.Length; i++)
             {
-                var callbacks = (components[i] as INavigationCallbackProviderComponent)?.TryGetCallbacks(entry, metadata);
+                var callbacks = components[i].TryGetCallbacks(entry, metadata);
                 if (callbacks == null || callbacks.Count == 0)
                     continue;
                 if (result == null)
@@ -103,10 +103,10 @@ namespace MugenMvvm
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
-            var components = dispatcher.GetComponents();
+            var components = dispatcher.GetComponents<INavigationEntryFinderComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                var result = (components[i] as INavigationEntryFinderComponent)?.TryGetPreviousNavigationEntry(navigationEntry, metadata);
+                var result = components[i].TryGetPreviousNavigationEntry(navigationEntry, metadata);
                 if (result != null)
                     return result;
             }

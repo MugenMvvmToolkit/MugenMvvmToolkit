@@ -1,11 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -20,15 +18,9 @@ namespace MugenMvvm
             if (owner == null)
                 return;
             (owner as IHasCache)?.Invalidate(state, metadata);
-            var components = owner.GetComponents();
+            var components = owner.GetComponents<IHasCache>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IHasCache)?.Invalidate(state, metadata);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T[] GetItemsOrDefault<T>(this IComponentCollection<T>? componentCollection) where T : class
-        {
-            return componentCollection?.GetComponents() ?? Default.EmptyArray<T>();
+                components[i].Invalidate(state, metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -37,56 +29,38 @@ namespace MugenMvvm
             return component ?? MugenService.Instance<T>();
         }
 
-        public static void AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
-            componentOwner.Components.Add(component, metadata);
+            return componentOwner.Components.Add(component, metadata);
         }
 
-        public static void RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
-                componentOwner.Components.Remove(component, metadata);
+                return componentOwner.Components.Remove(component, metadata);
+            return false;
         }
 
-        public static void ClearComponents<T>(this IComponentOwner<T> componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
                 componentOwner.Components.Clear(metadata);
         }
 
-        public static IComponent<T>[] GetComponents<T>(this IComponentOwner<T> componentOwner) where T : class
+        public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
-                return componentOwner.Components.GetComponents();
-            return Default.EmptyArray<IComponent<T>>();
+                return componentOwner.Components.GetComponents<T>(metadata);
+            return Default.EmptyArray<T>();
         }
 
-        public static TType? GetComponent<T, TType>(this IComponentOwner<T> owner, bool optional)
-            where T : class
-            where TType : class, IComponent<T>
+        public static bool LazyInitialize(this IComponentCollectionProvider? componentCollectionProvider, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(owner, nameof(owner));
-            var components = owner.GetComponents();
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i] is TType component)
-                    return component;
-            }
-
-            if (!optional)
-                ExceptionManager.ThrowCannotGetComponent(owner, typeof(T));
-            return null;
-        }
-
-        public static bool LazyInitialize<T>(this IComponentCollectionProvider? componentCollectionProvider, [NotNull] ref IComponentCollection<T>? item, object target,
-            IReadOnlyMetadataContext? metadata = null)
-            where T : class
-        {
-            return item == null && LazyInitialize(ref item, componentCollectionProvider.DefaultIfNull().GetComponentCollection<T>(target, metadata));
+            return item == null && LazyInitialize(ref item, componentCollectionProvider.DefaultIfNull().GetComponentCollection(target, metadata));
         }
 
         public static int GetPriority(this IComponent component, object? owner = null)
@@ -102,95 +76,63 @@ namespace MugenMvvm
             if (component is IHasPriority p)
                 return p.Priority;
             return 0;
-
         }
 
-        public static void ComponentTrackerInitialize<TComponent, TComponentBase>(this IComponentOwner<TComponentBase> owner, out TComponent[] components, TComponent? decoratorComponent = null)
+        public static void ComponentDecoratorOnAdded<TComponent>(object decorator, IComponentCollection collection, object component,
+            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
             where TComponent : class
-            where TComponentBase : class
         {
-            Should.NotBeNull(owner, nameof(owner));
-            var c = owner.GetComponents();
-            if (c.Length == 0)
-            {
-                components = Default.EmptyArray<TComponent>();
-                return;
-            }
-
-            ItemOrList<TComponent, List<TComponent>> list = default;
-            for (var i = 0; i < c.Length; i++)
-            {
-                var component = TryGetComponentForDecorator(c[i], decoratorComponent, owner);
-                if (component != null)
-                    list.Add(component);
-            }
-
-            components = list.ToArray();
-        }
-
-        public static void ComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent[] components,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component)
-            where TComponent : class
-            where TComponentBase : class
-        {
+            Should.NotBeNull(collection, nameof(collection));
             if (component is TComponent c)
-                AddComponentOrdered(ref components, c, collection.Owner);
+                AddDecoratorComponent(decorator, GetComponentPriority(decorator, collection.Owner), c, collection.Owner, ref decoratorComponents, ref components);
         }
 
-        public static void ComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent[] components, IComponent<TComponentBase> component)
+        public static void ComponentDecoratorOnRemoved<TComponent>(object decorator, object component,
+            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
             where TComponent : class
-            where TComponentBase : class
-        {
-            if (component is TComponent c)
-                Remove(ref components, c);
-        }
-
-        public static void SingletonComponentTrackerOnAdded<TComponent, TComponentBase>(ref TComponent? currentComponent, bool autoDetachOld,
-            IComponentCollection<IComponent<TComponentBase>> collection, IComponent<TComponentBase> component, IReadOnlyMetadataContext? metadata)
-            where TComponent : class
-            where TComponentBase : class
         {
             if (!(component is TComponent c))
                 return;
-
-            if (autoDetachOld)
-            {
-                if (ReferenceEquals(c, currentComponent))
-                    return;
-                if (currentComponent != null)
-                    collection.Remove((IComponent<TComponentBase>)currentComponent, metadata);
-            }
-
-            currentComponent = c;
+            if (decoratorComponents != null)
+                Remove(ref decoratorComponents, c);
+            if (components != null)
+                Remove(ref components, c);
         }
 
-        public static void SingletonComponentTrackerOnRemoved<TComponent, TComponentBase>(ref TComponent? currentComponent, IComponent<TComponentBase> component)
+        public static void ComponentDecoratorInitialize<TComponent>(object decorator, IComponentOwner owner, IReadOnlyMetadataContext? metadata,
+            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
             where TComponent : class
-            where TComponentBase : class
         {
-            if (ReferenceEquals(currentComponent, component))
-                currentComponent = null;
+            Should.NotBeNull(owner, nameof(owner));
+            var currentPriority = MugenExtensions.GetComponentPriority(decorator, owner);
+            var allComponents = owner.Components.GetComponents<object>(metadata);
+
+            for (int i = 0; i < allComponents.Length; i++)
+            {
+                if (allComponents[i] is TComponent c)
+                    AddDecoratorComponent(decorator, currentPriority, c, owner, ref decoratorComponents, ref components);
+            }
         }
 
-        public static void OnComponentAddedHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static void OnComponentAddedHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IAttachableComponent attachable)
                 attachable.OnAttached(collection.Owner, metadata);
 
-            (collection.Owner as IComponentOwnerAddedCallback<T>)?.OnComponentAdded(collection, component, metadata);
+            (collection.Owner as IComponentOwnerAddedCallback)?.OnComponentAdded(collection, component, metadata);
         }
 
-        public static void OnComponentRemovedHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static void OnComponentRemovedHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IDetachableComponent detachable)
                 detachable.OnDetached(collection.Owner, metadata);
 
-            (collection.Owner as IComponentOwnerRemovedCallback<T>)?.OnComponentRemoved(collection, component, metadata);
+            (collection.Owner as IComponentOwnerRemovedCallback)?.OnComponentRemoved(collection, component, metadata);
         }
 
-        public static bool OnComponentAddingHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static bool OnComponentAddingHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (collection.Owner is IComponentOwnerAddingCallback<T> callback && !callback.OnComponentAdding(collection, component, metadata))
+            if (collection.Owner is IComponentOwnerAddingCallback callback && !callback.OnComponentAdding(collection, component, metadata))
                 return false;
 
             if (component is IAttachableComponent attachable)
@@ -198,9 +140,9 @@ namespace MugenMvvm
             return true;
         }
 
-        public static bool OnComponentRemovingHandler<T>(IComponentCollection<T> collection, T component, IReadOnlyMetadataContext? metadata) where T : class
+        public static bool OnComponentRemovingHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (collection.Owner is IComponentOwnerRemovingCallback<T> callback && !callback.OnComponentRemoving(collection, component, metadata))
+            if (collection.Owner is IComponentOwnerRemovingCallback callback && !callback.OnComponentRemoving(collection, component, metadata))
                 return false;
 
             if (component is IDetachableComponent detachable)
@@ -208,20 +150,26 @@ namespace MugenMvvm
             return true;
         }
 
-        internal static TComponent? TryGetComponentForDecorator<TComponent>(object component, TComponent? decoratorComponent, object owner) where TComponent : class
+        private static void AddDecoratorComponent<TComponent>(object decorator, int currentPriority, TComponent component, object owner,
+            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
+            where TComponent : class
         {
-            if (ReferenceEquals(component, decoratorComponent))
-                return null;
+            var priority = GetComponentPriority(component, owner);
+            if (decoratorComponents != null)
+            {
+                if (ReferenceEquals(component, decorator) || priority > currentPriority)
+                    AddComponentOrdered(ref decoratorComponents, component, owner);
+                else if (priority == currentPriority)
+                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
+            }
 
-            if (decoratorComponent == null)
-                return component as TComponent;
-
-            if (!(component is TComponent c))
-                return null;
-
-            if (GetComponentPriority(decoratorComponent, owner) > GetComponentPriority(component, owner))
-                return c;
-            return null;
+            if (components != null && !ReferenceEquals(decorator, component))
+            {
+                if (priority < currentPriority)
+                    AddComponentOrdered(ref components, component, owner);
+                else if (priority == currentPriority)
+                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
+            }
         }
 
         #endregion

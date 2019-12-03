@@ -30,13 +30,10 @@ namespace MugenMvvm.Presenters
         public IPresenterResult Show(IReadOnlyMetadataContext metadata)
         {
             var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var components = Components.GetComponents();
+            var components = GetComponents<IPresenterComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                if (!(components[i] is IPresenterComponent presenter) || !this.CanShow(presenter, metadataContext))
-                    continue;
-
-                var result = presenter.TryShow(metadataContext);
+                var result = components[i].TryShow(metadataContext);
                 if (result != null)
                     return result;
             }
@@ -48,14 +45,11 @@ namespace MugenMvvm.Presenters
         public IReadOnlyList<IPresenterResult> TryClose(IReadOnlyMetadataContext metadata)
         {
             var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var components = Components.GetComponents();
+            var components = GetComponents<ICloseablePresenterComponent>(metadata);
             var results = new List<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (!(components[i] is ICloseablePresenterComponent presenter) || !this.CanClose(presenter, results, metadataContext))
-                    continue;
-
-                var operations = presenter.TryClose(metadataContext);
+                var operations = components[i].TryClose(metadataContext);
                 if (operations != null)
                     results.AddRange(operations);
             }
@@ -66,14 +60,11 @@ namespace MugenMvvm.Presenters
         public IReadOnlyList<IPresenterResult> TryRestore(IReadOnlyMetadataContext metadata)
         {
             var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var components = Components.GetComponents();
+            var components = GetComponents<IRestorablePresenterComponent>(metadata);
             var results = new List<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
-                if (!(components[i] is IRestorablePresenterComponent presenter) || !this.CanRestore(presenter, results, metadataContext))
-                    continue;
-
-                var operations = presenter.TryRestore(metadataContext);
+                var operations = components[i].TryRestore(metadataContext);
                 if (operations != null)
                     results.AddRange(operations);
             }

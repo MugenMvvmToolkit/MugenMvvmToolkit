@@ -3,19 +3,19 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection<T> : IComponentOwner<IComponentCollection<T>> where T : class
+    public interface IComponentCollection : IComponentOwner<IComponentCollection> //todo remove binding components!
     {
         object Owner { get; }
 
         int Count { get; }
 
-        bool Add(T component, IReadOnlyMetadataContext? metadata = null);
+        bool Add(object component, IReadOnlyMetadataContext? metadata = null);
 
-        bool Remove(T component, IReadOnlyMetadataContext? metadata = null);
+        bool Remove(object component, IReadOnlyMetadataContext? metadata = null);
 
         bool Clear(IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
-        T[] GetComponents();
+        TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class; //todo update metadata
     }
 }

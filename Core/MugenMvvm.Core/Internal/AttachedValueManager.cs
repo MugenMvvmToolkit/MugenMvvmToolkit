@@ -7,21 +7,13 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class AttachedValueManager : ComponentOwnerBase<IAttachedValueManager>, IAttachedValueManager,
-        IComponentOwnerAddedCallback<IComponent<IAttachedValueManager>>, IComponentOwnerRemovedCallback<IComponent<IAttachedValueManager>>
+    public sealed class AttachedValueManager : ComponentOwnerBase<IAttachedValueManager>, IAttachedValueManager
     {
-        #region Fields
-
-        private IAttachedValueManagerComponent[] _components;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
         public AttachedValueManager(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            _components = Default.EmptyArray<IAttachedValueManagerComponent>();
         }
 
         #endregion
@@ -31,7 +23,7 @@ namespace MugenMvvm.Internal
         public IAttachedValueProvider GetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            var components = _components;
+            var components = GetComponents<IAttachedValueManagerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out var provider))
@@ -45,7 +37,7 @@ namespace MugenMvvm.Internal
         public IAttachedValueProvider? GetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            var components = _components;
+            var components = GetComponents<IAttachedValueManagerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryGetAttachedValueProvider(item, metadata, out var provider))
@@ -53,18 +45,6 @@ namespace MugenMvvm.Internal
             }
 
             return null;
-        }
-
-        void IComponentOwnerAddedCallback<IComponent<IAttachedValueManager>>.OnComponentAdded(IComponentCollection<IComponent<IAttachedValueManager>> collection,
-            IComponent<IAttachedValueManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _components, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IAttachedValueManager>>.OnComponentRemoved(IComponentCollection<IComponent<IAttachedValueManager>> collection,
-            IComponent<IAttachedValueManager> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _components, component);
         }
 
         #endregion

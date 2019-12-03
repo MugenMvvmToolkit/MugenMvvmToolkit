@@ -63,7 +63,7 @@ namespace MugenMvvm.Views.Components
                 viewModel = GetViewModelForView(initializer, view!, metadata);
             if (view == null)
                 view = GetViewForViewModel(initializer, viewModel, metadata);
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
             ViewInfo viewInfo;
             lock (views)
             {
@@ -85,7 +85,7 @@ namespace MugenMvvm.Views.Components
 
         public IReadOnlyMetadataContext? TryCleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            bool removed = false;
+            var removed = false;
             var views = viewModel.Metadata.Get(ViewsMetadataKey);
             if (views != null)
             {
@@ -106,10 +106,10 @@ namespace MugenMvvm.Views.Components
 
         private object GetViewForViewModel(IViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            var components = Owner.GetComponents();
+            var components = Owner.GetComponents<IViewProviderComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                var view = (components[i] as IViewProviderComponent)?.TryGetViewForViewModel(initializer, viewModel, metadata);
+                var view = components[i].TryGetViewForViewModel(initializer, viewModel, metadata);
                 if (view != null)
                     return view;
             }
@@ -120,10 +120,10 @@ namespace MugenMvvm.Views.Components
 
         private IViewModelBase GetViewModelForView(IViewInitializer initializer, object view, IMetadataContext metadata)
         {
-            var components = Owner.GetComponents();
+            var components = Owner.GetComponents<IViewModelProviderViewManagerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                var viewModel = (components[i] as IViewModelProviderViewManagerComponent)?.TryGetViewModelForView(initializer, view, metadata);
+                var viewModel = components[i].TryGetViewModelForView(initializer, view, metadata);
                 if (viewModel != null)
                     return viewModel;
             }
@@ -134,16 +134,16 @@ namespace MugenMvvm.Views.Components
 
         private void OnViewInitialized(IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            var components = Owner.GetComponents();
+            var components = Owner.GetComponents<IViewManagerListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IViewManagerListener)?.OnViewInitialized(Owner, viewInfo, viewModel, metadata);
+                components[i].OnViewInitialized(Owner, viewInfo, viewModel, metadata);
         }
 
         private void OnViewCleared(IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            var components = Owner.GetComponents();
+            var components = Owner.GetComponents<IViewManagerListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IViewManagerListener)?.OnViewCleared(Owner, viewInfo, viewModel, metadata);
+                components[i].OnViewCleared(Owner, viewInfo, viewModel, metadata);
         }
 
         #endregion

@@ -95,10 +95,10 @@ namespace MugenMvvm.Views
 
         private IViewInitializerResult Initialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata)
         {
-            var components = _viewManager.DefaultIfNull().GetComponents();
+            var components = _viewManager.DefaultIfNull().GetComponents<IViewInitializerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                var result = (components[i] as IViewInitializerComponent)?.TryInitialize(initializer, viewModel, view, metadata);
+                var result = components[i].TryInitialize(initializer, viewModel, view, metadata);
                 if (result != null)
                     return result;
             }
@@ -109,10 +109,10 @@ namespace MugenMvvm.Views
 
         private IReadOnlyMetadataContext Cleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
         {
-            var components = _viewManager.DefaultIfNull().GetComponents();
+            var components = _viewManager.DefaultIfNull().GetComponents<IViewInitializerComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                var result = (components[i] as IViewInitializerComponent)?.TryCleanup(initializer, viewInfo, viewModel, metadata);
+                var result = components[i].TryCleanup(initializer, viewInfo, viewModel, metadata);
                 if (result != null)
                     return result;
             }
