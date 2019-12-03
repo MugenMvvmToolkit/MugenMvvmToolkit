@@ -22,7 +22,7 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public ICommandMediator GetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
+        public ICommandMediator GetCommandMediator(ICommand command, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(metadata, nameof(metadata));
@@ -30,18 +30,18 @@ namespace MugenMvvm.Commands
             var components = GetComponents<ICommandMediatorProviderComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
-                result = components[i].TryGetCommandMediator<TParameter>(command, metadata);
+                result = components[i].TryGetCommandMediator(command, metadata);
                 if (result != null)
                     break;
             }
 
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(ICommandMediatorProviderComponent).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(ICommandMediatorProviderComponent).Name);//todo move to ext
 
             var listeners = GetComponents<ICommandMediatorProviderListener>(metadata);
             for (var i = 0; i < components.Length; i++)
-                listeners[i].OnCommandMediatorCreated<TParameter>(this, result, command, metadata);
+                listeners[i].OnCommandMediatorCreated(this, result, command, metadata);
 
             return result;
         }

@@ -13,7 +13,7 @@ namespace MugenMvvm.Interfaces.Components
 
         bool Remove(object component, IReadOnlyMetadataContext? metadata = null);
 
-        bool Clear(IReadOnlyMetadataContext? metadata = null);
+        bool Clear(IReadOnlyMetadataContext? metadata = null);//todo review metadata
 
         [Pure]
         TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class; //todo update metadata

@@ -48,26 +48,22 @@ namespace MugenMvvm.Commands.Components
 
         #region Implementation of interfaces
 
-        public ICommandMediator? TryGetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata)
+        public ICommandMediator? TryGetCommandMediator(ICommand command, IReadOnlyMetadataContext metadata)
         {
-            var execute = metadata.Get(MediatorCommandMetadata.Execute);
-            if (!DelegateCommandMediator<TParameter>.IsSupported(execute))
-                return null;
-
-            var canExecute = metadata.Get(MediatorCommandMetadata.CanExecute);
-            if (!DelegateCommandMediator<TParameter>.IsCanExecuteSupported(canExecute))
+            var executor = metadata.Get(MediatorCommandMetadata.Executor);
+            if (executor == null)
                 return null;
 
             var notifiers = metadata.Get(MediatorCommandMetadata.Notifiers);
             var executionMode = metadata.Get(MediatorCommandMetadata.ExecutionMode, CommandExecutionMode);
             var allowMultipleExecution = metadata.Get(MediatorCommandMetadata.AllowMultipleExecution, AllowMultipleExecution);
-
-            var mediator = new DelegateCommandMediator<TParameter>(_componentCollectionProvider, execute!, canExecute, executionMode, allowMultipleExecution);
+            var mediator = new CommandMediator(_componentCollectionProvider, executionMode, allowMultipleExecution);
+            mediator.AddComponent(executor, metadata);
             if (notifiers != null && notifiers.Count != 0)
             {
                 var ignoreProperties = metadata.Get(MediatorCommandMetadata.IgnoreProperties);
                 var eventExecutionMode = metadata.Get(MediatorCommandMetadata.EventThreadMode, EventThreadMode);
-                mediator.AddComponent(new ConditionEventCommandMediatorComponent(_threadDispatcher, notifiers, ignoreProperties, eventExecutionMode!, command));
+                mediator.AddComponent(new ConditionEventCommandMediatorComponent(_threadDispatcher, notifiers, ignoreProperties, eventExecutionMode!, command), metadata);
             }
 
             return mediator;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MugenMvvm.Commands.Components;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -95,7 +96,7 @@ namespace MugenMvvm.Commands
 
         protected virtual ICommandMediator GetMediator(IReadOnlyMetadataContext metadata)
         {
-            return MugenService.CommandMediatorProvider.GetCommandMediator<object>(this, metadata);
+            return MugenService.CommandMediatorProvider.GetCommandMediator(this, metadata);
         }
 
         public static MediatorCommand Create(Action execute, IReadOnlyMetadataContext? metadata = null)
@@ -195,90 +196,61 @@ namespace MugenMvvm.Commands
             return CreateFromTask(execute, canExecute, allowMultipleExecution, notifiers, metadata: null);
         }
 
-        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool allowMultipleExecution, 
+        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool allowMultipleExecution,
             IReadOnlyMetadataContext? metadata, params object[] notifiers)
         {
             return CreateFromTask(execute, canExecute, allowMultipleExecution, notifiers, metadata: metadata);
         }
 
-        public static MediatorCommand Create(Action execute, Func<bool>? canExecute, bool? allowMultipleExecution, 
+        public static MediatorCommand Create(Action execute, Func<bool>? canExecute, bool? allowMultipleExecution,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
-            request.Set(MediatorCommandMetadata.Execute, execute);
-            if (canExecute != null)
-                request.Set(MediatorCommandMetadata.CanExecute, canExecute);
             if (allowMultipleExecution.HasValue)
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommand(request);
+            return GetMediatorCommand<object>(execute, canExecute, request);
         }
 
-        public static MediatorCommand Create<T>(Action<T> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, 
+        public static MediatorCommand Create<T>(Action<T> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
-            request.Set(MediatorCommandMetadata.Execute, execute);
-            if (canExecute != null)
-                request.Set(MediatorCommandMetadata.CanExecute, canExecute);
             if (allowMultipleExecution.HasValue)
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommandGeneric<T>(request);
+            return GetMediatorCommand<T>(execute, canExecute, request);
         }
 
-        public static MediatorCommand CreateFromTask(Func<Task> execute, Func<bool>? canExecute, bool? allowMultipleExecution, 
+        public static MediatorCommand CreateFromTask(Func<Task> execute, Func<bool>? canExecute, bool? allowMultipleExecution,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
-            request.Set(MediatorCommandMetadata.Execute, execute);
-            if (canExecute != null)
-                request.Set(MediatorCommandMetadata.CanExecute, canExecute);
             if (allowMultipleExecution.HasValue)
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommand(request);
+            return GetMediatorCommand<object>(execute, canExecute, request);
         }
 
-        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution, 
+        public static MediatorCommand CreateFromTask<T>(Func<T, Task> execute, Func<T, bool>? canExecute, bool? allowMultipleExecution,
             IReadOnlyCollection<object>? notifiers, IReadOnlyMetadataContext? metadata)
         {
             var request = metadata.ToNonReadonly();
-            request.Set(MediatorCommandMetadata.Execute, execute);
-            if (canExecute != null)
-                request.Set(MediatorCommandMetadata.CanExecute, canExecute);
             if (allowMultipleExecution.HasValue)
                 request.Set(MediatorCommandMetadata.AllowMultipleExecution, allowMultipleExecution.Value);
             if (notifiers != null && notifiers.Count != 0)
                 request.Set(MediatorCommandMetadata.Notifiers, notifiers);
-            return new MediatorCommandGeneric<T>(request);
+            return GetMediatorCommand<T>(execute, canExecute, request);
         }
 
-        #endregion
-
-        #region Nested types
-
-        private sealed class MediatorCommandGeneric<T> : MediatorCommand
+        private static MediatorCommand GetMediatorCommand<T>(Delegate execute, Delegate? canExecute, IMetadataContext metadata)
         {
-            #region Constructors
-
-            public MediatorCommandGeneric(IReadOnlyMetadataContext metadata) : base(metadata)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override ICommandMediator GetMediator(IReadOnlyMetadataContext metadata)
-            {
-                return MugenService.CommandMediatorProvider.GetCommandMediator<T>(this, metadata);
-            }
-
-            #endregion
+            var commandExecutor = new DelegateExecutorCommandMediatorComponent<T>(execute, canExecute);
+            metadata.Set(MediatorCommandMetadata.Executor, commandExecutor);
+            return new MediatorCommand(metadata);
         }
 
         #endregion

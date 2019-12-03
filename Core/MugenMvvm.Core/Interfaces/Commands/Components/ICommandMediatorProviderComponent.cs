@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface ICommandMediatorProviderComponent : IComponent<ICommandMediatorProvider>
     {
-        ICommandMediator? TryGetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata);
+        ICommandMediator? TryGetCommandMediator(ICommand command, IReadOnlyMetadataContext metadata);
     }
 }

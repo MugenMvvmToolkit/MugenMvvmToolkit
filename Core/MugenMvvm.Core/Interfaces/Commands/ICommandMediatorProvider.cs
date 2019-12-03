@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Commands
 {
     public interface ICommandMediatorProvider : IComponentOwner<ICommandMediatorProvider>, IComponent<IMugenApplication>
     {
-        ICommandMediator GetCommandMediator<TParameter>(ICommand command, IReadOnlyMetadataContext metadata);//todo review parameter
+        ICommandMediator GetCommandMediator(ICommand command, IReadOnlyMetadataContext metadata);
     }
 }

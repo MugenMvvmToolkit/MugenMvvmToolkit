@@ -2,17 +2,16 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands
 {
-    public class DelegateCommandMediator<T> : ComponentOwnerBase<ICommandMediator>, ICommandMediator
+    public class CommandMediator : ComponentOwnerBase<ICommandMediator>, ICommandMediator, IComponentOwnerAddedCallback, IComponentOwnerRemovedCallback
     {
         #region Fields
 
@@ -23,13 +22,9 @@ namespace MugenMvvm.Commands
 
         #region Constructors
 
-        public DelegateCommandMediator(IComponentCollectionProvider? componentCollectionProvider, Delegate executeDelegate,
-            Delegate? canExecuteDelegate, CommandExecutionMode executionMode, bool allowMultipleExecution)
+        public CommandMediator(IComponentCollectionProvider? componentCollectionProvider, CommandExecutionMode executionMode, bool allowMultipleExecution)
             : base(componentCollectionProvider)
         {
-            Should.NotBeNull(executeDelegate, nameof(executeDelegate));
-            ExecuteDelegate = executeDelegate;
-            CanExecuteDelegate = canExecuteDelegate;
             ExecutionMode = executionMode;
             AllowMultipleExecution = allowMultipleExecution;
         }
@@ -41,10 +36,6 @@ namespace MugenMvvm.Commands
         protected CommandExecutionMode ExecutionMode { get; }
 
         protected bool AllowMultipleExecution { get; }
-
-        protected Delegate ExecuteDelegate { get; private set; }
-
-        protected Delegate? CanExecuteDelegate { get; private set; }
 
         public virtual bool IsSuspended
         {
@@ -91,7 +82,7 @@ namespace MugenMvvm.Commands
                 RaiseCanExecuteChanged();
                 return executionTask.ContinueWith((t, o) =>
                 {
-                    var wrapper = (DelegateCommandMediator<T>)o;
+                    var wrapper = (CommandMediator) o;
                     Interlocked.Exchange(ref wrapper._state, 0);
                     wrapper.RaiseCanExecuteChanged();
                 }, this, TaskContinuationOptions.ExecuteSynchronously);
@@ -105,7 +96,7 @@ namespace MugenMvvm.Commands
 
         public virtual bool HasCanExecute()
         {
-            if (!AllowMultipleExecution || CanExecuteDelegate != null)
+            if (!AllowMultipleExecution)
                 return true;
 
             if (_hasCanExecuteImpl.HasValue)
@@ -181,67 +172,52 @@ namespace MugenMvvm.Commands
             if (components.Length == 1)
                 return components[0].Suspend();
 
-            ActionToken[] tokens = new ActionToken[components.Length];
+            var tokens = new ActionToken[components.Length];
             for (var i = 0; i < components.Length; i++)
                 tokens[i] = components[i].Suspend();
 
             return new ActionToken((o, _) =>
             {
-                var list = (ActionToken[])o!;
-                for (int i = 0; i < list.Length; i++)
+                var list = (ActionToken[]) o!;
+                for (var i = 0; i < list.Length; i++)
                     list[i].Dispose();
             }, tokens);
+        }
+
+        void IComponentOwnerAddedCallback.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (_hasCanExecuteImpl != null && component is IConditionCommandMediatorComponent)
+                _hasCanExecuteImpl = null;
+        }
+
+        void IComponentOwnerRemovedCallback.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (_hasCanExecuteImpl != null && component is IConditionCommandMediatorComponent)
+                _hasCanExecuteImpl = null;
         }
 
         #endregion
 
         #region Methods
 
-        public static bool IsSupported(Delegate? executor)
-        {
-            if (executor == null)
-                return false;
-            return executor is Action || executor is Action<T> || executor is Func<Task> || executor is Func<T, Task>;
-        }
-
-        public static bool IsCanExecuteSupported(Delegate? canExecute)
-        {
-            if (canExecute == null)
-                return true;
-            return canExecute is Func<bool> || canExecute is Func<T, bool>;
-        }
-
         protected virtual void OnDispose()
         {
             var components = GetComponents<IDisposable>(null);
             for (var i = 0; i < components.Length; i++)
                 components[i].Dispose();
-
-            ExecuteDelegate = Default.NoDoAction;
-            CanExecuteDelegate = null;
         }
 
         protected virtual bool CanExecuteInternal(object? parameter)
         {
-            if (_state != 0)
-                return false;
-
-            var canExecuteDelegate = CanExecuteDelegate;
-            if (canExecuteDelegate == null)
-                return false;
-            if (canExecuteDelegate is Func<bool> func)
-                return func();
-            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter!);
+            return _state == 0;
         }
 
         protected virtual Task ExecuteInternalAsync(object? parameter)
         {
-            var executeAction = ExecuteDelegate;
             if (ExecutionMode == CommandExecutionMode.CanExecuteBeforeExecute)
             {
                 if (!CanExecute(parameter))
                 {
-                    Tracer.Warn(MessageConstant.CommandCannotBeExecutedString);
                     RaiseCanExecuteChanged();
                     return Default.CompletedTask;
                 }
@@ -252,21 +228,10 @@ namespace MugenMvvm.Commands
                     ExceptionManager.ThrowCommandCannotBeExecuted();
             }
 
-            if (executeAction is Action execute)
-            {
-                execute();
-                return Default.CompletedTask;
-            }
-
-            if (executeAction is Action<T> genericExecute)
-            {
-                genericExecute((T)parameter!);
-                return Default.CompletedTask;
-            }
-
-            if (executeAction is Func<Task> executeTask)
-                return executeTask();
-            return ((Func<T, Task>)executeAction).Invoke((T)parameter!);
+            var components = Components.GetComponents<IExecutorCommandMediatorComponent>(null);
+            if (components.Length == 0)
+                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorCommandMediatorComponent).Name);
+            return components[0].ExecuteAsync(parameter);
         }
 
         #endregion

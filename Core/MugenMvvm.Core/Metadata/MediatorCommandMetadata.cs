@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
@@ -14,8 +14,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<IReadOnlyCollection<string>>? _ignoreProperties;
         private static IMetadataContextKey<CommandExecutionMode>? _executionMode;
         private static IMetadataContextKey<ThreadExecutionMode>? _eventThreadMode;
-        private static IMetadataContextKey<Delegate>? _execute;
-        private static IMetadataContextKey<Delegate>? _canExecute;
+        private static IMetadataContextKey<IExecutorCommandMediatorComponent>? _executor;
         private static IMetadataContextKey<IReadOnlyCollection<object>>? _notifiers;
 
         #endregion
@@ -23,17 +22,10 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<Delegate> Execute
+        public static IMetadataContextKey<IExecutorCommandMediatorComponent> Executor
         {
-            get => _execute ??= GetBuilder<Delegate>(nameof(Execute)).NotNull().Build();
-            set => _execute = value;
-        }
-
-        [AllowNull]
-        public static IMetadataContextKey<Delegate> CanExecute
-        {
-            get => _canExecute ??= GetBuilder<Delegate>(nameof(CanExecute)).NotNull().Build();
-            set => _canExecute = value;
+            get => _executor ??= GetBuilder<IExecutorCommandMediatorComponent>(nameof(Executor)).NotNull().Build();
+            set => _executor = value;
         }
 
         [AllowNull]
