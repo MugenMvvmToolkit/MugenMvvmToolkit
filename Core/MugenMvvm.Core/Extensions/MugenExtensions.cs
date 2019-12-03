@@ -11,6 +11,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.Validation;
 
 // ReSharper disable once CheckNamespace
 namespace MugenMvvm
@@ -18,6 +19,11 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static bool AddValidator(this IAggregatorValidator aggregatorValidator, IValidator validator)
+        {
+            return aggregatorValidator.AddComponent(validator);
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BatchUpdateCollectionMode value, BatchUpdateCollectionMode flag)

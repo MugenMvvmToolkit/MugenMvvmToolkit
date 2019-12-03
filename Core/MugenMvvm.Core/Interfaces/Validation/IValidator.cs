@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Validation
 {
-    public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IDisposable, IComponent<IValidator>
+    public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IDisposable, IComponent<IAggregatorValidator>
     {
         bool HasErrors { get; }
 
