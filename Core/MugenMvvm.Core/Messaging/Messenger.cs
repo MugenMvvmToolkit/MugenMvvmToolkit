@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IEqualityComparer<MessengerSubscriberInfo>//todo clear cache component added/removed
+    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IComponentOwnerAddedCallback, IComponentOwnerRemovedCallback, IEqualityComparer<MessengerSubscriberInfo>
     {
         #region Fields
 
@@ -41,6 +41,26 @@ namespace MugenMvvm.Messaging
         #endregion
 
         #region Implementation of interfaces
+
+        void IComponentOwnerAddedCallback.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (!(component is IMessengerHandlerComponent))
+                return;
+            lock (_subscribers)
+            {
+                _cache.Clear();
+            }
+        }
+
+        void IComponentOwnerRemovedCallback.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (!(component is IMessengerHandlerComponent))
+                return;
+            lock (_subscribers)
+            {
+                _cache.Clear();
+            }
+        }
 
         bool IEqualityComparer<MessengerSubscriberInfo>.Equals(MessengerSubscriberInfo x, MessengerSubscriberInfo y)
         {
