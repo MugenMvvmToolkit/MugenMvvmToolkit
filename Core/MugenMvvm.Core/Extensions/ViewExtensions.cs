@@ -82,7 +82,7 @@ namespace MugenMvvm
                         return null;
 
                     item = wrapperManager.Wrap(viewInfo.View, wrapperType, metadata);
-                    collection.Add(item);
+                    collection.Add(item, metadata);
                 }
 
                 return item;

@@ -91,7 +91,7 @@ namespace MugenMvvm.Validation
             _disposeCancellationTokenSource?.Cancel();
             if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
                 notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-            this.ClearComponents();
+            this.ClearComponents(null);
             this.ClearMetadata(true);
         }
 

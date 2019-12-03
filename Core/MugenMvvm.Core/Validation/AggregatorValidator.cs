@@ -66,7 +66,7 @@ namespace MugenMvvm.Validation
             if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
             OnDispose();
-            this.ClearComponents();
+            this.ClearComponents(null);
             this.ClearMetadata(true);
         }
 
@@ -231,8 +231,8 @@ namespace MugenMvvm.Validation
             if (_inlineValidator == null && MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
             {
                 _inlineValidator.Initialize(this);
-                _inlineValidator.AddComponent(this);
-                Components.Add(_inlineValidator);
+                _inlineValidator.AddComponent(this, metadata);
+                Components.Add(_inlineValidator, metadata);
             }
 
             _inlineValidator.SetErrors(memberName, errors, metadata);
@@ -277,12 +277,12 @@ namespace MugenMvvm.Validation
 
         protected virtual void OnDispose(IValidator validator)
         {
-            Components.Remove(validator);
+            Components.Remove(validator, null);
         }
 
         protected virtual void OnValidatorAdded(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
-            validator.AddComponent(this);
+            validator.AddComponent(this, metadata);
         }
 
         protected virtual bool OnValidatorAdding(IValidator validator, IReadOnlyMetadataContext? metadata)
@@ -292,7 +292,7 @@ namespace MugenMvvm.Validation
 
         protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
-            validator.RemoveComponent(this);
+            validator.RemoveComponent(this, metadata);
         }
 
         private void EnsureInitialized()

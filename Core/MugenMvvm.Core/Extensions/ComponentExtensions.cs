@@ -29,13 +29,13 @@ namespace MugenMvvm
             return component ?? MugenService.Instance<T>();
         }
 
-        public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata) where T : class//todo update metadata
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             return componentOwner.Components.Add(component, metadata);
         }
 
-        public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata) where T : class//todo update metadata
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
@@ -43,14 +43,14 @@ namespace MugenMvvm
             return false;
         }
 
-        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null)
+        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata)//todo update metadata
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
                 componentOwner.Components.Clear(metadata);
         }
 
-        public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata) where T : class
+        public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata) where T : class//todo update metadata
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)

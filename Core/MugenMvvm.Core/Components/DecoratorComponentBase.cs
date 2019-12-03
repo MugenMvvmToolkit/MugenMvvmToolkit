@@ -48,12 +48,12 @@ namespace MugenMvvm.Components
         protected override void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _decoratorComponents, ref Components);
-            owner.Components.AddComponent(this);
+            owner.Components.AddComponent(this, metadata);
         }
 
         protected override void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
-            owner.Components.RemoveComponent(this);
+            owner.Components.RemoveComponent(this, metadata);
             Components = Default.EmptyArray<TComponent>();
             _decoratorComponents = Components;
         }

@@ -75,12 +75,12 @@ namespace MugenMvvm.ViewModels.Components
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
                 AddToCache(viewModel.Metadata.Get(ViewModelMetadata.Id), viewModel);
-                viewModel.Metadata.AddComponent(this);
+                viewModel.Metadata.AddComponent(this, metadata);
             }
             else if (lifecycleState.IsDispose)
             {
                 RemoveFromCache(viewModel.Metadata.Get(ViewModelMetadata.Id));
-                viewModel.Metadata.RemoveComponent(this);
+                viewModel.Metadata.RemoveComponent(this, metadata);
             }
 
             return null;

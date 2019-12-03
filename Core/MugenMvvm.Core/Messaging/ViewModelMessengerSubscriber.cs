@@ -38,7 +38,7 @@ namespace MugenMvvm.Messaging
             Should.NotBeNull(viewModel, nameof(viewModel));
             _reference = viewModel.ToWeakReference();
             _hashCode = viewModel.GetHashCode();
-            viewModel.Metadata.AddComponent(this);
+            viewModel.Metadata.AddComponent(this, null);
             BroadcastAllMessages = viewModel.Metadata.Get(ViewModelMetadata.BroadcastAllMessages);
             BusyMessageHandlerType = viewModel.Metadata.Get(ViewModelMetadata.BusyMessageHandlerType);
         }

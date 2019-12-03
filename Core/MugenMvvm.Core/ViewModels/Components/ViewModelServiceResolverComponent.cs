@@ -53,9 +53,9 @@ namespace MugenMvvm.ViewModels.Components
             if (service == typeof(IMessenger))
             {
                 var messenger = new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
-                messenger.Components.Add(MessengerHandlerComponent.Instance);
-                messenger.Components.Add(ViewModelMessengerSubscriberComponent.Instance);
-                messenger.Components.Add(MessengerHandlerSubscriberComponent.InstanceWeak);
+                messenger.Components.Add(MessengerHandlerComponent.Instance, metadata);
+                messenger.Components.Add(ViewModelMessengerSubscriberComponent.Instance, metadata);
+                messenger.Components.Add(MessengerHandlerSubscriberComponent.InstanceWeak, metadata);
                 return messenger;
             }
 

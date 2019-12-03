@@ -42,12 +42,12 @@ namespace MugenMvvm.Components
         {
             TComponent[]? _ = null;
             MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _, ref Components);
-            owner.Components.AddComponent(this);
+            owner.Components.AddComponent(this, metadata);
         }
 
         protected override void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
-            owner.Components.RemoveComponent(this);
+            owner.Components.RemoveComponent(this, metadata);
             Components = Default.EmptyArray<TComponent>();
         }
 

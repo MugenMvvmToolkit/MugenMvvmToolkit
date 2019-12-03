@@ -75,7 +75,7 @@ namespace MugenMvvm.Messaging
         public void Dispose()
         {
             this.UnsubscribeAll();
-            this.ClearComponents();
+            this.ClearComponents(null);
         }
 
         public bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)

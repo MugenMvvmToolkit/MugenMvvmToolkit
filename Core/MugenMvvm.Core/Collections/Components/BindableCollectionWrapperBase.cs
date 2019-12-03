@@ -202,7 +202,7 @@ namespace MugenMvvm.Collections.Components
                 Detach();
                 WrappedCollection = wrappedCollection;
                 if (wrappedCollection is IComponentOwner<IObservableCollection<T>> components)
-                    components.AddComponent(this);
+                    components.AddComponent(this, null);
                 else if (wrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                     notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
                 OnReset(GetCollectionItems());
@@ -222,7 +222,7 @@ namespace MugenMvvm.Collections.Components
             try
             {
                 if (WrappedCollection is IComponentOwner<IObservableCollection<T>> hasComponents)
-                    hasComponents.RemoveComponent(this);
+                    hasComponents.RemoveComponent(this, null);
                 else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                     notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
                 WrappedCollection = null;

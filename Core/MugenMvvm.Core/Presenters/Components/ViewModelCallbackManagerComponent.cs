@@ -146,14 +146,14 @@ namespace MugenMvvm.Presenters.Components
             base.OnAttachedInternal(owner, metadata);
             if (_navigationDispatcher == null)
                 _navigationDispatcher = MugenService.NavigationDispatcher;
-            _navigationDispatcher.AddComponent(_dispatcherListener);
+            _navigationDispatcher.AddComponent(_dispatcherListener, metadata);
         }
 
         protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
             _closeablePresenters = Default.EmptyArray<ICloseablePresenterComponent>();
-            _navigationDispatcher?.RemoveComponent(_dispatcherListener);
+            _navigationDispatcher?.RemoveComponent(_dispatcherListener, metadata);
             _navigationDispatcher = null;
         }
 
@@ -167,7 +167,7 @@ namespace MugenMvvm.Presenters.Components
             var callback = new NavigationCallback(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationOperationId);
             var key = GetKeyByCallback(callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?) null, (context, _) => new List<NavigationCallback?>());
+            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?)null, (context, _) => new List<NavigationCallback?>());
             lock (callback)
             {
                 callbacks.Add(callback);
@@ -291,13 +291,13 @@ namespace MugenMvvm.Presenters.Components
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallback?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallback>?) value;
+            var callbacks = (IList<NavigationCallback>?)value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 
         private static object? SerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallback?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallback>?) value;
+            var callbacks = (IList<NavigationCallback>?)value;
             if (callbacks == null)
                 return null;
             lock (callbacks)

@@ -9,11 +9,11 @@ namespace MugenMvvm.Interfaces.Components
 
         int Count { get; }
 
-        bool Add(object component, IReadOnlyMetadataContext? metadata = null);
+        bool Add(object component, IReadOnlyMetadataContext? metadata);
 
-        bool Remove(object component, IReadOnlyMetadataContext? metadata = null);
+        bool Remove(object component, IReadOnlyMetadataContext? metadata);
 
-        bool Clear(IReadOnlyMetadataContext? metadata = null);//todo review metadata
+        bool Clear(IReadOnlyMetadataContext? metadata);//todo review metadata
 
         [Pure]
         TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class; //todo update metadata

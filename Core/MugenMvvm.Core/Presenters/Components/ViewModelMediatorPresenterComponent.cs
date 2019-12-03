@@ -133,12 +133,12 @@ namespace MugenMvvm.Presenters.Components
         {
             if (_navigationDispatcher == null)
                 _navigationDispatcher = MugenService.NavigationDispatcher;
-            _navigationDispatcher.AddComponent(this);
+            _navigationDispatcher.AddComponent(this, metadata);
         }
 
         protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
-            _navigationDispatcher?.RemoveComponent(this);
+            _navigationDispatcher?.RemoveComponent(this, metadata);
             _navigationDispatcher = null;
         }
 

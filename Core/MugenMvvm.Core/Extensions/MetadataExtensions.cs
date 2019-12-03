@@ -144,7 +144,7 @@ namespace MugenMvvm
             {
                 metadataOwner.Metadata.Clear();
                 if (clearComponents)
-                    metadataOwner.Metadata.ClearComponents();
+                    metadataOwner.Metadata.ClearComponents(null);
             }
         }
 

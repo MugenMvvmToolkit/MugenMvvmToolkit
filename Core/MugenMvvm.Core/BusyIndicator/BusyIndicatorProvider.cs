@@ -84,7 +84,7 @@ namespace MugenMvvm.BusyIndicator
                 return;
             for (var index = 0; index < busyTokens.Count; index++)
                 busyTokens[index].Dispose();
-            this.ClearComponents();
+            this.ClearComponents(null);
         }
 
         #endregion

@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 using MugenMvvm.Attributes;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Validation;
@@ -20,9 +21,9 @@ namespace MugenMvvm
     {
         #region Methods
 
-        public static bool AddValidator(this IAggregatorValidator aggregatorValidator, IValidator validator)
+        public static bool AddValidator(this IAggregatorValidator aggregatorValidator, IValidator validator, IReadOnlyMetadataContext? metadata = null)
         {
-            return aggregatorValidator.AddComponent(validator);
+            return aggregatorValidator.AddComponent(validator, metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
