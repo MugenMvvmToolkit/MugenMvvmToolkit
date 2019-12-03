@@ -9,8 +9,9 @@ using MugenMvvm.Interfaces.Presenters.Components;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ConditionDecoratorPresenterComponent : DecoratorComponentBase<IPresenter, IPresenterComponent>, IHasPriority,
-        IPresenterComponent, ICloseablePresenterComponent, IRestorablePresenterComponent
+    public sealed class ConditionDecoratorPresenterComponent : DecoratorComponentBase<IPresenter, IPresenterComponent>,
+        IHasPriority, IPresenterComponent, ICloseablePresenterComponent, IRestorablePresenterComponent,
+        IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>, IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>
     {
         #region Fields
 
@@ -57,6 +58,18 @@ namespace MugenMvvm.Presenters.Components
             }
 
             return results;
+        }
+
+        bool IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.TryDecorate(ref ICloseablePresenterComponent[] components, IReadOnlyMetadataContext? metadata)
+        {
+            components = _closeableDecoratorComponents;
+            return true;
+        }
+
+        bool IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.TryDecorate(ref IRestorablePresenterComponent[] components, IReadOnlyMetadataContext? metadata)
+        {
+            components = _restorableDecoratorComponents;
+            return true;
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)
