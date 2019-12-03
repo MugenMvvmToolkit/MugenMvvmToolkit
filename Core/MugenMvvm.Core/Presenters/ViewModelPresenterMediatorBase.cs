@@ -147,7 +147,7 @@ namespace MugenMvvm.Presenters
         {
             if (!IsOpen)
             {
-                Tracer.Error(MessageConstant.CannotCloseMediator);
+                Tracer.Error()?.Trace(MessageConstant.CannotCloseMediator);
                 return this.GetPresenterResult(NavigationType, ViewModel);
             }
 

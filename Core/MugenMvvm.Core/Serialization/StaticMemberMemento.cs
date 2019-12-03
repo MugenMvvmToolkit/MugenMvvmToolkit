@@ -6,7 +6,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Serialization;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Serialization
 {
@@ -82,8 +81,7 @@ namespace MugenMvvm.Serialization
                                  (MemberInfo?)type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
             if (member == null)
             {
-                if (Tracer.TraceError)
-                    Tracer.Error(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
+                Tracer.Error()?.Trace(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);
                 return null;
             }
 
