@@ -115,6 +115,8 @@ namespace MugenMvvm.Validation
 
         bool IComponentOwnerAddingCallback.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
+            if (ReferenceEquals(this, component))
+                return false;
             if (component is IValidator validator)
                 return OnValidatorAdding(validator, metadata);
             return true;
