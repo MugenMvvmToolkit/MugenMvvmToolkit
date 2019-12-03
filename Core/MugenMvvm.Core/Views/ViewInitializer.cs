@@ -103,7 +103,7 @@ namespace MugenMvvm.Views
                     return result;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(_viewManager.DefaultIfNull(), typeof(IViewInitializerComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(_viewManager.DefaultIfNull(), components);
             return null;
         }
 
@@ -117,7 +117,7 @@ namespace MugenMvvm.Views
                     return result;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(_viewManager.DefaultIfNull(), typeof(IViewInitializerComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(_viewManager.DefaultIfNull(), components);
             return null;
         }
 

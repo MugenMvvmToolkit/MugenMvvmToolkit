@@ -37,7 +37,7 @@ namespace MugenMvvm.Commands
 
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(ICommandMediatorProviderComponent).Name);//todo move to ext
+                ExceptionManager.ThrowObjectNotInitialized(this, components);
 
             var listeners = GetComponents<ICommandMediatorProviderListener>(metadata);
             for (var i = 0; i < components.Length; i++)

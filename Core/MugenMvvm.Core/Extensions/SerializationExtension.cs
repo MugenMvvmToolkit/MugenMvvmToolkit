@@ -116,7 +116,7 @@ namespace MugenMvvm
                     return context;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(serializer, typeof(ISerializationContextProviderComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(serializer, components);
             return null;
         }
 

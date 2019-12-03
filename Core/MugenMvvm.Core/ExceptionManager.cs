@@ -89,6 +89,12 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
+        public static void ThrowObjectNotInitialized<T>(object obj, T[]? components)
+        {
+            ThrowObjectNotInitialized(obj, typeof(T).Name);
+        }
+
+        [DoesNotReturn]
         public static void ThrowObjectNotInitialized(object obj, string? hint = null)
         {
             throw new InvalidOperationException(ObjectNotInitializedFormat2.Format((obj as Type ?? obj.GetType()).Name, hint));

@@ -114,7 +114,7 @@ namespace MugenMvvm.Views.Components
                     return view;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(Owner, typeof(IViewProviderComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(Owner, components);
             return null;
         }
 
@@ -128,7 +128,7 @@ namespace MugenMvvm.Views.Components
                     return viewModel;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(Owner, typeof(IViewModelProviderViewManagerComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(Owner, components);
             return null;
         }
 

@@ -30,7 +30,7 @@ namespace MugenMvvm.Internal
                     return provider!;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAttachedValueManagerComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null!;
         }
 

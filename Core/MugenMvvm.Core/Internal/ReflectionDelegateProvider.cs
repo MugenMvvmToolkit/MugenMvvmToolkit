@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
@@ -62,7 +61,7 @@ namespace MugenMvvm.Internal
                     return value;
             }
 
-            ThrowNotInitialized(typeof(IActivatorReflectionDelegateProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null;
         }
 
@@ -78,7 +77,7 @@ namespace MugenMvvm.Internal
                     return value;
             }
 
-            ThrowNotInitialized(typeof(IActivatorReflectionDelegateProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null;
         }
 
@@ -93,7 +92,7 @@ namespace MugenMvvm.Internal
                     return value;
             }
 
-            ThrowNotInitialized(typeof(IMethodReflectionDelegateProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null;
         }
 
@@ -109,7 +108,7 @@ namespace MugenMvvm.Internal
                     return value;
             }
 
-            ThrowNotInitialized(typeof(IMethodReflectionDelegateProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null;
         }
 
@@ -124,7 +123,7 @@ namespace MugenMvvm.Internal
                     return value;
             }
 
-            ThrowNotInitialized(typeof(IMemberReflectionDelegateProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null;
         }
 
@@ -139,18 +138,8 @@ namespace MugenMvvm.Internal
                     return value;
             }
 
-            ThrowNotInitialized(typeof(IMemberReflectionDelegateProviderComponent));
+            ExceptionManager.ThrowObjectNotInitialized(this, components);
             return null;
-        }
-
-        #endregion
-
-        #region Methods
-
-        [DoesNotReturn]
-        private void ThrowNotInitialized(Type type)
-        {
-            ExceptionManager.ThrowObjectNotInitialized(this, type.Name);
         }
 
         #endregion

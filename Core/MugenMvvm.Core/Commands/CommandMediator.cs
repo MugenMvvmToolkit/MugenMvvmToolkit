@@ -230,7 +230,7 @@ namespace MugenMvvm.Commands
 
             var components = Components.GetComponents<IExecutorCommandMediatorComponent>(null);
             if (components.Length == 0)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IExecutorCommandMediatorComponent).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, components);
             return components[0].ExecuteAsync(parameter);
         }
 

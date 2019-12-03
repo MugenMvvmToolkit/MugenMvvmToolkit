@@ -77,7 +77,7 @@ namespace MugenMvvm
                     return context;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(dispatcher, typeof(INavigationContextProviderComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(dispatcher, components);
             return null;
         }
 

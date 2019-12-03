@@ -57,7 +57,7 @@ namespace MugenMvvm.Validation
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IAggregatorValidatorProviderComponent).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, components);
 
             var listeners = GetComponents<IValidatorProviderListener>(metadata);
             for (var i = 0; i < components.Length; i++)

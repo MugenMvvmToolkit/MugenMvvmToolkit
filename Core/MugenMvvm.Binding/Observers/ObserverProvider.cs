@@ -77,7 +77,7 @@ namespace MugenMvvm.Binding.Observers
                     return memberPath;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberPathProviderComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, _pathProviders);
             return null;
         }
 
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Observers
                     return observer;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMemberObserverProviderComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, _pathObserverProviders);
             return null;
         }
 

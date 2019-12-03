@@ -33,7 +33,7 @@ namespace MugenMvvm.Internal
                     return weakReference;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, typeof(IWeakReferenceProviderComponent).Name);
+            ExceptionManager.ThrowObjectNotInitialized(this, providers);
             return null;
         }
 

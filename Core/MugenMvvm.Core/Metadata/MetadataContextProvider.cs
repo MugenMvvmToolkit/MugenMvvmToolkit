@@ -33,7 +33,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, components);
 
             var listeners = GetComponents<IMetadataContextProviderListener>(null);
             for (var i = 0; i < components.Length; i++)
@@ -53,7 +53,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, typeof(IMetadataContextProviderComponent).Name);
+                ExceptionManager.ThrowObjectNotInitialized(this, components);
 
             var listeners = GetComponents<IMetadataContextProviderListener>(null);
             for (var i = 0; i < components.Length; i++)
