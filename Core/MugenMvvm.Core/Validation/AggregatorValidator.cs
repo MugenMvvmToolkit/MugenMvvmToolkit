@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation
 {
-    public class AggregatorValidator : ComponentOwnerBase<IValidator>, IAggregatorValidator, IValidatorListener, IComponentOwnerAddedCallback, IComponentOwnerAddingCallback, IComponentOwnerRemovedCallback
+    public class AggregatorValidator : ComponentOwnerBase<IValidator>, IAggregatorValidator, IValidatorListener, IHasAddedCallbackComponentOwner, IHasAddingCallbackComponentOwner, IHasRemovedCallbackComponentOwner
     {
         #region Fields
 
@@ -107,13 +107,13 @@ namespace MugenMvvm.Validation
             SetErrorsInternal(memberName, errors, metadata);
         }
 
-        void IComponentOwnerAddedCallback.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IValidator validator)
                 OnValidatorAdded(validator, metadata);
         }
 
-        bool IComponentOwnerAddingCallback.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (ReferenceEquals(this, component))
                 return false;
@@ -122,7 +122,7 @@ namespace MugenMvvm.Validation
             return true;
         }
 
-        void IComponentOwnerRemovedCallback.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IValidator validator)
                 OnValidatorRemoved(validator, metadata);

@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IComponentOwnerAddedCallback, IComponentOwnerRemovedCallback, IEqualityComparer<MessengerSubscriberInfo>
+    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IEqualityComparer<MessengerSubscriberInfo>
     {
         #region Fields
 
@@ -42,7 +42,7 @@ namespace MugenMvvm.Messaging
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (!(component is IMessengerHandlerComponent))
                 return;
@@ -52,7 +52,7 @@ namespace MugenMvvm.Messaging
             }
         }
 
-        void IComponentOwnerRemovedCallback.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (!(component is IMessengerHandlerComponent))
                 return;

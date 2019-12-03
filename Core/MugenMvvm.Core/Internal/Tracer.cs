@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class Tracer : ITracer
+    public sealed class Tracer : ITracer//todo review
     {
         #region Fields
 

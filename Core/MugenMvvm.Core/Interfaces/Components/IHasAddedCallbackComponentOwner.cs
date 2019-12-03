@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentOwnerAddedCallback//todo rename
+    public interface IHasAddedCallbackComponentOwner : IComponentOwner
     {
         void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata);
     }

@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IComponentOwnerAddedCallback, IComponentOwnerRemovedCallback
+    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner
     {
         #region Fields
 
@@ -59,7 +59,7 @@ namespace MugenMvvm.Components
         public bool Add(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (!MugenExtensions.OnComponentAddingHandler(this, component, metadata))
+            if (!MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
                 return false;
 
             var changingListeners = MugenExtensions.GetComponents<IComponentCollectionChangingListener>(this, metadata);
@@ -78,7 +78,7 @@ namespace MugenMvvm.Components
             var changedListeners = MugenExtensions.GetComponents<IComponentCollectionChangedListener>(this, metadata);
             for (var i = 0; i < changedListeners.Length; i++)
                 changedListeners[i].OnAdded(this, component, metadata);
-            MugenExtensions.OnComponentAddedHandler(this, component, metadata);
+            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
             return true;
         }
 
@@ -91,7 +91,7 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (!MugenExtensions.OnComponentRemovingHandler(this, component, metadata))
+            if (!MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
                 return false;
 
             var changingListeners = MugenExtensions.GetComponents<IComponentCollectionChangingListener>(this, metadata);
@@ -111,7 +111,7 @@ namespace MugenMvvm.Components
             var changedListeners = MugenExtensions.GetComponents<IComponentCollectionChangedListener>(this, metadata);
             for (var i = 0; i < changedListeners.Length; i++)
                 changedListeners[i].OnRemoved(this, component, metadata);
-            MugenExtensions.OnComponentRemovedHandler(this, component, metadata);
+            MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
             return true;
         }
 
@@ -130,7 +130,7 @@ namespace MugenMvvm.Components
                 var oldItem = oldItems[i];
                 for (var j = 0; j < changedListeners.Length; j++)
                     changedListeners[j].OnRemoved(this, oldItem, metadata);
-                MugenExtensions.OnComponentRemovedHandler(this, oldItem, metadata);
+                MugenExtensions.ComponentCollectionOnComponentRemoved(this, oldItem, metadata);
             }
 
             return true;
@@ -152,13 +152,13 @@ namespace MugenMvvm.Components
             return AddNewTracker<TComponent>(componentTrackers, metadata);
         }
 
-        void IComponentOwnerAddedCallback.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
                 MugenExtensions.AddComponentOrdered(ref _decorators, decorator, this);
         }
 
-        void IComponentOwnerRemovedCallback.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
                 MugenExtensions.Remove(ref _decorators, decorator);

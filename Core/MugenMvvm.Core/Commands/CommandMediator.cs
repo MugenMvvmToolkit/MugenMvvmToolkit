@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Commands
 {
-    public class CommandMediator : ComponentOwnerBase<ICommandMediator>, ICommandMediator, IComponentOwnerAddedCallback, IComponentOwnerRemovedCallback
+    public class CommandMediator : ComponentOwnerBase<ICommandMediator>, ICommandMediator, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner
     {
         #region Fields
 
@@ -184,13 +184,13 @@ namespace MugenMvvm.Commands
             }, tokens);
         }
 
-        void IComponentOwnerAddedCallback.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (_hasCanExecuteImpl != null && component is IConditionCommandMediatorComponent)
                 _hasCanExecuteImpl = null;
         }
 
-        void IComponentOwnerRemovedCallback.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (_hasCanExecuteImpl != null && component is IConditionCommandMediatorComponent)
                 _hasCanExecuteImpl = null;

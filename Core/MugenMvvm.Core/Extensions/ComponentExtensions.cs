@@ -114,25 +114,25 @@ namespace MugenMvvm
             }
         }
 
-        public static void OnComponentAddedHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void ComponentCollectionOnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IAttachableComponent attachable)
                 attachable.OnAttached(collection.Owner, metadata);
 
-            (collection.Owner as IComponentOwnerAddedCallback)?.OnComponentAdded(collection, component, metadata);
+            (collection.Owner as IHasAddedCallbackComponentOwner)?.OnComponentAdded(collection, component, metadata);
         }
 
-        public static void OnComponentRemovedHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void ComponentCollectionOnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IDetachableComponent detachable)
                 detachable.OnDetached(collection.Owner, metadata);
 
-            (collection.Owner as IComponentOwnerRemovedCallback)?.OnComponentRemoved(collection, component, metadata);
+            (collection.Owner as IHasRemovedCallbackComponentOwner)?.OnComponentRemoved(collection, component, metadata);
         }
 
-        public static bool OnComponentAddingHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool ComponentCollectionOnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (collection.Owner is IComponentOwnerAddingCallback callback && !callback.OnComponentAdding(collection, component, metadata))
+            if (collection.Owner is IHasAddingCallbackComponentOwner callback && !callback.OnComponentAdding(collection, component, metadata))
                 return false;
 
             if (component is IAttachableComponent attachable)
@@ -140,9 +140,9 @@ namespace MugenMvvm
             return true;
         }
 
-        public static bool OnComponentRemovingHandler(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static bool ComponentCollectionOnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (collection.Owner is IComponentOwnerRemovingCallback callback && !callback.OnComponentRemoving(collection, component, metadata))
+            if (collection.Owner is IHasRemovingCallbackComponentOwner callback && !callback.OnComponentRemoving(collection, component, metadata))
                 return false;
 
             if (component is IDetachableComponent detachable)
