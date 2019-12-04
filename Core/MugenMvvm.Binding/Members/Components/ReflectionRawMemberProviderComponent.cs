@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class ReflectionMemberProviderComponent : IMemberProviderComponent, IHasPriority
+    public sealed class ReflectionRawMemberProviderComponent : IRawMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
+        public ReflectionRawMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
             IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _globalValueConverter = globalValueConverter;

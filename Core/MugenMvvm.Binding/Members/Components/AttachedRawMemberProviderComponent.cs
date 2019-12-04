@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedMemberProviderComponent, IEqualityComparer<IMemberInfo>, IHasPriority
+    public sealed class AttachedRawMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedRawMemberProviderComponent, IEqualityComparer<IMemberInfo>, IHasPriority
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AttachedMemberProviderComponent()
+        public AttachedRawMemberProviderComponent()
         {
             _registeredMembers = new StringOrdinalLightDictionary<HashSet<IMemberInfo>>(59);
             _cache = new TypeStringLightDictionary<List<IMemberInfo>?>(59);

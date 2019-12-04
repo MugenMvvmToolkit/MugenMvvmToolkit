@@ -10,38 +10,19 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MemberProvider : ComponentOwnerBase<IMemberProvider>, IMemberProvider, IComponentOwnerAddedCallback<IComponent<IMemberProvider>>, IComponentOwnerRemovedCallback<IComponent<IMemberProvider>>
+    public sealed class MemberProvider : ComponentOwnerBase<IMemberProvider>, IMemberProvider
     {
-        #region Fields
-
-        private ISelectorMemberProviderComponent[] _memberSelectors;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
         public MemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            _memberSelectors = Default.EmptyArray<ISelectorMemberProviderComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
-
-        void IComponentOwnerAddedCallback<IComponent<IMemberProvider>>.OnComponentAdded(IComponentCollection<IComponent<IMemberProvider>> collection,
-            IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _memberSelectors, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IMemberProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection,
-            IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _memberSelectors, component);
-        }
 
         public IMemberInfo? GetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
         {
@@ -50,11 +31,10 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            var selectors = _memberSelectors;
-            for (var i = 0; i < selectors.Length; i++)
+            var components = GetComponents<IMemberProviderComponent>(metadata);
+            for (var i = 0; i < components.Length; i++)
             {
-                var result = selectors[i].TryGetMember(type, name, memberTypes, flags, metadata);
-                if (result != null)
+                if (components[i].TryGetMember(type, name, memberTypes, flags, metadata, out var result))
                     return result;
             }
 
@@ -69,11 +49,10 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            var selectors = _memberSelectors;
-            for (var i = 0; i < selectors.Length; i++)
+            var components = GetComponents<IMemberProviderComponent>(metadata);
+            for (var i = 0; i < components.Length; i++)
             {
-                var result = selectors[i].TryGetMembers(type, name, memberTypes, flags, metadata)!;
-                if (result != null)
+                if (components[i].TryGetMembers(type, name, memberTypes, flags, metadata, out var result))
                     return result;
             }
 

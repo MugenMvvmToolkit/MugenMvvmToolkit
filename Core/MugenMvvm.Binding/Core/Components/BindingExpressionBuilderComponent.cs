@@ -122,7 +122,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private int GetPriority(IExpressionNode expression)
         {
-            var components = Owner.GetComponents<IBindingExpressionPriorityProviderComponent>(null);
+            var components = Owner.Components.GetComponents<IBindingExpressionPriorityProviderComponent>(null);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryGetPriority(expression, out var priority))
@@ -134,7 +134,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private void OnComponentsChanged(IReadOnlyMetadataContext? metadata)
         {
-            var components = Owner.GetComponents<IBindingExpressionInterceptorComponent>(metadata);
+            var components = Owner.Components.GetComponents<IBindingExpressionInterceptorComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].IsCachePerTypeRequired)
@@ -312,7 +312,7 @@ namespace MugenMvvm.Binding.Core.Components
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                var interceptors = _owner.Owner.GetComponents<IBindingExpressionInterceptorComponent>(metadata);
+                var interceptors = _owner.Owner.Components.GetComponents<IBindingExpressionInterceptorComponent>(metadata);
                 for (var i = 0; i < interceptors.Length; i++)
                     interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
 
@@ -329,7 +329,7 @@ namespace MugenMvvm.Binding.Core.Components
                 dictionary.Clear();
 
                 var parametersReadonly = parameters.Cast<IReadOnlyList<IExpressionNode>>();
-                var providers = _owner.Owner.GetComponents<IBindingComponentProviderComponent>(metadata);
+                var providers = _owner.Owner.Components.GetComponents<IBindingComponentProviderComponent>(metadata);
                 for (var i = 0; i < providers.Length; i++)
                 {
                     var builders = providers[i].TryGetComponentBuilders(_targetExpression, _sourceExpression, parametersReadonly, metadata);

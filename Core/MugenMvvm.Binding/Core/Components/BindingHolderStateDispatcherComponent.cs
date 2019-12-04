@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (lifecycle == BindingLifecycleState.Initialized)
             {
-                var holders = Owner.GetComponents<IBindingHolderComponent>(metadata);
+                var holders = Owner.Components.GetComponents<IBindingHolderComponent>(metadata);
                 for (var i = 0; i < holders.Length; i++)
                 {
                     if (holders[i].TryRegister(binding, metadata))
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Core.Components
             }
             else if (lifecycle == BindingLifecycleState.Disposed)
             {
-                var holders = Owner.GetComponents<IBindingHolderComponent>(metadata);
+                var holders = Owner.Components.GetComponents<IBindingHolderComponent>(metadata);
                 for (var i = 0; i < holders.Length; i++)
                 {
                     if (holders[i].TryUnregister(binding, metadata))

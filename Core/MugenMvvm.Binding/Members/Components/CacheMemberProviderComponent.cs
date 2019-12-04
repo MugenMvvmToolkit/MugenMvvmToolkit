@@ -15,12 +15,12 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class CacheMemberProviderComponent : DecoratorComponentBase<IMemberProvider, ISelectorMemberProviderComponent>, ISelectorMemberProviderComponent, IHasPriority, IHasCache
+    public sealed class CacheMemberProviderComponent : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority, IHasCache
     {
         #region Fields
 
         private readonly TempCacheDictionary<IMemberInfo?> _tempCache;
-        private readonly TempCacheDictionary<IReadOnlyList<IMemberInfo>> _tempMembersCache;
+        private readonly TempCacheDictionary<IReadOnlyList<IMemberInfo>?> _tempMembersCache;
 
         #endregion
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Members.Components
         public CacheMemberProviderComponent()
         {
             _tempCache = new TempCacheDictionary<IMemberInfo?>();
-            _tempMembersCache = new TempCacheDictionary<IReadOnlyList<IMemberInfo>>();
+            _tempMembersCache = new TempCacheDictionary<IReadOnlyList<IMemberInfo>?>();
         }
 
         #endregion
@@ -59,55 +59,67 @@ namespace MugenMvvm.Binding.Members.Components
             }
         }
 
-        public IMemberInfo? TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public bool TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
-            if (!_tempCache.TryGetValue(cacheKey, out var result))
+            if (!_tempCache.TryGetValue(cacheKey, out member))
             {
                 var selectors = Components;
                 for (var i = 0; i < selectors.Length; i++)
                 {
-                    result = selectors[i].TryGetMember(type, name, memberTypes, flags, metadata);
-                    if (result != null)
+                    if (selectors[i].TryGetMember(type, name, memberTypes, flags, metadata, out member))
                         break;
                 }
-                _tempCache[cacheKey] = result;
+
+                _tempCache[cacheKey] = member;
             }
-            return result;
+
+            return true;
         }
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public bool TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IReadOnlyList<IMemberInfo>? members)
         {
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
-            if (!_tempMembersCache.TryGetValue(cacheKey, out var result))
+            if (!_tempMembersCache.TryGetValue(cacheKey, out members))
             {
                 var selectors = Components;
                 for (var i = 0; i < selectors.Length; i++)
                 {
-                    result = selectors[i].TryGetMembers(type, name, memberTypes, flags, metadata)!;
-                    if (result != null)
+                    if (selectors[i].TryGetMembers(type, name, memberTypes, flags, metadata, out members))
                         break;
                 }
 
-                result ??= Default.EmptyArray<IMemberInfo>();
-                _tempMembersCache[cacheKey] = result;
+                _tempMembersCache[cacheKey] = members;
             }
-            return result;
+
+            return members != null;
         }
 
         #endregion
 
         #region Methods
 
-        protected override void OnComponentAdded(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             base.OnComponentAdded(collection, component, metadata);
             Invalidate();
         }
 
-        protected override void OnComponentRemoved(IComponentCollection<IComponent<IMemberProvider>> collection, IComponent<IMemberProvider> component, IReadOnlyMetadataContext? metadata)
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             base.OnComponentRemoved(collection, component, metadata);
+            Invalidate();
+        }
+
+        protected override void OnAttachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnAttachedInternal(owner, metadata);
+            Invalidate();
+        }
+
+        protected override void OnDetachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnDetachedInternal(owner, metadata);
             Invalidate();
         }
 
@@ -151,7 +163,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Name, key.Type, (int)key.MemberType, (int)key.MemberFlags);
+                return HashCode.Combine(key.Name, key.Type, (int) key.MemberType, (int) key.MemberFlags);
             }
 
             #endregion

@@ -17,7 +17,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class ExtensionMethodMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IMemberProviderComponent, IHasPriority
+    public sealed class ExtensionMethodRawMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IRawMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public ExtensionMethodMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
+        public ExtensionMethodRawMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
             IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _globalValueConverter = globalValueConverter;

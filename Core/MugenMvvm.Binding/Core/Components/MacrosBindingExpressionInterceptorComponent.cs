@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Core.Components
                                                                  && !(targetExpression is IBindingMemberExpressionNode))
             {
                 sourceExpression = targetExpression;
-                targetExpression = new MemberExpressionNode(null, FakeMemberProviderComponent.FakeMemberPrefixSymbol + Default.NextCounter().ToString());
+                targetExpression = new MemberExpressionNode(null, FakeRawMemberProviderComponent.FakeMemberPrefixSymbol + Default.NextCounter().ToString());
             }
 
             for (int i = 0; i < Visitors.Count; i++)

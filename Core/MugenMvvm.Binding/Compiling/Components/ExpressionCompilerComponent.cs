@@ -198,7 +198,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             public Expression Build(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                var components = _compiler.Owner.GetComponents<IExpressionBuilderCompilerComponent>(_inputMetadata);
+                var components = _compiler.Owner.Components.GetComponents<IExpressionBuilderCompilerComponent>(_inputMetadata);
                 Expression? exp;
                 foreach (var component in components)
                 {

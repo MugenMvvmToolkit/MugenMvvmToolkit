@@ -1,22 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
-using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class SelectorMemberProviderComponent : ComponentTrackerBase<IMemberProvider, IMemberProviderComponent>, ISelectorMemberProviderComponent, IHasPriority
+    public sealed class SelectorMemberProviderComponent : ISelectorMemberProviderComponent, IHasPriority
     {
         #region Fields
 
-        private readonly SelectorDictionary _dictionary;
+        private readonly SelectorDictionary _selectorDictionary;
 
         #endregion
 
@@ -24,7 +22,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public SelectorMemberProviderComponent()
         {
-            _dictionary = new SelectorDictionary();
+            _selectorDictionary = new SelectorDictionary();
         }
 
         #endregion
@@ -37,57 +35,21 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IMemberInfo? TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IMemberInfo>? TrySelectMembers(IReadOnlyList<IMemberInfo> members, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var currentPriority = int.MinValue;
-            IMemberInfo? currentMember = null;
-            var providers = Components;
-            for (var i = 0; i < providers.Length; i++)
+            _selectorDictionary.Clear();
+            for (var i = 0; i < members.Count; i++)
             {
-                var members = providers[i].TryGetMembers(type, name, metadata);
-                for (var j = 0; j < members.Count; j++)
-                {
-                    var member = members[j];
-                    if (!memberTypes.HasFlagEx(member.MemberType) || !flags.HasFlagEx(member.AccessModifiers))
-                        continue;
+                var member = members[i];
+                var memberType = member.MemberType;
+                if (!memberTypes.HasFlagEx(memberType) || !flags.HasFlagEx(member.AccessModifiers))
+                    continue;
 
-                    var priority = GetPriority(member);
-                    if (priority < currentPriority)
-                        continue;
-                    if (priority == currentPriority)
-                    {
-                        if (memberTypes.HasFlagEx(MemberType.Method))
-                            throw new AmbiguousMatchException();
-                        continue;
-                    }
-
-                    currentPriority = priority;
-                    currentMember = member;
-                }
+                if (!_selectorDictionary.TryGetValue(member, out var currentMember) || GetPriority(member) > GetPriority(currentMember))
+                    _selectorDictionary[member] = member;
             }
 
-            return currentMember;
-        }
-
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
-        {
-            _dictionary.Clear();
-            var providers = Components;
-            for (var i = 0; i < providers.Length; i++)
-            {
-                var members = providers[i].TryGetMembers(type, name, metadata);
-                for (var j = 0; j < members.Count; j++)
-                {
-                    var member = members[j];
-                    if (!memberTypes.HasFlagEx(member.MemberType) || !flags.HasFlagEx(member.AccessModifiers))
-                        continue;
-
-                    if (!_dictionary.TryGetValue(member, out var currentMember) || GetPriority(member) > GetPriority(currentMember))
-                        _dictionary[member] = member;
-                }
-            }
-
-            return _dictionary.KeysToArray();
+            return _selectorDictionary.ValuesToArray();
         }
 
         #endregion
@@ -123,12 +85,31 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(IMemberInfo key)
             {
-                return key.GetHashCodeEx();
+                if (key is IMethodInfo method)
+                    return HashCode.Combine((byte)key.MemberType, method.GetParameters().Count);
+                return HashCode.Combine((byte)key.MemberType);
             }
 
             protected override bool Equals(IMemberInfo x, IMemberInfo y)
             {
-                return x.EqualsEx(y);
+                if (x.MemberType != y.MemberType)
+                    return false;
+
+                if (x.MemberType != MemberType.Method)
+                    return true;
+
+                var xM = ((IMethodInfo)x).GetParameters();
+                var yM = ((IMethodInfo)y).GetParameters();
+                if (xM.Count != yM.Count)
+                    return false;
+
+                for (var i = 0; i < xM.Count; i++)
+                {
+                    if (xM[i].ParameterType != yM[i].ParameterType)
+                        return false;
+                }
+
+                return true;
             }
 
             #endregion

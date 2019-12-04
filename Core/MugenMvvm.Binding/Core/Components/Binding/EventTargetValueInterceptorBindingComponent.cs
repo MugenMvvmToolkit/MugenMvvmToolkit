@@ -219,21 +219,21 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private void OnBeginEvent(object sender, object? message)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
+            var components = _bindingManager.DefaultIfNull().Components.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             for (var i = 0; i < components.Length; i++)
                 components[i].OnBeginEvent(sender, message, _currentMetadata);
         }
 
         private void OnEndEvent(object sender, object? message)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
+            var components = _bindingManager.DefaultIfNull().Components.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             for (var i = 0; i < components.Length; i++)
                 components[i].OnEndEvent(sender, message, _currentMetadata);
         }
 
         private void OnEventError(Exception exception, object sender, object? message)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
+            var components = _bindingManager.DefaultIfNull().Components.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             for (var i = 0; i < components.Length; i++)
                 components[i].OnEventError(exception, sender, message, _currentMetadata);
         }
@@ -242,7 +242,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             if (_bindingManager == null)
                 return MugenBindingService.MemberProvider;
-            var components = _bindingManager.GetComponents<IMemberProvider>(_currentMetadata);
+            var components = _bindingManager.Components.GetComponents<IMemberProvider>(_currentMetadata);
             if (components.Length == 0)
                 return MugenBindingService.MemberProvider;
             return components[0];
