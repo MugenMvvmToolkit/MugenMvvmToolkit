@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding) owner).Target.GetLastMember();
+            var targetMember = ((IBinding)owner).Target.GetLastMember();
             if (!(targetMember.Member is IEventInfo eventInfo))
                 return false;
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            ((IBinding) owner).UpdateTarget();
+            ((IBinding)owner).UpdateTarget();
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -242,10 +242,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             if (_bindingManager == null)
                 return MugenBindingService.MemberProvider;
-            var components = _bindingManager.Components.GetComponents<IMemberProvider>(_currentMetadata);
-            if (components.Length == 0)
-                return MugenBindingService.MemberProvider;
-            return components[0];
+            return _bindingManager.GetComponentOptional<IMemberProvider>().DefaultIfNull();
         }
 
         #endregion

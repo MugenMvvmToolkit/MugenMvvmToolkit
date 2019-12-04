@@ -59,6 +59,16 @@ namespace MugenMvvm
             return Default.EmptyArray<T>();
         }
 
+        public static TComponent GetComponent<TComponent>(this IComponentOwner owner) where TComponent : class, IComponent
+        {
+            return owner.GetComponent<TComponent>(false)!;
+        }
+
+        public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner) where TComponent : class, IComponent
+        {
+            return owner.GetComponent<TComponent>(true);
+        }
+
         public static T[] GetComponentsOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             if (collection == null)
@@ -140,6 +150,18 @@ namespace MugenMvvm
             if (component is IDetachableComponent detachable)
                 return detachable.OnDetaching(collection.Owner, metadata);
             return true;
+        }
+
+        private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional)
+            where TComponent : class, IComponent
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            var components = owner.GetComponents<TComponent>();
+            if (components.Length != 0)
+                return components[0];
+            if (!optional)
+                ExceptionManager.ThrowCannotGetComponent(owner, typeof(TComponent));
+            return null;
         }
 
         #endregion
