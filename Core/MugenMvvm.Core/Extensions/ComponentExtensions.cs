@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -85,39 +86,23 @@ namespace MugenMvvm
             return 0;
         }
 
-        public static void ComponentDecoratorOnAdded<TComponent>(object decorator, IComponentCollection collection, object component,
-            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
-            where TComponent : class
+        public static void ComponentDecoratorDecorate<TComponent>(TComponent decorator, object owner, List<TComponent> components, ref TComponent[] decoratorComponents) where TComponent : class
         {
-            Should.NotBeNull(collection, nameof(collection));
-            if (component is TComponent c)
-                AddDecoratorComponent(decorator, GetComponentPriority(decorator, collection.Owner), c, collection.Owner, ref decoratorComponents, ref components);
-        }
-
-        public static void ComponentDecoratorOnRemoved<TComponent>(object decorator, object component,
-            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
-            where TComponent : class
-        {
-            if (!(component is TComponent c))
-                return;
-            if (decoratorComponents != null)
-                Remove(ref decoratorComponents, c);
-            if (components != null)
-                Remove(ref components, c);
-        }
-
-        public static void ComponentDecoratorInitialize<TComponent>(object decorator, IComponentOwner owner, IReadOnlyMetadataContext? metadata,
-            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
-            where TComponent : class
-        {
-            Should.NotBeNull(owner, nameof(owner));
-            var currentPriority = MugenExtensions.GetComponentPriority(decorator, owner);
-            var allComponents = owner.Components.GetComponents<object>(metadata);
-
-            for (int i = 0; i < allComponents.Length; i++)
+            var currentPriority = GetComponentPriority(decorator, owner);
+            for (int i = 0; i < components.Count; i++)
             {
-                if (allComponents[i] is TComponent c)
-                    AddDecoratorComponent(decorator, currentPriority, c, owner, ref decoratorComponents, ref components);
+                var component = components[i];
+                if (ReferenceEquals(decorator, component))
+                    continue;
+
+                var priority = GetComponentPriority(component, owner);
+                if (priority < currentPriority)
+                {
+                    AddComponentOrdered(ref decoratorComponents, component, owner);
+                    components.RemoveAt(i--);
+                }
+                else if (priority == currentPriority)
+                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
             }
         }
 
@@ -155,28 +140,6 @@ namespace MugenMvvm
             if (component is IDetachableComponent detachable)
                 return detachable.OnDetaching(collection.Owner, metadata);
             return true;
-        }
-
-        private static void AddDecoratorComponent<TComponent>(object decorator, int currentPriority, TComponent component, object owner,
-            [NotNullIfNotNull("decoratorComponents")]ref TComponent[]? decoratorComponents, [NotNullIfNotNull("components")]ref TComponent[]? components)
-            where TComponent : class
-        {
-            var priority = GetComponentPriority(component, owner);
-            if (decoratorComponents != null)
-            {
-                if (ReferenceEquals(component, decorator) || priority > currentPriority)
-                    AddComponentOrdered(ref decoratorComponents, component, owner);
-                else if (priority == currentPriority)
-                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
-            }
-
-            if (components != null && !ReferenceEquals(decorator, component))
-            {
-                if (priority < currentPriority)
-                    AddComponentOrdered(ref components, component, owner);
-                else if (priority == currentPriority)
-                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
-            }
         }
 
         #endregion

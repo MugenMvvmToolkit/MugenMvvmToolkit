@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderCacheAttachedValueManagerComponent : DecoratorTrackerComponentBase<IAttachedValueManager, IAttachedValueManagerComponent>, IAttachedValueManagerComponent, IHasPriority
+    public sealed class ValueHolderCacheAttachedValueManagerComponent : DecoratorComponentBase<IAttachedValueManager, IAttachedValueManagerComponent>, IAttachedValueManagerComponent, IHasPriority
     {
         #region Properties
 
@@ -19,43 +19,66 @@ namespace MugenMvvm.Internal.Components
 
         public bool TryGetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
         {
-            if (item is IValueHolder<IAttachedValueProvider> valueHolder)
-            {
-                provider = valueHolder.Value;
-                return valueHolder.Value != null;
-            }
+            if (!(item is IValueHolder<IAttachedValueProvider> valueHolder))
+                return TryGetAttachedValueProviderInternal(item, metadata, out provider);
 
-            provider = null;
-            return false;
+            if (valueHolder.Value == null)
+            {
+                if (!TryGetAttachedValueProviderInternal(item, metadata, out provider))
+                    return false;
+                valueHolder.Value = provider;
+            }
+            else
+                provider = valueHolder.Value;
+
+            return true;
         }
 
         public bool TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
         {
-            if (item is IValueHolder<IAttachedValueProvider> valueHolder)
-            {
-                provider = GetAddAttachedValueProvider(item, metadata);
-                valueHolder.Value = provider;
-                return provider != null;
-            }
+            if (!(item is IValueHolder<IAttachedValueProvider> valueHolder))
+                return TryGetOrAddAttachedValueProviderInternal(item, metadata, out provider);
 
-            provider = null;
-            return false;
+            if (valueHolder.Value == null)
+            {
+                if (!TryGetOrAddAttachedValueProviderInternal(item, metadata, out provider))
+                    return false;
+                valueHolder.Value = provider;
+            }
+            else
+                provider = valueHolder.Value;
+
+            return true;
         }
 
         #endregion
 
         #region Methods
 
-        private IAttachedValueProvider? GetAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata)
+        private bool TryGetOrAddAttachedValueProviderInternal(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
         {
             var components = Components;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetAttachedValueProvider(item, metadata, out var provider))
-                    return provider;
+                if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out provider))
+                    return true;
             }
 
-            return null;
+            provider = null;
+            return false;
+        }
+
+        private bool TryGetAttachedValueProviderInternal(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
+        {
+            var components = Components;
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryGetAttachedValueProvider(item, metadata, out provider))
+                    return true;
+            }
+
+            provider = null;
+            return false;
         }
 
         #endregion

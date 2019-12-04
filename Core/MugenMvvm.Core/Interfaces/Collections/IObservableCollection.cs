@@ -10,7 +10,7 @@ namespace MugenMvvm.Interfaces.Collections
 
         IEnumerable<T> DecorateItems();
 
-        ActionToken BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both);
+        ActionToken BeginBatchUpdate(BatchUpdateCollectionMode mode = BatchUpdateCollectionMode.Both);//todo review change
 
         void Move(int oldIndex, int newIndex);
 

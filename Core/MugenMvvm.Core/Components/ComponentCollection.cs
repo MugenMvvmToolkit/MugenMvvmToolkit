@@ -5,15 +5,15 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner
+    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IComparer<IDecoratorComponentCollectionComponent>
     {
         #region Fields
 
         private readonly List<object> _items;
-
-        private IDecoratorComponentCollectionComponent[] _decorators;
         private IComponentCollection? _components;
         private IComponentTracker[] _componentTrackers;
+
+        private IDecoratorComponentCollectionComponent[] _decorators;
 
         #endregion
 
@@ -51,6 +51,11 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
+        int IComparer<IDecoratorComponentCollectionComponent>.Compare(IDecoratorComponentCollectionComponent x, IDecoratorComponentCollectionComponent y)
+        {
+            return MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
+        }
+
         int IComparer<object>.Compare(object x, object y)
         {
             return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
@@ -85,6 +90,7 @@ namespace MugenMvvm.Components
                 for (var i = 0; i < changedListeners.Length; i++)
                     changedListeners[i].OnAdded(this, component, metadata);
             }
+
             MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
             return true;
         }
@@ -126,6 +132,7 @@ namespace MugenMvvm.Components
                 for (var i = 0; i < changedListeners.Length; i++)
                     changedListeners[i].OnRemoved(this, component, metadata);
             }
+
             MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
             return true;
         }
@@ -157,11 +164,7 @@ namespace MugenMvvm.Components
             for (var i = 0; i < componentTrackers.Length; i++)
             {
                 if (componentTrackers[i] is ComponentTracker<TComponent> tracker)
-                {
-                    if (_decorators.Length == 0 || typeof(object) == typeof(TComponent))
-                        return tracker.Components;
-                    return Decorate(tracker.Components, metadata);
-                }
+                    return tracker.Components;
             }
 
             return AddNewTracker<TComponent>(componentTrackers, metadata);
@@ -170,13 +173,19 @@ namespace MugenMvvm.Components
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
-                MugenExtensions.AddComponentOrdered(ref _decorators, decorator, this);
+            {
+                MugenExtensions.AddOrdered(ref _decorators, decorator, this);
+                UpdateTrackers(null, decorator);
+            }
         }
 
         void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
+            {
                 MugenExtensions.Remove(ref _decorators, decorator);
+                UpdateTrackers(null, decorator);
+            }
         }
 
         #endregion
@@ -185,35 +194,21 @@ namespace MugenMvvm.Components
 
         private TComponent[] AddNewTracker<TComponent>(IComponentTracker[] componentTrackers, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
-            var tracker = ComponentTracker<TComponent>.Get(this);
+            var tracker = ComponentTracker<TComponent>.Get(this, metadata);
             Array.Resize(ref componentTrackers, componentTrackers.Length + 1);
             componentTrackers[componentTrackers.Length - 1] = tracker;
             _componentTrackers = componentTrackers;
-            if (_decorators.Length == 0 || typeof(object) == typeof(TComponent))
-                return tracker.Components;
-            return Decorate(tracker.Components, metadata);
+            return tracker.Components;
         }
 
-        private TComponent[] Decorate<TComponent>(TComponent[] components, IReadOnlyMetadataContext? metadata) where TComponent : class
-        {
-            var decorators = _decorators;
-            for (var i = 0; i < decorators.Length; i++)
-            {
-                if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent> decorator && decorator.TryDecorate(ref components, metadata))
-                    break;
-            }
-
-            return components;
-        }
-
-        private void UpdateTrackers(object component)
+        private void UpdateTrackers(object? component, IDecoratorComponentCollectionComponent? decorator = null)
         {
             var componentTrackers = _componentTrackers;
-            int newSize = 0;
-            for (int i = 0; i < componentTrackers.Length; i++)
+            var newSize = 0;
+            for (var i = 0; i < componentTrackers.Length; i++)
             {
                 var componentTracker = componentTrackers[i];
-                if (!componentTracker.IsComponent(component))
+                if (!componentTracker.IsComponentSupported(component) && !componentTracker.IsDecoratorSupported(decorator))
                     componentTrackers[newSize++] = componentTracker;
             }
 
@@ -229,7 +224,9 @@ namespace MugenMvvm.Components
 
         public interface IComponentTracker
         {
-            bool IsComponent(object component);
+            bool IsComponentSupported(object? component);
+
+            bool IsDecoratorSupported(IDecoratorComponentCollectionComponent? decorator);
         }
 
         private sealed class ComponentTracker<TComponent> : IComponentTracker
@@ -254,20 +251,28 @@ namespace MugenMvvm.Components
 
             #region Implementation of interfaces
 
-            public bool IsComponent(object component)
+            public bool IsComponentSupported(object? component)
             {
                 return component is TComponent;
+            }
+
+            public bool IsDecoratorSupported(IDecoratorComponentCollectionComponent? decorator)
+            {
+                return decorator is IDecoratorComponentCollectionComponent<TComponent>;
             }
 
             #endregion
 
             #region Methods
 
-            public static ComponentTracker<TComponent> Get(ComponentCollection collection)
+            public static ComponentTracker<TComponent> Get(ComponentCollection collection, IReadOnlyMetadataContext? metadata)
             {
                 var items = collection._items;
                 lock (items)
                 {
+                    if (collection._decorators.Length != 0)
+                        return GetComponentTrackerWithDecorators(items, collection, metadata);
+
                     var size = 0;
                     for (var i = 0; i < items.Count; i++)
                     {
@@ -288,6 +293,30 @@ namespace MugenMvvm.Components
 
                     return new ComponentTracker<TComponent>(components);
                 }
+            }
+
+            private static ComponentTracker<TComponent> GetComponentTrackerWithDecorators(List<object> items, ComponentCollection collection, IReadOnlyMetadataContext? metadata)
+            {
+                List<TComponent> components = new List<TComponent>(4);//todo light list
+                for (var i = 0; i < items.Count; i++)
+                {
+                    if (items[i] is TComponent c)
+                        components.Add(c);
+                }
+
+                return new ComponentTracker<TComponent>(Decorate(collection, components, metadata));
+            }
+
+            private static TComponent[] Decorate(ComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata)
+            {
+                var decorators = collection._decorators;
+                for (var i = 0; i < decorators.Length; i++)
+                {
+                    if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent> decorator)
+                        decorator.Decorate(components, metadata);
+                }
+
+                return components.ToArray();
             }
 
             #endregion

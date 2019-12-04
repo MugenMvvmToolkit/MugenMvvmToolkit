@@ -16,9 +16,7 @@ namespace MugenMvvm.Presenters.Components
         #region Fields
 
         private ICloseablePresenterComponent[] _closeableComponents;
-        private ICloseablePresenterComponent[] _closeableDecoratorComponents;
         private IRestorablePresenterComponent[] _restorableComponents;
-        private IRestorablePresenterComponent[] _restorableDecoratorComponents;
 
         #endregion
 
@@ -27,9 +25,7 @@ namespace MugenMvvm.Presenters.Components
         public ConditionDecoratorPresenterComponent()
         {
             _closeableComponents = Default.EmptyArray<ICloseablePresenterComponent>();
-            _closeableDecoratorComponents = _closeableComponents;
             _restorableComponents = Default.EmptyArray<IRestorablePresenterComponent>();
-            _restorableDecoratorComponents = _restorableComponents;
         }
 
         #endregion
@@ -60,16 +56,14 @@ namespace MugenMvvm.Presenters.Components
             return results;
         }
 
-        bool IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.TryDecorate(ref ICloseablePresenterComponent[] components, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(List<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            components = _closeableDecoratorComponents;
-            return true;
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _closeableComponents);
         }
 
-        bool IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.TryDecorate(ref IRestorablePresenterComponent[] components, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.Decorate(List<IRestorablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            components = _restorableDecoratorComponents;
-            return true;
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _restorableComponents);
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)
@@ -111,34 +105,11 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _closeableDecoratorComponents, ref _closeableComponents);
-            MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _restorableDecoratorComponents, ref _restorableComponents);
-            base.OnAttachedInternal(owner, metadata);
-        }
-
         protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
             _closeableComponents = Default.EmptyArray<ICloseablePresenterComponent>();
-            _closeableDecoratorComponents = _closeableComponents;
             _restorableComponents = Default.EmptyArray<IRestorablePresenterComponent>();
-            _restorableDecoratorComponents = _restorableComponents;
-        }
-
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentDecoratorOnAdded(this, collection, component, ref _closeableDecoratorComponents, ref _closeableComponents);
-            MugenExtensions.ComponentDecoratorOnAdded(this, collection, component, ref _restorableDecoratorComponents, ref _restorableComponents);
-            base.OnComponentAdded(collection, component, metadata);
-        }
-
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentDecoratorOnRemoved(this, component, ref _closeableDecoratorComponents, ref _closeableComponents);
-            MugenExtensions.ComponentDecoratorOnRemoved(this, component, ref _restorableDecoratorComponents, ref _restorableComponents);
-            base.OnComponentRemoved(collection, component, metadata);
         }
 
         private bool CanShow(IPresenterComponent component, IMetadataContext metadata)

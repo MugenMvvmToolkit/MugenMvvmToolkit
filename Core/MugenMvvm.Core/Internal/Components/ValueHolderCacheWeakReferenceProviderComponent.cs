@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderCacheWeakReferenceProviderComponent : DecoratorTrackerComponentBase<IWeakReferenceProvider, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent, IHasPriority
+    public sealed class ValueHolderCacheWeakReferenceProviderComponent : DecoratorComponentBase<IWeakReferenceProvider, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent, IHasPriority
     {
         #region Properties
 
@@ -29,7 +29,7 @@ namespace MugenMvvm.Internal.Components
                 return holder.Value;
             }
 
-            return null;
+            return GetWeakReference(item, metadata);
         }
 
         #endregion

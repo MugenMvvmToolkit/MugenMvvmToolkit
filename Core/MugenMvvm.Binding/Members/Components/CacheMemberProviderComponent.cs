@@ -8,7 +8,6 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -99,28 +98,21 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        protected override void OnDecorated(IReadOnlyMetadataContext? metadata)
         {
-            base.OnComponentAdded(collection, component, metadata);
-            Invalidate();
-        }
-
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnComponentRemoved(collection, component, metadata);
-            Invalidate();
+            Invalidate(metadata: metadata);
         }
 
         protected override void OnAttachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            Invalidate();
+            Invalidate(metadata: metadata);
         }
 
         protected override void OnDetachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            Invalidate();
+            Invalidate(metadata: metadata);
         }
 
         private static void Invalidate<TItem>(LightDictionary<CacheKey, TItem> dictionary, Type type, ref List<CacheKey>? keys)

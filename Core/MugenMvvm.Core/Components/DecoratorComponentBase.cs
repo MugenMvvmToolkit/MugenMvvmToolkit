@@ -1,15 +1,15 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System.Collections.Generic;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public abstract class DecoratorComponentBase<T, TComponent> : AttachableComponentBase<T>, IComponentCollectionChangedListener, IDecoratorComponentCollectionComponent<TComponent>
+    public abstract class DecoratorComponentBase<T, TComponent> : AttachableComponentBase<T>, IDecoratorComponentCollectionComponent<TComponent>
         where TComponent : class
         where T : class, IComponentOwner<T>
     {
         #region Fields
 
-        private TComponent[] _decoratorComponents;
         protected TComponent[] Components;
 
         #endregion
@@ -19,26 +19,16 @@ namespace MugenMvvm.Components
         protected DecoratorComponentBase()
         {
             Components = Default.EmptyArray<TComponent>();
-            _decoratorComponents = Components;
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<TComponent>.Decorate(List<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            OnComponentAdded(collection, component, metadata);
-        }
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentRemoved(collection, component, metadata);
-        }
-
-        bool IDecoratorComponentCollectionComponent<TComponent>.TryDecorate(ref TComponent[] components, IReadOnlyMetadataContext? metadata)
-        {
-            return TryDecorate(ref components, metadata);
+            MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, ref Components);
+            OnDecorated(metadata);
         }
 
         #endregion
@@ -47,7 +37,6 @@ namespace MugenMvvm.Components
 
         protected override void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _decoratorComponents, ref Components);
             owner.Components.AddComponent(this, metadata);
         }
 
@@ -55,23 +44,10 @@ namespace MugenMvvm.Components
         {
             owner.Components.RemoveComponent(this, metadata);
             Components = Default.EmptyArray<TComponent>();
-            _decoratorComponents = Components;
         }
 
-        protected virtual void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnDecorated(IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorOnAdded(this, collection, component, ref _decoratorComponents, ref Components);
-        }
-
-        protected virtual void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentDecoratorOnRemoved(this, component, ref _decoratorComponents, ref Components);
-        }
-
-        protected virtual bool TryDecorate(ref TComponent[] components, IReadOnlyMetadataContext? metadata)
-        {
-            components = _decoratorComponents;
-            return true;
         }
 
         #endregion

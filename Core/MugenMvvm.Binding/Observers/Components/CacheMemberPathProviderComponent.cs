@@ -47,6 +47,11 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
+        protected override void OnDecorated(IReadOnlyMetadataContext? metadata)
+        {
+            _cache.Clear();
+        }
+
         private IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
         {
             if (!_cache.TryGetValue(path, out var value))

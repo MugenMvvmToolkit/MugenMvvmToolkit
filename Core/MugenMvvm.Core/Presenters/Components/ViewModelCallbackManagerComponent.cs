@@ -18,7 +18,8 @@ using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelCallbackManagerComponent : DecoratorTrackerComponentBase<IPresenter, IPresenterComponent>, IPresenterComponent, ICloseablePresenterComponent, IHasPriority
+    public sealed class ViewModelCallbackManagerComponent : DecoratorComponentBase<IPresenter, IPresenterComponent>, IPresenterComponent,
+        ICloseablePresenterComponent, IHasPriority, IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>
     {
         #region Fields
 
@@ -92,6 +93,11 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
+        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(List<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
+        {
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _closeablePresenters);
+        }
+
         public IPresenterResult? TryShow(IMetadataContext metadata)
         {
             _dispatcherListener.BeginSuspend();
@@ -125,24 +131,8 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            ICloseablePresenterComponent[]? _ = null;
-            MugenExtensions.ComponentDecoratorOnAdded(this, collection, component, ref _, ref _closeablePresenters);
-            base.OnComponentAdded(collection, component, metadata);
-        }
-
-        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            ICloseablePresenterComponent[]? _ = null;
-            MugenExtensions.ComponentDecoratorOnRemoved(this, component, ref _, ref _closeablePresenters);
-            base.OnComponentRemoved(collection, component, metadata);
-        }
-
         protected override void OnAttachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
         {
-            ICloseablePresenterComponent[]? _ = null;
-            MugenExtensions.ComponentDecoratorInitialize(this, owner, metadata, ref _, ref _closeablePresenters);
             base.OnAttachedInternal(owner, metadata);
             if (_navigationDispatcher == null)
                 _navigationDispatcher = MugenService.NavigationDispatcher;
