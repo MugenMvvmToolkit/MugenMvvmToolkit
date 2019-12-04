@@ -298,7 +298,7 @@ namespace MugenMvvm.Binding.Core.Components
                     {
                         var component = _componentBuilders[i].GetComponent(binding, target, source, metadata);
                         if (component != null)
-                            MugenExtensions.AddOrdered(components, component, size++, binding!);
+                            MugenExtensions.AddOrdered(components!, component, size++, binding!);
                     }
 
                     binding.Initialize(components, metadata);

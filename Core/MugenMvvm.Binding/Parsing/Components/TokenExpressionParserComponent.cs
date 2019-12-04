@@ -4,7 +4,6 @@ using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -12,7 +11,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Parsing.Components
 {
     //todo use span/memory?
-    public sealed class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority, IComponentCollectionChangedListener
+    public sealed class TokenExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
         #region Fields
 
@@ -39,18 +38,6 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is ITokenParserComponent)
-                _parserContext.Parsers = Owner.GetComponents<ITokenParserComponent>(metadata);
-        }
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is ITokenParserComponent)
-                _parserContext.Parsers = Owner.GetComponents<ITokenParserComponent>(metadata);
-        }
-
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata)
         {
@@ -66,15 +53,13 @@ namespace MugenMvvm.Binding.Parsing.Components
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            _parserContext.Parsers = owner.GetComponents<ITokenParserComponent>(metadata);
-            owner.Components.AddComponent(this, metadata);
+            _parserContext.Owner = owner;
         }
 
         protected override void OnDetachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            owner.Components.RemoveComponent(this, metadata);
-            _parserContext.Parsers = Default.EmptyArray<ITokenParserComponent>();
+            _parserContext.Owner = null;
         }
 
         private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(in string expression, IReadOnlyMetadataContext? metadata)

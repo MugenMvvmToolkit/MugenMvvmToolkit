@@ -275,7 +275,7 @@ namespace MugenMvvm.Binding.Core
         TComponent[] IComponentCollection.GetComponents<TComponent>(IReadOnlyMetadataContext? metadata)
         {
             Should.MethodBeSupported(false, nameof(GetComponents));
-            return null;
+            return null!;
         }
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
