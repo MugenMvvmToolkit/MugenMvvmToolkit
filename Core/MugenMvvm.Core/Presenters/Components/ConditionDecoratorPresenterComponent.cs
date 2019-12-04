@@ -56,12 +56,12 @@ namespace MugenMvvm.Presenters.Components
             return results;
         }
 
-        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(List<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _closeableComponents);
         }
 
-        void IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.Decorate(List<IRestorablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.Decorate(IList<IRestorablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _restorableComponents);
         }

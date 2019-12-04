@@ -86,7 +86,7 @@ namespace MugenMvvm
             return 0;
         }
 
-        public static void ComponentDecoratorDecorate<TComponent>(TComponent decorator, object owner, List<TComponent> components, ref TComponent[] decoratorComponents) where TComponent : class
+        public static void ComponentDecoratorDecorate<TComponent>(TComponent decorator, object owner, IList<TComponent> components, ref TComponent[] decoratorComponents) where TComponent : class
         {
             var currentPriority = GetComponentPriority(decorator, owner);
             for (int i = 0; i < components.Count; i++)

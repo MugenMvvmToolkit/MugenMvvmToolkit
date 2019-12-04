@@ -93,7 +93,7 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
-        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(List<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _closeablePresenters);
         }

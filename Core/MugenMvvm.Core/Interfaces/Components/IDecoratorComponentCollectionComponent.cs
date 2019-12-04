@@ -10,6 +10,6 @@ namespace MugenMvvm.Interfaces.Components
     public interface IDecoratorComponentCollectionComponent<TComponent> : IDecoratorComponentCollectionComponent
         where TComponent : class
     {
-        void Decorate(List<TComponent> components, IReadOnlyMetadataContext? metadata);
+        void Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -25,7 +25,7 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        void IDecoratorComponentCollectionComponent<TComponent>.Decorate(List<TComponent> components, IReadOnlyMetadataContext? metadata)
+        void IDecoratorComponentCollectionComponent<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, ref Components);
             OnDecorated(metadata);
