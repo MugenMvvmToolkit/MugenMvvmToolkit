@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingHolderStateDispatcherComponent : ComponentTrackerBase<IBindingManager, IBindingHolderComponent>, IBindingStateDispatcherComponent, IHasPriority
+    public sealed class BindingHolderStateDispatcherComponent : AttachableComponentBase<IBindingManager>, IBindingStateDispatcherComponent, IHasPriority
     {
         #region Properties
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (lifecycle == BindingLifecycleState.Initialized)
             {
-                var holders = Components;
+                var holders = Owner.GetComponents<IBindingHolderComponent>(metadata);
                 for (var i = 0; i < holders.Length; i++)
                 {
                     if (holders[i].TryRegister(binding, metadata))
@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Core.Components
             }
             else if (lifecycle == BindingLifecycleState.Disposed)
             {
-                var holders = Components;
+                var holders = Owner.GetComponents<IBindingHolderComponent>(metadata);
                 for (var i = 0; i < holders.Length; i++)
                 {
                     if (holders[i].TryUnregister(binding, metadata))

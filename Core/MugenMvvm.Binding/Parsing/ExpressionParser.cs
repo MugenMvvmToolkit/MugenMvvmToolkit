@@ -8,42 +8,22 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class ExpressionParser : ComponentOwnerBase<IExpressionParser>, IExpressionParser, IComponentOwnerAddedCallback<IComponent<IExpressionParser>>,
-        IComponentOwnerRemovedCallback<IComponent<IExpressionParser>>
+    public sealed class ExpressionParser : ComponentOwnerBase<IExpressionParser>, IExpressionParser
     {
-        #region Fields
-
-        private IExpressionParserComponent[] _parsers;
-
-        #endregion
-
         #region Constructors
 
         public ExpressionParser(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
-            _parsers = Default.EmptyArray<IExpressionParserComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IExpressionParser>>.OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection,
-            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _parsers, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IExpressionParser>>.OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection,
-            IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _parsers, component);
-        }
-
         public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            var parsers = _parsers;
+            var parsers = GetComponents<IExpressionParserComponent>(metadata);
             for (var i = 0; i < parsers.Length; i++)
             {
                 var result = parsers[i].TryParse(expression, metadata);

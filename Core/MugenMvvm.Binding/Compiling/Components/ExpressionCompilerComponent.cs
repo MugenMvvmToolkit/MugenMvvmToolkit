@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class ExpressionCompilerComponent : ComponentTrackerBase<IExpressionCompiler, IExpressionBuilderCompilerComponent>, IExpressionCompilerComponent, IHasPriority
+    public sealed class ExpressionCompilerComponent : AttachableComponentBase<IExpressionCompiler>, IExpressionCompilerComponent, IHasPriority
     {
         #region Fields
 
@@ -198,7 +198,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             public Expression Build(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                var components = _compiler.Components;
+                var components = _compiler.Owner.GetComponents<IExpressionBuilderCompilerComponent>(_inputMetadata);
                 Expression? exp;
                 foreach (var component in components)
                 {

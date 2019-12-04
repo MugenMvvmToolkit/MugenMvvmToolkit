@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         ItemOrList<object?, object?[]> Source { get; }
 
-        ItemOrList<IComponent<IBinding>, IComponent<IBinding>[]> GetComponents();
+        ItemOrList<object, object[]> GetComponents();
 
         void UpdateTarget();
 

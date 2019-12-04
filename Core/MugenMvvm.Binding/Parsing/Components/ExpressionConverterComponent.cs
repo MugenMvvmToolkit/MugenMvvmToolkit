@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class ExpressionConverterComponent : ComponentTrackerBase<IExpressionParser, IExpressionConverterParserComponent<Expression>>, IExpressionParserComponent, IHasPriority
+    public sealed class ExpressionConverterComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority, IComponentCollectionChangedListener
     {
         #region Fields
 
@@ -45,6 +45,18 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IExpressionConverterParserComponent<Expression>)
+                _context.Converters = Owner.GetComponents<IExpressionConverterParserComponent<Expression>>(metadata);
+        }
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IExpressionConverterParserComponent<Expression>)
+                _context.Converters = Owner.GetComponents<IExpressionConverterParserComponent<Expression>>(metadata);
+        }
+
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             if (_tryParseDelegate is FuncEx<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser1)
@@ -58,28 +70,18 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        protected override void OnComponentAdded(IComponentCollection<IComponent<IExpressionParser>> collection, IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnComponentAdded(collection, component, metadata);
-            _context.Converters = Components;
-        }
-
-        protected override void OnComponentRemoved(IComponentCollection<IComponent<IExpressionParser>> collection, IComponent<IExpressionParser> component, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnComponentRemoved(collection, component, metadata);
-            _context.Converters = Components;
-        }
-
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            _context.Converters = Components;
+            _context.Converters = Owner.GetComponents<IExpressionConverterParserComponent<Expression>>(metadata);
+            owner.Components.AddComponent(this, metadata);
         }
 
         protected override void OnDetachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            _context.Converters = Components;
+            owner.Components.RemoveComponent(this, metadata);
+            _context.Converters = Default.EmptyArray<IExpressionConverterParserComponent<Expression>>();
         }
 
         private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(in IReadOnlyList<ExpressionConverterRequest> expressions, IReadOnlyMetadataContext? metadata)

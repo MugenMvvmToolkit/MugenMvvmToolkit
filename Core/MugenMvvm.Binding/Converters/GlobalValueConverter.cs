@@ -10,12 +10,10 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Converters
 {
-    public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter,
-        IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>, IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>
+    public sealed class GlobalValueConverter : ComponentOwnerBase<IGlobalValueConverter>, IGlobalValueConverter
     {
         #region Fields
 
-        private IGlobalValueConverterComponent[] _converters;
         private static readonly TypeLightDictionary<object?> DefaultValueCache = new TypeLightDictionary<object?>(23);
 
         #endregion
@@ -25,7 +23,6 @@ namespace MugenMvvm.Binding.Converters
         [Preserve(Conditional = true)]
         public GlobalValueConverter(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            _converters = Default.EmptyArray<IGlobalValueConverterComponent>();
         }
 
         #endregion
@@ -38,21 +35,9 @@ namespace MugenMvvm.Binding.Converters
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IGlobalValueConverter>>.OnComponentAdded(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
-            IComponent<IGlobalValueConverter> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _converters, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IGlobalValueConverter>>.OnComponentRemoved(IComponentCollection<IComponent<IGlobalValueConverter>> collection,
-            IComponent<IGlobalValueConverter> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _converters, component);
-        }
-
         public object? Convert(object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
         {
-            var converters = _converters;
+            var converters = GetComponents<IGlobalValueConverterComponent>(metadata);
             for (var i = 0; i < converters.Length; i++)
             {
                 if (converters[i].TryConvert(ref value, targetType, member, metadata))

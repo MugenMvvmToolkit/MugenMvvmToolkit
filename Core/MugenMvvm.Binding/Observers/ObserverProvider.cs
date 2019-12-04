@@ -8,52 +8,24 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider,
-        IComponentOwnerAddedCallback<IComponent<IObserverProvider>>, IComponentOwnerRemovedCallback<IComponent<IObserverProvider>>
+    public sealed class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider
     {
-        #region Fields
-
-        private IMemberObserverProviderComponent[] _memberObserverProviders;
-        private IMemberPathObserverProviderComponent[] _pathObserverProviders;
-        private IMemberPathProviderComponent[] _pathProviders;
-
-        #endregion
-
         #region Constructors
 
         [Preserve(Conditional = true)]
         public ObserverProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            _memberObserverProviders = Default.EmptyArray<IMemberObserverProviderComponent>();
-            _pathObserverProviders = Default.EmptyArray<IMemberPathObserverProviderComponent>();
-            _pathProviders = Default.EmptyArray<IMemberPathProviderComponent>();
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IComponentOwnerAddedCallback<IComponent<IObserverProvider>>.OnComponentAdded(IComponentCollection<IComponent<IObserverProvider>> collection,
-            IComponent<IObserverProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnAdded(ref _memberObserverProviders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _pathObserverProviders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _pathProviders, collection, component);
-        }
-
-        void IComponentOwnerRemovedCallback<IComponent<IObserverProvider>>.OnComponentRemoved(IComponentCollection<IComponent<IObserverProvider>> collection,
-            IComponent<IObserverProvider> component, IReadOnlyMetadataContext? metadata)
-        {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _memberObserverProviders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _pathObserverProviders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _pathProviders, component);
-        }
-
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
-            var providers = _memberObserverProviders;
+            var providers = GetComponents<IMemberObserverProviderComponent>(metadata);
             for (var i = 0; i < providers.Length; i++)
             {
                 var observer = providers[i].TryGetMemberObserver(type, member, metadata);
@@ -69,7 +41,7 @@ namespace MugenMvvm.Binding.Observers
             if (path is IMemberPath p)
                 return p;
 
-            var providers = _pathProviders;
+            var providers = GetComponents<IMemberPathProviderComponent>(metadata);
             for (var i = 0; i < providers.Length; i++)
             {
                 var memberPath = providers[i].TryGetMemberPath(path, metadata);
@@ -77,14 +49,14 @@ namespace MugenMvvm.Binding.Observers
                     return memberPath;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, _pathProviders);
+            ExceptionManager.ThrowObjectNotInitialized(this, providers);
             return null;
         }
 
         public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            var providers = _pathObserverProviders;
+            var providers = GetComponents<IMemberPathObserverProviderComponent>(metadata);
             for (var i = 0; i < providers.Length; i++)
             {
                 var observer = providers[i].TryGetMemberPathObserver(target, request, metadata);
@@ -92,7 +64,7 @@ namespace MugenMvvm.Binding.Observers
                     return observer;
             }
 
-            ExceptionManager.ThrowObjectNotInitialized(this, _pathObserverProviders);
+            ExceptionManager.ThrowObjectNotInitialized(this, providers);
             return null;
         }
 

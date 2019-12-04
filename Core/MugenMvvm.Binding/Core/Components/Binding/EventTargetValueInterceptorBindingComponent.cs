@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding)owner).Target.GetLastMember();
+            var targetMember = ((IBinding) owner).Target.GetLastMember();
             if (!(targetMember.Member is IEventInfo eventInfo))
                 return false;
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            ((IBinding)owner).UpdateTarget();
+            ((IBinding) owner).UpdateTarget();
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -148,6 +148,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             }
             else if (value is IExpressionValue)
                 _currentValue = value;
+
             return true;
         }
 
@@ -218,30 +219,33 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private void OnBeginEvent(object sender, object? message)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents();
+            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IBindingEventHandlerComponent)?.OnBeginEvent(sender, message, _currentMetadata);
+                components[i].OnBeginEvent(sender, message, _currentMetadata);
         }
 
         private void OnEndEvent(object sender, object? message)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents();
+            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IBindingEventHandlerComponent)?.OnEndEvent(sender, message, _currentMetadata);
+                components[i].OnEndEvent(sender, message, _currentMetadata);
         }
 
         private void OnEventError(Exception exception, object sender, object? message)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents();
+            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             for (var i = 0; i < components.Length; i++)
-                (components[i] as IBindingEventHandlerComponent)?.OnEventError(exception, sender, message, _currentMetadata);
+                components[i].OnEventError(exception, sender, message, _currentMetadata);
         }
 
         private IMemberProvider GetMemberProvider()
         {
             if (_bindingManager == null)
                 return MugenBindingService.MemberProvider;
-            return _bindingManager.GetComponent<IBindingManager, IMemberProvider>(true).DefaultIfNull();
+            var components = _bindingManager.GetComponents<IMemberProvider>(_currentMetadata);
+            if (components.Length == 0)
+                return MugenBindingService.MemberProvider;
+            return components[0];
         }
 
         #endregion

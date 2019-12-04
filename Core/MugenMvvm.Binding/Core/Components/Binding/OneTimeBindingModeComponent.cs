@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            return !Invoke((IBinding) owner, false);
+            return !Invoke((IBinding)owner, false);
         }
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             if (_disposeBinding)
                 binding.Dispose();
             else if (attached)
-                binding.Components.Remove(this);
+                binding.RemoveComponent(this, null);
             return true;
         }
 

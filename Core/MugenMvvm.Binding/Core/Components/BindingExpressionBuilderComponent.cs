@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
@@ -21,7 +20,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Core.Components
 {
     public sealed class BindingExpressionBuilderComponent : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority,
-        IComponentCollectionChangedListener<IComponent<IBindingManager>>, IComparer<IBindingExpression>
+        IComponentCollectionChangedListener, IComparer<IBindingExpression>
     {
         #region Fields
 
@@ -31,10 +30,6 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly IExpressionParser? _parser;
         private bool _isCachePerTypeRequired;
 
-        private IBindingComponentProviderComponent[] _componentProviders;
-        private IBindingExpressionInterceptorComponent[] _expressionInterceptors;
-        private IBindingExpressionPriorityProviderComponent[] _priorityProviders;
-
         #endregion
 
         #region Constructors
@@ -43,9 +38,6 @@ namespace MugenMvvm.Binding.Core.Components
         {
             _parser = parser;
             _expressionCompiler = expressionCompiler;
-            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptorComponent>();
-            _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
-            _priorityProviders = Default.EmptyArray<IBindingExpressionPriorityProviderComponent>();
             _componentsDictionary = new StringOrdinalLightDictionary<IBindingComponentBuilder>(7);
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
         }
@@ -85,22 +77,16 @@ namespace MugenMvvm.Binding.Core.Components
             return GetPriority(y).CompareTo(GetPriority(x));
         }
 
-        void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnAdded(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnAdded(ref _expressionInterceptors, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _componentProviders, collection, component);
-            MugenExtensions.ComponentTrackerOnAdded(ref _priorityProviders, collection, component);
-            OnComponentsChanged();
+            if (component is IBindingExpressionInterceptorComponent)
+                OnComponentsChanged(metadata);
         }
 
-        void IComponentCollectionChangedListener<IComponent<IBindingManager>>.OnRemoved(IComponentCollection<IComponent<IBindingManager>> collection,
-            IComponent<IBindingManager> component, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentTrackerOnRemoved(ref _expressionInterceptors, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _componentProviders, component);
-            MugenExtensions.ComponentTrackerOnRemoved(ref _priorityProviders, component);
-            OnComponentsChanged();
+            if (component is IBindingExpressionInterceptorComponent)
+                OnComponentsChanged(metadata);
         }
 
         #endregion
@@ -109,20 +95,14 @@ namespace MugenMvvm.Binding.Core.Components
 
         protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            owner.ComponentTrackerInitialize(out _priorityProviders);
-            owner.ComponentTrackerInitialize(out _expressionInterceptors);
-            owner.ComponentTrackerInitialize(out _componentProviders);
-            owner.Components.Components.Add(this);
-            OnComponentsChanged();
+            OnComponentsChanged(metadata);
+            owner.Components.AddComponent(this, metadata);
         }
 
         protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
         {
-            owner.Components.Components.Remove(this);
-            _expressionInterceptors = Default.EmptyArray<IBindingExpressionInterceptorComponent>();
-            _componentProviders = Default.EmptyArray<IBindingComponentProviderComponent>();
-            _priorityProviders = Default.EmptyArray<IBindingExpressionPriorityProviderComponent>();
-            OnComponentsChanged();
+            owner.Components.RemoveComponent(this, metadata);
+            OnComponentsChanged(metadata);
         }
 
         private IBindingExpression GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
@@ -142,20 +122,22 @@ namespace MugenMvvm.Binding.Core.Components
 
         private int GetPriority(IExpressionNode expression)
         {
-            for (int i = 0; i < _priorityProviders.Length; i++)
+            var components = Owner.GetComponents<IBindingExpressionPriorityProviderComponent>(null);
+            for (var i = 0; i < components.Length; i++)
             {
-                if (_priorityProviders[i].TryGetPriority(expression, out var priority))
+                if (components[i].TryGetPriority(expression, out var priority))
                     return priority;
             }
 
             return 0;
         }
 
-        private void OnComponentsChanged()
+        private void OnComponentsChanged(IReadOnlyMetadataContext? metadata)
         {
-            for (int i = 0; i < _expressionInterceptors.Length; i++)
+            var components = Owner.GetComponents<IBindingExpressionInterceptorComponent>(metadata);
+            for (var i = 0; i < components.Length; i++)
             {
-                if (_expressionInterceptors[i].IsCachePerTypeRequired)
+                if (components[i].IsCachePerTypeRequired)
                 {
                     _isCachePerTypeRequired = true;
                     return;
@@ -311,13 +293,14 @@ namespace MugenMvvm.Binding.Core.Components
                 else if (_componentBuilders.Length != 0)
                 {
                     var components = new IComponent<IBinding>?[_componentBuilders.Length];
-                    int size = 0;
+                    var size = 0;
                     for (var i = 0; i < components.Length; i++)
                     {
                         var component = _componentBuilders[i].GetComponent(binding, target, source, metadata);
                         if (component != null)
                             MugenExtensions.AddOrdered(components, component, size++, binding!);
                     }
+
                     binding.Initialize(components, metadata);
                 }
 
@@ -329,7 +312,7 @@ namespace MugenMvvm.Binding.Core.Components
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                var interceptors = _owner._expressionInterceptors;
+                var interceptors = _owner.Owner.GetComponents<IBindingExpressionInterceptorComponent>(metadata);
                 for (var i = 0; i < interceptors.Length; i++)
                     interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
 
@@ -346,7 +329,7 @@ namespace MugenMvvm.Binding.Core.Components
                 dictionary.Clear();
 
                 var parametersReadonly = parameters.Cast<IReadOnlyList<IExpressionNode>>();
-                var providers = _owner._componentProviders;
+                var providers = _owner.Owner.GetComponents<IBindingComponentProviderComponent>(metadata);
                 for (var i = 0; i < providers.Length; i++)
                 {
                     var builders = providers[i].TryGetComponentBuilders(_targetExpression, _sourceExpression, parametersReadonly, metadata);

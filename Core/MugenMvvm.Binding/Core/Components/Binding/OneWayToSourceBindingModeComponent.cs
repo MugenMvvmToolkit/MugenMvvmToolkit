@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             var binding = (IBinding)owner;
             binding.UpdateSource();
             if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
-                binding.Components.Add(OneTimeHandlerComponent.Instance);
+                binding.AddComponent(OneTimeHandlerComponent.Instance, metadata);
         }
 
         void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             {
                 if (MugenBindingExtensions.IsAllMembersAvailable(binding.Source))
                 {
-                    binding.Components.Remove(this);
+                    binding.RemoveComponent(this, null);
                     binding.UpdateSource();
                 }
             }
