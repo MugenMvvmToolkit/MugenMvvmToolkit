@@ -29,13 +29,13 @@ namespace MugenMvvm
             return component ?? MugenService.Instance<T>();
         }
 
-        public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata) where T : class//todo update metadata
+        public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             return componentOwner.Components.Add(component, metadata);
         }
 
-        public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata) where T : class//todo update metadata
+        public static bool RemoveComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
@@ -43,19 +43,26 @@ namespace MugenMvvm
             return false;
         }
 
-        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata)//todo update metadata
+        public static void ClearComponents(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
                 componentOwner.Components.Clear(metadata);
         }
 
-        public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata) where T : class//todo update metadata
+        public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
                 return componentOwner.Components.GetComponents<T>(metadata);
             return Default.EmptyArray<T>();
+        }
+
+        public static T[] GetComponentsOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
+        {
+            if (collection == null)
+                return Default.EmptyArray<T>();
+            return collection.GetComponents<T>(metadata);
         }
 
         public static bool LazyInitialize(this IComponentCollectionProvider? componentCollectionProvider, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null)

@@ -5,7 +5,7 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface IObservableCollectionChangedListener<T> : IComponent<IObservableCollection<T>>
     {
-        bool IsDecoratorComponent { get; }
+        bool IsDecoratorComponent { get; }//todo review
 
         void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args);
 

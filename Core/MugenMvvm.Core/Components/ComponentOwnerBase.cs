@@ -41,10 +41,10 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata)
-            where TComponent : class //todo update metadata
+        protected TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
+            where TComponent : class
         {
-            if (_components == null || _components.Count == 0)
+            if (_components == null)
                 return Default.EmptyArray<TComponent>();
             return _components.GetComponents<TComponent>(metadata);
         }

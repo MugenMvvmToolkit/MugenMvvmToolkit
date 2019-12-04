@@ -43,7 +43,7 @@ namespace MugenMvvm.Components
         {
             Should.NotBeNull(owner, nameof(owner));
             var result = GetComponentCollectionInternal(owner, metadata);
-            var components = this.GetComponents<IComponentCollectionProviderListener>(metadata);
+            var components = _components.GetComponentsOrDefault<IComponentCollectionProviderListener>(metadata);
             for (var i = 0; i < components.Length; i++)
                 components[i].OnComponentCollectionCreated(this, result, metadata);
             return result;
@@ -57,7 +57,7 @@ namespace MugenMvvm.Components
         {
             if (!ReferenceEquals(owner, this))
             {
-                var collectionFactories = this.GetComponents<IComponentCollectionProviderComponent>(metadata);
+                var collectionFactories = _components.GetComponentsOrDefault<IComponentCollectionProviderComponent>(metadata);
                 for (var i = 0; i < collectionFactories.Length; i++)
                 {
                     var collection = collectionFactories[i].TryGetComponentCollection(owner, metadata);

@@ -353,21 +353,21 @@ namespace MugenMvvm.Metadata
 
         private void OnAdded(IMetadataContextKey key, object? newValue)
         {
-            var items = this.GetComponents<IMetadataContextListener>(null);
+            var items = _components.GetComponentsOrDefault<IMetadataContextListener>(null);
             for (var i = 0; i < items.Length; i++)
                 items[i].OnAdded(this, key, newValue);
         }
 
         private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
         {
-            var items = this.GetComponents<IMetadataContextListener>(null);
+            var items = _components.GetComponentsOrDefault<IMetadataContextListener>(null);
             for (var i = 0; i < items.Length; i++)
                 items[i].OnChanged(this, key, oldValue, newValue);
         }
 
         private void OnRemoved(IMetadataContextKey key, object? oldValue)
         {
-            var items = this.GetComponents<IMetadataContextListener>(null);
+            var items = _components.GetComponentsOrDefault<IMetadataContextListener>(null);
             for (var i = 0; i < items.Length; i++)
                 items[i].OnRemoved(this, key, oldValue);
         }

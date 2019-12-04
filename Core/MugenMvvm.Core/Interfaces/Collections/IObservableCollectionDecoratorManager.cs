@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollectionDecoratorManager<T>
+    public interface IObservableCollectionDecoratorManager<T>//todo review split
     {
         ActionToken Lock();
 
