@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Members.Components
         public bool TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
             FillMembers(type, name, metadata);
-            var selectors = Owner.Components.GetComponents<ISelectorMemberProviderComponent>(metadata);
+            var selectors = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata);
             for (var i = 0; i < selectors.Length; i++)
             {
                 var members = selectors[i].TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public bool TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IReadOnlyList<IMemberInfo>? members)
         {
-            var selectors = Owner.Components.GetComponents<ISelectorMemberProviderComponent>(metadata);
+            var selectors = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata);
             for (var i = 0; i < selectors.Length; i++)
             {
                 members = selectors[i].TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Members.Components
         private void FillMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             _members.Clear();
-            var components = Owner.Components.GetComponents<IRawMemberProviderComponent>(metadata);
+            var components = Owner.Components.Get<IRawMemberProviderComponent>(metadata);
             for (var i = 0; i < components.Length; i++)
             {
                 var members = components[i].TryGetMembers(type, name, metadata);

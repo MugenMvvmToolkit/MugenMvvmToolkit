@@ -46,7 +46,7 @@ namespace MugenMvvm.Components
         {
             if (_components == null)
                 return Default.EmptyArray<TComponent>();
-            return _components.GetComponents<TComponent>(metadata);
+            return _components.Get<TComponent>(metadata);
         }
 
         #endregion

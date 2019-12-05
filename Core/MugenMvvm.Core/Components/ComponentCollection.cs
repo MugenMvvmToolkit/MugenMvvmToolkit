@@ -69,7 +69,7 @@ namespace MugenMvvm.Components
 
             if (_components != null)
             {
-                var changingListeners = _components.GetComponents<IComponentCollectionChangingListener>(metadata);
+                var changingListeners = _components.Get<IComponentCollectionChangingListener>(metadata);
                 for (var i = 0; i < changingListeners.Length; i++)
                 {
                     if (!changingListeners[i].OnAdding(this, component, metadata))
@@ -86,7 +86,7 @@ namespace MugenMvvm.Components
 
             if (_components != null)
             {
-                var changedListeners = _components.GetComponents<IComponentCollectionChangedListener>(metadata);
+                var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
                 for (var i = 0; i < changedListeners.Length; i++)
                     changedListeners[i].OnAdded(this, component, metadata);
             }
@@ -109,7 +109,7 @@ namespace MugenMvvm.Components
 
             if (_components != null)
             {
-                var changingListeners = _components.GetComponents<IComponentCollectionChangingListener>(metadata);
+                var changingListeners = _components.Get<IComponentCollectionChangingListener>(metadata);
                 for (var i = 0; i < changingListeners.Length; i++)
                 {
                     if (!changingListeners[i].OnRemoving(this, component, metadata))
@@ -128,7 +128,7 @@ namespace MugenMvvm.Components
 
             if (_components != null)
             {
-                var changedListeners = _components.GetComponents<IComponentCollectionChangedListener>(metadata);
+                var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
                 for (var i = 0; i < changedListeners.Length; i++)
                     changedListeners[i].OnRemoved(this, component, metadata);
             }
@@ -139,14 +139,14 @@ namespace MugenMvvm.Components
 
         public bool Clear(IReadOnlyMetadataContext? metadata = null)
         {
-            var oldItems = GetComponents<object>(metadata);
+            var oldItems = Get<object>(metadata);
             lock (_items)
             {
                 _items.Clear();
             }
 
             _componentTrackers = Default.EmptyArray<IComponentTracker>();
-            var changedListeners = _components.GetComponentsOrDefault<IComponentCollectionChangedListener>(metadata);
+            var changedListeners = _components.GetOrDefault<IComponentCollectionChangedListener>(metadata);
             for (var i = 0; i < oldItems.Length; i++)
             {
                 var oldItem = oldItems[i];
@@ -158,7 +158,7 @@ namespace MugenMvvm.Components
             return true;
         }
 
-        public TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
+        public TComponent[] Get<TComponent>(IReadOnlyMetadataContext? metadata = null) where TComponent : class
         {
             var componentTrackers = _componentTrackers;
             for (var i = 0; i < componentTrackers.Length; i++)

@@ -74,7 +74,7 @@ namespace MugenMvvm
             var collection = viewInfo.GetOrAddWrappersCollection();
             lock (collection)
             {
-                var item = collection.GetComponents<object>(metadata).FirstOrDefault(wrapperType.IsInstanceOfType);
+                var item = collection.Get<object>(metadata).FirstOrDefault(wrapperType.IsInstanceOfType);
                 if (item == null)
                 {
                     wrapperManager = wrapperManager.DefaultIfNull();

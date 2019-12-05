@@ -82,7 +82,7 @@ namespace MugenMvvm.Commands
                 RaiseCanExecuteChanged();
                 return executionTask.ContinueWith((t, o) =>
                 {
-                    var wrapper = (CommandMediator) o;
+                    var wrapper = (CommandMediator)o;
                     Interlocked.Exchange(ref wrapper._state, 0);
                     wrapper.RaiseCanExecuteChanged();
                 }, this, TaskContinuationOptions.ExecuteSynchronously);
@@ -178,7 +178,7 @@ namespace MugenMvvm.Commands
 
             return new ActionToken((o, _) =>
             {
-                var list = (ActionToken[]) o!;
+                var list = (ActionToken[])o!;
                 for (var i = 0; i < list.Length; i++)
                     list[i].Dispose();
             }, tokens);
@@ -228,7 +228,7 @@ namespace MugenMvvm.Commands
                     ExceptionManager.ThrowCommandCannotBeExecuted();
             }
 
-            var components = Components.GetComponents<IExecutorCommandMediatorComponent>(null);
+            var components = GetComponents<IExecutorCommandMediatorComponent>(null);
             if (components.Length == 0)
                 ExceptionManager.ThrowObjectNotInitialized(this, components);
             return components[0].ExecuteAsync(parameter);

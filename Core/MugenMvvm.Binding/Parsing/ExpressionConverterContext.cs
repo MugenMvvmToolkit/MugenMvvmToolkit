@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Parsing
         public IExpressionNode Convert(TExpression expression)
         {
             Should.NotBeNull(expression, nameof(expression));
-            var components = Owner?.Components.GetComponents<IExpressionConverterParserComponent<TExpression>>(_metadata)
+            var components = Owner?.Components.Get<IExpressionConverterParserComponent<TExpression>>(_metadata)
                              ?? Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
             IExpressionNode? exp;
             foreach (var component in components)

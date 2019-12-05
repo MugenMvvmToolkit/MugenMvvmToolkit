@@ -55,7 +55,7 @@ namespace MugenMvvm
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
-                return componentOwner.Components.GetComponents<T>(metadata);
+                return componentOwner.Components.Get<T>(metadata);
             return Default.EmptyArray<T>();
         }
 
@@ -69,11 +69,11 @@ namespace MugenMvvm
             return owner.GetComponent<TComponent>(true, metadata);
         }
 
-        public static T[] GetComponentsOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static T[] GetOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             if (collection == null)
                 return Default.EmptyArray<T>();
-            return collection.GetComponents<T>(metadata);
+            return collection.Get<T>(metadata);
         }
 
         public static bool LazyInitialize(this IComponentCollectionProvider? componentCollectionProvider, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null)

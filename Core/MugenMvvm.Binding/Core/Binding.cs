@@ -272,9 +272,9 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        TComponent[] IComponentCollection.GetComponents<TComponent>(IReadOnlyMetadataContext? metadata)
+        TComponent[] IComponentCollection.Get<TComponent>(IReadOnlyMetadataContext? metadata)
         {
-            Should.MethodBeSupported(false, nameof(GetComponents));
+            Should.MethodBeSupported(false, nameof(IComponentCollection.Get));
             return null!;
         }
 

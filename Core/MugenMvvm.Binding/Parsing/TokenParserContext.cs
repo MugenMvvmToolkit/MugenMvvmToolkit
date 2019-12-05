@@ -85,7 +85,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserComponent, bool>? condition = null)
         {
-            var components = Owner?.Components.GetComponents<ITokenParserComponent>(_metadata) ?? Default.EmptyArray<ITokenParserComponent>();
+            var components = Owner?.Components.Get<ITokenParserComponent>(_metadata) ?? Default.EmptyArray<ITokenParserComponent>();
             for (var i = 0; i < components.Length; i++)
             {
                 var component = components[i];

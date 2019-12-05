@@ -287,7 +287,7 @@ namespace MugenMvvm.Validation
 
         protected virtual bool OnValidatorAdding(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
-            return Array.IndexOf(Components.GetComponents<IValidator>(metadata), validator) < 0;
+            return Array.IndexOf(Components.Get<IValidator>(metadata), validator) < 0;
         }
 
         protected virtual void OnValidatorRemoved(IValidator validator, IReadOnlyMetadataContext? metadata)

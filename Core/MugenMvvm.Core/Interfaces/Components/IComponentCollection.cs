@@ -16,6 +16,6 @@ namespace MugenMvvm.Interfaces.Components
         bool Clear(IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
-        TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null) where TComponent : class;
+        TComponent[] Get<TComponent>(IReadOnlyMetadataContext? metadata = null) where TComponent : class;
     }
 }

@@ -189,7 +189,7 @@ namespace MugenMvvm.Collections.Components
         private TComponent[] GetComponents<TComponent>()
             where TComponent : class
         {
-            return Owner.Components.GetComponents<TComponent>();
+            return Owner.Components.Get<TComponent>();
         }
 
         #endregion
