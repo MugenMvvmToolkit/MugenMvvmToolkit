@@ -57,12 +57,11 @@ namespace MugenMvvm.Binding.Observers.Components
             var membersCount = path.Members.Count;
             if (!string.IsNullOrEmpty(observableMethod))
             {
-                return membersCount switch
-                {
-                    0 => new ObservableMethodEmptyPathObserver(observableMethod!, target, memberFlags),
-                    1 => new ObservableMethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional),
-                    _ => new ObservableMethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional)
-                };
+                if (membersCount == 0)
+                    return new ObservableMethodEmptyPathObserver(observableMethod!, target, memberFlags);
+                if (membersCount == 1)
+                    return new ObservableMethodSinglePathObserver(observableMethod!, target, path, memberFlags, request.Optional);
+                return new ObservableMethodMultiPathObserver(observableMethod!, target, path, memberFlags, request.HasStablePath, request.Optional);
             }
 
             if (membersCount == 0)

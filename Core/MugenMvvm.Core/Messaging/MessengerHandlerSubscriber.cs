@@ -100,11 +100,10 @@ namespace MugenMvvm.Messaging
             {
                 if (!Cache.TryGetValue(key, out var action))
                 {
-                    var interfaces = key.HandlerType
-                        .GetInterfaces()
-                        .Where(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IMessengerHandler<>));
-                    foreach (var @interface in interfaces)
+                    foreach (var @interface in key.HandlerType.GetInterfaces())
                     {
+                        if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != typeof(IMessengerHandler<>))
+                            continue;
                         var typeMessage = @interface.GetGenericArguments()[0];
                         var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
                         if (method != null && typeMessage.IsAssignableFrom(key.MessageType))

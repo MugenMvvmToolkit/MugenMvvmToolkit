@@ -262,6 +262,14 @@ namespace MugenMvvm
             return itemOrList.Item == null && itemOrList.List == null;
         }
 
+        public static T[] ToArray<T>(this T[] array)
+        {
+            Should.NotBeNull(array, nameof(array));
+            var result = new T[array.Length];
+            Array.Copy(array, 0, result, 0, array.Length);
+            return result;
+        }
+
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)
         {
             Should.NotBeNull(collection, nameof(collection));

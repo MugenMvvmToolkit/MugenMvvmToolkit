@@ -167,8 +167,8 @@ namespace MugenMvvm.Internal.Components
 
         protected override void Decorate(IList<IActivatorReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate(true, false, false);
             base.Decorate(components, metadata);
+            Invalidate(true, false, false);
         }
 
         private Func<object?[], object>? TryGetActivatorInternal(ConstructorInfo constructor)

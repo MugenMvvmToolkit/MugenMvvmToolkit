@@ -100,6 +100,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         protected override void Decorate(IList<IMemberProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
+            base.Decorate(components, metadata);
             Invalidate();
         }
 

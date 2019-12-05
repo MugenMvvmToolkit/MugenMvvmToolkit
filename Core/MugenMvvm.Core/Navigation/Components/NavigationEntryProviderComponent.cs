@@ -119,7 +119,7 @@ namespace MugenMvvm.Navigation.Components
             if (_navigationEntries.TryGetValue(type, out var list))
             {
                 if (result == null)
-                    result = list.ToList();
+                    result = new List<INavigationEntry>(list);
                 else
                     result.AddRange(list);
             }

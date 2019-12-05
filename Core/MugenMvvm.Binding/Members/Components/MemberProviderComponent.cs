@@ -55,6 +55,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public bool TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IReadOnlyList<IMemberInfo>? members)
         {
+            FillMembers(type, name, metadata);
             var selectors = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata);
             for (var i = 0; i < selectors.Length; i++)
             {

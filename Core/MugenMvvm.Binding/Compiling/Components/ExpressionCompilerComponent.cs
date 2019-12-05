@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Constants;
@@ -158,7 +157,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public IParameterInfo? TryGetLambdaParameter()
             {
-                return _lambdaParameters?.FirstOrDefault();
+                if (_lambdaParameters == null || _lambdaParameters.Count == 0)
+                    return default;
+                return _lambdaParameters[0];
             }
 
             public void SetLambdaParameter(IParameterInfo parameter)
