@@ -36,7 +36,7 @@ namespace MugenMvvm.Metadata
                 ExceptionManager.ThrowObjectNotInitialized(this, components);
 
             var listeners = GetComponents<IMetadataContextProviderListener>(null);
-            for (var i = 0; i < components.Length; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReadOnlyContextCreated(this, result!, target);
             return result;
         }
@@ -56,7 +56,7 @@ namespace MugenMvvm.Metadata
                 ExceptionManager.ThrowObjectNotInitialized(this, components);
 
             var listeners = GetComponents<IMetadataContextProviderListener>(null);
-            for (var i = 0; i < components.Length; i++)
+            for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnContextCreated(this, result!, target);
             return result;
         }
