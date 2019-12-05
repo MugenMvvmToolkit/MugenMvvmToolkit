@@ -37,7 +37,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnItemChanged(Owner, item, index, args);
         }
@@ -51,7 +51,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnAdded(Owner, item, index);
         }
@@ -65,7 +65,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnReplaced(Owner, oldItem, newItem, index);
         }
@@ -79,7 +79,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnMoved(Owner, item, oldIndex, newIndex);
         }
@@ -93,7 +93,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnRemoved(Owner, item, index);
         }
@@ -107,7 +107,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnReset(Owner, items);
         }
@@ -121,7 +121,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = Owner.GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
             for (var i = 0; i < components.Length; i++)
                 components[i].OnCleared(Owner);
         }
@@ -167,7 +167,7 @@ namespace MugenMvvm.Collections.Components
 
         private IDecoratorObservableCollectionComponent<T>[] GetDecorators(IDecoratorObservableCollectionComponent<T>? decorator, out int index, bool isLengthDefault = false)
         {
-            var components = Owner.GetComponents<IDecoratorObservableCollectionComponent<T>>();
+            var components = GetComponents<IDecoratorObservableCollectionComponent<T>>();
             index = isLengthDefault ? components.Length : 0;
             if (decorator == null)
                 return components;
@@ -184,6 +184,12 @@ namespace MugenMvvm.Collections.Components
             }
 
             return components;
+        }
+
+        private TComponent[] GetComponents<TComponent>()
+            where TComponent : class
+        {
+            return Owner.Components.GetComponents<TComponent>();
         }
 
         #endregion

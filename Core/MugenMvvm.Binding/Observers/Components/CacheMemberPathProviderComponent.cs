@@ -47,6 +47,18 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
+        protected override void OnAttachedInternal(IObserverProvider owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnAttachedInternal(owner, metadata);
+            _cache.Clear();
+        }
+
+        protected override void OnDetachedInternal(IObserverProvider owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnDetachedInternal(owner, metadata);
+            _cache.Clear();
+        }
+
         protected override void OnDecorated(IReadOnlyMetadataContext? metadata)
         {
             _cache.Clear();

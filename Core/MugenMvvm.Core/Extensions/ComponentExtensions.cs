@@ -59,14 +59,14 @@ namespace MugenMvvm
             return Default.EmptyArray<T>();
         }
 
-        public static TComponent GetComponent<TComponent>(this IComponentOwner owner) where TComponent : class, IComponent
+        public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
         {
-            return owner.GetComponent<TComponent>(false)!;
+            return owner.GetComponent<TComponent>(false, metadata)!;
         }
 
-        public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner) where TComponent : class, IComponent
+        public static TComponent? GetComponentOptional<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
         {
-            return owner.GetComponent<TComponent>(true);
+            return owner.GetComponent<TComponent>(true, metadata);
         }
 
         public static T[] GetComponentsOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
@@ -153,11 +153,11 @@ namespace MugenMvvm
             return true;
         }
 
-        private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional)
+        private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional, IReadOnlyMetadataContext? metadata)
             where TComponent : class, IComponent
         {
             Should.NotBeNull(owner, nameof(owner));
-            var components = owner.GetComponents<TComponent>();
+            var components = owner.GetComponents<TComponent>(metadata);
             if (components.Length != 0)
                 return components[0];
             if (!optional)
