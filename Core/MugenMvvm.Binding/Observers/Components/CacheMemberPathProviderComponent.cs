@@ -4,12 +4,13 @@ using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class CacheMemberPathProviderComponent : DecoratorComponentBase<IObserverProvider, IMemberPathProviderComponent>, IHasPriority, IMemberPathProviderComponent
+    public sealed class CacheMemberPathProviderComponent : DecoratorComponentBase<IObserverProvider, IMemberPathProviderComponent>, IHasPriority, IMemberPathProviderComponent, IHasCache
     {
         #region Fields
 
@@ -35,6 +36,11 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Implementation of interfaces
+
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            _cache.Clear();
+        }
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
