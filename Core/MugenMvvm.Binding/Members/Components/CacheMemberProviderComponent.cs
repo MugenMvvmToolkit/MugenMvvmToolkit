@@ -98,21 +98,21 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        protected override void OnDecorated(IReadOnlyMetadataContext? metadata)
+        protected override void Decorate(IList<IMemberProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate(metadata: metadata);
+            Invalidate();
         }
 
         protected override void OnAttachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            Invalidate(metadata: metadata);
+            Invalidate();
         }
 
         protected override void OnDetachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            Invalidate(metadata: metadata);
+            Invalidate();
         }
 
         private static void Invalidate<TItem>(LightDictionary<CacheKey, TItem> dictionary, Type type, ref List<CacheKey>? keys)
@@ -155,7 +155,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Name, key.Type, (int) key.MemberType, (int) key.MemberFlags);
+                return HashCode.Combine(key.Name, key.Type, (int)key.MemberType, (int)key.MemberFlags);
             }
 
             #endregion

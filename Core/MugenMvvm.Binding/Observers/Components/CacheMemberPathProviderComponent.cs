@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Delegates;
+﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections.Internal;
@@ -56,18 +57,18 @@ namespace MugenMvvm.Binding.Observers.Components
         protected override void OnAttachedInternal(IObserverProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            _cache.Clear();
+            Invalidate();
         }
 
         protected override void OnDetachedInternal(IObserverProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            _cache.Clear();
+            Invalidate();
         }
 
-        protected override void OnDecorated(IReadOnlyMetadataContext? metadata)
+        protected override void Decorate(IList<IMemberPathProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            _cache.Clear();
+            Invalidate();
         }
 
         private IMemberPath? TryGetMemberPath(in string path, IReadOnlyMetadataContext? metadata)
@@ -85,9 +86,10 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private IMemberPath? TryGetPath(in string path, IReadOnlyMetadataContext? metadata)
         {
-            for (var i = 0; i < Components.Length; i++)
+            var components = Components;
+            for (var i = 0; i < components.Length; i++)
             {
-                var memberPath = Components[i].TryGetMemberPath(path, metadata);
+                var memberPath = components[i].TryGetMemberPath(path, metadata);
                 if (memberPath != null)
                     return memberPath;
             }

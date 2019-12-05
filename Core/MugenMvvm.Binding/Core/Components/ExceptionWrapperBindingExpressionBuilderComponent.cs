@@ -24,9 +24,10 @@ namespace MugenMvvm.Binding.Core.Components
         {
             try
             {
-                for (var i = 0; i < Components.Length; i++)
+                var components = Components;
+                for (var i = 0; i < components.Length; i++)
                 {
-                    var list = Components[i].TryBuildBindingExpression(expression, metadata);
+                    var list = components[i].TryBuildBindingExpression(expression, metadata);
                     if (list.Item != null)
                         return new ExceptionWrapperBindingExpression(list.Item);
 
