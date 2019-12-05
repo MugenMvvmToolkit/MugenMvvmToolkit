@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public abstract class DecoratorComponentBase<T, TComponent> : AttachableComponentBase<T>, IDecoratorComponentCollectionComponent<TComponent>
+    public abstract class DecoratorComponentBase<T, TComponent> : AttachableComponentBase<T>, IDecoratorComponentCollectionComponent<TComponent>, IComparer<object>
         where TComponent : class
         where T : class, IComponentOwner<T>
     {
@@ -25,9 +25,14 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
+        int IComparer<object>.Compare(object x, object y)
+        {
+            return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
+        }
+
         void IDecoratorComponentCollectionComponent<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, ref Components);
+            MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, this, ref Components);
             OnDecorated(metadata);
         }
 

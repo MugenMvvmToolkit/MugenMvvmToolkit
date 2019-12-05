@@ -270,9 +270,6 @@ namespace MugenMvvm.Components
                 var items = collection._items;
                 lock (items)
                 {
-                    if (collection._decorators.Length != 0)
-                        return GetComponentTrackerWithDecorators(items, collection, metadata);
-
                     var size = 0;
                     for (var i = 0; i < items.Count; i++)
                     {
@@ -282,6 +279,9 @@ namespace MugenMvvm.Components
 
                     if (size == 0)
                         return Empty;
+
+                    if (collection._decorators.Length != 0 && HasDecorators(collection))
+                        return GetComponentTrackerWithDecorators(items, size, collection, metadata);
 
                     var components = new TComponent[size];
                     size = 0;
@@ -295,9 +295,9 @@ namespace MugenMvvm.Components
                 }
             }
 
-            private static ComponentTracker<TComponent> GetComponentTrackerWithDecorators(List<object> items, ComponentCollection collection, IReadOnlyMetadataContext? metadata)
+            private static ComponentTracker<TComponent> GetComponentTrackerWithDecorators(List<object> items, int size, ComponentCollection collection, IReadOnlyMetadataContext? metadata)
             {
-                List<TComponent> components = new List<TComponent>(4);//todo light list
+                List<TComponent> components = new List<TComponent>(size);
                 for (var i = 0; i < items.Count; i++)
                 {
                     if (items[i] is TComponent c)
@@ -305,6 +305,18 @@ namespace MugenMvvm.Components
                 }
 
                 return new ComponentTracker<TComponent>(Decorate(collection, components, metadata));
+            }
+
+            private static bool HasDecorators(ComponentCollection collection)
+            {
+                var decorators = collection._decorators;
+                for (int i = 0; i < decorators.Length; i++)
+                {
+                    if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent>)
+                        return true;
+                }
+
+                return false;
             }
 
             private static TComponent[] Decorate(ComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata)

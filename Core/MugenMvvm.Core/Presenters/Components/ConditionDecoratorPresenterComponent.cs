@@ -58,12 +58,12 @@ namespace MugenMvvm.Presenters.Components
 
         void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _closeableComponents);
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _closeableComponents);
         }
 
         void IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.Decorate(IList<IRestorablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, ref _restorableComponents);
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _restorableComponents);
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)
