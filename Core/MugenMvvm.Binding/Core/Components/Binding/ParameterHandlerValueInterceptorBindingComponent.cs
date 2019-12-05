@@ -2,7 +2,6 @@
 using MugenMvvm.Binding.Converters;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Components;

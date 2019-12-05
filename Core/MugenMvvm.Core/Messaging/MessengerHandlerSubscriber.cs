@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
@@ -100,8 +99,10 @@ namespace MugenMvvm.Messaging
             {
                 if (!Cache.TryGetValue(key, out var action))
                 {
-                    foreach (var @interface in key.HandlerType.GetInterfaces())
+                    var interfaces = key.HandlerType.GetInterfaces();
+                    for (var index = 0; index < interfaces.Length; index++)
                     {
+                        var @interface = interfaces[index];
                         if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != typeof(IMessengerHandler<>))
                             continue;
                         var typeMessage = @interface.GetGenericArguments()[0];

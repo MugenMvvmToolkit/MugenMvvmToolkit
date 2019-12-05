@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Collections.Internal;
@@ -125,9 +124,11 @@ namespace MugenMvvm.Views.Components
             string propertyName, MethodInfo method)
         {
             Func<object?, object?[], object?>? result = null;
-            foreach (var @interface in targetType.GetInterfaces().Where(type => type.IsGenericType))
+            var interfaces = targetType.GetInterfaces();
+            for (var index = 0; index < interfaces.Length; index++)
             {
-                if (@interface.GetGenericTypeDefinition() != interfaceType)
+                var @interface = interfaces[index];
+                if (!@interface.IsGenericType || @interface.GetGenericTypeDefinition() != interfaceType)
                     continue;
                 var propertyInfo = @interface.GetProperty(propertyName, BindingFlagsEx.InstancePublic);
                 if (propertyInfo == null)

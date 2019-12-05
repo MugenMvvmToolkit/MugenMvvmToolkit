@@ -73,9 +73,9 @@ namespace MugenMvvm.Binding.Parsing
             var components = Owner?.Components.Get<IExpressionConverterParserComponent<TExpression>>(_metadata)
                              ?? Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
             IExpressionNode? exp;
-            foreach (var component in components)
+            for (var index = 0; index < components.Length; index++)
             {
-                exp = component.TryConvert(this, expression);
+                exp = components[index].TryConvert(this, expression);
                 if (exp != null)
                     return exp;
             }

@@ -392,8 +392,9 @@ namespace MugenMvvm.Binding
             if (!isFirstCall && type.IsInterface && types.Contains(type))
                 return;
             types.Add(type);
-            foreach (var t in type.GetInterfaces())
-                AddInterface(types, t, false);
+            var interfaces = type.GetInterfaces();
+            for (var index = 0; index < interfaces.Length; index++)
+                AddInterface(types, interfaces[index], false);
         }
 
         private static void TypeNameEqual(Type type, string typeName, out bool shortNameEqual, out bool fullNameEqual)
