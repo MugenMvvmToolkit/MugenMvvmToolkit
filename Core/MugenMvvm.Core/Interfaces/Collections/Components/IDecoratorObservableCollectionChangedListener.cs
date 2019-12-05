@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface IObservableCollectionChangedListener<T> : IComponent<IObservableCollection<T>>
+    public interface IDecoratorObservableCollectionChangedListener<T> : IComponent<IObservableCollection<T>>
     {
         void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args);
 

@@ -27,12 +27,6 @@ namespace MugenMvvm
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool HasFlagEx(this BatchUpdateCollectionMode value, BatchUpdateCollectionMode flag)
-        {
-            return (value & flag) == flag;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BusyMessageHandlerType value, BusyMessageHandlerType flag)
         {
             return (value & flag) == flag;

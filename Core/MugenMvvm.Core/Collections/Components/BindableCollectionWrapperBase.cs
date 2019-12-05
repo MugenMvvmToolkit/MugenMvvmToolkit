@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Collections.Components
 {
-    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, IObservableCollectionChangedListener<T>, INotifyCollectionChanged, INotifyPropertyChanged,
+    public abstract class BindableCollectionWrapperBase<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged,
         IObservableCollectionBatchUpdateListener<T>, IThreadDispatcherHandler<BindableCollectionWrapperBase<T>.CollectionChangedEvent>, IValueHolder<Delegate>
     {
         #region Fields
@@ -59,8 +59,6 @@ namespace MugenMvvm.Collections.Components
 
         protected virtual bool IsLockRequired => ExecutionMode != ThreadExecutionMode.Main && ExecutionMode != ThreadExecutionMode.MainAsync;
 
-        public bool IsDecoratorComponent { get; set; } = true;
-
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 
         #endregion
@@ -85,42 +83,6 @@ namespace MugenMvvm.Collections.Components
             OnEndBatchUpdate();
         }
 
-        void IObservableCollectionChangedListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
-        {
-            if (!IgnoreItemChangedEvent)
-                OnItemChanged(item, index, args);
-        }
-
-        void IObservableCollectionChangedListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)
-        {
-            OnAdded(item, index);
-        }
-
-        void IObservableCollectionChangedListener<T>.OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
-        {
-            OnReplaced(oldItem, newItem, index);
-        }
-
-        void IObservableCollectionChangedListener<T>.OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
-        {
-            OnMoved(item, oldIndex, newIndex);
-        }
-
-        void IObservableCollectionChangedListener<T>.OnRemoved(IObservableCollection<T> collection, T item, int index)
-        {
-            OnRemoved(item, index);
-        }
-
-        void IObservableCollectionChangedListener<T>.OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
-        {
-            OnReset(items);
-        }
-
-        void IObservableCollectionChangedListener<T>.OnCleared(IObservableCollection<T> collection)
-        {
-            OnCleared();
-        }
-
         void IThreadDispatcherHandler<CollectionChangedEvent>.Execute(CollectionChangedEvent state)
         {
             AddEventInternal(ref state);
@@ -129,6 +91,42 @@ namespace MugenMvvm.Collections.Components
         #endregion
 
         #region Methods
+
+        public void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        {
+            if (!IgnoreItemChangedEvent)
+                OnItemChanged(item, index, args);
+        }
+
+        public void OnAdded(IObservableCollection<T> collection, T item, int index)
+        {
+            OnAdded(item, index);
+        }
+
+        public void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
+        {
+            OnReplaced(oldItem, newItem, index);
+        }
+
+        public void OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        {
+            OnMoved(item, oldIndex, newIndex);
+        }
+
+        public void OnRemoved(IObservableCollection<T> collection, T item, int index)
+        {
+            OnRemoved(item, index);
+        }
+
+        public void OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
+        {
+            OnReset(items);
+        }
+
+        public void OnCleared(IObservableCollection<T> collection)
+        {
+            OnCleared();
+        }
 
         public void Attach(ICollection<T> wrappedCollection)
         {
@@ -202,7 +200,7 @@ namespace MugenMvvm.Collections.Components
                 Detach();
                 WrappedCollection = wrappedCollection;
                 if (wrappedCollection is IComponentOwner<IObservableCollection<T>> components)
-                    components.AddComponent(this, null);
+                    components.AddComponent(this);
                 else if (wrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                     notifyCollectionChanged.CollectionChanged += OnCollectionChanged;
                 OnReset(GetCollectionItems());
@@ -222,7 +220,7 @@ namespace MugenMvvm.Collections.Components
             try
             {
                 if (WrappedCollection is IComponentOwner<IObservableCollection<T>> hasComponents)
-                    hasComponents.RemoveComponent(this, null);
+                    hasComponents.RemoveComponent(this);
                 else if (WrappedCollection is INotifyCollectionChanged notifyCollectionChanged)
                     notifyCollectionChanged.CollectionChanged -= OnCollectionChanged;
                 WrappedCollection = null;
@@ -361,7 +359,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (IsResetEvent(e))
             {
-                OnReset((IEnumerable<T>)sender);
+                OnReset((IEnumerable<T>) sender);
                 return;
             }
 
@@ -369,22 +367,22 @@ namespace MugenMvvm.Collections.Components
             {
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems.Count == 1)
-                        OnAdded((T)e.NewItems[0], e.NewStartingIndex);
+                        OnAdded((T) e.NewItems[0], e.NewStartingIndex);
                     else
                     {
                         for (var i = 0; i < e.NewItems.Count; i++)
-                            OnAdded((T)e.NewItems[i], e.NewStartingIndex + i);
+                            OnAdded((T) e.NewItems[i], e.NewStartingIndex + i);
                     }
 
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    OnMoved((T)e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
+                    OnMoved((T) e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    OnRemoved((T)e.OldItems[0], e.OldStartingIndex);
+                    OnRemoved((T) e.OldItems[0], e.OldStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    OnReplaced((T)e.OldItems[0], (T)e.NewItems[0], e.NewStartingIndex);
+                    OnReplaced((T) e.OldItems[0], (T) e.NewItems[0], e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     OnCleared();
@@ -475,7 +473,7 @@ namespace MugenMvvm.Collections.Components
                         listener.OnClearedInternal(batch);
                         break;
                     case CollectionChangedAction.Reset:
-                        listener.OnResetInternal((IEnumerable<T>)State!, batch);
+                        listener.OnResetInternal((IEnumerable<T>) State!, batch);
                         break;
                     case CollectionChangedAction.Changed:
                         listener.OnItemChangedInternal(OldItem, OldIndex, State, batch);

@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Interfaces.Collections.Components;
+using MugenMvvm.Interfaces.Components;
 
-namespace MugenMvvm.Interfaces.Collections
+namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface IObservableCollectionDecoratorManager<T>//todo review split
+    public interface IDecoratorManagerObservableCollectionComponent<T> : IComponent<IObservableCollection<T>>
     {
-        ActionToken Lock();
-
-        IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T> decorator);
+        IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T>? decorator = null);
 
         void OnItemChanged(IDecoratorObservableCollectionComponent<T> decorator, T item, int index, object? args);
 

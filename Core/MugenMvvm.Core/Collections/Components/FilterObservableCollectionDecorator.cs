@@ -50,6 +50,8 @@ namespace MugenMvvm.Collections.Components
 
         public int Priority { get; set; } = CollectionComponentPriority.FilterDecorator;
 
+        private IDecoratorManagerObservableCollectionComponent<T> Decorator => Owner.GetComponent<IDecoratorManagerObservableCollectionComponent<T>>();
+
         private bool HasFilter => Filter != null && IsAttached;
 
         #endregion
@@ -70,7 +72,7 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            var decoratorManager = Owner.DecoratorManager;
+            var decoratorManager = Decorator;
             var filterIndex = IndexOfKey(index);
             if (FilterInternal(item))
             {
@@ -112,7 +114,7 @@ namespace MugenMvvm.Collections.Components
             if (!HasFilter)
                 return true;
 
-            var decoratorManager = Owner.DecoratorManager;
+            var decoratorManager = Decorator;
             var filterIndex = IndexOfKey(index);
             if (filterIndex == -1)
             {
@@ -222,8 +224,8 @@ namespace MugenMvvm.Collections.Components
             if (!IsAttached)
                 return;
 
-            var decoratorManager = Owner.DecoratorManager;
-            using (decoratorManager.Lock())
+            var decoratorManager = Decorator;
+            using (Owner.TryLock())
             {
                 Clear();
                 if (filter != null)

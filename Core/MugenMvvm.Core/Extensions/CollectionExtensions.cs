@@ -1,6 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
 
 // ReSharper disable once CheckNamespace
@@ -9,6 +14,30 @@ namespace MugenMvvm
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static ActionToken TryLock<T>(this IObservableCollection<T>? observableCollection)
+        {
+            if (!(observableCollection is ICollection c))
+                return default;
+
+            bool taken = false;
+            var locker = c.SyncRoot;
+            Monitor.Enter(locker, ref taken);
+            if (taken)
+                return new ActionToken((o, _) => Monitor.Exit(o), locker);
+            return default;
+        }
+
+        [return: NotNullIfNotNull("observableCollection")]
+        public static IEnumerable<T>? DecorateItems<T>(this IObservableCollection<T>? observableCollection)
+        {
+            if (observableCollection == null)
+                return null;
+            var component = observableCollection.GetComponentOptional<IDecoratorManagerObservableCollectionComponent<T>>();
+            if (component == null)
+                return observableCollection;
+            return component.DecorateItems();
+        }
 
         public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class

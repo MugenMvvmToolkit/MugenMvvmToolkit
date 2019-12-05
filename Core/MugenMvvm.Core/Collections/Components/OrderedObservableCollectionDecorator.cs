@@ -34,9 +34,11 @@ namespace MugenMvvm.Collections.Components
 
         public IComparer<T> Comparer => _comparer.Comparer;
 
+        public int Priority { get; set; } = CollectionComponentPriority.OrderDecorator;
+
         private IEnumerable<T> Items => _items.Select(item => item.Item);
 
-        public int Priority { get; set; } = CollectionComponentPriority.OrderDecorator;
+        private IDecoratorManagerObservableCollectionComponent<T> Decorator => Owner.GetComponent<IDecoratorManagerObservableCollectionComponent<T>>();
 
         #endregion
 
@@ -63,7 +65,7 @@ namespace MugenMvvm.Collections.Components
                 index = oldIndex;
             else
             {
-                Owner.DecoratorManager.OnMoved(this, item, oldIndex, newIndex);
+                Decorator.OnMoved(this, item, oldIndex, newIndex);
                 index = newIndex;
             }
 
@@ -88,7 +90,7 @@ namespace MugenMvvm.Collections.Components
             if (oldIndex == -1)
                 return false;
 
-            var decoratorManager = Owner.DecoratorManager;
+            var decoratorManager = Decorator;
             _items.RemoveAt(oldIndex);
             decoratorManager.OnRemoved(this, oldItem, oldIndex);
 
@@ -158,8 +160,8 @@ namespace MugenMvvm.Collections.Components
             if (!IsAttached)
                 return;
 
-            var decoratorManager = Owner.DecoratorManager;
-            using (decoratorManager.Lock())
+            var decoratorManager = Decorator;
+            using (Owner.TryLock())
             {
                 Reset(decoratorManager.DecorateItems(this));
                 decoratorManager.OnReset(this, Items);
