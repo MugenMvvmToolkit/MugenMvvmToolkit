@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Internal.Components;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class ReflectionDelegateProvider : ComponentOwnerBase<IReflectionDelegateProvider>, IReflectionDelegateProvider//todo cache
+    public sealed class ReflectionDelegateProvider : ComponentOwnerBase<IReflectionDelegateProvider>, IReflectionDelegateProvider
     {
         #region Constructors
 
