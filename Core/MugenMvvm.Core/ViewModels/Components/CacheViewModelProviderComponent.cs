@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
@@ -14,14 +13,14 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class CacheViewModelProviderComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelLifecycleDispatcherComponent, IHasPriority
+    public sealed class CacheViewModelProviderComponent : IViewModelProviderComponent, IMetadataContextListener, IViewModelLifecycleDispatcherComponent, IHasPriority, IHasCache
     {
         #region Fields
 
         private readonly bool _isWeakCache;
 
         private readonly Dictionary<Guid, object> _viewModelsCache;
-        private static readonly Guid DefaultId = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1);//todo review vmid
+        private static readonly Guid DefaultId = new Guid(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1); //todo review vmid
 
         #endregion
 
@@ -43,6 +42,14 @@ namespace MugenMvvm.ViewModels.Components
         #endregion
 
         #region Implementation of interfaces
+
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            lock (_viewModelsCache)
+            {
+                _viewModelsCache.Clear();
+            }
+        }
 
         void IMetadataContextListener.OnAdded(IMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
         {
