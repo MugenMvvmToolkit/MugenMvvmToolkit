@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Metadata;
@@ -10,14 +11,14 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly IHandler _handler;
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _handler;
         public readonly object Member;
 
         #endregion
 
         #region Constructors
 
-        public MemberObserver(IHandler handler, object member)
+        public MemberObserver(Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> handler, object member)
         {
             Should.NotBeNull(handler, nameof(handler));
             Should.NotBeNull(member, nameof(member));
@@ -40,16 +41,7 @@ namespace MugenMvvm.Binding.Observers
         {
             if (_handler == null)
                 return default;
-            return _handler.TryObserve(target, Member, listener, metadata);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        public interface IHandler
-        {
-            ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata);
+            return _handler.Invoke(target, Member, listener, metadata);
         }
 
         #endregion

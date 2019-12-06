@@ -12,9 +12,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority
+    public sealed class EventMemberObserverProviderComponent : IMemberObserverProviderComponent, IHasPriority
     {
         #region Fields
+
+        private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
 
         private readonly IMemberProvider? _memberProvider;
         private readonly FuncEx<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
@@ -46,7 +48,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        ActionToken MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
         }
@@ -68,7 +70,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
         {
-            string? memberName = null;
+            string? memberName;
             switch (request.ReflectionMember)
             {
                 case PropertyInfo p:
@@ -87,7 +89,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             var observableMember = TryGetEvent(type, memberName, request.MemberInfo.AccessModifiers, metadata);
             if (observableMember != null)
-                return new MemberObserver(this, observableMember);
+                return new MemberObserver(MemberObserverHandler, observableMember);
 
             return default;
         }
@@ -96,7 +98,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
-                return new MemberObserver(this, observableMember);
+                return new MemberObserver(MemberObserverHandler, observableMember);
 
             return default;
         }
@@ -105,7 +107,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
-                return new MemberObserver(this, observableMember);
+                return new MemberObserver(MemberObserverHandler, observableMember);
 
             return default;
         }

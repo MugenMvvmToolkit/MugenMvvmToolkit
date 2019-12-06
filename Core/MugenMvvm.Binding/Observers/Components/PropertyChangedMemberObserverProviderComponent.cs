@@ -12,10 +12,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority //todo add static property changed listener
+    public sealed class PropertyChangedMemberObserverProviderComponent : IMemberObserverProviderComponent, IHasPriority //todo add static property changed listener
     {
         #region Fields
 
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly FuncEx<PropertyInfo, Type, MemberObserver> _tryGetMemberObserverPropertyDelegate;
         private readonly FuncEx<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
@@ -34,6 +35,7 @@ namespace MugenMvvm.Binding.Observers.Components
             _tryGetMemberObserverStringDelegate = TryGetMemberObserver;
             _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
             _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
+            _memberObserverHandler = TryObserve;
         }
 
         #endregion
@@ -46,7 +48,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        ActionToken MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return default;
@@ -81,14 +83,14 @@ namespace MugenMvvm.Binding.Observers.Components
         private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFrom(type) && !member.IsStatic())
-                return new MemberObserver(this, member.Name);
+                return new MemberObserver(_memberObserverHandler, member.Name);
             return default;
         }
 
         private MemberObserver TryGetMemberObserver(in string member, Type type)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
-                return new MemberObserver(this, member);
+                return new MemberObserver(_memberObserverHandler, member);
             return default;
         }
 

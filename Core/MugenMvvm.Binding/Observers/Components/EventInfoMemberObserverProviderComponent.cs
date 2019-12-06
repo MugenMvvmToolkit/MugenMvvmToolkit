@@ -12,10 +12,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class EventInfoMemberObserverProviderComponent : IMemberObserverProviderComponent, MemberObserver.IHandler, IHasPriority
+    public sealed class EventInfoMemberObserverProviderComponent : IMemberObserverProviderComponent, IHasPriority
     {
         #region Fields
 
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
@@ -37,6 +38,7 @@ namespace MugenMvvm.Binding.Observers.Components
             _tryGetMemberObserverEventDelegate = TryGetMemberObserver;
             _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
             _createWeakListenerDelegate = CreateWeakListener;
+            _memberObserverHandler = TryObserve;
         }
 
         #endregion
@@ -49,7 +51,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        ActionToken MemberObserver.IHandler.TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return default;
@@ -86,7 +88,7 @@ namespace MugenMvvm.Binding.Observers.Components
         private MemberObserver TryGetMemberObserver(in EventInfo member)
         {
             if (member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionDelegateProvider))
-                return new MemberObserver(this, member);
+                return new MemberObserver(_memberObserverHandler, member);
             return default;
         }
 
