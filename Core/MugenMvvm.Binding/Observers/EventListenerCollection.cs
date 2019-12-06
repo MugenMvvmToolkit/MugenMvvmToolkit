@@ -5,41 +5,13 @@ using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public class EventListenerCollection : ActionToken.IHandler
+    public class EventListenerCollection
     {
         #region Fields
 
         private object? _listeners;
         private ushort _removedSize;
         private ushort _size;
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void ActionToken.IHandler.Invoke(object? target, object? _)
-        {
-            if (ReferenceEquals(_listeners, target))
-            {
-                _listeners = null;
-                _size = 0;
-                _removedSize = 0;
-            }
-            else if (_listeners is object?[] listeners)
-            {
-                var size = _size;
-                for (var i = 0; i < size; i++)
-                {
-                    var t = listeners[i];
-                    if (ReferenceEquals(target, t))
-                    {
-                        if (RemoveAt(listeners, i))
-                            TrimIfNeed(listeners);
-                        break;
-                    }
-                }
-            }
-        }
 
         #endregion
 
@@ -120,7 +92,7 @@ namespace MugenMvvm.Binding.Observers
                 }
             }
 
-            return new ActionToken(this, target);
+            return new ActionToken((@this, t) => ((EventListenerCollection)@this).Unsubscribe(t), this, target);
         }
 
         public bool Remove(IEventListener listener)
@@ -208,6 +180,30 @@ namespace MugenMvvm.Binding.Observers
 
             Array.Resize(ref listeners, capacity);
             _listeners = listeners;
+        }
+
+        private void Unsubscribe(object? target)
+        {
+            if (ReferenceEquals(_listeners, target))
+            {
+                _listeners = null;
+                _size = 0;
+                _removedSize = 0;
+            }
+            else if (_listeners is object?[] listeners)
+            {
+                var size = _size;
+                for (var i = 0; i < size; i++)
+                {
+                    var t = listeners[i];
+                    if (ReferenceEquals(target, t))
+                    {
+                        if (RemoveAt(listeners, i))
+                            TrimIfNeed(listeners);
+                        break;
+                    }
+                }
+            }
         }
 
         #endregion

@@ -16,11 +16,12 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IAttachedValueManager? _attachedValueManager;
+
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly FuncEx<PropertyInfo, Type, MemberObserver> _tryGetMemberObserverPropertyDelegate;
-        private readonly FuncEx<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
         private readonly FuncEx<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
+        private readonly FuncEx<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
 
         private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
@@ -48,16 +49,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            if (target == null)
-                return default;
-            return _attachedValueManager
-                .DefaultIfNull()
-                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string)member);
-        }
-
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, MemberObserver> provider1)
@@ -72,6 +63,16 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Methods
+
+        private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            if (target == null)
+                return default;
+            return _attachedValueManager
+                .DefaultIfNull()
+                .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string) member);
+        }
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type)
         {
@@ -128,7 +129,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             void ActionToken.IHandler.Invoke(object? target, object? state)
             {
-                var propertyName = (string)state!;
+                var propertyName = (string) state!;
                 var listeners = _listeners;
                 var size = _size;
                 for (var i = 0; i < size; i++)
@@ -211,7 +212,7 @@ namespace MugenMvvm.Binding.Observers.Components
                     return;
                 }
 
-                if (_listeners.Length / (float)(_size - _removedSize) <= 2)
+                if (_listeners.Length / (float) (_size - _removedSize) <= 2)
                     return;
 
                 var size = _size;

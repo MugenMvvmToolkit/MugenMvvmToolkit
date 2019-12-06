@@ -16,9 +16,10 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
+
+        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly FuncEx<EventInfo, MemberObserver> _tryGetMemberObserverEventDelegate;
         private readonly FuncEx<MemberObserverRequest, MemberObserver> _tryGetMemberObserverRequestDelegate;
@@ -51,20 +52,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            if (target == null)
-                return default;
-
-            var eventInfo = (EventInfo)member;
-            var listenerInternal = _attachedValueManager
-                .DefaultIfNull()
-                .GetOrAdd(target, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
-            if (listenerInternal == null)
-                return default;
-            return listenerInternal.Add(listener);
-        }
-
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (_tryGetMemberObserverEventDelegate is FuncEx<TMember, MemberObserver> provider1)
@@ -77,6 +64,20 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Methods
+
+        private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            if (target == null)
+                return default;
+
+            var eventInfo = (EventInfo) member;
+            var listenerInternal = _attachedValueManager
+                .DefaultIfNull()
+                .GetOrAdd(target, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
+            if (listenerInternal == null)
+                return default;
+            return listenerInternal.Add(listener);
+        }
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request)
         {

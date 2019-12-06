@@ -16,12 +16,12 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
-
         private readonly IMemberProvider? _memberProvider;
         private readonly FuncEx<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
         private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
         private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
+
+        private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
 
         #endregion
 
@@ -48,11 +48,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
-        {
-            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
-        }
-
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
@@ -67,6 +62,11 @@ namespace MugenMvvm.Binding.Observers.Components
         #endregion
 
         #region Methods
+
+        private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        {
+            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
+        }
 
         private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
         {
