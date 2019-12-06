@@ -2,12 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using MugenMvvm.Components;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Collections
 {
-    public class SynchronizedObservableCollection<T> : ObservableCollectionBase<T>, IList
+    public class SynchronizedObservableCollection<T> : ComponentOwnerBase<IObservableCollection<T>>, IObservableCollection<T>, IList
     {
+        #region Fields
+
+        private int _batchCount;
+
+        #endregion
+
         #region Constructors
 
         protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionProvider? componentCollectionProvider = null)
@@ -34,7 +42,7 @@ namespace MugenMvvm.Collections
 
         protected IList<T> Items { get; }
 
-        public sealed override int Count
+        public int Count
         {
             get
             {
@@ -51,7 +59,7 @@ namespace MugenMvvm.Collections
 
         object ICollection.SyncRoot => Locker;
 
-        public sealed override bool IsReadOnly => false;
+        public bool IsReadOnly => false;
 
         object IList.this[int index]
         {
@@ -59,7 +67,7 @@ namespace MugenMvvm.Collections
             set => this[index] = (T) value;
         }
 
-        public sealed override T this[int index]
+        public T this[int index]
         {
             get
             {
@@ -128,7 +136,7 @@ namespace MugenMvvm.Collections
                 Remove((T) value);
         }
 
-        public sealed override void RemoveAt(int index)
+        public void RemoveAt(int index)
         {
             lock (Locker)
             {
@@ -139,7 +147,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override void Clear()
+        public void Clear()
         {
             lock (Locker)
             {
@@ -147,16 +155,18 @@ namespace MugenMvvm.Collections
             }
         }
 
-        #endregion
-
-        #region Methods
-
-        public Enumerator GetEnumerator()
+        public ActionToken BeginBatchUpdate()
         {
-            return new Enumerator(this);
+            lock (Locker)
+            {
+                if (++_batchCount == 1)
+                    MugenExtensions.ObservableCollectionOnBeginBatchUpdate(this);
+            }
+
+            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this).EndBatchUpdate(), this);
         }
 
-        public sealed override bool Remove(T item)
+        public bool Remove(T item)
         {
             lock (Locker)
             {
@@ -168,7 +178,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override int IndexOf(T item)
+        public int IndexOf(T item)
         {
             lock (Locker)
             {
@@ -176,7 +186,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override void Insert(int index, T item)
+        public void Insert(int index, T item)
         {
             lock (Locker)
             {
@@ -187,7 +197,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override void Move(int oldIndex, int newIndex)
+        public void Move(int oldIndex, int newIndex)
         {
             lock (Locker)
             {
@@ -195,7 +205,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public override void Reset(IEnumerable<T> items)
+        public void Reset(IEnumerable<T> items)
         {
             Should.NotBeNull(items, nameof(items));
             lock (Locker)
@@ -204,17 +214,17 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override void RaiseItemChanged(T item, object? args)
+        public void RaiseItemChanged(T item, object? args)
         {
             lock (Locker)
             {
                 var index = IndexOfInternal(item);
                 if (index >= 0)
-                    OnItemChanged(null, item, index, args);
+                    MugenExtensions.ObservableCollectionOnItemChanged(this, null, item, index, args);
             }
         }
 
-        public sealed override bool Contains(T item)
+        public bool Contains(T item)
         {
             lock (Locker)
             {
@@ -222,7 +232,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(T[] array, int arrayIndex)
         {
             Should.NotBeNull(array, nameof(array));
             lock (Locker)
@@ -231,7 +241,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        public sealed override void Add(T item)
+        public void Add(T item)
         {
             lock (Locker)
             {
@@ -239,33 +249,33 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected sealed override IEnumerator<T> GetEnumeratorInternal()
+        IEnumerator<T> IEnumerable<T>.GetEnumerator()
         {
             return GetEnumerator();
         }
 
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
+
+        #endregion
+
+        #region Methods
+
+        public Enumerator GetEnumerator()
+        {
+            return new Enumerator(this);
+        }
+
         protected virtual void CopyToInternal(Array array, int index)
         {
-            var genericArray = array as T[];
-            var count = GetCountInternal();
-            if (genericArray == null)
-            {
-                for (var i = index; i < count; i++)
-                {
-                    if (i >= array.Length)
-                        break;
-                    array.SetValue(GetInternal(i), i);
-                }
-            }
-            else
-            {
-                for (var i = index; i < count; i++)
-                {
-                    if (i >= genericArray.Length)
-                        break;
-                    genericArray[i] = GetInternal(i);
-                }
-            }
+            ((ICollection) Items).CopyTo(array, index);
+        }
+
+        protected virtual void CopyToInternal(T[] array, int index)
+        {
+            Items.CopyTo(array, index);
         }
 
         protected virtual int GetCountInternal()
@@ -289,11 +299,11 @@ namespace MugenMvvm.Collections
                 return;
 
             var obj = Items[oldIndex];
-            if (!OnMoving(obj, oldIndex, newIndex))
+            if (!MugenExtensions.ObservableCollectionOnMoving(this, obj, oldIndex, newIndex))
                 return;
             Items.RemoveAt(oldIndex);
             Items.Insert(newIndex, obj);
-            OnMoved(obj, oldIndex, newIndex);
+            MugenExtensions.ObservableCollectionOnMoved(this, obj, oldIndex, newIndex);
         }
 
         protected virtual void ClearInternal()
@@ -301,39 +311,39 @@ namespace MugenMvvm.Collections
             if (GetCountInternal() == 0)
                 return;
 
-            if (!OnClearing())
+            if (!MugenExtensions.ObservableCollectionOnClearing(this))
                 return;
             Items.Clear();
-            OnCleared();
+            MugenExtensions.ObservableCollectionOnCleared(this);
         }
 
         protected virtual void ResetInternal(IEnumerable<T> items)
         {
-            if (!OnResetting(items))
+            if (!MugenExtensions.ObservableCollectionOnResetting(this, items))
                 return;
 
             Items.Clear();
             foreach (var item in items)
                 Items.Add(item);
-            OnReset(this);
+            MugenExtensions.ObservableCollectionOnReset(this, this);
         }
 
         protected virtual void InsertInternal(int index, T item, bool isAdd)
         {
-            if (!OnAdding(item, index))
+            if (!MugenExtensions.ObservableCollectionOnAdding(this, item, index))
                 return;
 
             Items.Insert(index, item);
-            OnAdded(item, index);
+            MugenExtensions.ObservableCollectionOnAdded(this, item, index);
         }
 
         protected virtual void RemoveInternal(int index)
         {
             var oldItem = Items[index];
-            if (!OnRemoving(oldItem, index))
+            if (!MugenExtensions.ObservableCollectionOnRemoving(this, oldItem, index))
                 return;
             Items.RemoveAt(index);
-            OnRemoved(oldItem, index);
+            MugenExtensions.ObservableCollectionOnRemoved(this, oldItem, index);
         }
 
         protected virtual T GetInternal(int index)
@@ -346,10 +356,30 @@ namespace MugenMvvm.Collections
             var oldItem = Items[index];
             if (Default.IsNullable<T>() && ReferenceEquals(oldItem, item))
                 return;
-            if (!OnReplacing(oldItem, item, index))
+            if (!MugenExtensions.ObservableCollectionOnReplacing(this, oldItem, item, index))
                 return;
             Items[index] = item;
-            OnReplaced(oldItem, item, index);
+            MugenExtensions.ObservableCollectionOnReplaced(this, oldItem, item, index);
+        }
+
+        protected static bool IsCompatibleObject(object value)
+        {
+            if (value is T)
+                return true;
+
+            if (value == null)
+                return Default.IsNullable<T>();
+
+            return false;
+        }
+
+        private void EndBatchUpdate()
+        {
+            lock (Locker)
+            {
+                if (--_batchCount == 0)
+                    MugenExtensions.ObservableCollectionOnEndBatchUpdate(this);
+            }
         }
 
         #endregion
