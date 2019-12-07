@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
@@ -37,9 +38,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnItemChanged(Owner, item, index, args);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnItemChanged(Owner, item, index, args);
         }
 
         public void OnAdded(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index)
@@ -51,9 +50,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnAdded(Owner, item, index);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnAdded(Owner, item, index);
         }
 
         public void OnReplaced(IDecoratorObservableCollectionComponent<T>? decorator, T oldItem, T newItem, int index)
@@ -65,9 +62,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnReplaced(Owner, oldItem, newItem, index);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnReplaced(Owner, oldItem, newItem, index);
         }
 
         public void OnMoved(IDecoratorObservableCollectionComponent<T>? decorator, T item, int oldIndex, int newIndex)
@@ -79,9 +74,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnMoved(Owner, item, oldIndex, newIndex);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnMoved(Owner, item, oldIndex, newIndex);
         }
 
         public void OnRemoved(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index)
@@ -93,9 +86,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnRemoved(Owner, item, index);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnRemoved(Owner, item, index);
         }
 
         public void OnReset(IDecoratorObservableCollectionComponent<T>? decorator, IEnumerable<T> items)
@@ -107,9 +98,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnReset(Owner, items);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnReset(Owner, items);
         }
 
         public void OnCleared(IDecoratorObservableCollectionComponent<T>? decorator)
@@ -121,9 +110,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            var components = GetComponents<IDecoratorObservableCollectionChangedListener<T>>();
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnCleared(Owner);
+            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnCleared(Owner);
         }
 
         void IObservableCollectionChangedListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)

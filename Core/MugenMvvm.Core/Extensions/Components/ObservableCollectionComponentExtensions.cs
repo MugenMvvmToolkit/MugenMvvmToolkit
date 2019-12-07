@@ -185,6 +185,55 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnItemChanged(collection, item, index, args);
         }
 
+        public static void OnAdded<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnAdded(collection, item, index);
+        }
+
+        public static void OnReplaced<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T oldItem, T newItem, int index)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnReplaced(collection, oldItem, newItem, index);
+        }
+
+        public static void OnMoved<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnMoved(collection, item, oldIndex, newIndex);
+        }
+
+        public static void OnRemoved<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnRemoved(collection, item, index);
+        }
+
+        public static void OnReset<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, IEnumerable<T> items)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnReset(collection, items);
+        }
+
+        public static void OnCleared<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnCleared(collection);
+        }
+
+        public static void OnItemChanged<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index, object? args)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnItemChanged(collection, item, index, args);
+        }
+
         #endregion
     }
 }
