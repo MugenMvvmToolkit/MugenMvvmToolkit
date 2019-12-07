@@ -96,7 +96,7 @@ namespace MugenMvvm.Presenters.Components
 
         void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Extensions.MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _closeablePresenters);
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _closeablePresenters);
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)

@@ -41,7 +41,7 @@ namespace MugenMvvm.Commands
                     var metadata = _metadata;
                     _metadata = null;
                     if (metadata != null)
-                        Extensions.MugenExtensions.LazyInitializeDisposable(ref _mediator, GetMediator(metadata));
+                        MugenExtensions.LazyInitializeDisposable(ref _mediator, GetMediator(metadata));
                 }
 
                 return _mediator!;

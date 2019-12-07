@@ -156,12 +156,12 @@ namespace MugenMvvm.Validation
         public void Initialize(TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            if (!Extensions.MugenExtensions.LazyInitialize(ref _target, target))
+            if (!MugenExtensions.LazyInitialize(ref _target, target))
                 ExceptionManager.ThrowObjectInitialized(this);
 
             if (ValidateOnPropertyChanged && target is INotifyPropertyChanged notifyPropertyChanged)
             {
-                _weakPropertyHandler = Extensions.MugenExtensions.MakeWeakPropertyChangedHandler(this, (@this, o, arg3) => @this.OnTargetPropertyChanged(arg3));
+                _weakPropertyHandler = MugenExtensions.MakeWeakPropertyChangedHandler(this, (@this, o, arg3) => @this.OnTargetPropertyChanged(arg3));
                 notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
             }
 
@@ -333,7 +333,7 @@ namespace MugenMvvm.Validation
         private Task ValidateAsyncImplAsync(string member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (_disposeCancellationTokenSource == null)
-                Extensions.MugenExtensions.LazyInitializeDisposable(ref _disposeCancellationTokenSource, new CancellationTokenSource());
+                MugenExtensions.LazyInitializeDisposable(ref _disposeCancellationTokenSource, new CancellationTokenSource());
 
             var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource.Token);
             if (_validatingTasks != null)
@@ -354,7 +354,7 @@ namespace MugenMvvm.Validation
             else
             {
                 if (_validatingTasks == null)
-                    Extensions.MugenExtensions.LazyInitialize(ref _validatingTasks, new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal));
+                    MugenExtensions.LazyInitialize(ref _validatingTasks, new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal));
                 CancellationTokenSource? oldValue;
                 lock (_validatingTasks)
                 {

@@ -6,6 +6,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -87,13 +88,13 @@ namespace MugenMvvm.Internal.Components
 
         void IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>.Decorate(IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Extensions.MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _memberComponents);
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _memberComponents);
             Invalidate(false, false, true);
         }
 
         void IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>.Decorate(IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Extensions.MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _methodComponents);
+            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _methodComponents);
             Invalidate(false, true, false);
         }
 

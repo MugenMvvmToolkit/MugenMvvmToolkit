@@ -54,18 +54,18 @@ namespace MugenMvvm.Components
 
         int IComparer<IDecoratorComponentCollectionComponent>.Compare(IDecoratorComponentCollectionComponent x, IDecoratorComponentCollectionComponent y)
         {
-            return Extensions.MugenExtensions.GetComponentPriority(x, this).CompareTo(Extensions.MugenExtensions.GetComponentPriority(y, this));
+            return MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
         }
 
         int IComparer<object>.Compare(object x, object y)
         {
-            return Extensions.MugenExtensions.GetComponentPriority(y, Owner).CompareTo(Extensions.MugenExtensions.GetComponentPriority(x, Owner));
+            return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
         }
 
         public bool Add(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (!Extensions.MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
+            if (!MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
                 return false;
 
             if (_components != null)
@@ -80,11 +80,11 @@ namespace MugenMvvm.Components
 
             lock (_items)
             {
-                Extensions.MugenExtensions.AddOrdered(_items, component, this);
+                MugenExtensions.AddOrdered(_items, component, this);
             }
 
             UpdateTrackers(component);
-            Extensions.MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
+            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
             if (_components != null)
             {
                 var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
@@ -103,7 +103,7 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (!Extensions.MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
+            if (!MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
                 return false;
 
             if (_components != null)
@@ -124,7 +124,7 @@ namespace MugenMvvm.Components
             }
 
             UpdateTrackers(component);
-            Extensions.MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
+            MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
             if (_components != null)
             {
                 var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
@@ -147,7 +147,7 @@ namespace MugenMvvm.Components
             for (var i = 0; i < oldItems.Length; i++)
             {
                 var oldItem = oldItems[i];
-                Extensions.MugenExtensions.ComponentCollectionOnComponentRemoved(this, oldItem, metadata);
+                MugenExtensions.ComponentCollectionOnComponentRemoved(this, oldItem, metadata);
                 for (var j = 0; j < changedListeners.Length; j++)
                     changedListeners[j].OnRemoved(this, oldItem, metadata);
             }
@@ -171,7 +171,7 @@ namespace MugenMvvm.Components
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
             {
-                Extensions.MugenExtensions.AddOrdered(ref _decorators, decorator, this);
+                MugenExtensions.AddOrdered(ref _decorators, decorator, this);
                 UpdateTrackers(null, decorator);
             }
         }
@@ -180,7 +180,7 @@ namespace MugenMvvm.Components
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
             {
-                Extensions.MugenExtensions.Remove(ref _decorators, decorator);
+                MugenExtensions.Remove(ref _decorators, decorator);
                 UpdateTrackers(null, decorator);
             }
         }

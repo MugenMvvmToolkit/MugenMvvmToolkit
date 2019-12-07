@@ -137,11 +137,11 @@ namespace MugenMvvm.Internal.Components
                 return Expression
                     .Lambda<Func<object?, object?[], object?>>(Expression
                         .Call(null, method, expressions)
-                        .ConvertIfNeed(typeof(object), false), Extensions.MugenExtensions.GetParameterExpression<object>(), parameterExpression)
+                        .ConvertIfNeed(typeof(object), false), MugenExtensions.GetParameterExpression<object>(), parameterExpression)
                     .CompileEx();
             }
 
-            var target = Extensions.MugenExtensions.GetParameterExpression<object>();
+            var target = MugenExtensions.GetParameterExpression<object>();
             return Expression
                 .Lambda<Func<object?, object?[], object?>>(Expression
                     .Call(target.ConvertIfNeed(method.DeclaringType, false), method, expressions)
@@ -237,11 +237,11 @@ namespace MugenMvvm.Internal.Components
 
         private static Expression[] GetParametersExpression(MethodBase methodBase, out ParameterExpression parameterExpression)
         {
-            parameterExpression = Extensions.MugenExtensions.GetParameterExpression<object[]>();
+            parameterExpression = MugenExtensions.GetParameterExpression<object[]>();
             var paramsInfo = methodBase.GetParameters();
             var argsExp = new Expression[paramsInfo.Length];
             for (var i = 0; i < paramsInfo.Length; i++)
-                argsExp[i] = Extensions.MugenExtensions.GetIndexExpression(i).ConvertIfNeed(paramsInfo[i].ParameterType, false);
+                argsExp[i] = MugenExtensions.GetIndexExpression(i).ConvertIfNeed(paramsInfo[i].ParameterType, false);
             return argsExp;
         }
 

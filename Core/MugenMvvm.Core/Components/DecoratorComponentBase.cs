@@ -28,7 +28,7 @@ namespace MugenMvvm.Components
 
         int IComparer<object>.Compare(object x, object y)
         {
-            return Extensions.MugenExtensions.GetComponentPriority(y, Owner).CompareTo(Extensions.MugenExtensions.GetComponentPriority(x, Owner));
+            return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
         }
 
         void IDecoratorComponentCollectionComponent<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
@@ -53,7 +53,7 @@ namespace MugenMvvm.Components
 
         protected virtual void Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Extensions.MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, this, ref Components);
+            MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, this, ref Components);
         }
 
         #endregion
