@@ -7,6 +7,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.BusyIndicator.Components;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.BusyIndicator
@@ -106,7 +107,7 @@ namespace MugenMvvm.BusyIndicator
             }
 
             if (busyToken.Combine())
-                this.OnBeginBusy(busyToken);
+                GetComponents<IBusyIndicatorProviderListener>().OnBeginBusy(this, busyToken);
         }
 
         private void EndSuspendNotifications()
@@ -125,7 +126,7 @@ namespace MugenMvvm.BusyIndicator
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
         {
             if (ignoreSuspend || !IsSuspended)
-                this.OnBusyInfoChanged(null);
+                GetComponents<IBusyIndicatorProviderListener>().OnBusyInfoChanged(this);
         }
 
         #endregion

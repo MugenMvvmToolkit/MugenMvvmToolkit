@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
+using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Collections
@@ -161,7 +162,7 @@ namespace MugenMvvm.Collections
             lock (Locker)
             {
                 if (++_batchCount == 1)
-                    this.OnBeginBatchUpdate();
+                    GetComponents<IObservableCollectionBatchUpdateListener<T>>().OnBeginBatchUpdate(this);
             }
 
             return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
@@ -221,7 +222,7 @@ namespace MugenMvvm.Collections
             {
                 var index = IndexOfInternal(item);
                 if (index >= 0)
-                    this.OnItemChanged(item, index, args);
+                    GetComponents<IObservableCollectionChangedListener<T>>().OnItemChanged(this, item, index, args);
             }
         }
 
@@ -300,13 +301,13 @@ namespace MugenMvvm.Collections
                 return;
 
             var obj = Items[oldIndex];
-            if (!this.CanMove(obj, oldIndex, newIndex))
+            if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanMove(this, obj, oldIndex, newIndex))
                 return;
 
-            this.OnMoving(obj, oldIndex, newIndex);
+            GetComponents<IObservableCollectionChangingListener<T>>().OnMoving(this, obj, oldIndex, newIndex);
             Items.RemoveAt(oldIndex);
             Items.Insert(newIndex, obj);
-            this.OnMoved(obj, oldIndex, newIndex);
+            GetComponents<IObservableCollectionChangedListener<T>>().OnMoved(this, obj, oldIndex, newIndex);
         }
 
         protected virtual void ClearInternal()
@@ -314,43 +315,43 @@ namespace MugenMvvm.Collections
             if (GetCountInternal() == 0)
                 return;
 
-            if (!this.CanClear())
+            if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanClear(this))
                 return;
-            this.OnClearing();
+            GetComponents<IObservableCollectionChangingListener<T>>().OnClearing(this);
             Items.Clear();
-            this.OnCleared();
+            GetComponents<IObservableCollectionChangedListener<T>>().OnCleared(this);
         }
 
         protected virtual void ResetInternal(IEnumerable<T> items)
         {
-            if (!this.CanReset(items))
+            if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanReset(this, items))
                 return;
 
-            this.OnResetting(items);
+            GetComponents<IObservableCollectionChangingListener<T>>().OnResetting(this, items);
             Items.Clear();
             foreach (var item in items)
                 Items.Add(item);
-            this.OnReset(items);
+            GetComponents<IObservableCollectionChangedListener<T>>().OnReset(this, items);
         }
 
         protected virtual void InsertInternal(int index, T item, bool isAdd)
         {
-            if (!this.CanAdd(item, index))
+            if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanAdd(this, item, index))
                 return;
 
-            this.OnAdding(item, index);
+            GetComponents<IObservableCollectionChangingListener<T>>().OnAdding(this, item, index);
             Items.Insert(index, item);
-            this.OnAdded(item, index);
+            GetComponents<IObservableCollectionChangedListener<T>>().OnAdded(this, item, index);
         }
 
         protected virtual void RemoveInternal(int index)
         {
             var oldItem = Items[index];
-            if (!this.CanRemove(oldItem, index))
+            if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanRemove(this, oldItem, index))
                 return;
-            this.OnRemoving(oldItem, index);
+            GetComponents<IObservableCollectionChangingListener<T>>().OnRemoving(this, oldItem, index);
             Items.RemoveAt(index);
-            this.OnRemoved(oldItem, index);
+            GetComponents<IObservableCollectionChangedListener<T>>().OnRemoved(this, oldItem, index);
         }
 
         protected virtual T GetInternal(int index)
@@ -363,11 +364,11 @@ namespace MugenMvvm.Collections
             var oldItem = Items[index];
             if (Default.IsNullable<T>() && ReferenceEquals(oldItem, item))
                 return;
-            if (!this.CanReplace(oldItem, item, index))
+            if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanReplace(this, oldItem, item, index))
                 return;
-            this.OnReplacing(oldItem, item, index);
+            GetComponents<IObservableCollectionChangingListener<T>>().OnReplacing(this, oldItem, item, index);
             Items[index] = item;
-            this.OnReplaced(oldItem, item, index);
+            GetComponents<IObservableCollectionChangedListener<T>>().OnReplaced(this, oldItem, item, index);
         }
 
         protected static bool IsCompatibleObject(object value)
@@ -386,7 +387,7 @@ namespace MugenMvvm.Collections
             lock (Locker)
             {
                 if (--_batchCount == 0)
-                    this.OnEndBatchUpdate();
+                    GetComponents<IObservableCollectionBatchUpdateListener<T>>().OnEndBatchUpdate(this);
             }
         }
 
