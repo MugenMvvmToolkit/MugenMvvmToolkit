@@ -1,6 +1,7 @@
 ﻿using System.Windows.Input;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
@@ -26,23 +27,10 @@ namespace MugenMvvm.Commands
         {
             Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(metadata, nameof(metadata));
-            ICommandMediator? result = null;
-            var components = GetComponents<ICommandMediatorProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                result = components[i].TryGetCommandMediator(command, metadata);
-                if (result != null)
-                    break;
-            }
-
-
+            var result = GetComponents<ICommandMediatorProviderComponent>(metadata).TryGetCommandMediator(command, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, components);
-
-            var listeners = GetComponents<ICommandMediatorProviderListener>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                listeners[i].OnCommandMediatorCreated(this, result, command, metadata);
-
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            GetComponents<ICommandMediatorProviderListener>(metadata).OnCommandMediatorCreated(this, result, command, metadata);
             return result;
         }
 

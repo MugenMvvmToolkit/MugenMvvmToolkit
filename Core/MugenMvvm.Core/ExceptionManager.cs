@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using static MugenMvvm.Constants.MessageConstant;
 
@@ -87,6 +88,12 @@ namespace MugenMvvm
         public static void ThrowObjectDisposed(object item)
         {
             throw new ObjectDisposedException(item.GetType().FullName, ObjectDisposedFormat1.Format(item.GetType()));
+        }
+
+        [DoesNotReturn]
+        public static void ThrowObjectNotInitialized<T>(IComponentOwner<T> owner) where T : class
+        {
+            ThrowObjectNotInitialized(owner, typeof(T).Name);
         }
 
         [DoesNotReturn]
