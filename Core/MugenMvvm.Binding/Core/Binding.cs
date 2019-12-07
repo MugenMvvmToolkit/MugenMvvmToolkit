@@ -877,6 +877,7 @@ namespace MugenMvvm.Binding.Core
                 }
             }
 
+            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
             if (CheckFlag(HasComponentChangedListener))
             {
                 var components = _components;
@@ -892,7 +893,6 @@ namespace MugenMvvm.Binding.Core
                 else if (!ReferenceEquals(components, component))
                     (components as IComponentCollectionChangedListener)?.OnAdded(this, component, this);
             }
-            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
         }
 
         private bool OnComponentRemoving(object component, IReadOnlyMetadataContext? metadata)
@@ -943,6 +943,8 @@ namespace MugenMvvm.Binding.Core
 
                     ClearFlag(HasSourceObserverListener);
                 }
+
+                MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
                 if (CheckFlag(HasComponentChangedListener))
                 {
                     var components = _components;
@@ -955,7 +957,8 @@ namespace MugenMvvm.Binding.Core
                         (components as IComponentCollectionChangedListener)?.OnRemoved(this, component, this);
                 }
             }
-            MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
+            else
+                MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
         }
 
         private bool HasComponent<TComponent>() where TComponent : class, IComponent<IBinding>
