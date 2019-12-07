@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.BusyIndicator;
-using MugenMvvm.Interfaces.BusyIndicator.Components;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.BusyIndicator
@@ -106,7 +106,7 @@ namespace MugenMvvm.BusyIndicator
             }
 
             if (busyToken.Combine())
-                OnBeginBusy(busyToken);
+                this.OnBeginBusy(busyToken);
         }
 
         private void EndSuspendNotifications()
@@ -122,20 +122,10 @@ namespace MugenMvvm.BusyIndicator
                 OnBusyInfoChanged();
         }
 
-        private void OnBeginBusy(IBusyInfo busyInfo)
-        {
-            var items = GetComponents<IBusyIndicatorProviderListener>(null);
-            for (var i = 0; i < items.Length; i++)
-                items[i].OnBeginBusy(this, busyInfo);
-        }
-
         private void OnBusyInfoChanged(bool ignoreSuspend = false)
         {
-            if (!ignoreSuspend && IsSuspended)
-                return;
-            var items = GetComponents<IBusyIndicatorProviderListener>(null);
-            for (var i = 0; i < items.Length; i++)
-                items[i].OnBusyInfoChanged(this);
+            if (ignoreSuspend || !IsSuspended)
+                this.OnBusyInfoChanged(null);
         }
 
         #endregion
