@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -53,18 +54,18 @@ namespace MugenMvvm.Components
 
         int IComparer<IDecoratorComponentCollectionComponent>.Compare(IDecoratorComponentCollectionComponent x, IDecoratorComponentCollectionComponent y)
         {
-            return MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
+            return Extensions.MugenExtensions.GetComponentPriority(x, this).CompareTo(Extensions.MugenExtensions.GetComponentPriority(y, this));
         }
 
         int IComparer<object>.Compare(object x, object y)
         {
-            return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
+            return Extensions.MugenExtensions.GetComponentPriority(y, Owner).CompareTo(Extensions.MugenExtensions.GetComponentPriority(x, Owner));
         }
 
         public bool Add(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (!MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
+            if (!Extensions.MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
                 return false;
 
             if (_components != null)
@@ -79,11 +80,11 @@ namespace MugenMvvm.Components
 
             lock (_items)
             {
-                MugenExtensions.AddOrdered(_items, component, this);
+                Extensions.MugenExtensions.AddOrdered(_items, component, this);
             }
 
             UpdateTrackers(component);
-            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
+            Extensions.MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
             if (_components != null)
             {
                 var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
@@ -102,7 +103,7 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (!MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
+            if (!Extensions.MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
                 return false;
 
             if (_components != null)
@@ -123,7 +124,7 @@ namespace MugenMvvm.Components
             }
 
             UpdateTrackers(component);
-            MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
+            Extensions.MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
             if (_components != null)
             {
                 var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
@@ -146,7 +147,7 @@ namespace MugenMvvm.Components
             for (var i = 0; i < oldItems.Length; i++)
             {
                 var oldItem = oldItems[i];
-                MugenExtensions.ComponentCollectionOnComponentRemoved(this, oldItem, metadata);
+                Extensions.MugenExtensions.ComponentCollectionOnComponentRemoved(this, oldItem, metadata);
                 for (var j = 0; j < changedListeners.Length; j++)
                     changedListeners[j].OnRemoved(this, oldItem, metadata);
             }
@@ -170,7 +171,7 @@ namespace MugenMvvm.Components
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
             {
-                MugenExtensions.AddOrdered(ref _decorators, decorator, this);
+                Extensions.MugenExtensions.AddOrdered(ref _decorators, decorator, this);
                 UpdateTrackers(null, decorator);
             }
         }
@@ -179,7 +180,7 @@ namespace MugenMvvm.Components
         {
             if (component is IDecoratorComponentCollectionComponent decorator)
             {
-                MugenExtensions.Remove(ref _decorators, decorator);
+                Extensions.MugenExtensions.Remove(ref _decorators, decorator);
                 UpdateTrackers(null, decorator);
             }
         }

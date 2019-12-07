@@ -5,6 +5,7 @@ using System.Threading;
 using System.Windows.Input;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;

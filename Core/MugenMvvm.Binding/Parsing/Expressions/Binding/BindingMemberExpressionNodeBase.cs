@@ -1,9 +1,11 @@
 ﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions.Binding

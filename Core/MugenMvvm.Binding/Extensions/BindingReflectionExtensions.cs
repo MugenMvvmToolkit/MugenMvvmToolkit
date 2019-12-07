@@ -6,9 +6,9 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Extensions;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm.Binding
+namespace MugenMvvm.Binding.Extensions
 {
     public static partial class MugenBindingExtensions
     {

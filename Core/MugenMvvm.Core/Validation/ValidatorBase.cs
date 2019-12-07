@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -155,12 +156,12 @@ namespace MugenMvvm.Validation
         public void Initialize(TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            if (!MugenExtensions.LazyInitialize(ref _target, target))
+            if (!Extensions.MugenExtensions.LazyInitialize(ref _target, target))
                 ExceptionManager.ThrowObjectInitialized(this);
 
             if (ValidateOnPropertyChanged && target is INotifyPropertyChanged notifyPropertyChanged)
             {
-                _weakPropertyHandler = MugenExtensions.MakeWeakPropertyChangedHandler(this, (@this, o, arg3) => @this.OnTargetPropertyChanged(arg3));
+                _weakPropertyHandler = Extensions.MugenExtensions.MakeWeakPropertyChangedHandler(this, (@this, o, arg3) => @this.OnTargetPropertyChanged(arg3));
                 notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
             }
 
@@ -332,7 +333,7 @@ namespace MugenMvvm.Validation
         private Task ValidateAsyncImplAsync(string member, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (_disposeCancellationTokenSource == null)
-                MugenExtensions.LazyInitializeDisposable(ref _disposeCancellationTokenSource, new CancellationTokenSource());
+                Extensions.MugenExtensions.LazyInitializeDisposable(ref _disposeCancellationTokenSource, new CancellationTokenSource());
 
             var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _disposeCancellationTokenSource.Token);
             if (_validatingTasks != null)
@@ -353,7 +354,7 @@ namespace MugenMvvm.Validation
             else
             {
                 if (_validatingTasks == null)
-                    MugenExtensions.LazyInitialize(ref _validatingTasks, new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal));
+                    Extensions.MugenExtensions.LazyInitialize(ref _validatingTasks, new Dictionary<string, CancellationTokenSource>(StringComparer.Ordinal));
                 CancellationTokenSource? oldValue;
                 lock (_validatingTasks)
                 {

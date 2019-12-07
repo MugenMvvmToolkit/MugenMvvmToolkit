@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -228,7 +229,7 @@ namespace MugenMvvm.Validation
 
         protected void SetErrorsInternal(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
         {
-            if (_inlineValidator == null && MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
+            if (_inlineValidator == null && Extensions.MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
             {
                 _inlineValidator.Initialize(this);
                 _inlineValidator.AddComponent(this, metadata);

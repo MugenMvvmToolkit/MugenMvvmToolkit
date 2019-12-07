@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;

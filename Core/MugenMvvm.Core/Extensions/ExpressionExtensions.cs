@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {

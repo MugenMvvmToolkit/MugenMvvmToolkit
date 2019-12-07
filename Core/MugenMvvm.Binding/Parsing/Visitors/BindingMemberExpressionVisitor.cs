@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -12,6 +13,7 @@ using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Visitors

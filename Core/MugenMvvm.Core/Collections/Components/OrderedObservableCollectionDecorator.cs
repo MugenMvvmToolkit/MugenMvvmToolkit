@@ -3,6 +3,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;

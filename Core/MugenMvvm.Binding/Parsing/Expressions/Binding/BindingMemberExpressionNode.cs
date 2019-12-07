@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions.Binding

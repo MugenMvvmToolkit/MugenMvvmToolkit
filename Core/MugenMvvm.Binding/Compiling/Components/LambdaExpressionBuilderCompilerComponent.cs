@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components

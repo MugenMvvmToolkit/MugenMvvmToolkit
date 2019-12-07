@@ -1,5 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers

@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Messaging.Components;

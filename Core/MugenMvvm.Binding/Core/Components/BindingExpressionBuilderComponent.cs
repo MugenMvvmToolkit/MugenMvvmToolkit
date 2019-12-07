@@ -12,6 +12,7 @@ using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;

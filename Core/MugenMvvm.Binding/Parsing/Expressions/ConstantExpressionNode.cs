@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
@@ -152,7 +153,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (Value is bool)
                 return Value.ToString().ToLowerInvariant();
             if (Value is string v)
-                return $"\"{Value}\"";
+                return $"\"{v}\"";
             if (Value is char)
                 return $"'{Value}'";
             return Value.ToString();

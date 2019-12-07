@@ -4,8 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {

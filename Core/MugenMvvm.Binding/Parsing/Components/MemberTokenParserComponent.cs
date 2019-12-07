@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;

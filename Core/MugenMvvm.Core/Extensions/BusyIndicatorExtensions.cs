@@ -2,8 +2,7 @@
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Models;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {

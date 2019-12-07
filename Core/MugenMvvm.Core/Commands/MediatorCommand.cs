@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using MugenMvvm.Commands.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -40,7 +41,7 @@ namespace MugenMvvm.Commands
                     var metadata = _metadata;
                     _metadata = null;
                     if (metadata != null)
-                        MugenExtensions.LazyInitializeDisposable(ref _mediator, GetMediator(metadata));
+                        Extensions.MugenExtensions.LazyInitializeDisposable(ref _mediator, GetMediator(metadata));
                 }
 
                 return _mediator!;

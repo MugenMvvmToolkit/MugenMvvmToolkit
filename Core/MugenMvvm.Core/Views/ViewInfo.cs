@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 
 namespace MugenMvvm.Views

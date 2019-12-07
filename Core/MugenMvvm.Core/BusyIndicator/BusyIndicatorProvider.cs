@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.BusyIndicator.Components;
 using MugenMvvm.Interfaces.Components;

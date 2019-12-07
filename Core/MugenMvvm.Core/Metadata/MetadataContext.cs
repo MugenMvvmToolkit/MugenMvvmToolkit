@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Delegates;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;

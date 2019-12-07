@@ -4,10 +4,10 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm.Binding
+namespace MugenMvvm.Binding.Extensions
 {
     public static partial class MugenBindingExtensions
     {

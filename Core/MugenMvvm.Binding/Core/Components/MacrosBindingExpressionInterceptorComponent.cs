@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;

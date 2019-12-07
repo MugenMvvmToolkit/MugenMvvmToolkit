@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components

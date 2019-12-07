@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Globalization;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 

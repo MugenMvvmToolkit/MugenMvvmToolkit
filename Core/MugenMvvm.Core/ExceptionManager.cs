@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using static MugenMvvm.Constants.MessageConstant;
 

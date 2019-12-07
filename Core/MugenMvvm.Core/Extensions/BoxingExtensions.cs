@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Extensions
 {
     public static class BoxingExtensions
     {

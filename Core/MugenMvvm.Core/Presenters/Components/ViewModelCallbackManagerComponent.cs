@@ -5,6 +5,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -95,7 +96,7 @@ namespace MugenMvvm.Presenters.Components
 
         void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _closeablePresenters);
+            Extensions.MugenExtensions.ComponentDecoratorDecorate(this, Owner, components, this, ref _closeablePresenters);
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)

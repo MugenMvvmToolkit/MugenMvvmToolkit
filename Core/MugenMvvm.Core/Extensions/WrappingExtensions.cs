@@ -7,8 +7,7 @@ using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 using MugenMvvm.Wrapping.Components;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {

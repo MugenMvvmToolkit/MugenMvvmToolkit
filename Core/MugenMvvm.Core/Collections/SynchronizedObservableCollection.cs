@@ -160,7 +160,7 @@ namespace MugenMvvm.Collections
             lock (Locker)
             {
                 if (++_batchCount == 1)
-                    MugenExtensions.ObservableCollectionOnBeginBatchUpdate(this);
+                    Extensions.MugenExtensions.ObservableCollectionOnBeginBatchUpdate(this);
             }
 
             return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this).EndBatchUpdate(), this);
@@ -220,7 +220,7 @@ namespace MugenMvvm.Collections
             {
                 var index = IndexOfInternal(item);
                 if (index >= 0)
-                    MugenExtensions.ObservableCollectionOnItemChanged(this, null, item, index, args);
+                    Extensions.MugenExtensions.ObservableCollectionOnItemChanged(this, null, item, index, args);
             }
         }
 
@@ -299,11 +299,11 @@ namespace MugenMvvm.Collections
                 return;
 
             var obj = Items[oldIndex];
-            if (!MugenExtensions.ObservableCollectionOnMoving(this, obj, oldIndex, newIndex))
+            if (!Extensions.MugenExtensions.ObservableCollectionOnMoving(this, obj, oldIndex, newIndex))
                 return;
             Items.RemoveAt(oldIndex);
             Items.Insert(newIndex, obj);
-            MugenExtensions.ObservableCollectionOnMoved(this, obj, oldIndex, newIndex);
+            Extensions.MugenExtensions.ObservableCollectionOnMoved(this, obj, oldIndex, newIndex);
         }
 
         protected virtual void ClearInternal()
@@ -311,39 +311,39 @@ namespace MugenMvvm.Collections
             if (GetCountInternal() == 0)
                 return;
 
-            if (!MugenExtensions.ObservableCollectionOnClearing(this))
+            if (!Extensions.MugenExtensions.ObservableCollectionOnClearing(this))
                 return;
             Items.Clear();
-            MugenExtensions.ObservableCollectionOnCleared(this);
+            Extensions.MugenExtensions.ObservableCollectionOnCleared(this);
         }
 
         protected virtual void ResetInternal(IEnumerable<T> items)
         {
-            if (!MugenExtensions.ObservableCollectionOnResetting(this, items))
+            if (!Extensions.MugenExtensions.ObservableCollectionOnResetting(this, items))
                 return;
 
             Items.Clear();
             foreach (var item in items)
                 Items.Add(item);
-            MugenExtensions.ObservableCollectionOnReset(this, this);
+            Extensions.MugenExtensions.ObservableCollectionOnReset(this, this);
         }
 
         protected virtual void InsertInternal(int index, T item, bool isAdd)
         {
-            if (!MugenExtensions.ObservableCollectionOnAdding(this, item, index))
+            if (!Extensions.MugenExtensions.ObservableCollectionOnAdding(this, item, index))
                 return;
 
             Items.Insert(index, item);
-            MugenExtensions.ObservableCollectionOnAdded(this, item, index);
+            Extensions.MugenExtensions.ObservableCollectionOnAdded(this, item, index);
         }
 
         protected virtual void RemoveInternal(int index)
         {
             var oldItem = Items[index];
-            if (!MugenExtensions.ObservableCollectionOnRemoving(this, oldItem, index))
+            if (!Extensions.MugenExtensions.ObservableCollectionOnRemoving(this, oldItem, index))
                 return;
             Items.RemoveAt(index);
-            MugenExtensions.ObservableCollectionOnRemoved(this, oldItem, index);
+            Extensions.MugenExtensions.ObservableCollectionOnRemoved(this, oldItem, index);
         }
 
         protected virtual T GetInternal(int index)
@@ -356,10 +356,10 @@ namespace MugenMvvm.Collections
             var oldItem = Items[index];
             if (Default.IsNullable<T>() && ReferenceEquals(oldItem, item))
                 return;
-            if (!MugenExtensions.ObservableCollectionOnReplacing(this, oldItem, item, index))
+            if (!Extensions.MugenExtensions.ObservableCollectionOnReplacing(this, oldItem, item, index))
                 return;
             Items[index] = item;
-            MugenExtensions.ObservableCollectionOnReplaced(this, oldItem, item, index);
+            Extensions.MugenExtensions.ObservableCollectionOnReplaced(this, oldItem, item, index);
         }
 
         protected static bool IsCompatibleObject(object value)
@@ -378,7 +378,7 @@ namespace MugenMvvm.Collections
             lock (Locker)
             {
                 if (--_batchCount == 0)
-                    MugenExtensions.ObservableCollectionOnEndBatchUpdate(this);
+                    Extensions.MugenExtensions.ObservableCollectionOnEndBatchUpdate(this);
             }
         }
 

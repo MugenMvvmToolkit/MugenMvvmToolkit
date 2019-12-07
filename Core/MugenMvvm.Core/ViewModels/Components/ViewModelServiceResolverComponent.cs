@@ -2,6 +2,7 @@
 using MugenMvvm.Attributes;
 using MugenMvvm.BusyIndicator;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;

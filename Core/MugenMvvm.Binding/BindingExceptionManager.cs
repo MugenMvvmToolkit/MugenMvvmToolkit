@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Extensions;
 using static MugenMvvm.Binding.Constants.BindingMessageConstant;
 
 namespace MugenMvvm.Binding

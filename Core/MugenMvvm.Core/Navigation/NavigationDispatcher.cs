@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;

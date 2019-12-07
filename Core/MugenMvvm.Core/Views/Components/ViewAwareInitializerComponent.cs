@@ -4,6 +4,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;

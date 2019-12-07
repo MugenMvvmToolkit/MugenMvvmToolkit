@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers
@@ -92,7 +93,7 @@ namespace MugenMvvm.Binding.Observers
                 }
             }
 
-            return new ActionToken((@this, t) => ((EventListenerCollection)@this).Unsubscribe(t), this, target);
+            return new ActionToken((@this, t) => ((EventListenerCollection)@this!).Unsubscribe(t), this, target);
         }
 
         public bool Remove(IEventListener listener)

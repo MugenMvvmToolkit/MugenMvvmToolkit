@@ -16,12 +16,12 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm.Binding
+namespace MugenMvvm.Binding.Extensions
 {
     public static partial class MugenBindingExtensions
     {

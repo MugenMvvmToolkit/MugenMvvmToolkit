@@ -4,8 +4,7 @@ using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-// ReSharper disable once CheckNamespace
-namespace MugenMvvm
+namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
