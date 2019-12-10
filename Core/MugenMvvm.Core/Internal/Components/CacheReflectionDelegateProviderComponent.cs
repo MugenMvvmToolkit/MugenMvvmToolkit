@@ -6,7 +6,6 @@ using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -64,7 +63,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (!_activatorCache.TryGetValue(constructor, out var value))
                 {
-                    value = TryGetActivatorInternal(constructor);
+                    value = Components.TryGetActivator(constructor);
                     _activatorCache[constructor] = value;
                 }
 
@@ -79,7 +78,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (!_activatorCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    value = TryGetActivatorInternal(constructor, delegateType);
+                    value = Components.TryGetActivator(constructor, delegateType);
                     _activatorCacheDelegate[cacheKey] = value;
                 }
 
@@ -89,13 +88,13 @@ namespace MugenMvvm.Internal.Components
 
         void IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>.Decorate(IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref _memberComponents);
+            this.Decorate(Owner, components, this, ref _memberComponents);
             Invalidate(false, false, true);
         }
 
         void IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>.Decorate(IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref _methodComponents);
+            this.Decorate(Owner, components, this, ref _methodComponents);
             Invalidate(false, true, false);
         }
 
@@ -111,7 +110,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (!_memberGetterCache.TryGetValue(key, out var value))
                 {
-                    value = TryGetMemberGetterInternal(member, delegateType);
+                    value = _memberComponents.TryGetMemberGetter(member, delegateType);
                     _memberGetterCache[key] = value;
                 }
 
@@ -126,7 +125,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (!_memberSetterCache.TryGetValue(key, out var value))
                 {
-                    value = TryGetMemberSetterInternal(member, delegateType);
+                    value = _memberComponents.TryGetMemberSetter(member, delegateType);
                     _memberSetterCache[key] = value;
                 }
 
@@ -140,7 +139,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (!_invokeMethodCache.TryGetValue(method, out var value))
                 {
-                    value = TryGetMethodInvokerInternal(method);
+                    value = _methodComponents.TryGetMethodInvoker(method);
                     _invokeMethodCache[method] = value;
                 }
 
@@ -155,7 +154,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (!_invokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    value = TryGetMethodInvokerInternal(method, delegateType);
+                    value = _methodComponents.TryGetMethodInvoker(method, delegateType);
                     _invokeMethodCacheDelegate[cacheKey] = value;
                 }
 
@@ -171,84 +170,6 @@ namespace MugenMvvm.Internal.Components
         {
             base.DecorateInternal(components, metadata);
             Invalidate(true, false, false);
-        }
-
-        private Func<object?[], object>? TryGetActivatorInternal(ConstructorInfo constructor)
-        {
-            var components = Components;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var activator = components[i].TryGetActivator(constructor);
-                if (activator != null)
-                    return activator;
-            }
-
-            return null;
-        }
-
-        private Delegate? TryGetActivatorInternal(ConstructorInfo constructor, Type delegateType)
-        {
-            var components = Components;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var activator = components[i].TryGetActivator(constructor, delegateType);
-                if (activator != null)
-                    return activator;
-            }
-
-            return null;
-        }
-
-        private Delegate? TryGetMemberGetterInternal(MemberInfo member, Type delegateType)
-        {
-            var components = _memberComponents;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var getter = components[i].TryGetMemberGetter(member, delegateType);
-                if (getter != null)
-                    return getter;
-            }
-
-            return null;
-        }
-
-        private Delegate? TryGetMemberSetterInternal(MemberInfo member, Type delegateType)
-        {
-            var components = _memberComponents;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var setter = components[i].TryGetMemberSetter(member, delegateType);
-                if (setter != null)
-                    return setter;
-            }
-
-            return null;
-        }
-
-        private Func<object?, object?[], object?>? TryGetMethodInvokerInternal(MethodInfo method)
-        {
-            var components = _methodComponents;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var invoker = components[i].TryGetMethodInvoker(method);
-                if (invoker != null)
-                    return invoker;
-            }
-
-            return null;
-        }
-
-        private Delegate? TryGetMethodInvokerInternal(MethodInfo method, Type delegateType)
-        {
-            var components = _methodComponents;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var invoker = components[i].TryGetMethodInvoker(method, delegateType);
-                if (invoker != null)
-                    return invoker;
-            }
-
-            return null;
         }
 
         private void Invalidate(bool activator, bool method, bool member)
