@@ -1,22 +1,25 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentTracker<T> : IComponentCollectionChangedListener where T : class
+    public sealed class ComponentTracker<T, TState> : IComponentCollectionChangedListener where T : class
     {
         #region Fields
 
-        private readonly IListener _listener;
+        private readonly Action<TState, T[], IReadOnlyMetadataContext?> _listener;
+        private readonly TState _state;
 
         #endregion
 
         #region Constructors
 
-        public ComponentTracker(IListener listener)
+        public ComponentTracker(Action<TState, T[], IReadOnlyMetadataContext?> listener, TState state)
         {
             Should.NotBeNull(listener, nameof(listener));
             _listener = listener;
+            _state = state;
         }
 
         #endregion
@@ -26,13 +29,13 @@ namespace MugenMvvm.Components
         public void OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is T || component is IDecoratorComponentCollectionComponent<T>)
-                _listener.OnComponentChanged(collection.Get<T>(metadata), metadata);
+                _listener.Invoke(_state, collection.Get<T>(metadata), metadata);
         }
 
         public void OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is T || component is IDecoratorComponentCollectionComponent<T>)
-                _listener.OnComponentChanged(collection.Get<T>(metadata), metadata);
+                _listener.Invoke(_state, collection.Get<T>(metadata), metadata);
         }
 
         #endregion
@@ -50,7 +53,7 @@ namespace MugenMvvm.Components
             Should.NotBeNull(collection, nameof(collection));
             collection.Add(this);
             collection.Components.Add(this);
-            _listener.OnComponentChanged(collection.Get<T>(metadata), metadata);
+            _listener.Invoke(_state, collection.Get<T>(metadata), metadata);
         }
 
         public void Detach(IComponentOwner owner, IReadOnlyMetadataContext? metadata)
@@ -64,16 +67,7 @@ namespace MugenMvvm.Components
             Should.NotBeNull(collection, nameof(collection));
             collection.Add(this);
             collection.Components.Add(this);
-            _listener.OnComponentChanged(Default.EmptyArray<T>(), metadata);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        public interface IListener
-        {
-            void OnComponentChanged(T[] components, IReadOnlyMetadataContext? metadata);
+            _listener.Invoke(_state, Default.EmptyArray<T>(), metadata);
         }
 
         #endregion
