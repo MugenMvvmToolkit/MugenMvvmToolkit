@@ -161,7 +161,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             if (target == null)
                 return false;
-            if (command is IMediatorCommand m && !m.HasCanExecute)
+            if (command is ICompositeCommand m && !m.HasCanExecute)
                 return false;
 
             _enabledMember = GetMemberProvider()

@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class DelegateExecutorCommandMediatorComponent<T> : IExecutorCommandMediatorComponent, IConditionCommandMediatorComponent, IDisposable
+    public sealed class DelegateExecutorCommandComponent<T> : IExecutorCommandComponent, IConditionCommandComponent, IDisposable, IHasPriority
     {
         #region Fields
 
@@ -15,12 +17,18 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public DelegateExecutorCommandMediatorComponent(Delegate execute, Delegate? canExecute)
+        public DelegateExecutorCommandComponent(Delegate execute, Delegate? canExecute)
         {
             Should.NotBeNull(execute, nameof(execute));
             _execute = execute;
             _canExecute = canExecute;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority => CommandComponentPriority.Executor;
 
         #endregion
 

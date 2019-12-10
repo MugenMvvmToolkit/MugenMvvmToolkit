@@ -64,17 +64,17 @@ namespace MugenMvvm.Views
 
         #region Implementation of interfaces
 
-        public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            return new ViewManagerInitializerHandler(this, viewModel, null, metadata).Task;
-        }
-
         public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, object view, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModel, nameof(viewModel), ViewModelType);
             Should.BeOfType(view, nameof(view), ViewType);
             return new ViewManagerInitializerHandler(this, viewModel, view, metadata).Task;
+        }
+
+        public Task<IViewInitializerResult> InitializeAsync(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return new ViewManagerInitializerHandler(this, viewModel, null, metadata).Task;
         }
 
         public Task<IViewInitializerResult> InitializeAsync(object view, IReadOnlyMetadataContext? metadata = null)

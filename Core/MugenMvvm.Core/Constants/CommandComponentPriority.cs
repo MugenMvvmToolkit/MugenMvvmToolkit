@@ -4,9 +4,9 @@
     {
         #region Fields
 
-        public const int MediatorProvider = 0;
+        public const int CommandProvider = 0;
         public const int ConditionEvent = 0;
-        public const int Condition = 0;
+        public const int Executor = ComponentPriority.PostInitializer;
 
         #endregion
     }

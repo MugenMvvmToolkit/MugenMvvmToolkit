@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Windows.Input;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface IMediatorCommand : ICommand, IDisposable, ISuspendable
+    public interface ICompositeCommand : IComponentOwner<ICompositeCommand>, ICommand, IDisposable, ISuspendable
     {
-        ICommandMediator Mediator { get; }
-
         bool HasCanExecute { get; }
 
         void RaiseCanExecuteChanged();

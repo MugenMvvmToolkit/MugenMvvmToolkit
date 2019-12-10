@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Binding.Delegates
+﻿namespace MugenMvvm.Delegates
 {
     internal delegate TReturn FuncEx<T1, TReturn>(in T1 arg1);
 

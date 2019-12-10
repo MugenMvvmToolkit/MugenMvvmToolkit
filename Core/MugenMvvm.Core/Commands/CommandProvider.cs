@@ -9,12 +9,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Commands
 {
-    public sealed class CommandMediatorProvider : ComponentOwnerBase<ICommandMediatorProvider>, ICommandMediatorProvider
+    public sealed class CommandProvider : ComponentOwnerBase<ICommandProvider>, ICommandProvider
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CommandMediatorProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public CommandProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }
@@ -23,14 +23,13 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public ICommandMediator GetCommandMediator(ICommand command, IReadOnlyMetadataContext metadata)
+        public ICompositeCommand GetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(metadata, nameof(metadata));
-            var result = GetComponents<ICommandMediatorProviderComponent>(metadata).TryGetCommandMediator(command, metadata);
+            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
-            GetComponents<ICommandMediatorProviderListener>(metadata).OnCommandMediatorCreated(this, result, command, metadata);
+            GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, request, result, metadata);
             return result;
         }
 

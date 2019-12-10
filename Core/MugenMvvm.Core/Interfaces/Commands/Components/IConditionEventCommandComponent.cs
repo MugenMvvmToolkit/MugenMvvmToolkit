@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
-    public interface IConditionEventCommandMediatorComponent : IComponent<ICommandMediator>
+    public interface IConditionEventCommandComponent : IComponent<ICompositeCommand>
     {
         void AddCanExecuteChanged(EventHandler handler);
 

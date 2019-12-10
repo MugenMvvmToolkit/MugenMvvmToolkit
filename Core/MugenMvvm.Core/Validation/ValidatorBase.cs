@@ -114,7 +114,7 @@ namespace MugenMvvm.Validation
                 return Default.CompletedTask;
             EnsureInitialized();
             var member = memberName ?? "";
-            if (ShouldIgnoreMember(member))
+            if (!CanValidateMember(member))
                 return Default.CompletedTask;
             lock (_validatingMembers)
             {
@@ -246,12 +246,12 @@ namespace MugenMvvm.Validation
                 UpdateErrors(memberName, null, true, metadata);
         }
 
-        protected virtual bool ShouldIgnoreMember(string memberName)
+        protected virtual bool CanValidateMember(string memberName)
         {
-            var collection = _metadata?.Get(ValidationMetadata.IgnoredMembers);
+            var collection = _metadata?.Get(ValidationMetadata.IgnoreMembers);
             if (collection == null)
-                return false;
-            return collection.Contains(memberName);
+                return true;
+            return !collection.Contains(memberName);
         }
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
@@ -279,7 +279,7 @@ namespace MugenMvvm.Validation
         {
             Should.NotBeNull(memberName, nameof(memberName));
             var hasErrors = errors != null && errors.Count != 0;
-            if (hasErrors && ShouldIgnoreMember(memberName))
+            if (hasErrors && !CanValidateMember(memberName))
                 return;
 
             lock (Errors)

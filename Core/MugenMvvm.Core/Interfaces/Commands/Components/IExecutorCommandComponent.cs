@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
+using System.Windows.Input;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
-    public interface IExecutorCommandMediatorComponent : IComponent<ICommandMediator>
+    public interface IExecutorCommandComponent : IComponent<ICompositeCommand>
     {
         Task ExecuteAsync(object? parameter);
     }

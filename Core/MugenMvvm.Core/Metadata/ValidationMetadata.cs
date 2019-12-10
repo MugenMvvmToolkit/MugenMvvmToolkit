@@ -16,9 +16,9 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<ICollection<string>> IgnoredMembers
+        public static IMetadataContextKey<ICollection<string>> IgnoreMembers
         {
-            get => _ignoredMembers ??= GetBuilder<ICollection<string>>(nameof(IgnoredMembers)).NotNull().Build();
+            get => _ignoredMembers ??= GetBuilder<ICollection<string>>(nameof(IgnoreMembers)).NotNull().Build();
             set => _ignoredMembers = value;
         }
 

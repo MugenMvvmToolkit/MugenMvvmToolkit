@@ -2,28 +2,28 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
-using System.Windows.Input;
+using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class ConditionEventCommandMediatorComponent : IConditionEventCommandMediatorComponent, IThreadDispatcherHandler<object?>, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
+    public sealed class ConditionEventCommandComponent : AttachableComponentBase<ICompositeCommand>, IConditionEventCommandComponent,
+        IThreadDispatcherHandler<object?>, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
 
-        private readonly ICommand _command;
+        private readonly Func<object, bool>? _canNotify;
 
         private readonly ThreadExecutionMode _eventExecutionMode;
-        private readonly HashSet<string>? _ignoreProperties;
         private readonly IThreadDispatcher? _threadDispatcher;
         private EventHandler? _canExecuteChanged;
         private bool _isNotificationsDirty;
@@ -34,21 +34,15 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public ConditionEventCommandMediatorComponent(IThreadDispatcher? threadDispatcher, IReadOnlyCollection<object> notifiers,
-            IReadOnlyCollection<string>? ignoreProperties, ThreadExecutionMode eventExecutionMode, ICommand command)
+        public ConditionEventCommandComponent(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IEnumerable<object> notifiers, Func<object, bool>? canNotify)
         {
             _threadDispatcher = threadDispatcher;
             _eventExecutionMode = eventExecutionMode;
-            _command = command;
-            if (ignoreProperties != null && ignoreProperties.Count > 0)
-                _ignoreProperties = new HashSet<string>(ignoreProperties, StringComparer.Ordinal);
+            _canNotify = canNotify;
 
             _subscriber = new Subscriber(this);
             foreach (var notifier in notifiers)
             {
-                if (notifier is IViewModelBase vm && vm.TrySubscribe(_subscriber, eventExecutionMode))
-                    continue;
-
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
                     hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);
@@ -72,7 +66,7 @@ namespace MugenMvvm.Commands.Components
 
         public bool IsSuspended => _suspendCount != 0;
 
-        public int Priority { get; set; } = CommandComponentPriority.ConditionEvent;
+        public int Priority => CommandComponentPriority.ConditionEvent;
 
         Delegate? IValueHolder<Delegate>.Value { get; set; }
 
@@ -113,15 +107,15 @@ namespace MugenMvvm.Commands.Components
             _subscriber = null;
         }
 
-        void IThreadDispatcherHandler<object?>.Execute(object? state)
-        {
-            _canExecuteChanged?.Invoke(_command, EventArgs.Empty);
-        }
-
         public ActionToken Suspend()
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, _) => ((ConditionEventCommandMediatorComponent)o!).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((ConditionEventCommandComponent) o!).EndSuspendNotifications(), this);
+        }
+
+        void IThreadDispatcherHandler<object?>.Execute(object? _)
+        {
+            _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
         }
 
         #endregion
@@ -136,7 +130,7 @@ namespace MugenMvvm.Commands.Components
 
         private void Handle(object message)
         {
-            if (_ignoreProperties == null || !(message is PropertyChangedEventArgs args) || !_ignoreProperties.Contains(args.PropertyName))
+            if (_canNotify == null || _canNotify(message))
                 RaiseCanExecuteChanged();
         }
 
@@ -155,7 +149,7 @@ namespace MugenMvvm.Commands.Components
 
             #region Constructors
 
-            public Subscriber(ConditionEventCommandMediatorComponent component)
+            public Subscriber(ConditionEventCommandComponent component)
             {
                 _reference = component.ToWeakReference();
             }
@@ -171,7 +165,7 @@ namespace MugenMvvm.Commands.Components
 
             public MessengerResult Handle(IMessageContext messageContext)
             {
-                var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
+                var mediator = (ConditionEventCommandComponent?) _reference?.Target;
                 if (mediator == null)
                     return MessengerResult.Invalid;
                 mediator.Handle(messageContext.Message);
@@ -195,15 +189,15 @@ namespace MugenMvvm.Commands.Components
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var mediator = (ConditionEventCommandMediatorComponent?)_reference?.Target;
-                if (mediator == null)
+                var component = (ConditionEventCommandComponent?) _reference?.Target;
+                if (component == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)
                         propertyChanged.PropertyChanged -= _handler;
                     return;
                 }
 
-                mediator.Handle(e);
+                component.Handle(e);
             }
 
             #endregion
