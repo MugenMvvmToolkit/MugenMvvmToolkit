@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
@@ -92,38 +93,6 @@ namespace MugenMvvm.Views
 
         #endregion
 
-        #region Methods
-
-        private IViewInitializerResult Initialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata)
-        {
-            var components = _viewManager.DefaultIfNull().GetComponents<IViewInitializerComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryInitialize(initializer, viewModel, view, metadata);
-                if (result != null)
-                    return result;
-            }
-
-            ExceptionManager.ThrowObjectNotInitialized(_viewManager.DefaultIfNull(), components);
-            return null;
-        }
-
-        private IReadOnlyMetadataContext Cleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
-        {
-            var components = _viewManager.DefaultIfNull().GetComponents<IViewInitializerComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryCleanup(initializer, viewInfo, viewModel, metadata);
-                if (result != null)
-                    return result;
-            }
-
-            ExceptionManager.ThrowObjectNotInitialized(_viewManager.DefaultIfNull(), components);
-            return null;
-        }
-
-        #endregion
-
         #region Nested types
 
         private sealed class ViewManagerInitializerHandler : TaskCompletionSource<IViewInitializerResult>, IThreadDispatcherHandler<object?>
@@ -156,7 +125,10 @@ namespace MugenMvvm.Views
             {
                 try
                 {
-                    TrySetResult(_initializer.Initialize(_initializer, _viewModel, _view, _metadata));
+                    var result = _initializer._viewManager.DefaultIfNull().GetComponents<IViewInitializerComponent>().TryInitialize(_initializer, _viewModel, _view, _metadata);
+                    if (result == null)
+                        ExceptionManager.ThrowObjectNotInitialized(_initializer._viewManager.DefaultIfNull());
+                    TrySetResult(result);
                 }
                 catch (Exception e)
                 {
@@ -197,7 +169,10 @@ namespace MugenMvvm.Views
             {
                 try
                 {
-                    TrySetResult(_initializer.Cleanup(_initializer, _viewInfo, _viewModel, _metadata));
+                    var result = _initializer._viewManager.DefaultIfNull().GetComponents<IViewInitializerComponent>().TryCleanup(_initializer, _viewInfo, _viewModel, _metadata);
+                    if (result == null)
+                        ExceptionManager.ThrowObjectNotInitialized(_initializer._viewManager.DefaultIfNull());
+                    TrySetResult(result);
                 }
                 catch (Exception e)
                 {

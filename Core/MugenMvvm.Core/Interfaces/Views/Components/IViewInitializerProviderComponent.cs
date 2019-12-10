@@ -7,8 +7,8 @@ namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewInitializerProviderComponent : IComponent<IViewManager>
     {
-        IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IViewInitializer> TryGetInitializersByView(object view, IReadOnlyMetadataContext? metadata);
 
-        IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IViewInitializer> TryGetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
     }
 }

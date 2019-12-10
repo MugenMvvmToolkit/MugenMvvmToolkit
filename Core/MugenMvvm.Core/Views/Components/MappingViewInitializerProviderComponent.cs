@@ -53,7 +53,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IViewInitializer> TryGetInitializersByView(object view, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(view, nameof(view));
             var initializers = new List<IViewInitializer>();
@@ -74,7 +74,7 @@ namespace MugenMvvm.Views.Components
             return initializers;
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IViewInitializer> TryGetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var initializers = new List<IViewInitializer>();
