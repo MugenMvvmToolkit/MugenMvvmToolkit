@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -12,6 +11,12 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static T DefaultIfNull<T>(this T? component) where T : class, IComponent
+        {
+            return component ?? MugenService.Instance<T>();
+        }
+
         public static void TryInvalidateCache<TComponent>(this IComponentOwner<TComponent>? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
             where TComponent : class
         {
@@ -21,12 +26,6 @@ namespace MugenMvvm.Extensions
             var components = owner.GetComponents<IHasCache>(metadata);
             for (var i = 0; i < components.Length; i++)
                 components[i].Invalidate(state, metadata);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DefaultIfNull<T>(this T? component) where T : class, IComponent
-        {
-            return component ?? MugenService.Instance<T>();
         }
 
         public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
@@ -93,63 +92,6 @@ namespace MugenMvvm.Extensions
             if (component is IHasPriority p)
                 return p.Priority;
             return 0;
-        }
-
-        public static void ComponentDecoratorDecorate<TComponent>(TComponent decorator, object owner, IList<TComponent> components, IComparer<TComponent> comparer, ref TComponent[] decoratorComponents)
-            where TComponent : class
-        {
-            var currentPriority = GetComponentPriority(decorator, owner);
-            for (int i = 0; i < components.Count; i++)
-            {
-                var component = components[i];
-                if (ReferenceEquals(decorator, component))
-                    continue;
-
-                var priority = GetComponentPriority(component, owner);
-                if (priority < currentPriority)
-                {
-                    AddOrdered(ref decoratorComponents, component, comparer);
-                    components.RemoveAt(i--);
-                }
-                else if (priority == currentPriority)
-                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
-            }
-        }
-
-        public static void ComponentCollectionOnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is IAttachableComponent attachable)
-                attachable.OnAttached(collection.Owner, metadata);
-
-            (collection.Owner as IHasAddedCallbackComponentOwner)?.OnComponentAdded(collection, component, metadata);
-        }
-
-        public static void ComponentCollectionOnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is IDetachableComponent detachable)
-                detachable.OnDetached(collection.Owner, metadata);
-
-            (collection.Owner as IHasRemovedCallbackComponentOwner)?.OnComponentRemoved(collection, component, metadata);
-        }
-
-        public static bool ComponentCollectionOnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (collection.Owner is IHasAddingCallbackComponentOwner callback && !callback.OnComponentAdding(collection, component, metadata))
-                return false;
-
-            if (component is IAttachableComponent attachable)
-                return attachable.OnAttaching(collection.Owner, metadata);
-            return true;
-        }
-
-        public static bool ComponentCollectionOnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (collection.Owner is IHasRemovingCallbackComponentOwner callback && !callback.OnComponentRemoving(collection, component, metadata))
-                return false;
-
-            if (component is IDetachableComponent detachable)
-                return detachable.OnDetaching(collection.Owner, metadata);
-            return true;
         }
 
         private static TComponent? GetComponent<TComponent>(this IComponentOwner owner, bool optional, IReadOnlyMetadataContext? metadata)

@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -810,7 +811,7 @@ namespace MugenMvvm.Binding.Core
 
         private bool OnComponentAdding(object? component, IReadOnlyMetadataContext? metadata)
         {
-            if (component == null || !MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
+            if (component == null || !ComponentComponentExtensions.OnComponentAdding(this, component, metadata))
                 return false;
 
             if (CheckFlag(HasComponentChangingListener))
@@ -879,7 +880,7 @@ namespace MugenMvvm.Binding.Core
                 }
             }
 
-            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
+            ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
             if (CheckFlag(HasComponentChangedListener))
             {
                 var components = _components;
@@ -899,7 +900,7 @@ namespace MugenMvvm.Binding.Core
 
         private bool OnComponentRemoving(object component, IReadOnlyMetadataContext? metadata)
         {
-            if (!MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
+            if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata))
                 return false;
             if (CheckFlag(HasComponentChangingListener))
             {
@@ -946,7 +947,7 @@ namespace MugenMvvm.Binding.Core
                     ClearFlag(HasSourceObserverListener);
                 }
 
-                MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
+                ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
                 if (CheckFlag(HasComponentChangedListener))
                 {
                     var components = _components;
@@ -960,7 +961,7 @@ namespace MugenMvvm.Binding.Core
                 }
             }
             else
-                MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
+                ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
         }
 
         private bool HasComponent<TComponent>() where TComponent : class, IComponent<IBinding>

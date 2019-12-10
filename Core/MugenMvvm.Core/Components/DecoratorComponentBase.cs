@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -53,7 +54,7 @@ namespace MugenMvvm.Components
 
         protected virtual void DecorateInternal(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, this, ref Components);
+            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref Components);
         }
 
         #endregion

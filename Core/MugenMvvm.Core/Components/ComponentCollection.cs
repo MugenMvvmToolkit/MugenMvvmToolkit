@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -65,18 +66,8 @@ namespace MugenMvvm.Components
         public bool Add(object component, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(component, nameof(component));
-            if (!MugenExtensions.ComponentCollectionOnComponentAdding(this, component, metadata))
+            if (!ComponentComponentExtensions.OnComponentAdding(this, component, metadata) || !_components.GetOrDefault<IComponentCollectionChangingListener>(metadata).OnAdding(this, component, metadata))
                 return false;
-
-            if (_components != null)
-            {
-                var changingListeners = _components.Get<IComponentCollectionChangingListener>(metadata);
-                for (var i = 0; i < changingListeners.Length; i++)
-                {
-                    if (!changingListeners[i].OnAdding(this, component, metadata))
-                        return false;
-                }
-            }
 
             lock (_items)
             {
@@ -84,13 +75,8 @@ namespace MugenMvvm.Components
             }
 
             UpdateTrackers(component);
-            MugenExtensions.ComponentCollectionOnComponentAdded(this, component, metadata);
-            if (_components != null)
-            {
-                var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
-                for (var i = 0; i < changedListeners.Length; i++)
-                    changedListeners[i].OnAdded(this, component, metadata);
-            }
+            ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
+            _components?.Get<IComponentCollectionChangedListener>(metadata).OnAdded(this, component, metadata);
             return true;
         }
 
@@ -103,19 +89,8 @@ namespace MugenMvvm.Components
                     return false;
             }
 
-            if (!MugenExtensions.ComponentCollectionOnComponentRemoving(this, component, metadata))
+            if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata) || !_components.GetOrDefault<IComponentCollectionChangingListener>(metadata).OnRemoving(this, component, metadata))
                 return false;
-
-            if (_components != null)
-            {
-                var changingListeners = _components.Get<IComponentCollectionChangingListener>(metadata);
-                for (var i = 0; i < changingListeners.Length; i++)
-                {
-                    if (!changingListeners[i].OnRemoving(this, component, metadata))
-                        return false;
-                }
-            }
-
 
             lock (_items)
             {
@@ -124,13 +99,8 @@ namespace MugenMvvm.Components
             }
 
             UpdateTrackers(component);
-            MugenExtensions.ComponentCollectionOnComponentRemoved(this, component, metadata);
-            if (_components != null)
-            {
-                var changedListeners = _components.Get<IComponentCollectionChangedListener>(metadata);
-                for (var i = 0; i < changedListeners.Length; i++)
-                    changedListeners[i].OnRemoved(this, component, metadata);
-            }
+            ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
+            _components?.Get<IComponentCollectionChangedListener>().OnRemoved(this, component, metadata);
             return true;
         }
 
@@ -147,9 +117,8 @@ namespace MugenMvvm.Components
             for (var i = 0; i < oldItems.Length; i++)
             {
                 var oldItem = oldItems[i];
-                MugenExtensions.ComponentCollectionOnComponentRemoved(this, oldItem, metadata);
-                for (var j = 0; j < changedListeners.Length; j++)
-                    changedListeners[j].OnRemoved(this, oldItem, metadata);
+                ComponentComponentExtensions.OnComponentRemoved(this, oldItem, metadata);
+                changedListeners.OnRemoved(this, oldItem, metadata);
             }
 
             return true;
@@ -277,7 +246,7 @@ namespace MugenMvvm.Components
                     if (size == 0)
                         return Empty;
 
-                    if (collection._decorators.Length != 0 && HasDecorators(collection))
+                    if (collection._decorators.Length != 0 && collection._decorators.HasDecorators<TComponent>())
                         return GetComponentTrackerWithDecorators(items, size, collection, metadata);
 
                     var components = new TComponent[size];
@@ -294,38 +263,14 @@ namespace MugenMvvm.Components
 
             private static ComponentTracker<TComponent> GetComponentTrackerWithDecorators(List<object> items, int size, ComponentCollection collection, IReadOnlyMetadataContext? metadata)
             {
-                List<TComponent> components = new List<TComponent>(size);
+                var components = new List<TComponent>(size);
                 for (var i = 0; i < items.Count; i++)
                 {
                     if (items[i] is TComponent c)
                         components.Add(c);
                 }
 
-                return new ComponentTracker<TComponent>(Decorate(collection, components, metadata));
-            }
-
-            private static bool HasDecorators(ComponentCollection collection)
-            {
-                var decorators = collection._decorators;
-                for (int i = 0; i < decorators.Length; i++)
-                {
-                    if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent>)
-                        return true;
-                }
-
-                return false;
-            }
-
-            private static TComponent[] Decorate(ComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata)
-            {
-                var decorators = collection._decorators;
-                for (var i = 0; i < decorators.Length; i++)
-                {
-                    if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent> decorator)
-                        decorator.Decorate(components, metadata);
-                }
-
-                return components.ToArray();
+                return new ComponentTracker<TComponent>(collection._decorators.Decorate(components, metadata));
             }
 
             #endregion
