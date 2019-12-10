@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.Models
+namespace MugenMvvm.Interfaces.App
 {
     public interface IDeviceInfo : IMetadataOwner<IMetadataContext>
     {
