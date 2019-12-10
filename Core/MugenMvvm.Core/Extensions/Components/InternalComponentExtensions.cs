@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Interfaces.Internal;
+﻿using System;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -32,6 +34,25 @@ namespace MugenMvvm.Extensions.Components
 
             provider = null;
             return false;
+        }
+
+        public static bool CanTrace(this ITracerComponent[] components, TraceLevel level, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].CanTrace(level, metadata))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static void Trace(this ITracerComponent[] components, TraceLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            for (var i = 0; i < components.Length; i++)
+                components[i].Trace(level, message, exception, metadata);
         }
 
         #endregion

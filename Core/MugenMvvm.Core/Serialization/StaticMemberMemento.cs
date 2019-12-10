@@ -7,6 +7,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Serialization
 {

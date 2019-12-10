@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters
 {
@@ -147,7 +148,7 @@ namespace MugenMvvm.Presenters
         {
             if (!IsOpen)
             {
-                Tracer.Error()?.Trace(MessageConstant.CannotCloseMediator);
+                Tracer.Error()?.Trace(MessageConstant.CannotCloseMediator, metadata);
                 return this.GetPresenterResult(NavigationType, ViewModel);
             }
 

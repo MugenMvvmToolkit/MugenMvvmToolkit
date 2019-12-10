@@ -1,92 +1,54 @@
-﻿using JetBrains.Annotations;
+﻿using System;
+using JetBrains.Annotations;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Extensions
 {
-    public static class Tracer
+    public static partial class MugenExtensions
     {
         #region Methods
 
-        public static TracerWithLevel? GetTracerWithLevel(this ITracer? tracer, TraceLevel level)
+        public static TracerWithLevel? GetTracerWithLevel(this ITracer? tracer, TraceLevel level, IReadOnlyMetadataContext? metadata = null)
         {
-            if (tracer == null || !tracer.CanTrace(level))
+            if (tracer == null || !tracer.CanTrace(level, metadata))
                 return null;
             return new TracerWithLevel(tracer, level);
         }
 
-        public static TracerWithLevel? Info()
+        public static TracerWithLevel? Info(this ITracer? tracer, IReadOnlyMetadataContext? metadata = null)
         {
-            return MugenService.Optional<ITracer>().Info();
+            return tracer.GetTracerWithLevel(TraceLevel.Information, metadata);
         }
 
-        public static TracerWithLevel? Warn()
+        public static TracerWithLevel? Warn(this ITracer? tracer, IReadOnlyMetadataContext? metadata = null)
         {
-            return MugenService.Optional<ITracer>().Warn();
+            return tracer.GetTracerWithLevel(TraceLevel.Warning, metadata);
         }
 
-        public static TracerWithLevel? Error()
+        public static TracerWithLevel? Error(this ITracer? tracer, IReadOnlyMetadataContext? metadata = null)
         {
-            return MugenService.Optional<ITracer>().Error();
-        }
-
-        public static TracerWithLevel? Info(this ITracer? tracer)
-        {
-            return tracer.GetTracerWithLevel(TraceLevel.Information);
-        }
-
-        public static TracerWithLevel? Warn(this ITracer? tracer)
-        {
-            return tracer.GetTracerWithLevel(TraceLevel.Warning);
-        }
-
-        public static TracerWithLevel? Error(this ITracer? tracer)
-        {
-            return tracer.GetTracerWithLevel(TraceLevel.Error);
+            return tracer.GetTracerWithLevel(TraceLevel.Error, metadata);
         }
 
         [StringFormatMethod("format")]
         public static void Trace(this ITracer tracer, TraceLevel level, string format, params object?[] args)
         {
-            Should.NotBeNull(tracer, nameof(tracer));
-            if (tracer.CanTrace(level))
-                tracer.Trace(level, format.Format(args));
-        }
-
-        public static void Info(this ITracer tracer, string message)
-        {
-            Should.NotBeNull(tracer, nameof(tracer));
-            tracer.Trace(TraceLevel.Information, message);
-        }
-
-        public static void Warn(this ITracer tracer, string message)
-        {
-            Should.NotBeNull(tracer, nameof(tracer));
-            tracer.Trace(TraceLevel.Warning, message);
-        }
-
-        public static void Error(this ITracer tracer, string message)
-        {
-            Should.NotBeNull(tracer, nameof(tracer));
-            tracer.Trace(TraceLevel.Error, message);
+            tracer.Trace(level, null, null, format, args);
         }
 
         [StringFormatMethod("format")]
-        public static void Info(this ITracer tracer, string format, params object?[] args)
+        public static void Trace(this ITracer tracer, TraceLevel level, Exception? exception, string format, params object?[] args)
         {
-            tracer.Trace(TraceLevel.Information, format, args);
+            tracer.Trace(level, exception, null, format, args);
         }
 
         [StringFormatMethod("format")]
-        public static void Warn(this ITracer tracer, string format, params object?[] args)
+        public static void Trace(this ITracer tracer, TraceLevel level, Exception? exception, IReadOnlyMetadataContext? metadata, string format, params object?[] args)
         {
-            tracer.Trace(TraceLevel.Warning, format, args);
-        }
-
-        [StringFormatMethod("format")]
-        public static void Error(this ITracer tracer, string format, params object?[] args)
-        {
-            tracer.Trace(TraceLevel.Error, format, args);
+            Should.NotBeNull(tracer, nameof(tracer));
+            tracer.Trace(level, format.Format(args), exception, metadata);
         }
 
         #endregion
@@ -97,32 +59,49 @@ namespace MugenMvvm.Extensions
         {
             #region Fields
 
-            private readonly TraceLevel _level;
-            private readonly ITracer _tracer;
+            public readonly TraceLevel TraceLevel;
+            public readonly ITracer Tracer;
 
             #endregion
 
             #region Constructors
 
-            public TracerWithLevel(ITracer tracer, TraceLevel level)
+            public TracerWithLevel(ITracer tracer, TraceLevel traceLevel)
             {
-                _tracer = tracer;
-                _level = level;
+                Tracer = tracer;
+                TraceLevel = traceLevel;
             }
 
             #endregion
 
             #region Methods
 
-            public void Trace(string message)
+            public void Trace(string message, IReadOnlyMetadataContext? metadata)
             {
-                _tracer.Trace(_level, message);
+                Tracer?.Trace(TraceLevel, message, null, metadata);
+            }
+
+            public void Trace(string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null)
+            {
+                Tracer?.Trace(TraceLevel, message, exception, metadata);
             }
 
             [StringFormatMethod("format")]
             public void Trace(string format, params object?[] args)
             {
-                _tracer.Trace(_level, format, args);
+                Tracer?.Trace(TraceLevel, format, args);
+            }
+
+            [StringFormatMethod("format")]
+            public void Trace(Exception? exception, string format, params object?[] args)
+            {
+                Tracer?.Trace(TraceLevel, exception, format, args);
+            }
+
+            [StringFormatMethod("format")]
+            public void Trace(Exception? exception, IReadOnlyMetadataContext? metadata, string format, params object?[] args)
+            {
+                Tracer?.Trace(TraceLevel, exception, metadata, format, args);
             }
 
             #endregion
