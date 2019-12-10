@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Metadata;
@@ -19,29 +20,15 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyMetadataContext? OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
         {
             if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v) && v)
                 return null;
 
-            if (lifecycle == BindingLifecycleState.Initialized)
-            {
-                var holders = Owner.Components.Get<IBindingHolderComponent>(metadata);
-                for (var i = 0; i < holders.Length; i++)
-                {
-                    if (holders[i].TryRegister(binding, metadata))
-                        break;
-                }
-            }
-            else if (lifecycle == BindingLifecycleState.Disposed)
-            {
-                var holders = Owner.Components.Get<IBindingHolderComponent>(metadata);
-                for (var i = 0; i < holders.Length; i++)
-                {
-                    if (holders[i].TryUnregister(binding, metadata))
-                        break;
-                }
-            }
+            if (lifecycleState == BindingLifecycleState.Initialized)
+                Owner.Components.Get<IBindingHolderComponent>(metadata).TryRegister(binding, metadata);
+            else if (lifecycleState == BindingLifecycleState.Disposed)
+                Owner.Components.Get<IBindingHolderComponent>(metadata).TryUnregister(binding, metadata);
 
             return null;
         }

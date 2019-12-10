@@ -254,6 +254,7 @@ namespace MugenMvvm.Extensions
             return (object?)itemOrList.Item ?? itemOrList.List;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class
             where TList : class, IReadOnlyCollection<TItem>

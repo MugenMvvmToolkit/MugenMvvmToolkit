@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
@@ -103,7 +104,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             try
             {
-                OnBeginEvent(sender, message);
+                _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata).OnBeginEvent(sender, message, _currentMetadata);
                 EventArgs = message;
                 switch (_currentValue)
                 {
@@ -119,13 +120,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             }
             catch (Exception e)
             {
-                OnEventError(e, sender, message);
+                _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata).OnEventError(e, sender, message, _currentMetadata);
                 return true;
             }
             finally
             {
                 EventArgs = null;
-                OnEndEvent(sender, message);
+                _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata).OnEndEvent(sender, message, _currentMetadata);
             }
         }
 
@@ -218,26 +219,26 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             _currentValue = null;
         }
 
-        private void OnBeginEvent(object sender, object? message)
-        {
-            var components = _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnBeginEvent(sender, message, _currentMetadata);
-        }
-
-        private void OnEndEvent(object sender, object? message)
-        {
-            var components = _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnEndEvent(sender, message, _currentMetadata);
-        }
-
-        private void OnEventError(Exception exception, object sender, object? message)
-        {
-            var components = _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnEventError(exception, sender, message, _currentMetadata);
-        }
+        // private void OnBeginEvent(object sender, object? message)
+        // {
+        //     var components = _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata);
+        //     for (var i = 0; i < components.Length; i++)
+        //         components[i].OnBeginEvent(sender, message, _currentMetadata);
+        // }
+        //
+        // private void OnEndEvent(object sender, object? message)
+        // {
+        //     var components = _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata);
+        //     for (var i = 0; i < components.Length; i++)
+        //         components[i].OnEndEvent(sender, message, _currentMetadata);
+        // }
+        //
+        // private void OnEventError(Exception exception, object sender, object? message)
+        // {
+        //     var components = _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata);
+        //     for (var i = 0; i < components.Length; i++)
+        //         components[i].OnEventError(exception, sender, message, _currentMetadata);
+        // }
 
         private IMemberProvider GetMemberProvider()
         {

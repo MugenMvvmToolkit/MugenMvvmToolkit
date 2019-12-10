@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Components;
@@ -24,20 +25,16 @@ namespace MugenMvvm.Binding.Core.Components
         {
             try
             {
-                var components = Components;
-                for (var i = 0; i < components.Length; i++)
+                var result = Components.TryBuildBindingExpression(expression, metadata);
+                if (result.Item != null)
+                    return new ExceptionWrapperBindingExpression(result.Item);
+
+                var items = result.List;
+                if (items != null)
                 {
-                    var list = components[i].TryBuildBindingExpression(expression, metadata);
-                    if (list.Item != null)
-                        return new ExceptionWrapperBindingExpression(list.Item);
-
-                    var items = list.List;
-                    if (items == null)
-                        continue;
-
                     var expressions = new IBindingExpression[items.Count];
-                    for (var j = 0; j < expressions.Length; j++)
-                        expressions[j] = new ExceptionWrapperBindingExpression(items[i]);
+                    for (var i = 0; i < expressions.Length; i++)
+                        expressions[i] = new ExceptionWrapperBindingExpression(items[i]);
                     return expressions;
                 }
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Components;
@@ -25,55 +26,23 @@ namespace MugenMvvm.Binding.Core
 
         public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            var builders = GetComponents<IBindingExpressionBuilderComponent>(metadata);
-            for (var i = 0; i < builders.Length; i++)
-            {
-                var result = builders[i].TryBuildBindingExpression(expression, metadata);
-                if (!result.IsNullOrEmpty())
-                    return result;
-            }
-
-            BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return default;
+            var result = GetComponents<IBindingExpressionBuilderComponent>(metadata).TryBuildBindingExpression(expression, metadata);
+            if (result.IsNullOrEmpty())
+                BindingExceptionManager.ThrowCannotParseExpression(expression);
+            return result;
         }
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            var holders = GetComponents<IBindingHolderComponent>(metadata);
-            if (holders.Length == 0)
-                return default;
-            if (holders.Length == 1)
-                return holders[0].TryGetBindings(target, path, metadata);
-
-            IBinding? item = null;
-            List<IBinding>? list = null;
-            for (var i = 0; i < holders.Length; i++)
-                holders[i].TryGetBindings(target, path, metadata).Merge(ref item, ref list);
-
-            if (list == null)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(item);
-            return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(list);
+            return GetComponents<IBindingHolderComponent>(metadata).TryGetBindings(target, path, metadata);
         }
 
-        public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycle, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(lifecycle, nameof(lifecycle));
-            var dispatchers = GetComponents<IBindingStateDispatcherComponent>(metadata);
-            if (dispatchers.Length == 0)
-                return Default.Metadata;
-            if (dispatchers.Length == 1)
-                return dispatchers[0].OnLifecycleChanged(binding, lifecycle, metadata) ?? Default.Metadata;
-
-            IReadOnlyMetadataContext? result = null;
-            for (var i = 0; i < dispatchers.Length; i++)
-            {
-                var m = dispatchers[i].OnLifecycleChanged(binding, lifecycle, metadata);
-                m.Aggregate(ref result);
-            }
-
-            return result ?? Default.Metadata;
+            Should.NotBeNull(lifecycleState, nameof(lifecycleState));
+            return GetComponents<IBindingStateDispatcherComponent>(metadata).OnLifecycleChanged(binding, lifecycleState, metadata).DefaultIfNull();
         }
 
         #endregion

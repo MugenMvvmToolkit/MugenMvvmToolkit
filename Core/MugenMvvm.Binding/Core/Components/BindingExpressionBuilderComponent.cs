@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -123,29 +124,13 @@ namespace MugenMvvm.Binding.Core.Components
 
         private int GetPriority(IExpressionNode expression)
         {
-            var components = Owner.Components.Get<IBindingExpressionPriorityProviderComponent>(null);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetPriority(expression, out var priority))
-                    return priority;
-            }
-
-            return 0;
+            Owner.Components.Get<IBindingExpressionPriorityProviderComponent>().TryGetPriority(expression, out var priority);
+            return priority;
         }
 
         private void OnComponentsChanged(IReadOnlyMetadataContext? metadata)
         {
-            var components = Owner.Components.Get<IBindingExpressionInterceptorComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].IsCachePerTypeRequired)
-                {
-                    _isCachePerTypeRequired = true;
-                    return;
-                }
-            }
-
-            _isCachePerTypeRequired = false;
+            _isCachePerTypeRequired = Owner.Components.Get<IBindingExpressionInterceptorComponent>(metadata).IsCachePerTypeRequired();
         }
 
         #endregion
@@ -289,22 +274,8 @@ namespace MugenMvvm.Binding.Core.Components
 
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                if (_componentBuilders!.Length == 1)
-                    binding.Initialize(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(_componentBuilders[0].GetComponent(binding, target, source, metadata)), metadata);
-                else if (_componentBuilders.Length != 0)
-                {
-                    var components = new IComponent<IBinding>?[_componentBuilders.Length];
-                    var size = 0;
-                    for (var i = 0; i < components.Length; i++)
-                    {
-                        var component = _componentBuilders[i].GetComponent(binding, target, source, metadata);
-                        if (component != null)
-                            MugenExtensions.AddOrdered(components!, component, size++, binding!);
-                    }
-
-                    binding.Initialize(components, metadata);
-                }
-
+                if (_componentBuilders!.Length != 0)
+                    binding.Initialize(_componentBuilders.TryGetBindingComponents(binding!, binding, target, source, metadata), metadata);
                 if (binding.State == BindingState.Valid)
                     _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, metadata);
                 return binding;
@@ -313,9 +284,7 @@ namespace MugenMvvm.Binding.Core.Components
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                var interceptors = _owner.Owner.Components.Get<IBindingExpressionInterceptorComponent>(metadata);
-                for (var i = 0; i < interceptors.Length; i++)
-                    interceptors[i].Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
+                _owner.Owner.Components.Get<IBindingExpressionInterceptorComponent>(metadata).Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
 
                 if (!(_targetExpression is IBindingMemberExpressionNode))
                     BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));
@@ -328,22 +297,8 @@ namespace MugenMvvm.Binding.Core.Components
 
                 var dictionary = _owner._componentsDictionary;
                 dictionary.Clear();
-
-                var parametersReadonly = parameters.Cast<IReadOnlyList<IExpressionNode>>();
-                var providers = _owner.Owner.Components.Get<IBindingComponentProviderComponent>(metadata);
-                for (var i = 0; i < providers.Length; i++)
-                {
-                    var builders = providers[i].TryGetComponentBuilders(_targetExpression, _sourceExpression, parametersReadonly, metadata);
-                    for (var j = 0; j < builders.Count(); j++)
-                    {
-                        var item = builders.Get(j);
-                        if (item.IsEmpty)
-                            dictionary.Remove(item.Name);
-                        else
-                            dictionary[item.Name] = item;
-                    }
-                }
-
+                _owner.Owner.Components.Get<IBindingComponentProviderComponent>(metadata).TrySetComponentBuilders(dictionary, _targetExpression, _sourceExpression,
+                    parameters.Cast<IReadOnlyList<IExpressionNode>>(), metadata);
                 _parametersRaw = null;
                 _componentBuilders = dictionary.ValuesToArray();
             }
