@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -122,31 +123,15 @@ namespace MugenMvvm.Binding.Core
             if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
             Target.Dispose();
-            switch (SourceRaw)
+            if (CheckFlag(HasSourceObserverListener))
+                BindingComponentExtensions.RemoveListener(SourceRaw, this);
+            if (SourceRaw is IDisposable disposable)
+                disposable.Dispose();
+            else if (SourceRaw is object[] sources)
             {
-                case IMemberPathObserver source:
-                    {
-                        if (CheckFlag(HasSourceObserverListener))
-                            source.RemoveListener(this);
-                        source.Dispose();
-                        break;
-                    }
-                case object[] sources:
-                    {
-                        for (var i = 0; i < sources.Length; i++)
-                        {
-                            var observer = sources[i] as IMemberPathObserver;
-                            if (observer == null)
-                                continue;
-                            if (CheckFlag(HasSourceObserverListener))
-                                observer.RemoveListener(this);
-                            observer.Dispose();
-                        }
-
-                        break;
-                    }
+                for (int i = 0; i < sources.Length; i++)
+                    (sources[i] as IDisposable)?.Dispose();
             }
-
             Components.Clear(null);
         }
 
@@ -167,15 +152,15 @@ namespace MugenMvvm.Binding.Core
                 if (CheckFlag(HasTargetListenerFlag))
                 {
                     if (success)
-                        OnTargetUpdated(newValue);
+                        BindingComponentExtensions.OnTargetUpdated(_components, this, newValue, this);
                     else
-                        OnTargetUpdateCanceled();
+                        BindingComponentExtensions.OnTargetUpdateCanceled(_components, this, this);
                 }
             }
             catch (Exception e)
             {
                 if (CheckFlag(HasTargetListenerFlag))
-                    OnTargetUpdateFailed(e);
+                    BindingComponentExtensions.OnTargetUpdateFailed(_components, this, e, this);
             }
             finally
             {
@@ -195,15 +180,15 @@ namespace MugenMvvm.Binding.Core
                 if (CheckFlag(HasSourceListenerFlag))
                 {
                     if (success)
-                        OnSourceUpdated(newValue);
+                        BindingComponentExtensions.OnSourceUpdated(_components, this, newValue, this);
                     else
-                        OnSourceUpdateCanceled();
+                        BindingComponentExtensions.OnSourceUpdateCanceled(_components, this, this);
                 }
             }
             catch (Exception e)
             {
                 if (CheckFlag(HasSourceListenerFlag))
-                    OnSourceUpdateFailed(e);
+                    BindingComponentExtensions.OnSourceUpdateFailed(_components, this, e, this);
             }
             finally
             {
@@ -283,80 +268,26 @@ namespace MugenMvvm.Binding.Core
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
         {
-            var isTarget = ReferenceEquals(Target, observer);
-            var components = _components;
-            if (isTarget)
-            {
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, this);
-                }
-                else
-                    (components as IBindingTargetObserverListener)?.OnTargetPathMembersChanged(this, observer, this);
-            }
+            if (ReferenceEquals(Target, observer))
+                BindingComponentExtensions.OnTargetPathMembersChanged(_components, this, observer, this);
             else
-            {
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, this);
-                }
-                else
-                    (components as IBindingSourceObserverListener)?.OnSourcePathMembersChanged(this, observer, this);
-            }
+                BindingComponentExtensions.OnSourcePathMembersChanged(_components, this, observer, this);
         }
 
         void IMemberPathObserverListener.OnLastMemberChanged(IMemberPathObserver observer)
         {
-            var isTarget = ReferenceEquals(Target, observer);
-            var components = _components;
-            if (isTarget)
-            {
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, this);
-                }
-                else
-                    (components as IBindingTargetObserverListener)?.OnTargetLastMemberChanged(this, observer, this);
-            }
+            if (ReferenceEquals(Target, observer))
+                BindingComponentExtensions.OnTargetLastMemberChanged(_components, this, observer, this);
             else
-            {
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, this);
-                }
-                else
-                    (components as IBindingSourceObserverListener)?.OnSourceLastMemberChanged(this, observer, this);
-            }
+                BindingComponentExtensions.OnSourceLastMemberChanged(_components, this, observer, this);
         }
 
         void IMemberPathObserverListener.OnError(IMemberPathObserver observer, Exception exception)
         {
-            var isTarget = ReferenceEquals(Target, observer);
-            var components = _components;
-            if (isTarget)
-            {
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, this);
-                }
-                else
-                    (components as IBindingTargetObserverListener)?.OnTargetError(this, observer, exception, this);
-            }
+            if (ReferenceEquals(Target, observer))
+                BindingComponentExtensions.OnTargetError(_components, this, observer, exception, this);
             else
-            {
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                        (c[i] as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, this);
-                }
-                else
-                    (components as IBindingSourceObserverListener)?.OnSourceError(this, observer, exception, this);
-            }
+                BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
         }
 
         IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
@@ -432,7 +363,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
         {
-            if (!CheckFlag(HasSourceLastMemberProviderFlag) || !TryGetSourceLastMember(out var pathLastMember))
+            if (!CheckFlag(HasSourceLastMemberProviderFlag) || !BindingComponentExtensions.TryGetSourceLastMember(_components, this, this, out var pathLastMember))
             {
                 if (!(SourceRaw is IMemberPathObserver sourceObserver))
                 {
@@ -449,16 +380,16 @@ namespace MugenMvvm.Binding.Core
                 return false;
             }
 
-            if (!CheckFlag(HasTargetValueGetterFlag) || !TryGetTargetValue(pathLastMember, out newValue))
+            if (!CheckFlag(HasTargetValueGetterFlag) || !BindingComponentExtensions.TryGetTargetValue(_components, this, pathLastMember, this, out newValue))
                 newValue = GetTargetValue(pathLastMember);
 
             if (CheckFlag(HasSourceValueInterceptorFlag))
-                newValue = InterceptSourceValue(pathLastMember, newValue);
+                newValue = BindingComponentExtensions.InterceptSourceValue(_components, this, pathLastMember, newValue, this);
 
             if (newValue.IsDoNothing())
                 return false;
 
-            if (!CheckFlag(HasSourceValueSetterFlag) || !TrySetSourceValue(pathLastMember, newValue))
+            if (!CheckFlag(HasSourceValueSetterFlag) || !BindingComponentExtensions.TrySetSourceValue(_components, this, pathLastMember, newValue, this))
             {
                 if (newValue.IsUnsetValue())
                     return false;
@@ -474,7 +405,7 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual bool UpdateTargetInternal(out object? newValue)
         {
-            if (!CheckFlag(HasTargetLastMemberProviderFlag) || !TryGetTargetLastMember(out var pathLastMember))
+            if (!CheckFlag(HasTargetLastMemberProviderFlag) || !BindingComponentExtensions.TryGetTargetLastMember(_components, this, this, out var pathLastMember))
                 pathLastMember = Target.GetLastMember(this);
 
             pathLastMember.ThrowIfError();
@@ -484,16 +415,16 @@ namespace MugenMvvm.Binding.Core
                 return false;
             }
 
-            if (!CheckFlag(HasSourceValueGetterFlag) || !TryGetSourceValue(pathLastMember, out newValue))
+            if (!CheckFlag(HasSourceValueGetterFlag) || !BindingComponentExtensions.TryGetSourceValue(_components, this, pathLastMember, this, out newValue))
                 newValue = GetSourceValue(pathLastMember);
 
             if (CheckFlag(HasTargetValueInterceptorFlag))
-                newValue = InterceptTargetValue(pathLastMember, newValue);
+                newValue = BindingComponentExtensions.InterceptTargetValue(_components, this, pathLastMember, newValue, this);
 
             if (newValue.IsDoNothing())
                 return false;
 
-            if (!CheckFlag(HasTargetValueSetterFlag) || !TrySetTargetValue(pathLastMember, newValue))
+            if (!CheckFlag(HasTargetValueSetterFlag) || !BindingComponentExtensions.TrySetTargetValue(_components, this, pathLastMember, newValue, this))
             {
                 if (newValue.IsUnsetValue())
                     return false;
@@ -524,218 +455,6 @@ namespace MugenMvvm.Binding.Core
         protected virtual bool ContainsMetadata(IMetadataContextKey contextKey)
         {
             return BindingMetadata.Binding.Equals(contextKey);
-        }
-
-        protected void OnTargetUpdateFailed(Exception error)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, this);
-            }
-            else
-                (components as IBindingTargetListener)?.OnTargetUpdateFailed(this, error, this);
-        }
-
-        protected void OnTargetUpdateCanceled()
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdateCanceled(this, this);
-            }
-            else
-                (components as IBindingTargetListener)?.OnTargetUpdateCanceled(this, this);
-        }
-
-        protected void OnTargetUpdated(object? newValue)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdated(this, newValue, this);
-            }
-            else
-                (components as IBindingTargetListener)?.OnTargetUpdated(this, newValue, this);
-        }
-
-        protected void OnSourceUpdateFailed(Exception error)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, this);
-            }
-            else
-                (components as IBindingSourceListener)?.OnSourceUpdateFailed(this, error, this);
-        }
-
-        protected void OnSourceUpdateCanceled()
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdateCanceled(this, this);
-            }
-            else
-                (components as IBindingSourceListener)?.OnSourceUpdateCanceled(this, this);
-        }
-
-        protected void OnSourceUpdated(object? newValue)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdated(this, newValue, this);
-            }
-            else
-                (components as IBindingSourceListener)?.OnSourceUpdated(this, newValue, this);
-        }
-
-        protected object? InterceptTargetValue(MemberPathLastMember targetMember, object? value)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptTargetValue(this, targetMember, value, this);
-                }
-            }
-            else if (components is ITargetValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptTargetValue(this, targetMember, value, this);
-
-            return value;
-        }
-
-        protected object? InterceptSourceValue(MemberPathLastMember sourceMember, object? value)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceValueInterceptorBindingComponent interceptor)
-                        value = interceptor.InterceptSourceValue(this, sourceMember, value, this);
-                }
-            }
-            else if (components is ISourceValueInterceptorBindingComponent interceptor)
-                value = interceptor.InterceptSourceValue(this, sourceMember, value, this);
-
-            return value;
-        }
-
-        protected bool TryGetTargetValue(MemberPathLastMember sourceMember, out object? value)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out value))
-                        return true;
-                }
-            }
-            else if (components is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(this, sourceMember, this, out value))
-                return true;
-
-            value = null;
-            return false;
-        }
-
-        protected bool TrySetTargetValue(MemberPathLastMember targetMember, object? newValue)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(this, targetMember, newValue, this))
-                        return true;
-                }
-            }
-            else if (components is ITargetValueSetterBindingComponent setter && setter.TrySetTargetValue(this, targetMember, newValue, this))
-                return true;
-
-            return false;
-        }
-
-        protected bool TryGetSourceValue(MemberPathLastMember targetMember, out object? value)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out value))
-                        return true;
-                }
-            }
-            else if (components is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(this, targetMember, this, out value))
-                return true;
-
-            value = null;
-            return false;
-        }
-
-        protected bool TrySetSourceValue(MemberPathLastMember sourceMember, object? newValue)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(this, sourceMember, newValue, this))
-                        return true;
-                }
-            }
-            else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(this, sourceMember, newValue, this))
-                return true;
-
-            return false;
-        }
-
-        protected bool TryGetTargetLastMember(out MemberPathLastMember targetMember)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetLastMemberProviderBindingComponent provider && provider.TryGetTargetLastMember(this, this, out targetMember))
-                        return true;
-                }
-            }
-            else if (components is ITargetLastMemberProviderBindingComponent provider && provider.TryGetTargetLastMember(this, this, out targetMember))
-                return true;
-
-            targetMember = default;
-            return false;
-        }
-
-        protected bool TryGetSourceLastMember(out MemberPathLastMember sourceMember)
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceLastMemberProviderBindingComponent provider && provider.TryGetSourceLastMember(this, this, out sourceMember))
-                        return true;
-                }
-            }
-            else if (components is ISourceLastMemberProviderBindingComponent provider && provider.TryGetSourceLastMember(this, this, out sourceMember))
-                return true;
-
-            sourceMember = default;
-            return false;
         }
 
         protected virtual void OnDispose()
@@ -814,22 +533,7 @@ namespace MugenMvvm.Binding.Core
             if (component == null || !ComponentComponentExtensions.OnComponentAdding(this, component, metadata))
                 return false;
 
-            if (CheckFlag(HasComponentChangingListener))
-            {
-                var components = _components;
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                    {
-                        if (c[i] is IComponentCollectionChangingListener listener && !listener.OnAdding(this, component, metadata))
-                            return false;
-                    }
-                }
-                else if (components is IComponentCollectionChangingListener listener && !listener.OnAdding(this, component, metadata))
-                    return false;
-            }
-
-            return true;
+            return !CheckFlag(HasComponentChangingListener) || BindingComponentExtensions.OnComponentAdding(_components, this, component, metadata);
         }
 
         private void OnComponentAdded(object component, IReadOnlyMetadataContext? metadata)
@@ -866,119 +570,42 @@ namespace MugenMvvm.Binding.Core
             if (!CheckFlag(HasSourceObserverListener) && component is IBindingSourceObserverListener)
             {
                 SetFlag(HasSourceObserverListener);
-                switch (SourceRaw)
-                {
-                    case IMemberPathObserver source:
-                        source.AddListener(this);
-                        break;
-                    case object[] sources:
-                        {
-                            for (var i = 0; i < sources.Length; i++)
-                                (sources[i] as IMemberPathObserver)?.AddListener(this);
-                            break;
-                        }
-                }
+                BindingComponentExtensions.AddListener(SourceRaw, this);
             }
 
             ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
             if (CheckFlag(HasComponentChangedListener))
-            {
-                var components = _components;
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                    {
-                        var comp = c[i];
-                        if (!ReferenceEquals(comp, component))
-                            (comp as IComponentCollectionChangedListener)?.OnAdded(this, component, this);
-                    }
-                }
-                else if (!ReferenceEquals(components, component))
-                    (components as IComponentCollectionChangedListener)?.OnAdded(this, component, this);
-            }
+                BindingComponentExtensions.OnComponentAdded(_components, this, component, metadata);
         }
 
         private bool OnComponentRemoving(object component, IReadOnlyMetadataContext? metadata)
         {
             if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata))
                 return false;
-            if (CheckFlag(HasComponentChangingListener))
-            {
-                var components = _components;
-                if (components is object[] c)
-                {
-                    for (var i = 0; i < c.Length; i++)
-                    {
-                        if (c[i] is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(this, component, metadata))
-                            return false;
-                    }
-                }
-                else if (components is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(this, component, metadata))
-                    return false;
-            }
-
-            return true;
+            return !CheckFlag(HasComponentChangingListener) || BindingComponentExtensions.OnComponentRemoving(_components, this, component, metadata);
         }
 
         private void OnComponentRemoved(object component, bool isValidState, IReadOnlyMetadataContext? metadata)
         {
             if (isValidState)
             {
-                if (component is IBindingTargetObserverListener && !HasComponent<IBindingTargetObserverListener>())
+                if (component is IBindingTargetObserverListener && !BindingComponentExtensions.HasComponent<IBindingTargetObserverListener>(_components))
                 {
                     Target.RemoveListener(this);
                     ClearFlag(HasTargetObserverListener);
                 }
-                if (component is IBindingSourceObserverListener && !HasComponent<IBindingSourceObserverListener>())
+                if (component is IBindingSourceObserverListener && !BindingComponentExtensions.HasComponent<IBindingSourceObserverListener>(_components))
                 {
-                    switch (SourceRaw)
-                    {
-                        case IMemberPathObserver source:
-                            source.RemoveListener(this);
-                            break;
-                        case object[] sources:
-                            {
-                                for (var i = 0; i < sources.Length; i++)
-                                    (sources[i] as IMemberPathObserver)?.RemoveListener(this);
-                                break;
-                            }
-                    }
-
+                    BindingComponentExtensions.RemoveListener(SourceRaw, this);
                     ClearFlag(HasSourceObserverListener);
                 }
 
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
                 if (CheckFlag(HasComponentChangedListener))
-                {
-                    var components = _components;
-                    if (components is object[] c)
-                    {
-                        for (var i = 0; i < c.Length; i++)
-                            (c[i] as IComponentCollectionChangedListener)?.OnRemoved(this, component, this);
-                    }
-                    else
-                        (components as IComponentCollectionChangedListener)?.OnRemoved(this, component, this);
-                }
+                    BindingComponentExtensions.OnComponentRemoved(_components, this, component, this);
             }
             else
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
-        }
-
-        private bool HasComponent<TComponent>() where TComponent : class, IComponent<IBinding>
-        {
-            var components = _components;
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is TComponent)
-                        return true;
-                }
-
-                return false;
-            }
-
-            return components is TComponent;
         }
 
         #endregion
