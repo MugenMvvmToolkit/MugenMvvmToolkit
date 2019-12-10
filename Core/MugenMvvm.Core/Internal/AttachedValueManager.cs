@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -23,28 +24,16 @@ namespace MugenMvvm.Internal
         public IAttachedValueProvider GetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            var components = GetComponents<IAttachedValueManagerComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out var provider))
-                    return provider!;
-            }
-
-            ExceptionManager.ThrowObjectNotInitialized(this, components);
-            return null!;
+            if (!GetComponents<IAttachedValueManagerComponent>(metadata).TryGetOrAddAttachedValueProvider(item, metadata, out var provider))
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            return provider;
         }
 
         public IAttachedValueProvider? GetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            var components = GetComponents<IAttachedValueManagerComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetAttachedValueProvider(item, metadata, out var provider))
-                    return provider;
-            }
-
-            return null;
+            GetComponents<IAttachedValueManagerComponent>(metadata).TryGetAttachedValueProvider(item, metadata, out var provider);
+            return provider;
         }
 
         #endregion

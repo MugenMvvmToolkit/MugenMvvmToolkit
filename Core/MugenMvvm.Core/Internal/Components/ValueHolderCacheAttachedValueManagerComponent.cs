@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -20,11 +21,11 @@ namespace MugenMvvm.Internal.Components
         public bool TryGetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
         {
             if (!(item is IValueHolder<IAttachedValueProvider> valueHolder))
-                return TryGetAttachedValueProviderInternal(item, metadata, out provider);
+                return Components.TryGetAttachedValueProvider(item, metadata, out provider);
 
             if (valueHolder.Value == null)
             {
-                if (!TryGetAttachedValueProviderInternal(item, metadata, out provider))
+                if (!Components.TryGetAttachedValueProvider(item, metadata, out provider))
                     return false;
                 valueHolder.Value = provider;
             }
@@ -37,11 +38,11 @@ namespace MugenMvvm.Internal.Components
         public bool TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
         {
             if (!(item is IValueHolder<IAttachedValueProvider> valueHolder))
-                return TryGetOrAddAttachedValueProviderInternal(item, metadata, out provider);
+                return Components.TryGetOrAddAttachedValueProvider(item, metadata, out provider);
 
             if (valueHolder.Value == null)
             {
-                if (!TryGetOrAddAttachedValueProviderInternal(item, metadata, out provider))
+                if (!Components.TryGetOrAddAttachedValueProvider(item, metadata, out provider))
                     return false;
                 valueHolder.Value = provider;
             }
@@ -49,36 +50,6 @@ namespace MugenMvvm.Internal.Components
                 provider = valueHolder.Value;
 
             return true;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private bool TryGetOrAddAttachedValueProviderInternal(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
-        {
-            var components = Components;
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out provider))
-                    return true;
-            }
-
-            provider = null;
-            return false;
-        }
-
-        private bool TryGetAttachedValueProviderInternal(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
-        {
-            var components = Components;
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetAttachedValueProvider(item, metadata, out provider))
-                    return true;
-            }
-
-            provider = null;
-            return false;
         }
 
         #endregion
