@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
@@ -23,41 +24,21 @@ namespace MugenMvvm.Metadata
 
         public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var components = GetComponents<IMetadataContextProviderComponent>(null);
-            IReadOnlyMetadataContext? result = null;
-            for (var i = 0; i < components.Length; i++)
-            {
-                result = components[i].TryGetReadOnlyMetadataContext(target, values);
-                if (result != null)
-                    break;
-            }
-
+            var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(target, values);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, components);
+                ExceptionManager.ThrowObjectNotInitialized(this);
 
-            var listeners = GetComponents<IMetadataContextProviderListener>(null);
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReadOnlyContextCreated(this, result!, target);
+            GetComponents<IMetadataContextProviderListener>().OnReadOnlyContextCreated(this, result!, target);
             return result;
         }
 
         public IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var components = GetComponents<IMetadataContextProviderComponent>(null);
-            IMetadataContext? result = null;
-            for (var i = 0; i < components.Length; i++)
-            {
-                result = components[i].TryGetMetadataContext(target, values);
-                if (result != null)
-                    break;
-            }
-
+            var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(target, values);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, components);
+                ExceptionManager.ThrowObjectNotInitialized(this);
 
-            var listeners = GetComponents<IMetadataContextProviderListener>(null);
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnContextCreated(this, result!, target);
+            GetComponents<IMetadataContextProviderListener>().OnContextCreated(this, result!, target);
             return result;
         }
 
