@@ -34,15 +34,16 @@ namespace MugenMvvm.Commands.Components
 
         #region Constructors
 
-        public ConditionEventCommandComponent(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IEnumerable<object> notifiers, Func<object, bool>? canNotify)
+        public ConditionEventCommandComponent(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IReadOnlyList<object> notifiers, Func<object, bool>? canNotify)
         {
             _threadDispatcher = threadDispatcher;
             _eventExecutionMode = eventExecutionMode;
             _canNotify = canNotify;
 
             _subscriber = new Subscriber(this);
-            foreach (var notifier in notifiers)
+            for (var index = 0; index < notifiers.Count; index++)
             {
+                var notifier = notifiers[index];
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
                     hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);
@@ -110,7 +111,7 @@ namespace MugenMvvm.Commands.Components
         public ActionToken Suspend()
         {
             Interlocked.Increment(ref _suspendCount);
-            return new ActionToken((o, _) => ((ConditionEventCommandComponent) o!).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((ConditionEventCommandComponent)o!).EndSuspendNotifications(), this);
         }
 
         void IThreadDispatcherHandler<object?>.Execute(object? _)
@@ -165,7 +166,7 @@ namespace MugenMvvm.Commands.Components
 
             public MessengerResult Handle(IMessageContext messageContext)
             {
-                var mediator = (ConditionEventCommandComponent?) _reference?.Target;
+                var mediator = (ConditionEventCommandComponent?)_reference?.Target;
                 if (mediator == null)
                     return MessengerResult.Invalid;
                 mediator.Handle(messageContext.Message);
@@ -189,7 +190,7 @@ namespace MugenMvvm.Commands.Components
 
             private void OnPropertyChanged(object sender, PropertyChangedEventArgs e)
             {
-                var component = (ConditionEventCommandComponent?) _reference?.Target;
+                var component = (ConditionEventCommandComponent?)_reference?.Target;
                 if (component == null)
                 {
                     if (sender is INotifyPropertyChanged propertyChanged)

@@ -269,6 +269,18 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
+        public static TResult[] ToArray<T, TResult>(this IReadOnlyList<T> list, Func<T, TResult> selector)
+        {
+            Should.NotBeNull(list, nameof(list));
+            var count = list.Count;
+            if (count == 0)
+                return Default.EmptyArray<TResult>();
+            var array = new TResult[count];
+            for (var index = 0; index < list.Count; index++)
+                array[index] = selector(list[index]);
+            return array;
+        }
+
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)
         {
             Should.NotBeNull(collection, nameof(collection));

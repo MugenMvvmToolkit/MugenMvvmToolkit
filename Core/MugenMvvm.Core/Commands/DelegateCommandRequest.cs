@@ -20,7 +20,7 @@ namespace MugenMvvm.Commands
         public readonly Delegate Execute;
         public readonly CommandExecutionMode? ExecutionMode;
         public readonly FuncIn<DelegateCommandRequest, IProvider, IReadOnlyMetadataContext?, ICompositeCommand?> Factory;
-        public readonly IReadOnlyCollection<object>? Notifiers;
+        public readonly IReadOnlyList<object>? Notifiers;
 
         #endregion
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.Commands
 
         public DelegateCommandRequest(FuncIn<DelegateCommandRequest, IProvider, IReadOnlyMetadataContext?, ICompositeCommand?> factory,
             Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
-            ThreadExecutionMode? eventThreadMode, IReadOnlyCollection<object>? notifiers, Func<object, bool>? canNotify)
+            ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify)
         {
             Should.NotBeNull(factory, nameof(factory));
             Should.NotBeNull(execute, nameof(execute));
