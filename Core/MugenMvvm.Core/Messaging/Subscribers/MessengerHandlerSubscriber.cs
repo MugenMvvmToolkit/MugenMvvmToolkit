@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Messaging.Components;
 
-namespace MugenMvvm.Messaging
+namespace MugenMvvm.Messaging.Subscribers
 {
     public sealed class MessengerHandlerSubscriber : MessengerHandlerComponent.IMessengerSubscriber
     {

@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Messaging.Subscribers;
 
 namespace MugenMvvm.Messaging.Components
 {

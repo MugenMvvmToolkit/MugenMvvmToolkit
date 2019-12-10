@@ -18,7 +18,7 @@ using MugenMvvm.Messaging.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Serialization;
 
-namespace MugenMvvm.Messaging
+namespace MugenMvvm.Messaging.Subscribers
 {
     public sealed class ViewModelMessengerSubscriber : MessengerHandlerComponent.IMessengerSubscriber, IMetadataContextListener, IHasMemento //todo review memento
     {

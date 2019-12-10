@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
+using MugenMvvm.Messaging.Subscribers;
 
 namespace MugenMvvm.Extensions
 {

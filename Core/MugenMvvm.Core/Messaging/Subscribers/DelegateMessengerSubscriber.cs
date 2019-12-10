@@ -3,7 +3,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Messaging.Components;
 
-namespace MugenMvvm.Messaging
+namespace MugenMvvm.Messaging.Subscribers
 {
     public sealed class DelegateMessengerSubscriber<TMessage> : MessengerHandlerComponent.IMessengerSubscriber
     {

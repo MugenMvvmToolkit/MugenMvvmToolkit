@@ -7,7 +7,7 @@ using MugenMvvm.Enums;
 
 namespace MugenMvvm.Messaging
 {
-    [Serializable]//todo review serializable
+    [Serializable] //todo review serializable
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
     [Preserve(Conditional = true, AllMembers = true)]
     [StructLayout(LayoutKind.Auto)]
@@ -32,6 +32,12 @@ namespace MugenMvvm.Messaging
             Subscriber = subscriber;
             ExecutionMode = executionMode;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsEmpty => Subscriber == null;
 
         #endregion
     }

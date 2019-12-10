@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Messaging.Components;
 
-namespace MugenMvvm.Messaging
+namespace MugenMvvm.Messaging.Subscribers
 {
     public sealed class WeakDelegateMessengerSubscriber<TTarget, TMessage> : MessengerHandlerComponent.IMessengerSubscriber
         where TTarget : class

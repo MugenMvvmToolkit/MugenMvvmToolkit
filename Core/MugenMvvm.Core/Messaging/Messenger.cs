@@ -6,6 +6,7 @@ using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
@@ -15,13 +16,12 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IEqualityComparer<MessengerSubscriberInfo>
+    public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IEqualityComparer<MessengerSubscriberInfo>//todo review subscribe/unsubscribe equality 
     {
         #region Fields
 
         private readonly TypeLightDictionary<ThreadExecutionModeDictionary?> _cache;
         private readonly IMetadataContextProvider? _metadataContextProvider;
-
         private readonly HashSet<MessengerSubscriberInfo> _subscribers;
         private readonly IThreadDispatcher? _threadDispatcher;
 
@@ -29,9 +29,9 @@ namespace MugenMvvm.Messaging
 
         #region Constructors
 
-        public Messenger(IThreadDispatcher? threadDispatcher = null,
-            IComponentCollectionProvider? componentCollectionProvider = null,
-            IMetadataContextProvider? metadataContextProvider = null) : base(componentCollectionProvider)
+        public Messenger(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null,
+            IMetadataContextProvider? metadataContextProvider = null)
+            : base(componentCollectionProvider)
         {
             _cache = new TypeLightDictionary<ThreadExecutionModeDictionary?>(3);
             _threadDispatcher = threadDispatcher;
@@ -42,6 +42,16 @@ namespace MugenMvvm.Messaging
         #endregion
 
         #region Implementation of interfaces
+
+        bool IEqualityComparer<MessengerSubscriberInfo>.Equals(MessengerSubscriberInfo x, MessengerSubscriberInfo y)
+        {
+            return x.Subscriber.Equals(y.Subscriber);
+        }
+
+        int IEqualityComparer<MessengerSubscriberInfo>.GetHashCode(MessengerSubscriberInfo obj)
+        {
+            return obj.Subscriber.GetHashCode();
+        }
 
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
@@ -63,20 +73,10 @@ namespace MugenMvvm.Messaging
             }
         }
 
-        bool IEqualityComparer<MessengerSubscriberInfo>.Equals(MessengerSubscriberInfo x, MessengerSubscriberInfo y)
-        {
-            return x.Subscriber.Equals(y.Subscriber);
-        }
-
-        int IEqualityComparer<MessengerSubscriberInfo>.GetHashCode(MessengerSubscriberInfo obj)
-        {
-            return obj.Subscriber.GetHashCode();
-        }
-
         public void Dispose()
         {
             this.UnsubscribeAll();
-            this.ClearComponents(null);
+            this.ClearComponents();
         }
 
         public bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
@@ -115,12 +115,7 @@ namespace MugenMvvm.Messaging
             }
 
             if (removed)
-            {
-                var components = GetComponents<IMessengerSubscriberListener>(metadata);
-                for (var i = 0; i < components.Length; i++)
-                    components[i].OnUnsubscribed(this, subscriber, metadata);
-            }
-
+                GetComponents<IMessengerSubscriberListener>(metadata).OnUnsubscribed(this, subscriber, metadata);
             return removed;
         }
 
@@ -135,18 +130,7 @@ namespace MugenMvvm.Messaging
         public IMessageContext Publish(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(message, nameof(message));
-            IMessageContext? ctx = null;
-            var providers = GetComponents<IMessageContextProviderComponent>(metadata);
-            for (var i = 0; i < providers.Length; i++)
-            {
-                ctx = providers[i].TryGetMessengerContext(sender, message, metadata);
-                if (ctx != null)
-                    break;
-            }
-
-            if (ctx == null)
-                ctx = new MessageContext(this, sender, message, metadata);
-
+            var ctx = GetComponents<IMessageContextProviderComponent>(metadata).TryGetMessengerContext(sender, message, metadata) ?? new MessageContext(this, sender, message, metadata);
             Publish(ctx);
             return ctx;
         }
@@ -179,21 +163,11 @@ namespace MugenMvvm.Messaging
 
         private ThreadExecutionModeDictionary? GetHandlers(Type messageType)
         {
+            var handlerComponents = GetComponents<IMessengerHandlerComponent>();
             ThreadExecutionModeDictionary? dictionary = null;
             foreach (var subscriber in _subscribers)
             {
-                var canHandle = false;
-                var handlerComponents = GetComponents<IMessengerHandlerComponent>(null);
-                for (var i = 0; i < handlerComponents.Length; i++)
-                {
-                    if (handlerComponents[i].CanHandle(subscriber.Subscriber, messageType))
-                    {
-                        canHandle = true;
-                        break;
-                    }
-                }
-
-                if (!canHandle)
+                if (!handlerComponents.CanHandle(subscriber.Subscriber, messageType))
                     continue;
 
                 if (dictionary == null)
@@ -221,13 +195,8 @@ namespace MugenMvvm.Messaging
                     _cache.Clear();
             }
 
-            var components = GetComponents<IMessengerSubscriberListener>(metadata);
             if (added)
-            {
-                for (var i = 0; i < components.Length; i++)
-                    components[i].OnSubscribed(this, subscriber, executionMode, metadata);
-            }
-
+                GetComponents<IMessengerSubscriberListener>(metadata).OnSubscribed(this, subscriber, executionMode, metadata);
             return added;
         }
 
@@ -293,19 +262,9 @@ namespace MugenMvvm.Messaging
                 for (var i = 0; i < Count; i++)
                 {
                     var subscriber = this[i];
-                    for (var j = 0; j < listeners.Length; j++)
-                        listeners[j].OnHandling(subscriber, messageContext);
-
-                    MessengerResult? result = null;
-                    for (var j = 0; j < handlers.Length; j++)
-                    {
-                        result = handlers[j].TryHandle(subscriber, messageContext);
-                        if (result != null)
-                            break;
-                    }
-
-                    for (var j = 0; j < listeners.Length; j++)
-                        listeners[j].OnHandled(result, subscriber, messageContext);
+                    listeners.OnHandling(_messenger, subscriber, messageContext);
+                    var result = handlers.TryHandle(subscriber, messageContext);
+                    listeners.OnHandled(_messenger, result, subscriber, messageContext);
 
                     if (result == MessengerResult.Invalid)
                         _messenger.Unsubscribe(subscriber, messageContext.Metadata);
