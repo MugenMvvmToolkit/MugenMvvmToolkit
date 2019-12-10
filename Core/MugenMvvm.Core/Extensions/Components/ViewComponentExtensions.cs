@@ -96,7 +96,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static object TryGetViewForViewModel(this IViewProviderComponent[] components, IViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata)
+        public static object? TryGetViewForViewModel(this IViewProviderComponent[] components, IViewInitializer initializer, IViewModelBase viewModel, IMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -109,7 +109,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewModelBase TryGetViewModelForView(this IViewModelProviderViewManagerComponent[] components, IViewInitializer initializer, object view, IMetadataContext metadata)
+        public static IViewModelBase? TryGetViewModelForView(this IViewModelProviderViewManagerComponent[] components, IViewInitializer initializer, object view, IMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)

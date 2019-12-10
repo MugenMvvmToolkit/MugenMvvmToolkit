@@ -2,7 +2,6 @@
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
 
 namespace MugenMvvm.Wrapping.Components
@@ -11,15 +10,14 @@ namespace MugenMvvm.Wrapping.Components
     {
         #region Fields
 
-        public Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext?, bool> Condition;
-        public Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object?> WrapperFactory;
+        public Func<Type, Type, IReadOnlyMetadataContext?, bool> Condition;
+        public Func<object, Type, IReadOnlyMetadataContext?, object?> WrapperFactory;
 
         #endregion
 
         #region Constructors
 
-        public DelegateWrapperManagerComponent(Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext?, bool> condition,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object?> wrapperFactory)
+        public DelegateWrapperManagerComponent(Func<Type, Type, IReadOnlyMetadataContext?, bool> condition, Func<object, Type, IReadOnlyMetadataContext?, object?> wrapperFactory)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(wrapperFactory, nameof(wrapperFactory));
@@ -37,14 +35,14 @@ namespace MugenMvvm.Wrapping.Components
 
         #region Implementation of interfaces
 
-        public bool CanWrap(IWrapperManager wrapperManager, Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public bool CanWrap(Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
-            return Condition(wrapperManager, targetType, wrapperType, metadata);
+            return Condition(targetType, wrapperType, metadata);
         }
 
-        public object? TryWrap(IWrapperManager wrapperManager, object target, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public object? TryWrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
-            return WrapperFactory(wrapperManager, target, wrapperType, metadata);
+            return WrapperFactory(target, wrapperType, metadata);
         }
 
         #endregion

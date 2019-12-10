@@ -13,8 +13,8 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Func<IWrapperManager, Type, Type, IReadOnlyMetadataContext?, bool> condition,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
+        public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Func<Type, Type, IReadOnlyMetadataContext?, bool> condition,
+            Func<object, Type, IReadOnlyMetadataContext?, object?> wrapperFactory, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             var factory = new DelegateWrapperManagerComponent(condition, wrapperFactory);
@@ -23,7 +23,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static IWrapperManagerComponent AddWrapper(this IWrapperManager wrapperManager, Type wrapperType, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null,
+            Func<object, Type, IReadOnlyMetadataContext?, object>? wrapperFactory = null,
             IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
@@ -43,25 +43,25 @@ namespace MugenMvvm.Extensions
                 wrapperFactory = constructor.GetActivator<Func<object, object>>(reflectionDelegateProvider).Invoke;
             }
 
-            return wrapperManager.AddWrapper((_, __, requestedWrapperType, ___) => wrapperType == requestedWrapperType, wrapperFactory); //todo closure check
+            return wrapperManager.AddWrapper((_, requestedWrapperType, __) => wrapperType == requestedWrapperType, wrapperFactory); //todo closure check
         }
 
         public static IWrapperManagerComponent AddWrapper<TWrapper>(this IWrapperManager wrapperManager, Type implementation,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, TWrapper>? wrapperFactory = null)
+            Func<object, Type, IReadOnlyMetadataContext?, TWrapper>? wrapperFactory = null)
             where TWrapper : class
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), implementation, wrapperFactory);
         }
 
         public static IWrapperManagerComponent AddWrapper<TWrapper, TImplementation>(this IWrapperManager wrapperManager,
-            Func<IWrapperManager, object, Type, IReadOnlyMetadataContext?, TWrapper>? wrapperFactory = null)
+            Func<object, Type, IReadOnlyMetadataContext?, TWrapper>? wrapperFactory = null)
             where TWrapper : class
             where TImplementation : class, TWrapper
         {
             return wrapperManager.AddWrapper(typeof(TWrapper), typeof(TImplementation), wrapperFactory);
         }
 
-        private static object Invoke(this Func<object, object> activator, IWrapperManager _, object target, Type __, IReadOnlyMetadataContext? ___)
+        private static object Invoke(this Func<object, object> activator, object target, Type _, IReadOnlyMetadataContext? __)
         {
             return activator(target);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
@@ -26,39 +27,18 @@ namespace MugenMvvm.Wrapping
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            if (wrapperType.IsAssignableFrom(type))
-                return true;
-
-            var components = GetComponents<IWrapperManagerComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].CanWrap(this, type, wrapperType, metadata))
-                    return true;
-            }
-
-            return false;
+            return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(type, wrapperType, metadata);
         }
 
         public object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            object? wrapper = null;
-            var components = GetComponents<IWrapperManagerComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                wrapper = components[i].TryWrap(this, item.GetType(), wrapperType, metadata);
-                if (wrapper != null)
-                    break;
-            }
-
+            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(item.GetType(), wrapperType, metadata);
             if (wrapper == null)
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
-            var listeners = GetComponents<IWrapperManagerListener>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                listeners[i].OnWrapped(this, wrapper!, item, wrapperType, metadata);
-
+            GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper!, item, wrapperType, metadata);
             return wrapper;
         }
 
