@@ -3,6 +3,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -75,21 +76,21 @@ namespace MugenMvvm.Navigation.Components
 
             if (addedEntry != null)
             {
-                var components = navigationDispatcher.GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault());
-                for (var i = 0; i < components.Length; i++)
-                    components[i].OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationContext);
+                navigationDispatcher
+                    .GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault())
+                    .OnNavigationEntryAdded(navigationDispatcher, addedEntry, navigationContext);
             }
             else if (updatedEntry != null)
             {
-                var components = navigationDispatcher.GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault());
-                for (var i = 0; i < components.Length; i++)
-                    components[i].OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationContext);
+                navigationDispatcher
+                    .GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault())
+                    .OnNavigationEntryUpdated(navigationDispatcher, updatedEntry, navigationContext);
             }
             else if (removedEntry != null)
             {
-                var components = navigationDispatcher.GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault());
-                for (var i = 0; i < components.Length; i++)
-                    components[i].OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationContext);
+                navigationDispatcher
+                    .GetComponents<INavigationDispatcherEntryListener>(navigationContext.GetMetadataOrDefault())
+                    .OnNavigationEntryRemoved(navigationDispatcher, removedEntry, navigationContext);
             }
         }
 

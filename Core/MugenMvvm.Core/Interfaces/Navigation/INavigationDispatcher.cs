@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
@@ -12,7 +13,7 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type = null, IReadOnlyMetadataContext? metadata = null);
 
-        Task<bool> OnNavigatingAsync(INavigationContext navigationContext);
+        Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default);
 
         void OnNavigated(INavigationContext navigationContext);
 
