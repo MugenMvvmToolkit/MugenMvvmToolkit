@@ -33,7 +33,7 @@ namespace MugenMvvm.Components
 
         void IDecoratorComponentCollectionComponent<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            Decorate(components, metadata);
+            DecorateInternal(components, metadata);
         }
 
         #endregion
@@ -51,7 +51,7 @@ namespace MugenMvvm.Components
             Components = Default.EmptyArray<TComponent>();
         }
 
-        protected virtual void Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        protected virtual void DecorateInternal(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
             MugenExtensions.ComponentDecoratorDecorate((TComponent)(object)this, Owner, components, this, ref Components);
         }

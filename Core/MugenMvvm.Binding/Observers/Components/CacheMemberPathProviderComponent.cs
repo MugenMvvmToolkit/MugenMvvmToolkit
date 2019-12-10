@@ -66,9 +66,9 @@ namespace MugenMvvm.Binding.Observers.Components
             Invalidate();
         }
 
-        protected override void Decorate(IList<IMemberPathProviderComponent> components, IReadOnlyMetadataContext? metadata)
+        protected override void DecorateInternal(IList<IMemberPathProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            base.Decorate(components, metadata);
+            base.DecorateInternal(components, metadata);
             Invalidate();
         }
 

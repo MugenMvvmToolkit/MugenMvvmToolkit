@@ -166,9 +166,9 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected override void Decorate(IList<IActivatorReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
+        protected override void DecorateInternal(IList<IActivatorReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            base.Decorate(components, metadata);
+            base.DecorateInternal(components, metadata);
             Invalidate(true, false, false);
         }
 

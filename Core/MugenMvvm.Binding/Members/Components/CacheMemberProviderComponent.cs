@@ -98,9 +98,9 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        protected override void Decorate(IList<IMemberProviderComponent> components, IReadOnlyMetadataContext? metadata)
+        protected override void DecorateInternal(IList<IMemberProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            base.Decorate(components, metadata);
+            base.DecorateInternal(components, metadata);
             Invalidate();
         }
 
