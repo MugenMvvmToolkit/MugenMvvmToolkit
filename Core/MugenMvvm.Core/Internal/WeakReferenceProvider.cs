@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -25,16 +26,10 @@ namespace MugenMvvm.Internal
             if (item == null)
                 return Default.WeakReference;
 
-            var providers = GetComponents<IWeakReferenceProviderComponent>(metadata);
-            for (var i = 0; i < providers.Length; i++)
-            {
-                var weakReference = providers[i].TryGetWeakReference(item, metadata);
-                if (weakReference != null)
-                    return weakReference;
-            }
-
-            ExceptionManager.ThrowObjectNotInitialized(this, providers);
-            return null;
+            var result = GetComponents<IWeakReferenceProviderComponent>(metadata).TryGetWeakReference(item, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            return result;
         }
 
         #endregion

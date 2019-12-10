@@ -160,6 +160,20 @@ namespace MugenMvvm.Extensions.Components
                 components[i].Trace(level, message, exception, metadata);
         }
 
+
+        public static IWeakReference? TryGetWeakReference(this IWeakReferenceProviderComponent[] components, object item, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            for (var i = 0; i < components.Length; i++)
+            {
+                var weakReference = components[i].TryGetWeakReference(item, metadata);
+                if (weakReference != null)
+                    return weakReference;
+            }
+
+            return null;
+        }
+
         #endregion
     }
 }

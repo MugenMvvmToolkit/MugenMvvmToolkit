@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -25,28 +26,11 @@ namespace MugenMvvm.Internal.Components
             if (item is IValueHolder<IWeakReference> holder)
             {
                 if (holder.Value == null)
-                    holder.Value = GetWeakReference(item, metadata);
+                    holder.Value = Components.TryGetWeakReference(item, metadata);
                 return holder.Value;
             }
 
-            return GetWeakReference(item, metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private IWeakReference? GetWeakReference(object item, IReadOnlyMetadataContext? metadata)
-        {
-            var providers = Components;
-            for (var i = 0; i < providers.Length; i++)
-            {
-                var weakReference = providers[i].TryGetWeakReference(item, metadata);
-                if (weakReference != null)
-                    return weakReference;
-            }
-
-            return null;
+            return Components.TryGetWeakReference(item, metadata);
         }
 
         #endregion
