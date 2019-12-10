@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -201,16 +202,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             public Expression Build(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                var components = _compiler.Owner.Components.Get<IExpressionBuilderCompilerComponent>(_inputMetadata);
-                Expression? exp;
-                for (var index = 0; index < components.Length; index++)
-                {
-                    exp = components[index].TryBuild(this, expression);
-                    if (exp != null)
-                        return exp;
-                }
-
-                exp = TryGetExpression(expression);
+                var exp = _compiler.Owner.Components.Get<IExpressionBuilderCompilerComponent>(_inputMetadata).TryBuild(this, expression) ?? TryGetExpression(expression);
                 if (exp != null)
                     return exp;
 
