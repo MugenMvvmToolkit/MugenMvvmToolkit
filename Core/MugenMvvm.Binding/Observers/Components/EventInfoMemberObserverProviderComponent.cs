@@ -22,8 +22,8 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
-        private readonly FuncEx<EventInfo, MemberObserver> _tryGetMemberObserverEventDelegate;
-        private readonly FuncEx<MemberObserverRequest, MemberObserver> _tryGetMemberObserverRequestDelegate;
+        private readonly FuncIn<EventInfo, MemberObserver> _tryGetMemberObserverEventDelegate;
+        private readonly FuncIn<MemberObserverRequest, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
             .GetMethodOrThrow(nameof(EventListenerCollection.Raise), BindingFlagsEx.InstancePublic);
@@ -55,9 +55,9 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverEventDelegate is FuncEx<TMember, MemberObserver> provider1)
+            if (_tryGetMemberObserverEventDelegate is FuncIn<TMember, MemberObserver> provider1)
                 return provider1.Invoke(member);
-            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, MemberObserver> provider2)
+            if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, MemberObserver> provider2)
                 return provider2.Invoke(member);
             return default;
         }

@@ -21,8 +21,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         #region Fields
 
         private readonly ExpressionConverterContext<Expression> _context;
-        private readonly FuncEx<ExpressionConverterRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
-        private readonly FuncEx<IReadOnlyList<ExpressionConverterRequest>, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseListDelegate;
+        private readonly FuncIn<ExpressionConverterRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
+        private readonly FuncIn<IReadOnlyList<ExpressionConverterRequest>, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseListDelegate;
 
         #endregion
 
@@ -47,9 +47,9 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryParseDelegate is FuncEx<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser1)
+            if (_tryParseDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser1)
                 return parser1(expression, metadata);
-            if (_tryParseListDelegate is FuncEx<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser2)
+            if (_tryParseListDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser2)
                 return parser2(expression, metadata);
             return default;
         }

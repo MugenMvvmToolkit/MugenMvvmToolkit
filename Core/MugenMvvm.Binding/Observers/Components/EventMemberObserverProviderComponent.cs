@@ -19,9 +19,9 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IMemberProvider? _memberProvider;
-        private readonly FuncEx<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
-        private readonly FuncEx<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
-        private readonly FuncEx<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
+        private readonly FuncIn<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
+        private readonly FuncIn<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
+        private readonly FuncIn<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
 
@@ -52,11 +52,11 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
+            if (_tryGetMemberObserverPropertyDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
                 return provider1.Invoke(member, type, metadata);
-            if (_tryGetMemberObserverMethodDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
+            if (_tryGetMemberObserverMethodDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
                 return provider2.Invoke(member, type, metadata);
-            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider3)
+            if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider3)
                 return provider3.Invoke(member, type, metadata);
             return default;
         }

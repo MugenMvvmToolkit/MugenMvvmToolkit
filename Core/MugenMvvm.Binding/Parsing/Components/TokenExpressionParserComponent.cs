@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         #region Fields
 
         private readonly TokenParserContext _parserContext;
-        private readonly FuncEx<string, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseStringDelegate;
+        private readonly FuncIn<string, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseStringDelegate;
 
         #endregion
 
@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata)
         {
-            if (_tryParseStringDelegate is FuncEx<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser)
+            if (_tryParseStringDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser)
                 return parser.Invoke(expression, metadata);
             return default;
         }

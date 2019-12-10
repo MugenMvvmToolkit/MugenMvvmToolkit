@@ -21,9 +21,9 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly IAttachedValueManager? _attachedValueManager;
 
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
-        private readonly FuncEx<PropertyInfo, Type, MemberObserver> _tryGetMemberObserverPropertyDelegate;
-        private readonly FuncEx<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
-        private readonly FuncEx<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
+        private readonly FuncIn<PropertyInfo, Type, MemberObserver> _tryGetMemberObserverPropertyDelegate;
+        private readonly FuncIn<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
+        private readonly FuncIn<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
 
         private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
@@ -53,11 +53,11 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverPropertyDelegate is FuncEx<TMember, Type, MemberObserver> provider1)
+            if (_tryGetMemberObserverPropertyDelegate is FuncIn<TMember, Type, MemberObserver> provider1)
                 return provider1.Invoke(member, type);
-            if (_tryGetMemberObserverStringDelegate is FuncEx<TMember, Type, MemberObserver> provider2)
+            if (_tryGetMemberObserverStringDelegate is FuncIn<TMember, Type, MemberObserver> provider2)
                 return provider2.Invoke(member, type);
-            if (_tryGetMemberObserverRequestDelegate is FuncEx<TMember, Type, MemberObserver> provider3)
+            if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, MemberObserver> provider3)
                 return provider3.Invoke(member, type);
             return default;
         }

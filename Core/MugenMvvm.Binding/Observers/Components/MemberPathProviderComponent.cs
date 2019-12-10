@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private static readonly FuncEx<string, IMemberPath?> GetMemberPathStringDelegate = TryGetMemberPath;
+        private static readonly FuncIn<string, IMemberPath?> GetMemberPathStringDelegate = TryGetMemberPath;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            if (GetMemberPathStringDelegate is FuncEx<TPath, IMemberPath?> provider)
+            if (GetMemberPathStringDelegate is FuncIn<TPath, IMemberPath?> provider)
                 return provider.Invoke(path);
             return null;
         }

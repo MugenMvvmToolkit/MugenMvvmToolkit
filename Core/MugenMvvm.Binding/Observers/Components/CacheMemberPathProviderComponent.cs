@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly StringOrdinalLightDictionary<IMemberPath> _cache;
-        private readonly FuncEx<string, IReadOnlyMetadataContext?, IMemberPath?> _getMemberPathStringDelegate;
+        private readonly FuncIn<string, IReadOnlyMetadataContext?, IMemberPath?> _getMemberPathStringDelegate;
 
         #endregion
 
@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            if (_getMemberPathStringDelegate is FuncEx<TPath, IReadOnlyMetadataContext?, IMemberPath?> provider)
+            if (_getMemberPathStringDelegate is FuncIn<TPath, IReadOnlyMetadataContext?, IMemberPath?> provider)
                 return provider.Invoke(path, metadata);
             return null;
         }

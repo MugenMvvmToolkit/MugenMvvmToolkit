@@ -12,20 +12,20 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Commands.Components
 {
-    public sealed class CommandProviderComponent : ICommandProviderComponent, IHasPriority
+    public sealed class DelegateCommandProviderComponent : ICommandProviderComponent, IHasPriority, DelegateCommandRequest.IProvider
     {
         #region Fields
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IThreadDispatcher? _threadDispatcher;
-        private readonly FuncEx<CommandRequest, ICompositeCommand?> _tryGetCommandDelegate;
+        private readonly FuncIn<DelegateCommandRequest, ICompositeCommand?> _tryGetCommandDelegate;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CommandProviderComponent(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null)
+        public DelegateCommandProviderComponent(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null)
         {
             _componentCollectionProvider = componentCollectionProvider;
             _threadDispatcher = threadDispatcher;
@@ -52,34 +52,30 @@ namespace MugenMvvm.Commands.Components
 
         public ICompositeCommand? TryGetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetCommandDelegate is FuncEx<TRequest, ICompositeCommand> func)
+            if (_tryGetCommandDelegate is FuncIn<TRequest, ICompositeCommand> func)
                 return func(request);
             return null;
+        }
+
+        ICompositeCommand? DelegateCommandRequest.IProvider.TryGetCommand<T>(in DelegateCommandRequest request, IReadOnlyMetadataContext? metadata)
+        {
+            var command = new CompositeCommand(_componentCollectionProvider);
+            command.AddComponent(new DelegateExecutorCommandComponent<T>(request.Execute, request.CanExecute, request.ExecutionMode.GetValueOrDefault(CommandExecutionMode),
+                request.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
+            if (request.CanExecute != null && request.Notifiers != null && request.Notifiers.Count > 0)
+                command.AddComponent(new ConditionEventCommandComponent(_threadDispatcher, request.EventThreadMode ?? EventThreadMode, request.Notifiers, request.CanNotify));
+            return command;
         }
 
         #endregion
 
         #region Methods
 
-        private ICompositeCommand? TryGetCommand(in CommandRequest request)
+        private ICompositeCommand? TryGetCommand(in DelegateCommandRequest request)
         {
             if (request.IsEmpty)
                 return null;
-
-            var command = new CompositeCommand(_componentCollectionProvider);
-            command.AddComponent(request.Executor);
-            if (command.HasCanExecute)
-            {
-                var component = ExecutionModeCommandComponent.Get(request.ExecutionMode.GetValueOrDefault(CommandExecutionMode));
-                if (component != null)
-                    command.AddComponent(component);
-
-                if (request.Notifiers != null && request.Notifiers.Count > 0)
-                    command.AddComponent(new ConditionEventCommandComponent(_threadDispatcher, request.EventThreadMode ?? EventThreadMode, request.Notifiers, request.CanNotify));
-            }
-            if (!request.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution))
-                command.AddComponent(new DisableMultipleExecutionCommandComponent());
-            return command;
+            return request.Factory(request, this, null);
         }
 
         #endregion
