@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Components;
@@ -37,16 +38,14 @@ namespace MugenMvvm.Binding.Members.Components
 
         public bool TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
-            FillMembers(type, name, metadata);
-            var selectors = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata);
-            for (var i = 0; i < selectors.Length; i++)
+            _members.Clear();
+            Owner.Components.Get<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+
+            var members = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
+            if (members != null)
             {
-                var members = selectors[i].TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
-                if (members != null)
-                {
-                    member = members.Count == 0 ? null : members[0];
-                    return true;
-                }
+                member = members.Count == 0 ? null : members[0];
+                return true;
             }
 
             member = null;
@@ -55,33 +54,11 @@ namespace MugenMvvm.Binding.Members.Components
 
         public bool TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IReadOnlyList<IMemberInfo>? members)
         {
-            FillMembers(type, name, metadata);
-            var selectors = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata);
-            for (var i = 0; i < selectors.Length; i++)
-            {
-                members = selectors[i].TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
-                if (members != null)
-                    return true;
-            }
-
-            members = null;
-            return false;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void FillMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
-        {
             _members.Clear();
-            var components = Owner.Components.Get<IRawMemberProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var members = components[i].TryGetMembers(type, name, metadata);
-                if (members != null && members.Count != 0)
-                    _members.AddRange(members);
-            }
+            Owner.Components.Get<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+
+            members = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
+            return members != null;
         }
 
         #endregion

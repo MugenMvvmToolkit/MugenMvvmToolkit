@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Components;
@@ -32,14 +33,8 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            var components = GetComponents<IMemberProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetMember(type, name, memberTypes, flags, metadata, out var result))
-                    return result;
-            }
-
-            return null;
+            GetComponents<IMemberProviderComponent>(metadata).TryGetMember(type, name, memberTypes, flags, metadata, out var result);
+            return result;
         }
 
         public IReadOnlyList<IMemberInfo> GetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags,
@@ -50,13 +45,8 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            var components = GetComponents<IMemberProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetMembers(type, name, memberTypes, flags, metadata, out var result))
-                    return result;
-            }
-
+            if (GetComponents<IMemberProviderComponent>(metadata).TryGetMembers(type, name, memberTypes, flags, metadata, out var result))
+                return result;
             return Default.EmptyArray<IMemberInfo>();
         }
 

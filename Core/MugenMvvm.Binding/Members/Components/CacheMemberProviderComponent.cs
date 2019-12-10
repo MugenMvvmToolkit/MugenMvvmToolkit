@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
@@ -63,13 +64,7 @@ namespace MugenMvvm.Binding.Members.Components
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
             if (!_tempCache.TryGetValue(cacheKey, out member))
             {
-                var selectors = Components;
-                for (var i = 0; i < selectors.Length; i++)
-                {
-                    if (selectors[i].TryGetMember(type, name, memberTypes, flags, metadata, out member))
-                        break;
-                }
-
+                Components.TryGetMember(type, name, memberTypes, flags, metadata, out member);
                 _tempCache[cacheKey] = member;
             }
 
@@ -81,13 +76,7 @@ namespace MugenMvvm.Binding.Members.Components
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
             if (!_tempMembersCache.TryGetValue(cacheKey, out members))
             {
-                var selectors = Components;
-                for (var i = 0; i < selectors.Length; i++)
-                {
-                    if (selectors[i].TryGetMembers(type, name, memberTypes, flags, metadata, out members))
-                        break;
-                }
-
+                Components.TryGetMembers(type, name, memberTypes, flags, metadata, out members);
                 _tempMembersCache[cacheKey] = members;
             }
 
@@ -156,7 +145,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Name, key.Type, (int)key.MemberType, (int)key.MemberFlags);
+                return HashCode.Combine(key.Name, key.Type, (int) key.MemberType, (int) key.MemberFlags);
             }
 
             #endregion
