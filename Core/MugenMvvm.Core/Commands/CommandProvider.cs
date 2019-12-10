@@ -1,5 +1,4 @@
-﻿using System.Windows.Input;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Commands;
@@ -25,7 +24,6 @@ namespace MugenMvvm.Commands
 
         public ICompositeCommand GetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);

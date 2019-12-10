@@ -68,15 +68,17 @@ namespace MugenMvvm.Commands.Components
 
             var command = new CompositeCommand(_componentCollectionProvider);
             command.AddComponent(request.Executor);
+            if (command.HasCanExecute)
+            {
+                var component = ExecutionModeCommandComponent.Get(request.ExecutionMode.GetValueOrDefault(CommandExecutionMode));
+                if (component != null)
+                    command.AddComponent(component);
 
+                if (request.Notifiers != null && request.Notifiers.Count > 0)
+                    command.AddComponent(new ConditionEventCommandComponent(_threadDispatcher, request.EventThreadMode ?? EventThreadMode, request.Notifiers, request.CanNotify));
+            }
             if (!request.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution))
                 command.AddComponent(new DisableMultipleExecutionCommandComponent());
-            var component = ExecutionModeCommandComponent.Get(request.ExecutionMode.GetValueOrDefault(CommandExecutionMode));
-            if (component != null)
-                command.AddComponent(component);
-
-            if (command.HasCanExecute && request.Notifiers != null && request.Notifiers.Count > 0)
-                command.AddComponent(new ConditionEventCommandComponent(_threadDispatcher, request.EventThreadMode ?? EventThreadMode, request.Notifiers, request.CanNotify));
             return command;
         }
 
