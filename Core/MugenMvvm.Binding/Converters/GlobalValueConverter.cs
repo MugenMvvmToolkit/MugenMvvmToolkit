@@ -2,6 +2,7 @@
 using System.Globalization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
 using MugenMvvm.Collections.Internal;
@@ -39,12 +40,8 @@ namespace MugenMvvm.Binding.Converters
 
         public object? Convert(object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
         {
-            var converters = GetComponents<IGlobalValueConverterComponent>(metadata);
-            for (var i = 0; i < converters.Length; i++)
-            {
-                if (converters[i].TryConvert(ref value, targetType, member, metadata))
-                    return value;
-            }
+            if (GetComponents<IGlobalValueConverterComponent>(metadata).TryConvert(ref value, targetType, member, metadata))
+                return value;
 
             if (value == null)
                 return GetDefaultValue(targetType);
