@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -20,6 +21,8 @@ namespace MugenMvvm.Validation
     {
         #region Fields
 
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+
         private readonly HashSet<string> _validatingMembers;
         protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
         private CancellationTokenSource? _disposeCancellationTokenSource;
@@ -29,7 +32,6 @@ namespace MugenMvvm.Validation
         private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
         private PropertyChangedEventHandler? _weakPropertyHandler;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
 
         private const int DisposedState = 1;
 
@@ -92,7 +94,7 @@ namespace MugenMvvm.Validation
             _disposeCancellationTokenSource?.Cancel();
             if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
                 notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
-            this.ClearComponents(null);
+            this.ClearComponents();
             this.ClearMetadata(true);
         }
 
@@ -225,8 +227,8 @@ namespace MugenMvvm.Validation
                 return Default.CompletedTask;
             }
 
-            return task.AsTask().ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously,
-                TaskScheduler.Current);
+            return task.AsTask()
+                .ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }
 
         protected virtual void ClearErrorsInternal(string memberName, IReadOnlyMetadataContext? metadata)
@@ -256,23 +258,17 @@ namespace MugenMvvm.Validation
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
         {
-            var components = GetComponents<IValidatorListener>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnErrorsChanged(this, memberName, metadata);
+            GetComponents<IValidatorListener>(metadata).OnErrorsChanged(this, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
-            var components = GetComponents<IValidatorListener>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnAsyncValidation(this, memberName, validationTask, metadata);
+            GetComponents<IValidatorListener>(metadata).OnAsyncValidation(this, memberName, validationTask, metadata);
         }
 
         protected virtual void OnDispose()
         {
-            var components = GetComponents<IValidatorListener>(null);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnDisposed(this);
+            GetComponents<IValidatorListener>().OnDisposed(this);
         }
 
         protected void UpdateErrors(string memberName, IReadOnlyList<object>? errors, bool raiseNotifications, IReadOnlyMetadataContext? metadata)
@@ -398,7 +394,7 @@ namespace MugenMvvm.Validation
         {
             #region Fields
 
-            public static readonly ValidationResult DoNothing = default;
+            public static readonly ValidationResult DoNothing;
             public static readonly ValidationResult Empty = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>?>());
             public static readonly ValueTask<ValidationResult> DoNothingTask = new ValueTask<ValidationResult>(DoNothing);
             public static readonly ValueTask<ValidationResult> EmptyTask = new ValueTask<ValidationResult>(Empty);

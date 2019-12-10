@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Validation.Components
 {
     public interface IValidatorProviderComponent : IComponent<IValidatorProvider>
     {
-        IReadOnlyList<IValidator> GetValidators(IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IValidator> TryGetValidators(IReadOnlyMetadataContext metadata);
     }
 }

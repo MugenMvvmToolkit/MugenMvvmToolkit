@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
@@ -25,43 +26,26 @@ namespace MugenMvvm.Validation
         public IReadOnlyList<IValidator> GetValidators(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            var validators = new List<IValidator>();
-            var components = GetComponents<IValidatorProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
+            var validators = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidators(metadata);
+
+            if (validators != null)
             {
-                var list = components[i].GetValidators(metadata);
-                if (list != null && list.Count != 0)
-                    validators.AddRange(list);
+                var listeners = GetComponents<IValidatorProviderListener>(metadata);
+                for (var i = 0; i < validators.Count; i++)
+                    listeners.OnValidatorCreated(this, validators[i], metadata);
             }
 
-            var listeners = GetComponents<IValidatorProviderListener>(metadata);
-            for (var i = 0; i < listeners.Length; i++)
-            {
-                for (var j = 0; j < validators.Count; j++)
-                    listeners[i].OnValidatorCreated(this, validators[j], metadata);
-            }
-
-            return validators;
+            return validators ?? Default.EmptyArray<IValidator>();
         }
 
         public IAggregatorValidator GetAggregatorValidator(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            IAggregatorValidator? result = null;
-            var components = GetComponents<IAggregatorValidatorProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                result = components[i].TryGetAggregatorValidator(metadata);
-                if (result != null)
-                    break;
-            }
-
+            var result = GetComponents<IAggregatorValidatorProviderComponent>(metadata).TryGetAggregatorValidator(metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, components);
+                ExceptionManager.ThrowObjectNotInitialized(this);
 
-            var listeners = GetComponents<IValidatorProviderListener>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                listeners[i].OnAggregatorValidatorCreated(this, result!, metadata);
+            GetComponents<IValidatorProviderListener>(metadata).OnAggregatorValidatorCreated(this, result, metadata);
             return result;
         }
 
