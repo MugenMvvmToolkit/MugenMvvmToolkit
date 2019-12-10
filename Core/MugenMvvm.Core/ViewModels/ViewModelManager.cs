@@ -3,6 +3,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -28,45 +29,23 @@ namespace MugenMvvm.ViewModels
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
-            IReadOnlyMetadataContext? result = null;
-            var components = GetComponents<IViewModelLifecycleDispatcherComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var m = components[i].OnLifecycleChanged(viewModel, lifecycleState, metadata);
-                m.Aggregate(ref result);
-            }
-
-            return result.DefaultIfNull();
+            return GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, metadata).DefaultIfNull();
         }
 
         public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(service, nameof(service));
-            var components = GetComponents<IViewModelServiceResolverComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryGetService(viewModel, service, metadata);
-                if (result != null)
-                    return result;
-            }
-
-            ExceptionManager.ThrowCannotResolveService(service);
-            return null;
+            var result = GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, service, metadata);
+            if (result == null)
+                ExceptionManager.ThrowCannotResolveService(service);
+            return result;
         }
 
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            var components = GetComponents<IViewModelProviderComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var viewModel = components[i].TryGetViewModel(metadata);
-                if (viewModel != null)
-                    return viewModel;
-            }
-
-            return null;
+            return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(metadata);
         }
 
         #endregion

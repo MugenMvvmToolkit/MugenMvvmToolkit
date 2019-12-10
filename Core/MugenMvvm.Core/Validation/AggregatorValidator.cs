@@ -40,8 +40,6 @@ namespace MugenMvvm.Validation
 
         #region Properties
 
-        protected IMetadataContextProvider MetadataContextProvider => _metadataContextProvider.DefaultIfNull();
-
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
         public IMetadataContext Metadata

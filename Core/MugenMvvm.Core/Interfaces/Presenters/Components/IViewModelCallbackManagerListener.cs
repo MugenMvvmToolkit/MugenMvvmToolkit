@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Presenters.Components
     {
         void OnCallbackAdded(INavigationCallback callback, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
 
-        void OnCallbackExecuted(INavigationCallback callback, IViewModelBase viewModel, INavigationContext navigationContext);
+        void OnCallbackExecuted(INavigationCallback callback, IViewModelBase viewModel, INavigationContext? navigationContext);
     }
 }
