@@ -68,16 +68,11 @@ namespace MugenMvvm.Presenters.Components
         public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
         {
             _dispatcherListener.BeginSuspend();
-            var components = _closeablePresenters;
             try
             {
-                var results = new List<IPresenterResult>();
-                for (var i = 0; i < components.Length; i++)
-                {
-                    var operations = components[i].TryClose(metadata);
-                    if (operations != null)
-                        results.AddRange(operations);
-                }
+                var results = _closeablePresenters.TryClose(metadata);
+                if (results == null)
+                    return Default.EmptyArray<IPresenterResult>();
 
                 for (var i = 0; i < results.Count; i++)
                 {
@@ -97,31 +92,25 @@ namespace MugenMvvm.Presenters.Components
 
         void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref _closeablePresenters);
+            this.Decorate(Owner, components, this, ref _closeablePresenters);
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)
         {
             _dispatcherListener.BeginSuspend();
-            var components = Components;
             try
             {
-                for (var i = 0; i < components.Length; i++)
-                {
-                    var result = components[i].TryShow(metadata);
-                    if (result != null)
-                    {
-                        var callback = AddCallback(result, NavigationCallbackType.Showing);
-                        if (callback != null)
-                            result.Metadata.Set(NavigationInternalMetadata.ShowingCallback, callback);
-                        callback = AddCallback(result, NavigationCallbackType.Close);
-                        if (callback != null)
-                            result.Metadata.Set(NavigationInternalMetadata.CloseCallback, callback);
-                        return result;
-                    }
-                }
+                var result = Components.TryShow(metadata);
+                if (result == null)
+                    return null;
 
-                return null;
+                var callback = AddCallback(result, NavigationCallbackType.Showing);
+                if (callback != null)
+                    result.Metadata.Set(NavigationInternalMetadata.ShowingCallback, callback);
+                callback = AddCallback(result, NavigationCallbackType.Close);
+                if (callback != null)
+                    result.Metadata.Set(NavigationInternalMetadata.CloseCallback, callback);
+                return result;
             }
             finally
             {
@@ -159,15 +148,13 @@ namespace MugenMvvm.Presenters.Components
             var callback = new NavigationCallback(callbackType, presenterResult.NavigationType, serializable, presenterResult.NavigationOperationId);
             var key = GetKeyByCallback(callbackType);
 
-            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?)null, (context, _) => new List<NavigationCallback?>());
+            var callbacks = viewModel.Metadata.GetOrAdd(key, (object?) null, (context, _) => new List<NavigationCallback?>());
             lock (callback)
             {
                 callbacks.Add(callback);
             }
 
-            var components = Owner.GetComponents<IViewModelCallbackManagerListener>(presenterResult.GetMetadataOrDefault());
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnCallbackAdded(callback, viewModel, presenterResult.Metadata);
+            Owner.GetComponents<IViewModelCallbackManagerListener>(presenterResult.GetMetadataOrDefault()).OnCallbackAdded(callback, viewModel, presenterResult.Metadata);
             return callback;
         }
 
@@ -235,6 +222,8 @@ namespace MugenMvvm.Presenters.Components
 
             if (toInvoke == null)
                 return;
+
+            var listeners = Owner.GetComponents<IViewModelCallbackManagerListener>(navigationContext.GetMetadataOrDefault());
             for (var i = 0; i < toInvoke.Count; i++)
             {
                 var callback = toInvoke[i];
@@ -245,9 +234,7 @@ namespace MugenMvvm.Presenters.Components
                 else
                     callback.SetResult(result);
 
-                var components = Owner.GetComponents<IViewModelCallbackManagerListener>(navigationContext.GetMetadataOrDefault());
-                for (var j = 0; j < components.Length; i++)
-                    components[j].OnCallbackExecuted(callback, vm!, navigationContext);
+                listeners.OnCallbackExecuted(callback, vm!, navigationContext);
             }
         }
 
@@ -283,13 +270,13 @@ namespace MugenMvvm.Presenters.Components
 
         private static bool CanSerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallback?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallback>?)value;
+            var callbacks = (IList<NavigationCallback>?) value;
             return callbacks != null && callbacks.Any(callback => callback != null && callback.IsSerializable);
         }
 
         private static object? SerializeCloseCallbacks(IMetadataContextKey<List<NavigationCallback?>> key, object? value, ISerializationContext context)
         {
-            var callbacks = (IList<NavigationCallback>?)value;
+            var callbacks = (IList<NavigationCallback>?) value;
             if (callbacks == null)
                 return null;
             lock (callbacks)

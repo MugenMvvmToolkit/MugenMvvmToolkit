@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Presenters.Components
 {
     public interface IViewModelMediatorCloseManagerComponent : IComponent<IPresenter>
     {
-        IReadOnlyList<IPresenterResult>? TryCloseInternal(IViewModelBase viewModel, IReadOnlyList<IViewModelPresenterMediator> mediators, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IPresenterResult>? TryClose(IViewModelBase viewModel, IReadOnlyList<IViewModelPresenterMediator> mediators, IReadOnlyMetadataContext? metadata);
     }
 }

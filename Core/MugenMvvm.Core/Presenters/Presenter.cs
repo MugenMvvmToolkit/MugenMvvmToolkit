@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
@@ -31,46 +32,22 @@ namespace MugenMvvm.Presenters
         public IPresenterResult Show(IReadOnlyMetadataContext metadata)
         {
             var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var components = GetComponents<IPresenterComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryShow(metadataContext);
-                if (result != null)
-                    return result;
-            }
-
-            ExceptionManager.ThrowPresenterCannotShowRequest(metadata);
-            return null;
+            var result = GetComponents<IPresenterComponent>(metadata).TryShow(metadataContext);
+            if (result == null)
+                ExceptionManager.ThrowPresenterCannotShowRequest(metadata);
+            return result;
         }
 
         public IReadOnlyList<IPresenterResult> TryClose(IReadOnlyMetadataContext metadata)
         {
             var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var components = GetComponents<ICloseablePresenterComponent>(metadata);
-            var results = new List<IPresenterResult>();
-            for (var i = 0; i < components.Length; i++)
-            {
-                var operations = components[i].TryClose(metadataContext);
-                if (operations != null)
-                    results.AddRange(operations);
-            }
-
-            return results;
+            return GetComponents<ICloseablePresenterComponent>(metadata).TryClose(metadataContext) ?? Default.EmptyArray<IPresenterResult>();
         }
 
         public IReadOnlyList<IPresenterResult> TryRestore(IReadOnlyMetadataContext metadata)
         {
             var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var components = GetComponents<IRestorablePresenterComponent>(metadata);
-            var results = new List<IPresenterResult>();
-            for (var i = 0; i < components.Length; i++)
-            {
-                var operations = components[i].TryRestore(metadataContext);
-                if (operations != null)
-                    results.AddRange(operations);
-            }
-
-            return results;
+            return GetComponents<IRestorablePresenterComponent>(metadata).TryRestore(metadataContext) ?? Default.EmptyArray<IPresenterResult>();
         }
 
         #endregion

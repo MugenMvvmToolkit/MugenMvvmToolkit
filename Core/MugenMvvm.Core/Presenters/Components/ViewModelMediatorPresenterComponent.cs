@@ -4,6 +4,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -64,13 +65,9 @@ namespace MugenMvvm.Presenters.Components
                 m = mediators.ToArray();
             }
 
-            var managers = Owner.GetComponents<IViewModelMediatorCloseManagerComponent>(metadata);
-            for (var i = 0; i < managers.Length; i++)
-            {
-                var result = managers[i].TryCloseInternal(viewModel!, m, metadata);
-                if (result != null)
-                    return result;
-            }
+            var r = Owner.GetComponents<IViewModelMediatorCloseManagerComponent>(metadata).TryClose(viewModel!, m, metadata);
+            if (r != null)
+                return r;
 
             var results = new IPresenterResult[mediators.Count];
             for (var i = 0; i < results.Length; i++)
@@ -151,16 +148,9 @@ namespace MugenMvvm.Presenters.Components
                 var mediator = mediators.FirstOrDefault(m => m.ViewInitializer.Id == viewInitializer.Id);
                 if (mediator == null)
                 {
-                    var components = Owner.GetComponents<IViewModelMediatorProviderComponent>(metadata);
-                    for (var i = 0; i < components.Length; i++)
-                    {
-                        mediator = components[i].TryGetMediator(viewModel, viewInitializer, metadata)!;
-                        if (mediator != null)
-                        {
-                            mediators.Add(mediator);
-                            break;
-                        }
-                    }
+                    mediator = Owner.GetComponents<IViewModelMediatorProviderComponent>(metadata).TryGetMediator(viewModel, viewInitializer, metadata)!;
+                    if (mediator != null)
+                        mediators.Add(mediator);
                 }
 
                 return mediator;

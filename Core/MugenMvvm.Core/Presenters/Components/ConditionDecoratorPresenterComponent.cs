@@ -47,7 +47,7 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!CanClose(presenter, results, metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, results, metadata))
                     continue;
 
                 var operations = presenter.TryClose(metadata);
@@ -60,12 +60,12 @@ namespace MugenMvvm.Presenters.Components
 
         void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref _closeableComponents);
+            this.Decorate(Owner, components, this, ref _closeableComponents);
         }
 
         void IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.Decorate(IList<IRestorablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref _restorableComponents);
+            this.Decorate(Owner, components, this, ref _restorableComponents);
         }
 
         public IPresenterResult? TryShow(IMetadataContext metadata)
@@ -74,7 +74,7 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!CanShow(presenter, metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, metadata))
                     continue;
 
                 var result = presenter.TryShow(metadata);
@@ -92,7 +92,7 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!CanRestore(presenter, results, metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, results, metadata))
                     continue;
 
                 var operations = presenter.TryRestore(metadata);
@@ -112,43 +112,6 @@ namespace MugenMvvm.Presenters.Components
             base.OnDetachedInternal(owner, metadata);
             _closeableComponents = Default.EmptyArray<ICloseablePresenterComponent>();
             _restorableComponents = Default.EmptyArray<IRestorablePresenterComponent>();
-        }
-
-        private bool CanShow(IPresenterComponent component, IMetadataContext metadata)
-        {
-            var components = Owner.GetComponents<IConditionPresenterComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (!components[i].CanShow(component, metadata))
-                    return false;
-            }
-
-            return true;
-        }
-
-        private bool CanClose(ICloseablePresenterComponent component, IReadOnlyList<IPresenterResult> results,
-            IMetadataContext metadata)
-        {
-            var components = Owner.GetComponents<IConditionPresenterComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (!components[i].CanClose(component, results, metadata))
-                    return false;
-            }
-
-            return true;
-        }
-
-        private bool CanRestore(IRestorablePresenterComponent component, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata)
-        {
-            var components = Owner.GetComponents<IConditionPresenterComponent>(metadata);
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (!components[i].CanRestore(component, results, metadata))
-                    return false;
-            }
-
-            return true;
         }
 
         #endregion
