@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Metadata;
@@ -62,29 +60,6 @@ namespace MugenMvvm.Extensions
             var navigationContext = dispatcher.GetNavigationContext(navigationProvider, navigationProvider.GetUniqueNavigationOperationId(viewModel), navigationType, navigationMode, metadata);
             navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
             return navigationContext;
-        }
-
-        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, INavigationProvider navigationProvider, string navigationOperationId,
-            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(dispatcher, nameof(dispatcher));
-            var result = dispatcher.GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(dispatcher);
-            return result;
-        }
-
-        public static IReadOnlyList<INavigationCallback> GetCallbacks(this INavigationDispatcher dispatcher, INavigationEntry entry, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(dispatcher, nameof(dispatcher));
-            return dispatcher.GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetCallbacks(entry, metadata) ?? Default.EmptyArray<INavigationCallback>();
-        }
-
-        public static INavigationEntry? TryGetPreviousNavigationEntry(this INavigationDispatcher dispatcher, INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(dispatcher, nameof(dispatcher));
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
-            return dispatcher.GetComponents<INavigationEntryFinderComponent>(metadata).TryGetPreviousNavigationEntry(navigationEntry, metadata);
         }
 
         public static Task WaitNavigationAsync(this INavigationDispatcher dispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)

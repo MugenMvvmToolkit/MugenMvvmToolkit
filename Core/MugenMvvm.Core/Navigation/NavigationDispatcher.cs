@@ -28,9 +28,34 @@ namespace MugenMvvm.Navigation
 
         #region Implementation of interfaces
 
+        public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType, NavigationMode navigationMode,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationProvider, nameof(navigationProvider));
+            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(navigationMode, nameof(navigationMode));
+            var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            return result;
+        }
+
         public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type = null, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(type, metadata) ?? Default.EmptyArray<INavigationEntry>();
+        }
+
+        public INavigationEntry? TryGetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
+            return GetComponents<INavigationEntryFinderComponent>(metadata).TryGetPreviousNavigationEntry(navigationEntry, metadata);
+        }
+
+        public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
+            return GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetCallbacks(navigationEntry, metadata) ?? Default.EmptyArray<INavigationCallback>();
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
