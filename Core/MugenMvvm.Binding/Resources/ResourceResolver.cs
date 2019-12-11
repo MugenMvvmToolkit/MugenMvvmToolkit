@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Interfaces.Resources.Components;
@@ -23,43 +24,19 @@ namespace MugenMvvm.Binding.Resources
         public IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(name, nameof(name));
-            var resolvers = GetComponents<IResourceResolverComponent>(metadata);
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var value = resolvers[i].TryGetResourceValue(name, metadata);
-                if (value != null)
-                    return value;
-            }
-
-            return null;
+            return GetComponents<IResourceResolverComponent>(metadata).TryGetResourceValue(name, metadata);
         }
 
         public IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(name, nameof(name));
-            var resolvers = GetComponents<IBindingValueConverterResolverComponent>(metadata);
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var converter = resolvers[i].TryGetConverter(name, metadata);
-                if (converter != null)
-                    return converter;
-            }
-
-            return null;
+            return GetComponents<IBindingValueConverterResolverComponent>(metadata).TryGetConverter(name, metadata);
         }
 
         public Type? TryGetType(string name, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(name, nameof(name));
-            var resolvers = GetComponents<ITypeResolverComponent>(metadata);
-            for (var i = 0; i < resolvers.Length; i++)
-            {
-                var type = resolvers[i].TryGetType(name, metadata);
-                if (type != null)
-                    return type;
-            }
-
-            return null;
+            return GetComponents<ITypeResolverComponent>(metadata).TryGetType(name, metadata);
         }
 
         #endregion
