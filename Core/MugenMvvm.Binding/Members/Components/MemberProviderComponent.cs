@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -39,9 +40,9 @@ namespace MugenMvvm.Binding.Members.Components
         public bool TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
             _members.Clear();
-            Owner.Components.Get<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+            Owner.GetComponents<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
 
-            var members = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
+            var members = Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
             if (members != null)
             {
                 member = members.Count == 0 ? null : members[0];
@@ -55,9 +56,9 @@ namespace MugenMvvm.Binding.Members.Components
         public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             _members.Clear();
-            Owner.Components.Get<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+            Owner.GetComponents<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
 
-            return Owner.Components.Get<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
+            return Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
         }
 
         #endregion

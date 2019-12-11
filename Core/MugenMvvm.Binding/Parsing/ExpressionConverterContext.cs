@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
@@ -16,6 +15,7 @@ namespace MugenMvvm.Binding.Parsing
 
         private readonly ExpressionDictionary _expressionsDict;
         private readonly IMetadataContextProvider? _metadataContextProvider;
+        private IExpressionConverterParserComponent<TExpression>[] _converters;
         private IMetadataContext? _metadata;
 
         #endregion
@@ -26,6 +26,7 @@ namespace MugenMvvm.Binding.Parsing
         {
             _metadataContextProvider = metadataContextProvider;
             _expressionsDict = new ExpressionDictionary();
+            _converters = Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
         }
 
         #endregion
@@ -44,7 +45,15 @@ namespace MugenMvvm.Binding.Parsing
             }
         }
 
-        public IComponentOwner? Owner { get; set; }
+        public IExpressionConverterParserComponent<TExpression>[] Converters
+        {
+            get => _converters;
+            set
+            {
+                Should.NotBeNull(value, nameof(value));
+                _converters = value;
+            }
+        }
 
         #endregion
 
@@ -73,10 +82,7 @@ namespace MugenMvvm.Binding.Parsing
         public IExpressionNode Convert(TExpression expression)
         {
             Should.NotBeNull(expression, nameof(expression));
-            var exp = Owner?
-                          .Components
-                          .Get<IExpressionConverterParserComponent<TExpression>>(_metadata)
-                          .TryConvert(this, expression) ?? TryGetExpression(expression);
+            var exp = _converters.TryConvert(this, expression) ?? TryGetExpression(expression);
             if (exp != null)
                 return exp;
 

@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             try
             {
-                _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata).OnBeginEvent(sender, message, _currentMetadata);
+                _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata).OnBeginEvent(sender, message, _currentMetadata);
                 EventArgs = message;
                 switch (_currentValue)
                 {
@@ -120,13 +120,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             }
             catch (Exception e)
             {
-                _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata).OnEventError(e, sender, message, _currentMetadata);
+                _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata).OnEventError(e, sender, message, _currentMetadata);
                 return true;
             }
             finally
             {
                 EventArgs = null;
-                _bindingManager.DefaultIfNull().Components.Get<IBindingEventHandlerComponent>(_currentMetadata).OnEndEvent(sender, message, _currentMetadata);
+                _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata).OnEndEvent(sender, message, _currentMetadata);
             }
         }
 

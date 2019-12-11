@@ -12,6 +12,24 @@ namespace MugenMvvm.Binding.Core.Components
 {
     public sealed class BindingHolderStateDispatcherComponent : AttachableComponentBase<IBindingManager>, IBindingStateDispatcherComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly ComponentTracker _componentTracker;
+        private IBindingHolderComponent[] _components;
+
+        #endregion
+
+        #region Constructors
+
+        public BindingHolderStateDispatcherComponent()
+        {
+            _components = Default.EmptyArray<IBindingHolderComponent>();
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IBindingHolderComponent, BindingHolderStateDispatcherComponent>((components, state, _) => state._components = components, this);
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; } = ComponentPriority.PostInitializer;
@@ -26,11 +44,27 @@ namespace MugenMvvm.Binding.Core.Components
                 return null;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
-                Owner.Components.Get<IBindingHolderComponent>(metadata).TryRegister(binding, metadata);
+                _components.TryRegister(binding, metadata);
             else if (lifecycleState == BindingLifecycleState.Disposed)
-                Owner.Components.Get<IBindingHolderComponent>(metadata).TryUnregister(binding, metadata);
+                _components.TryUnregister(binding, metadata);
 
             return null;
+        }
+
+        #endregion
+
+        #region Methods
+
+        protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnAttachedInternal(owner, metadata);
+            _componentTracker.Attach(owner, metadata);
+        }
+
+        protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnDetachedInternal(owner, metadata);
+            _componentTracker.Detach(owner, metadata);
         }
 
         #endregion

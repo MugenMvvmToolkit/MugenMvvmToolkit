@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                     return result;
             }
 
-            return null;
+            return default;
         }
 
         public static IExpressionNode? TryParse(this ITokenParserComponent[] components, ITokenParserContext context, IExpressionNode? expression, Func<ITokenParserContext, ITokenParserComponent, bool>? condition)

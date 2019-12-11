@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Delegates;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Components;
+using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -16,6 +16,8 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
+        private readonly ComponentTracker _componentTracker;
+
         private readonly TokenParserContext _parserContext;
         private readonly FuncIn<string, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseStringDelegate;
 
@@ -26,6 +28,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         public TokenExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _parserContext = new TokenParserContext(metadataContextProvider);
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
             _tryParseStringDelegate = ParseInternal;
         }
 
@@ -54,13 +58,13 @@ namespace MugenMvvm.Binding.Parsing.Components
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            _parserContext.Owner = owner;
+            _componentTracker.Attach(owner, metadata);
         }
 
         protected override void OnDetachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            _parserContext.Owner = null;
+            _componentTracker.Detach(owner, metadata);
         }
 
         private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseInternal(in string expression, IReadOnlyMetadataContext? metadata)

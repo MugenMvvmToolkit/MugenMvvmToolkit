@@ -23,7 +23,9 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Fields
 
+        private readonly ComponentTracker _componentTracker;
         private readonly IMetadataContextProvider? _metadataContextProvider;
+        private IExpressionBuilderCompilerComponent[] _components;
 
         #endregion
 
@@ -32,6 +34,9 @@ namespace MugenMvvm.Binding.Compiling.Components
         public ExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
+            _components = Default.EmptyArray<IExpressionBuilderCompilerComponent>();
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IExpressionBuilderCompilerComponent, ExpressionCompilerComponent>((components, state, _) => state._components = components, this);
         }
 
         #endregion
@@ -51,6 +56,22 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #endregion
 
+        #region Methods
+
+        protected override void OnAttachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnAttachedInternal(owner, metadata);
+            _componentTracker.Attach(owner, metadata);
+        }
+
+        protected override void OnDetachedInternal(IExpressionCompiler owner, IReadOnlyMetadataContext? metadata)
+        {
+            base.OnDetachedInternal(owner, metadata);
+            _componentTracker.Detach(owner, metadata);
+        }
+
+        #endregion
+
         #region Nested types
 
         private sealed class CompiledExpression : LightDictionary<object, Func<object?[], object?>>, ICompiledExpression, IExpressionBuilderContext, IExpressionVisitor
@@ -59,14 +80,14 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             private readonly ExpressionCompilerComponent _compiler;
             private readonly IExpressionNode _expression;
-            private readonly IReadOnlyMetadataContext? _inputMetadata;
             private readonly ExpressionDictionary _expressionsDict;
+            private readonly IReadOnlyMetadataContext? _inputMetadata;
             private readonly object?[] _values;
 
             private List<IParameterInfo>? _lambdaParameters;
             private IMetadataContext? _metadata;
 
-            private static readonly ParameterExpression[] ArrayParameterArray = { MugenExtensions.GetParameterExpression<object[]>() };
+            private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
 
             #endregion
 
@@ -109,7 +130,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
             {
                 var list = values.List;
-                var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<Type>();
+                var key = list ?? values.Item.Type ?? (object) Default.EmptyArray<Type>();
                 if (!TryGetValue(key, out var invoker))
                 {
                     invoker = CompileExpression(values);
@@ -141,21 +162,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 {
                     Array.Clear(_values, 0, _values.Length);
                 }
-            }
-
-            IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
-            {
-                if (expression is IBindingMemberExpressionNode memberExpression)
-                {
-                    if (memberExpression.Index < 0)
-                    {
-                        this.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBindingMemberExpressionFormat2.Format(memberExpression, memberExpression.Index));
-                        this.ThrowCannotCompile(memberExpression);
-                    }
-                    _expressionsDict[memberExpression] = null;
-                }
-
-                return expression;
             }
 
             public IParameterInfo? TryGetLambdaParameter()
@@ -202,12 +208,28 @@ namespace MugenMvvm.Binding.Compiling.Components
             public Expression Build(IExpressionNode expression)
             {
                 Should.NotBeNull(expression, nameof(expression));
-                var exp = _compiler.Owner.Components.Get<IExpressionBuilderCompilerComponent>(_inputMetadata).TryBuild(this, expression) ?? TryGetExpression(expression);
+                var exp = _compiler._components.TryBuild(this, expression) ?? TryGetExpression(expression);
                 if (exp != null)
                     return exp;
 
                 this.ThrowCannotCompile(expression);
                 return null;
+            }
+
+            IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+            {
+                if (expression is IBindingMemberExpressionNode memberExpression)
+                {
+                    if (memberExpression.Index < 0)
+                    {
+                        this.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBindingMemberExpressionFormat2.Format(memberExpression, memberExpression.Index));
+                        this.ThrowCannotCompile(memberExpression);
+                    }
+
+                    _expressionsDict[memberExpression] = null;
+                }
+
+                return expression;
             }
 
             #endregion
@@ -267,8 +289,8 @@ namespace MugenMvvm.Binding.Compiling.Components
                 var typesY = y as Type[];
                 if (typesX == null && typesY == null)
                 {
-                    var valuesX = (ExpressionValue[])x;
-                    var valuesY = (ExpressionValue[])y;
+                    var valuesX = (ExpressionValue[]) x;
+                    var valuesY = (ExpressionValue[]) y;
                     if (valuesX.Length != valuesY.Length)
                         return false;
                     for (var i = 0; i < valuesX.Length; i++)
@@ -281,9 +303,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
 
                 if (typesX == null)
-                    return Equals(typesY!, (ExpressionValue[])x);
+                    return Equals(typesY!, (ExpressionValue[]) x);
                 if (typesY == null)
-                    return Equals(typesX!, (ExpressionValue[])y);
+                    return Equals(typesX!, (ExpressionValue[]) y);
 
                 if (typesX.Length != typesY.Length)
                     return false;
@@ -309,7 +331,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
                 else
                 {
-                    var types = (Type[])key;
+                    var types = (Type[]) key;
                     for (var index = 0; index < types.Length; index++)
                         hashCode.Add(types[index]);
                 }

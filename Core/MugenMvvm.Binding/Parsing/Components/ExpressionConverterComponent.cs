@@ -21,6 +21,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         #region Fields
 
         private readonly ExpressionConverterContext<Expression> _context;
+        private readonly ComponentTracker _componentTracker;
         private readonly FuncIn<ExpressionConverterRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
         private readonly FuncIn<IReadOnlyList<ExpressionConverterRequest>, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseListDelegate;
 
@@ -31,6 +32,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         public ExpressionConverterComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _context = new ExpressionConverterContext<Expression>(metadataContextProvider);
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IExpressionConverterParserComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
             _tryParseDelegate = Parse;
             _tryParseListDelegate = Parse;
         }
@@ -61,13 +64,13 @@ namespace MugenMvvm.Binding.Parsing.Components
         protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            _context.Owner = owner;
+            _componentTracker.Attach(owner, metadata);
         }
 
         protected override void OnDetachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            _context.Owner = null;
+            _componentTracker.Detach(owner, metadata);
         }
 
         private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(in IReadOnlyList<ExpressionConverterRequest> expressions, IReadOnlyMetadataContext? metadata)

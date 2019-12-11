@@ -14,12 +14,21 @@ namespace MugenMvvm.Binding.Members
 {
     public sealed class MemberProvider : ComponentOwnerBase<IMemberProvider>, IMemberProvider
     {
+        #region Fields
+
+        private readonly ComponentTracker _componentTracker;
+        private IMemberProviderComponent[]? _components;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
         public MemberProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IMemberProviderComponent, MemberProvider>((components, state, _) => state._components = components, this);
         }
 
         #endregion
@@ -33,7 +42,9 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            GetComponents<IMemberProviderComponent>(metadata).TryGetMember(type, name, memberTypes, flags, metadata, out var result);
+            if (_components == null)
+                _componentTracker.Attach(this, metadata);
+            _components!.TryGetMember(type, name, memberTypes, flags, metadata, out var result);
             return result;
         }
 
@@ -45,7 +56,9 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            return GetComponents<IMemberProviderComponent>(metadata).TryGetMembers(type, name, memberTypes, flags, metadata) ?? Default.EmptyArray<IMemberInfo>();
+            if (_components == null)
+                _componentTracker.Attach(this, metadata);
+            return _components!.TryGetMembers(type, name, memberTypes, flags, metadata) ?? Default.EmptyArray<IMemberInfo>();
         }
 
         #endregion

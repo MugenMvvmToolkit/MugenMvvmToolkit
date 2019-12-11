@@ -11,12 +11,26 @@ namespace MugenMvvm.Binding.Observers
 {
     public sealed class ObserverProvider : ComponentOwnerBase<IObserverProvider>, IObserverProvider
     {
+        #region Fields
+
+        private readonly ComponentTracker _componentTracker;
+
+        private IMemberObserverProviderComponent[]? _memberObserverComponents;
+        private IMemberPathProviderComponent[]? _memberPathComponents;
+        private IMemberPathObserverProviderComponent[]? _memberPathObserverComponents;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
         public ObserverProvider(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IMemberObserverProviderComponent, ObserverProvider>((components, state, _) => state._memberObserverComponents = components, this);
+            _componentTracker.AddListener<IMemberPathProviderComponent, ObserverProvider>((components, state, _) => state._memberPathComponents = components, this);
+            _componentTracker.AddListener<IMemberPathObserverProviderComponent, ObserverProvider>((components, state, _) => state._memberPathObserverComponents = components, this);
         }
 
         #endregion
@@ -26,12 +40,16 @@ namespace MugenMvvm.Binding.Observers
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
-            return GetComponents<IMemberObserverProviderComponent>(metadata).TryGetMemberObserver(type, member, metadata);
+            if (_memberObserverComponents == null)
+                _componentTracker.Attach(this, metadata);
+            return _memberObserverComponents!.TryGetMemberObserver(type, member, metadata);
         }
 
         public IMemberPath GetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IMemberPathProviderComponent>(metadata).TryGetMemberPath(path, metadata);
+            if (_memberPathComponents == null)
+                _componentTracker.Attach(this, metadata);
+            var result = _memberPathComponents!.TryGetMemberPath(path, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return result;
@@ -40,7 +58,9 @@ namespace MugenMvvm.Binding.Observers
         public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            var result = GetComponents<IMemberPathObserverProviderComponent>(metadata).TryGetMemberPathObserver(target, request, metadata);
+            if (_memberPathObserverComponents == null)
+                _componentTracker.Attach(this, metadata);
+            var result = _memberPathObserverComponents!.TryGetMemberPathObserver(target, request, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return result;

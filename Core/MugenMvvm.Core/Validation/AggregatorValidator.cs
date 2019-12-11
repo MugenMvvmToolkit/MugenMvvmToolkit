@@ -113,7 +113,7 @@ namespace MugenMvvm.Validation
             if (ReferenceEquals(this, component))
                 return false;
             if (component is IValidator validator)
-                return Array.IndexOf(Components.Get<IValidator>(metadata), validator) < 0;
+                return Array.IndexOf(GetComponents<IValidator>(metadata), validator) < 0;
             return true;
         }
 

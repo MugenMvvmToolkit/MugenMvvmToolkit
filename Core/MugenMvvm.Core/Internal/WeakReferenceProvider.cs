@@ -10,11 +10,20 @@ namespace MugenMvvm.Internal
 {
     public sealed class WeakReferenceProvider : ComponentOwnerBase<IWeakReferenceProvider>, IWeakReferenceProvider
     {
+        #region Fields
+
+        private readonly ComponentTracker _componentTracker;
+        private IWeakReferenceProviderComponent[]? _components;
+
+        #endregion
+
         #region Constructors
 
         [Preserve(Conditional = true)]
         public WeakReferenceProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IWeakReferenceProviderComponent, WeakReferenceProvider>((components, state, _) => state._components = components, this);
         }
 
         #endregion
@@ -25,8 +34,9 @@ namespace MugenMvvm.Internal
         {
             if (item == null)
                 return Default.WeakReference;
-
-            var result = GetComponents<IWeakReferenceProviderComponent>(metadata).TryGetWeakReference(item, metadata);
+            if (_components == null)
+                _componentTracker.Attach(this, metadata);
+            var result = _components!.TryGetWeakReference(item, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return result;

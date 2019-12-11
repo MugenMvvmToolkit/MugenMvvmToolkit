@@ -13,11 +13,24 @@ namespace MugenMvvm.Binding.Core
 {
     public sealed class BindingManager : ComponentOwnerBase<IBindingManager>, IBindingManager
     {
+        #region Fields
+
+        private readonly ComponentTracker _componentTracker;
+        private IBindingExpressionBuilderComponent[]? _expressionBuilderComponents;
+        private IBindingHolderComponent[]? _holderComponents;
+        private IBindingStateDispatcherComponent[]? _stateDispatcherComponents;
+
+        #endregion
+
         #region Constructors
 
         public BindingManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IBindingExpressionBuilderComponent, BindingManager>((components, state, _) => state._expressionBuilderComponents = components, this);
+            _componentTracker.AddListener<IBindingHolderComponent, BindingManager>((components, state, _) => state._holderComponents = components, this);
+            _componentTracker.AddListener<IBindingStateDispatcherComponent, BindingManager>((components, state, _) => state._stateDispatcherComponents = components, this);
         }
 
         #endregion
@@ -26,7 +39,9 @@ namespace MugenMvvm.Binding.Core
 
         public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IBindingExpressionBuilderComponent>(metadata).TryBuildBindingExpression(expression, metadata);
+            if (_expressionBuilderComponents == null)
+                _componentTracker.Attach(this, metadata);
+            var result = _expressionBuilderComponents!.TryBuildBindingExpression(expression, metadata);
             if (result.IsNullOrEmpty())
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
             return result;
@@ -35,14 +50,18 @@ namespace MugenMvvm.Binding.Core
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            return GetComponents<IBindingHolderComponent>(metadata).TryGetBindings(target, path, metadata);
+            if (_holderComponents == null)
+                _componentTracker.Attach(this, metadata);
+            return _holderComponents!.TryGetBindings(target, path, metadata);
         }
 
         public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(binding, nameof(binding));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
-            return GetComponents<IBindingStateDispatcherComponent>(metadata).OnLifecycleChanged(binding, lifecycleState, metadata).DefaultIfNull();
+            if (_stateDispatcherComponents == null)
+                _componentTracker.Attach(this, metadata);
+            return _stateDispatcherComponents!.OnLifecycleChanged(binding, lifecycleState, metadata).DefaultIfNull();
         }
 
         #endregion

@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
@@ -18,6 +17,7 @@ namespace MugenMvvm.Binding.Parsing
         private int? _limit;
 
         private IMetadataContext? _metadata;
+        private ITokenParserComponent[] _parsers;
         private int _position;
 
         #endregion
@@ -28,6 +28,7 @@ namespace MugenMvvm.Binding.Parsing
         {
             _metadataContextProvider = metadataContextProvider;
             Source = string.Empty;
+            _parsers = Default.EmptyArray<ITokenParserComponent>();
         }
 
         #endregion
@@ -70,7 +71,15 @@ namespace MugenMvvm.Binding.Parsing
 
         public int Length => _limit.GetValueOrDefault(Source.Length);
 
-        public IComponentOwner? Owner { get; set; }
+        public ITokenParserComponent[] Parsers
+        {
+            get => _parsers;
+            set
+            {
+                Should.NotBeNull(value, nameof(value));
+                _parsers = value;
+            }
+        }
 
         #endregion
 
@@ -88,7 +97,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null)
         {
-            return Owner?.Components.Get<ITokenParserComponent>(_metadata).TryParse(this, expression, condition);
+            return Parsers.TryParse(this, expression, condition);
         }
 
         #endregion
