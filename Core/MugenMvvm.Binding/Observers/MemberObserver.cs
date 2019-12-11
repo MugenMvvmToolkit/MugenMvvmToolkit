@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Observers
     {
         #region Fields
 
-        private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _handler;
+        public readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> Handler;
         public readonly object Member;
 
         #endregion
@@ -23,14 +23,14 @@ namespace MugenMvvm.Binding.Observers
             Should.NotBeNull(handler, nameof(handler));
             Should.NotBeNull(member, nameof(member));
             Member = member;
-            _handler = handler;
+            Handler = handler;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsEmpty => _handler == null;
+        public bool IsEmpty => Handler == null;
 
         #endregion
 
@@ -39,9 +39,9 @@ namespace MugenMvvm.Binding.Observers
         [Pure]
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            if (_handler == null)
+            if (Handler == null)
                 return default;
-            return _handler.Invoke(target, Member, listener, metadata);
+            return Handler.Invoke(target, Member, listener, metadata);
         }
 
         #endregion

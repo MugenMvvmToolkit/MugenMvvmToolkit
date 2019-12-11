@@ -1,10 +1,11 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Delegates;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -76,26 +77,13 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (!_cache.TryGetValue(path, out var value))
             {
-                value = TryGetPath(path, metadata)!;
+                value = Components.TryGetMemberPath(path, metadata)!;
                 if (value == null)
                     return null;
                 _cache[path] = value;
             }
 
             return value;
-        }
-
-        private IMemberPath? TryGetPath(in string path, IReadOnlyMetadataContext? metadata)
-        {
-            var components = Components;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var memberPath = components[i].TryGetMemberPath(path, metadata);
-                if (memberPath != null)
-                    return memberPath;
-            }
-
-            return null;
         }
 
         #endregion
