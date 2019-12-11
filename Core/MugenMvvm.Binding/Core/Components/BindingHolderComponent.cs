@@ -50,8 +50,8 @@ namespace MugenMvvm.Binding.Core.Components
                 return default;
 
             var values = path == null
-                ? attachedValueProvider.GetValues(target, target, (o, pair, arg3) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
-                : attachedValueProvider.GetValues(target, path, (o, pair, arg3) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(pair.Key, StringComparison.Ordinal));
+                ? attachedValueProvider.GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
+                : attachedValueProvider.GetValues(target, path, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(pair.Key, StringComparison.Ordinal));
 
             if (values.Count == 0)
                 return default;
@@ -71,8 +71,10 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetOrAddAttachedValueProvider(target, metadata);
-            attachedValueProvider.AddOrUpdate(target, GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
+            _attachedValueManager
+                .DefaultIfNull()
+                .GetOrAddAttachedValueProvider(target, metadata)
+                .AddOrUpdate(target, GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
         }
 
