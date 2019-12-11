@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -85,21 +86,9 @@ namespace MugenMvvm.Binding.Parsing
             return Source.Substring(start, end - start);
         }
 
-        public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserComponent, bool>? condition = null)
+        public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null)
         {
-            var components = Owner?.Components.Get<ITokenParserComponent>(_metadata) ?? Default.EmptyArray<ITokenParserComponent>();
-            for (var i = 0; i < components.Length; i++)
-            {
-                var component = components[i];
-                if (condition != null && !condition(component))
-                    continue;
-
-                var result = component.TryParse(this, expression);
-                if (result != null)
-                    return result;
-            }
-
-            return null;
+            return Owner?.Components.Get<ITokenParserComponent>(_metadata).TryParse(this, expression, condition);
         }
 
         #endregion

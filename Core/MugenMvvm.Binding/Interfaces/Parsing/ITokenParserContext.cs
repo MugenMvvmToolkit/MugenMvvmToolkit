@@ -16,6 +16,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
 
         string GetValue(int start, int end);
 
-        IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserComponent, bool>? condition = null);
+        IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null);
     }
 }

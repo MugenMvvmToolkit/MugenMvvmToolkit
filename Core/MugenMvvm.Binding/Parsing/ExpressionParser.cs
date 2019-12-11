@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Components;
@@ -23,16 +24,10 @@ namespace MugenMvvm.Binding.Parsing
 
         public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            var parsers = GetComponents<IExpressionParserComponent>(metadata);
-            for (var i = 0; i < parsers.Length; i++)
-            {
-                var result = parsers[i].TryParse(expression, metadata);
-                if (!result.Item.IsEmpty || result.List != null)
-                    return result;
-            }
-
-            BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return default;
+            var result = GetComponents<IExpressionParserComponent>(metadata).TryParse(expression, metadata);
+            if (result.Item.IsEmpty && result.List == null)
+                BindingExceptionManager.ThrowCannotParseExpression(expression);
+            return result;
         }
 
         #endregion

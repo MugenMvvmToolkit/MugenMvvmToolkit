@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -72,17 +73,10 @@ namespace MugenMvvm.Binding.Parsing
         public IExpressionNode Convert(TExpression expression)
         {
             Should.NotBeNull(expression, nameof(expression));
-            var components = Owner?.Components.Get<IExpressionConverterParserComponent<TExpression>>(_metadata)
-                             ?? Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
-            IExpressionNode? exp;
-            for (var index = 0; index < components.Length; index++)
-            {
-                exp = components[index].TryConvert(this, expression);
-                if (exp != null)
-                    return exp;
-            }
-
-            exp = TryGetExpression(expression);
+            var exp = Owner?
+                          .Components
+                          .Get<IExpressionConverterParserComponent<TExpression>>(_metadata)
+                          .TryConvert(this, expression) ?? TryGetExpression(expression);
             if (exp != null)
                 return exp;
 
