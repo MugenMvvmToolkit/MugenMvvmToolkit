@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal.Components
@@ -8,6 +7,6 @@ namespace MugenMvvm.Interfaces.Internal.Components
     {
         bool TryGetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider);
 
-        bool TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out IAttachedValueProvider? provider);
+        IAttachedValueProvider? TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata);
     }
 }

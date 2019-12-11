@@ -52,13 +52,12 @@ namespace MugenMvvm.Binding.Members.Components
             return false;
         }
 
-        public bool TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IReadOnlyList<IMemberInfo>? members)
+        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             _members.Clear();
             Owner.Components.Get<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
 
-            members = Owner.Components.Get<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
-            return members != null;
+            return Owner.Components.Get<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
         }
 
         #endregion

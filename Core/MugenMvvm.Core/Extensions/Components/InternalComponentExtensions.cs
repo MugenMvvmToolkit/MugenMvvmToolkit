@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
@@ -12,17 +11,17 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool TryGetOrAddAttachedValueProvider(this IAttachedValueManagerComponent[] components, object item, IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out IAttachedValueProvider? provider)
+        public static IAttachedValueProvider? TryGetOrAddAttachedValueProvider(this IAttachedValueManagerComponent[] components, object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetOrAddAttachedValueProvider(item, metadata, out provider))
-                    return true;
+                var provider = components[i].TryGetOrAddAttachedValueProvider(item, metadata);
+                if (provider != null)
+                    return provider;
             }
 
-            provider = null;
-            return false;
+            return null;
         }
 
         public static bool TryGetAttachedValueProvider(this IAttachedValueManagerComponent[] components, object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)

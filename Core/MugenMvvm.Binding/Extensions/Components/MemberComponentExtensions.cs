@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -25,18 +24,17 @@ namespace MugenMvvm.Binding.Extensions.Components
             return false;
         }
 
-        public static bool TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags,
-            IReadOnlyMetadataContext? metadata, [NotNullWhen(true)] out IReadOnlyList<IMemberInfo>? members)
+        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetMembers(type, name, memberTypes, flags, metadata, out members))
-                    return true;
+                var members = components[i].TryGetMembers(type, name, memberTypes, flags, metadata);
+                if (members != null)
+                    return members;
             }
 
-            members = null;
-            return false;
+            return null;
         }
 
         public static void TryAddMembers(this IRawMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, IReadOnlyMetadataContext? metadata)
@@ -48,7 +46,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                 if (members == null || members.Count == 0)
                     continue;
 
-                for (int j = 0; j < members.Count; j++)
+                for (var j = 0; j < members.Count; j++)
                     result.Add(members[j]);
             }
         }

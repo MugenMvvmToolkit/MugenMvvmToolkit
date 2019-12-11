@@ -45,9 +45,7 @@ namespace MugenMvvm.Binding.Members
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
 
-            if (GetComponents<IMemberProviderComponent>(metadata).TryGetMembers(type, name, memberTypes, flags, metadata, out var result))
-                return result;
-            return Default.EmptyArray<IMemberInfo>();
+            return GetComponents<IMemberProviderComponent>(metadata).TryGetMembers(type, name, memberTypes, flags, metadata) ?? Default.EmptyArray<IMemberInfo>();
         }
 
         #endregion

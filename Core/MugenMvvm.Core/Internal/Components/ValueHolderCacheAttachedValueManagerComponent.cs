@@ -35,21 +35,19 @@ namespace MugenMvvm.Internal.Components
             return true;
         }
 
-        public bool TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
+        public IAttachedValueProvider? TryGetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata)
         {
             if (!(item is IValueHolder<IAttachedValueProvider> valueHolder))
-                return Components.TryGetOrAddAttachedValueProvider(item, metadata, out provider);
+                return Components.TryGetOrAddAttachedValueProvider(item, metadata);
 
-            if (valueHolder.Value == null)
+            var provider = valueHolder.Value;
+            if (provider == null)
             {
-                if (!Components.TryGetOrAddAttachedValueProvider(item, metadata, out provider))
-                    return false;
+                provider = Components.TryGetOrAddAttachedValueProvider(item, metadata);
                 valueHolder.Value = provider;
             }
-            else
-                provider = valueHolder.Value;
 
-            return true;
+            return provider;
         }
 
         #endregion

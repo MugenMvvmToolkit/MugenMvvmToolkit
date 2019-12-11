@@ -24,7 +24,8 @@ namespace MugenMvvm.Internal
         public IAttachedValueProvider GetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(item, nameof(item));
-            if (!GetComponents<IAttachedValueManagerComponent>(metadata).TryGetOrAddAttachedValueProvider(item, metadata, out var provider))
+            var provider = GetComponents<IAttachedValueManagerComponent>(metadata).TryGetOrAddAttachedValueProvider(item, metadata);
+            if (provider == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return provider;
         }

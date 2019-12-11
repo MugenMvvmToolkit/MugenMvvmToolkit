@@ -71,16 +71,16 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        public bool TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IReadOnlyList<IMemberInfo>? members)
+        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
-            if (!_tempMembersCache.TryGetValue(cacheKey, out members))
+            if (!_tempMembersCache.TryGetValue(cacheKey, out var members))
             {
-                Components.TryGetMembers(type, name, memberTypes, flags, metadata, out members);
+                members = Components.TryGetMembers(type, name, memberTypes, flags, metadata);
                 _tempMembersCache[cacheKey] = members;
             }
 
-            return members != null;
+            return members;
         }
 
         #endregion
@@ -145,7 +145,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Name, key.Type, (int) key.MemberType, (int) key.MemberFlags);
+                return HashCode.Combine(key.Name, key.Type, (int)key.MemberType, (int)key.MemberFlags);
             }
 
             #endregion
