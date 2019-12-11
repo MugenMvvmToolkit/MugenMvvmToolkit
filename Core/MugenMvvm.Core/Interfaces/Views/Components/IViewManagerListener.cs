@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewManagerListener : IComponent<IViewManager>
     {
-        void OnViewInitialized(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata);
+        void OnViewInitialized(IViewManager viewManager, IView view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
 
-        void OnViewCleared(IViewManager viewManager, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata);
+        void OnViewCleared(IViewManager viewManager, IView view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
     }
 }

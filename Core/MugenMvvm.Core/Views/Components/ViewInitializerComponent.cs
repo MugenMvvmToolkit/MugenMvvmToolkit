@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Attributes;
+using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -14,20 +15,19 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewInitializerComponent : AttachableComponentBase<IViewManager>, IViewInitializerComponent, IViewInfoProviderComponent, IHasPriority
+    public sealed class ViewInitializerComponent : AttachableComponentBase<IViewManager>, IViewInitializerComponent, IViewProviderComponent, IHasPriority
     {
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
-        private static readonly IMetadataContextKey<StringOrdinalLightDictionary<IViewInfo>> ViewsMetadataKey =
-            MetadataContextKey.FromMember<StringOrdinalLightDictionary<IViewInfo>>(typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
+        private static readonly IMetadataContextKey<StringOrdinalLightDictionary<IView>> ViewsMetadataKey =
+            MetadataContextKey.FromMember<StringOrdinalLightDictionary<IView>>(typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
 
         #endregion
 
         #region Constructors
 
-        [Preserve(Conditional = true)]
         public ViewInitializerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
@@ -37,79 +37,66 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ViewComponentPriority.ViewInitializer;
+        public int Priority { get; set; } = ViewComponentPriority.Initializer;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInfo> TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var views = viewModel.Metadata.Get(ViewsMetadataKey);
-            if (views == null)
-                return Default.EmptyArray<IViewInfo>();
-            lock (views)
-            {
-                return views.ValuesToArray();
-            }
-        }
-
-        public IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata)
-        {
-            if (view == null && viewModel == null)
+            if (viewModel == null || view == null)
                 return null;
-            Should.NotBeNull(initializer, nameof(initializer));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (viewModel == null)
-            {
-                viewModel = Owner.GetComponents<IViewModelProviderViewManagerComponent>().TryGetViewModelForView(initializer, view!, metadata);
-                if (viewModel == null)
-                    ExceptionManager.ThrowObjectNotInitialized(Owner);
-            }
-
-            if (view == null)
-            {
-                view = Owner.GetComponents<IViewProviderComponent>().TryGetViewForViewModel(initializer, viewModel, metadata);
-                if (view == null)
-                    ExceptionManager.ThrowObjectNotInitialized(Owner);
-            }
-
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, _) => new StringOrdinalLightDictionary<IViewInfo>(1));
-            ViewInfo viewInfo;
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, _) => new StringOrdinalLightDictionary<IView>(1));
+            View resultView;
             lock (views)
             {
-                if (views.TryGetValue(initializer.Id, out var oldView))
+                if (views.TryGetValue(mapping.Id, out var oldView))
                 {
                     if (ReferenceEquals(oldView.View, view))
-                        return new ViewInitializerResult(oldView, viewModel, metadata);
+                        return Task.FromResult(new ViewInitializationResult(oldView, viewModel, metadata));
 
                     Owner.GetComponents<IViewManagerListener>().OnViewCleared(Owner, oldView, viewModel, metadata);
                 }
 
-                viewInfo = new ViewInfo(initializer, view, null, _metadataContextProvider);
-                views[initializer.Id] = viewInfo;
+                resultView = new View(mapping, view, null, _metadataContextProvider);
+                views[mapping.Id] = resultView;
             }
 
-            Owner.GetComponents<IViewManagerListener>().OnViewInitialized(Owner, viewInfo, viewModel, metadata);
-            return new ViewInitializerResult(viewInfo, viewModel, metadata);
+            Owner.GetComponents<IViewManagerListener>().OnViewInitialized(Owner, resultView, viewModel, metadata);
+            return Task.FromResult(new ViewInitializationResult(resultView, viewModel, metadata));
         }
 
-        public IReadOnlyMetadataContext? TryCleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata)
+        public Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
+            if (viewModel == null)
+                return null;
+
             var removed = false;
             var views = viewModel.Metadata.Get(ViewsMetadataKey);
             if (views != null)
             {
                 lock (views)
                 {
-                    removed = views.Remove(initializer.Id);
+                    removed = views.Remove(view.Mapping.Id);
                 }
             }
 
             if (removed)
-                Owner.GetComponents<IViewManagerListener>().OnViewCleared(Owner, viewInfo, viewModel, metadata);
-            return Default.Metadata;
+                Owner.GetComponents<IViewManagerListener>().OnViewCleared(Owner, view, viewModel, metadata);
+            return Task.CompletedTask;
+        }
+
+        public IReadOnlyList<IView> TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            var views = viewModel.Metadata.Get(ViewsMetadataKey);
+            if (views == null)
+                return Default.EmptyArray<IView>();
+            lock (views)
+            {
+                return views.ValuesToArray();
+            }
         }
 
         #endregion

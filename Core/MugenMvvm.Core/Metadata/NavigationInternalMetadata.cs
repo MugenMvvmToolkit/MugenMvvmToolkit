@@ -10,7 +10,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IViewInfo>? _restoredView;
+        private static IMetadataContextKey<IView>? _restoredView;
         private static IMetadataContextKey<bool>? _isRestorableCallback;
         private static IMetadataContextKey<bool>? _closeAll;
         private static IMetadataContextKey<INavigationCallback>? _showingCallback;
@@ -22,9 +22,9 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<IViewInfo> RestoredView
+        public static IMetadataContextKey<IView> RestoredView
         {
-            get => _restoredView ??= GetBuilder<IViewInfo>(nameof(RestoredView)).NotNull().Build();
+            get => _restoredView ??= GetBuilder<IView>(nameof(RestoredView)).NotNull().Build();
             set => _restoredView = value;
         }
 

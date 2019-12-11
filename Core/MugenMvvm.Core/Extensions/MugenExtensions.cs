@@ -132,6 +132,30 @@ namespace MugenMvvm.Extensions
             handler.Invoke((TState)state);
         }
 
+        public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task, TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
+        {
+            Should.NotBeNull(tcs, nameof(tcs));
+            Should.NotBeNull(task, nameof(task));
+            if (task.IsCompleted)
+            {
+                switch (task.Status)
+                {
+                    case TaskStatus.Canceled:
+                        tcs.TrySetCanceled();
+                        break;
+                    case TaskStatus.Faulted:
+                        tcs.TrySetException(task.Exception.InnerExceptions);
+                        break;
+                    case TaskStatus.RanToCompletion:
+                        var t = task as Task<TResult>;
+                        tcs.TrySetResult(t == null ? default! : t.Result);
+                        break;
+                }
+            }
+            else
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, continuationOptions);
+        }
+
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference> valueHolder)
         {
             valueHolder.Value?.Release();

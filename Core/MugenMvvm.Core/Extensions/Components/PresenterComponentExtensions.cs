@@ -11,33 +11,33 @@ namespace MugenMvvm.Extensions.Components
     public static class PresenterComponentExtensions
     {
         #region Methods
-
-        public static IViewModelPresenterMediator? TryGetMediator(this IViewModelMediatorProviderComponent[] components, IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var mediator = components[i].TryGetMediator(viewModel, viewInitializer, metadata)!;
-                if (mediator != null)
-                    return mediator;
-            }
-
-            return null;
-        }
-
-        public static IReadOnlyList<IPresenterResult>? TryClose(this IViewModelMediatorCloseManagerComponent[] components, IViewModelBase viewModel, IReadOnlyList<IViewModelPresenterMediator> mediators,
-            IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryClose(viewModel, mediators, metadata);
-                if (result != null)
-                    return result;
-            }
-
-            return null;
-        }
+        //todo review
+        // public static IViewModelPresenterMediator? TryGetMediator(this IViewModelMediatorProviderComponent[] components, IViewModelBase viewModel, IViewInitializer viewInitializer, IReadOnlyMetadataContext? metadata)
+        // {
+        //     Should.NotBeNull(components, nameof(components));
+        //     for (var i = 0; i < components.Length; i++)
+        //     {
+        //         var mediator = components[i].TryGetMediator(viewModel, viewInitializer, metadata)!;
+        //         if (mediator != null)
+        //             return mediator;
+        //     }
+        //
+        //     return null;
+        // }
+        //
+        // public static IReadOnlyList<IPresenterResult>? TryClose(this IViewModelMediatorCloseManagerComponent[] components, IViewModelBase viewModel, IReadOnlyList<IViewModelPresenterMediator> mediators,
+        //     IReadOnlyMetadataContext? metadata)
+        // {
+        //     Should.NotBeNull(components, nameof(components));
+        //     for (var i = 0; i < components.Length; i++)
+        //     {
+        //         var result = components[i].TryClose(viewModel, mediators, metadata);
+        //         if (result != null)
+        //             return result;
+        //     }
+        //
+        //     return null;
+        // }
 
         public static void OnCallbackAdded(this IViewModelCallbackManagerListener[] listeners, INavigationCallback callback, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {

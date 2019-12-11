@@ -1,13 +1,16 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewInitializerComponent : IComponent<IViewManager>
     {
-        IViewInitializerResult? TryInitialize(IViewInitializer initializer, IViewModelBase? viewModel, object? view, IMetadataContext metadata);
+        Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 
-        IReadOnlyMetadataContext? TryCleanup(IViewInitializer initializer, IViewInfo viewInfo, IViewModelBase viewModel, IMetadataContext metadata);
+        Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
     }
 }

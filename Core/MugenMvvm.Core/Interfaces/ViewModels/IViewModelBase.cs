@@ -1,9 +1,8 @@
-﻿using System.ComponentModel;
-using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModelBase : INotifyPropertyChanged, IMetadataOwner<IMetadataContext>
+    public interface IViewModelBase : IMetadataOwner<IMetadataContext>
     {
     }
 }

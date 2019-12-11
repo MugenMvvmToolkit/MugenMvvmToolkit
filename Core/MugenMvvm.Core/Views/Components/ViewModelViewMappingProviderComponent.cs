@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
-using MugenMvvm.Attributes;
-using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -17,82 +13,71 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class MappingViewInitializerProviderComponent : AttachableComponentBase<IViewManager>, IViewInitializerProviderComponent, IHasPriority
+    public sealed class ViewModelViewMappingProviderComponent : IViewModelViewMappingProviderComponent, IHasPriority
     {
         #region Fields
 
         private readonly List<MappingInfo> _mappings;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-        private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
 
         #region Constructors
 
-        [Preserve(Conditional = true)]
-        public MappingViewInitializerProviderComponent(IThreadDispatcher? threadDispatcher = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewModelViewMappingProviderComponent()
         {
-            _threadDispatcher = threadDispatcher;
-            _metadataContextProvider = metadataContextProvider;
             _mappings = new List<MappingInfo>();
-            InitializeExecutionMode = ThreadExecutionMode.Main;
-            CleanupExecutionMode = ThreadExecutionMode.MainAsync;
         }
 
         #endregion
 
         #region Properties
 
-        public int Priority { get; set; } = ViewComponentPriority.InitializerProvider;
-
-        public ThreadExecutionMode InitializeExecutionMode { get; set; }
-
-        public ThreadExecutionMode CleanupExecutionMode { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.MappingProvider;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInitializer> TryGetInitializersByView(object view, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IViewModelViewMapping> TryGetMappingByView(object view, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(view, nameof(view));
-            var initializers = new List<IViewInitializer>();
+            List<IViewModelViewMapping>? mappings = null;
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
                 {
                     var mapping = _mappings[i];
                     var viewModelType = mapping.GetViewModelType(view, metadata);
-                    if (viewModelType != null)
-                    {
-                        initializers.Add(new ViewInitializer(InitializeExecutionMode, CleanupExecutionMode, mapping.Id, view.GetType(),
-                            viewModelType, mapping.Metadata, Owner, _threadDispatcher, _metadataContextProvider));
-                    }
+                    if (viewModelType == null)
+                        continue;
+                    if (mappings == null)
+                        mappings = new List<IViewModelViewMapping>(2);
+                    mappings.Add(new ViewModelViewMapping(mapping.Id, view.GetType(), viewModelType, mapping.Metadata));
                 }
             }
 
-            return initializers;
+            return (IReadOnlyList<IViewModelViewMapping>?)mappings ?? Default.EmptyArray<IViewModelViewMapping>();
         }
 
-        public IReadOnlyList<IViewInitializer> TryGetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IViewModelViewMapping> TryGetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var initializers = new List<IViewInitializer>();
+            List<IViewModelViewMapping>? mappings = null;
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
                 {
                     var mapping = _mappings[i];
                     var viewType = mapping.GetViewType(viewModel, metadata);
-                    if (viewType != null)
-                    {
-                        initializers.Add(new ViewInitializer(InitializeExecutionMode, CleanupExecutionMode, mapping.Id, viewType,
-                            viewModel.GetType(), mapping.Metadata, Owner, _threadDispatcher, _metadataContextProvider));
-                    }
+                    if (viewType == null)
+                        continue;
+                    if (mappings == null)
+                        mappings = new List<IViewModelViewMapping>(2);
+                    mappings.Add(new ViewModelViewMapping(mapping.Id, viewType, viewModel.GetType(), mapping.Metadata));
                 }
             }
 
-            return initializers;
+            return mappings;
         }
 
         #endregion

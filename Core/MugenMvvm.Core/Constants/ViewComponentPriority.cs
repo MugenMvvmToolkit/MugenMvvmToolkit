@@ -4,11 +4,9 @@
     {
         #region Fields
 
-        public const int InitializerProvider = 0;
-        public const int PostInitializer = 0;
-        public const int ViewInitializer = 0;
-        public const int ViewModelProvider = 0;
-        public const int ViewProvider = 0;
+        public const int Initializer = 0;
+        public const int ViewModelViewProvider = 100;
+        public const int MappingProvider = 0;
 
         #endregion
     }

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Metadata;
@@ -15,72 +13,66 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static Task<IReadOnlyMetadataContext> CleanupAsync(this IViewInfo viewInfo, IViewModelBase viewModel, IReadOnlyMetadataContext metadata)
-        {
-            Should.NotBeNull(viewInfo, nameof(viewInfo));
-            return viewInfo.Initializer.CleanupAsync(viewInfo, viewModel, metadata);
-        }
-
-        public static TView? TryWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
-            return (TView?)viewInfo.TryWrap(typeof(TView), metadata, wrapperManager);
+            return (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
         }
 
-        public static object? TryWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
-            return WrapInternal(viewInfo, wrapperType, metadata, wrapperManager, true);
+            return WrapInternal(view, wrapperType, metadata, wrapperManager, true);
         }
 
-        public static TView Wrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
-            return (TView)viewInfo.Wrap(typeof(TView), metadata, wrapperManager);
+            return (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
         }
 
-        public static object Wrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
-            return WrapInternal(viewInfo, wrapperType, metadata, wrapperManager, false)!;
+            return WrapInternal(view, wrapperType, metadata, wrapperManager, false)!;
         }
 
-        public static bool CanWrap<TView>(this IViewInfo viewInfo, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class
+        public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class
         {
-            return viewInfo.CanWrap(typeof(TView), metadata, wrapperManager);
+            return view.CanWrap(typeof(TView), metadata, wrapperManager);
         }
 
-        public static bool CanWrap(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
-            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            return wrapperType.IsInstanceOfType(viewInfo.View) || wrapperManager.DefaultIfNull().CanWrap(viewInfo.View.GetType(), wrapperType, metadata);
+            return wrapperType.IsInstanceOfType(view.View) || wrapperManager.DefaultIfNull().CanWrap(view.View.GetType(), wrapperType, metadata);
         }
 
-        public static IComponentCollection GetOrAddWrappersCollection(this IViewInfo viewInfo, IComponentCollectionProvider? componentCollectionProvider = null)
+        public static IComponentCollection GetOrAddWrappersCollection(this IView view, IComponentCollectionProvider? componentCollectionProvider = null)
         {
-            var pair = new KeyValuePair<IComponentCollectionProvider?, IViewInfo>(componentCollectionProvider, viewInfo);
-            return viewInfo
+            var pair = new KeyValuePair<IComponentCollectionProvider?, IView>(componentCollectionProvider, view);
+            return view
                 .Metadata
                 .GetOrAdd(ViewMetadata.Wrappers, pair, (context, s) => s.Key.DefaultIfNull().GetComponentCollection(s.Value, context));
         }
 
-        private static object? WrapInternal(this IViewInfo viewInfo, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
+        private static object? WrapInternal(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
         {
-            Should.NotBeNull(viewInfo, nameof(viewInfo));
+            Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
-            if (wrapperType.IsInstanceOfType(viewInfo.View))
-                return viewInfo.View;
+            if (wrapperType.IsInstanceOfType(view.View))
+                return view.View;
 
-            var collection = viewInfo.GetOrAddWrappersCollection();
+            var collection = view.GetOrAddWrappersCollection();
             lock (collection)
             {
                 var item = collection.Get<object>(metadata).FirstOrDefault(wrapperType.IsInstanceOfType);
                 if (item == null)
                 {
                     wrapperManager = wrapperManager.DefaultIfNull();
-                    if (checkCanWrap && !wrapperManager.CanWrap(viewInfo.View.GetType(), wrapperType, metadata))
+                    if (checkCanWrap && !wrapperManager.CanWrap(view.View.GetType(), wrapperType, metadata))
                         return null;
 
-                    item = wrapperManager.Wrap(viewInfo.View, wrapperType, metadata);
+                    item = wrapperManager.Wrap(view.View, wrapperType, metadata);
                     collection.Add(item, metadata);
                 }
 

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
@@ -24,22 +26,41 @@ namespace MugenMvvm.Views
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewInfo> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<IView> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            return GetComponents<IViewInfoProviderComponent>(metadata).TryGetViews(viewModel, metadata) ?? Default.EmptyArray<IViewInfo>();
+            return GetComponents<IViewProviderComponent>(metadata).TryGetViews(viewModel, metadata) ?? Default.EmptyArray<IView>();
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByView(object view, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<IViewModelViewMapping> GetMappingByView(object view, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(view, nameof(view));
-            return GetComponents<IViewInitializerProviderComponent>(metadata).TryGetInitializersByView(view, metadata) ?? Default.EmptyArray<IViewInitializer>();
+            return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappingByView(view, metadata) ?? Default.EmptyArray<IViewModelViewMapping>();
         }
 
-        public IReadOnlyList<IViewInitializer> GetInitializersByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<IViewModelViewMapping> GetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            return GetComponents<IViewInitializerProviderComponent>(metadata).TryGetInitializersByViewModel(viewModel, metadata) ?? Default.EmptyArray<IViewInitializer>();
+            return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappingByViewModel(viewModel, metadata) ?? Default.EmptyArray<IViewModelViewMapping>();
+        }
+
+        public Task<ViewInitializationResult> InitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(mapping, nameof(mapping));
+            var task = GetComponents<IViewInitializerComponent>(metadata).TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
+            if (task == null)
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            return task;
+        }
+
+        public Task CleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(view, nameof(view));
+            var task = GetComponents<IViewInitializerComponent>(metadata).TryCleanupAsync(view, viewModel, cancellationToken, metadata);
+            if (task == null)
+                ExceptionManager.ThrowObjectNotInitialized(this);
+            return task;
         }
 
         #endregion
