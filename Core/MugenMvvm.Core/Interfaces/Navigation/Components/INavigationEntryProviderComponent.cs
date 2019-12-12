@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationEntryProviderComponent : IComponent<INavigationDispatcher>
     {
-        IReadOnlyList<INavigationEntry> TryGetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata);
     }
 }

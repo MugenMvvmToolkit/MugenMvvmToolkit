@@ -7,8 +7,8 @@ namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewModelViewMappingProviderComponent : IComponent<IViewManager>
     {
-        IReadOnlyList<IViewModelViewMapping> TryGetMappingByView(object view, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IViewModelViewMapping>? TryGetMappingByView(object view, IReadOnlyMetadataContext? metadata);
 
-        IReadOnlyList<IViewModelViewMapping> TryGetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IViewModelViewMapping>? TryGetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -38,7 +38,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewModelViewMapping> TryGetMappingByView(object view, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IViewModelViewMapping>? TryGetMappingByView(object view, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(view, nameof(view));
             List<IViewModelViewMapping>? mappings = null;
@@ -56,10 +56,10 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            return (IReadOnlyList<IViewModelViewMapping>?)mappings ?? Default.EmptyArray<IViewModelViewMapping>();
+            return mappings;
         }
 
-        public IReadOnlyList<IViewModelViewMapping> TryGetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IViewModelViewMapping>? TryGetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             List<IViewModelViewMapping>? mappings = null;

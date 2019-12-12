@@ -37,14 +37,14 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             if (name.Length == 0 || name[0] != FakeMemberPrefixSymbol && !name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal))
-                return Default.EmptyArray<IMemberInfo>();
+                return null;
 
             if (!_cache.TryGetValue(name, out var list))
             {
-                list = new IMemberInfo[] {new ConstantMemberInfo(name, null, true)};
+                list = new IMemberInfo[] { new ConstantMemberInfo(name, null, true) };
                 _cache[name] = list;
             }
 

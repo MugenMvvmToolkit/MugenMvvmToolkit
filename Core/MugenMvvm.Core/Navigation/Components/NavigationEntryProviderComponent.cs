@@ -94,7 +94,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        public IReadOnlyList<INavigationEntry> TryGetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata)
         {
             List<INavigationEntry>? result = null;
             lock (_navigationEntries)
@@ -108,7 +108,7 @@ namespace MugenMvvm.Navigation.Components
                     AddNavigationEntries(type, ref result);
             }
 
-            return result ?? (IReadOnlyList<INavigationEntry>)Default.EmptyArray<INavigationEntry>();
+            return result;
         }
 
         #endregion

@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
+        public MemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(type, nameof(type));
             if (_memberObserverComponents == null)

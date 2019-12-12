@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObserverProvider? _bindingObserverProvider;
-        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>> _cache;
+        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Members.Components
             _globalValueConverter = globalValueConverter;
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
-            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>>(59);
+            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);
         }
 
         #endregion
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(cacheKey, out var list))
@@ -65,23 +65,23 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        private List<IMemberInfo> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        private List<IMemberInfo>? GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var hasProperty = false;
             var hasEvent = false;
             var hasField = false;
             var indexerArgs = MugenBindingExtensions.GetIndexerArgsRaw(name);
-            var result = new List<IMemberInfo>();
+            List<IMemberInfo>? result = null;
             foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type))
             {
                 if (!hasProperty)
-                    hasProperty = AddProperties(type, t, name, indexerArgs, result, metadata);
+                    hasProperty = AddProperties(type, t, name, indexerArgs, ref result, metadata);
 
                 if (!hasEvent)
-                    hasEvent = AddEvents(type, t, name, result, metadata);
+                    hasEvent = AddEvents(type, t, name, ref result, metadata);
 
                 if (!hasField)
-                    hasField = AddFields(type, t, name, result);
+                    hasField = AddFields(type, t, name, ref result);
 
                 if (hasEvent && hasField && hasProperty)
                     break;
@@ -95,6 +95,8 @@ namespace MugenMvvm.Binding.Members.Components
                 if (methodInfo.Name != methodName)
                     continue;
 
+                if (result == null)
+                    result = new List<IMemberInfo>();
                 result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
 
                 if (methodArgs == null)
@@ -118,31 +120,35 @@ namespace MugenMvvm.Binding.Members.Components
             return result;
         }
 
-        private bool AddEvents(Type requestedType, Type t, string name, List<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
+        private bool AddEvents(Type requestedType, Type t, string name, ref List<IMemberInfo>? result, IReadOnlyMetadataContext? metadata)
         {
             var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
             if (eventInfo == null)
                 return false;
 
-            var memberObserver = _bindingObserverProvider.DefaultIfNull().TryGetMemberObserver(requestedType, eventInfo, metadata);
+            var memberObserver = _bindingObserverProvider.DefaultIfNull().GetMemberObserver(requestedType, eventInfo, metadata);
             if (memberObserver.IsEmpty)
                 return false;
 
+            if (result == null)
+                result = new List<IMemberInfo>();
             result.Add(new EventMemberInfo(name, eventInfo, memberObserver));
             return true;
         }
 
-        private bool AddFields(Type requestedType, Type t, string name, List<IMemberInfo> result)
+        private bool AddFields(Type requestedType, Type t, string name, ref List<IMemberInfo>? result)
         {
             var field = t.GetField(name, BindingFlagsEx.All);
             if (field == null)
                 return false;
 
+            if (result == null)
+                result = new List<IMemberInfo>();
             result.Add(new FieldMemberAccessorInfo(name, field, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
             return true;
         }
 
-        private bool AddProperties(Type requestedType, Type t, string name, string[]? indexerArgs, List<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
+        private bool AddProperties(Type requestedType, Type t, string name, string[]? indexerArgs, ref List<IMemberInfo>? result, IReadOnlyMetadataContext? metadata)
         {
             if (indexerArgs == null)
             {
@@ -150,6 +156,8 @@ namespace MugenMvvm.Binding.Members.Components
                 if (property == null)
                     return false;
 
+                if (result == null)
+                    result = new List<IMemberInfo>();
                 result.Add(new PropertyMemberAccessorInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
                 return true;
             }
@@ -158,7 +166,10 @@ namespace MugenMvvm.Binding.Members.Components
             {
                 try
                 {
-                    result.Add(new ArrayMemberAccessorInfo(name, t, _globalValueConverter.ConvertValues<int>(indexerArgs, metadata)));
+                    var accessorInfo = new ArrayMemberAccessorInfo(name, t, _globalValueConverter.ConvertValues<int>(indexerArgs, metadata));
+                    if (result == null)
+                        result = new List<IMemberInfo>();
+                    result.Add(accessorInfo);
                     return true;
                 }
                 catch
@@ -180,8 +191,10 @@ namespace MugenMvvm.Binding.Members.Components
 
                 try
                 {
-                    var values = _globalValueConverter.ConvertValues(indexerArgs, parameters, null, metadata);
-                    result.Add(new IndexerMemberAccessorInfo(name, property, values, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+                    var accessorInfo = new IndexerMemberAccessorInfo(name, property, _globalValueConverter.ConvertValues(indexerArgs, parameters, null, metadata), requestedType, _bindingObserverProvider, _reflectionDelegateProvider);
+                    if (result == null)
+                        result = new List<IMemberInfo>();
+                    result.Add(accessorInfo);
                     hasProperty = true;
                 }
                 catch

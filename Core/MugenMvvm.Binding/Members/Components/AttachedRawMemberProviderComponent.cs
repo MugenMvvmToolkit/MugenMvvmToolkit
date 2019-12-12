@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var key = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(key, out var list))
@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache[key] = list;
             }
 
-            return (IReadOnlyList<IMemberInfo>?)list ?? Default.EmptyArray<IMemberInfo>();
+            return list;
         }
 
         public IReadOnlyList<IMemberInfo> GetAttachedMembers(IReadOnlyMetadataContext? metadata)

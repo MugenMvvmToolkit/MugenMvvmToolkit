@@ -87,12 +87,12 @@ namespace MugenMvvm.Views.Components
             return Task.CompletedTask;
         }
 
-        public IReadOnlyList<IView> TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IView>? TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var views = viewModel.Metadata.Get(ViewsMetadataKey);
             if (views == null)
-                return Default.EmptyArray<IView>();
+                return null;
             lock (views)
             {
                 return views.ValuesToArray();

@@ -7,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Members.Components
 {
     public interface IRawMemberProviderComponent : IComponent<IMemberProvider>
     {
-        IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata);
     }
 }

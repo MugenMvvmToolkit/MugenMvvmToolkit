@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>> _cache;
+        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
         private readonly List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
 
         #endregion
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Members.Components
         public AttachedDynamicRawMemberProviderComponent()
         {
             _dynamicMembers = new List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>>();
-            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>>(59);
+            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);
         }
 
         #endregion
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var key = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(key, out var list))
@@ -60,10 +60,9 @@ namespace MugenMvvm.Binding.Members.Components
                         members.Add(memberInfo);
                     }
 
-                    list = members!;
+                    list = members;
                 }
 
-                list ??= Default.EmptyArray<IMemberInfo>();
                 _cache[key] = list;
             }
 

@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Members.Components
 {
     public interface IAttachedRawMemberProviderComponent : IRawMemberProviderComponent
     {
-        IReadOnlyList<IMemberInfo> GetAttachedMembers(IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IMemberInfo>? GetAttachedMembers(IReadOnlyMetadataContext? metadata);
     }
 }
