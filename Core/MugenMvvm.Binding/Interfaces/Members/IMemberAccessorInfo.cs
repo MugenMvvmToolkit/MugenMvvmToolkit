@@ -12,4 +12,11 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null);
     }
+
+    public interface IMemberAccessorInfo<in TTarget, TValue> : IMemberAccessorInfo
+    {
+        TValue GetValue(TTarget target, IReadOnlyMetadataContext? metadata = null);
+
+        void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata = null);
+    }
 }
