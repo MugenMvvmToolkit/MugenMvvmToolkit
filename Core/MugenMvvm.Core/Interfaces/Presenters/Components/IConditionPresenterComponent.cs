@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Presenters;
 
 namespace MugenMvvm.Interfaces.Presenters.Components
 {
     public interface IConditionPresenterComponent : IComponent<IPresenter>
     {
-        bool CanShow(IPresenterComponent presenterComponent, IMetadataContext metadata);
+        bool CanShow(IPresenterComponent presenterComponent, IReadOnlyMetadataContext metadata);
 
-        bool CanClose(ICloseablePresenterComponent presenterComponent, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata);
+        bool CanClose(IPresenterComponent presenterComponent, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata);
 
-        bool CanRestore(IRestorablePresenterComponent presenterComponent, IReadOnlyList<IPresenterResult> results, IMetadataContext metadata);
+        bool CanRestore(IPresenterComponent presenterComponent, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata);
     }
 }

@@ -164,7 +164,7 @@ namespace MugenMvvm.Extensions.Components
             {
                 try
                 {
-                    if (task.IsCanceled || _cancellationToken.IsCancellationRequested)
+                    if (task.IsCanceled)
                     {
                         SetResult(false, null, true);
                         return;
@@ -179,6 +179,12 @@ namespace MugenMvvm.Extensions.Components
                     if (_index >= _components.Length)
                     {
                         SetResult(true, null, false);
+                        return;
+                    }
+
+                    if (_cancellationToken.IsCancellationRequested)
+                    {
+                        SetResult(false, null, true);
                         return;
                     }
 

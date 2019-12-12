@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
@@ -11,64 +11,17 @@ using MugenMvvm.Interfaces.Presenters.Components;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ConditionDecoratorPresenterComponent : DecoratorComponentBase<IPresenter, IPresenterComponent>,
-        IHasPriority, IPresenterComponent, ICloseablePresenterComponent, IRestorablePresenterComponent,
-        IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>, IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>
+    public sealed class ConditionDecoratorPresenterComponent : DecoratorComponentBase<IPresenter, IPresenterComponent>, IHasPriority, IPresenterComponent
     {
-        #region Fields
-
-        private ICloseablePresenterComponent[] _closeableComponents;
-        private IRestorablePresenterComponent[] _restorableComponents;
-
-        #endregion
-
-        #region Constructors
-
-        public ConditionDecoratorPresenterComponent()
-        {
-            _closeableComponents = Default.EmptyArray<ICloseablePresenterComponent>();
-            _restorableComponents = Default.EmptyArray<IRestorablePresenterComponent>();
-        }
-
-        #endregion
-
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.DecoratorHigh;
+        public int Priority { get; set; } = ComponentPriority.PreInitializerHigh;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
-        {
-            var components = _closeableComponents;
-            var results = new List<IPresenterResult>();
-            for (var i = 0; i < components.Length; i++)
-            {
-                var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, results, metadata))
-                    continue;
-
-                var operations = presenter.TryClose(metadata);
-                if (operations != null)
-                    results.AddRange(operations);
-            }
-
-            return results;
-        }
-
-        void IDecoratorComponentCollectionComponent<ICloseablePresenterComponent>.Decorate(IList<ICloseablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
-        {
-            this.Decorate(Owner, components, this, ref _closeableComponents);
-        }
-
-        void IDecoratorComponentCollectionComponent<IRestorablePresenterComponent>.Decorate(IList<IRestorablePresenterComponent> components, IReadOnlyMetadataContext? metadata)
-        {
-            this.Decorate(Owner, components, this, ref _restorableComponents);
-        }
-
-        public IPresenterResult? TryShow(IMetadataContext metadata)
+        public PresenterResult TryShow(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             for (var i = 0; i < components.Length; i++)
@@ -77,41 +30,54 @@ namespace MugenMvvm.Presenters.Components
                 if (!Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, metadata))
                     continue;
 
-                var result = presenter.TryShow(metadata);
-                if (result != null)
+                var result = presenter.TryShow(metadata, cancellationToken);
+                if (!result.IsEmpty)
                     return result;
             }
 
-            return null;
+            return default;
         }
 
-        public IReadOnlyList<IPresenterResult> TryRestore(IMetadataContext metadata)
+        public IReadOnlyList<PresenterResult>? TryClose(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
-            var components = _restorableComponents;
-            var results = new List<IPresenterResult>();
+            var components = Components;
+            List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, results, metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), metadata))
                     continue;
 
-                var operations = presenter.TryRestore(metadata);
-                if (operations != null)
-                    results.AddRange(operations);
+                var operations = presenter.TryClose(metadata, cancellationToken);
+                if (operations == null)
+                    continue;
+                if (results == null)
+                    results = new List<PresenterResult>();
+                results.AddRange(operations);
             }
 
             return results;
         }
 
-        #endregion
-
-        #region Methods
-
-        protected override void OnDetachedInternal(IPresenter owner, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<PresenterResult>? TryRestore(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
-            base.OnDetachedInternal(owner, metadata);
-            _closeableComponents = Default.EmptyArray<ICloseablePresenterComponent>();
-            _restorableComponents = Default.EmptyArray<IRestorablePresenterComponent>();
+            var components = Components;
+            List<PresenterResult>? results = null;
+            for (var i = 0; i < components.Length; i++)
+            {
+                var presenter = components[i];
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), metadata))
+                    continue;
+
+                var operations = presenter.TryRestore(metadata, cancellationToken);
+                if (operations == null)
+                    continue;
+                if (results == null)
+                    results = new List<PresenterResult>();
+                results.AddRange(operations);
+            }
+
+            return results;
         }
 
         #endregion

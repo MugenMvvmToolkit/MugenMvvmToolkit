@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class CloseHandlerViewModelPresenterComponent : ICloseablePresenterComponent, IHasPriority
+    public sealed class CloseHandlerViewModelPresenterComponent : IPresenterComponent, IHasPriority
     {
         #region Constructors
 
@@ -29,19 +29,27 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IPresenterResult> TryClose(IMetadataContext metadata)
+        public PresenterResult TryShow(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        {
+            return default;
+        }
+
+        public IReadOnlyList<PresenterResult>? TryClose(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             var viewModel = metadata.Get(NavigationMetadata.ViewModel);
-            if (viewModel == null)
-                return Default.EmptyArray<IPresenterResult>();
-            var closeHandler = viewModel.Metadata.Get(ViewModelMetadata.CloseHandler);
+            var closeHandler = viewModel?.Metadata.Get(ViewModelMetadata.CloseHandler);
             if (closeHandler == null)
-                return Default.EmptyArray<IPresenterResult>();
+                return null;
 
-            var r = closeHandler(viewModel, metadata);
-            if (r == null)
-                return Default.EmptyArray<IPresenterResult>();
-            return new[] {r};
+            var r = closeHandler(viewModel, metadata, cancellationToken);
+            if (r.IsEmpty)
+                return null;
+            return new[] { r };
+        }
+
+        public IReadOnlyList<PresenterResult>? TryRestore(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        {
+            return null;
         }
 
         #endregion

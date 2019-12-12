@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -11,43 +12,36 @@ namespace MugenMvvm.Presenters
 {
     public sealed class Presenter : ComponentOwnerBase<IPresenter>, IPresenter
     {
-        #region Fields
-
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-
-        #endregion
-
         #region Constructors
 
-        public Presenter(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public Presenter(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
-            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IPresenterResult Show(IReadOnlyMetadataContext metadata)
+        public PresenterResult Show(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken = default)
         {
-            var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            var result = GetComponents<IPresenterComponent>(metadata).TryShow(metadataContext);
-            if (result == null)
+            Should.NotBeNull(metadata, nameof(metadata));
+            var result = GetComponents<IPresenterComponent>(metadata).TryShow(metadata, cancellationToken);
+            if (result.IsEmpty)
                 ExceptionManager.ThrowPresenterCannotShowRequest(metadata);
             return result;
         }
 
-        public IReadOnlyList<IPresenterResult> TryClose(IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<PresenterResult> TryClose(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken = default)
         {
-            var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            return GetComponents<ICloseablePresenterComponent>(metadata).TryClose(metadataContext) ?? Default.EmptyArray<IPresenterResult>();
+            Should.NotBeNull(metadata, nameof(metadata));
+            return GetComponents<IPresenterComponent>(metadata).TryClose(metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
         }
 
-        public IReadOnlyList<IPresenterResult> TryRestore(IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<PresenterResult> TryRestore(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken = default)
         {
-            var metadataContext = _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, metadata);
-            return GetComponents<IRestorablePresenterComponent>(metadata).TryRestore(metadataContext) ?? Default.EmptyArray<IPresenterResult>();
+            Should.NotBeNull(metadata, nameof(metadata));
+            return GetComponents<IPresenterComponent>(metadata).TryRestore(metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
         }
 
         #endregion

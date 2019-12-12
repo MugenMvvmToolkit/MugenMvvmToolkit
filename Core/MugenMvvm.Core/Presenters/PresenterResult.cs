@@ -1,57 +1,41 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Runtime.InteropServices;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.Presenters;
 
 namespace MugenMvvm.Presenters
 {
-    public sealed class PresenterResult : IPresenterResult
+    [StructLayout(LayoutKind.Auto)]
+    public readonly struct PresenterResult
     {
         #region Fields
 
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-        private IReadOnlyMetadataContext? _metadata;
+        public readonly IReadOnlyMetadataContext Metadata;
+        public readonly string NavigationOperationId;
+        public readonly INavigationProvider NavigationProvider;
+        public readonly NavigationType NavigationType;
 
         #endregion
 
         #region Constructors
 
-        public PresenterResult(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType,
-            IMetadataContextProvider? metadataContextProvider, IReadOnlyMetadataContext? metadata)
+        public PresenterResult(string navigationOperationId, INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNullOrEmpty(navigationOperationId, nameof(navigationOperationId));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
-            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
             Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(metadata, nameof(metadata));
-            _metadataContextProvider = metadataContextProvider;
-            _metadata = metadata;
-            NavigationProvider = navigationProvider;
             NavigationOperationId = navigationOperationId;
+            NavigationProvider = navigationProvider;
             NavigationType = navigationType;
+            Metadata = metadata.DefaultIfNull();
         }
 
         #endregion
 
         #region Properties
 
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata is IMetadataContext ctx)
-                    return ctx;
-                return _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
-            }
-        }
-
-        public string NavigationOperationId { get; }
-
-        public INavigationProvider NavigationProvider { get; }
-
-        public NavigationType NavigationType { get; }
+        public bool IsEmpty => NavigationProvider == null;
 
         #endregion
     }

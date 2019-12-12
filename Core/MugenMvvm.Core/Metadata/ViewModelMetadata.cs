@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Presenters;
 
 namespace MugenMvvm.Metadata
 {
@@ -19,7 +20,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<BusyMessageHandlerType>? _busyMessageHandlerType;
         private static IMetadataContextKey<IViewModelBase?>? _parentViewModel;
         private static IMetadataContextKey<bool>? _noState;
-        private static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>>? _closeHandler;
+        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>>? _closeHandler;
         private static IMetadataContextKey<Type>? _type;
 
         #endregion
@@ -77,9 +78,9 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<Func<IViewModelBase, IMetadataContext, IPresenterResult>> CloseHandler
+        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>> CloseHandler
         {
-            get => _closeHandler ??= GetBuilder<Func<IViewModelBase, IMetadataContext, IPresenterResult>>(nameof(CloseHandler))
+            get => _closeHandler ??= GetBuilder<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>>(nameof(CloseHandler))
                     .NotNull()
                     .Build();
             set => _closeHandler = value;
