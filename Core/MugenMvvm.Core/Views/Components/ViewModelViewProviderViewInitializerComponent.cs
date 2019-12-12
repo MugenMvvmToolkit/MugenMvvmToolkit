@@ -41,18 +41,18 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             if (viewModel == null)
                 viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(MetadataContextValue.Create(ViewModelMetadata.Type, mapping.ViewModelType).ToContext());
             if (view == null)
                 view = (_serviceProvider ?? MugenService.Instance<IServiceProvider>()).GetService(mapping.ViewType);
-            return Components.TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
+            return Components.TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
         }
 
-        public Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
-            return Components.TryCleanupAsync(view, viewModel, cancellationToken, metadata);
+            return Components.TryCleanupAsync(view, viewModel, metadata, cancellationToken);
         }
 
         #endregion

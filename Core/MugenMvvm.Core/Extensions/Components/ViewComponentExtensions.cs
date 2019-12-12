@@ -73,13 +73,13 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        public static Task<ViewInitializationResult>? TryInitializeAsync(this IViewInitializerComponent[] components, IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
-            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task<ViewInitializationResult>? TryInitializeAsync(this IViewInitializerComponent[] components, IViewModelViewMapping mapping, object? view,
+            IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
+                var result = components[i].TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
                 if (result != null)
                     return result;
             }
@@ -87,12 +87,12 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Task? TryCleanupAsync(this IViewInitializerComponent[] components, IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task? TryCleanupAsync(this IViewInitializerComponent[] components, IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryCleanupAsync(view, viewModel, cancellationToken, metadata);
+                var result = components[i].TryCleanupAsync(view, viewModel, metadata, cancellationToken);
                 if (result != null)
                     return result;
             }

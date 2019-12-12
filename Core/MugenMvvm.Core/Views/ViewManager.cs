@@ -44,20 +44,20 @@ namespace MugenMvvm.Views
             return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappingByViewModel(viewModel, metadata) ?? Default.EmptyArray<IViewModelViewMapping>();
         }
 
-        public Task<ViewInitializationResult> InitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, CancellationToken cancellationToken = default,
-            IReadOnlyMetadataContext? metadata = null)
+        public Task<ViewInitializationResult> InitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
+            IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
             Should.NotBeNull(mapping, nameof(mapping));
-            var task = GetComponents<IViewInitializerComponent>(metadata).TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
+            var task = GetComponents<IViewInitializerComponent>(metadata).TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
             if (task == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return task;
         }
 
-        public Task CleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public Task CleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
             Should.NotBeNull(view, nameof(view));
-            var task = GetComponents<IViewInitializerComponent>(metadata).TryCleanupAsync(view, viewModel, cancellationToken, metadata);
+            var task = GetComponents<IViewInitializerComponent>(metadata).TryCleanupAsync(view, viewModel, metadata, cancellationToken);
             if (task == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return task;

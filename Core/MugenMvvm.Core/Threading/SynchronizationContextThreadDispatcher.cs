@@ -35,14 +35,12 @@ namespace MugenMvvm.Threading
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state = default,
-            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public void Execute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(handler, nameof(handler));
             if (CanExecuteInline(executionMode))
             {
-                if (!cancellationToken.IsCancellationRequested)
-                    handler.Execute(state);
+                handler.Execute(state);
                 return;
             }
 
@@ -90,14 +88,12 @@ namespace MugenMvvm.Threading
             ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> action, TState state = default,
-            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> action, TState state = default, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(action, nameof(action));
             if (CanExecuteInline(executionMode))
             {
-                if (!cancellationToken.IsCancellationRequested)
-                    action.Invoke(state);
+                action.Invoke(state);
                 return;
             }
 
