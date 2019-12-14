@@ -24,13 +24,11 @@ namespace MugenMvvm.Internal
 
         public bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(level, nameof(level));
             return GetComponents<ITracerComponent>().CanTrace(level, metadata);
         }
 
         public void Trace(TraceLevel level, string message, Exception? exception = null, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(level, nameof(level));
             GetComponents<ITracerComponent>().Trace(level, message, exception, metadata);
         }
 

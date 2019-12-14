@@ -14,6 +14,7 @@ namespace MugenMvvm.Extensions.Components
         public static IReadOnlyList<IValidator>? TryGetValidators(this IValidatorProviderComponent[] components, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadata, nameof(metadata));
             List<IValidator>? validators = null;
             for (var i = 0; i < components.Length; i++)
             {
@@ -31,6 +32,7 @@ namespace MugenMvvm.Extensions.Components
         public static IAggregatorValidator? TryGetAggregatorValidator(this IAggregatorValidatorProviderComponent[] components, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryGetAggregatorValidator(metadata);
@@ -41,23 +43,31 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnValidatorCreated(this IValidatorProviderListener[] listeners, IValidatorProvider provider, IValidator validator, IReadOnlyMetadataContext metadata)
+        public static void OnValidatorCreated(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IValidator validator, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
+            Should.NotBeNull(validator, nameof(validator));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnValidatorCreated(provider, validator, metadata);
+                listeners[i].OnValidatorCreated(validatorProvider, validator, metadata);
         }
 
-        public static void OnAggregatorValidatorCreated(this IValidatorProviderListener[] listeners, IValidatorProvider provider, IAggregatorValidator validator, IReadOnlyMetadataContext metadata)
+        public static void OnAggregatorValidatorCreated(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IAggregatorValidator validator, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
+            Should.NotBeNull(validator, nameof(validator));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAggregatorValidatorCreated(provider, validator, metadata);
+                listeners[i].OnAggregatorValidatorCreated(validatorProvider, validator, metadata);
         }
 
         public static void OnErrorsChanged(this IValidatorListener[] listeners, IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(validator, nameof(validator));
+            Should.NotBeNull(memberName, nameof(memberName));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnErrorsChanged(validator, memberName, metadata);
         }
@@ -65,6 +75,9 @@ namespace MugenMvvm.Extensions.Components
         public static void OnAsyncValidation(this IValidatorListener[] listeners, IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(validator, nameof(validator));
+            Should.NotBeNull(memberName, nameof(memberName));
+            Should.NotBeNull(validationTask, nameof(validationTask));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAsyncValidation(validator, memberName, validationTask, metadata);
         }
@@ -72,6 +85,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnDisposed(this IValidatorListener[] listeners, IValidator validator)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(validator, nameof(validator));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnDisposed(validator);
         }

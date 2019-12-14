@@ -102,7 +102,6 @@ namespace MugenMvvm.Messaging
 
         public bool Unsubscribe(object subscriber, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(subscriber, nameof(subscriber));
             var removed = false;
             lock (_subscribers)
             {
@@ -129,7 +128,6 @@ namespace MugenMvvm.Messaging
 
         public IMessageContext Publish(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(message, nameof(message));
             var ctx = GetComponents<IMessageContextProviderComponent>(metadata).TryGetMessengerContext(sender, message, metadata) ?? new MessageContext(this, sender, message, metadata);
             Publish(ctx);
             return ctx;

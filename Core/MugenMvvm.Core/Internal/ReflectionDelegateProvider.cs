@@ -24,21 +24,16 @@ namespace MugenMvvm.Internal
 
         public bool CanCreateDelegate(Type delegateType, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, nameof(delegateType));
-            Should.NotBeNull(method, nameof(method));
             return GetComponents<IReflectionDelegateProviderComponent>().CanCreateDelegate(delegateType, method);
         }
 
         public Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method)
         {
-            Should.NotBeNull(delegateType, nameof(delegateType));
-            Should.NotBeNull(method, nameof(method));
             return GetComponents<IReflectionDelegateProviderComponent>().TryCreateDelegate(delegateType, target, method);
         }
 
         public Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
-            Should.NotBeNull(constructor, nameof(constructor));
             var result = GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -47,8 +42,6 @@ namespace MugenMvvm.Internal
 
         public Delegate GetActivator(ConstructorInfo constructor, Type delegateType)
         {
-            Should.NotBeNull(constructor, nameof(constructor));
-            Should.NotBeNull(delegateType, nameof(delegateType));
             var result = GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor, delegateType);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -57,7 +50,6 @@ namespace MugenMvvm.Internal
 
         public Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
-            Should.NotBeNull(method, nameof(method));
             var result = GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -66,8 +58,6 @@ namespace MugenMvvm.Internal
 
         public Delegate GetMethodInvoker(MethodInfo method, Type delegateType)
         {
-            Should.NotBeNull(delegateType, nameof(delegateType));
-            Should.NotBeNull(method, nameof(method));
             var result = GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method, delegateType);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -76,7 +66,6 @@ namespace MugenMvvm.Internal
 
         public Delegate GetMemberGetter(MemberInfo member, Type delegateType)
         {
-            Should.NotBeNull(member, nameof(member));
             var result = GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberGetter(member, delegateType);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -85,7 +74,6 @@ namespace MugenMvvm.Internal
 
         public Delegate GetMemberSetter(MemberInfo member, Type delegateType)
         {
-            Should.NotBeNull(member, nameof(member));
             var result = GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberSetter(member, delegateType);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);

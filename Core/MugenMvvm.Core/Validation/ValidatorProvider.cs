@@ -25,9 +25,7 @@ namespace MugenMvvm.Validation
 
         public IReadOnlyList<IValidator> GetValidators(IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             var validators = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidators(metadata);
-
             if (validators != null)
             {
                 var listeners = GetComponents<IValidatorProviderListener>(metadata);
@@ -40,7 +38,6 @@ namespace MugenMvvm.Validation
 
         public IAggregatorValidator GetAggregatorValidator(IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             var result = GetComponents<IAggregatorValidatorProviderComponent>(metadata).TryGetAggregatorValidator(metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);

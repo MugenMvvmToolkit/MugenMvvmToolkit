@@ -26,6 +26,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandProvider provider, in TRequest request, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(provider, nameof(provider));
+            Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCommandCreated(provider, request, command, metadata);
         }
@@ -57,6 +59,7 @@ namespace MugenMvvm.Extensions.Components
         public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, EventHandler handler)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(handler, nameof(handler));
             for (var i = 0; i < components.Length; i++)
                 components[i].AddCanExecuteChanged(handler);
         }
@@ -64,6 +67,7 @@ namespace MugenMvvm.Extensions.Components
         public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, EventHandler handler)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(handler, nameof(handler));
             for (var i = 0; i < components.Length; i++)
                 components[i].RemoveCanExecuteChanged(handler);
         }

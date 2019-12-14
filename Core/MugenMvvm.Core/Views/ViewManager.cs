@@ -28,26 +28,22 @@ namespace MugenMvvm.Views
 
         public IReadOnlyList<IView> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
             return GetComponents<IViewProviderComponent>(metadata).TryGetViews(viewModel, metadata) ?? Default.EmptyArray<IView>();
         }
 
         public IReadOnlyList<IViewModelViewMapping> GetMappingByView(object view, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(view, nameof(view));
             return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappingByView(view, metadata) ?? Default.EmptyArray<IViewModelViewMapping>();
         }
 
         public IReadOnlyList<IViewModelViewMapping> GetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
             return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappingByViewModel(viewModel, metadata) ?? Default.EmptyArray<IViewModelViewMapping>();
         }
 
         public Task<ViewInitializationResult> InitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
             IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            Should.NotBeNull(mapping, nameof(mapping));
             var task = GetComponents<IViewInitializerComponent>(metadata).TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
             if (task == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -56,7 +52,6 @@ namespace MugenMvvm.Views
 
         public Task CleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            Should.NotBeNull(view, nameof(view));
             var task = GetComponents<IViewInitializerComponent>(metadata).TryCleanupAsync(view, viewModel, metadata, cancellationToken);
             if (task == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);

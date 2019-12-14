@@ -9,6 +9,7 @@ namespace MugenMvvm.Extensions.Components
 
         public static void Dispose(this IDisposable[] components)
         {
+            Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
                 components[i].Dispose();
         }

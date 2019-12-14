@@ -11,6 +11,8 @@ namespace MugenMvvm.Extensions.Components
         public static bool OnAdding(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (!listeners[i].OnAdding(collection, component, metadata))
@@ -23,6 +25,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnAdded(this IComponentCollectionChangedListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAdded(collection, component, metadata);
         }
@@ -30,6 +34,8 @@ namespace MugenMvvm.Extensions.Components
         public static bool OnRemoving(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             for (var i = 0; i < listeners.Length; i++)
             {
                 if (!listeners[i].OnRemoving(collection, component, metadata))
@@ -42,6 +48,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnRemoved(this IComponentCollectionChangedListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoved(collection, component, metadata);
         }
@@ -49,6 +57,7 @@ namespace MugenMvvm.Extensions.Components
         public static TComponent[] Decorate<TComponent>(this IDecoratorComponentCollectionComponent[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
+            Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
             {
                 if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent> decorator)
@@ -61,6 +70,7 @@ namespace MugenMvvm.Extensions.Components
         public static TComponent[] Decorate<TComponent>(this IDecoratorComponentCollectionComponent<TComponent>[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
+            Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
                 decorators[i].Decorate(components, metadata);
             return components.ToArray();
@@ -83,6 +93,8 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(decorator, nameof(decorator));
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(comparer, nameof(comparer));
+            Should.NotBeNull(decoratorComponents, nameof(decoratorComponents));
             var currentPriority = MugenExtensions.GetComponentPriority(decorator, owner);
             for (var i = 0; i < components.Count; i++)
             {
@@ -103,6 +115,8 @@ namespace MugenMvvm.Extensions.Components
 
         public static void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             if (component is IAttachableComponent attachable)
                 attachable.OnAttached(collection.Owner, metadata);
 
@@ -111,6 +125,8 @@ namespace MugenMvvm.Extensions.Components
 
         public static void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             if (component is IDetachableComponent detachable)
                 detachable.OnDetached(collection.Owner, metadata);
 
@@ -119,6 +135,8 @@ namespace MugenMvvm.Extensions.Components
 
         public static bool OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             if (collection.Owner is IHasAddingCallbackComponentOwner callback && !callback.OnComponentAdding(collection, component, metadata))
                 return false;
 
@@ -129,6 +147,8 @@ namespace MugenMvvm.Extensions.Components
 
         public static bool OnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
             if (collection.Owner is IHasRemovingCallbackComponentOwner callback && !callback.OnComponentRemoving(collection, component, metadata))
                 return false;
 

@@ -1,5 +1,4 @@
-﻿
-using System;
+﻿using System;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -15,6 +14,8 @@ namespace MugenMvvm.Extensions.Components
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
                 components[i].OnLifecycleChanged(viewModel, lifecycleState, metadata).Aggregate(ref result);
@@ -24,6 +25,8 @@ namespace MugenMvvm.Extensions.Components
         public static object? TryGetService(this IViewModelServiceResolverComponent[] components, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(service, nameof(service));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryGetService(viewModel, service, metadata);
@@ -37,6 +40,7 @@ namespace MugenMvvm.Extensions.Components
         public static IViewModelBase? TryGetViewModel(this IViewModelProviderComponent[] components, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
                 var viewModel = components[i].TryGetViewModel(metadata);

@@ -27,15 +27,11 @@ namespace MugenMvvm.ViewModels
 
         public IReadOnlyMetadataContext OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             return GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, metadata).DefaultIfNull();
         }
 
         public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(service, nameof(service));
             var result = GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, service, metadata);
             if (result == null)
                 ExceptionManager.ThrowCannotResolveService(service);
@@ -44,7 +40,6 @@ namespace MugenMvvm.ViewModels
 
         public IViewModelBase? TryGetViewModel(IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(metadata);
         }
 

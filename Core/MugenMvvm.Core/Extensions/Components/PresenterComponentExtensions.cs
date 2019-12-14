@@ -10,36 +10,42 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanShow(this IConditionPresenterComponent[] components, IPresenterComponent component, IReadOnlyMetadataContext metadata)
+        public static bool CanShow(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanShow(component, metadata))
+                if (!components[i].CanShow(presenter, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanClose(this IConditionPresenterComponent[] components, IPresenterComponent component, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata)
+        public static bool CanClose(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanClose(component, results, metadata))
+                if (!components[i].CanClose(presenter, results, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanRestore(this IConditionPresenterComponent[] components, IPresenterComponent component, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata)
+        public static bool CanRestore(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanRestore(component, results, metadata))
+                if (!components[i].CanRestore(presenter, results, metadata))
                     return false;
             }
 
@@ -49,6 +55,7 @@ namespace MugenMvvm.Extensions.Components
         public static PresenterResult TryShow(this IPresenterComponent[] components, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryShow(metadata, cancellationToken);
@@ -62,6 +69,7 @@ namespace MugenMvvm.Extensions.Components
         public static IReadOnlyList<PresenterResult>? TryClose(this IPresenterComponent[] components, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadata, nameof(metadata));
             List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {
@@ -79,6 +87,7 @@ namespace MugenMvvm.Extensions.Components
         public static IReadOnlyList<PresenterResult>? TryRestore(this IPresenterComponent[] components, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadata, nameof(metadata));
             List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {

@@ -203,7 +203,6 @@ namespace MugenMvvm.Binding.Core
 
         bool IComponentCollection.Add(object component, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(component, nameof(component));
             if (CheckFlag(DisposedFlag))
                 return false;
 

@@ -25,20 +25,16 @@ namespace MugenMvvm.Wrapping
 
         public bool CanWrap(Type type, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(wrapperType, nameof(wrapperType));
             return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(type, wrapperType, metadata);
         }
 
-        public object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
+        public object Wrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(wrapperType, nameof(wrapperType));
-            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(item.GetType(), wrapperType, metadata);
+            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(target, wrapperType, metadata);
             if (wrapper == null)
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
-            GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper!, item, wrapperType, metadata);
+            GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper!, target, wrapperType, metadata);
             return wrapper;
         }
 

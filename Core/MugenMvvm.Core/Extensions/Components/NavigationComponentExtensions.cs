@@ -16,6 +16,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnNavigationEntryAdded(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationContext);
         }
@@ -23,6 +25,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnNavigationEntryUpdated(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationContext);
         }
@@ -30,17 +34,20 @@ namespace MugenMvvm.Extensions.Components
         public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationEntryRemoved(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        public static IReadOnlyList<INavigationCallback>? TryGetCallbacks(this INavigationCallbackProviderComponent[] components, INavigationEntry entry, IReadOnlyMetadataContext? metadata = null)
+        public static IReadOnlyList<INavigationCallback>? TryGetCallbacks(this INavigationCallbackProviderComponent[] components, INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             List<INavigationCallback>? result = null;
             for (var i = 0; i < components.Length; i++)
             {
-                var callbacks = components[i].TryGetCallbacks(entry, metadata);
+                var callbacks = components[i].TryGetCallbacks(navigationEntry, metadata);
                 if (callbacks == null || callbacks.Count == 0)
                     continue;
                 if (result == null)
@@ -55,6 +62,10 @@ namespace MugenMvvm.Extensions.Components
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationProvider, nameof(navigationProvider));
+            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
+            Should.NotBeNull(navigationType, nameof(navigationType));
+            Should.NotBeNull(navigationMode, nameof(navigationMode));
             for (var i = 0; i < components.Length; i++)
             {
                 var context = components[i].TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
@@ -68,6 +79,7 @@ namespace MugenMvvm.Extensions.Components
         public static INavigationEntry? TryGetPreviousNavigationEntry(this INavigationEntryFinderComponent[] components, INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryGetPreviousNavigationEntry(navigationEntry, metadata);
@@ -100,6 +112,8 @@ namespace MugenMvvm.Extensions.Components
             CancellationToken cancellationToken)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             if (listeners.Length == 0)
                 return Default.TrueTask;
             if (listeners.Length == 1)
@@ -110,6 +124,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnNavigated(this INavigationDispatcherNavigatedListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigated(navigationDispatcher, navigationContext);
         }
@@ -117,6 +133,9 @@ namespace MugenMvvm.Extensions.Components
         public static void OnNavigationFailed(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            Should.NotBeNull(exception, nameof(exception));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationFailed(navigationDispatcher, navigationContext, exception);
         }
@@ -124,6 +143,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnNavigationCanceled(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationCanceled(navigationDispatcher, navigationContext);
         }

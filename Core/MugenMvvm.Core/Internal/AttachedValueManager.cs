@@ -32,7 +32,6 @@ namespace MugenMvvm.Internal
 
         public IAttachedValueProvider GetOrAddAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(item, nameof(item));
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
             var provider = _components!.TryGetOrAddAttachedValueProvider(item, metadata);
@@ -43,7 +42,6 @@ namespace MugenMvvm.Internal
 
         public IAttachedValueProvider? GetAttachedValueProvider(object item, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(item, nameof(item));
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
             _components!.TryGetAttachedValueProvider(item, metadata, out var provider);

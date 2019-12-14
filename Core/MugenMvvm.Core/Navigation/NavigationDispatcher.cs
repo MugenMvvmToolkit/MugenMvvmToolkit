@@ -31,10 +31,6 @@ namespace MugenMvvm.Navigation
         public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType, NavigationMode navigationMode,
             IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(navigationProvider, nameof(navigationProvider));
-            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
-            Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(navigationMode, nameof(navigationMode));
             var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
@@ -48,38 +44,31 @@ namespace MugenMvvm.Navigation
 
         public INavigationEntry? TryGetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             return GetComponents<INavigationEntryFinderComponent>(metadata).TryGetPreviousNavigationEntry(navigationEntry, metadata);
         }
 
         public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             return GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetCallbacks(navigationEntry, metadata) ?? Default.EmptyArray<INavigationCallback>();
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
             return GetComponents<INavigationDispatcherNavigatingListener>(navigationContext.GetMetadataOrDefault()).OnNavigatingAsync(this, navigationContext, cancellationToken);
         }
 
         public void OnNavigated(INavigationContext navigationContext)
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
             GetComponents<INavigationDispatcherNavigatedListener>(navigationContext.GetMetadataOrDefault()).OnNavigated(this, navigationContext);
         }
 
         public void OnNavigationFailed(INavigationContext navigationContext, Exception exception)
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
-            Should.NotBeNull(exception, nameof(exception));
             GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationFailed(this, navigationContext, exception);
         }
 
         public void OnNavigationCanceled(INavigationContext navigationContext)
         {
-            Should.NotBeNull(navigationContext, nameof(navigationContext));
             GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationCanceled(this, navigationContext);
         }
 

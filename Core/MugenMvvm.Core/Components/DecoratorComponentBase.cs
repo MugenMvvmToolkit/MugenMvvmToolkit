@@ -54,7 +54,7 @@ namespace MugenMvvm.Components
 
         protected virtual void DecorateInternal(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            ComponentComponentExtensions.Decorate(this, Owner, components, this, ref Components);
+            this.Decorate(Owner, components, this, ref Components);
         }
 
         #endregion

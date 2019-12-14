@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Wrapping
     {
         bool CanWrap(Type type, Type wrapperType, IReadOnlyMetadataContext? metadata = null);
 
-        object Wrap(object item, Type wrapperType, IReadOnlyMetadataContext? metadata = null);
+        object Wrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata = null);
     }
 }

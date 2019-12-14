@@ -11,6 +11,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnBeginBatchUpdate<T>(this IObservableCollectionBatchUpdateListener<T>[] listeners, IObservableCollection<T> collection)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnBeginBatchUpdate(collection);
         }
@@ -18,6 +19,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnEndBatchUpdate<T>(this IObservableCollectionBatchUpdateListener<T>[] listeners, IObservableCollection<T> collection)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnEndBatchUpdate(collection);
         }
@@ -25,6 +27,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool CanAdd<T>(this IConditionObservableCollectionComponent<T>[] components, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < components.Length; i++)
             {
                 if (!components[i].CanAdd(collection, item, index))
@@ -37,6 +40,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnAdding<T>(this IObservableCollectionChangingListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAdding(collection, item, index);
         }
@@ -44,6 +48,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool CanReplace<T>(this IConditionObservableCollectionComponent<T>[] components, IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < components.Length; i++)
             {
                 if (!components[i].CanReplace(collection, oldItem, newItem, index))
@@ -56,6 +61,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnReplacing<T>(this IObservableCollectionChangingListener<T>[] listeners, IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReplacing(collection, oldItem, newItem, index);
         }
@@ -63,6 +69,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool CanMove<T>(this IConditionObservableCollectionComponent<T>[] components, IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < components.Length; i++)
             {
                 if (!components[i].CanMove(collection, item, oldIndex, newIndex))
@@ -75,6 +82,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnMoving<T>(this IObservableCollectionChangingListener<T>[] listeners, IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnMoving(collection, item, oldIndex, newIndex);
         }
@@ -82,6 +90,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool CanRemove<T>(this IConditionObservableCollectionComponent<T>[] components, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < components.Length; i++)
             {
                 if (!components[i].CanRemove(collection, item, index))
@@ -94,6 +103,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnRemoving<T>(this IObservableCollectionChangingListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoving(collection, item, index);
         }
@@ -101,6 +111,8 @@ namespace MugenMvvm.Extensions.Components
         public static bool CanReset<T>(this IConditionObservableCollectionComponent<T>[] components, IObservableCollection<T> collection, IEnumerable<T> items)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             for (var i = 0; i < components.Length; i++)
             {
                 if (!components[i].CanReset(collection, items))
@@ -113,6 +125,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnResetting<T>(this IObservableCollectionChangingListener<T>[] listeners, IObservableCollection<T> collection, IEnumerable<T> items)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnResetting(collection, items);
         }
@@ -120,6 +134,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool CanClear<T>(this IConditionObservableCollectionComponent<T>[] components, IObservableCollection<T> collection)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < components.Length; i++)
             {
                 if (!components[i].CanClear(collection))
@@ -132,6 +147,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnClearing<T>(this IObservableCollectionChangingListener<T>[] listeners, IObservableCollection<T> collection)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnClearing(collection);
         }
@@ -139,6 +155,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnAdded<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAdded(collection, item, index);
         }
@@ -146,6 +163,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnReplaced<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReplaced(collection, oldItem, newItem, index);
         }
@@ -153,6 +171,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnMoved<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnMoved(collection, item, oldIndex, newIndex);
         }
@@ -160,6 +179,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnRemoved<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoved(collection, item, index);
         }
@@ -167,6 +187,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnReset<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, IEnumerable<T> items)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReset(collection, items);
         }
@@ -174,6 +196,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnCleared<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCleared(collection);
         }
@@ -181,6 +204,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnItemChanged<T>(this IObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index, object? args)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnItemChanged(collection, item, index, args);
         }
@@ -188,6 +212,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnAdded<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnAdded(collection, item, index);
         }
@@ -195,6 +220,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnReplaced<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReplaced(collection, oldItem, newItem, index);
         }
@@ -202,6 +228,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnMoved<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnMoved(collection, item, oldIndex, newIndex);
         }
@@ -209,6 +236,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnRemoved<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnRemoved(collection, item, index);
         }
@@ -216,6 +244,8 @@ namespace MugenMvvm.Extensions.Components
         public static void OnReset<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, IEnumerable<T> items)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(items, nameof(items));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReset(collection, items);
         }
@@ -223,6 +253,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnCleared<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnCleared(collection);
         }
@@ -230,6 +261,7 @@ namespace MugenMvvm.Extensions.Components
         public static void OnItemChanged<T>(this IDecoratorObservableCollectionChangedListener<T>[] listeners, IObservableCollection<T> collection, T item, int index, object? args)
         {
             Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collection, nameof(collection));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnItemChanged(collection, item, index, args);
         }
