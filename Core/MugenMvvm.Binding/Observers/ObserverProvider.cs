@@ -39,7 +39,6 @@ namespace MugenMvvm.Binding.Observers
 
         public MemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(type, nameof(type));
             if (_memberObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _memberObserverComponents!.TryGetMemberObserver(type, member, metadata);
@@ -57,7 +56,6 @@ namespace MugenMvvm.Binding.Observers
 
         public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(target, nameof(target));
             if (_memberPathObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
             var result = _memberPathObserverComponents!.TryGetMemberPathObserver(target, request, metadata);

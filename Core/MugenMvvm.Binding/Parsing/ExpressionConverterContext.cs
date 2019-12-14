@@ -81,7 +81,6 @@ namespace MugenMvvm.Binding.Parsing
 
         public IExpressionNode Convert(TExpression expression)
         {
-            Should.NotBeNull(expression, nameof(expression));
             var exp = _converters.TryConvert(this, expression) ?? TryGetExpression(expression);
             if (exp != null)
                 return exp;

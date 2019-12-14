@@ -37,11 +37,8 @@ namespace MugenMvvm.Binding.Members
 
         public IMemberInfo? GetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
-
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
             _components!.TryGetMember(type, name, memberTypes, flags, metadata, out var result);
@@ -51,11 +48,8 @@ namespace MugenMvvm.Binding.Members
         public IReadOnlyList<IMemberInfo> GetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags,
             IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
             if (!flags.HasFlagEx(MemberFlags.NonPublic))
                 flags |= MemberFlags.Public;
-
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
             return _components!.TryGetMembers(type, name, memberTypes, flags, metadata) ?? Default.EmptyArray<IMemberInfo>();

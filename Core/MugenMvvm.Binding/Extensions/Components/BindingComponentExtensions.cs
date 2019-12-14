@@ -19,82 +19,11 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static bool HasComponent<TComponent>(object? components) where TComponent : class, IComponent<IBinding>
-        {
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is TComponent)
-                        return true;
-                }
-
-                return false;
-            }
-
-            return components is TComponent;
-        }
-
-        public static bool OnComponentAdding(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
-                        return false;
-                }
-            }
-            else if (components is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
-                return false;
-
-            return true;
-        }
-
-        public static void OnComponentAdded(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    var comp = c[i];
-                    if (!ReferenceEquals(comp, component))
-                        (comp as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
-                }
-            }
-            else if (!ReferenceEquals(components, component))
-                (components as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
-        }
-
-        public static bool OnComponentRemoving(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(collection, component, metadata))
-                        return false;
-                }
-            }
-            else if (components is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(collection, component, metadata))
-                return false;
-
-            return true;
-        }
-
-        public static void OnComponentRemoved(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                    (c[i] as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
-            }
-            else
-                (components as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
-        }
-
         public static void OnTargetPathMembersChanged(object? components, IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -106,6 +35,9 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnTargetLastMemberChanged(object? components, IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -117,6 +49,10 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnTargetError(object? components, IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -126,19 +62,24 @@ namespace MugenMvvm.Binding.Extensions.Components
                 (components as IBindingTargetObserverListener)?.OnTargetError(binding, observer, exception, metadata);
         }
 
-        public static void OnTargetUpdateFailed(object? components, IBinding binding, Exception error, IReadOnlyMetadataContext metadata)
+        public static void OnTargetUpdateFailed(object? components, IBinding binding, Exception exception, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingTargetListener)?.OnTargetUpdateFailed(binding, error, metadata);
+                    (c[i] as IBindingTargetListener)?.OnTargetUpdateFailed(binding, exception, metadata);
             }
             else
-                (components as IBindingTargetListener)?.OnTargetUpdateFailed(binding, error, metadata);
+                (components as IBindingTargetListener)?.OnTargetUpdateFailed(binding, exception, metadata);
         }
 
         public static void OnTargetUpdateCanceled(object? components, IBinding binding, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -150,6 +91,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnTargetUpdated(object? components, IBinding binding, object? newValue, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -161,6 +104,9 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnSourcePathMembersChanged(object? components, IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -172,6 +118,9 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnSourceLastMemberChanged(object? components, IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -183,6 +132,10 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnSourceError(object? components, IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(observer, nameof(observer));
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -192,19 +145,24 @@ namespace MugenMvvm.Binding.Extensions.Components
                 (components as IBindingSourceObserverListener)?.OnSourceError(binding, observer, exception, metadata);
         }
 
-        public static void OnSourceUpdateFailed(object? components, IBinding binding, Exception error, IReadOnlyMetadataContext metadata)
+        public static void OnSourceUpdateFailed(object? components, IBinding binding, Exception exception, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
-                    (c[i] as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, metadata);
+                    (c[i] as IBindingSourceListener)?.OnSourceUpdateFailed(binding, exception, metadata);
             }
             else
-                (components as IBindingSourceListener)?.OnSourceUpdateFailed(binding, error, metadata);
+                (components as IBindingSourceListener)?.OnSourceUpdateFailed(binding, exception, metadata);
         }
 
         public static void OnSourceUpdateCanceled(object? components, IBinding binding, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -216,6 +174,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void OnSourceUpdated(object? components, IBinding binding, object? newValue, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -227,6 +187,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static object? InterceptTargetValue(object? components, IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -243,6 +205,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static object? InterceptSourceValue(object? components, IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -259,6 +223,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static bool TryGetTargetValue(object? components, IBinding binding, MemberPathLastMember sourceMember, IReadOnlyMetadataContext metadata, out object? value)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -276,6 +242,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static bool TrySetTargetValue(object? components, IBinding binding, MemberPathLastMember targetMember, object? newValue, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -292,6 +260,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static bool TryGetSourceValue(object? components, IBinding binding, MemberPathLastMember targetMember, IReadOnlyMetadataContext metadata, out object? value)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -309,6 +279,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static bool TrySetSourceValue(object? components, IBinding binding, MemberPathLastMember sourceMember, object? newValue, IReadOnlyMetadataContext metadata)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -325,6 +297,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static bool TryGetTargetLastMember(object? components, IBinding binding, IReadOnlyMetadataContext metadata, out MemberPathLastMember targetMember)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -342,6 +316,8 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static bool TryGetSourceLastMember(object? components, IBinding binding, IReadOnlyMetadataContext metadata, out MemberPathLastMember sourceMember)
         {
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(metadata, nameof(metadata));
             if (components is object[] c)
             {
                 for (var i = 0; i < c.Length; i++)
@@ -359,6 +335,7 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void AddListener(object? sourceRaw, IMemberPathObserverListener listener)
         {
+            Should.NotBeNull(listener, nameof(listener));
             if (sourceRaw is IMemberPathObserver source)
                 source.AddListener(listener);
             else if (sourceRaw is object[] sources)
@@ -370,6 +347,7 @@ namespace MugenMvvm.Binding.Extensions.Components
 
         public static void RemoveListener(object? sourceRaw, IMemberPathObserverListener listener)
         {
+            Should.NotBeNull(listener, nameof(listener));
             if (sourceRaw is IMemberPathObserver source)
                 source.RemoveListener(listener);
             else if (sourceRaw is object[] sources)
@@ -382,6 +360,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static void OnBeginEvent(this IBindingEventHandlerComponent[] components, object sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
                 components[i].OnBeginEvent(sender, message, metadata);
         }
@@ -389,6 +368,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static void OnEndEvent(this IBindingEventHandlerComponent[] components, object sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
                 components[i].OnEndEvent(sender, message, metadata);
         }
@@ -396,6 +376,8 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static void OnEventError(this IBindingEventHandlerComponent[] components, Exception exception, object sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(exception, nameof(exception));
+            Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
                 components[i].OnEventError(exception, sender, message, metadata);
         }
@@ -404,6 +386,9 @@ namespace MugenMvvm.Binding.Extensions.Components
             IExpressionNode targetExpression, IExpressionNode sourceExpression, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(dictionary, nameof(dictionary));
+            Should.NotBeNull(targetExpression, nameof(targetExpression));
+            Should.NotBeNull(sourceExpression, nameof(sourceExpression));
             for (var i = 0; i < components.Length; i++)
             {
                 var builders = components[i].TryGetComponentBuilders(targetExpression, sourceExpression, parameters, metadata);
@@ -448,6 +433,9 @@ namespace MugenMvvm.Binding.Extensions.Components
             ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(targetExpression, nameof(targetExpression));
+            Should.NotBeNull(sourceExpression, nameof(sourceExpression));
             for (var i = 0; i < components.Length; i++)
                 components[i].Intercept(target, source, ref targetExpression, ref sourceExpression, ref parameters, metadata);
         }
@@ -455,6 +443,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static bool TryGetPriority(this IBindingExpressionPriorityProviderComponent[] components, IExpressionNode expression, out int priority)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(expression, nameof(expression));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryGetPriority(expression, out priority))
@@ -468,6 +457,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(target, nameof(target));
             if (components.Length == 0)
                 return default;
             if (components.Length == 1)
@@ -486,6 +476,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static bool TryRegister(this IBindingHolderComponent[] components, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(binding, nameof(binding));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryRegister(binding, metadata))
@@ -498,6 +489,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static bool TryUnregister(this IBindingHolderComponent[] components, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(binding, nameof(binding));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryUnregister(binding, metadata))
@@ -510,6 +502,8 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static IReadOnlyMetadataContext? OnLifecycleChanged(this IBindingStateDispatcherComponent[] components, IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             if (components.Length == 0)
                 return null;
             if (components.Length == 1)
@@ -525,6 +519,9 @@ namespace MugenMvvm.Binding.Extensions.Components
             IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(builders, nameof(builders));
+            Should.NotBeNull(comparer, nameof(comparer));
+            Should.NotBeNull(binding, nameof(binding));
+            Should.NotBeNull(target, nameof(target));
             if (builders!.Length == 1)
                 return new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(builders[0].GetComponent(binding, target, source, metadata));
             if (builders.Length != 0)

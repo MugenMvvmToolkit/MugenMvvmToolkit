@@ -14,6 +14,8 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static bool TryGetMember(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryGetMember(type, name, memberTypes, flags, metadata, out member))
@@ -27,6 +29,8 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 var members = components[i].TryGetMembers(type, name, memberTypes, flags, metadata);
@@ -40,6 +44,9 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static void TryAddMembers(this IRawMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(result, nameof(result));
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 var members = components[i].TryGetMembers(type, name, metadata);
@@ -55,6 +62,9 @@ namespace MugenMvvm.Binding.Extensions.Components
             Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(members, nameof(members));
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TrySelectMembers(members, type, name, memberTypes, flags, metadata);

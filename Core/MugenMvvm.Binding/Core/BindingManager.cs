@@ -49,7 +49,6 @@ namespace MugenMvvm.Binding.Core
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(target, nameof(target));
             if (_holderComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _holderComponents!.TryGetBindings(target, path, metadata);
@@ -57,8 +56,6 @@ namespace MugenMvvm.Binding.Core
 
         public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             if (_stateDispatcherComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _stateDispatcherComponents!.OnLifecycleChanged(binding, lifecycleState, metadata).DefaultIfNull();

@@ -11,6 +11,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static bool TryConvert(this IGlobalValueConverterComponent[] components, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(targetType, nameof(targetType));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryConvert(ref value, targetType, member, metadata))

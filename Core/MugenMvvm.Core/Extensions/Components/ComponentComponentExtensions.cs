@@ -8,6 +8,88 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        public static bool HasComponent<TComponent>(object? components) where TComponent : class, IComponent
+        {
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is TComponent)
+                        return true;
+                }
+
+                return false;
+            }
+
+            return components is TComponent;
+        }
+
+        public static bool OnComponentAdding(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
+                        return false;
+                }
+            }
+            else if (components is IComponentCollectionChangingListener listener && !listener.OnAdding(collection, component, metadata))
+                return false;
+
+            return true;
+        }
+
+        public static void OnComponentAdded(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    var comp = c[i];
+                    if (!ReferenceEquals(comp, component))
+                        (comp as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
+                }
+            }
+            else if (!ReferenceEquals(components, component))
+                (components as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
+        }
+
+        public static bool OnComponentRemoving(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                {
+                    if (c[i] is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(collection, component, metadata))
+                        return false;
+                }
+            }
+            else if (components is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(collection, component, metadata))
+                return false;
+
+            return true;
+        }
+
+        public static void OnComponentRemoved(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(collection, nameof(collection));
+            Should.NotBeNull(component, nameof(component));
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
+            }
+            else
+                (components as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
+        }
+
         public static bool OnAdding(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));

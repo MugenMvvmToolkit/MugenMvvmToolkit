@@ -23,7 +23,6 @@ namespace MugenMvvm.Binding.Compiling
 
         public ICompiledExpression Compile(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(expression, nameof(expression));
             var result = GetComponents<IExpressionCompilerComponent>(metadata).TryCompile(expression, metadata);
             if (result == null)
                 BindingExceptionManager.ThrowCannotCompileExpression(expression);

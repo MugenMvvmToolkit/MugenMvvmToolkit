@@ -13,6 +13,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static IResourceValue? TryGetResourceValue(this IResourceResolverComponent[] components, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 var value = components[i].TryGetResourceValue(name, metadata);
@@ -26,6 +27,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static IBindingValueConverter? TryGetConverter(this IBindingValueConverterResolverComponent[] components, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 var converter = components[i].TryGetConverter(name, metadata);
@@ -39,6 +41,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static Type? TryGetType(this ITypeResolverComponent[] components, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
                 var type = components[i].TryGetType(name, metadata);

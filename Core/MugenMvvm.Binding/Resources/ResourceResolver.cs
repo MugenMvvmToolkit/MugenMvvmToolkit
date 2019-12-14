@@ -23,19 +23,16 @@ namespace MugenMvvm.Binding.Resources
 
         public IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(name, nameof(name));
             return GetComponents<IResourceResolverComponent>(metadata).TryGetResourceValue(name, metadata);
         }
 
         public IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(name, nameof(name));
             return GetComponents<IBindingValueConverterResolverComponent>(metadata).TryGetConverter(name, metadata);
         }
 
         public Type? TryGetType(string name, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(name, nameof(name));
             return GetComponents<ITypeResolverComponent>(metadata).TryGetType(name, metadata);
         }
 

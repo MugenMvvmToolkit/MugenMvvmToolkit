@@ -207,7 +207,6 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public Expression Build(IExpressionNode expression)
             {
-                Should.NotBeNull(expression, nameof(expression));
                 var exp = _compiler._components.TryBuild(this, expression) ?? TryGetExpression(expression);
                 if (exp != null)
                     return exp;

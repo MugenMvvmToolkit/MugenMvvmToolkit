@@ -532,7 +532,7 @@ namespace MugenMvvm.Binding.Core
             if (component == null || !ComponentComponentExtensions.OnComponentAdding(this, component, metadata))
                 return false;
 
-            return !CheckFlag(HasComponentChangingListener) || BindingComponentExtensions.OnComponentAdding(_components, this, component, metadata);
+            return !CheckFlag(HasComponentChangingListener) || ComponentComponentExtensions.OnComponentAdding(_components, this, component, metadata);
         }
 
         private void OnComponentAdded(object component, IReadOnlyMetadataContext? metadata)
@@ -574,26 +574,26 @@ namespace MugenMvvm.Binding.Core
 
             ComponentComponentExtensions.OnComponentAdded(this, component, metadata);
             if (CheckFlag(HasComponentChangedListener))
-                BindingComponentExtensions.OnComponentAdded(_components, this, component, metadata);
+                ComponentComponentExtensions.OnComponentAdded(_components, this, component, metadata);
         }
 
         private bool OnComponentRemoving(object component, IReadOnlyMetadataContext? metadata)
         {
             if (!ComponentComponentExtensions.OnComponentRemoving(this, component, metadata))
                 return false;
-            return !CheckFlag(HasComponentChangingListener) || BindingComponentExtensions.OnComponentRemoving(_components, this, component, metadata);
+            return !CheckFlag(HasComponentChangingListener) || ComponentComponentExtensions.OnComponentRemoving(_components, this, component, metadata);
         }
 
         private void OnComponentRemoved(object component, bool isValidState, IReadOnlyMetadataContext? metadata)
         {
             if (isValidState)
             {
-                if (component is IBindingTargetObserverListener && !BindingComponentExtensions.HasComponent<IBindingTargetObserverListener>(_components))
+                if (component is IBindingTargetObserverListener && !ComponentComponentExtensions.HasComponent<IBindingTargetObserverListener>(_components))
                 {
                     Target.RemoveListener(this);
                     ClearFlag(HasTargetObserverListener);
                 }
-                if (component is IBindingSourceObserverListener && !BindingComponentExtensions.HasComponent<IBindingSourceObserverListener>(_components))
+                if (component is IBindingSourceObserverListener && !ComponentComponentExtensions.HasComponent<IBindingSourceObserverListener>(_components))
                 {
                     BindingComponentExtensions.RemoveListener(SourceRaw, this);
                     ClearFlag(HasSourceObserverListener);
@@ -601,7 +601,7 @@ namespace MugenMvvm.Binding.Core
 
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
                 if (CheckFlag(HasComponentChangedListener))
-                    BindingComponentExtensions.OnComponentRemoved(_components, this, component, this);
+                    ComponentComponentExtensions.OnComponentRemoved(_components, this, component, this);
             }
             else
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);

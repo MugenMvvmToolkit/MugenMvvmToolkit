@@ -6,7 +6,7 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components.Binding
 {
     public interface IBindingTargetListener : IComponent<IBinding>
     {
-        void OnTargetUpdateFailed(IBinding binding, Exception error, IReadOnlyMetadataContext metadata);
+        void OnTargetUpdateFailed(IBinding binding, Exception exception, IReadOnlyMetadataContext metadata);
 
         void OnTargetUpdateCanceled(IBinding binding, IReadOnlyMetadataContext metadata);
 

@@ -13,6 +13,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static MemberObserver TryGetMemberObserver<TMember>(this IMemberObserverProviderComponent[] components, Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(type, nameof(type));
             for (var i = 0; i < components.Length; i++)
             {
                 var observer = components[i].TryGetMemberObserver(type, member, metadata);
@@ -39,6 +40,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static IMemberPathObserver? TryGetMemberPathObserver<TRequest>(this IMemberPathObserverProviderComponent[] components, object target, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(target, nameof(target));
             for (var i = 0; i < components.Length; i++)
             {
                 var observer = components[i].TryGetMemberPathObserver(target, request, metadata);

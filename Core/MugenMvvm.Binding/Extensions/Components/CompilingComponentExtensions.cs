@@ -13,6 +13,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static ICompiledExpression? TryCompile(this IExpressionCompilerComponent[] components, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(expression, nameof(expression));
             for (var i = 0; i < components.Length; i++)
             {
                 var compiledExpression = components[i].TryCompile(expression, metadata);
@@ -26,6 +27,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static Expression? TryBuild(this IExpressionBuilderCompilerComponent[] components, IExpressionBuilderContext context, IExpressionNode expression)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(expression, nameof(expression));
             for (var index = 0; index < components.Length; index++)
             {
                 var exp = components[index].TryBuild(context, expression);

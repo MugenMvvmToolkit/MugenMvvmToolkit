@@ -17,6 +17,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             where TExpression : class
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(expression, nameof(expression));
             for (var i = 0; i < components.Length; i++)
             {
                 var r = components[i].TryConvert(context, expression);
@@ -44,6 +45,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         public static IExpressionNode? TryParse(this ITokenParserComponent[] components, ITokenParserContext context, IExpressionNode? expression, Func<ITokenParserContext, ITokenParserComponent, bool>? condition)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             for (var i = 0; i < components.Length; i++)
             {
                 var component = components[i];
