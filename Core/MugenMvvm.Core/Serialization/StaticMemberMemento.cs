@@ -5,7 +5,6 @@ using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Internal;
 
@@ -67,7 +66,7 @@ namespace MugenMvvm.Serialization
             if (Member is PropertyInfo propertyInfo)
                 target = propertyInfo.GetValue(null);
             else
-                target = ((FieldInfo)Member).GetValue(null);
+                target = ((FieldInfo) Member).GetValue(null);
             if (target == null)
                 return MementoResult.Unrestored;
             return new MementoResult(target, serializationContext);
@@ -79,8 +78,8 @@ namespace MugenMvvm.Serialization
 
         public static StaticMemberMemento? Create(object target, Type type, string fieldOrPropertyName)
         {
-            MemberInfo? member = type.GetField(fieldOrPropertyName, BindingFlagsEx.StaticOnly) ??
-                                 (MemberInfo?)type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
+            var member = type.GetField(fieldOrPropertyName, BindingFlagsEx.StaticOnly) ??
+                         (MemberInfo?) type.GetProperty(fieldOrPropertyName, BindingFlagsEx.StaticOnly);
             if (member == null)
             {
                 Tracer.Error()?.Trace(MessageConstant.FieldOrPropertyNotFoundFormat2, fieldOrPropertyName, type);

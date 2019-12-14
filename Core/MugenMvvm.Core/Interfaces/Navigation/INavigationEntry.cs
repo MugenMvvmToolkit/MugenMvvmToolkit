@@ -1,14 +1,9 @@
-﻿using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationEntry : IMetadataOwner<IMetadataContext>
+    public interface INavigationEntry : IMetadataOwner<IMetadataContext>, IHasNavigationInfo
     {
-        string NavigationOperationId { get; }
-
-        NavigationType NavigationType { get; }
-
         INavigationProvider NavigationProvider { get; }
     }
 }

@@ -1,19 +1,13 @@
 ﻿using System.Threading.Tasks;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationCallback//todo review
+    public interface INavigationCallback : IHasNavigationInfo
     {
         NavigationCallbackType CallbackType { get; }
 
-        NavigationType NavigationType { get; }
-
-        Task WaitAsync();
-    }
-
-    public interface INavigationCallback<T> : INavigationCallback
-    {
-        new Task<T> WaitAsync();
+        Task<IReadOnlyMetadataContext> WaitAsync();
     }
 }

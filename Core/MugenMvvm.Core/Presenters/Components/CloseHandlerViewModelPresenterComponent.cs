@@ -41,7 +41,7 @@ namespace MugenMvvm.Presenters.Components
             if (closeHandler == null)
                 return null;
 
-            var r = closeHandler(viewModel, metadata, cancellationToken);
+            var r = closeHandler(viewModel!, metadata, cancellationToken);
             if (r.IsEmpty)
                 return null;
             return new[] { r };

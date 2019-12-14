@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
+using System.Xml.Serialization;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 
@@ -42,6 +43,7 @@ namespace MugenMvvm.Enums
         #region Properties
 
         [IgnoreDataMember]
+        [XmlIgnore]
         public bool IsUndefined => this == Undefined;
 
         [DataMember(Name = "n")]
