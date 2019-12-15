@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Threading;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.Threading.Components;
 
-namespace MugenMvvm.Threading
+namespace MugenMvvm.Threading.Components
 {
-    public sealed class SynchronizationContextThreadDispatcher : IThreadDispatcher
+    public sealed class SynchronizationContextThreadDispatcherComponent : IThreadDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -19,11 +22,21 @@ namespace MugenMvvm.Threading
 
         #region Constructors
 
-        public SynchronizationContextThreadDispatcher(SynchronizationContext synchronizationContext)
+        public SynchronizationContextThreadDispatcherComponent(SynchronizationContext synchronizationContext, bool isOnMainThread = false)
         {
+            Should.NotBeNull(synchronizationContext, nameof(synchronizationContext));
             _synchronizationContext = synchronizationContext;
-            synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+            if (isOnMainThread)
+                _mainThreadId = Thread.CurrentThread.ManagedThreadId;
+            else
+                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcherComponent) state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; } = ThreadingComponentPriority.Dispatcher;
 
         #endregion
 
@@ -31,23 +44,21 @@ namespace MugenMvvm.Threading
 
         public bool CanExecuteInline(ThreadExecutionMode executionMode)
         {
-            Should.NotBeNull(executionMode, nameof(executionMode));
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state = default, IReadOnlyMetadataContext? metadata = null)
+        public bool TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(handler, nameof(handler));
             if (CanExecuteInline(executionMode))
             {
                 handler.Execute(state);
-                return;
+                return true;
             }
 
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler<TState>)o).Execute(default!), handler);
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler<TState>) o).Execute(default!), handler);
                 else
                 {
                     if (handler is IValueHolder<Delegate> valueHolder)
@@ -64,7 +75,7 @@ namespace MugenMvvm.Threading
                         _synchronizationContext.Post(handler.Execute, state);
                 }
 
-                return;
+                return true;
             }
 
             if (executionMode == ThreadExecutionMode.Background)
@@ -82,40 +93,39 @@ namespace MugenMvvm.Threading
                 else
                     ThreadPool.QueueUserWorkItem(handler.Execute, state);
 
-                return;
+                return true;
             }
 
-            ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
+            return false;
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> action, TState state = default, IReadOnlyMetadataContext? metadata = null)
+        public bool TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(action, nameof(action));
             if (CanExecuteInline(executionMode))
             {
-                action.Invoke(state);
-                return;
+                handler.Invoke(state);
+                return true;
             }
 
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
             {
                 if (state == null)
-                    _synchronizationContext.Post(o => ((Action<TState>)o).Invoke(default!), action);
+                    _synchronizationContext.Post(o => ((Action<TState>) o).Invoke(default!), handler);
                 else
-                    _synchronizationContext.Post(action.Invoke, state);
-                return;
+                    _synchronizationContext.Post(handler.Invoke, state);
+                return true;
             }
 
             if (executionMode == ThreadExecutionMode.Background)
             {
                 if (state == null)
-                    ThreadPool.QueueUserWorkItem(o => ((Action<TState>)o).Invoke(default!), action);
+                    ThreadPool.QueueUserWorkItem(o => ((Action<TState>) o).Invoke(default!), handler);
                 else
-                    ThreadPool.QueueUserWorkItem(action.Invoke, state);
-                return;
+                    ThreadPool.QueueUserWorkItem(handler.Invoke, state);
+                return true;
             }
 
-            ExceptionManager.ThrowEnumOutOfRange(nameof(executionMode), executionMode);
+            return false;
         }
 
         #endregion

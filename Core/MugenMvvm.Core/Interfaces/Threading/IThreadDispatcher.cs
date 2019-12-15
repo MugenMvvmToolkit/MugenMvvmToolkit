@@ -12,6 +12,6 @@ namespace MugenMvvm.Interfaces.Threading
 
         void Execute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state = default, IReadOnlyMetadataContext? metadata = null);
 
-        void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> action, TState state = default, IReadOnlyMetadataContext? metadata = null);
+        void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state = default, IReadOnlyMetadataContext? metadata = null);
     }
 }
