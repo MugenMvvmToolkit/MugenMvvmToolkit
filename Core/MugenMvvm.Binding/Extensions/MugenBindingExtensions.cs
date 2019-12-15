@@ -438,7 +438,7 @@ namespace MugenMvvm.Binding.Extensions
             return new WeakEventListener(listener);
         }
 
-        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state)
+        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, in TState state)
         {
             return new WeakEventListener<TState>(listener, state);
         }

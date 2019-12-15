@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public WeakEventListener(IEventListener listener, TState state)
+        public WeakEventListener(IEventListener listener, in TState state)
         {
             Target = WeakEventListener.GetTarget(listener);
             State = state;
