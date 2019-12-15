@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Core.Components.Binding;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -29,8 +30,8 @@ namespace MugenMvvm.Binding.Core
             if (delay != null)
             {
                 var builder = parameterName == BindingParameterNameConstant.Delay
-                    ? new DelegateBindingComponentBuilder<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetSource(i), parameterName, (ushort)delay.Value)
-                    : new DelegateBindingComponentBuilder<ushort>((i, _, __, ___, ____) => DelayBindingComponent.GetTarget(i), parameterName, (ushort)delay.Value);
+                    ? new DelegateBindingComponentBuilder<ushort>(delegate (in ushort i, IBinding _, object __, object? ___, IReadOnlyMetadataContext? ____) { return DelayBindingComponent.GetSource(i); }, parameterName, (ushort)delay.Value)
+                    : new DelegateBindingComponentBuilder<ushort>(delegate (in ushort i, IBinding _, object __, object? ___, IReadOnlyMetadataContext? ____) { return DelayBindingComponent.GetTarget(i); }, parameterName, (ushort)delay.Value);
                 context.ComponentBuilders[parameterName] = builder;
             }
         }

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Enums;
@@ -12,6 +11,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -24,15 +24,15 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private static readonly Func<ValueTuple<ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>,
-            ValueTuple<object?, ICompiledExpression?>>, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> GetParametersComponentDelegate = GetParametersComponent;
+        private static readonly FuncIn<((object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?)), IBinding, object, object?, IReadOnlyMetadataContext?,
+                IComponent<IBinding>> GetParametersComponentDelegate = GetParametersComponent;
 
         private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor();
         private static readonly BindingMemberExpressionCollectorVisitor MemberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
 
         private readonly BindingParameterContext _context;
         private readonly IExpressionCompiler? _compiler;
-        private readonly Func<ValueTuple<ValueTuple<object?, ICompiledExpression?>, bool>, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> _getEventHandlerDelegate;
+        private readonly FuncIn<((object?, ICompiledExpression?), bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> _getEventHandlerDelegate;
         private readonly IMemberProvider? _memberProvider;
 
         #endregion
@@ -93,8 +93,7 @@ namespace MugenMvvm.Binding.Core.Components
                     bool _ = false;
                     var parameter = GetValueOrExpression(BindingParameterNameConstant.CommandParameter, metadata, ref _);
                     var toggle = _context.TryGetBool(BindingParameterNameConstant.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
-                    parameters.Add(new DelegateBindingComponentBuilder<ValueTuple<ValueTuple<object?, ICompiledExpression?>, bool>>(_getEventHandlerDelegate,
-                        BindingParameterNameConstant.EventHandler, (parameter, toggle)));
+                    parameters.Add(new DelegateBindingComponentBuilder<((object?, ICompiledExpression?), bool)>(_getEventHandlerDelegate, BindingParameterNameConstant.EventHandler, (parameter, toggle)));
                 }
                 return;
             }
@@ -111,9 +110,8 @@ namespace MugenMvvm.Binding.Core.Components
             var targetNullValue = GetValueOrExpression(BindingParameterNameConstant.TargetNullValue, metadata, ref hasResult);
             if (hasResult)
             {
-                parameters.Add(new DelegateBindingComponentBuilder<ValueTuple<ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>,
-                    ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>>>(GetParametersComponentDelegate,
-                    BindingParameterNameConstant.ParameterHandler, (converter, converterParameter, fallback, targetNullValue)));
+                parameters.Add(new DelegateBindingComponentBuilder<((object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?))>
+                    (GetParametersComponentDelegate, BindingParameterNameConstant.ParameterHandler, (converter, converterParameter, fallback, targetNullValue)));
             }
         }
 
@@ -150,15 +148,13 @@ namespace MugenMvvm.Binding.Core.Components
             return false;
         }
 
-        private IComponent<IBinding> GetEventHandlerComponent(ValueTuple<ValueTuple<object?, ICompiledExpression?>, bool> state,
-            IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private IComponent<IBinding> GetEventHandlerComponent(in ((object?, ICompiledExpression?), bool) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var (commandParameter, toggleEnabledState) = state;
-            return new EventTargetValueInterceptorBindingComponent(GetValueOrExpression(commandParameter, target, source, metadata), toggleEnabledState, Owner);
+            return new EventTargetValueInterceptorBindingComponent(GetValueOrExpression(state.Item1, target, source, metadata), state.Item2, Owner);
         }
 
-        private static IComponent<IBinding> GetParametersComponent(ValueTuple<ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>, ValueTuple<object?, ICompiledExpression?>,
-            ValueTuple<object?, ICompiledExpression?>> state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static IComponent<IBinding> GetParametersComponent(in ((object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?),
+            (object?, ICompiledExpression?)) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var (converter, converterParameter, fallback, targetNullValue) = state;
             return new ParameterHandlerValueInterceptorBindingComponent(GetValueOrExpression(converter, target, source, metadata),
@@ -166,7 +162,7 @@ namespace MugenMvvm.Binding.Core.Components
                 GetValueOrExpression(targetNullValue, target, source, metadata));
         }
 
-        private static BindingParameterValue GetValueOrExpression(ValueTuple<object?, ICompiledExpression?> value, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static BindingParameterValue GetValueOrExpression((object?, ICompiledExpression?) value, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             if (value.Item1 is IBindingMemberExpressionNode v)
             {
@@ -185,7 +181,7 @@ namespace MugenMvvm.Binding.Core.Components
             return new BindingParameterValue(value.Item1, value.Item2);
         }
 
-        private ValueTuple<object?, ICompiledExpression?> GetValueOrExpression(string parameterName, IReadOnlyMetadataContext? metadata, ref bool hasResult)
+        private (object?, ICompiledExpression?) GetValueOrExpression(string parameterName, IReadOnlyMetadataContext? metadata, ref bool hasResult)
         {
             var expression = _context.TryGetExpression(parameterName);
             if (expression == null)
@@ -194,16 +190,16 @@ namespace MugenMvvm.Binding.Core.Components
             hasResult = true;
             expression = MemberExpressionVisitor.Visit(expression, metadata);
             if (expression is IConstantExpressionNode constant)
-                return ValueTuple.Create<object?, ICompiledExpression?>(constant.Value, null);
+                return (constant.Value, null);
+
             if (expression is IBindingMemberExpressionNode)
-                return ValueTuple.Create<object?, ICompiledExpression?>(expression, null);
+                return (expression, null);
 
             var collect = MemberExpressionCollectorVisitor.Collect(expression, metadata);
             var compiledExpression = _compiler.DefaultIfNull().Compile(expression, metadata);
             if (collect.Item == null && collect.List == null)
-                return ValueTuple.Create<object?, ICompiledExpression?>(compiledExpression.Invoke(default, metadata), null);
-
-            return ValueTuple.Create(collect.GetRawValue(), compiledExpression);
+                return (compiledExpression.Invoke(default, metadata), null);
+            return (collect.GetRawValue(), compiledExpression);
         }
 
         #endregion

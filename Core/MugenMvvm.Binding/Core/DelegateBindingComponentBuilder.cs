@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -13,15 +14,14 @@ namespace MugenMvvm.Binding.Core
     {
         #region Fields
 
-        private readonly Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _componentFactory;
+        private readonly FuncIn<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _componentFactory;
         private readonly TState _state;
 
         #endregion
 
         #region Constructors
 
-        public DelegateBindingComponentBuilder(Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> componentFactory,
-            string name, TState state)
+        public DelegateBindingComponentBuilder(FuncIn<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> componentFactory, string name, in TState state)
         {
             Should.NotBeNull(componentFactory, nameof(componentFactory));
             Should.NotBeNull(name, nameof(name));
