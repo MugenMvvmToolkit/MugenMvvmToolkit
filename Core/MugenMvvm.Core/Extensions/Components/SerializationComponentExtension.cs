@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
@@ -114,6 +115,47 @@ namespace MugenMvvm.Extensions.Components
                 var context = components[i].TryGetSerializationContext(serializer, metadata);
                 if (context != null)
                     return context;
+            }
+
+            return null;
+        }
+
+        public static bool CanSerialize(this ISerializerComponent[] components, Type targetType, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(targetType, nameof(targetType));
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].CanSerialize(targetType, metadata))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public static Stream? TrySerialize(this ISerializerComponent[] components, object target, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(target, nameof(target));
+            for (var i = 0; i < components.Length; i++)
+            {
+                var result = components[i].TrySerialize(target, metadata);
+                if (result != null)
+                    return result;
+            }
+
+            return null;
+        }
+
+        public static object? TryDeserialize(this ISerializerComponent[] components, Stream stream, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(stream, nameof(stream));
+            for (var i = 0; i < components.Length; i++)
+            {
+                var result = components[i].TryDeserialize(stream, metadata);
+                if (result != null)
+                    return result;
             }
 
             return null;
