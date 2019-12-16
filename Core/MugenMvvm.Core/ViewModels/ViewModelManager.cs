@@ -38,7 +38,7 @@ namespace MugenMvvm.ViewModels
             return result;
         }
 
-        public IViewModelBase? TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IViewModelBase? TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(request, metadata);
         }

@@ -16,6 +16,6 @@ namespace MugenMvvm.Interfaces.ViewModels
         object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
-        IViewModelBase? TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata);
+        IViewModelBase? TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }
