@@ -37,13 +37,12 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewModelBase? TryGetViewModel(this IViewModelProviderComponent[] components, IReadOnlyMetadataContext metadata)
+        public static IViewModelBase? TryGetViewModel<TRequest>(this IViewModelProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                var viewModel = components[i].TryGetViewModel(metadata);
+                var viewModel = components[i].TryGetViewModel(request, metadata);
                 if (viewModel != null)
                     return viewModel;
             }

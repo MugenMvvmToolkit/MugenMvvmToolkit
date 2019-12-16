@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Metadata;
+using MugenMvvm.ViewModels;
 
 namespace MugenMvvm.Views.Components
 {
@@ -44,7 +45,7 @@ namespace MugenMvvm.Views.Components
         public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             if (viewModel == null)
-                viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(MetadataContextValue.Create(ViewModelMetadata.Type, mapping.ViewModelType).ToContext());
+                viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(new ViewModelProviderRequest(mapping.ViewModelType), metadata);
             if (view == null)
                 view = (_serviceProvider ?? MugenService.Instance<IServiceProvider>()).GetService(mapping.ViewType);
             return Components.TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
