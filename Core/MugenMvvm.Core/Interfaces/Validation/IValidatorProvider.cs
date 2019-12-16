@@ -7,8 +7,8 @@ namespace MugenMvvm.Interfaces.Validation
 {
     public interface IValidatorProvider : IComponentOwner<IValidatorProvider>, IComponent<IMugenApplication>
     {
-        IReadOnlyList<IValidator> GetValidators(IReadOnlyMetadataContext metadata);
+        IReadOnlyList<IValidator> GetValidators<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
-        IAggregatorValidator GetAggregatorValidator(IReadOnlyMetadataContext metadata);
+        IAggregatorValidator GetAggregatorValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }

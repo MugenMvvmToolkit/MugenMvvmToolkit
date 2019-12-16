@@ -23,26 +23,26 @@ namespace MugenMvvm.Validation
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IValidator> GetValidators(IReadOnlyMetadataContext metadata)
+        public IReadOnlyList<IValidator> GetValidators<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var validators = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidators(metadata);
+            var validators = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidators(request, metadata);
             if (validators != null)
             {
                 var listeners = GetComponents<IValidatorProviderListener>(metadata);
                 for (var i = 0; i < validators.Count; i++)
-                    listeners.OnValidatorCreated(this, validators[i], metadata);
+                    listeners.OnValidatorCreated(this, validators[i], request, metadata);
             }
 
             return validators ?? Default.EmptyArray<IValidator>();
         }
 
-        public IAggregatorValidator GetAggregatorValidator(IReadOnlyMetadataContext metadata)
+        public IAggregatorValidator GetAggregatorValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IAggregatorValidatorProviderComponent>(metadata).TryGetAggregatorValidator(metadata);
+            var result = GetComponents<IAggregatorValidatorProviderComponent>(metadata).TryGetAggregatorValidator(request, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
 
-            GetComponents<IValidatorProviderListener>(metadata).OnAggregatorValidatorCreated(this, result, metadata);
+            GetComponents<IValidatorProviderListener>(metadata).OnAggregatorValidatorCreated(this, result, request, metadata);
             return result;
         }
 

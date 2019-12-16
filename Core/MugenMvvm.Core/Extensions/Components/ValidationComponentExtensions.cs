@@ -11,14 +11,13 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IReadOnlyList<IValidator>? TryGetValidators(this IValidatorProviderComponent[] components, IReadOnlyMetadataContext metadata)
+        public static IReadOnlyList<IValidator>? TryGetValidators<TRequest>(this IValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(metadata, nameof(metadata));
             List<IValidator>? validators = null;
             for (var i = 0; i < components.Length; i++)
             {
-                var list = components[i].TryGetValidators(metadata);
+                var list = components[i].TryGetValidators(request, metadata);
                 if (list == null || list.Count == 0)
                     continue;
                 if (validators == null)
@@ -29,13 +28,12 @@ namespace MugenMvvm.Extensions.Components
             return validators;
         }
 
-        public static IAggregatorValidator? TryGetAggregatorValidator(this IAggregatorValidatorProviderComponent[] components, IReadOnlyMetadataContext metadata)
+        public static IAggregatorValidator? TryGetAggregatorValidator<TRequest>(this IAggregatorValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetAggregatorValidator(metadata);
+                var result = components[i].TryGetAggregatorValidator(request, metadata);
                 if (result != null)
                     return result;
             }
@@ -43,24 +41,24 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnValidatorCreated(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IValidator validator, IReadOnlyMetadataContext metadata)
+        public static void OnValidatorCreated<TRequest>(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnValidatorCreated(validatorProvider, validator, metadata);
+                listeners[i].OnValidatorCreated(validatorProvider, validator, request, metadata);
         }
 
-        public static void OnAggregatorValidatorCreated(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IAggregatorValidator validator, IReadOnlyMetadataContext metadata)
+        public static void OnAggregatorValidatorCreated<TRequest>(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IAggregatorValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAggregatorValidatorCreated(validatorProvider, validator, metadata);
+                listeners[i].OnAggregatorValidatorCreated(validatorProvider, validator, request, metadata);
         }
 
         public static void OnErrorsChanged(this IValidatorListener[] listeners, IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)
