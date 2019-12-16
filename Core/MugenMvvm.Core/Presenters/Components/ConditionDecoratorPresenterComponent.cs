@@ -21,16 +21,16 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public PresenterResult TryShow(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public PresenterResult TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, request, metadata))
                     continue;
 
-                var result = presenter.TryShow(metadata, cancellationToken);
+                var result = presenter.TryShow(request, metadata, cancellationToken);
                 if (!result.IsEmpty)
                     return result;
             }
@@ -38,17 +38,17 @@ namespace MugenMvvm.Presenters.Components
             return default;
         }
 
-        public IReadOnlyList<PresenterResult>? TryClose(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<PresenterResult>? TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), request, metadata))
                     continue;
 
-                var operations = presenter.TryClose(metadata, cancellationToken);
+                var operations = presenter.TryClose(request, metadata, cancellationToken);
                 if (operations == null)
                     continue;
                 if (results == null)
@@ -59,17 +59,17 @@ namespace MugenMvvm.Presenters.Components
             return results;
         }
 
-        public IReadOnlyList<PresenterResult>? TryRestore(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<PresenterResult>? TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), metadata))
+                if (!Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), request, metadata))
                     continue;
 
-                var operations = presenter.TryRestore(metadata, cancellationToken);
+                var operations = presenter.TryRestore(request, metadata, cancellationToken);
                 if (operations == null)
                     continue;
                 if (results == null)

@@ -8,10 +8,10 @@ namespace MugenMvvm.Interfaces.Presenters.Components
 {
     public interface IPresenterComponent : IComponent<IPresenter>
     {
-        PresenterResult TryShow(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken);
+        PresenterResult TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken);
 
-        IReadOnlyList<PresenterResult>? TryClose(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken);
+        IReadOnlyList<PresenterResult>? TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken);
 
-        IReadOnlyList<PresenterResult>? TryRestore(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken);
+        IReadOnlyList<PresenterResult>? TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken);
     }
 }

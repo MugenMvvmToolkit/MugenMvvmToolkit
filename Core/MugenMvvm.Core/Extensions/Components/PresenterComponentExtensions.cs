@@ -10,55 +10,53 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanShow(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyMetadataContext metadata)
+        public static bool CanShow<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanShow(presenter, metadata))
+                if (!components[i].CanShow(presenter, request, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanClose(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata)
+        public static bool CanClose<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, in TRequest request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanClose(presenter, results, metadata))
+                if (!components[i].CanClose(presenter, results, request, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static bool CanRestore(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, IReadOnlyMetadataContext metadata)
+        public static bool CanRestore<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, in TRequest request,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanRestore(presenter, results, metadata))
+                if (!components[i].CanRestore(presenter, results, request, metadata))
                     return false;
             }
 
             return true;
         }
 
-        public static PresenterResult TryShow(this IPresenterComponent[] components, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public static PresenterResult TryShow<TRequest>(this IPresenterComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(metadata, nameof(metadata));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryShow(metadata, cancellationToken);
+                var result = components[i].TryShow(request, metadata, cancellationToken);
                 if (!result.IsEmpty)
                     return result;
             }
@@ -66,14 +64,13 @@ namespace MugenMvvm.Extensions.Components
             return default;
         }
 
-        public static IReadOnlyList<PresenterResult>? TryClose(this IPresenterComponent[] components, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public static IReadOnlyList<PresenterResult>? TryClose<TRequest>(this IPresenterComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(metadata, nameof(metadata));
             List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {
-                var operations = components[i].TryClose(metadata, cancellationToken);
+                var operations = components[i].TryClose(request, metadata, cancellationToken);
                 if (operations == null || operations.Count == 0)
                     continue;
                 if (results == null)
@@ -84,14 +81,13 @@ namespace MugenMvvm.Extensions.Components
             return results;
         }
 
-        public static IReadOnlyList<PresenterResult>? TryRestore(this IPresenterComponent[] components, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public static IReadOnlyList<PresenterResult>? TryRestore<TRequest>(this IPresenterComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(metadata, nameof(metadata));
             List<PresenterResult>? results = null;
             for (var i = 0; i < components.Length; i++)
             {
-                var operations = components[i].TryRestore(metadata, cancellationToken);
+                var operations = components[i].TryRestore(request, metadata, cancellationToken);
                 if (operations == null || operations.Count == 0)
                     continue;
                 if (results == null)

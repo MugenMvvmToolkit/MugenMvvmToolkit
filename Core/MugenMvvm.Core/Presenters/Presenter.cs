@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -23,22 +22,22 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public PresenterResult Show(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken = default)
+        public PresenterResult Show<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            var result = GetComponents<IPresenterComponent>(metadata).TryShow(metadata, cancellationToken);
+            var result = GetComponents<IPresenterComponent>(metadata).TryShow(request, metadata, cancellationToken);
             if (result.IsEmpty)
                 ExceptionManager.ThrowPresenterCannotShowRequest(metadata);
             return result;
         }
 
-        public IReadOnlyList<PresenterResult> TryClose(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken = default)
+        public IReadOnlyList<PresenterResult> TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryClose(metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryClose(request, metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
         }
 
-        public IReadOnlyList<PresenterResult> TryRestore(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken = default)
+        public IReadOnlyList<PresenterResult> TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryRestore(metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryRestore(request, metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
         }
 
         #endregion
