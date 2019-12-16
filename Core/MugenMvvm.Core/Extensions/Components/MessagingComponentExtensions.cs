@@ -10,13 +10,13 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IMessageContext? TryGetMessengerContext(this IMessageContextProviderComponent[] components, object? sender, object message, IReadOnlyMetadataContext? metadata)
+        public static IMessageContext? TryGetMessageContext(this IMessageContextProviderComponent[] components, object? sender, object message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(message, nameof(message));
             for (var i = 0; i < components.Length; i++)
             {
-                var ctx = components[i].TryGetMessengerContext(sender, message, metadata);
+                var ctx = components[i].TryGetMessageContext(sender, message, metadata);
                 if (ctx != null)
                     return ctx;
             }

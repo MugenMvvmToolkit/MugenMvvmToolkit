@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 {
     public interface IMessageContextProviderComponent : IComponent<IMessenger>
     {
-        IMessageContext? TryGetMessengerContext(object? sender, object message, IReadOnlyMetadataContext? metadata);
+        IMessageContext? TryGetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata);
     }
 }

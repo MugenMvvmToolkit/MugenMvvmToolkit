@@ -26,7 +26,7 @@ namespace MugenMvvm.Presenters
         {
             var result = GetComponents<IPresenterComponent>(metadata).TryShow(request, metadata, cancellationToken);
             if (result.IsEmpty)
-                ExceptionManager.ThrowPresenterCannotShowRequest(metadata);
+                ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
             return result;
         }
 

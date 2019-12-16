@@ -20,6 +20,13 @@ namespace MugenMvvm.Extensions
             return publisher.Publish(null, message, metadata);
         }
 
+        public static IMessageContext Publish(this IMessagePublisher publisher, object? sender, object message, IReadOnlyMetadataContext? metadata = null)
+        {
+            var messageContext = publisher.GetMessageContext(sender, message, metadata);
+            publisher.Publish(messageContext);
+            return messageContext;
+        }
+
         public static MessengerHandlerComponent.IMessengerSubscriber SubscribeWeak<TTarget, TMessage>(this IMessenger messenger, TTarget target,
             Action<TTarget, TMessage, IMessageContext> action,
             ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)

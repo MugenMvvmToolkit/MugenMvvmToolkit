@@ -126,11 +126,9 @@ namespace MugenMvvm.Messaging
             }
         }
 
-        public IMessageContext Publish(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
+        public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
-            var ctx = GetComponents<IMessageContextProviderComponent>(metadata).TryGetMessengerContext(sender, message, metadata) ?? new MessageContext(this, sender, message, metadata);
-            Publish(ctx);
-            return ctx;
+            return GetComponents<IMessageContextProviderComponent>(metadata).TryGetMessageContext(sender, message, metadata) ?? new MessageContext(this, sender, message, metadata);
         }
 
         public void Publish(IMessageContext messageContext)

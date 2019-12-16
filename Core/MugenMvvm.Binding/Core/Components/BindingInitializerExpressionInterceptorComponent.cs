@@ -25,14 +25,14 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         private static readonly FuncIn<((object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?), (object?, ICompiledExpression?)), IBinding, object, object?, IReadOnlyMetadataContext?,
-                IComponent<IBinding>> GetParametersComponentDelegate = GetParametersComponent;
+                IComponent<IBinding>?> GetParametersComponentDelegate = GetParametersComponent;
 
         private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor();
         private static readonly BindingMemberExpressionCollectorVisitor MemberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
 
         private readonly BindingParameterContext _context;
         private readonly IExpressionCompiler? _compiler;
-        private readonly FuncIn<((object?, ICompiledExpression?), bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>> _getEventHandlerDelegate;
+        private readonly FuncIn<((object?, ICompiledExpression?), bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _getEventHandlerDelegate;
         private readonly IMemberProvider? _memberProvider;
 
         #endregion

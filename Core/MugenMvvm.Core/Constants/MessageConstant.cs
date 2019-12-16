@@ -18,7 +18,7 @@
         public const string WrapperTypeNotSupportedFormat1 = "There are no wrapper type for type '{0}'";
         public const string IntOutOfRangeCollection = "Index must be within the bounds of the collection";
         public const string ShouldMethodBeSupportedFormat1 = "The method {0} has not been implemented by this class";
-        public const string PresenterCannotShowRequestFormat1 = "Presenter cannot show request '{0}'";
+        public const string PresenterCannotShowRequestFormat2 = "Presenter cannot show request '{0}'-'{1}'";
         public const string FieldOrPropertyNotFoundFormat2 = "Cannot get field/property by name '{0}' on type '{1}'";
         public const string ObjectInitializedFormat2 = "The '{0}' is already initialized '{1}'";
         public const string CannotCloseMediator = "The view is closed, before close the view you should show it.";

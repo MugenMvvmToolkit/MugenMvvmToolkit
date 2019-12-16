@@ -61,9 +61,9 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowPresenterCannotShowRequest(IReadOnlyMetadataContext request)
+        public static void ThrowPresenterCannotShowRequest<TRequest>(TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            throw new ArgumentException(PresenterCannotShowRequestFormat1.Format(request.Dump()));
+            throw new ArgumentException(PresenterCannotShowRequestFormat2.Format(request, metadata.Dump()));
         }
 
         [DoesNotReturn]
