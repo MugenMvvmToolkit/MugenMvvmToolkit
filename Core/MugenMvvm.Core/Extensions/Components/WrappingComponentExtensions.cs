@@ -9,14 +9,14 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanWrap(this IWrapperManagerComponent[] components, Type type, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public static bool CanWrap(this IWrapperManagerComponent[] components, Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(targetType, nameof(targetType));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].CanWrap(type, wrapperType, metadata))
+                if (components[i].CanWrap(targetType, wrapperType, metadata))
                     return true;
             }
 
