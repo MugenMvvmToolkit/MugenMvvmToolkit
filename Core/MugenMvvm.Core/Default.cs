@@ -66,7 +66,13 @@ namespace MugenMvvm
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullable<T>()
         {
-            return NullableChecker<T>.IsNullableType;
+            return GenericChecker<T>.IsNullableType;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsValueType<T>()
+        {
+            return GenericChecker<T>.IsValueType;
         }
 
         internal static PropertyChangedEventArgs GetOrCreatePropertyChangedArgs(string propertyName)
@@ -189,11 +195,12 @@ namespace MugenMvvm
             #endregion
         }
 
-        private static class NullableChecker<T>
+        private static class GenericChecker<T>
         {
             #region Fields
 
             public static readonly bool IsNullableType = default(T)! == null;
+            public static readonly bool IsValueType = typeof(T).IsValueType;
 
             #endregion
         }
