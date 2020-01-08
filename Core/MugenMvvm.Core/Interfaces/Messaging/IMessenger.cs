@@ -8,12 +8,14 @@ using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
-    public interface IMessenger : IMessagePublisher, IComponentOwner<IMessenger>, IComponent<IMugenApplication>, IDisposable
+    public interface IMessenger : IMessagePublisher, IComponentOwner<IMessenger>, IComponent<IMugenApplication>
     {
-        bool Subscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null);
+        bool Subscribe<TSubscriber>(in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null);
 
-        bool Unsubscribe(object subscriber, IReadOnlyMetadataContext? metadata = null);
+        bool Unsubscribe<TSubscriber>(in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<MessengerSubscriberInfo> GetSubscribers();
+        void UnsubscribeAll(IReadOnlyMetadataContext? metadata = null);
+
+        IReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null);
     }
 }

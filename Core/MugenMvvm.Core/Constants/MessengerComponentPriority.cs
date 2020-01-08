@@ -4,9 +4,9 @@
     {
         #region Fields
 
-        public const int Handler = 0;
+        public const int Publisher = 0;
         public const int Subscriber = 0;
-        public const int Provider = 0;
+        public const int ContextProvider = 0;
 
         #endregion
     }

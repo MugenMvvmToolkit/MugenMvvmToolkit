@@ -5,6 +5,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -22,6 +23,7 @@ namespace MugenMvvm.ViewModels.Components
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IReflectionDelegateProvider _reflectionDelegateProvider;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
@@ -29,9 +31,10 @@ namespace MugenMvvm.ViewModels.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelServiceResolverComponent(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null,
-            IMetadataContextProvider? metadataContextProvider = null)
+        public ViewModelServiceResolverComponent(IReflectionDelegateProvider reflectionDelegateProvider = null, IThreadDispatcher? threadDispatcher = null,
+            IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
+            _reflectionDelegateProvider = reflectionDelegateProvider;
             _threadDispatcher = threadDispatcher;
             _metadataContextProvider = metadataContextProvider;
             _componentCollectionProvider = componentCollectionProvider;
@@ -53,10 +56,9 @@ namespace MugenMvvm.ViewModels.Components
                 return _metadataContextProvider.DefaultIfNull().GetMetadataContext(viewModel);
             if (service == typeof(IMessenger))
             {
-                var messenger = new Messenger(_threadDispatcher, _componentCollectionProvider, _metadataContextProvider);
-                messenger.Components.Add(MessengerHandlerComponent.Instance, metadata);
-                messenger.Components.Add(ViewModelMessengerSubscriberComponent.Instance, metadata);
-                messenger.Components.Add(MessengerHandlerSubscriberComponent.InstanceWeak, metadata);
+                var messenger = new Messenger(_componentCollectionProvider, _metadataContextProvider);
+                messenger.Components.Add(new MessagePublisherComponent(_threadDispatcher), metadata);
+                messenger.Components.Add(new MessengerHandlerComponent(_reflectionDelegateProvider), metadata);
                 return messenger;
             }
 

@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -24,72 +26,72 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnSubscribed(this IMessengerSubscriberListener[] listeners, IMessenger messenger, object subscriber, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(messenger, nameof(messenger));
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(executionMode, nameof(executionMode));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnSubscribed(messenger, subscriber, executionMode, metadata);
-        }
-
-        public static void OnUnsubscribed(this IMessengerSubscriberListener[] listeners, IMessenger messenger, object subscriber, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(messenger, nameof(messenger));
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnUnsubscribed(messenger, subscriber, metadata);
-        }
-
-        public static bool CanHandle(this IMessengerHandlerComponent[] components, object subscriber, Type messageType)
+        public static void TryPublish(this IMessagePublisherComponent[] components, IMessageContext messageContext)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(subscriber, nameof(subscriber));
+            Should.NotBeNull(messageContext, nameof(messageContext));
+            for (var i = 0; i < components.Length; i++)
+                components[i].TryPublish(messageContext);
+        }
+
+        public static bool TrySubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            var result = false;
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TrySubscribe(subscriber, executionMode, metadata))
+                    result = true;
+            }
+
+            return result;
+        }
+
+        public static bool TryUnsubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            var result = false;
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryUnsubscribe(subscriber, metadata))
+                    result = true;
+            }
+
+            return result;
+        }
+
+        public static void TryUnsubscribeAll(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            for (var i = 0; i < components.Length; i++)
+                components[i].TryUnsubscribeAll(metadata);
+        }
+
+        public static IReadOnlyList<MessengerSubscriberInfo>? TryGetSubscribers(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            List<MessengerSubscriberInfo>? subscribers = null; //todo ext method
+            for (var i = 0; i < components.Length; i++)
+            {
+                var list = components[i].TryGetSubscribers(metadata);
+                if (list == null || list.Count == 0)
+                    continue;
+                if (subscribers == null)
+                    subscribers = new List<MessengerSubscriberInfo>();
+                subscribers.AddRange(list);
+            }
+
+            return subscribers;
+        }
+
+        public static IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messageType, nameof(messageType));
+            List<(ThreadExecutionMode, MessengerHandler)>? handlers = null;
             for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].CanHandle(subscriber, messageType))
-                    return true;
-            }
-
-            return false;
-        }
-
-        public static MessengerResult? TryHandle(this IMessengerHandlerComponent[] components, object subscriber, IMessageContext messageContext)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(messageContext, nameof(messageContext));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryHandle(subscriber, messageContext);
-                if (result != null)
-                    return result;
-            }
-
-            return null;
-        }
-
-        public static void OnHandling(this IMessengerHandlerListener[] listeners, IMessenger messenger, object subscriber, IMessageContext messageContext)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(messenger, nameof(messenger));
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(messageContext, nameof(messageContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnHandling(messenger, subscriber, messageContext);
-        }
-
-        public static void OnHandled(this IMessengerHandlerListener[] listeners, IMessenger messenger, MessengerResult? result, object subscriber, IMessageContext messageContext)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(messenger, nameof(messenger));
-            Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(messageContext, nameof(messageContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnHandled(messenger, result, subscriber, messageContext);
+                MugenExtensions.AddIfNotNullOrEmpty(ref handlers, components[i].TryGetMessengerHandlers(messageType, metadata));
+            return handlers;
         }
 
         #endregion

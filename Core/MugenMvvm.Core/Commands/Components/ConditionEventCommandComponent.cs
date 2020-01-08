@@ -139,7 +139,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Nested types
 
-        private sealed class Subscriber : MessengerHandlerComponent.IMessengerSubscriber
+        private sealed class Subscriber : IMessengerHandlerRaw
         {
             #region Fields
 
