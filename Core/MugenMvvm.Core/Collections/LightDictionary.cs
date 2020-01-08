@@ -16,7 +16,7 @@ namespace MugenMvvm.Collections
     [DebuggerDisplay("Count = {Count}")]
     [Serializable]
     [DataContract(Namespace = BuildConstant.DataContractNamespace)]
-    public class LightDictionary<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>> where TKey : notnull
+    public class LightDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue> where TKey : notnull
     {
         #region Fields
 
@@ -103,6 +103,10 @@ namespace MugenMvvm.Collections
             set => Insert(key, value, false);
         }
 
+        public IEnumerable<TKey> Keys => KeysToArray();
+
+        public IEnumerable<TValue> Values => ValuesToArray();
+
         #endregion
 
         #region Implementation of interfaces
@@ -115,6 +119,34 @@ namespace MugenMvvm.Collections
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        public bool ContainsKey(TKey key)
+        {
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
+            {
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
+                    return true;
+            }
+
+            return false;
+        }
+
+        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue value)
+        {
+            var hashCode = GetHashCode(key) & int.MaxValue;
+            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
+            {
+                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
+                {
+                    value = _entries[i].Value;
+                    return true;
+                }
+            }
+
+            value = default!;
+            return false;
         }
 
         #endregion
@@ -136,18 +168,6 @@ namespace MugenMvvm.Collections
             _freeList = -1;
             _count = 0;
             _freeCount = 0;
-        }
-
-        public bool ContainsKey(TKey key)
-        {
-            var hashCode = GetHashCode(key) & int.MaxValue;
-            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
-            {
-                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
-                    return true;
-            }
-
-            return false;
         }
 
         public bool Remove(TKey key)
@@ -178,22 +198,6 @@ namespace MugenMvvm.Collections
                 last = i;
             }
 
-            return false;
-        }
-
-        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue value)
-        {
-            var hashCode = GetHashCode(key) & int.MaxValue;
-            for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
-            {
-                if (_entries[i].HashCode == hashCode && Equals(_entries[i].Key, key))
-                {
-                    value = _entries[i].Value;
-                    return true;
-                }
-            }
-
-            value = default!;
             return false;
         }
 
@@ -301,6 +305,7 @@ namespace MugenMvvm.Collections
                 _entries = Default.EmptyArray<Entry>();
                 return;
             }
+
             var prime = PrimeNumberHelper.GetPrime(capacity);
             _buckets = new int[prime];
             for (var i = 0; i < _buckets.Length; i++)

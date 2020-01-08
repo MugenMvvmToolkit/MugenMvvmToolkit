@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IHasCache
     {
-        void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);
+        void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);//todo generic state
     }
 }

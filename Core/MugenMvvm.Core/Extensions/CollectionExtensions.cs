@@ -7,12 +7,29 @@ using System.Threading;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
+using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static void AddIfNotNullOrEmpty<T>(ref List<T>? list, IReadOnlyCollection<T>? items)
+        {
+            if (list == null || list.Count == 0)
+                return;
+            if (list == null)
+                list = new List<T>();
+            list.AddRange(list);
+        }
+
+        public static void Add<T>(ref List<T>? list, T item)
+        {
+            if (list == null)
+                list = new List<T>();
+            list.Add(item);
+        }
 
         public static ActionToken TryLock<T>(this IObservableCollection<T>? observableCollection)
         {
