@@ -2,12 +2,12 @@
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Delegates;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -19,8 +19,6 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IMemberProvider? _memberProvider;
-        private readonly FuncIn<MethodInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverMethodDelegate;
-        private readonly FuncIn<PropertyInfo, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverPropertyDelegate;
         private readonly FuncIn<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
@@ -33,8 +31,6 @@ namespace MugenMvvm.Binding.Observers.Components
         public EventMemberObserverProviderComponent(IMemberProvider? memberProvider = null)
         {
             _memberProvider = memberProvider;
-            _tryGetMemberObserverMethodDelegate = TryGetMemberObserver;
-            _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
             _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
         }
 
@@ -52,12 +48,18 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverPropertyDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider1)
-                return provider1.Invoke(member, type, metadata);
-            if (_tryGetMemberObserverMethodDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider2)
-                return provider2.Invoke(member, type, metadata);
-            if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider3)
-                return provider3.Invoke(member, type, metadata);
+            if (Default.IsValueType<TMember>())
+            {
+                if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider)
+                    return provider.Invoke(member, type, metadata);
+
+                return default;
+            }
+
+            if (member is MethodInfo method)
+                return TryGetMemberObserver(method, type, metadata);
+            if (member is PropertyInfo propertyInfo)
+                return TryGetMemberObserver(propertyInfo, type, metadata);
             return default;
         }
 
@@ -96,7 +98,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private MemberObserver TryGetMemberObserver(in MethodInfo member, Type type, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserver(MethodInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
             var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)
@@ -105,7 +107,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserver(PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
         {
             var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
             if (observableMember != null)

@@ -1,5 +1,4 @@
 ﻿using MugenMvvm.Binding.Constants;
-using MugenMvvm.Delegates;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,12 +8,6 @@ namespace MugenMvvm.Binding.Observers.Components
 {
     public sealed class MemberPathProviderComponent : IMemberPathProviderComponent, IHasPriority
     {
-        #region Fields
-
-        private static readonly FuncIn<string, IMemberPath?> GetMemberPathStringDelegate = TryGetMemberPath;
-
-        #endregion
-
         #region Properties
 
         public int Priority { get; set; } = ObserverComponentPriority.PathProvider;
@@ -25,24 +18,16 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            if (GetMemberPathStringDelegate is FuncIn<TPath, IMemberPath?> provider)
-                return provider.Invoke(path);
-            return null;
-        }
+            if (Default.IsValueType<TPath>() || !(path is string stringPath))
+                return null;
 
-        #endregion
-
-        #region Methods
-
-        private static IMemberPath? TryGetMemberPath(in string path)
-        {
-            if (path.Length == 0)
+            if (stringPath.Length == 0)
                 return EmptyMemberPath.Instance;
 
-            var hasBracket = path.IndexOf('[') >= 0;
-            if (path.IndexOf('.') >= 0 || hasBracket)
-                return new MultiMemberPath(path, hasBracket);
-            return new SingleMemberPath(path);
+            var hasBracket = stringPath.IndexOf('[') >= 0;
+            if (stringPath.IndexOf('.') >= 0 || hasBracket)
+                return new MultiMemberPath(stringPath, hasBracket);
+            return new SingleMemberPath(stringPath);
         }
 
         #endregion

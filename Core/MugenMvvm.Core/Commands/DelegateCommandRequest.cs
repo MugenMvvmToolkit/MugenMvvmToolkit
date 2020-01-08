@@ -50,6 +50,15 @@ namespace MugenMvvm.Commands
 
         #endregion
 
+        #region Methods
+
+        public ICompositeCommand? TryGetCommand(IProvider provider, IReadOnlyMetadataContext? metadata)
+        {
+            return Factory?.Invoke(this, provider, metadata);
+        }
+
+        #endregion
+
         #region Nested types
 
         public interface IProvider

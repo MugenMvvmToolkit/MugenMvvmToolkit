@@ -2,13 +2,13 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Delegates;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Components;
+using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -20,10 +20,9 @@ namespace MugenMvvm.Binding.Parsing.Components
     {
         #region Fields
 
-        private readonly ExpressionConverterContext<Expression> _context;
         private readonly ComponentTracker _componentTracker;
+        private readonly ExpressionConverterContext<Expression> _context;
         private readonly FuncIn<ExpressionConverterRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
-        private readonly FuncIn<IReadOnlyList<ExpressionConverterRequest>, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseListDelegate;
 
         #endregion
 
@@ -35,7 +34,6 @@ namespace MugenMvvm.Binding.Parsing.Components
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionConverterParserComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
             _tryParseDelegate = Parse;
-            _tryParseListDelegate = Parse;
         }
 
         #endregion
@@ -50,10 +48,24 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryParseDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser1)
-                return parser1(expression, metadata);
-            if (_tryParseListDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser2)
-                return parser2(expression, metadata);
+            if (Default.IsValueType<TExpression>())
+            {
+                if (_tryParseDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser)
+                    return parser(expression, metadata);
+            }
+            else if (expression is IReadOnlyList<ExpressionConverterRequest> expressions)
+            {
+                if (expressions.Count == 0)
+                    return default;
+                if (expressions.Count == 1)
+                    return Parse(expressions[0], metadata);
+
+                var result = new ExpressionParserResult[expressions.Count];
+                for (var i = 0; i < result.Length; i++)
+                    result[i] = Parse(expressions[i], metadata).Item;
+                return result;
+            }
+
             return default;
         }
 

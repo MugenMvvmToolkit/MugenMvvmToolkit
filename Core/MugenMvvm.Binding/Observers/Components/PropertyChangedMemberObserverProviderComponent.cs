@@ -3,10 +3,10 @@ using System.ComponentModel;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Delegates;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,11 +19,8 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
-        private readonly FuncIn<PropertyInfo, Type, MemberObserver> _tryGetMemberObserverPropertyDelegate;
         private readonly FuncIn<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
-        private readonly FuncIn<string, Type, MemberObserver> _tryGetMemberObserverStringDelegate;
 
         private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
@@ -35,8 +32,6 @@ namespace MugenMvvm.Binding.Observers.Components
         public PropertyChangedMemberObserverProviderComponent(IAttachedValueManager? attachedValueManager = null)
         {
             _attachedValueManager = attachedValueManager;
-            _tryGetMemberObserverStringDelegate = TryGetMemberObserver;
-            _tryGetMemberObserverPropertyDelegate = TryGetMemberObserver;
             _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
             _memberObserverHandler = TryObserve;
         }
@@ -53,12 +48,22 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetMemberObserverPropertyDelegate is FuncIn<TMember, Type, MemberObserver> provider1)
-                return provider1.Invoke(member, type);
-            if (_tryGetMemberObserverStringDelegate is FuncIn<TMember, Type, MemberObserver> provider2)
-                return provider2.Invoke(member, type);
-            if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, MemberObserver> provider3)
-                return provider3.Invoke(member, type);
+            if (Default.IsValueType<TMember>())
+            {
+                if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, MemberObserver> provider)
+                    return provider.Invoke(member, type);
+                return default;
+            }
+
+            if (member is PropertyInfo property)
+            {
+                if (typeof(INotifyPropertyChanged).IsAssignableFrom(type) && !property.IsStatic())
+                    return new MemberObserver(_memberObserverHandler, property.Name);
+                return default;
+            }
+
+            if (member is string stringMember)
+                return TryGetMemberObserver(stringMember, type);
             return default;
         }
 
@@ -83,14 +88,7 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private MemberObserver TryGetMemberObserver(in PropertyInfo member, Type type)
-        {
-            if (typeof(INotifyPropertyChanged).IsAssignableFrom(type) && !member.IsStatic())
-                return new MemberObserver(_memberObserverHandler, member.Name);
-            return default;
-        }
-
-        private MemberObserver TryGetMemberObserver(in string member, Type type)
+        private MemberObserver TryGetMemberObserver(string member, Type type)
         {
             if (typeof(INotifyPropertyChanged).IsAssignableFrom(type))
                 return new MemberObserver(_memberObserverHandler, member);

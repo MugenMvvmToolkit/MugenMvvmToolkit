@@ -73,9 +73,7 @@ namespace MugenMvvm.Commands.Components
 
         private ICompositeCommand? TryGetCommand(in DelegateCommandRequest request)
         {
-            if (request.IsEmpty)
-                return null;
-            return request.Factory(request, this, null);
+            return request.TryGetCommand(this, null);
         }
 
         #endregion
