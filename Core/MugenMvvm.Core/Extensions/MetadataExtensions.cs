@@ -122,7 +122,7 @@ namespace MugenMvvm.Extensions
         }
 
         [return: MaybeNull, NotNullIfNotNull("defaultValue")]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default)
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, T defaultValue = default!)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             metadataContext.TryGet(key, out var value, defaultValue);

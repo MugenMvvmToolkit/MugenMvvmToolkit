@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Extensions
         public static List<string>? TryGetErrors(this IParserContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            if (context.HasMetadata && context.Metadata.TryGet(ParsingMetadata.ParsingErrors, out var errors))
+            if (context.HasMetadata && context.Metadata.TryGet(ParsingMetadata.ParsingErrors!, out var errors))
                 return errors;
             return null;
         }

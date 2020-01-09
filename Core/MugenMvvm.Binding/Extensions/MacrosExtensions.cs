@@ -23,15 +23,15 @@ namespace MugenMvvm.Binding.Extensions
         [Preserve(Conditional = true)]
         public static IBinding? GetBinding(IReadOnlyMetadataContext? metadata = null)
         {
-            return metadata?.Get(BindingMetadata.Binding);
+            return metadata?.Get(BindingMetadata.Binding!);
         }
 
         [Preserve(Conditional = true)]
         public static object? GetEventArgs(IReadOnlyMetadataContext? metadata = null)
         {
-            var binding = metadata?.Get(BindingMetadata.Binding);
+            var binding = metadata?.Get(BindingMetadata.Binding!);
             if (binding == null)
-                return metadata?.Get(BindingMetadata.EventArgs);
+                return metadata?.Get(BindingMetadata.EventArgs!);
 
             var itemOrList = binding.GetComponents();
             var components = itemOrList.List;
