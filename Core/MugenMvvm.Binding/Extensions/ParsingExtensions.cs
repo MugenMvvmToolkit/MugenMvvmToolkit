@@ -223,16 +223,13 @@ namespace MugenMvvm.Binding.Extensions
 
         public static List<IExpressionNode>? ParseArguments(this ITokenParserContext context, string endSymbol)
         {
-            List<IExpressionNode>? args = null;
+            LazyList<IExpressionNode> args = default;
             while (true)
             {
                 var node = context.TryParseWhileNotNull();
                 if (node != null)
                 {
-                    if (args == null)
-                        args = new List<IExpressionNode>();
                     args.Add(node);
-
                     if (context.SkipWhitespaces().IsToken(','))
                     {
                         context.MoveNext();
@@ -247,7 +244,7 @@ namespace MugenMvvm.Binding.Extensions
                 }
 
                 context.TryGetErrors()?.Add(node == null
-                    ? BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args == null ? null : string.Join(",", args))
+                    ? BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args.List == null ? null : string.Join(",", args))
                     : BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args), endSymbol));
 
                 return null;
@@ -258,7 +255,7 @@ namespace MugenMvvm.Binding.Extensions
 
         public static List<string>? ParseStringArguments(this ITokenParserContext context, string endSymbol, bool isPointSupported)
         {
-            List<string>? args = null;
+            LazyList<string> args = default;
             var start = context.Position;
             int? end = null;
             while (true)
@@ -268,13 +265,10 @@ namespace MugenMvvm.Binding.Extensions
                 {
                     if (end == null)
                     {
-
-                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args == null ? null : string.Join(",", args)));
+                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args.List == null ? null : string.Join(",", args)));
                         return null;
                     }
 
-                    if (args == null)
-                        args = new List<string>();
                     args.Add(context.GetValue(start, end.Value));
                     context.MoveNext();
                     if (isEnd)
@@ -298,7 +292,7 @@ namespace MugenMvvm.Binding.Extensions
                     continue;
                 }
 
-                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args == null ? null : string.Join(",", args)), endSymbol));
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args.List == null ? null : string.Join(",", args)), endSymbol));
                 return null;
             }
 

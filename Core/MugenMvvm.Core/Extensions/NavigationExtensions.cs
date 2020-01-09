@@ -6,6 +6,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Extensions
@@ -51,23 +52,21 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
             var entries = dispatcher.GetNavigationEntries(null, metadata);
-            List<Task>? tasks = null;
+            LazyList<Task> tasks = default;
             for (var i = 0; i < entries.Count; i++)
             {
                 var callbacks = dispatcher.GetCallbacks(entries[i], metadata);
                 for (var j = 0; j < callbacks.Count; j++)
                 {
-                    if (tasks == null)
-                        tasks = new List<Task>();
-                    var callback = callbacks[i];
+                    var callback = callbacks[j];
                     if (filter(callback))
                         tasks.Add(callback.WaitAsync());
                 }
             }
 
-            if (tasks == null)
+            if (tasks.List == null)
                 return Default.CompletedTask;
-            return Task.WhenAll(tasks);
+            return Task.WhenAll(tasks.List);
         }
 
         private static void InvokeCompletedCallback(Task<bool> task, INavigationContext navigationContext,

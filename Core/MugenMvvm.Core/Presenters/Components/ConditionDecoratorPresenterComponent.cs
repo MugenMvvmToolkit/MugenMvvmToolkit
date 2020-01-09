@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters.Components
 {
@@ -41,43 +42,29 @@ namespace MugenMvvm.Presenters.Components
         public IReadOnlyList<PresenterResult>? TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
-            List<PresenterResult>? results = null;
+            LazyList<PresenterResult> result = default;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), request, metadata))
-                    continue;
-
-                var operations = presenter.TryClose(request, metadata, cancellationToken);
-                if (operations == null)
-                    continue;
-                if (results == null)
-                    results = new List<PresenterResult>();
-                results.AddRange(operations);
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<PresenterResult>?)result.List ?? Default.EmptyArray<PresenterResult>(), request, metadata))
+                    result.AddRange(presenter.TryClose(request, metadata, cancellationToken));
             }
 
-            return results;
+            return result.List;
         }
 
         public IReadOnlyList<PresenterResult>? TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
-            List<PresenterResult>? results = null;
+            LazyList<PresenterResult> result = default;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<PresenterResult>?) results ?? Default.EmptyArray<PresenterResult>(), request, metadata))
-                    continue;
-
-                var operations = presenter.TryRestore(request, metadata, cancellationToken);
-                if (operations == null)
-                    continue;
-                if (results == null)
-                    results = new List<PresenterResult>();
-                results.AddRange(operations);
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<PresenterResult>?)result.List ?? Default.EmptyArray<PresenterResult>(), request, metadata))
+                    result.AddRange(presenter.TryRestore(request, metadata, cancellationToken));
             }
 
-            return results;
+            return result.List;
         }
 
         #endregion

@@ -175,25 +175,6 @@ namespace MugenMvvm.Extensions
                 tcs.SetException(e);
         }
 
-        internal static List<T>? ToSerializable<T>(this IReadOnlyList<T>? items, ISerializer serializer, int? size = null)
-        {
-            if (items == null)
-                return null;
-            List<T>? result = null;
-            for (var i = 0; i < size.GetValueOrDefault(items.Count); i++)
-            {
-                var item = items[i];
-                if (item != null && serializer.CanSerialize(item.GetType()))
-                {
-                    if (result == null)
-                        result = new List<T>();
-                    result.Add(item);
-                }
-            }
-
-            return result;
-        }
-
         internal static bool LazyInitialize<T>([NotNullIfNotNull("value")] ref T? item, T value) where T : class
         {
             return Interlocked.CompareExchange(ref item, value, null) == null;

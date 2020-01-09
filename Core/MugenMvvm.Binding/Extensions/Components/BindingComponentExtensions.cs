@@ -463,14 +463,10 @@ namespace MugenMvvm.Binding.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetBindings(target, path, metadata);
 
-            IBinding? item = null;
-            List<IBinding>? list = null;
+            ItemOrList<IBinding, List<IBinding>> result = default;
             for (var i = 0; i < components.Length; i++)
-                components[i].TryGetBindings(target, path, metadata).Merge(ref item, ref list);
-
-            if (list == null)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(item);
-            return new ItemOrList<IBinding, IReadOnlyList<IBinding>>(list);
+                result.AddRange(components[i].TryGetBindings(target, path, metadata));
+            return result.Cast<IReadOnlyList<IBinding>>();
         }
 
         public static bool TryRegister(this IBindingHolderComponent[] components, IBinding binding, IReadOnlyMetadataContext? metadata)

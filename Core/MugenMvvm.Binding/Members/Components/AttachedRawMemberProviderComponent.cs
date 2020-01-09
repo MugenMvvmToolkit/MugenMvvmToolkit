@@ -13,6 +13,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
@@ -51,15 +52,11 @@ namespace MugenMvvm.Binding.Members.Components
             {
                 if (_registeredMembers.TryGetValue(name, out var set))
                 {
-                    List<IMemberInfo>? result = null;
+                    LazyList<IMemberInfo> result = default;
                     foreach (var memberInfo in set)
                     {
-                        if (!memberInfo.DeclaringType.IsAssignableFromGeneric(type))
-                            continue;
-
-                        if (result == null)
-                            result = new List<IMemberInfo>();
-                        result.Add(memberInfo);
+                        if (memberInfo.DeclaringType.IsAssignableFromGeneric(type))
+                            result.Add(memberInfo);
                     }
 
                     list = result;

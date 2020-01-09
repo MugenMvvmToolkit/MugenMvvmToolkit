@@ -16,6 +16,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
@@ -96,7 +97,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         private IReadOnlyList<IMemberInfo>? GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
-            List<IMemberInfo>? members = null;
+            LazyList<IMemberInfo> members = default;
             var methodArgs = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
             foreach (var exType in _types)
             {
@@ -130,8 +131,6 @@ namespace MugenMvvm.Binding.Members.Components
                         else
                             genericArgs = null;
 
-                        if (members == null)
-                            members = new List<IMemberInfo>();
                         members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionDelegateProvider, parameters, genericArgs));
                         continue;
                     }
@@ -142,8 +141,6 @@ namespace MugenMvvm.Binding.Members.Components
                     try
                     {
                         var values = _globalValueConverter.ConvertValues(methodArgs, parameters, null, metadata, 1);
-                        if (members == null)
-                            members = new List<IMemberInfo>();
                         if (isGenericMethod)
                         {
                             var types = MugenBindingExtensions.TryInferGenericParameters(method.GetGenericArguments(), method.GetParameters(),
@@ -171,7 +168,7 @@ namespace MugenMvvm.Binding.Members.Components
                 }
             }
 
-            return members;
+            return members.List;
         }
 
         private MethodInfo? TryMakeGenericMethod(MethodInfo method, Type type, out Type[]? genericArguments)

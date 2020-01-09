@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -14,18 +15,10 @@ namespace MugenMvvm.Extensions.Components
         public static IReadOnlyList<IValidator>? TryGetValidators<TRequest>(this IValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            List<IValidator>? validators = null;
+            LazyList<IValidator> result = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var list = components[i].TryGetValidators(request, metadata);
-                if (list == null || list.Count == 0)
-                    continue;
-                if (validators == null)
-                    validators = new List<IValidator>();
-                validators.AddRange(list);
-            }
-
-            return validators;
+                result.AddRange(components[i].TryGetValidators(request, metadata));
+            return result.List;
         }
 
         public static IAggregatorValidator? TryGetAggregatorValidator<TRequest>(this IAggregatorValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
@@ -91,19 +84,10 @@ namespace MugenMvvm.Extensions.Components
         public static IReadOnlyList<object>? TryGetErrors(this IValidator[] components, string? memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            List<object>? errors = null;
+            LazyList<object> result = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var list = components[i].GetErrors(memberName, metadata);
-                if (list == null || list.Count == 0)
-                    continue;
-
-                if (errors == null)
-                    errors = new List<object>();
-                errors.AddRange(list);
-            }
-
-            return errors;
+                result.AddRange(components[i].GetErrors(memberName, metadata));
+            return result.List;
         }
 
         public static IReadOnlyDictionary<string, IReadOnlyList<object>>? TryGetErrors(this IValidator[] components, IReadOnlyMetadataContext? metadata)

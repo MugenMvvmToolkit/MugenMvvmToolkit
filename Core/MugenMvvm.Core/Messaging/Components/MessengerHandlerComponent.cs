@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Messaging.Components
 {
@@ -114,8 +115,8 @@ namespace MugenMvvm.Messaging.Components
 
         public IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
         {
-            List<(ThreadExecutionMode, MessengerHandler)>? result = null;
-            List<HandlerSubscriber>? toRemove = null;
+            LazyList<(ThreadExecutionMode, MessengerHandler)> result = default;
+            LazyList<HandlerSubscriber> toRemove = default;
             lock (this)
             {
                 if (Count == 0)
@@ -126,34 +127,35 @@ namespace MugenMvvm.Messaging.Components
                     var subscriber = handler.GetSubscriber();
                     if (subscriber == null)
                     {
-                        MugenExtensions.Add(ref toRemove, handler);
+                        toRemove.Add(handler);
                         continue;
                     }
 
                     var action = GetHandler(_reflectionDelegateProvider, subscriber.GetType(), messageType);
                     if (action != null)
-                        MugenExtensions.Add(ref result, (handler.ExecutionMode, new MessengerHandler(HandlerDelegate, handler.Subscriber, action)));
+                        result.Add((handler.ExecutionMode, new MessengerHandler(HandlerDelegate, handler.Subscriber, action)));
                     if (subscriber is IMessengerHandlerRaw handlerRaw && handlerRaw.CanHandle(messageType))
-                        MugenExtensions.Add(ref result, (handler.ExecutionMode, new MessengerHandler(HandlerRawDelegate, handler.Subscriber)));
+                        result.Add((handler.ExecutionMode, new MessengerHandler(HandlerRawDelegate, handler.Subscriber)));
                 }
             }
 
-            if (toRemove != null)
+            var toRemoveList = toRemove.List;
+            if (toRemoveList != null)
             {
                 var messenger = _messenger;
                 if (messenger == null)
                 {
-                    for (var i = 0; i < toRemove.Count; i++)
-                        Remove(toRemove[i], metadata);
+                    for (var i = 0; i < toRemoveList.Count; i++)
+                        Remove(toRemoveList[i], metadata);
                 }
                 else
                 {
-                    for (var i = 0; i < toRemove.Count; i++)
-                        messenger.Unsubscribe(toRemove[i], metadata);
+                    for (var i = 0; i < toRemoveList.Count; i++)
+                        messenger.Unsubscribe(toRemoveList[i], metadata);
                 }
             }
 
-            return result;
+            return result.List;
         }
 
         public IReadOnlyList<MessengerSubscriberInfo>? TryGetSubscribers(IReadOnlyMetadataContext? metadata)

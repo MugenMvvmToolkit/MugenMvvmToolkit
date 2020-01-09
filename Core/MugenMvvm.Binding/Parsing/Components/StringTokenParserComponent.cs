@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
@@ -93,7 +94,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return null;
 
             context.MoveNext(quoteToken.Length);
-            List<IExpressionNode>? args = null;
+            LazyList<IExpressionNode> args = default;
             StringBuilder? builder = null;
             var start = context.Position;
             int? end;
@@ -156,9 +157,6 @@ namespace MugenMvvm.Binding.Parsing.Components
                         AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionExpectedTokensFormat1, context, start, intStart, ref builder);
                         return null;
                     }
-
-                    if (args == null)
-                        args = new List<IExpressionNode>();
 
                     InitializeBuilder(context, start, intStart, ref builder);
                     builder.Append('{').Append(args.Count.ToString(CultureInfo.InvariantCulture));
@@ -223,10 +221,10 @@ namespace MugenMvvm.Binding.Parsing.Components
             }
 
             var st = builder.ToString();
-            if (args == null)
+            if (args.List == null)
                 return new ConstantExpressionNode(st, typeof(string));
-            args.Insert(0, new ConstantExpressionNode(st, typeof(string)));
-            return new MethodCallExpressionNode(StringType, "Format", args);
+            args.List.Insert(0, new ConstantExpressionNode(st, typeof(string)));
+            return new MethodCallExpressionNode(StringType, "Format", args.List);
         }
 
         private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder, object? param = null)

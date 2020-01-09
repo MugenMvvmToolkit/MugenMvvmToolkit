@@ -7,7 +7,6 @@ using System.Threading;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Extensions
 {
@@ -15,20 +14,24 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static void AddIfNotNullOrEmpty<T>(ref List<T>? list, IReadOnlyCollection<T>? items)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Add<T>(this ref LazyList<T> list, T item)
         {
-            if (list == null || list.Count == 0)
-                return;
-            if (list == null)
-                list = new List<T>();
-            list.AddRange(list);
+            list.Get().Add(item);
         }
 
-        public static void Add<T>(ref List<T>? list, T item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddIfNotNull<T>(this ref LazyList<T> list, T? item) where T : class
         {
-            if (list == null)
-                list = new List<T>();
-            list.Add(item);
+            if (item != null)
+                list.Get().Add(item);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void AddRange<T>(this ref LazyList<T> list, IReadOnlyCollection<T>? items)
+        {
+            if (items != null && items.Count != 0)
+                list.Get().AddRange(items);
         }
 
         public static ActionToken TryLock<T>(this IObservableCollection<T>? observableCollection)
@@ -97,6 +100,35 @@ namespace MugenMvvm.Extensions
             }
 
             itemOrList = new ItemOrList<TItem, List<TItem>>(new List<TItem> { itemOrList.Item, item });
+        }
+
+        public static void AddRange<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value)
+            where TItem : class
+        {
+            var list = value.List;
+            var item = value.Item;
+            if (item == null && list == null)
+                return;
+
+            if (itemOrList.Item != null)
+                itemOrList = new List<TItem> { itemOrList.Item };
+
+            if (itemOrList.List != null)
+            {
+                if (item == null)
+                    itemOrList.List.AddRange(list);
+                else
+                    itemOrList.List.Add(item);
+                return;
+            }
+
+            if (itemOrList.Item == null)
+            {
+                if (item == null)
+                    itemOrList = new List<TItem>(list);
+                else
+                    itemOrList = item;
+            }
         }
 
         public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
@@ -229,38 +261,6 @@ namespace MugenMvvm.Extensions
             if (itemOrList.Item == null)
                 return Default.EmptyArray<TItem>();
             return new[] { itemOrList.Item };
-        }
-
-        public static void Merge<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, ref TItem? currentItem, ref List<TItem>? items)
-            where TItem : class
-            where TList : class, IReadOnlyCollection<TItem>
-        {
-            var list = itemOrList.List;
-            var item = itemOrList.Item;
-            if (item == null && list == null)
-                return;
-
-            if (list == null)
-            {
-                if (currentItem == null)
-                    currentItem = item;
-                else
-                {
-                    if (items == null)
-                        items = new List<TItem>();
-                    if (items.Count == 0)
-                        items.Add(currentItem);
-                    items.Add(item!);
-                }
-            }
-            else
-            {
-                if (items == null)
-                    items = new List<TItem>();
-                if (currentItem != null && items.Count == 0)
-                    items.Add(currentItem);
-                items.AddRange(list);
-            }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

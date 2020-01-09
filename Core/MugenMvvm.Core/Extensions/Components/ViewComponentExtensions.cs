@@ -5,6 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Views;
 
 namespace MugenMvvm.Extensions.Components
@@ -20,18 +21,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetViews(viewModel, metadata);
 
-            List<IView>? result = null;
+            LazyList<IView> result = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var views = components[i].TryGetViews(viewModel, metadata);
-                if (views == null || views.Count == 0)
-                    continue;
-                if (result == null)
-                    result = new List<IView>();
-                result.AddRange(views);
-            }
-
-            return result;
+                result.AddRange(components[i].TryGetViews(viewModel, metadata));
+            return result.List;
         }
 
         public static IReadOnlyList<IViewModelViewMapping>? TryGetMappingByView(this IViewModelViewMappingProviderComponent[] components, object view, IReadOnlyMetadataContext? metadata)
@@ -41,18 +34,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetMappingByView(view, metadata);
 
-            List<IViewModelViewMapping>? result = null;
+            LazyList<IViewModelViewMapping> result = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var initializers = components[i].TryGetMappingByView(view, metadata);
-                if (initializers == null || initializers.Count == 0)
-                    continue;
-                if (result == null)
-                    result = new List<IViewModelViewMapping>();
-                result.AddRange(initializers);
-            }
-
-            return result;
+                result.AddRange(components[i].TryGetMappingByView(view, metadata));
+            return result.List;
         }
 
         public static IReadOnlyList<IViewModelViewMapping>? TryGetMappingByViewModel(this IViewModelViewMappingProviderComponent[] components, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
@@ -62,18 +47,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetMappingByViewModel(viewModel, metadata);
 
-            List<IViewModelViewMapping>? result = null;
+            LazyList<IViewModelViewMapping> result = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var initializers = components[i].TryGetMappingByViewModel(viewModel, metadata);
-                if (initializers == null || initializers.Count == 0)
-                    continue;
-                if (result == null)
-                    result = new List<IViewModelViewMapping>();
-                result.AddRange(initializers);
-            }
-
-            return result;
+                result.AddRange(components[i].TryGetMappingByViewModel(viewModel, metadata));
+            return result.List;
         }
 
         public static Task<ViewInitializationResult>? TryInitializeAsync(this IViewInitializerComponent[] components, IViewModelViewMapping mapping, object? view,

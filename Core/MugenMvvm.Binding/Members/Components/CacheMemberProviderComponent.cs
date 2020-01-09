@@ -9,9 +9,11 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
@@ -47,9 +49,9 @@ namespace MugenMvvm.Binding.Members.Components
         {
             if (!Default.IsValueType<TState>() && state is Type type)
             {
-                List<CacheKey>? keys = null;
+                LazyList<CacheKey> keys = default;
                 Invalidate(_tempCache, type, ref keys);
-                keys?.Clear();
+                keys.List?.Clear();
                 Invalidate(_tempMembersCache, type, ref keys);
             }
             else
@@ -105,21 +107,20 @@ namespace MugenMvvm.Binding.Members.Components
             Invalidate<object?>(null, metadata);
         }
 
-        private static void Invalidate<TItem>(LightDictionary<CacheKey, TItem> dictionary, Type type, ref List<CacheKey>? keys)
+        private static void Invalidate<TItem>(LightDictionary<CacheKey, TItem> dictionary, Type type, ref LazyList<CacheKey> keys)
         {
             foreach (var pair in dictionary)
             {
-                if (pair.Key.Type != type)
-                    continue;
-                if (keys == null)
-                    keys = new List<CacheKey>();
-                keys.Add(pair.Key);
+                if (pair.Key.Type == type)
+                    keys.Add(pair.Key);
             }
 
-            if (keys == null || keys.Count == 0)
-                return;
-            for (var i = 0; i < keys.Count; i++)
-                dictionary.Remove(keys[i]);
+            var list = keys.List;
+            if (list != null)
+            {
+                for (var i = 0; i < list.Count; i++)
+                    dictionary.Remove(list[i]);
+            }
         }
 
         #endregion

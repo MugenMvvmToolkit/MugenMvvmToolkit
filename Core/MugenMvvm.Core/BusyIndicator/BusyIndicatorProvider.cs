@@ -9,6 +9,7 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.BusyIndicator.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.BusyIndicator
 {
@@ -200,20 +201,18 @@ namespace MugenMvvm.BusyIndicator
 
             public IReadOnlyList<IBusyToken> GetTokens()
             {
-                List<IBusyToken>? tokens = null;
+                LazyList<IBusyToken> tokens = default;
                 lock (Locker)
                 {
                     var token = Provider._busyTail;
                     while (token != null)
                     {
-                        if (tokens == null)
-                            tokens = new List<IBusyToken>();
-                        tokens.Insert(0, token);
+                        tokens.Get().Insert(0, token);
                         token = token._prev;
                     }
                 }
 
-                return tokens ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
+                return tokens.List ?? (IReadOnlyList<IBusyToken>)Default.EmptyArray<IBusyToken>();
             }
 
             public void Register(IBusyTokenCallback callback)

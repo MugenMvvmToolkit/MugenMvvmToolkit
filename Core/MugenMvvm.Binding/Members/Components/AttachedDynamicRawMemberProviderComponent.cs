@@ -10,6 +10,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
@@ -48,19 +49,10 @@ namespace MugenMvvm.Binding.Members.Components
             {
                 if (_dynamicMembers.Count != 0)
                 {
-                    List<IMemberInfo>? members = null;
+                    LazyList<IMemberInfo> members = default;
                     for (var i = 0; i < _dynamicMembers.Count; i++)
-                    {
-                        var memberInfo = _dynamicMembers[i].Invoke(type, name, metadata);
-                        if (memberInfo == null)
-                            continue;
-
-                        if (members == null)
-                            members = new List<IMemberInfo>();
-                        members.Add(memberInfo);
-                    }
-
-                    list = members;
+                        members.AddIfNotNull(_dynamicMembers[i].Invoke(type, name, metadata));
+                    list = members.List;
                 }
 
                 _cache[key] = list;

@@ -4,6 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Extensions.Components
@@ -70,28 +71,20 @@ namespace MugenMvvm.Extensions.Components
         public static IReadOnlyList<MessengerSubscriberInfo>? TryGetSubscribers(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            List<MessengerSubscriberInfo>? subscribers = null; //todo ext method
+            LazyList<MessengerSubscriberInfo> subscribers = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var list = components[i].TryGetSubscribers(metadata);
-                if (list == null || list.Count == 0)
-                    continue;
-                if (subscribers == null)
-                    subscribers = new List<MessengerSubscriberInfo>();
-                subscribers.AddRange(list);
-            }
-
-            return subscribers;
+                subscribers.AddRange(components[i].TryGetSubscribers(metadata));
+            return subscribers.List;
         }
 
         public static IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messageType, nameof(messageType));
-            List<(ThreadExecutionMode, MessengerHandler)>? handlers = null;
+            LazyList<(ThreadExecutionMode, MessengerHandler)> handlers = default;
             for (var i = 0; i < components.Length; i++)
-                MugenExtensions.AddIfNotNullOrEmpty(ref handlers, components[i].TryGetMessengerHandlers(messageType, metadata));
-            return handlers;
+                handlers.AddRange(components[i].TryGetMessengerHandlers(messageType, metadata));
+            return handlers.List;
         }
 
         #endregion
