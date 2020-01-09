@@ -23,7 +23,7 @@ namespace MugenMvvm.ViewModels.Components
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private readonly IReflectionDelegateProvider _reflectionDelegateProvider;
+        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
@@ -31,7 +31,7 @@ namespace MugenMvvm.ViewModels.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelServiceResolverComponent(IReflectionDelegateProvider reflectionDelegateProvider = null, IThreadDispatcher? threadDispatcher = null,
+        public ViewModelServiceResolverComponent(IReflectionDelegateProvider? reflectionDelegateProvider = null, IThreadDispatcher? threadDispatcher = null,
             IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _reflectionDelegateProvider = reflectionDelegateProvider;

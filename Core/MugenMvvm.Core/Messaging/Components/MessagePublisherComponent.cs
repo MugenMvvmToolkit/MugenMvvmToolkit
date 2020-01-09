@@ -20,7 +20,7 @@ namespace MugenMvvm.Messaging.Components
     {
         #region Fields
 
-        private readonly IThreadDispatcher _threadDispatcher;
+        private readonly IThreadDispatcher? _threadDispatcher;
         private IMessenger? _owner;
 
         #endregion
@@ -51,7 +51,7 @@ namespace MugenMvvm.Messaging.Components
         {
             _owner = owner as IMessenger;
             if (_owner != null)
-                Invalidate();
+                Invalidate<object?>(null, metadata);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -64,11 +64,11 @@ namespace MugenMvvm.Messaging.Components
             if (ReferenceEquals(owner, _owner))
             {
                 _owner = null;
-                Invalidate();
+                Invalidate<object?>(null, metadata);
             }
         }
 
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             lock (this)
             {

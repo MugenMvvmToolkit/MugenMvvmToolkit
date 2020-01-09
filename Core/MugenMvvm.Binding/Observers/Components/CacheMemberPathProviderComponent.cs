@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Implementation of interfaces
 
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             _cache.Clear();
         }
@@ -64,19 +64,19 @@ namespace MugenMvvm.Binding.Observers.Components
         protected override void OnAttachedInternal(IObserverProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            Invalidate();
+            Invalidate<object?>(null, metadata);
         }
 
         protected override void OnDetachedInternal(IObserverProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            Invalidate();
+            Invalidate<object?>(null, metadata);
         }
 
         protected override void DecorateInternal(IList<IMemberPathProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
             base.DecorateInternal(components, metadata);
-            Invalidate();
+            Invalidate<object?>(null, metadata);
         }
 
         #endregion

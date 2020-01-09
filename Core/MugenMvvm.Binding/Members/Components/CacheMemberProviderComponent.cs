@@ -43,9 +43,9 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
-            if (state is Type type)
+            if (!Default.IsValueType<TState>() && state is Type type)
             {
                 List<CacheKey>? keys = null;
                 Invalidate(_tempCache, type, ref keys);
@@ -90,19 +90,19 @@ namespace MugenMvvm.Binding.Members.Components
         protected override void DecorateInternal(IList<IMemberProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
             base.DecorateInternal(components, metadata);
-            Invalidate();
+            Invalidate<object?>(null, metadata);
         }
 
         protected override void OnAttachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttachedInternal(owner, metadata);
-            Invalidate();
+            Invalidate<object?>(null, metadata);
         }
 
         protected override void OnDetachedInternal(IMemberProvider owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetachedInternal(owner, metadata);
-            Invalidate();
+            Invalidate<object?>(null, metadata);
         }
 
         private static void Invalidate<TItem>(LightDictionary<CacheKey, TItem> dictionary, Type type, ref List<CacheKey>? keys)

@@ -52,6 +52,7 @@ namespace MugenMvvm.Messaging.Components
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             _messenger = owner as IMessenger;
+            _messenger.TryInvalidateCache(metadata);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -62,7 +63,10 @@ namespace MugenMvvm.Messaging.Components
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (ReferenceEquals(_messenger, owner))
+            {
+                _messenger.TryInvalidateCache(metadata);
                 _messenger = null;
+            }
         }
 
         public bool TrySubscribe<TSubscriber>(in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
@@ -70,38 +74,42 @@ namespace MugenMvvm.Messaging.Components
             if (Default.IsValueType<TSubscriber>())
                 return false;
             if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandler handler)
-                return Add(new HandlerSubscriber(weakReference, handler.GetHashCode(), executionMode));
+                return Add(new HandlerSubscriber(weakReference, handler.GetHashCode(), executionMode), metadata);
             if (subscriber is IMessengerHandler)
-                return Add(new HandlerSubscriber(subscriber, subscriber.GetHashCode(), executionMode));
+                return Add(new HandlerSubscriber(subscriber, subscriber.GetHashCode(), executionMode), metadata);
             return false;
         }
 
         public bool TryUnsubscribe<TSubscriber>(in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TSubscriber) == typeof(HandlerSubscriber))
-                return Remove(MugenExtensions.CastGeneric<TSubscriber, HandlerSubscriber>(subscriber));
+                return Remove(MugenExtensions.CastGeneric<TSubscriber, HandlerSubscriber>(subscriber), metadata);
             if (Default.IsValueType<TSubscriber>())
                 return false;
             if (subscriber is IWeakReference weakReference)
             {
                 var target = weakReference.Target;
                 if (target == null)
-                    return Remove(weakReference);
-                return Remove(new HandlerSubscriber(target, subscriber.GetHashCode(), null));
+                    return Remove(weakReference, metadata);
+                return Remove(new HandlerSubscriber(target, subscriber.GetHashCode(), null), metadata);
             }
 
             if (subscriber is IMessengerHandler)
-                return Remove(new HandlerSubscriber(subscriber, subscriber.GetHashCode(), null));
+                return Remove(new HandlerSubscriber(subscriber, subscriber.GetHashCode(), null), metadata);
 
             return false;
         }
 
         public void TryUnsubscribeAll(IReadOnlyMetadataContext? metadata)
         {
+            bool invalidate;
             lock (this)
             {
+                invalidate = Count != 0;
                 Clear();
             }
+            if (invalidate)
+                _messenger.TryInvalidateCache(metadata);
         }
 
         public IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
@@ -132,8 +140,17 @@ namespace MugenMvvm.Messaging.Components
 
             if (toRemove != null)
             {
-                for (var i = 0; i < toRemove.Count; i++)
-                    _messenger.Unsubscribe(toRemove[i], metadata);
+                var messenger = _messenger;
+                if (messenger == null)
+                {
+                    for (var i = 0; i < toRemove.Count; i++)
+                        Remove(toRemove[i], metadata);
+                }
+                else
+                {
+                    for (var i = 0; i < toRemove.Count; i++)
+                        messenger.Unsubscribe(toRemove[i], metadata);
+                }
             }
 
             return result;
@@ -156,41 +173,50 @@ namespace MugenMvvm.Messaging.Components
         private static MessengerResult Handle(object subscriber, object? handler, IMessageContext context)
         {
             if (subscriber is IWeakReference weakReference)
-                subscriber = weakReference.Target;
+                subscriber = weakReference.Target!;
             if (subscriber == null || handler == null)
                 return MessengerResult.Invalid;
 
-            ((Action<object?, object?, IMessageContext>) handler).Invoke(subscriber, context.Message, context);
+            ((Action<object?, object?, IMessageContext>)handler).Invoke(subscriber, context.Message, context);
             return MessengerResult.Handled;
         }
 
         private static MessengerResult HandleRaw(object subscriber, object? _, IMessageContext context)
         {
             if (subscriber is IWeakReference weakReference)
-                subscriber = weakReference.Target;
+                subscriber = weakReference.Target!;
             if (subscriber == null)
                 return MessengerResult.Invalid;
-            return ((IMessengerHandlerRaw) subscriber).Handle(context);
+            return ((IMessengerHandlerRaw)subscriber).Handle(context);
         }
 
-        private new bool Add(HandlerSubscriber subscriber)
+        private bool Add(HandlerSubscriber subscriber, IReadOnlyMetadataContext? metadata)
         {
+            bool result;
             lock (this)
             {
-                return base.Add(subscriber);
+                result = Add(subscriber);
             }
+            if (result)
+                _messenger.TryInvalidateCache(metadata);
+            return result;
         }
 
-        private new bool Remove(HandlerSubscriber subscriber)
+        private bool Remove(HandlerSubscriber subscriber, IReadOnlyMetadataContext? metadata)
         {
+            bool result;
             lock (this)
             {
-                return base.Remove(subscriber);
+                result = Remove(subscriber);
             }
+            if (result)
+                _messenger.TryInvalidateCache(metadata);
+            return result;
         }
 
-        private bool Remove(IWeakReference subscriber)
+        private bool Remove(IWeakReference subscriber, IReadOnlyMetadataContext? metadata)
         {
+            bool result;
             lock (this)
             {
                 HandlerSubscriber handler = default;
@@ -203,8 +229,11 @@ namespace MugenMvvm.Messaging.Components
                     }
                 }
 
-                return base.Remove(handler);
+                result = Remove(handler);
             }
+            if (result)
+                _messenger.TryInvalidateCache(metadata);
+            return result;
         }
 
         public static Action<object?, object?, IMessageContext>? GetHandler(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, Type messageType)

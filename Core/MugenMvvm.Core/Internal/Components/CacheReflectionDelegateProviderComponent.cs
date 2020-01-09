@@ -98,7 +98,7 @@ namespace MugenMvvm.Internal.Components
             Invalidate(false, true, false);
         }
 
-        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             Invalidate(true, true, true);
         }
