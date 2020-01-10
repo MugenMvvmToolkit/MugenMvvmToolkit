@@ -11,15 +11,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnContextCreated(this ISerializerListener[] listeners, ISerializer serializer, ISerializationContext serializationContext)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(serializationContext, nameof(serializationContext));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnContextCreated(serializer, serializationContext);
-        }
-
         public static void OnSerializing(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));

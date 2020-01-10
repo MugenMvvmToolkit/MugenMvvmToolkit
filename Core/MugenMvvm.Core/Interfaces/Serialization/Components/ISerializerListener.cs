@@ -4,8 +4,6 @@ namespace MugenMvvm.Interfaces.Serialization.Components
 {
     public interface ISerializerListener : IComponent<ISerializer>
     {
-        void OnContextCreated(ISerializer messenger, ISerializationContext serializationContext);
-
         void OnSerializing(ISerializer serializer, object? instance, ISerializationContext serializationContext);
 
         void OnSerialized(ISerializer serializer, object? instance, ISerializationContext serializationContext);
