@@ -170,29 +170,33 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static void Decorate<TComponent>(this IDecoratorComponentCollectionComponent<TComponent> decorator, object owner, IList<TComponent> components, IComparer<TComponent> comparer, ref TComponent[] decoratorComponents)
+        public static TComponent[] Decorate<TComponent>(this IDecoratorComponentCollectionComponent<TComponent> decorator, IList<TComponent> components)
             where TComponent : class
         {
             Should.NotBeNull(decorator, nameof(decorator));
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(comparer, nameof(comparer));
-            Should.NotBeNull(decoratorComponents, nameof(decoratorComponents));
-            var currentPriority = MugenExtensions.GetComponentPriority(decorator, owner);
-            for (var i = 0; i < components.Count; i++)
-            {
-                var component = components[i];
-                if (ReferenceEquals(decorator, component))
-                    continue;
+            if (!(decorator is TComponent decoratorComponent))
+                return Default.EmptyArray<TComponent>();
 
-                var priority = MugenExtensions.GetComponentPriority(component, owner);
-                if (priority < currentPriority)
-                {
-                    MugenExtensions.AddOrdered(ref decoratorComponents, component, comparer);
-                    components.RemoveAt(i--);
-                }
-                else if (priority == currentPriority)
-                    ExceptionManager.ThrowDecoratorComponentWithTheSamePriorityNotSupported(priority, decorator, component);
+            var index = components.IndexOf(decoratorComponent);
+            if (index < 0)
+                return Default.EmptyArray<TComponent>();
+
+            ++index;
+            var length = components.Count - index;
+            if (length == 0)
+                return Default.EmptyArray<TComponent>();
+
+            var result = new TComponent[length];
+            int position = 0;
+            for (int i = index; i < components.Count; i++)
+            {
+                result[position++] = components[i];
+                components.RemoveAt(i);
+                --i;
             }
+
+            return result;
         }
 
         public static void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)

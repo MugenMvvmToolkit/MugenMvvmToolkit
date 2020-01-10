@@ -88,13 +88,13 @@ namespace MugenMvvm.Internal.Components
 
         void IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>.Decorate(IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            this.Decorate(Owner, components, this, ref _memberComponents);
+            _memberComponents = this.Decorate(components);
             Invalidate(false, false, true);
         }
 
         void IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>.Decorate(IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            this.Decorate(Owner, components, this, ref _methodComponents);
+            _methodComponents = this.Decorate(components);
             Invalidate(false, true, false);
         }
 

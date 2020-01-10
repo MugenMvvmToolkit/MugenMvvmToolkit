@@ -132,12 +132,6 @@ namespace MugenMvvm
             throw new KeyNotFoundException();
         }
 
-        [DoesNotReturn]
-        public static void ThrowDecoratorComponentWithTheSamePriorityNotSupported(int priority, object currentComponent, object newComponent)
-        {
-            throw new NotSupportedException(DecoratorComponentWithTheSamePriorityNotSupportedFormat3.Format(priority, currentComponent, newComponent));
-        }
-
         #endregion
     }
 }

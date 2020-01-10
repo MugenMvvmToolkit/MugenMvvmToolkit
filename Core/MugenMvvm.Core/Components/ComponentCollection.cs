@@ -55,7 +55,18 @@ namespace MugenMvvm.Components
 
         int IComparer<IDecoratorComponentCollectionComponent>.Compare(IDecoratorComponentCollectionComponent x, IDecoratorComponentCollectionComponent y)
         {
-            return MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
+            int result = MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
+            if (result == 0)
+            {
+                lock (_items)
+                {
+                    var xIndex = _items.IndexOf(x);
+                    var yIndex = _items.IndexOf(y);
+                    return yIndex.CompareTo(xIndex);
+                }
+            }
+
+            return result;
         }
 
         int IComparer<object>.Compare(object x, object y)

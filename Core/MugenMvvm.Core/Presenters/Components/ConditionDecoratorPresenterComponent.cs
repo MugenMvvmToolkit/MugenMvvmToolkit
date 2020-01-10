@@ -16,7 +16,7 @@ namespace MugenMvvm.Presenters.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PreInitializerHigh;
+        public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
         #endregion
 
