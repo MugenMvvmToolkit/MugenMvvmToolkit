@@ -2,7 +2,6 @@
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
 using MugenMvvm.Interfaces.Busy;
-using MugenMvvm.Interfaces.BusyIndicator;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 

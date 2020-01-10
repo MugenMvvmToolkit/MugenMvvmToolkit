@@ -1,4 +1,4 @@
-﻿namespace MugenMvvm.Interfaces.BusyIndicator
+﻿namespace MugenMvvm.Interfaces.Busy
 {
     public interface IHasBusyDelayMessage
     {
