@@ -246,12 +246,6 @@ namespace MugenMvvm.Busy.Components
 
             public void Dispose()
             {
-                if (Owner == null)
-                {
-                    _listeners = this;
-                    return;
-                }
-
                 ItemOrList<IBusyTokenCallback, List<IBusyTokenCallback>> listeners;
                 lock (Locker)
                 {
