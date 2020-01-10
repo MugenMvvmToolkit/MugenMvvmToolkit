@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Interfaces.BusyIndicator
+namespace MugenMvvm.Interfaces.Busy
 {
     public interface IBusyToken : IDisposable, ISuspendable
     {
@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.BusyIndicator
 
         object? Message { get; }
 
-        void Register(IBusyTokenCallback callback);
+        ActionToken Register(IBusyTokenCallback callback);
     }
 }

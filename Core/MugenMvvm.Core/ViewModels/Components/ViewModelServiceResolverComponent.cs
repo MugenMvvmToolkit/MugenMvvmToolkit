@@ -1,9 +1,10 @@
 ﻿using System;
 using MugenMvvm.Attributes;
-using MugenMvvm.BusyIndicator;
+using MugenMvvm.Busy;
+using MugenMvvm.Busy.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.BusyIndicator;
+using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
@@ -62,8 +63,13 @@ namespace MugenMvvm.ViewModels.Components
                 return messenger;
             }
 
-            if (service == typeof(IBusyIndicatorProvider))
-                return new BusyIndicatorProvider(_componentCollectionProvider);
+            if (service == typeof(IBusyManager))
+            {
+                var busyManager = new BusyManager(_componentCollectionProvider);
+                busyManager.Components.Add(new BusyManagerComponent());
+                return busyManager;
+            }
+
             return null;
         }
 
