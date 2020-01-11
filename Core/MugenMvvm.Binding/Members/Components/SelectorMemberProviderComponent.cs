@@ -17,6 +17,12 @@ namespace MugenMvvm.Binding.Members.Components
 
         private readonly SelectorDictionary _selectorDictionary;
 
+        private const int AttachedPriority = 1000000;
+        private const int InstancePriority = 100000;
+        private const int ExtensionPriority = 10000;
+        private const int DynamicPriority = 1000;
+        private const int MaxDeclaringTypePriority = 100;
+
         #endregion
 
         #region Constructors
@@ -46,7 +52,7 @@ namespace MugenMvvm.Binding.Members.Components
                 if (!memberTypes.HasFlagEx(memberType) || !flags.HasFlagEx(member.AccessModifiers))
                     continue;
 
-                if (!_selectorDictionary.TryGetValue(member, out var currentMember) || GetPriority(member) > GetPriority(currentMember))
+                if (!_selectorDictionary.TryGetValue(member, out var currentMember) || GetPriority(member, type) > GetPriority(currentMember, type))
                     _selectorDictionary[member] = member;
             }
 
@@ -57,15 +63,40 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        private static int GetPriority(IMemberInfo member)
+        private static int GetPriority(IMemberInfo member, Type requestedType)
         {
+            var priority = 0;
+            if (requestedType == member.DeclaringType)
+                priority = MaxDeclaringTypePriority;
+            else if (!requestedType.IsInterface)
+            {
+                if (member.DeclaringType.IsInterface)
+                    priority = 1;
+                else
+                {
+                    var type = requestedType.DeclaringType;
+                    var nestedCount = 0;
+                    while (type != null)
+                    {
+                        type = type.BaseType;
+                        if (type == requestedType)
+                        {
+                            priority = MaxDeclaringTypePriority - nestedCount;
+                            break;
+                        }
+
+                        ++nestedCount;
+                    }
+                }
+            }
+
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Attached))
-                return MemberComponentPriority.Attached;
+                return AttachedPriority + priority;
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Extension))
-                return MemberComponentPriority.Extension;
+                return ExtensionPriority + priority;
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Dynamic))
-                return MemberComponentPriority.Dynamic;
-            return MemberComponentPriority.Reflection;
+                return DynamicPriority + priority;
+            return InstancePriority + priority;
         }
 
         #endregion

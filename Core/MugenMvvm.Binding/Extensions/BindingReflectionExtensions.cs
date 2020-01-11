@@ -324,11 +324,15 @@ namespace MugenMvvm.Binding.Extensions
             return type.IsAssignableFrom(sourceType);
         }
 
-        internal static HashSet<Type> SelfAndBaseTypes(Type type)
+        internal static HashSet<Type> SelfAndBaseTypes(Type type, bool addClasses = true, bool addInterfaces = true, HashSet<Type>? types = null)
         {
-            var types = new HashSet<Type>();
-            AddSelfAndBaseClasses(types, type);
-            AddInterface(types, type, true);
+            if (types == null)
+                types = new HashSet<Type>();
+            types.Add(type);
+            if (addClasses)
+                AddSelfAndBaseClasses(types, type);
+            if (addInterfaces)
+                AddInterface(types, type, true);
             return types;
         }
 

@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -26,7 +25,6 @@ namespace MugenMvvm.Binding.Members.Components
 
         private readonly IObserverProvider? _bindingObserverProvider;
         private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
-        private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly Type[] _singleTypeBuffer;
         private readonly HashSet<Type> _types;
@@ -35,10 +33,8 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public ExtensionMethodRawMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
-            IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ExtensionMethodRawMemberProviderComponent(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            _globalValueConverter = globalValueConverter;
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _singleTypeBuffer = new Type[1];
@@ -64,7 +60,7 @@ namespace MugenMvvm.Binding.Members.Components
             var cacheKey = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(cacheKey, out var list))
             {
-                list = GetMembers(type, name, metadata);
+                list = GetMembers(type, name);
                 _cache[cacheKey] = list;
             }
 
@@ -95,17 +91,16 @@ namespace MugenMvvm.Binding.Members.Components
             }
         }
 
-        private IReadOnlyList<IMemberInfo>? GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        private IReadOnlyList<IMemberInfo>? GetMembers(Type type, string name)
         {
             LazyList<IMemberInfo> members = default;
-            var methodArgs = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
             foreach (var exType in _types)
             {
                 var methods = exType.GetMethods(BindingFlagsEx.All);
                 for (var i = 0; i < methods.Length; i++)
                 {
                     var method = methods[i];
-                    if (method.Name != methodName || !method.IsDefined(typeof(ExtensionAttribute), false))
+                    if (method.Name != name || !method.IsDefined(typeof(ExtensionAttribute), false))
                         continue;
 
                     var parameters = method.GetParameters();
@@ -116,55 +111,20 @@ namespace MugenMvvm.Binding.Members.Components
                     if (!parameters[0].ParameterType.IsAssignableFrom(type) && !isGenericMethod)
                         continue;
 
-                    if (methodArgs == null)
+                    Type[]? genericArgs;
+                    if (isGenericMethod)
                     {
-                        Type[]? genericArgs;
-                        if (isGenericMethod)
-                        {
-                            method = TryMakeGenericMethod(method, type, out genericArgs)!;
-                            if (method == null)
-                                continue;
-                            parameters = method.GetParameters();
-                            if (!parameters[0].ParameterType.IsAssignableFrom(type))
-                                continue;
-                        }
-                        else
-                            genericArgs = null;
-
-                        members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionDelegateProvider, parameters, genericArgs));
-                        continue;
+                        method = TryMakeGenericMethod(method, type, out genericArgs)!;
+                        if (method == null)
+                            continue;
+                        parameters = method.GetParameters();
+                        if (!parameters[0].ParameterType.IsAssignableFrom(type))
+                            continue;
                     }
+                    else
+                        genericArgs = null;
 
-                    if (parameters.Length - 1 != methodArgs.Length)
-                        continue;//todo default value
-
-                    try
-                    {
-                        var values = _globalValueConverter.ConvertValues(methodArgs, parameters, null, metadata, 1);
-                        if (isGenericMethod)
-                        {
-                            var types = MugenBindingExtensions.TryInferGenericParameters(method.GetGenericArguments(), method.GetParameters(),
-                                info => info.ParameterType, new KeyValuePair<Type, object?[]>(type, values), (data, i) =>
-                                {
-                                    if (i == 0)
-                                        return data.Key;
-                                    return data.Value[i - 1]?.GetType();
-                                }, values.Length + 1, out var hasUnresolved);
-
-                            if (types == null || hasUnresolved)
-                                continue;
-                            method = method.MakeGenericMethod(types);
-                            parameters = method.GetParameters();
-                            if (!parameters[0].ParameterType.IsAssignableFrom(type))
-                                continue;
-                        }
-
-                        members.Add(new MethodMemberAccessorInfo(name, method, values, type, _bindingObserverProvider, _reflectionDelegateProvider));
-                    }
-                    catch
-                    {
-                        ;
-                    }
+                    members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionDelegateProvider, parameters, genericArgs));
                 }
             }
 

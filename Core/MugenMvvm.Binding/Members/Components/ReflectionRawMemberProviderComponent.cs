@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -23,7 +22,6 @@ namespace MugenMvvm.Binding.Members.Components
 
         private readonly IObserverProvider? _bindingObserverProvider;
         private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
-        private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         #endregion
@@ -31,10 +29,8 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionRawMemberProviderComponent(IGlobalValueConverter? globalValueConverter = null,
-            IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ReflectionRawMemberProviderComponent(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            _globalValueConverter = globalValueConverter;
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);
@@ -44,7 +40,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = MemberComponentPriority.Reflection;
+        public int Priority { get; set; } = MemberComponentPriority.Instance;
 
         #endregion
 
@@ -71,12 +67,12 @@ namespace MugenMvvm.Binding.Members.Components
             var hasProperty = false;
             var hasEvent = false;
             var hasField = false;
-            var indexerArgs = MugenBindingExtensions.GetIndexerArgsRaw(name);
             LazyList<IMemberInfo> result = default;
-            foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type))
+            var types = MugenBindingExtensions.SelfAndBaseTypes(type);
+            foreach (var t in types)
             {
                 if (!hasProperty)
-                    hasProperty = AddProperties(type, t, name, indexerArgs, ref result, metadata);
+                    hasProperty = AddProperties(type, t, name, ref result);
 
                 if (!hasEvent)
                     hasEvent = AddEvents(type, t, name, ref result, metadata);
@@ -88,30 +84,15 @@ namespace MugenMvvm.Binding.Members.Components
                     break;
             }
 
-            var methodArgs = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
-            var methods = type.GetMethods(BindingFlagsEx.All);
-            for (var index = 0; index < methods.Length; index++)
+            types.Clear();
+            foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type, false, types: types))
             {
-                var methodInfo = methods[index];
-                if (methodInfo.Name != methodName)
-                    continue;
-
-                result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
-                if (methodArgs == null)
-                    continue;
-
-                var parameters = methodInfo.GetParameters();
-                if (parameters.Length != methodArgs.Length)
-                    continue;//todo default value
-
-                try
+                var methods = t.GetMethods(BindingFlagsEx.All);
+                for (var index = 0; index < methods.Length; index++)
                 {
-                    var values = _globalValueConverter.ConvertValues(methodArgs, parameters, null, metadata);
-                    result.Add(new MethodMemberAccessorInfo(name, methodInfo, values, type, _bindingObserverProvider, _reflectionDelegateProvider));
-                }
-                catch
-                {
-                    ;
+                    var methodInfo = methods[index];
+                    if (methodInfo.Name == name)
+                        result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
                 }
             }
 
@@ -142,55 +123,14 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        private bool AddProperties(Type requestedType, Type t, string name, string[]? indexerArgs, ref LazyList<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
+        private bool AddProperties(Type requestedType, Type t, string name, ref LazyList<IMemberInfo> result)
         {
-            if (indexerArgs == null)
-            {
-                var property = t.GetProperty(name, BindingFlagsEx.All);
-                if (property == null)
-                    return false;
-
-                result.Add(new PropertyMemberAccessorInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
-                return true;
-            }
-
-            if (t.IsArray && t.GetArrayRank() == indexerArgs.Length)
-            {
-                try
-                {
-                    result.Add(new ArrayMemberAccessorInfo(name, t, _globalValueConverter.ConvertValues<int>(indexerArgs, metadata)));
-                    return true;
-                }
-                catch
-                {
-                    ;
-                }
-
+            var property = t.GetProperty(name, BindingFlagsEx.All);
+            if (property == null)
                 return false;
-            }
 
-            var hasProperty = false;
-            var properties = t.GetProperties(BindingFlagsEx.All);
-            for (var i = 0; i < properties.Length; i++)
-            {
-                var property = properties[i];
-                var parameters = property.GetIndexParameters();
-                if (parameters.Length != indexerArgs.Length)
-                    continue;
-
-                try
-                {
-                    var accessorInfo = new IndexerMemberAccessorInfo(name, property, _globalValueConverter.ConvertValues(indexerArgs, parameters, null, metadata), requestedType, _bindingObserverProvider, _reflectionDelegateProvider);
-                    result.Add(accessorInfo);
-                    hasProperty = true;
-                }
-                catch
-                {
-                    ;
-                }
-            }
-
-            return hasProperty;
+            result.Add(new PropertyMemberAccessorInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+            return true;
         }
 
         #endregion

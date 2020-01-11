@@ -57,7 +57,6 @@ namespace MugenMvvm.Binding.Members.Components
         {
             _members.Clear();
             Owner.GetComponents<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
-
             return Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
         }
 
