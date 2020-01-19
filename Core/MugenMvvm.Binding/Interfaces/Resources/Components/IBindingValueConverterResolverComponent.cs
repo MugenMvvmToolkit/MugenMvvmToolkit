@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Resources.Components
 {
     public interface IBindingValueConverterResolverComponent : IComponent<IResourceResolver>
     {
-        IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata);
+        IBindingValueConverter? TryGetConverter<TRequest>(string name, in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

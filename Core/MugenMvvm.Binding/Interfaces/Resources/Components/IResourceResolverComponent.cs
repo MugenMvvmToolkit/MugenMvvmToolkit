@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Resources.Components
 {
     public interface IResourceResolverComponent : IComponent<IResourceResolver>
     {
-        IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata);
+        IResourceValue? TryGetResourceValue<TRequest>(string name, in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

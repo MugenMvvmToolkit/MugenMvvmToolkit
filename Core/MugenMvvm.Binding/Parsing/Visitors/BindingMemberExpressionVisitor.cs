@@ -150,7 +150,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
 
                 //type -> $string, $int, etc
-                var type = _resourceResolver.DefaultIfNull().TryGetType(memberExpression.Member);
+                var type = _resourceResolver.DefaultIfNull().TryGetType(memberExpression.Member, memberExpression, metadata);
                 if (type != null)
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
@@ -167,12 +167,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //resource -> $i18n, $color, etc
                 if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                 {
-                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.Member, metadata);
+                    var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.Member, memberExpression, metadata);
                     if (resourceValue == null)
                         BindingExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
                     if (resourceValue.Value == null)
                         return ConstantExpressionNode.Null;
-                
+
                     var value = _observerProvider
                         .DefaultIfNull()
                         .GetMemberPath(_memberBuilder.GetPath(), metadata)

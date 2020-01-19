@@ -167,7 +167,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var typeArgs = new Type[types.Count];
             for (var i = 0; i < types.Count; i++)
             {
-                var type = resolver.TryGetType(types[i]);
+                var type = resolver.TryGetType<object?>(types[i], null);
                 if (type == null)
                     BindingExceptionManager.ThrowCannotResolveType(types[i]);
                 typeArgs[i] = type;

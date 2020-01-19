@@ -10,13 +10,13 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static IResourceValue? TryGetResourceValue(this IResourceResolverComponent[] components, string name, IReadOnlyMetadataContext? metadata)
+        public static IResourceValue? TryGetResourceValue<TRequest>(this IResourceResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var value = components[i].TryGetResourceValue(name, metadata);
+                var value = components[i].TryGetResourceValue(name, request, metadata);
                 if (value != null)
                     return value;
             }
@@ -24,13 +24,13 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static IBindingValueConverter? TryGetConverter(this IBindingValueConverterResolverComponent[] components, string name, IReadOnlyMetadataContext? metadata)
+        public static IBindingValueConverter? TryGetConverter<TRequest>(this IBindingValueConverterResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var converter = components[i].TryGetConverter(name, metadata);
+                var converter = components[i].TryGetConverter(name, request, metadata);
                 if (converter != null)
                     return converter;
             }
@@ -38,13 +38,13 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static Type? TryGetType(this ITypeResolverComponent[] components, string name, IReadOnlyMetadataContext? metadata)
+        public static Type? TryGetType<TRequest>(this ITypeResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var type = components[i].TryGetType(name, metadata);
+                var type = components[i].TryGetType(name, request, metadata);
                 if (type != null)
                     return type;
             }

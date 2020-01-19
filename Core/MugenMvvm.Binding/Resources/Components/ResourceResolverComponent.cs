@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Resources.Components
 
         #region Implementation of interfaces
 
-        public IResourceValue? TryGetResourceValue(string name, IReadOnlyMetadataContext? metadata)
+        public IResourceValue? TryGetResourceValue<TRequest>(string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Resources.TryGetValue(name, out var value);
             return value;

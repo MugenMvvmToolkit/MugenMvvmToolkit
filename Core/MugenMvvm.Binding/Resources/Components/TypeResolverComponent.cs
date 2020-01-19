@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Resources.Components
 
         #region Implementation of interfaces
 
-        public Type? TryGetType(string name, IReadOnlyMetadataContext? metadata)
+        public Type? TryGetType<TRequest>(string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Types.TryGetValue(name, out var value);
             return value;

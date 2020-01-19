@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Resources.Components
 
         #region Implementation of interfaces
 
-        public IBindingValueConverter? TryGetConverter(string name, IReadOnlyMetadataContext? metadata)
+        public IBindingValueConverter? TryGetConverter<TRequest>(string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Converters.TryGetValue(name, out var value);
             return value;
