@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Extensions.Components
 {
@@ -56,6 +58,17 @@ namespace MugenMvvm.Binding.Extensions.Components
                 for (var j = 0; j < members.Count; j++)
                     result.Add(members[j]);
             }
+        }
+
+        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IRawMemberProviderComponent[] components, Type type, string name, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(name, nameof(name));
+            LazyList<IMemberInfo> result = default;
+            for (var i = 0; i < components.Length; i++)
+                result.AddRange(components[i].TryGetMembers(type, name, metadata));
+            return result.List;
         }
 
         public static IReadOnlyList<IMemberInfo>? TrySelectMembers(this ISelectorMemberProviderComponent[] components, IReadOnlyList<IMemberInfo> members,

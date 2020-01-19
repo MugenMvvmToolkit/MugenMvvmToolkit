@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Compiling;
@@ -16,6 +15,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -29,6 +29,7 @@ namespace MugenMvvm.Binding.Extensions
 
         public static readonly char[] CommaSeparator = { ',' };
         public static readonly char[] DotSeparator = { '.' };
+        private static readonly int[] ArraySize = new int[1];
 
         #endregion
 
@@ -443,44 +444,93 @@ namespace MugenMvvm.Binding.Extensions
             return new WeakEventListener<TState>(listener, state);
         }
 
-        public static TItem[] ConvertValues<TItem>(this IGlobalValueConverter? converter, string[] args, IReadOnlyMetadataContext? metadata)
+        public static object?[] GetInvokeArgs<TState>(this IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
+            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out bool isLastParameterMetadata)
         {
-            converter = converter.DefaultIfNull();
-            var result = new TItem[args.Length];
-            for (var i = 0; i < args.Length; i++)
+            isLastParameterMetadata = false;
+            var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
+            object?[] result;
+            if (arguments != null && argsLength == parameters.Count)
+                result = arguments;
+            else
+                result = new object?[parameters.Count];
+            for (var i = 0; i < parameters.Count; i++)
             {
-                var s = args[i];
-                if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
-                    s = s.RemoveBounds();
-                result[i] = (TItem)(s == "null" ? null : converter.Convert(s, typeof(TItem), metadata: metadata))!;
+                //optional or params
+                if (i > argsLength - 1)
+                {
+                    for (var j = i; j < parameters.Count; j++)
+                    {
+                        var parameter = parameters[j];
+                        if (j == parameters.Count - 1 && hasParams)
+                        {
+                            ArraySize[0] = 0;
+                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
+                        }
+                        else
+                        {
+                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
+                                isLastParameterMetadata = true;
+                            else
+                                result[j] = parameter.DefaultValue;
+                        }
+                    }
+
+                    break;
+                }
+
+                var parameterInfo = parameters[i];
+                var value = getValue(state, i, parameterInfo);
+                if (i == parameters.Count - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
+                {
+                    ArraySize[0] = argsLength - i;
+                    var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType(), ArraySize);
+                    for (var j = i; j < argsLength; j++)
+                    {
+                        ArraySize[0] = j - i;
+                        array.SetValue(getValue(state, j, parameterInfo), ArraySize);
+                    }
+
+                    result[i] = array;
+                }
+                else
+                    result[i] = value;
             }
 
             return result;
         }
 
-        public static object?[] ConvertValues(this IGlobalValueConverter? converter, string[] args, ParameterInfo[]? parameters,
-            Type? castType, IReadOnlyMetadataContext? metadata, int parametersStartIndex = 0)
+        public static object?[] GetInvokeArgs(this IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
         {
-            if (parameters == null)
-                Should.NotBeNull(castType, nameof(castType));
-            else
-                Should.NotBeNull(parameters, nameof(parameters));
-            if (args.Length == 0)
-                return Default.EmptyArray<object?>();
+            args = parameters.GetInvokeArgs(args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var isLastParameterMetadata);
+            if (isLastParameterMetadata)
+                args[args.Length - 1] = metadata;
+            return args;
+        }
 
-            converter = converter.DefaultIfNull();
-            var result = new object?[args.Length];
-            for (var i = 0; i < args.Length; i++)
+        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out bool isLastParameterMetadata)
+        {
+            try
             {
-                var s = args[i];
-                if (parameters != null)
-                    castType = parameters[i + parametersStartIndex].ParameterType;
-                if (!string.IsNullOrEmpty(s) && s[0] == '\"' && s.EndsWith("\""))
-                    s = s.RemoveBounds();
-                result[i] = s == "null" ? null : converter.Convert(s, castType!, parameters?[i + parametersStartIndex], metadata);
+                return parameters.GetInvokeArgs((args, converter.DefaultIfNull(), metadata), args.Length,
+                    (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
+                    {
+                        var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
+                        return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
+                    }, null, out isLastParameterMetadata);
             }
+            catch
+            {
+                isLastParameterMetadata = false;
+                return null;
+            }
+        }
 
-            return result;
+        public static object? Convert(this IGlobalValueConverter? converter, string? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (!string.IsNullOrEmpty(value) && value![0] == '\"' && value.EndsWith("\""))
+                value = value.RemoveBounds();
+            return value == "null" ? null : converter.DefaultIfNull().Convert(value, targetType, member, metadata);
         }
 
         public static string[]? GetIndexerArgsRaw(string path)

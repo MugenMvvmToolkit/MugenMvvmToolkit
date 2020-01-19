@@ -33,7 +33,6 @@ namespace MugenMvvm.Binding.Compiling.Components
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
-        private static readonly int[] ArraySize = new int[1];
         private static readonly MethodInfo InvokeMethod = typeof(IMethodInfo).GetMethodOrThrow(nameof(IMethodInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
 
@@ -452,10 +451,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     {
                         var parameter = parameters[j];
                         if (j == parameters.Count - 1 && hasParams)
-                        {
-                            var type = parameter.ParameterType.GetElementType();
-                            result[j] = Expression.NewArrayInit(type, Default.EmptyArray<Expression>());
-                        }
+                            result[j] = Expression.NewArrayInit(parameter.ParameterType.GetElementType(), Default.EmptyArray<Expression>());
                         else
                         {
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
@@ -478,54 +474,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
                 else
                     result[i] = args[i].ConvertIfNeed(parameters[i].ParameterType, false);
-            }
-
-            return result;
-        }
-
-        private static object?[] ConvertParameters(in MethodData method, object?[] args, bool hasParams, IReadOnlyMetadataContext? metadata)
-        {
-            var parameters = method.Parameters;
-            var result = args.Length == parameters.Count ? args : new object?[parameters.Count];
-            for (var i = 0; i < parameters.Count; i++)
-            {
-                //optional or params
-                if (i > args.Length - 1)
-                {
-                    for (var j = i; j < parameters.Count; j++)
-                    {
-                        var parameter = parameters[j];
-                        if (j == parameters.Count - 1 && hasParams)
-                        {
-                            ArraySize[0] = 0;
-                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
-                        }
-                        else
-                        {
-                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
-                                result[j] = metadata;
-                            else
-                                result[j] = parameter.DefaultValue;
-                        }
-                    }
-
-                    break;
-                }
-
-                if (i == parameters.Count - 1 && hasParams && !parameters[i].ParameterType.IsInstanceOfType(args[i]))
-                {
-                    ArraySize[0] = args.Length - i;
-                    var array = Array.CreateInstance(parameters[i].ParameterType.GetElementType(), ArraySize);
-                    for (var j = i; j < args.Length; j++)
-                    {
-                        ArraySize[0] = j - i;
-                        array.SetValue(args[j], ArraySize);
-                    }
-
-                    result[i] = array;
-                }
-                else
-                    result[i] = args[i];
             }
 
             return result;
@@ -661,7 +609,8 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
-                return method.Method.Invoke(target, ConvertParameters(method, args, method.Parameters.LastOrDefault()?.IsParamArray() ?? false, metadata), metadata);
+
+                return method.Method.Invoke(target, method.Parameters.GetInvokeArgs(args, metadata), metadata);
             }
 
             private static Type[] GetArgTypes(object?[]? args)
