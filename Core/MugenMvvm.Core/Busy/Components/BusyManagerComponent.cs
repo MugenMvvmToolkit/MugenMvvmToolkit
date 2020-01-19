@@ -18,8 +18,8 @@ namespace MugenMvvm.Busy.Components
     {
         #region Fields
 
-        private BusyToken _busyTail;
-        private IBusyManager _owner;
+        private BusyToken? _busyTail;
+        private IBusyManager? _owner;
         private int _suspendCount;
 
         private static readonly FuncIn<BeginBusyRequest, BusyManagerComponent, IBusyToken> BeginBusyRequestDelegate = Begin;
@@ -231,7 +231,7 @@ namespace MugenMvvm.Busy.Components
 
                         if (IsSuspended)
                             callback.OnSuspendChanged(true);
-                        return new ActionToken((token, cal) => ((BusyToken) token).RemoveCallback((IBusyTokenCallback) cal), this, callback);
+                        return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
                     }
                 }
 
