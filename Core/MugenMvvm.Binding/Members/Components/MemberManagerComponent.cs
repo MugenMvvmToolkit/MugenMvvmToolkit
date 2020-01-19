@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MemberProviderComponent : AttachableComponentBase<IMemberProvider>, IMemberProviderComponent, IHasPriority
+    public sealed class MemberManagerComponent : AttachableComponentBase<IMemberProvider>, IMemberManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public MemberProviderComponent()
+        public MemberManagerComponent()
         {
             _members = new List<IMemberInfo>();
         }
@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Members.Components
         public bool TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
             _members.Clear();
-            Owner.GetComponents<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
 
             var members = Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
             if (members != null)
@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Members.Components
         public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             _members.Clear();
-            Owner.GetComponents<IRawMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
             return Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
         }
 

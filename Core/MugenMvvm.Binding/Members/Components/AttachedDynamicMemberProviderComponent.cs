@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedDynamicRawMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedRawMemberProviderComponent, IHasPriority
+    public sealed class AttachedDynamicMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AttachedDynamicRawMemberProviderComponent()
+        public AttachedDynamicMemberProviderComponent()
         {
             _dynamicMembers = new List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>>();
             _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);

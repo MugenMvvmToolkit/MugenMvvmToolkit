@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members.Components
 {
-    public interface IAttachedRawMemberProviderComponent : IRawMemberProviderComponent
+    public interface IAttachedMemberProviderComponent : IMemberProviderComponent
     {
         IReadOnlyList<IMemberInfo>? GetAttachedMembers(IReadOnlyMetadataContext? metadata);
     }

@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class FakeRawMemberProviderComponent : IRawMemberProviderComponent, IHasPriority
+    public sealed class FakeMemberProviderComponent : IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public FakeRawMemberProviderComponent()
+        public FakeMemberProviderComponent()
         {
             _cache = new StringOrdinalLightDictionary<IReadOnlyList<IMemberInfo>>(7);
         }

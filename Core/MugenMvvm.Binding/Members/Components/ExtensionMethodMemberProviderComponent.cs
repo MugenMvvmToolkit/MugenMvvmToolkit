@@ -19,7 +19,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class ExtensionMethodRawMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IRawMemberProviderComponent, IHasPriority
+    public sealed class ExtensionMethodMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public ExtensionMethodRawMemberProviderComponent(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ExtensionMethodMemberProviderComponent(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;

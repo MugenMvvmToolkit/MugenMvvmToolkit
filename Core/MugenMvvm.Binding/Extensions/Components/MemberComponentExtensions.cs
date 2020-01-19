@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static bool TryGetMember(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
+        public static bool TryGetMember(this IMemberManagerComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return false;
         }
 
-        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberManagerComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static void TryAddMembers(this IRawMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, IReadOnlyMetadataContext? metadata)
+        public static void TryAddMembers(this IMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(result, nameof(result));
@@ -60,7 +60,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             }
         }
 
-        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IRawMemberProviderComponent[] components, Type type, string name, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
