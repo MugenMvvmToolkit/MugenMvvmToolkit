@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Resources;
+using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -39,24 +40,24 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         {
             path = GetMemberPath(metadata);
             memberFlags = MemberFlags;
-            return GetResource(metadata);
+            return GetResource(target, source, metadata);
         }
 
         public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             path = GetMemberPath(metadata);
             memberFlags = MemberFlags;
-            return GetResource(metadata);
+            return GetResource(target, source, metadata);
         }
 
         public override IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return GetObserver(GetResource(metadata), GetMemberPath(metadata), metadata);
+            return GetObserver(GetResource(target, source, metadata), GetMemberPath(metadata), metadata);
         }
 
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = GetResource(metadata);
+            var resourceValue = GetResource(target, source, metadata);
             var memberPath = GetMemberPath(metadata);
             if (!resourceValue.IsStatic)
                 return GetObserver(resourceValue, memberPath, metadata);
@@ -65,9 +66,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return memberPath.GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags, 0, metadata);
         }
 
-        private IResourceValue GetResource(IReadOnlyMetadataContext? metadata)
+        private IResourceValue GetResource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue<object?>(ResourceName, null, metadata);//todo pass target/source
+            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, new ResourceResolverRequest(target, source), metadata);
             if (resourceValue == null)
                 BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
             return resourceValue;
