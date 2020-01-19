@@ -9,16 +9,18 @@ namespace MugenMvvm.Binding.Resources
 
         public readonly object? Source;
         public readonly object Target;
+        public readonly object? State;
 
         #endregion
 
         #region Constructors
 
-        public ResourceResolverRequest(object target, object? source)
+        public ResourceResolverRequest(object target, object? source, object? state = null)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
             Source = source;
+            State = state;
         }
 
         #endregion
