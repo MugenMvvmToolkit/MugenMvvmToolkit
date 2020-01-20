@@ -61,7 +61,7 @@ namespace MugenMvvm.Busy.Components
 
             if (notify.GetValueOrDefault())
                 OnBusyInfoChanged(true);
-            return new ActionToken((o, _) => ((BusyManagerComponent) o!).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((BusyManagerComponent)o!).EndSuspendNotifications(), this);
         }
 
         public IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
@@ -78,7 +78,7 @@ namespace MugenMvvm.Busy.Components
             return Begin(request, 0);
         }
 
-        public IBusyToken? TryGetToken<TState>(FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata)
+        public IBusyToken? TryGetToken<TState>(in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
         {
             return _busyTail?.TryGetToken(filter, state, metadata);
         }
@@ -134,7 +134,7 @@ namespace MugenMvvm.Busy.Components
                 Task.Delay(millisecondsDelay)
                     .ContinueWith((_, state) =>
                     {
-                        var token = (BusyToken) state;
+                        var token = (BusyToken)state;
                         token.Owner.BeginBusyInternal(token, 0);
                     }, busyToken, TaskContinuationOptions.ExecuteSynchronously);
                 return;
@@ -231,7 +231,7 @@ namespace MugenMvvm.Busy.Components
 
                         if (IsSuspended)
                             callback.OnSuspendChanged(true);
-                        return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
+                        return new ActionToken((token, cal) => ((BusyToken)token!).RemoveCallback((IBusyTokenCallback)cal!), this, callback);
                     }
                 }
 
@@ -359,7 +359,7 @@ namespace MugenMvvm.Busy.Components
                     SetSuspendedExternal(true);
 
                 if (withToken)
-                    return new ActionToken((t, _) => ((BusyToken) t!).OnEndSuspendExternal(), this);
+                    return new ActionToken((t, _) => ((BusyToken)t!).OnEndSuspendExternal(), this);
                 return default;
             }
 

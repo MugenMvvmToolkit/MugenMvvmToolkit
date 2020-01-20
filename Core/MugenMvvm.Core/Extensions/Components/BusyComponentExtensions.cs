@@ -24,13 +24,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata)
+        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(filter, nameof(filter));
             for (var i = 0; i < components.Length; i++)
             {
-                var token = components[i].TryGetToken(filter, state, metadata);
+                var token = components[i].TryGetToken(state, filter, metadata);
                 if (token != null)
                     return token;
             }

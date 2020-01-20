@@ -7,6 +7,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.Core", "Core\Muge
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.Binding", "Core\MugenMvvm.Binding\MugenMvvm.Binding.csproj", "{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{E09341C2-A05B-4EFC-A1A1-CA1DA69FF5CA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MugenMvvm.UnitTest", "Tests\MugenMvvm.UnitTest\MugenMvvm.UnitTest.csproj", "{9E42749C-228F-4ADF-86A6-A892252EA2F2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,9 +25,16 @@ Global
 		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6D3BDB6-BB63-44EB-9618-9F9B1E7A7675}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E42749C-228F-4ADF-86A6-A892252EA2F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E42749C-228F-4ADF-86A6-A892252EA2F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E42749C-228F-4ADF-86A6-A892252EA2F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E42749C-228F-4ADF-86A6-A892252EA2F2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9E42749C-228F-4ADF-86A6-A892252EA2F2} = {E09341C2-A05B-4EFC-A1A1-CA1DA69FF5CA}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A868AF10-09D4-41B2-81C2-75F7BD2D7B49}

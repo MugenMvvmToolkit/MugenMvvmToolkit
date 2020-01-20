@@ -42,9 +42,9 @@ namespace MugenMvvm.Busy
             return token;
         }
 
-        public IBusyToken? TryGetToken<TState>(FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public IBusyToken? TryGetToken<TState>(in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryGetToken(filter, state, metadata);
+            return GetComponents<IBusyManagerComponent>().TryGetToken(state, filter, metadata);
         }
 
         public IReadOnlyList<IBusyToken> GetTokens(IReadOnlyMetadataContext? metadata = null)

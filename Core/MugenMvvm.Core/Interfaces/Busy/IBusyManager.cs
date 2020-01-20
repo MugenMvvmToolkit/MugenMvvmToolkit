@@ -10,7 +10,7 @@ namespace MugenMvvm.Interfaces.Busy
     {
         IBusyToken BeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
-        IBusyToken? TryGetToken<TState>(FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata = null);
+        IBusyToken? TryGetToken<TState>(in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null);
 
         IReadOnlyList<IBusyToken> GetTokens(IReadOnlyMetadataContext? metadata = null);
     }
