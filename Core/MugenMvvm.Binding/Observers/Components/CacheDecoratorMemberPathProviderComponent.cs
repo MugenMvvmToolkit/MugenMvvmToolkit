@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class CacheMemberPathProviderComponent : DecoratorComponentBase<IObserverProvider, IMemberPathProviderComponent>, IHasPriority, IMemberPathProviderComponent, IHasCache
+    public sealed class CacheDecoratorMemberPathProviderComponent : DecoratorComponentBase<IObserverProvider, IMemberPathProviderComponent>, IHasPriority, IMemberPathProviderComponent, IHasCache
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Constructors
 
-        public CacheMemberPathProviderComponent()
+        public CacheDecoratorMemberPathProviderComponent()
         {
             _cache = new StringOrdinalLightDictionary<IMemberPath>(59);
         }
