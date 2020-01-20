@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public MethodMemberAccessorDecoratorComponent(IGlobalValueConverter? globalValueConverter, IObserverProvider? observerProvider)
+        public MethodMemberAccessorDecoratorComponent(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
         {
             _globalValueConverter = globalValueConverter;
             _observerProvider = observerProvider;
@@ -46,10 +46,10 @@ namespace MugenMvvm.Binding.Members.Components
         {
             var methodArgsRaw = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
             if (methodArgsRaw == null)
-                return Components.TryGetMembers(type, methodName, metadata);
+                return Components.TryGetMembers(type, name, metadata);
 
             _members.Clear();
-            Components.TryAddMembers(_members, type, name, metadata);
+            Components.TryAddMembers(_members, type, methodName, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
                 var methodInfo = _members[i] as IMethodInfo;
@@ -61,7 +61,10 @@ namespace MugenMvvm.Binding.Members.Components
                     _members.Add(new MethodMemberAccessorInfo(methodName, methodInfo, null, values, isLastParameterMetadata, type, _observerProvider));
             }
 
-            return _members.ToArray();
+            Components.TryAddMembers(_members, type, name, metadata);
+            var result = _members.ToArray();
+            _members.Clear();
+            return result;
         }
 
         #endregion

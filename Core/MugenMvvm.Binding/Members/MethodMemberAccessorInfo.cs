@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
@@ -10,7 +11,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MethodMemberAccessorInfo : IMemberAccessorInfo
+    public sealed class MethodMemberAccessorInfo : IMemberAccessorInfo, IHasArgsMemberInfo
     {
         #region Fields
 
@@ -32,8 +33,6 @@ namespace MugenMvvm.Binding.Members
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));
             if (getMethod == null)
-                Should.NotBeNull(getMethod, nameof(getMethod));
-            else
                 Should.NotBeNull(setMethod, nameof(setMethod));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             Name = name;
@@ -69,6 +68,11 @@ namespace MugenMvvm.Binding.Members
         #endregion
 
         #region Implementation of interfaces
+
+        public IReadOnlyList<object?> GetArgs()
+        {
+            return _args;
+        }
 
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
