@@ -610,7 +610,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
 
-                return method.Method.Invoke(target, method.Parameters.GetInvokeArgs(args, metadata), metadata);
+                return method.Method.Invoke(target, method.Parameters.TryGetInvokeArgs(args, metadata)!, metadata);
             }
 
             private static Type[] GetArgTypes(object?[]? args)

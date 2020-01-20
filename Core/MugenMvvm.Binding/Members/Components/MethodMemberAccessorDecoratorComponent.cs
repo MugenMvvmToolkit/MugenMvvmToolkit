@@ -52,13 +52,18 @@ namespace MugenMvvm.Binding.Members.Components
             Components.TryAddMembers(_members, type, methodName, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
-                var methodInfo = _members[i] as IMethodInfo;
-                if (methodInfo == null)
-                    continue;
+                if (_members[i] is IMethodInfo methodInfo)
+                {
+                    var values = _globalValueConverter.TryGetInvokeArgs(methodInfo.GetParameters(), methodArgsRaw, metadata, out var isLastParameterMetadata);
+                    if (values != null)
+                    {
+                        _members[i] = new MethodMemberAccessorInfo(methodName, methodInfo, null, values, isLastParameterMetadata, type, _observerProvider);
+                        continue;
+                    }
+                }
 
-                var values = _globalValueConverter.TryGetInvokeArgs(methodInfo.GetParameters(), methodArgsRaw, metadata, out var isLastParameterMetadata);
-                if (values != null)
-                    _members.Add(new MethodMemberAccessorInfo(methodName, methodInfo, null, values, isLastParameterMetadata, type, _observerProvider));
+                _members.RemoveAt(i);
+                --i;
             }
 
             Components.TryAddMembers(_members, type, name, metadata);

@@ -444,7 +444,7 @@ namespace MugenMvvm.Binding.Extensions
             return new WeakEventListener<TState>(listener, state);
         }
 
-        public static object?[] GetInvokeArgs<TState>(this IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
+        public static object?[]? TryGetInvokeArgs<TState>(this IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
             FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out bool isLastParameterMetadata)
         {
             isLastParameterMetadata = false;
@@ -472,7 +472,11 @@ namespace MugenMvvm.Binding.Extensions
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
                                 isLastParameterMetadata = true;
                             else
+                            {
+                                if (!parameter.HasDefaultValue)
+                                    return null;
                                 result[j] = parameter.DefaultValue;
+                            }
                         }
                     }
 
@@ -500,10 +504,10 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static object?[] GetInvokeArgs(this IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
+        public static object?[]? TryGetInvokeArgs(this IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
         {
-            args = parameters.GetInvokeArgs(args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var isLastParameterMetadata);
-            if (isLastParameterMetadata)
+            args = parameters.TryGetInvokeArgs(args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var isLastParameterMetadata)!;
+            if (args != null && isLastParameterMetadata)
                 args[args.Length - 1] = metadata;
             return args;
         }
@@ -512,7 +516,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             try
             {
-                return parameters.GetInvokeArgs((args, converter.DefaultIfNull(), metadata), args.Length,
+                return parameters.TryGetInvokeArgs((args, converter.DefaultIfNull(), metadata), args.Length,
                     (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
                         var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
@@ -655,7 +659,7 @@ namespace MugenMvvm.Binding.Extensions
             return objects;
         }
 
-        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
+        internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
         {
             unsubscriber.Dispose();
             if (target == null || !(lastMember is IMemberAccessorInfo propertyInfo))
@@ -664,7 +668,7 @@ namespace MugenMvvm.Binding.Extensions
                 return;
             }
 
-            var value = propertyInfo.GetValue(target);
+            var value = propertyInfo.GetValue(target, metadata);
             if (ReferenceEquals(value, lastValueRef?.Target))
                 return;
 
@@ -682,9 +686,9 @@ namespace MugenMvvm.Binding.Extensions
             }
 
             lastValueRef = value.ToWeakReference();
-            var member = MugenBindingService.MemberProvider.GetMember(type, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false));
+            var member = MugenBindingService.MemberProvider.GetMember(type, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false), metadata);
             if (member is IObservableMemberInfo observable)
-                unsubscriber = observable.TryObserve(target, observer.GetMethodListener());
+                unsubscriber = observable.TryObserve(target, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)
                 unsubscriber = ActionToken.NoDoToken;
         }
