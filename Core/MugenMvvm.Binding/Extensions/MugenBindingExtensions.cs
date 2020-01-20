@@ -91,33 +91,6 @@ namespace MugenMvvm.Binding.Extensions
             return expression.Invoke(values, metadata);
         }
 
-        public static bool EqualsEx(this IMemberInfo x, IMemberInfo y)
-        {
-            if (x.MemberType != y.MemberType || x.Name != y.Name || x.DeclaringType != y.DeclaringType)
-                return false;
-
-            if (x.MemberType != MemberType.Method)
-                return true;
-
-            var xM = ((IMethodInfo)x).GetParameters();
-            var yM = ((IMethodInfo)y).GetParameters();
-            if (xM.Count != yM.Count)
-                return false;
-
-            for (var i = 0; i < xM.Count; i++)
-            {
-                if (xM[i].ParameterType != yM[i].ParameterType)
-                    return false;
-            }
-
-            return true;
-        }
-
-        public static int GetHashCodeEx(this IMemberInfo memberInfo)
-        {
-            return HashCode.Combine(memberInfo.DeclaringType, (int)memberInfo.MemberType, memberInfo.Name);
-        }
-
         public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IMemberProvider? provider = null)
         {
             return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, MemberFlags.All, metadata, provider);

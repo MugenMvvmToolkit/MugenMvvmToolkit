@@ -75,12 +75,29 @@ namespace MugenMvvm.Binding.Members.Components
 
         bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo x, IMemberInfo y)
         {
-            return x.EqualsEx(y);
+            if (x.MemberType != y.MemberType || x.Name != y.Name || x.DeclaringType != y.DeclaringType)
+                return false;
+
+            if (x.MemberType != MemberType.Method)
+                return true;
+
+            var xM = ((IMethodInfo)x).GetParameters();
+            var yM = ((IMethodInfo)y).GetParameters();
+            if (xM.Count != yM.Count)
+                return false;
+
+            for (var i = 0; i < xM.Count; i++)
+            {
+                if (xM[i].ParameterType != yM[i].ParameterType)
+                    return false;
+            }
+
+            return true;
         }
 
         int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo obj)
         {
-            return obj.GetHashCodeEx();
+            return HashCode.Combine(obj.DeclaringType, (int)obj.MemberType, obj.Name);
         }
 
         #endregion
