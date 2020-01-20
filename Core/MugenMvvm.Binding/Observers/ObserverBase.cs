@@ -114,6 +114,23 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
+        protected IReadOnlyMetadataContext? GetMetadata()
+        {
+            if (_listeners is IMemberPathObserverListener[] l)
+            {
+                for (int i = 0; i < l.Length; i++)
+                {
+                    var metadata = GetMetadata(l[i]);
+                    if (metadata != null)
+                        return metadata;
+                }
+
+                return null;
+            }
+
+            return GetMetadata(_listeners);
+        }
+
         protected virtual void OnListenerAdded(IMemberPathObserverListener listener)
         {
         }
@@ -218,6 +235,13 @@ namespace MugenMvvm.Binding.Observers
             }
 
             return false;
+        }
+
+        private static IReadOnlyMetadataContext? GetMetadata(object? value)
+        {
+            if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
+                return metadataOwner.Metadata;
+            return null;
         }
 
         #endregion

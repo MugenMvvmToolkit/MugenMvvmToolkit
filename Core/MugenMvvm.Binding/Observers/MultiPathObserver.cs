@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -41,20 +42,20 @@ namespace MugenMvvm.Binding.Observers
             {
                 var target = penultimateRef.Target;
                 if (target != null)
-                    SubscribeLastMember(target, Members[Members.Length - 1]);
+                    SubscribeLastMember(target, Members[Members.Length - 1], GetMetadata());
             }
         }
 
-        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member)
+        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
         {
-            _listeners[index] = member.TryObserve(target, this);
+            _listeners[index] = member.TryObserve(target, this, metadata);
         }
 
-        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             ActionToken unsubscriber = default;
             if (lastMember is IObservableMemberInfo observable)
-                unsubscriber = observable.TryObserve(target, GetLastMemberListener());
+                unsubscriber = observable.TryObserve(target, GetLastMemberListener(), metadata);
             if (unsubscriber.IsEmpty)
                 _listeners[_listeners.Length - 1] = ActionToken.NoDoToken;
             else

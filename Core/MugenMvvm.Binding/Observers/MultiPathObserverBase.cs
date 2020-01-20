@@ -61,9 +61,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected abstract void SubscribeMember(int index, object target, IObservableMemberInfo member);
+        protected abstract void SubscribeMember(int index, object target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata);
 
-        protected abstract void SubscribeLastMember(object target, IMemberInfo? lastMember);
+        protected abstract void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata);
 
         protected abstract void UnsubscribeLastMember();
 
@@ -159,11 +159,12 @@ namespace MugenMvvm.Binding.Observers
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
                 var type = memberFlags.GetTargetType(target);
+                var metadata = GetMetadata();
                 for (var i = 0; i < members.Length; i++)
                 {
                     if (i == 1)
                         memberFlags = memberFlags.SetInstanceOrStaticFlags(false);
-                    var member = provider.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags);
+                    var member = provider.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, metadata);
                     if (member == null)
                     {
                         if (Optional)
@@ -178,9 +179,9 @@ namespace MugenMvvm.Binding.Observers
                         break;
 
                     if (member is IObservableMemberInfo observable)
-                        SubscribeMember(i, target, observable);
+                        SubscribeMember(i, target, observable, metadata);
 
-                    target = (member as IMemberAccessorInfo)?.GetValue(target);
+                    target = (member as IMemberAccessorInfo)?.GetValue(target, metadata);
                     if (target.IsNullOrUnsetValue())
                     {
                         SetMembers(null, null, null);
@@ -191,7 +192,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 if (HasListeners)
-                    SubscribeLastMember(target, members[members.Length - 1]);
+                    SubscribeLastMember(target, members[members.Length - 1], metadata);
                 SetMembers(target.ToWeakReference(), members, null);
             }
             catch (Exception e)
@@ -205,13 +206,14 @@ namespace MugenMvvm.Binding.Observers
 
         private void UpdateHasStablePath(IMemberInfo[] members, object target)
         {
+            var metadata = GetMetadata();
             for (var index = 0; index < members.Length - 1; index++)
             {
                 var member = members[index];
                 if (member is IObservableMemberInfo observable)
-                    SubscribeMember(index, target, observable);
+                    SubscribeMember(index, target, observable, metadata);
 
-                target = (member as IMemberAccessorInfo)?.GetValue(target)!;
+                target = (member as IMemberAccessorInfo)?.GetValue(target, metadata)!;
                 if (target.IsNullOrUnsetValue())
                 {
                     SetMembers(null, members, null);
@@ -220,7 +222,7 @@ namespace MugenMvvm.Binding.Observers
             }
 
             if (HasListeners && Members != null)
-                SubscribeLastMember(target, Members[Members.Length - 1]);
+                SubscribeLastMember(target, Members[Members.Length - 1], metadata);
 
             SetMembers(target.ToWeakReference(), members, null);
         }

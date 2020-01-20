@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -17,11 +18,11 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member)
+        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
         {
         }
 
-        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
         }
 

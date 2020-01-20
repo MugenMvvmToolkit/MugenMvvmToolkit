@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Observers
                 if (target == null)
                     _lastMemberUnsubscriber = ActionToken.NoDoToken;
                 else
-                    SubscribeLastMember(target, lastMember);
+                    SubscribeLastMember(target, lastMember, GetMetadata());
             }
         }
 
@@ -145,9 +145,10 @@ namespace MugenMvvm.Binding.Observers
                 if (_lastMemberOrException is IMemberInfo)
                     return;
 
+                var metadata = GetMetadata();
                 var lastMember = MugenBindingService
                       .MemberProvider
-                      .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags);
+                      .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)
@@ -158,7 +159,7 @@ namespace MugenMvvm.Binding.Observers
                 }
 
                 if (Observable && HasListeners)
-                    SubscribeLastMember(target, lastMember);
+                    SubscribeLastMember(target, lastMember, metadata);
                 SetLastMember(lastMember, null);
             }
             catch (Exception e)
@@ -174,11 +175,11 @@ namespace MugenMvvm.Binding.Observers
             OnLastMemberChanged();
         }
 
-        protected virtual void SubscribeLastMember(object target, IMemberInfo? lastMember)
+        protected virtual void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             _lastMemberUnsubscriber.Dispose();
             if (lastMember is IObservableMemberInfo observable)
-                _lastMemberUnsubscriber = observable.TryObserve(target, this);
+                _lastMemberUnsubscriber = observable.TryObserve(target, this, metadata);
             if (_lastMemberUnsubscriber.IsEmpty)
                 _lastMemberUnsubscriber = ActionToken.NoDoToken;
         }

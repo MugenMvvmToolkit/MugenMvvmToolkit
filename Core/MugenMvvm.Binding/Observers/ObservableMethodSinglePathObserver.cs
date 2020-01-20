@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -47,17 +48,17 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember)
+        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
-            base.SubscribeLastMember(target, lastMember);
-            this.AddMethodObserver(target, lastMember, ref _unsubscriber, ref _lastValueRef);
+            base.SubscribeLastMember(target, lastMember, metadata);
+            this.AddMethodObserver(target, lastMember, metadata, ref _unsubscriber, ref _lastValueRef);
         }
 
         protected override void OnLastMemberChanged()
         {
             base.OnLastMemberChanged();
             var lastMember = GetLastMember();
-            this.AddMethodObserver(lastMember.Target, lastMember.Member, ref _unsubscriber, ref _lastValueRef);
+            this.AddMethodObserver(lastMember.Target, lastMember.Member, GetMetadata(), ref _unsubscriber, ref _lastValueRef);
         }
 
         protected override void UnsubscribeLastMember()
