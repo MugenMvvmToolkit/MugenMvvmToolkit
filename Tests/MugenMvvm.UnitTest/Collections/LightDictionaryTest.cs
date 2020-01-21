@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using MugenMvvm.Collections;
 using Should;
@@ -33,6 +34,26 @@ namespace MugenMvvm.UnitTest.Collections
         #endregion
 
         #region Methods
+
+        [Fact]
+        public void CloneTest()
+        {
+            var dictionary = new LightDictionary<int, int>();
+            var negativeDictionary = new LightDictionary<int, int>();
+            for (int i = 0; i < 100; i++)
+            {
+                dictionary[i] = i;
+                negativeDictionary[i] = -i;
+            }
+
+            var clone = new LightDictionary<int, int>(-1);
+            dictionary.Clone(clone);
+            clone.SequenceEqual(dictionary).ShouldBeTrue();
+
+            clone = new LightDictionary<int, int>(-1);
+            dictionary.Clone(clone, i => -i);
+            clone.SequenceEqual(negativeDictionary).ShouldBeTrue();
+        }
 
         [Fact]
         public void ToArrayTest()
@@ -86,7 +107,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void AddNullTest()
         {
-            ShouldThrow<ArgumentNullException>(() => _dictionary.Add(null, ""));
+            ShouldThrow<ArgumentNullException>(() => _dictionary.Add(null!, ""));
         }
 
         [Fact]
@@ -133,7 +154,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             ShouldThrow<ArgumentNullException>(() =>
             {
-                var s = _dictionary[null];
+                var s = _dictionary[null!];
             });
         }
 
@@ -208,7 +229,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void IndexerSetNullTest()
         {
-            ShouldThrow<ArgumentNullException>(() => { _dictionary[null] = "bar"; });
+            ShouldThrow<ArgumentNullException>(() => { _dictionary[null!] = "bar"; });
         }
 
         [Fact]
@@ -276,7 +297,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ContainsKeyTest2()
         {
-            ShouldThrow<ArgumentNullException>(() => _dictionary.ContainsKey(null));
+            ShouldThrow<ArgumentNullException>(() => _dictionary.ContainsKey(null!));
         }
 
         [Fact]
@@ -289,7 +310,7 @@ namespace MugenMvvm.UnitTest.Collections
             object value = "";
             var retrieved = _dictionary.TryGetValue("key4", out value);
             retrieved.ShouldBeTrue();
-            "value4".ShouldEqual((string) value, "TryGetValue does not return value!");
+            "value4".ShouldEqual((string)value, "TryGetValue does not return value!");
 
             retrieved = _dictionary.TryGetValue("key7", out value);
             retrieved.ShouldBeFalse();
@@ -326,12 +347,12 @@ namespace MugenMvvm.UnitTest.Collections
             _dictionary.Add("key2", "value2");
             _dictionary.Add("key3", "value3");
             _dictionary.Add("key4", "value4");
-            var itr = ((IEnumerable) _dictionary).GetEnumerator();
+            var itr = ((IEnumerable)_dictionary).GetEnumerator();
             while (itr.MoveNext())
             {
                 var o = itr.Current;
                 typeof(KeyValuePair<string, object>).ShouldEqual(o.GetType(), "Current should return a type of KeyValuePair");
-                var entry = (KeyValuePair<string, object>) itr.Current;
+                var entry = (KeyValuePair<string, object>)itr.Current;
             }
 
             "value4".ShouldEqual(_dictionary["key4"].ToString(), "");
@@ -345,7 +366,7 @@ namespace MugenMvvm.UnitTest.Collections
             _dictionary.Add("key2", "value2");
             _dictionary.Add("key3", "value3");
             _dictionary.Add("key4", "value4");
-            var itr = ((IEnumerable<KeyValuePair<string, object>>) _dictionary).GetEnumerator();
+            var itr = ((IEnumerable<KeyValuePair<string, object>>)_dictionary).GetEnumerator();
             while (itr.MoveNext())
             {
                 object o = itr.Current;
@@ -370,7 +391,7 @@ namespace MugenMvvm.UnitTest.Collections
             4.ShouldEqual(i, "fail1: foreach entry failed!");
 
             i = 0;
-            foreach (KeyValuePair<string, object> entry in (IEnumerable) _dictionary)
+            foreach (KeyValuePair<string, object> entry in (IEnumerable)_dictionary)
                 i++;
             4.ShouldEqual(i, "fail2: foreach entry failed!");
         }
@@ -400,8 +421,8 @@ namespace MugenMvvm.UnitTest.Collections
             _dictionary["foo"] = "bar";
             IEnumerator<KeyValuePair<string, object>> enumerator = _dictionary.GetEnumerator();
             enumerator.MoveNext().ShouldBeTrue("#1");
-            typeof(KeyValuePair<string, object>).ShouldEqual(((IEnumerator) enumerator).Current.GetType(), "#2");
-            typeof(KeyValuePair<string, object>).ShouldEqual(((object) enumerator.Current).GetType(), "#5");
+            typeof(KeyValuePair<string, object>).ShouldEqual(((IEnumerator)enumerator).Current.GetType(), "#2");
+            typeof(KeyValuePair<string, object>).ShouldEqual(((object)enumerator.Current).GetType(), "#5");
         }
 
         [Fact]
@@ -424,7 +445,7 @@ namespace MugenMvvm.UnitTest.Collections
             (deserialized is LightDictionary<int, int>).ShouldBeTrue();
             var d3 = deserialized as LightDictionary<int, int>;
 
-            50.ShouldEqual(d3.Count);
+            50.ShouldEqual(d3!.Count);
             for (var i = 0; i < 50; i++)
                 i.ShouldEqual(d3[i]);
         }
@@ -573,7 +594,7 @@ namespace MugenMvvm.UnitTest.Collections
             {
                 if (!(obj is MyClass))
                     return false;
-                return ((MyClass) obj).Value == Value;
+                return ((MyClass)obj).Value == Value;
             }
 
             #endregion
@@ -608,8 +629,8 @@ namespace MugenMvvm.UnitTest.Collections
             public override bool Equals(object obj)
             {
                 var myt = obj as MyTest;
-                return myt.Name.Equals(Name) &&
-                       myt.RollNo.Equals(RollNo);
+                return myt!.Name.Equals(Name) &&
+                       myt!.RollNo.Equals(RollNo);
             }
 
             #endregion
