@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,7 +17,7 @@ namespace MugenMvvm.UnitTest.Threading
 
         public Action<Action<object?>, ThreadExecutionMode, object?, Type, IReadOnlyMetadataContext?> Execute { get; set; } = (action, _, state, __, ___) => action(state);
 
-        public int Priority { get; set; } = int.MaxValue;
+        public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
         #endregion
 
@@ -35,7 +36,7 @@ namespace MugenMvvm.UnitTest.Threading
 
         bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            Execute(o => handler((TState) o!), executionMode, state, typeof(TState), metadata);
+            Execute(o => handler((TState)o!), executionMode, state, typeof(TState), metadata);
             return true;
         }
 

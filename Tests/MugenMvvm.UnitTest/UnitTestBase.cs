@@ -39,9 +39,7 @@ namespace MugenMvvm.UnitTest
             weakReferenceProvider.AddComponent(new WeakReferenceProviderComponent());
             MugenService.Configuration.Initialize<IWeakReferenceProvider>(weakReferenceProvider);
 
-            var threadDispatcher = new ThreadDispatcher();
-            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            MugenService.Configuration.Initialize<IThreadDispatcher>(threadDispatcher);
+            InitializeThreadDispatcher();
 
             var reflectionDelegateProvider = new ReflectionDelegateProvider();
             reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
@@ -51,6 +49,13 @@ namespace MugenMvvm.UnitTest
         #endregion
 
         #region Methods
+
+        protected virtual void InitializeThreadDispatcher()
+        {
+            var threadDispatcher = new ThreadDispatcher();
+            threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
+            MugenService.Configuration.Initialize<IThreadDispatcher>(threadDispatcher);
+        }
 
         protected static void ShouldThrow<T>(Action action) where T : Exception
         {
