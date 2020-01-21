@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Threading
 {
-    public interface IThreadDispatcher : IComponent<IMugenApplication>
+    public interface IThreadDispatcher : IComponentOwner<IThreadDispatcher>, IComponent<IMugenApplication>
     {
         bool CanExecuteInline(ThreadExecutionMode executionMode);
 
