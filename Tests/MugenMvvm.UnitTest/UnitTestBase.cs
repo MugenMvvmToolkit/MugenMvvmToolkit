@@ -54,22 +54,7 @@ namespace MugenMvvm.UnitTest
 
         protected static void ShouldThrow<T>(Action action) where T : Exception
         {
-            try
-            {
-                action();
-            }
-            catch (Exception exception)
-            {
-                var aggregateException = exception as AggregateException;
-                if (aggregateException != null)
-                    exception = GetOriginalException(aggregateException);
-                if (!(exception is T))
-                    throw new InvalidOperationException($"The exception is wrong {exception}.");
-                Tracer.Info()?.Trace("Error : " + exception);
-                return;
-            }
-
-            throw new InvalidOperationException($"The exception {typeof(T)} was not thrown.");
+            Assert.Throws<T>(action);
         }
 
         protected void ShouldThrow(Action action)

@@ -18,6 +18,11 @@ namespace MugenMvvm.UnitTest
             ShouldContain(enumerable, itemsEnumerable: items);
         }
 
+        public static void ShouldBeNull(this object @object, string msg)
+        {
+            @object.ShouldBeNull();
+        }
+
         #endregion
     }
 }

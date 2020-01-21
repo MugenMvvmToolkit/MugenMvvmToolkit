@@ -22,27 +22,22 @@ namespace MugenMvvm.Collections
 
         [IgnoreDataMember]
         [XmlIgnore]
-        [NonSerialized]
         private int[] _buckets;
 
         [IgnoreDataMember]
         [XmlIgnore]
-        [NonSerialized]
         private int _count;
 
         [IgnoreDataMember]
         [XmlIgnore]
-        [NonSerialized]
         private Entry[] _entries;
 
         [IgnoreDataMember]
         [XmlIgnore]
-        [NonSerialized]
         private int _freeCount;
 
         [IgnoreDataMember]
         [XmlIgnore]
-        [NonSerialized]
         private int _freeList;
 
         private static readonly IEqualityComparer<TKey> DefaultComparer = EqualityComparer<TKey>.Default;
@@ -89,6 +84,8 @@ namespace MugenMvvm.Collections
         {
             get
             {
+                if (key == null)
+                    throw new ArgumentNullException(nameof(key));
                 var hashCode = GetHashCode(key) & int.MaxValue;
                 for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
                 {
@@ -123,6 +120,8 @@ namespace MugenMvvm.Collections
 
         public bool ContainsKey(TKey key)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
             var hashCode = GetHashCode(key) & int.MaxValue;
             for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)
             {
@@ -299,7 +298,7 @@ namespace MugenMvvm.Collections
 
         protected void Initialize(int capacity)
         {
-            if (capacity == 0)
+            if (capacity == -1)
             {
                 _buckets = Default.EmptyArray<int>();
                 _entries = Default.EmptyArray<Entry>();
@@ -317,6 +316,8 @@ namespace MugenMvvm.Collections
 
         private void Insert(TKey key, TValue value, bool add)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
             var hashCode = GetHashCode(key) & int.MaxValue;
             var targetBucket = hashCode % _buckets!.Length;
             for (var i = _buckets[targetBucket]; i >= 0; i = _entries[i].Next)
