@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Busy
 
         object? Message { get; }
 
-        ActionToken Register(IBusyTokenCallback callback);
+        ActionToken RegisterCallback(IBusyTokenCallback callback);
     }
 }

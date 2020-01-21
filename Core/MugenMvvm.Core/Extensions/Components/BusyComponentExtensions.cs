@@ -47,21 +47,21 @@ namespace MugenMvvm.Extensions.Components
             return result.List;
         }
 
-        public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager provider, IBusyToken busyToken)
+        public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager provider, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(provider, nameof(provider));
             Should.NotBeNull(busyToken, nameof(busyToken));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBeginBusy(provider, busyToken);
+                listeners[i].OnBeginBusy(provider, busyToken, metadata);
         }
 
-        public static void OnBusyChanged(this IBusyManagerListener[] listeners, IBusyManager provider)
+        public static void OnBusyChanged(this IBusyManagerListener[] listeners, IBusyManager provider, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(provider, nameof(provider));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnBusyChanged(provider);
+                listeners[i].OnBusyChanged(provider, metadata);
         }
 
         #endregion

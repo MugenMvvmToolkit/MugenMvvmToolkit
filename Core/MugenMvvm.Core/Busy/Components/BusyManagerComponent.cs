@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Constants;
@@ -22,7 +23,7 @@ namespace MugenMvvm.Busy.Components
         private IBusyManager? _owner;
         private int _suspendCount;
 
-        private static readonly FuncIn<BeginBusyRequest, BusyManagerComponent, IBusyToken> BeginBusyRequestDelegate = Begin;
+        private static readonly FuncIn<BeginBusyRequest, BusyManagerComponent, IReadOnlyMetadataContext?, IBusyToken> BeginBusyRequestDelegate = Begin;
 
         #endregion
 
@@ -47,7 +48,7 @@ namespace MugenMvvm.Busy.Components
         {
             _owner = owner as IBusyManager;
             if (_owner != null)
-                OnBusyInfoChanged();
+                OnBusyInfoChanged(metadata: metadata);
         }
 
         public ActionToken Suspend()
@@ -68,14 +69,14 @@ namespace MugenMvvm.Busy.Components
         {
             if (Default.IsValueType<TRequest>())
             {
-                if (BeginBusyRequestDelegate is FuncIn<TRequest, BusyManagerComponent, IBusyToken> handler)
-                    return handler(request, this);
+                if (BeginBusyRequestDelegate is FuncIn<TRequest, BusyManagerComponent, IReadOnlyMetadataContext?, IBusyToken> handler)
+                    return handler(request, this, metadata);
                 return null;
             }
 
             if (request is IBusyToken busyToken)
-                return Begin(busyToken, 0);
-            return Begin(request, 0);
+                return Begin(busyToken, 0, metadata);
+            return Begin(request, 0, metadata);
         }
 
         public IBusyToken? TryGetToken<TState>(in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
@@ -97,7 +98,7 @@ namespace MugenMvvm.Busy.Components
         {
             if (ReferenceEquals(_owner, owner))
             {
-                OnBusyInfoChanged();
+                OnBusyInfoChanged(metadata: metadata);
                 _owner = null;
             }
         }
@@ -106,42 +107,47 @@ namespace MugenMvvm.Busy.Components
 
         #region Methods
 
-        private static IBusyToken Begin(in BeginBusyRequest request, BusyManagerComponent manager)
+        private static IBusyToken Begin(in BeginBusyRequest request, BusyManagerComponent manager, IReadOnlyMetadataContext? metadata)
         {
             if (request.ParentToken != null)
-                return manager.Begin(request.ParentToken, request.MillisecondsDelay);
-            return manager.Begin(request.Message, request.MillisecondsDelay);
+                return manager.Begin(request.ParentToken, request.MillisecondsDelay, metadata);
+            return manager.Begin(request.Message, request.MillisecondsDelay, metadata);
         }
 
-        private IBusyToken Begin(IBusyToken parentToken, int millisecondsDelay)
+        private IBusyToken Begin(IBusyToken parentToken, int millisecondsDelay, IReadOnlyMetadataContext? metadata)
         {
             var busyToken = new BusyToken(this, parentToken);
-            BeginBusyInternal(busyToken, millisecondsDelay);
+            BeginBusyInternal(busyToken, millisecondsDelay, metadata);
             return busyToken;
         }
 
-        private IBusyToken Begin(object? message, int millisecondsDelay)
+        private IBusyToken Begin(object? message, int millisecondsDelay, IReadOnlyMetadataContext? metadata)
         {
             var busyToken = new BusyToken(this, message);
-            BeginBusyInternal(busyToken, millisecondsDelay);
+            BeginBusyInternal(busyToken, millisecondsDelay, metadata);
             return busyToken;
         }
 
-        private void BeginBusyInternal(BusyToken busyToken, int millisecondsDelay)
+        private void BeginBusyInternal(BusyToken busyToken, int millisecondsDelay, IReadOnlyMetadataContext? metadata)
         {
             if (millisecondsDelay != 0)
             {
                 Task.Delay(millisecondsDelay)
                     .ContinueWith((_, state) =>
                     {
-                        var token = (BusyToken)state;
-                        token.Owner.BeginBusyInternal(token, 0);
-                    }, busyToken, TaskContinuationOptions.ExecuteSynchronously);
+                        if (state is BusyToken token)
+                            token.Owner.BeginBusyInternal(token, 0, null);
+                        else
+                        {
+                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>)state!;
+                            tuple.Item1.Owner.BeginBusyInternal(tuple.Item1, 0, tuple.Item2);
+                        }
+                    }, metadata == null ? busyToken : (object)Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
                 return;
             }
 
             if (busyToken.Combine())
-                _owner?.GetComponents<IBusyManagerListener>().OnBeginBusy(_owner, busyToken);
+                _owner?.GetComponents<IBusyManagerListener>().OnBeginBusy(_owner, busyToken, metadata);
         }
 
         private void EndSuspendNotifications()
@@ -157,10 +163,10 @@ namespace MugenMvvm.Busy.Components
                 OnBusyInfoChanged();
         }
 
-        private void OnBusyInfoChanged(bool ignoreSuspend = false)
+        private void OnBusyInfoChanged(bool ignoreSuspend = false, IReadOnlyMetadataContext? metadata = null)
         {
             if (ignoreSuspend || !IsSuspended)
-                _owner?.GetComponents<IBusyManagerListener>().OnBusyChanged(_owner);
+                _owner?.GetComponents<IBusyManagerListener>().OnBusyChanged(_owner, metadata);
         }
 
         #endregion
@@ -191,7 +197,7 @@ namespace MugenMvvm.Busy.Components
 
             public BusyToken(BusyManagerComponent owner, IBusyToken token)
             {
-                token.Register(this);
+                token.RegisterCallback(this);
                 Message = token.Message;
                 Owner = owner;
             }
@@ -212,7 +218,7 @@ namespace MugenMvvm.Busy.Components
 
             #region Implementation of interfaces
 
-            public ActionToken Register(IBusyTokenCallback callback)
+            public ActionToken RegisterCallback(IBusyTokenCallback callback)
             {
                 Should.NotBeNull(callback, nameof(callback));
                 if (IsCompleted)
@@ -376,19 +382,14 @@ namespace MugenMvvm.Busy.Components
 
             private void SetSuspendedExternal(bool suspended)
             {
-                if (Owner == null)
-                    SetSuspended(ref _suspendedExternal, suspended);
-                else
+                bool notify;
+                lock (Locker)
                 {
-                    bool notify;
-                    lock (Locker)
-                    {
-                        notify = SetSuspended(ref _suspendedExternal, suspended);
-                    }
-
-                    if (notify)
-                        Owner.OnBusyInfoChanged();
+                    notify = SetSuspended(ref _suspendedExternal, suspended);
                 }
+
+                if (notify)
+                    Owner.OnBusyInfoChanged();
             }
 
             private bool SetSuspended(ref bool field, bool suspended)
