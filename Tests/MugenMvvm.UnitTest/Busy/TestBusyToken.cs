@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Busy
             return default;
         }
 
-        public ActionToken Register(IBusyTokenCallback callback)
+        public ActionToken RegisterCallback(IBusyTokenCallback callback)
         {
             return default;
         }

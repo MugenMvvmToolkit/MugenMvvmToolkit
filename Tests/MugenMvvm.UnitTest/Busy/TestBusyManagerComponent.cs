@@ -13,11 +13,11 @@ namespace MugenMvvm.UnitTest.Busy
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext, IBusyToken?> TryBeginBusy { get; set; }
+        public Func<object?, Type, IReadOnlyMetadataContext?, IBusyToken?>? TryBeginBusy { get; set; }
 
-        public Func<FuncIn<object, IBusyToken, IReadOnlyMetadataContext?, bool>, object, Type, Delegate, IReadOnlyMetadataContext, IBusyToken?> TryGetToken { get; set; }
+        public Func<FuncIn<object?, IBusyToken, IReadOnlyMetadataContext?, bool>, object?, Type, Delegate, IReadOnlyMetadataContext?, IBusyToken?>? TryGetToken { get; set; }
 
-        public Func<IReadOnlyMetadataContext, IReadOnlyList<IBusyToken>?> TryGetTokens { get; set; }
+        public Func<IReadOnlyMetadataContext?, IReadOnlyList<IBusyToken>?>? TryGetTokens { get; set; }
 
         public int Priority { get; set; }
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Busy
 
         IBusyToken? IBusyManagerComponent.TryGetToken<TState>(in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetToken?.Invoke((in object o, IBusyToken token, IReadOnlyMetadataContext? arg3) => filter((TState) o, token, arg3), state, typeof(TState), filter, metadata);
+            return TryGetToken?.Invoke((in object? o, IBusyToken token, IReadOnlyMetadataContext? arg3) => filter((TState) o!, token, arg3), state, typeof(TState), filter, metadata);
         }
 
         IReadOnlyList<IBusyToken>? IBusyManagerComponent.TryGetTokens(IReadOnlyMetadataContext? metadata)

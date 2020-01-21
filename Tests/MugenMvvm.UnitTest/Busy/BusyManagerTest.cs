@@ -4,6 +4,7 @@ using MugenMvvm.Busy;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTest.Internal;
 using Should;
@@ -14,6 +15,13 @@ namespace MugenMvvm.UnitTest.Busy
     public class BusyManagerTest : SuspendableComponentOwnerTestBase<BusyManager>
     {
         #region Methods
+
+        [Fact]
+        public void ManagerShouldValidateInputArgs()
+        {
+            var componentOwner = GetComponentOwner();
+            ShouldThrow<ArgumentNullException>(() => componentOwner.TryGetToken(componentOwner, null!));
+        }
 
         [Fact]
         public void BeginBusyShouldThrowNoComponents()
@@ -112,7 +120,7 @@ namespace MugenMvvm.UnitTest.Busy
                 {
                     ++methodCallCount;
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] { new TestBusyToken(), new TestBusyToken() };
+                    return new[] {new TestBusyToken(), new TestBusyToken()};
                 };
                 componentOwner.AddComponent(component);
             }
@@ -121,9 +129,9 @@ namespace MugenMvvm.UnitTest.Busy
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        protected override BusyManager GetComponentOwner()
+        protected override BusyManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new BusyManager();
+            return new BusyManager(collectionProvider);
         }
 
         #endregion

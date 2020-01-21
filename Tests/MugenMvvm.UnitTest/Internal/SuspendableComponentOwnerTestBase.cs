@@ -1,19 +1,20 @@
 ﻿using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.UnitTest.Components;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public abstract class SuspendableComponentOwnerTestBase<T> : UnitTestBase where T : class, IComponentOwner, ISuspendable
+    public abstract class SuspendableComponentOwnerTestBase<T> : ComponentOwnerTestBase<T> where T : class, IComponentOwner, ISuspendable
     {
         #region Methods
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void IsSuspendedShouldBeHandledByComponents(int componentCount)
+        public virtual void IsSuspendedShouldBeHandledByComponents(int componentCount)
         {
             var componentOwner = GetComponentOwner();
             componentOwner.IsSuspended.ShouldBeFalse();
@@ -38,7 +39,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
-        public void SuspendedShouldUseComponentValues(int componentCount)
+        public virtual void SuspendedShouldUseComponentValues(int componentCount)
         {
             var componentOwner = GetComponentOwner();
             componentOwner.Suspend().IsEmpty.ShouldBeTrue();
@@ -57,8 +58,6 @@ namespace MugenMvvm.UnitTest.Internal
             actionToken.Dispose();
             methodCallCount.ShouldEqual(componentCount);
         }
-
-        protected abstract T GetComponentOwner();
 
         protected virtual SuspendableComponent GetSuspendableComponent()
         {
