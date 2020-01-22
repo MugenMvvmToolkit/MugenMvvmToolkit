@@ -52,10 +52,10 @@ namespace MugenMvvm.Commands.Components
         {
             var canExecuteDelegate = _canExecute;
             if (canExecuteDelegate == null)
-                return false;
+                return _execute != null;
             if (canExecuteDelegate is Func<bool> func)
                 return func();
-            return ((Func<T, bool>) canExecuteDelegate).Invoke((T) parameter!);
+            return ((Func<T, bool>)canExecuteDelegate).Invoke((T)parameter!);
         }
 
         public void Dispose()
@@ -85,7 +85,7 @@ namespace MugenMvvm.Commands.Components
                 Owner.RaiseCanExecuteChanged();
                 executionTask.ContinueWith((t, o) =>
                 {
-                    var component = (DelegateExecutorCommandComponent<T>) o;
+                    var component = (DelegateExecutorCommandComponent<T>)o;
                     component._state = 0;
                     component.Owner.RaiseCanExecuteChanged();
                 }, this, TaskContinuationOptions.ExecuteSynchronously);
@@ -130,13 +130,13 @@ namespace MugenMvvm.Commands.Components
 
             if (executeAction is Action<T> genericExecute)
             {
-                genericExecute((T) parameter!);
+                genericExecute((T)parameter!);
                 return Default.CompletedTask;
             }
 
             if (executeAction is Func<Task> executeTask)
                 return executeTask();
-            return ((Func<T, Task>) executeAction).Invoke((T) parameter!);
+            return ((Func<T, Task>)executeAction).Invoke((T)parameter!);
         }
 
         #endregion
