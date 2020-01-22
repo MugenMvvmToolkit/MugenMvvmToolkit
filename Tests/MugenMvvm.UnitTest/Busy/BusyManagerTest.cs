@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Busy
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
-        public void BeginBusyShouldBeHandleByComponents(int componentCount)
+        public void BeginBusyShouldBeHandledByComponents(int componentCount)
         {
             var componentOwner = GetComponentOwner();
             var busyToken = new TestBusyToken();
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Busy
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
-        public void TryGetTokenShouldBeHandleByComponents(int componentCount)
+        public void TryGetTokenShouldBeHandledByComponents(int componentCount)
         {
             var componentOwner = GetComponentOwner();
             var busyToken = new TestBusyToken();
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTest.Busy
         [Theory]
         [InlineData(1)]
         [InlineData(100)]
-        public void GetTokensShouldBeHandleByComponents(int componentCount)
+        public void GetTokensShouldBeHandledByComponents(int componentCount)
         {
             var componentOwner = GetComponentOwner();
             var methodCallCount = 0;
