@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Converters;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -22,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
             if (expression is DefaultExpression d)
-                return ConstantExpressionNode.Get(GlobalValueConverter.GetDefaultValue(d.Type), d.Type);
+                return ConstantExpressionNode.Get(d.Type.GetDefaultValue(), d.Type);
             return null;
         }
 

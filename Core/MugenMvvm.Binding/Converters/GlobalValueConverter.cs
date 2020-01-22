@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Globalization;
 using MugenMvvm.Attributes;
-using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -17,7 +13,8 @@ namespace MugenMvvm.Binding.Converters
     {
         #region Fields
 
-        private static readonly TypeLightDictionary<object?> DefaultValueCache = new TypeLightDictionary<object?>(23);
+        private readonly ComponentTracker _componentTracker;
+        private IGlobalValueConverterComponent[]? _components;
 
         #endregion
 
@@ -26,13 +23,9 @@ namespace MugenMvvm.Binding.Converters
         [Preserve(Conditional = true)]
         public GlobalValueConverter(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IGlobalValueConverterComponent, GlobalValueConverter>((components, state, _) => state._components = components, this);
         }
-
-        #endregion
-
-        #region Properties
-
-        public Func<IFormatProvider>? FormatProvider { get; set; }
 
         #endregion
 
@@ -40,38 +33,9 @@ namespace MugenMvvm.Binding.Converters
 
         public object? Convert(object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
         {
-            if (GetComponents<IGlobalValueConverterComponent>(metadata).TryConvert(ref value, targetType, member, metadata))
-                return value;
-
-            if (value == null)
-                return GetDefaultValue(targetType);
-            if (targetType.IsInstanceOfType(value))
-                return value;
-            if (targetType == typeof(string))
-                return value.ToString();
-            if (value is IConvertible)
-                return System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider?.Invoke() ?? CultureInfo.CurrentCulture);
-            if (targetType.IsEnum)
-                return Enum.Parse(targetType, value.ToString());
-            return value;
-        }
-
-        #endregion
-
-        #region Methods
-
-        public static object? GetDefaultValue(Type type)
-        {
-            if (typeof(bool) == type)
-                return BoxingExtensions.TrueObject;
-            if (!typeof(ValueType).IsAssignableFrom(type))
-                return null;
-            if (!DefaultValueCache.TryGetValue(type, out var value))
-            {
-                value = Activator.CreateInstance(type);
-                DefaultValueCache[type] = value;
-            }
-
+            if (_components == null)
+                _componentTracker.Attach(this, metadata);
+            _components!.TryConvert(ref value, targetType, member, metadata);
             return value;
         }
 

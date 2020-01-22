@@ -84,7 +84,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             }
 
             if (value.IsUnsetValue())
-                value = _fallback.GetValue<object?>(metadata) ?? GlobalValueConverter.GetDefaultValue(targetMember.Member.Type);
+                value = _fallback.GetValue<object?>(metadata) ?? targetMember.Member.Type.GetDefaultValue();
             if (value == null)
                 return _targetNullValue.GetValue<object?>(metadata);
             return value;

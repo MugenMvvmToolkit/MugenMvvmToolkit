@@ -6,12 +6,15 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Binding.Extensions
 {
     public static partial class MugenBindingExtensions
     {
+        private static readonly TypeLightDictionary<object?> DefaultValueCache = new TypeLightDictionary<object?>(23);
+
         #region Methods
 
         public static Expression GenerateExpression(this Expression left, Expression right, Func<Expression, Expression, Expression> getExpr)
@@ -309,6 +312,21 @@ namespace MugenMvvm.Binding.Extensions
                     return method.IsPublic ? MemberFlags.Extension | MemberFlags.Public : MemberFlags.Extension | MemberFlags.NonPublic;
             }
             return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
+        }
+
+        internal static object? GetDefaultValue(this Type type)
+        {
+            if (typeof(bool) == type)
+                return BoxingExtensions.TrueObject;
+            if (!typeof(ValueType).IsAssignableFrom(type))
+                return null;
+            if (!DefaultValueCache.TryGetValue(type, out var value))
+            {
+                value = Activator.CreateInstance(type);
+                DefaultValueCache[type] = value;
+            }
+
+            return value;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
