@@ -10,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Metadata;
 
@@ -24,17 +23,15 @@ namespace MugenMvvm
 
         private static int _counter;
 
-        internal static readonly PropertyChangedEventArgs IsSuspendedChangedArgs = new PropertyChangedEventArgs(nameof(ISuspendable.IsSuspended));
         internal static readonly PropertyChangedEventArgs EmptyPropertyChangedArgs = new PropertyChangedEventArgs(string.Empty);
         internal static readonly PropertyChangedEventArgs CountPropertyChangedArgs = new PropertyChangedEventArgs(nameof(IList.Count));
         internal static readonly PropertyChangedEventArgs IndexerPropertyChangedArgs = new PropertyChangedEventArgs(IndexerName);
         internal static readonly NotifyCollectionChangedEventArgs ResetCollectionEventArgs = new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset);
-        internal static readonly Action NoDoAction = NoDo;
 
         public static readonly IReadOnlyMetadataContext Metadata = EmptyContext.Instance;
         public static readonly IDisposable Disposable = EmptyContext.Instance;
         public static readonly IWeakReference WeakReference = EmptyContext.Instance;
-        public static readonly Task CompletedTask = Task.FromResult<object?>(null);
+        public static readonly Task CompletedTask = Task.CompletedTask;
         public static readonly Task<bool> TrueTask = Task.FromResult(true);
         public static readonly Task<bool> FalseTask = Task.FromResult(false);
         public static readonly INavigationProvider NavigationProvider = EmptyContext.Instance;
@@ -85,10 +82,6 @@ namespace MugenMvvm
         internal static int NextCounter()
         {
             return Interlocked.Increment(ref _counter);
-        }
-
-        private static void NoDo()
-        {
         }
 
         #endregion
