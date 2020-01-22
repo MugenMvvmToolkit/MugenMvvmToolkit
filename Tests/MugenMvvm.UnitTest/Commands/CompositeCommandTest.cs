@@ -6,6 +6,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTest.Internal;
+using MugenMvvm.UnitTest.Models;
 using Should;
 using Xunit;
 
@@ -26,11 +27,13 @@ namespace MugenMvvm.UnitTest.Commands
             compositeCommand.HasCanExecute.ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionCommandComponent();
-                component.HasCanExecute = () =>
+                var component = new TestConditionCommandComponent
                 {
-                    ++count;
-                    return canExecute;
+                    HasCanExecute = () =>
+                    {
+                        ++count;
+                        return canExecute;
+                    }
                 };
                 compositeCommand.AddComponent(component);
             }
@@ -55,12 +58,14 @@ namespace MugenMvvm.UnitTest.Commands
             compositeCommand.CanExecute(compositeCommand).ShouldBeTrue();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionCommandComponent();
-                component.CanExecute = item =>
+                var component = new TestConditionCommandComponent
                 {
-                    item.ShouldEqual(compositeCommand);
-                    ++count;
-                    return canExecute;
+                    CanExecute = item =>
+                    {
+                        item.ShouldEqual(compositeCommand);
+                        ++count;
+                        return canExecute;
+                    }
                 };
                 compositeCommand.AddComponent(component);
             }
@@ -83,11 +88,13 @@ namespace MugenMvvm.UnitTest.Commands
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent();
-                component.AddCanExecuteChanged = handler =>
+                var component = new TestConditionEventCommandComponent
                 {
-                    ++count;
-                    handler.ShouldEqual(eventHandler);
+                    AddCanExecuteChanged = handler =>
+                    {
+                        ++count;
+                        handler.ShouldEqual(eventHandler);
+                    }
                 };
                 compositeCommand.AddComponent(component);
             }
@@ -106,11 +113,13 @@ namespace MugenMvvm.UnitTest.Commands
             EventHandler eventHandler = (sender, args) => { };
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent();
-                component.RemoveCanExecuteChanged = handler =>
+                var component = new TestConditionEventCommandComponent
                 {
-                    ++count;
-                    handler.ShouldEqual(eventHandler);
+                    RemoveCanExecuteChanged = handler =>
+                    {
+                        ++count;
+                        handler.ShouldEqual(eventHandler);
+                    }
                 };
                 compositeCommand.AddComponent(component);
             }
@@ -128,12 +137,28 @@ namespace MugenMvvm.UnitTest.Commands
             var compositeCommand = GetComponentOwner();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent();
-                component.RaiseCanExecuteChanged = () => ++count;
+                var component = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = () => ++count };
                 compositeCommand.AddComponent(component);
             }
 
             compositeCommand.RaiseCanExecuteChanged();
+            count.ShouldEqual(componentCount);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void DisposeShouldBeHandledByComponents(int componentCount)
+        {
+            var count = 0;
+            var compositeCommand = GetComponentOwner();
+            for (var i = 0; i < componentCount; i++)
+            {
+                var component = new TestDisposable { Dispose = () => ++count };
+                compositeCommand.Components.Add(component);
+            }
+
+            compositeCommand.Dispose();
             count.ShouldEqual(componentCount);
         }
 
@@ -146,13 +171,15 @@ namespace MugenMvvm.UnitTest.Commands
             var tcs = new List<TaskCompletionSource<object>>();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestExecutorCommandComponent();
-                component.ExecuteAsync = o =>
+                var component = new TestExecutorCommandComponent
                 {
-                    o.ShouldEqual(compositeCommand);
-                    var t = new TaskCompletionSource<object>();
-                    tcs.Add(t);
-                    return t.Task;
+                    ExecuteAsync = o =>
+                    {
+                        o.ShouldEqual(compositeCommand);
+                        var t = new TaskCompletionSource<object>();
+                        tcs.Add(t);
+                        return t.Task;
+                    }
                 };
                 compositeCommand.AddComponent(component);
             }
@@ -170,18 +197,20 @@ namespace MugenMvvm.UnitTest.Commands
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                arg3.ShouldEqual(metadata);
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    arg3.ShouldEqual(metadata);
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -203,15 +232,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -229,15 +260,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -258,18 +291,20 @@ namespace MugenMvvm.UnitTest.Commands
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                arg3.ShouldEqual(metadata);
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    arg3.ShouldEqual(metadata);
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -291,15 +326,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -317,15 +354,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -346,18 +385,20 @@ namespace MugenMvvm.UnitTest.Commands
             Func<Task> execute = () => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                arg3.ShouldEqual(metadata);
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    arg3.ShouldEqual(metadata);
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -379,15 +420,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<Task> execute = () => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -405,15 +448,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<Task> execute = () => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -434,18 +479,20 @@ namespace MugenMvvm.UnitTest.Commands
             Func<object?, Task> execute = item => Task.CompletedTask;
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                arg3.ShouldEqual(metadata);
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    arg3.ShouldEqual(metadata);
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -467,15 +514,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<object?, Task> execute = item => Task.CompletedTask;
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
@@ -493,15 +542,17 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<object?, Task> execute = item => Task.CompletedTask;
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
 
             DelegateCommandRequest request = default;
-            var component = new TestCommandProviderComponent();
-            component.TryGetCommand = (o, type, arg3) =>
+            var component = new TestCommandProviderComponent
             {
-                request = (DelegateCommandRequest) o;
-                type.ShouldEqual(typeof(DelegateCommandRequest));
-                return new CompositeCommand();
+                TryGetCommand = (o, type, arg3) =>
+                {
+                    request = (DelegateCommandRequest) o;
+                    type.ShouldEqual(typeof(DelegateCommandRequest));
+                    return new CompositeCommand();
+                }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
