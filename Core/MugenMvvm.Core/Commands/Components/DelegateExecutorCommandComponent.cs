@@ -69,7 +69,6 @@ namespace MugenMvvm.Commands.Components
             if (_allowMultipleExecution)
                 return ExecuteInternalAsync(parameter);
 
-
             if (Interlocked.CompareExchange(ref _state, int.MaxValue, 0) != 0)
                 return Default.CompletedTask;
 
@@ -82,7 +81,8 @@ namespace MugenMvvm.Commands.Components
                     return executionTask;
                 }
 
-                Owner.RaiseCanExecuteChanged();
+                if (IsAttached)
+                    Owner.RaiseCanExecuteChanged();
                 executionTask.ContinueWith((t, o) =>
                 {
                     var component = (DelegateExecutorCommandComponent<T>)o;
@@ -104,18 +104,21 @@ namespace MugenMvvm.Commands.Components
 
         private Task ExecuteInternalAsync(object? parameter)
         {
-            if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecute)
+            if (IsAttached)
             {
-                if (!Owner.CanExecute(parameter))
+                if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecute)
                 {
-                    Owner.RaiseCanExecuteChanged();
-                    return Default.CompletedTask;
+                    if (!Owner.CanExecute(parameter))
+                    {
+                        Owner.RaiseCanExecuteChanged();
+                        return Default.CompletedTask;
+                    }
                 }
-            }
-            else if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecuteException)
-            {
-                if (!Owner.CanExecute(parameter))
-                    ExceptionManager.ThrowCommandCannotBeExecuted();
+                else if (_executionMode == CommandExecutionMode.CanExecuteBeforeExecuteException)
+                {
+                    if (!Owner.CanExecute(parameter))
+                        ExceptionManager.ThrowCommandCannotBeExecuted();
+                }
             }
 
             var executeAction = _execute;
