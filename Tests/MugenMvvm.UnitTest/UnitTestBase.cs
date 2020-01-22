@@ -1,6 +1,8 @@
 ﻿using System;
+using MugenMvvm.Commands;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -44,6 +46,9 @@ namespace MugenMvvm.UnitTest
             var reflectionDelegateProvider = new ReflectionDelegateProvider();
             reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
             MugenService.Configuration.Initialize<IReflectionDelegateProvider>(reflectionDelegateProvider);
+
+            var commandProvider = new CommandProvider();
+            MugenService.Configuration.Initialize<ICommandProvider>(commandProvider);
         }
 
         #endregion

@@ -9,7 +9,7 @@ namespace MugenMvvm.UnitTest.Commands
     {
         #region Properties
 
-        public Action<ICommandProvider, object, Type, ICompositeCommand, IReadOnlyMetadataContext?> OnCommandCreated { get; set; }
+        public Action<ICommandProvider, object?, Type, ICompositeCommand, IReadOnlyMetadataContext?>? OnCommandCreated { get; set; }
 
         #endregion
 

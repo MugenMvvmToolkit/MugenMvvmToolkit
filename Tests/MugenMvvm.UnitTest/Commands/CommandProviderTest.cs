@@ -13,32 +13,39 @@ namespace MugenMvvm.UnitTest.Commands
     {
         #region Methods
 
-        [Fact]
-        public void GetCommandShouldBeHandledByComponents()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetCommandShouldBeHandledByComponents(int componentCount)
         {
             var commandProvider = GetComponentOwner();
             ICompositeCommand command = new CompositeCommand();
             var count = 0;
-            var component = new TestCommandProviderComponent
+            for (int i = 0; i < componentCount; i++)
             {
-                TryGetCommand = (o, type, arg3) =>
+                var component = new TestCommandProviderComponent
                 {
-                    ++count;
-                    o.ShouldEqual(commandProvider);
-                    type.ShouldEqual(typeof(ICommandProvider));
-                    arg3.ShouldEqual(DefaultMetadata);
-                    return command;
-                }
-            };
-            commandProvider.AddComponent(component);
+                    TryGetCommand = (o, type, arg3) =>
+                    {
+                        ++count;
+                        o.ShouldEqual(commandProvider);
+                        type.ShouldEqual(typeof(ICommandProvider));
+                        arg3.ShouldEqual(DefaultMetadata);
+                        return command;
+                    }
+                };
+                commandProvider.AddComponent(component);
+            }
 
             var compositeCommand = commandProvider.GetCommand(commandProvider, DefaultMetadata);
             compositeCommand.ShouldEqual(command);
             count.ShouldEqual(1);
         }
 
-        [Fact]
-        public void GetCommandShouldNotifyListeners()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void GetCommandShouldNotifyListeners(int componentCount)
         {
             var commandProvider = GetComponentOwner();
             ICompositeCommand command = new CompositeCommand();
@@ -49,22 +56,25 @@ namespace MugenMvvm.UnitTest.Commands
             commandProvider.AddComponent(component);
 
             var count = 0;
-            var listener = new TestCommandProviderListener
+            for (int i = 0; i < componentCount; i++)
             {
-                OnCommandCreated = (provider, o, arg3, arg4, arg5) =>
+                var listener = new TestCommandProviderListener
                 {
-                    provider.ShouldEqual(commandProvider);
-                    o.ShouldEqual(commandProvider);
-                    arg3.ShouldEqual(typeof(ICommandProvider));
-                    arg4.ShouldEqual(command);
-                    arg5.ShouldEqual(DefaultMetadata);
-                    ++count;
-                }
-            };
-            commandProvider.AddComponent(listener);
+                    OnCommandCreated = (provider, o, arg3, arg4, arg5) =>
+                    {
+                        provider.ShouldEqual(commandProvider);
+                        o.ShouldEqual(commandProvider);
+                        arg3.ShouldEqual(typeof(ICommandProvider));
+                        arg4.ShouldEqual(command);
+                        arg5.ShouldEqual(DefaultMetadata);
+                        ++count;
+                    }
+                };
+                commandProvider.AddComponent(listener);
+            }
 
             commandProvider.GetCommand(commandProvider, DefaultMetadata);
-            count.ShouldEqual(1);
+            count.ShouldEqual(componentCount);
         }
 
         [Fact]

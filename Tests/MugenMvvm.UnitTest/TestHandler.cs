@@ -6,7 +6,7 @@ namespace MugenMvvm.UnitTest
     {
         #region Properties
 
-        public Action<object?, object?> Invoke { get; set; }
+        public Action<object?, object?>? Invoke { get; set; }
 
         #endregion
 
