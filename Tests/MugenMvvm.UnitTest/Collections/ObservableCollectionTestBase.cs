@@ -14,7 +14,11 @@ namespace MugenMvvm.UnitTest.Collections
 {
     public class ObservableCollectionTestBase : ComponentOwnerTestBase<IObservableCollection<object>>
     {
+        #region Fields
+
         protected const int TestIterationCount = 100;
+
+        #endregion
 
         #region Methods
 
@@ -43,13 +47,13 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.Add(items[i]);
             }
 
-            ((IEnumerable)collection).OfType<CollectionItem>().SequenceEqual(items).ShouldBeTrue();
+            collection.OfType<CollectionItem>().SequenceEqual(items).ShouldBeTrue();
         }
 
         [Fact]
         public void CreateWithItemsTest()
         {
-            var items = new[] { new CollectionItem(), new CollectionItem() };
+            var items = new[] {new CollectionItem(), new CollectionItem()};
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -70,7 +74,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void IListAddTest()
         {
             var item = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.OfType<CollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
@@ -97,7 +101,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Insert(0, item1);
             collection.Count.ShouldEqual(1);
 
@@ -126,7 +130,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Add(item1);
 
             collection[0].ShouldEqual(item1);
@@ -157,7 +161,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item2 = new CollectionItem();
             var collection = CreateCollection(new CollectionItem());
 
-            collection.Reset(new[] { item1, item2 });
+            collection.Reset(new[] {item1, item2});
             collection[0].ShouldEqual(item1);
             collection[1].ShouldEqual(item2);
             collection.Count.ShouldEqual(2);
@@ -185,7 +189,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
 
             collection.IndexOf(item1).ShouldBeLessThan(0);
 
@@ -220,7 +224,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Insert(0, item1);
             collection.Insert(0, item2);
             collection.Count.ShouldEqual(2);
@@ -251,7 +255,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void IListRemoveTest()
         {
             var item = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.OfType<CollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
@@ -275,7 +279,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void IListContainsTest()
         {
             var item = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.Contains(item).ShouldBeTrue();
@@ -297,7 +301,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void ICollectionCopyToTest()
         {
             var item = new CollectionItem();
-            var collection = (IList)CreateCollection<CollectionItem>();
+            var collection = (IList) CreateCollection<CollectionItem>();
             collection.Add(item);
 
             var items = new CollectionItem[1];
@@ -308,7 +312,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ClearItemsTest()
         {
-            var items = new[] { new CollectionItem(), new CollectionItem() };
+            var items = new[] {new CollectionItem(), new CollectionItem()};
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -322,8 +326,8 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void IListClearItemsTest()
         {
-            var items = new[] { new CollectionItem(), new CollectionItem() };
-            var collection = (IList)CreateCollection(items);
+            var items = new[] {new CollectionItem(), new CollectionItem()};
+            var collection = (IList) CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.OfType<CollectionItem>().Any(item => item == items[0]).ShouldBeTrue();
             collection.OfType<CollectionItem>().Any(item => item == items[1]).ShouldBeTrue();
@@ -342,7 +346,7 @@ namespace MugenMvvm.UnitTest.Collections
             var end = 0;
             var collection = CreateCollection<CollectionItem>();
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var collectionListener = new TestObservableCollectionBatchUpdateListener<CollectionItem>(collection)
                 {
@@ -380,11 +384,11 @@ namespace MugenMvvm.UnitTest.Collections
             var added = 0;
             var condition = 0;
             var expectedIndex = 0;
-            bool canAdd = false;
+            var canAdd = false;
             CollectionItem? expectedItem = null;
             var collection = CreateCollection<CollectionItem>();
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -427,24 +431,26 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = new CollectionItem();
                 expectedIndex = 0;
                 collection.Add(expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount);
             adding.ShouldEqual(0);
             added.ShouldEqual(0);
 
             condition = 0;
             canAdd = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = new CollectionItem();
                 expectedIndex = i;
                 collection.Add(expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             adding.ShouldEqual(TestIterationCount * listenersCount);
             added.ShouldEqual(TestIterationCount * listenersCount);
@@ -459,11 +465,11 @@ namespace MugenMvvm.UnitTest.Collections
             var added = 0;
             var condition = 0;
             var expectedIndex = 0;
-            bool canAdd = false;
+            var canAdd = false;
             CollectionItem? expectedItem = null;
             var collection = CreateCollection<CollectionItem>();
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -506,24 +512,26 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = new CollectionItem();
                 expectedIndex = 0;
                 collection.Insert(0, expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount);
             adding.ShouldEqual(0);
             added.ShouldEqual(0);
 
             condition = 0;
             canAdd = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = new CollectionItem();
                 expectedIndex = 0;
                 collection.Insert(0, expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             adding.ShouldEqual(TestIterationCount * listenersCount);
             added.ShouldEqual(TestIterationCount * listenersCount);
@@ -538,13 +546,13 @@ namespace MugenMvvm.UnitTest.Collections
             var replaced = 0;
             var condition = 0;
             var expectedIndex = 0;
-            bool canReplace = false;
+            var canReplace = false;
             CollectionItem? expectedOldItem = null, expectedNewItem = null;
             var collection = CreateCollection<CollectionItem>();
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
                 collection.Add(new CollectionItem());
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -590,26 +598,28 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedNewItem = new CollectionItem();
                 expectedOldItem = collection[i];
                 expectedIndex = i;
                 collection[i] = expectedNewItem;
             }
+
             condition.ShouldEqual(TestIterationCount);
             replacing.ShouldEqual(0);
             replaced.ShouldEqual(0);
 
             condition = 0;
             canReplace = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedNewItem = new CollectionItem();
                 expectedOldItem = collection[i];
                 expectedIndex = i;
                 collection[i] = expectedNewItem;
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             replacing.ShouldEqual(TestIterationCount * listenersCount);
             replaced.ShouldEqual(TestIterationCount * listenersCount);
@@ -625,13 +635,13 @@ namespace MugenMvvm.UnitTest.Collections
             var condition = 0;
             var expectedOldIndex = 0;
             var expectedNewIndex = 0;
-            bool canMove = false;
+            var canMove = false;
             CollectionItem? expectedItem = null;
             var collection = CreateCollection<CollectionItem>();
-            for (int i = 0; i < TestIterationCount + 1; i++)
+            for (var i = 0; i < TestIterationCount + 1; i++)
                 collection.Add(new CollectionItem());
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -677,26 +687,28 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedOldIndex = i;
                 expectedNewIndex = i + 1;
                 expectedItem = collection[expectedOldIndex];
                 collection.Move(expectedOldIndex, expectedNewIndex);
             }
+
             condition.ShouldEqual(TestIterationCount);
             moving.ShouldEqual(0);
             moved.ShouldEqual(0);
 
             condition = 0;
             canMove = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedOldIndex = i;
                 expectedNewIndex = i + 1;
                 expectedItem = collection[expectedOldIndex];
                 collection.Move(expectedOldIndex, expectedNewIndex);
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             moving.ShouldEqual(TestIterationCount * listenersCount);
             moved.ShouldEqual(TestIterationCount * listenersCount);
@@ -711,13 +723,13 @@ namespace MugenMvvm.UnitTest.Collections
             var removed = 0;
             var condition = 0;
             var expectedIndex = 0;
-            bool canRemove = false;
+            var canRemove = false;
             CollectionItem? expectedItem = null;
             var collection = CreateCollection<CollectionItem>();
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
                 collection.Add(new CollectionItem());
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -760,24 +772,26 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.Remove(expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount);
             removing.ShouldEqual(0);
             removed.ShouldEqual(0);
 
             condition = 0;
             canRemove = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.Remove(expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             removing.ShouldEqual(TestIterationCount * listenersCount);
             removed.ShouldEqual(TestIterationCount * listenersCount);
@@ -792,13 +806,13 @@ namespace MugenMvvm.UnitTest.Collections
             var removed = 0;
             var condition = 0;
             var expectedIndex = 0;
-            bool canRemove = false;
+            var canRemove = false;
             CollectionItem? expectedItem = null;
             var collection = CreateCollection<CollectionItem>();
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
                 collection.Add(new CollectionItem());
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -841,24 +855,26 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.RemoveAt(expectedIndex);
             }
+
             condition.ShouldEqual(TestIterationCount);
             removing.ShouldEqual(0);
             removed.ShouldEqual(0);
 
             condition = 0;
             canRemove = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.RemoveAt(expectedIndex);
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             removing.ShouldEqual(TestIterationCount * listenersCount);
             removed.ShouldEqual(TestIterationCount * listenersCount);
@@ -872,13 +888,13 @@ namespace MugenMvvm.UnitTest.Collections
             var resetting = 0;
             var reset = 0;
             var condition = 0;
-            bool canReset = false;
+            var canReset = false;
             IEnumerable<CollectionItem>? expectedItem = null;
             var collection = CreateCollection<CollectionItem>();
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
                 collection.Add(new CollectionItem());
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -918,22 +934,24 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
-                expectedItem = new[] { new CollectionItem(), new CollectionItem() };
+                expectedItem = new[] {new CollectionItem(), new CollectionItem()};
                 collection.Reset(expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount);
             resetting.ShouldEqual(0);
             reset.ShouldEqual(0);
 
             condition = 0;
             canReset = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
-                expectedItem = new[] { new CollectionItem(), new CollectionItem() };
+                expectedItem = new[] {new CollectionItem(), new CollectionItem()};
                 collection.Reset(expectedItem);
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             resetting.ShouldEqual(TestIterationCount * listenersCount);
             reset.ShouldEqual(TestIterationCount * listenersCount);
@@ -947,13 +965,13 @@ namespace MugenMvvm.UnitTest.Collections
             var clearing = 0;
             var clear = 0;
             var condition = 0;
-            bool canClear = false;
+            var canClear = false;
 
             var collection = CreateCollection<CollectionItem>();
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
                 collection.Add(new CollectionItem());
 
-            for (int i = 0; i < listenersCount; i++)
+            for (var i = 0; i < listenersCount; i++)
             {
                 var conditionListener = new TestConditionObservableCollectionComponent<CollectionItem>(collection)
                 {
@@ -971,7 +989,7 @@ namespace MugenMvvm.UnitTest.Collections
                 var changingListener = new TestObservableCollectionChangingListener<CollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnClearing = (items) =>
+                    OnClearing = items =>
                     {
                         items.ShouldEqual(collection);
                         ++clearing;
@@ -983,7 +1001,7 @@ namespace MugenMvvm.UnitTest.Collections
                 var changedListener = new TestObservableCollectionChangedListener<CollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnCleared = (items) =>
+                    OnCleared = items =>
                     {
                         items.ShouldEqual(collection);
                         ++clear;
@@ -993,7 +1011,7 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
                 collection.Clear();
             condition.ShouldEqual(TestIterationCount);
             clearing.ShouldEqual(0);
@@ -1001,12 +1019,13 @@ namespace MugenMvvm.UnitTest.Collections
 
             condition = 0;
             canClear = true;
-            for (int i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < TestIterationCount; i++)
             {
                 collection.Clear();
-                for (int j = 0; j < TestIterationCount; j++)
+                for (var j = 0; j < TestIterationCount; j++)
                     collection.Add(new CollectionItem());
             }
+
             condition.ShouldEqual(TestIterationCount * listenersCount);
             clearing.ShouldEqual(TestIterationCount * listenersCount);
             clear.ShouldEqual(TestIterationCount * listenersCount);
