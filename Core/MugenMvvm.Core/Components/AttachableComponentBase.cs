@@ -36,14 +36,14 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        public bool OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
+        bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
                 return OnAttachingInternal(o, metadata);
             return true;
         }
 
-        public void OnAttached(object owner, IReadOnlyMetadataContext? metadata)
+        void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (!(owner is T o))
                 return;
@@ -55,14 +55,14 @@ namespace MugenMvvm.Components
             OnAttachedInternal(o, metadata);
         }
 
-        public bool OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
+        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
                 return OnDetachingInternal(o, metadata);
             return true;
         }
 
-        public void OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o && ReferenceEquals(Owner, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
             {

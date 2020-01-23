@@ -1,0 +1,136 @@
+﻿using System;
+using MugenMvvm.Interfaces.Components;
+using Should;
+using Xunit;
+
+namespace MugenMvvm.UnitTest.Components
+{
+    public class AttachableComponentTest : UnitTestBase
+    {
+        #region Methods
+
+        [Fact]
+        public void ShouldOwnerThrowNotAttached()
+        {
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            ShouldThrow<InvalidOperationException>(() =>
+            {
+                var v = testAttachableComponent.Owner;
+            });
+        }
+
+        [Fact]
+        public void ShouldOnAttachedAttachThrowOwnerInitialized()
+        {
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            IAttachableComponent attachable = testAttachableComponent;
+
+            attachable.OnAttached(this, DefaultMetadata);
+            ShouldThrow<InvalidOperationException>(() => { attachable.OnAttached(this, DefaultMetadata); });
+        }
+
+        [Fact]
+        public void ShouldOnAttachedIgnoreWrongOwner()
+        {
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            IAttachableComponent attachable = testAttachableComponent;
+
+            attachable.OnAttached(new object(), DefaultMetadata);
+            testAttachableComponent.IsAttached.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldOnAttachedAttachOwner()
+        {
+            var methodCallCount = 0;
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            testAttachableComponent.OnAttached = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+            };
+            IAttachableComponent attachable = testAttachableComponent;
+            testAttachableComponent.IsAttached.ShouldBeFalse();
+
+            attachable.OnAttached(this, DefaultMetadata);
+            testAttachableComponent.IsAttached.ShouldBeTrue();
+            testAttachableComponent.Owner.ShouldEqual(this);
+            methodCallCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ShouldOnAttachingCallInternalMethod()
+        {
+            var methodCallCount = 0;
+            var canAttach = false;
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            testAttachableComponent.OnAttaching = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canAttach;
+            };
+
+            IAttachableComponent attachable = testAttachableComponent;
+            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
+            methodCallCount.ShouldEqual(1);
+
+            canAttach = true;
+            attachable.OnAttaching(this, DefaultMetadata).ShouldEqual(canAttach);
+            methodCallCount.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void ShouldOnDetachedDetachOwner()
+        {
+            var methodCallCount = 0;
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+            testAttachableComponent.OnDetached = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+            };
+            IAttachableComponent attachable = testAttachableComponent;
+            IDetachableComponent detachable = testAttachableComponent;
+            attachable.OnAttached(this, DefaultMetadata);
+
+            testAttachableComponent.IsAttached.ShouldBeTrue();
+            testAttachableComponent.Owner.ShouldEqual(this);
+            methodCallCount.ShouldEqual(0);
+
+            detachable.OnDetached(this, DefaultMetadata);
+            methodCallCount.ShouldEqual(1);
+            testAttachableComponent.IsAttached.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldOnDetachingCallInternalMethod()
+        {
+            var methodCallCount = 0;
+            var canDetach = false;
+            var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
+
+            IDetachableComponent attachable = testAttachableComponent;
+            attachable.OnDetaching(this, DefaultMetadata).ShouldBeTrue();
+
+            testAttachableComponent.OnDetaching = (test, context) =>
+            {
+                ++methodCallCount;
+                test.ShouldEqual(this);
+                context.ShouldEqual(DefaultMetadata);
+                return canDetach;
+            };
+            attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
+            methodCallCount.ShouldEqual(1);
+
+            canDetach = true;
+            attachable.OnDetaching(this, DefaultMetadata).ShouldEqual(canDetach);
+            methodCallCount.ShouldEqual(2);
+        }
+
+        #endregion
+    }
+}
