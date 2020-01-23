@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using MugenMvvm.Constants;
 
@@ -59,6 +60,16 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "_v")]
         public TValue Value { get; internal set; }
+
+        private static Dictionary<TValue, TEnumeration> Enumerations
+        {
+            get
+            {
+                if (_enumerations.Count == 0)
+                    RuntimeHelpers.RunClassConstructor(typeof(TEnumeration).TypeHandle);
+                return _enumerations;
+            }
+        }
 
         #endregion
 
@@ -119,7 +130,7 @@ namespace MugenMvvm.Enums
 
         public static ICollection<TEnumeration> GetAll()
         {
-            return _enumerations.Values;
+            return Enumerations.Values;
         }
 
         public static bool TryParse(TValue value, [NotNullWhen(true)] out TEnumeration? result)
@@ -130,7 +141,7 @@ namespace MugenMvvm.Enums
                 return false;
             }
 
-            return _enumerations.TryGetValue(value, out result);
+            return Enumerations.TryGetValue(value, out result);
         }
 
         public static TEnumeration Parse(TValue value)

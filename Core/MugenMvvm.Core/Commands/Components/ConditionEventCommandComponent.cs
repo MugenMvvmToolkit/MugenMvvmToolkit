@@ -12,7 +12,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Messaging.Components;
 
 namespace MugenMvvm.Commands.Components
 {
@@ -36,10 +35,11 @@ namespace MugenMvvm.Commands.Components
 
         public ConditionEventCommandComponent(IThreadDispatcher? threadDispatcher, ThreadExecutionMode eventExecutionMode, IReadOnlyList<object> notifiers, Func<object, bool>? canNotify)
         {
+            Should.NotBeNull(eventExecutionMode, nameof(eventExecutionMode));
+            Should.NotBeNull(notifiers, nameof(notifiers));
             _threadDispatcher = threadDispatcher;
             _eventExecutionMode = eventExecutionMode;
             _canNotify = canNotify;
-
             _subscriber = new Subscriber(this);
             for (var index = 0; index < notifiers.Count; index++)
             {
