@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Busy
     {
         #region Fields
 
-        private const int DefaultDelay = 200;
+        private const int DefaultDelay = 150;
         private readonly BusyManager _busyManager;
         private readonly TestBusyManagerListener _listener;
 

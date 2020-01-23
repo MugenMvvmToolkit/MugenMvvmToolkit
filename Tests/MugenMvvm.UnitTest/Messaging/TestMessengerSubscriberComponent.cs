@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Messaging.Components;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Messaging;
+
+namespace MugenMvvm.UnitTest.Messaging
+{
+    public class TestMessengerSubscriberComponent : IMessengerSubscriberComponent
+    {
+        #region Properties
+
+        public Func<object?, Type, ThreadExecutionMode?, IReadOnlyMetadataContext?, bool>? TrySubscribe { get; set; }
+
+        public Func<object?, Type, IReadOnlyMetadataContext?, bool>? TryUnsubscribe { get; set; }
+
+        public Action<IReadOnlyMetadataContext?>? TryUnsubscribeAll { get; set; }
+
+        public Func<Type, IReadOnlyMetadataContext?, IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>?>? TryGetMessengerHandlers { get; set; }
+
+        public Func<IReadOnlyMetadataContext?, IReadOnlyList<MessengerSubscriberInfo>?>? TryGetSubscribers { get; set; }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        bool IMessengerSubscriberComponent.TrySubscribe<TSubscriber>(in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+        {
+            return TrySubscribe?.Invoke(subscriber, typeof(TSubscriber), executionMode, metadata) ?? false;
+        }
+
+        bool IMessengerSubscriberComponent.TryUnsubscribe<TSubscriber>(in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
+        {
+            return TryUnsubscribe?.Invoke(subscriber, typeof(TSubscriber), metadata) ?? false;
+        }
+
+        void IMessengerSubscriberComponent.TryUnsubscribeAll(IReadOnlyMetadataContext? metadata)
+        {
+            TryUnsubscribeAll?.Invoke(metadata);
+        }
+
+        IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? IMessengerSubscriberComponent.TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
+        {
+            return TryGetMessengerHandlers?.Invoke(messageType, metadata);
+        }
+
+        IReadOnlyList<MessengerSubscriberInfo>? IMessengerSubscriberComponent.TryGetSubscribers(IReadOnlyMetadataContext? metadata)
+        {
+            return TryGetSubscribers?.Invoke(metadata);
+        }
+
+        #endregion
+    }
+}

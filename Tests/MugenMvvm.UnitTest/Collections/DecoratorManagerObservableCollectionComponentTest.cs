@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Collections
     {
         #region Fields
 
-        protected const int TestIterationCount = 100;
+        protected const int TestIterationCount = 50;
 
         #endregion
 
@@ -520,6 +520,7 @@ namespace MugenMvvm.UnitTest.Collections
         [InlineData(2)]
         public void ShouldClearNotifyListeners(int listenersCount)
         {
+            const int TestIterationCount = 10;
             var clear = 0;
             var collection = CreateCollection<CollectionItem>();
             collection.AddComponent(new DecoratorManagerObservableCollectionComponent<CollectionItem>());

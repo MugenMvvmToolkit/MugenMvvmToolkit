@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Collections
     {
         #region Fields
 
-        protected const int TestIterationCount = 100;
+        protected const int TestIterationCount = 50;
 
         #endregion
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void CreateWithItemsTest()
         {
-            var items = new[] {new CollectionItem(), new CollectionItem()};
+            var items = new[] { new CollectionItem(), new CollectionItem() };
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void IListAddTest()
         {
             var item = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.OfType<CollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Insert(0, item1);
             collection.Count.ShouldEqual(1);
 
@@ -130,7 +130,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Add(item1);
 
             collection[0].ShouldEqual(item1);
@@ -161,7 +161,7 @@ namespace MugenMvvm.UnitTest.Collections
             var item2 = new CollectionItem();
             var collection = CreateCollection(new CollectionItem());
 
-            collection.Reset(new[] {item1, item2});
+            collection.Reset(new[] { item1, item2 });
             collection[0].ShouldEqual(item1);
             collection[1].ShouldEqual(item2);
             collection.Count.ShouldEqual(2);
@@ -189,7 +189,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
 
             collection.IndexOf(item1).ShouldBeLessThan(0);
 
@@ -224,7 +224,7 @@ namespace MugenMvvm.UnitTest.Collections
         {
             var item1 = new CollectionItem();
             var item2 = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Insert(0, item1);
             collection.Insert(0, item2);
             collection.Count.ShouldEqual(2);
@@ -255,7 +255,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void IListRemoveTest()
         {
             var item = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.OfType<CollectionItem>().Any(item1 => item1 == item).ShouldBeTrue();
@@ -279,7 +279,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void IListContainsTest()
         {
             var item = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Add(item);
             collection.Count.ShouldEqual(1);
             collection.Contains(item).ShouldBeTrue();
@@ -301,7 +301,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void ICollectionCopyToTest()
         {
             var item = new CollectionItem();
-            var collection = (IList) CreateCollection<CollectionItem>();
+            var collection = (IList)CreateCollection<CollectionItem>();
             collection.Add(item);
 
             var items = new CollectionItem[1];
@@ -312,7 +312,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void ClearItemsTest()
         {
-            var items = new[] {new CollectionItem(), new CollectionItem()};
+            var items = new[] { new CollectionItem(), new CollectionItem() };
             var collection = CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.Any(item => item == items[0]).ShouldBeTrue();
@@ -326,8 +326,8 @@ namespace MugenMvvm.UnitTest.Collections
         [Fact]
         public void IListClearItemsTest()
         {
-            var items = new[] {new CollectionItem(), new CollectionItem()};
-            var collection = (IList) CreateCollection(items);
+            var items = new[] { new CollectionItem(), new CollectionItem() };
+            var collection = (IList)CreateCollection(items);
             collection.Count.ShouldEqual(2);
             collection.OfType<CollectionItem>().Any(item => item == items[0]).ShouldBeTrue();
             collection.OfType<CollectionItem>().Any(item => item == items[1]).ShouldBeTrue();
@@ -936,7 +936,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < TestIterationCount; i++)
             {
-                expectedItem = new[] {new CollectionItem(), new CollectionItem()};
+                expectedItem = new[] { new CollectionItem(), new CollectionItem() };
                 collection.Reset(expectedItem);
             }
 
@@ -948,7 +948,7 @@ namespace MugenMvvm.UnitTest.Collections
             canReset = true;
             for (var i = 0; i < TestIterationCount; i++)
             {
-                expectedItem = new[] {new CollectionItem(), new CollectionItem()};
+                expectedItem = new[] { new CollectionItem(), new CollectionItem() };
                 collection.Reset(expectedItem);
             }
 
@@ -962,6 +962,7 @@ namespace MugenMvvm.UnitTest.Collections
         [InlineData(2)]
         public void ShouldClearNotifyListeners(int listenersCount)
         {
+            const int TestIterationCount = 10;
             var clearing = 0;
             var clear = 0;
             var condition = 0;
