@@ -260,7 +260,7 @@ namespace MugenMvvm.UnitTest.Commands
         }
 
         [Fact]
-        public void ShouldDisposeClearDelegates()
+        public void DisposeShouldClearDelegates()
         {
             int executed = 0;
             Action execute = () => ++executed;

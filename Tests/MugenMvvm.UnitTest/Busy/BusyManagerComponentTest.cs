@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldNotifyListenersTryBeginBusy()
+        public void TryBeginBusyShouldNotifyListeners()
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldNotifyListenersSuspend()
+        public void SuspendShouldNotifyListeners()
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldNotifyListenersSuspendToken()
+        public void SuspendTokenShouldNotifyListeners()
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldNotifyListenersDisposeToken()
+        public void DisposeTokenShouldNotifyListeners()
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -231,7 +231,7 @@ namespace MugenMvvm.UnitTest.Busy
         [Theory]
         [InlineData(null, DefaultDelay)]
         [InlineData(1, DefaultDelay)]
-        public void ShouldTryBeginBusyShouldIgnoreListenersDisposeBeforeDelay(object? message, int delay)
+        public void TryBeginBusyShouldIgnoreListenersDisposeBeforeDelay(object? message, int delay)
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Busy
         [Theory]
         [InlineData(null, DefaultDelay)]
         [InlineData(1, DefaultDelay)]
-        public void ShouldTryBeginBusyShouldIgnoreListenersDisposeBeforeDelayParentToken(object? message, int delay)
+        public void TryBeginBusyShouldIgnoreListenersDisposeBeforeDelayParentToken(object? message, int delay)
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -516,7 +516,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldSuspendAllTokens()
+        public void SuspendShouldSuspendAllTokens()
         {
             var busyManagerComponent = new BusyManagerComponent();
             var token1 = busyManagerComponent.TryBeginBusy("Test", null)!;
@@ -535,7 +535,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldSuspendAllTokensCombinateWithTokenSuspend()
+        public void SuspendShouldCombineWithTokenSuspend()
         {
             var busyManagerComponent = new BusyManagerComponent();
             var token1 = busyManagerComponent.TryBeginBusy("Test", null)!;
@@ -563,7 +563,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldReturnAllTokensTryGetTokens()
+        public void TryGetTokensShouldReturnAllTokens()
         {
             var busyManagerComponent = new BusyManagerComponent();
             var token1 = busyManagerComponent.TryBeginBusy("Test1", null)!;
@@ -585,7 +585,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldReturnAllTokensTryGetToken()
+        public void TryGetTokenShouldReturnAllTokens()
         {
             var busyManagerComponent = new BusyManagerComponent();
             var token1 = busyManagerComponent.TryBeginBusy("Test1", null)!;
@@ -605,7 +605,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldReturnCorrectTokenTryGetToken()
+        public void TryGetTokenShouldReturnCorrectToken()
         {
             var busyManagerComponent = new BusyManagerComponent();
             var token1 = busyManagerComponent.TryBeginBusy("Test1", null)!;

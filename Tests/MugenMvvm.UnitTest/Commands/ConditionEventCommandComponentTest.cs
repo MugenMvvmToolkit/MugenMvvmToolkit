@@ -271,7 +271,7 @@ namespace MugenMvvm.UnitTest.Commands
         }
 
         [Fact]
-        public void ShouldDisposeClearEventHandler()
+        public void DisposeShouldClearEventHandler()
         {
             var compositeCommand = new CompositeCommand();
             var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.EmptyArray<object>(), null);

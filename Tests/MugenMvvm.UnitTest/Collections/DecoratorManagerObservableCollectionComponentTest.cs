@@ -247,7 +247,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldAddNotifyListeners(int listenersCount)
+        public void AddShouldNotifyListeners(int listenersCount)
         {
             var added = 0;
             var expectedIndex = 0;
@@ -284,7 +284,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldInsertNotifyListeners(int listenersCount)
+        public void InsertShouldNotifyListeners(int listenersCount)
         {
             var added = 0;
             var expectedIndex = 0;
@@ -321,7 +321,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldReplaceNotifyListeners(int listenersCount)
+        public void ReplaceShouldNotifyListeners(int listenersCount)
         {
             var replaced = 0;
             var expectedIndex = 0;
@@ -362,7 +362,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldMoveNotifyListeners(int listenersCount)
+        public void MoveShouldNotifyListeners(int listenersCount)
         {
             var moved = 0;
             var expectedOldIndex = 0;
@@ -404,7 +404,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldRemoveNotifyListeners(int listenersCount)
+        public void RemoveShouldNotifyListeners(int listenersCount)
         {
             var removed = 0;
             var expectedIndex = 0;
@@ -443,7 +443,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldRemoveAtNotifyListeners(int listenersCount)
+        public void RemoveAtShouldNotifyListeners(int listenersCount)
         {
             var removed = 0;
             var expectedIndex = 0;
@@ -482,7 +482,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldResetNotifyListeners(int listenersCount)
+        public void ResetShouldNotifyListeners(int listenersCount)
         {
             var reset = 0;
             IEnumerable<CollectionItem>? expectedItem = null;
@@ -518,7 +518,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
-        public void ShouldClearNotifyListeners(int listenersCount)
+        public void ClearShouldNotifyListeners(int listenersCount)
         {
             const int TestIterationCount = 10;
             var clear = 0;

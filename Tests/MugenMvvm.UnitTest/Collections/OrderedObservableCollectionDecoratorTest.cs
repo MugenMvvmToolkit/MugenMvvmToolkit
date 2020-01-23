@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(false)]
         [InlineData(true)]
-        public void ShouldTrackChangesReorder1(bool defaultComparer)
+        public void ReorderShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
             var observableCollection = new SynchronizedObservableCollection<int>
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesAdd1(bool defaultComparer)
+        public void AddShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesAdd2(bool defaultComparer)
+        public void AddShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesReplace1(bool defaultComparer)
+        public void ReplaceShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -153,7 +153,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesReplace2(bool defaultComparer)
+        public void ReplaceShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -183,7 +183,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesMove(bool defaultComparer)
+        public void MoveShouldTrackChanges(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -210,7 +210,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesRemove1(bool defaultComparer)
+        public void RemoveShouldTrackChanges1(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -243,7 +243,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesRemove2(bool defaultComparer)
+        public void RemoveShouldTrackChanges2(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -269,7 +269,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesReset(bool defaultComparer)
+        public void ResetShouldTrackChanges(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -293,7 +293,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesClear(bool defaultComparer)
+        public void ClearShouldTrackChanges(bool defaultComparer)
         {
             DefaultComparer = defaultComparer;
 
@@ -317,7 +317,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(true)]
         [InlineData(false)]
-        public void ShouldTrackChangesItemChanged(bool defaultComparer)
+        public void ItemChangedShouldTrackChanges(bool defaultComparer)
         {
             var comparer = Comparer<CollectionItem>.Create((item, collectionItem) =>
             {

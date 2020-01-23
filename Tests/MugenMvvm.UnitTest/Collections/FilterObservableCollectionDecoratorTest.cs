@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesAdd()
+        public void AddShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesReplace1()
+        public void ReplaceShouldTrackChanges1()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesReplace2()
+        public void ReplaceShouldTrackChanges2()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesMove1()
+        public void MoveShouldTrackChanges1()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesMove2()
+        public void MoveShouldTrackChanges2()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesRemove()
+        public void RemoveShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesReset()
+        public void ResetShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -239,7 +239,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesClear()
+        public void ClearShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<int>());
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChangesItemChanged()
+        public void ItemChangedShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<CollectionItem>();
             observableCollection.AddComponent(new DecoratorManagerObservableCollectionComponent<CollectionItem>());

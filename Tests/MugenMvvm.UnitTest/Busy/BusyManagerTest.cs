@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Busy
         #region Methods
 
         [Fact]
-        public void ManagerShouldValidateInputArgs()
+        public void ShouldValidateInputArgs()
         {
             var componentOwner = GetComponentOwner();
             ShouldThrow<ArgumentNullException>(() => componentOwner.TryGetToken(componentOwner, null!));

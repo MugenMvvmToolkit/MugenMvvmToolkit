@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Components
         #region Methods
 
         [Fact]
-        public void ShouldOwnerThrowNotAttached()
+        public void OwnerShouldThrowNotAttached()
         {
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
             ShouldThrow<InvalidOperationException>(() =>
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ShouldOnAttachedAttachThrowOwnerInitialized()
+        public void OnAttachedShouldThrowIfOwnerInitialized()
         {
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
             IAttachableComponent attachable = testAttachableComponent;
@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ShouldOnAttachedIgnoreWrongOwner()
+        public void OnAttachedShouldIgnoreWrongOwner()
         {
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
             IAttachableComponent attachable = testAttachableComponent;
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ShouldOnAttachedAttachOwner()
+        public void OnAttachedShouldAttachOwner()
         {
             var methodCallCount = 0;
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ShouldOnAttachingCallInternalMethod()
+        public void OnAttachingShouldCallInternalMethod()
         {
             var methodCallCount = 0;
             var canAttach = false;
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ShouldOnDetachedDetachOwner()
+        public void OnDetachedShouldDetachOwner()
         {
             var methodCallCount = 0;
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ShouldOnDetachingCallInternalMethod()
+        public void OnDetachingShouldCallInternalMethod()
         {
             var methodCallCount = 0;
             var canDetach = false;

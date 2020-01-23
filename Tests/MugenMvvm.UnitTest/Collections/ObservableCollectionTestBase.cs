@@ -340,7 +340,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldBeginEndBatchUpdateNotifyListeners(int listenersCount)
+        public void BeginEndBatchUpdateShouldNotifyListeners(int listenersCount)
         {
             var begin = 0;
             var end = 0;
@@ -378,7 +378,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldAddNotifyListeners(int listenersCount)
+        public void AddShouldNotifyListeners(int listenersCount)
         {
             var adding = 0;
             var added = 0;
@@ -459,7 +459,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldInsertNotifyListeners(int listenersCount)
+        public void InsertShouldNotifyListeners(int listenersCount)
         {
             var adding = 0;
             var added = 0;
@@ -540,7 +540,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldReplaceNotifyListeners(int listenersCount)
+        public void ReplaceShouldNotifyListeners(int listenersCount)
         {
             var replacing = 0;
             var replaced = 0;
@@ -628,7 +628,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldMoveNotifyListeners(int listenersCount)
+        public void MoveShouldNotifyListeners(int listenersCount)
         {
             var moving = 0;
             var moved = 0;
@@ -717,7 +717,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldRemoveNotifyListeners(int listenersCount)
+        public void RemoveShouldNotifyListeners(int listenersCount)
         {
             var removing = 0;
             var removed = 0;
@@ -800,7 +800,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldRemoveAtNotifyListeners(int listenersCount)
+        public void RemoveAtShouldNotifyListeners(int listenersCount)
         {
             var removing = 0;
             var removed = 0;
@@ -883,7 +883,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ShouldResetNotifyListeners(int listenersCount)
+        public void ResetShouldNotifyListeners(int listenersCount)
         {
             var resetting = 0;
             var reset = 0;
@@ -960,7 +960,7 @@ namespace MugenMvvm.UnitTest.Collections
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
-        public void ShouldClearNotifyListeners(int listenersCount)
+        public void ClearShouldNotifyListeners(int listenersCount)
         {
             const int TestIterationCount = 10;
             var clearing = 0;
