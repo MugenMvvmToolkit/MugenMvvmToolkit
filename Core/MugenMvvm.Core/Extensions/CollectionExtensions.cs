@@ -345,7 +345,7 @@ namespace MugenMvvm.Extensions
                 return false;
             if (items.Length == 1)
             {
-                if (ReferenceEquals(items[0], items))
+                if (ReferenceEquals(items[0], item))
                 {
                     items = Default.EmptyArray<T>();
                     return true;
