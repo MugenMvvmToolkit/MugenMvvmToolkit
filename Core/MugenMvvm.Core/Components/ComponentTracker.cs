@@ -68,7 +68,6 @@ namespace MugenMvvm.Components
             Should.NotBeNull(collection, nameof(collection));
             if (Interlocked.CompareExchange(ref _flag, int.MaxValue, 0) != 0)
                 return;
-            collection.Add(this);
             collection.Components.Add(this);
             if (_listeners != null)
             {
