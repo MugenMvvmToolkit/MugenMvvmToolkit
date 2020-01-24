@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Commands
             executed.ShouldEqual(0);
             invoke.ShouldNotBeNull();
 
-            invoke();
+            invoke!();
             executed.ShouldEqual(1);
         }
 
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Commands
             executed.ShouldEqual(0);
             invoke.ShouldNotBeNull();
 
-            invoke();
+            invoke!();
             executed.ShouldEqual(1);
         }
 
@@ -195,9 +195,9 @@ namespace MugenMvvm.UnitTest.Commands
 
             subscribedCount.ShouldEqual(listenersCount);
             executed.ShouldEqual(0);
-            handlerRaw.ShouldNotBeNull();
-            handlerRaw.CanHandle(typeof(object)).ShouldBeTrue();
-            handlerRaw.Handle(new MessageContext(this, this, DefaultMetadata));
+            handlerRaw!.ShouldNotBeNull();
+            handlerRaw!.CanHandle(typeof(object)).ShouldBeTrue();
+            handlerRaw!.Handle(new MessageContext(this, this, DefaultMetadata));
             executed.ShouldEqual(1);
         }
 
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTest.Commands
             conditionEventCommandComponent.AddCanExecuteChanged(handler);
 
             executed.ShouldEqual(0);
-            handlerRaw.Handle(new MessageContext(this, this, DefaultMetadata));
+            handlerRaw!.Handle(new MessageContext(this, this, DefaultMetadata));
             executed.ShouldEqual(0);
 
             canNotifyValue = true;
@@ -251,7 +251,7 @@ namespace MugenMvvm.UnitTest.Commands
             string? propertyName = "test";
             Func<object?, bool> canNotify = o =>
             {
-                ((PropertyChangedEventArgs)o).PropertyName.ShouldEqual(propertyName);
+                ((PropertyChangedEventArgs)o!).PropertyName.ShouldEqual(propertyName);
                 return canNotifyValue;
             };
             var compositeCommand = new CompositeCommand();

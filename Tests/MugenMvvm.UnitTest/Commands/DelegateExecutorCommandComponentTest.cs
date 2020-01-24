@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Commands
             var task = component.ExecuteAsync(null);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
-            tcs.SetResult(null);
+            tcs.SetResult(this);
             task.IsCompleted.ShouldBeTrue();
         }
 
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTest.Commands
             var task = component.ExecuteAsync(this);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
-            tcs.SetResult(null);
+            tcs.SetResult(this);
             task.IsCompleted.ShouldBeTrue();
         }
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTest.Commands
             component.ExecuteAsync(null);
             executed.ShouldEqual(value ? 2 : 1);
 
-            tcs.SetResult(null);
+            tcs.SetResult(this);
             component.ExecuteAsync(null);
             executed.ShouldEqual(value ? 3 : 2);
         }
@@ -167,10 +167,10 @@ namespace MugenMvvm.UnitTest.Commands
             compositeCommand.AddComponent(component);
 
             executed.ShouldEqual(0);
-            compositeCommand.Execute(null);
+            compositeCommand.Execute(this);
             executed.ShouldEqual(value ? 0 : 1);
 
-            tcs.SetResult(null);
+            tcs.SetResult(this);
             executed.ShouldEqual(value ? 0 : 2);
         }
 

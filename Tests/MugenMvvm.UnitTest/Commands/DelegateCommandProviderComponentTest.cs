@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Commands
                 (in DelegateCommandRequest commandRequest, DelegateCommandRequest.IProvider provider, IReadOnlyMetadataContext? arg3) => { return provider.TryGetCommand<object>(commandRequest, arg3); }, execute,
                 canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
 
-            var command = _component.TryGetCommand(request, metadata);
+            var command = _component.TryGetCommand(request, metadata)!;
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateExecutorCommandComponent<object>>();

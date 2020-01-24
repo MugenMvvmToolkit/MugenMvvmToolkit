@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Components
 
         public new TComponent[] Components => base.Components;
 
-        public Action<IList<TComponent>, IReadOnlyMetadataContext?> Decorate { get; set; }
+        public Action<IList<TComponent>, IReadOnlyMetadataContext?>? Decorate { get; set; }
 
         #endregion
 

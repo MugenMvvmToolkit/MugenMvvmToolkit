@@ -1,10 +1,11 @@
 ﻿using System;
 using MugenMvvm.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Components
 {
-    public class TestAttachableComponent<T> : AttachableComponentBase<T> where T : class
+    public class TestAttachableComponent<T> : AttachableComponentBase<T>, IComponent where T : class
     {
         #region Properties
 

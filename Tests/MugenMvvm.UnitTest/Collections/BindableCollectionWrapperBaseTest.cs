@@ -188,4 +188,38 @@ namespace MugenMvvm.UnitTest.Collections
 
         #endregion
     }
+
+    public class BindableCollectionWrapperWithLockBaseTest : BindableCollectionWrapperBaseTest
+    {
+        #region Methods
+
+        protected override BindableCollectionWrapperBase<T> GetCollection<T>()
+        {
+            return new BindableCollectionWrapper<T>();
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class BindableCollectionWrapper<T> : BindableCollectionWrapperBase<T>, IObservableCollectionChangedListener<T>
+        {
+            #region Constructors
+
+            public BindableCollectionWrapper(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null)
+                : base(threadDispatcher, sourceCollection)
+            {
+            }
+
+            #endregion
+
+            #region Properties
+
+            protected override bool IsLockRequired => true;
+
+            #endregion
+        }
+
+        #endregion
+    }
 }

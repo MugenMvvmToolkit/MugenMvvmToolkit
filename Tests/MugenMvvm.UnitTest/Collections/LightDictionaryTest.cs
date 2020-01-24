@@ -37,6 +37,26 @@ namespace MugenMvvm.UnitTest.Collections
         #region Methods
 
         [Fact]
+        public void InternalValuesTest()
+        {
+            var dictionary = new LightDictionary<int, int>();
+            var negativeDictionary = new LightDictionary<int, int>();
+            for (int i = 0; i < 100; i++)
+            {
+                dictionary[i] = i;
+                negativeDictionary[i] = -i;
+            }
+
+            var valuesInternal = dictionary.ValuesInternal;
+            foreach (var keyValuePair in dictionary)
+                valuesInternal.Contains(keyValuePair).ShouldBeTrue();
+
+            var clone = new LightDictionary<int, int>(-1);
+            clone.ValuesInternal = negativeDictionary.ValuesInternal;
+            clone.SequenceEqual(negativeDictionary).ShouldBeTrue();
+        }
+
+        [Fact]
         public void CloneTest()
         {
             var dictionary = new LightDictionary<int, int>();

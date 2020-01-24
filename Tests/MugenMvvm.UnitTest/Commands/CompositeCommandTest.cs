@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
@@ -206,7 +207,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -239,14 +240,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.Create(execute, canExecute, notifiers);
+            CompositeCommand.Create(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -267,14 +268,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.Create(execute, allowMultipleExecution, canExecute, notifiers);
+            CompositeCommand.Create(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -300,7 +301,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -333,14 +334,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.Create(execute, canExecute, notifiers);
+            CompositeCommand.Create(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -361,14 +362,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.Create(execute, allowMultipleExecution, canExecute, notifiers);
+            CompositeCommand.Create(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -394,7 +395,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -427,14 +428,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.CreateFromTask(execute, canExecute, notifiers);
+            CompositeCommand.CreateFromTask(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -455,14 +456,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute, notifiers);
+            CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -488,7 +489,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -521,14 +522,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.CreateFromTask(execute, canExecute, notifiers);
+            CompositeCommand.CreateFromTask(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
@@ -549,14 +550,14 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest) o;
+                    request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
             };
             using var subscriber = ComponentSubscriber.Subscribe(component);
 
-            CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute, notifiers);
+            CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
             request.Execute.ShouldEqual(execute);
             request.CanExecute.ShouldEqual(canExecute);
