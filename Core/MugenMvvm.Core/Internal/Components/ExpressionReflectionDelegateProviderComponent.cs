@@ -32,7 +32,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = InternalComponentPriority.DelegateProvider;
 
         #endregion
 

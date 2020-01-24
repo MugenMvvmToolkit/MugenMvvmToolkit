@@ -1,11 +1,13 @@
 ﻿using System;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class DelegateTracerComponent : ITracerComponent
+    public sealed class DelegateTracerComponent : ITracerComponent, IHasPriority
     {
         #region Fields
 
@@ -23,6 +25,12 @@ namespace MugenMvvm.Internal.Components
             _trace = trace;
             _canTrace = canTrace;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; } = InternalComponentPriority.Tracer;
 
         #endregion
 
