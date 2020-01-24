@@ -9,7 +9,7 @@ using MugenMvvm.UnitTest.Internal;
 
 namespace MugenMvvm.UnitTest.Busy
 {
-    public sealed class TestBusyManagerComponent : SuspendableComponent, IBusyManagerComponent, IHasPriority
+    public sealed class TestBusyManagerComponent : TestSuspendableComponent, IBusyManagerComponent, IHasPriority
     {
         #region Properties
 

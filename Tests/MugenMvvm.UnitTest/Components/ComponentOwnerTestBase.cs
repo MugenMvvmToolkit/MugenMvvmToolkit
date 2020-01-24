@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Components
                 collection = new ComponentCollection(componentOwner!);
                 return collection;
             };
-            using var subscriber = globalValue ? ComponentSubscriber.Subscribe(testComponentCollectionProviderComponent) : default;
+            using var subscriber = globalValue ? TestComponentSubscriber.Subscribe(testComponentCollectionProviderComponent) : default;
             if (globalValue)
                 componentOwner = GetComponentOwner();
             else

@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public ref struct ComponentSubscriber
+    public ref struct TestComponentSubscriber
     {
         #region Fields
 
@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTest.Internal
 
         #region Constructors
 
-        private ComponentSubscriber(IComponentOwner componentOwner, IComponent[] components)
+        private TestComponentSubscriber(IComponentOwner componentOwner, IComponent[] components)
         {
             _componentOwner = componentOwner;
             _components = components;
@@ -25,14 +25,14 @@ namespace MugenMvvm.UnitTest.Internal
 
         #region Methods
 
-        public static ComponentSubscriber Subscribe<T>(params IComponent<T>[] components) where T : class, IComponentOwner
+        public static TestComponentSubscriber Subscribe<T>(params IComponent<T>[] components) where T : class, IComponentOwner
         {
             return Subscribe(MugenService.Instance<T>(), components);
         }
 
-        public static ComponentSubscriber Subscribe<T>(T componentOwner, params IComponent<T>[] components) where T : class, IComponentOwner
+        public static TestComponentSubscriber Subscribe<T>(T componentOwner, params IComponent<T>[] components) where T : class, IComponentOwner
         {
-            return new ComponentSubscriber(componentOwner, components);
+            return new TestComponentSubscriber(componentOwner, components);
         }
 
         public void Dispose()

@@ -213,7 +213,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.Create(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             request.IsEmpty.ShouldBeFalse();
@@ -245,7 +245,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.Create(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -273,7 +273,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.Create(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -307,7 +307,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.Create(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             request.IsEmpty.ShouldBeFalse();
@@ -339,7 +339,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.Create(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -367,7 +367,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.Create(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -401,7 +401,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.CreateFromTask(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             request.IsEmpty.ShouldBeFalse();
@@ -433,7 +433,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.CreateFromTask(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -461,7 +461,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -495,7 +495,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.CreateFromTask(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify, metadata);
             request.IsEmpty.ShouldBeFalse();
@@ -527,7 +527,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.CreateFromTask(execute, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();
@@ -555,7 +555,7 @@ namespace MugenMvvm.UnitTest.Commands
                     return new CompositeCommand();
                 }
             };
-            using var subscriber = ComponentSubscriber.Subscribe(component);
+            using var subscriber = TestComponentSubscriber.Subscribe(component);
 
             CompositeCommand.CreateFromTask(execute, allowMultipleExecution, canExecute!, notifiers!);
             request.IsEmpty.ShouldBeFalse();

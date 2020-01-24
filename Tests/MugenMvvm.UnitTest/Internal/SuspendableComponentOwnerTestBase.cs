@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Internal
             }
 
             componentOwner.IsSuspended.ShouldBeFalse();
-            var suspendableComponents = componentOwner.GetComponents<SuspendableComponent>();
+            var suspendableComponents = componentOwner.GetComponents<TestSuspendableComponent>();
             foreach (var suspendableComponent in suspendableComponents)
                 suspendableComponent.IsSuspended = true;
             componentOwner.IsSuspended.ShouldBeTrue();
@@ -59,9 +59,9 @@ namespace MugenMvvm.UnitTest.Internal
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        protected virtual SuspendableComponent GetSuspendableComponent()
+        protected virtual TestSuspendableComponent GetSuspendableComponent()
         {
-            return new SuspendableComponent();
+            return new TestSuspendableComponent();
         }
 
         #endregion

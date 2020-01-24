@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Commands
             var executionMode = ThreadExecutionMode.Parse(mode);
             Action? invoke = null;
             var threadDispatcherComponent = new TestThreadDispatcherComponent();
-            using var subscriber = ComponentSubscriber.Subscribe(threadDispatcherComponent);
+            using var subscriber = TestComponentSubscriber.Subscribe(threadDispatcherComponent);
             threadDispatcherComponent.Execute = (action, mode, arg3, arg4, arg5) =>
             {
                 mode.ShouldEqual(executionMode);

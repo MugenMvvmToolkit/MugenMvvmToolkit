@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void ShouldTrackChanges()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecute = mode => true};
-            using var s = ComponentSubscriber.Subscribe(dispatcherComponent);
+            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<int>();
             var bindableCollectionWrapper = GetCollection<int>();
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Collections
                 CanExecute = mode => false,
                 Execute = (action1, mode, arg3, arg4, arg5) => { action += () => action1(arg3); }
             };
-            using var s = ComponentSubscriber.Subscribe(dispatcherComponent);
+            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<int>();
             var bindableCollectionWrapper = GetCollection<int>();
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void ShouldTrackChangesBatchUpdate1()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecute = mode => true};
-            using var s = ComponentSubscriber.Subscribe(dispatcherComponent);
+            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<int>();
             var bindableCollectionWrapper = GetCollection<int>();
@@ -137,7 +137,7 @@ namespace MugenMvvm.UnitTest.Collections
         public void ShouldTrackChangesBatchUpdate2()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent {CanExecute = mode => true};
-            using var s = ComponentSubscriber.Subscribe(dispatcherComponent);
+            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 
             var observableCollection = new SynchronizedObservableCollection<int>();
             var bindableCollectionWrapper = GetCollection<int>();

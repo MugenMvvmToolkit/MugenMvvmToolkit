@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public class SuspendableComponent : ISuspendable
+    public class TestSuspendableComponent : ISuspendable
     {
         #region Properties
 
