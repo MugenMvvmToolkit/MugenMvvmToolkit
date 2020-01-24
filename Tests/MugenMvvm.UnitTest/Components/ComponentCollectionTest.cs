@@ -1,8 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Components;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Threading;
@@ -12,7 +15,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Components
 {
-    public class ComponentCollectionTest : ComponentOwnerTestBase<ComponentCollection>
+    public class ComponentCollectionTest : ComponentOwnerTestBase<IComponentCollection>
     {
         #region Fields
 
@@ -29,7 +32,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void AddShouldAddOrderedComponent()
+        public virtual void AddShouldAddOrderedComponent()
         {
             var componentCollection = new ComponentCollection(this);
             var components = new List<TestComponentCollectionProviderComponent>();
@@ -46,7 +49,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void RemoveShouldRemoveComponent()
+        public virtual void RemoveShouldRemoveComponent()
         {
             var componentCollection = new ComponentCollection(this);
             var components = new List<TestComponentCollectionProviderComponent>();
@@ -69,7 +72,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ClearShouldClearComponents()
+        public virtual void ClearShouldClearComponents()
         {
             var componentCollection = new ComponentCollection(this);
             var components = new List<TestComponentCollectionProviderComponent>();
@@ -87,7 +90,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void AddShouldNotifyListeners()
+        public virtual void AddShouldNotifyListeners()
         {
             var addingCount = 0;
             var addedCount = 0;
@@ -142,7 +145,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void RemoveShouldNotifyListeners()
+        public virtual void RemoveShouldNotifyListeners()
         {
             var removingCount = 0;
             var removedCount = 0;
@@ -201,7 +204,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ClearShouldNotifyListeners()
+        public virtual void ClearShouldNotifyListeners()
         {
             var items = new HashSet<object>();
             var removedCount = 0;
@@ -230,7 +233,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void AddShouldCallOnAttachingOnAttachedMethods()
+        public virtual void AddShouldCallOnAttachingOnAttachedMethods()
         {
             var attachingCount = 0;
             var attachedCount = 0;
@@ -265,7 +268,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void RemoveShouldCallOnDetachingOnDetachedMethods()
+        public virtual void RemoveShouldCallOnDetachingOnDetachedMethods()
         {
             var detachingCount = 0;
             var detachedCount = 0;
@@ -302,7 +305,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void ClearShouldCallOnDetachedMethods()
+        public virtual void ClearShouldCallOnDetachedMethods()
         {
             var detachedCount = 0;
             var componentCollection = new ComponentCollection(this);
@@ -321,9 +324,9 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public void GetShouldDecorateItems()
+        public virtual void GetShouldDecorateItems()
         {
-            int executed = 0;
+            var executed = 0;
             var threadDispatcher = new ThreadDispatcher();
             var componentCollection = new ComponentCollection(threadDispatcher);
 
@@ -373,9 +376,60 @@ namespace MugenMvvm.UnitTest.Components
             executed.ShouldEqual(0);
         }
 
-        protected override ComponentCollection GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        [Fact]
+        public virtual void ShouldUseCorrectOrderForDecorators()
+        {
+            var threadDispatcher = new ThreadDispatcher();
+            var componentCollection = new ComponentCollection(threadDispatcher);
+
+            var executed = 0;
+            for (int i = 0; i < TestIterationCount; i++)
+            {
+                var decoratorComponent = new TestDecoratorThreadDispatcherComponent();
+                decoratorComponent.Decorate = (list, context) =>
+                {
+                    ++executed;
+                    list.Add(new TestThreadDispatcherComponent());
+                };
+                componentCollection.Add(decoratorComponent);
+                componentCollection.AddComponent(decoratorComponent);
+            }
+
+            var components = componentCollection.Get<IThreadDispatcherComponent>();
+            executed.ShouldEqual(TestIterationCount);
+            components.Length.ShouldEqual(TestIterationCount * 2);
+            components.OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(TestIterationCount);
+        }
+
+        protected override IComponentCollection GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
             return new ComponentCollection(this);
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class TestDecoratorThreadDispatcherComponent : TestDecoratorComponent<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
+        {
+            #region Implementation of interfaces
+
+            public bool CanExecuteInline(ThreadExecutionMode executionMode)
+            {
+                throw new NotSupportedException();
+            }
+
+            public bool TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
+            {
+                throw new NotSupportedException();
+            }
+
+            public bool TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
+            {
+                throw new NotSupportedException();
+            }
+
+            #endregion
         }
 
         #endregion
