@@ -286,6 +286,39 @@ namespace MugenMvvm.Collections
             clone._freeList = _freeList;
         }
 
+        public void TrimExcess()
+        {
+            var count = _count - _freeCount;
+            var newSize = PrimeNumberHelper.GetPrime(count);
+            if (_count == newSize)
+                return;
+            var numArray = new int[newSize];
+            for (var i = 0; i < numArray.Length; i++)
+                numArray[i] = -1;
+            var entryArray = new Entry[newSize];
+            var index = 0;
+            for (var i = 0; i < _count; i++)
+            {
+                var entry = _entries[i];
+                if (entry.HashCode >= 0)
+                    entryArray[index++] = entry;
+            }
+
+            _freeList = -1;
+            _freeCount = 0;
+            _count = count;
+
+            for (var i = 0; i < _count; i++)
+            {
+                var index2 = entryArray[i].HashCode % newSize;
+                entryArray[i].Next = numArray[index2];
+                numArray[index2] = i;
+            }
+
+            _buckets = numArray;
+            _entries = entryArray;
+        }
+
         protected virtual bool Equals(TKey x, TKey y)
         {
             return DefaultComparer.Equals(x, y);
@@ -360,39 +393,6 @@ namespace MugenMvvm.Collections
         private void Resize()
         {
             Resize(PrimeNumberHelper.ExpandPrime(_count));
-        }
-
-        private void TrimExcess()
-        {
-            var count = _count - _freeCount;
-            var newSize = PrimeNumberHelper.GetPrime(count);
-            if (_count == newSize)
-                return;
-            var numArray = new int[newSize];
-            for (var i = 0; i < numArray.Length; i++)
-                numArray[i] = -1;
-            var entryArray = new Entry[newSize];
-            var index = 0;
-            for (var i = 0; i < _count; i++)
-            {
-                var entry = _entries[i];
-                if (entry.HashCode >= 0)
-                    entryArray[index++] = entry;
-            }
-
-            _freeList = -1;
-            _freeCount = 0;
-            _count = count;
-
-            for (var i = 0; i < _count; i++)
-            {
-                var index2 = entryArray[i].HashCode % newSize;
-                entryArray[i].Next = numArray[index2];
-                numArray[index2] = i;
-            }
-
-            _buckets = numArray;
-            _entries = entryArray;
         }
 
         private void Resize(int newSize)

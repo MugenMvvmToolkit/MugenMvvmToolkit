@@ -10,7 +10,7 @@ namespace MugenMvvm.Interfaces.Internal
         IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class;
 
-        bool TryGetValue<TValue>(object item, string path, [NotNullWhen(true)] out TValue value);
+        bool TryGet<TValue>(object item, string path, [NotNullWhen(true)] out TValue value);
 
         bool Contains(object item, string path);
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Interfaces.Internal
         TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory)
             where TItem : class;
 
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state1, Func<TItem, TState, TValue> addValueFactory,
+        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
             UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory)
             where TItem : class;
 
@@ -28,10 +28,8 @@ namespace MugenMvvm.Interfaces.Internal
         TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory)
             where TItem : class;
 
-        void SetValue<TValue>(object item, string path, TValue value);
+        void Set<TValue>(object item, string path, TValue value);
 
-        bool Clear(object item);
-
-        bool Clear(object item, string path);
+        bool Clear(object item, string? path = null);
     }
 }

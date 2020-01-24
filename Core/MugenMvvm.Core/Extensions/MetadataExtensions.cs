@@ -153,23 +153,6 @@ namespace MugenMvvm.Extensions
             return metadataContext.GetOrAdd(contextKey, valueFactory, (ctx, s) => s(ctx));
         }
 
-        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, T> valueFactory,
-            UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, T>, T> updateValueFactory)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            var pair = new KeyValuePair<Func<IMetadataContext, T>, UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, T>, T>>(valueFactory, updateValueFactory);
-            return metadataContext
-                .AddOrUpdate(contextKey, pair, (ctx, s) => s.Key(ctx),
-                    (ctx, _, cV, s) => s.Value(ctx, s.Key, cV));
-        }
-
-        public static T AddOrUpdate<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, T addValue,
-            UpdateValueDelegate<IMetadataContext, T, T> updateValueFactory)
-        {
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.AddOrUpdate(contextKey, addValue, updateValueFactory, (ctx, v, cV, s) => s(ctx, v, cV));
-        }
-
         #endregion
     }
 }
