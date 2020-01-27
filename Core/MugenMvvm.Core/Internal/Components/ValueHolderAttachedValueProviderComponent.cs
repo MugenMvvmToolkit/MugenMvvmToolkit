@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderCacheDecoratorAttachedValueProviderComponent : AttachedValueProviderComponentBase, IHasPriority
+    public sealed class ValueHolderAttachedValueProviderComponent : AttachedValueProviderComponentBase, IHasPriority
     {
         #region Properties
 
