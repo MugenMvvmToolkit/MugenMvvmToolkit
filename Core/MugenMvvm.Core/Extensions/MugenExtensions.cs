@@ -22,6 +22,13 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
+            where TItem : class
+        {
+            Should.NotBeNull(valueProvider, nameof(valueProvider));
+            return valueProvider.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
+        }
+
         public static ICompositeCommand GetCommand(this ICommandProvider? mediatorProvider, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)

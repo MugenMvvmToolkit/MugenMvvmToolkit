@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Interfaces.Internal
+namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface IAttachedValueProvider : IComponentOwner<IAttachedValueProvider>, IComponent<IMugenApplication>
+    public interface IAttachedValueProviderComponent : IComponent<IAttachedValueProvider>
     {
-        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
+        bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
+
+        IReadOnlyList<KeyValuePair<string, object?>>? TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
             where TItem : class;
 
         bool TryGet<TValue>(object item, string path, [NotNullWhen(true)] out TValue value);
@@ -32,6 +34,6 @@ namespace MugenMvvm.Interfaces.Internal
 
         void Set<TValue>(object item, string path, TValue value);
 
-        bool Clear(object item, string? path = null);
+        bool Clear(object item, string? path);
     }
 }

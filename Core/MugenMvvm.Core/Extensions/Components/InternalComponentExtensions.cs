@@ -11,32 +11,18 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IAttachedValueProvider? TryGetOrAddAttachedValueProvider(this IAttachedValueManagerComponent[] components, object item, IReadOnlyMetadataContext? metadata)
+        public static IAttachedValueProviderComponent? TryGetProvider(this IAttachedValueProviderComponent[] components, object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(item, nameof(item));
             for (var i = 0; i < components.Length; i++)
             {
-                var provider = components[i].TryGetOrAddAttachedValueProvider(item, metadata);
-                if (provider != null)
+                var provider = components[i];
+                if (provider.IsSupported(item, metadata))
                     return provider;
             }
 
             return null;
-        }
-
-        public static bool TryGetAttachedValueProvider(this IAttachedValueManagerComponent[] components, object item, IReadOnlyMetadataContext? metadata, out IAttachedValueProvider? provider)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(item, nameof(item));
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetAttachedValueProvider(item, metadata, out provider))
-                    return true;
-            }
-
-            provider = null;
-            return false;
         }
 
         public static Func<object?[], object>? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, ConstructorInfo constructor)

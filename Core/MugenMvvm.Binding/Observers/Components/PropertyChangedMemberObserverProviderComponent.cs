@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly IAttachedValueManager? _attachedValueManager;
+        private readonly IAttachedValueProvider? _attachedValueProvider;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly FuncIn<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
@@ -29,9 +29,9 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PropertyChangedMemberObserverProviderComponent(IAttachedValueManager? attachedValueManager = null)
+        public PropertyChangedMemberObserverProviderComponent(IAttachedValueProvider? attachedValueProvider = null)
         {
-            _attachedValueManager = attachedValueManager;
+            _attachedValueProvider = attachedValueProvider;
             _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
             _memberObserverHandler = TryObserve;
         }
@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (target == null)
                 return default;
-            return _attachedValueManager
+            return _attachedValueProvider
                 .DefaultIfNull()
                 .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string) member);

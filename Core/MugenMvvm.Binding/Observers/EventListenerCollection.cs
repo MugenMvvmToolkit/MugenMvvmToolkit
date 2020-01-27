@@ -18,14 +18,14 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public static EventListenerCollection GetOrAdd(object item, string path, IAttachedValueManager? valueManager = null)
+        public static EventListenerCollection GetOrAdd(object item, string path, IAttachedValueProvider? attachedValueProvider = null)
         {
-            return valueManager.DefaultIfNull().GetOrAdd(item, path, (object?)null, (_, __) => new EventListenerCollection());
+            return attachedValueProvider.DefaultIfNull().GetOrAdd(item, path, (object?)null, (_, __) => new EventListenerCollection());
         }
 
-        public static void Raise(object item, string path, object message, IAttachedValueManager? valueManager = null)
+        public static void Raise(object item, string path, object message, IAttachedValueProvider? attachedValueProvider = null)
         {
-            valueManager.DefaultIfNull().TryGet(item, path, out EventListenerCollection collection);
+            attachedValueProvider.DefaultIfNull().TryGet(item, path, out EventListenerCollection collection);
             collection?.Raise(item, message);
         }
 

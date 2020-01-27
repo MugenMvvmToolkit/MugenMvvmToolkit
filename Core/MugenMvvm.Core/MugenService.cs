@@ -34,7 +34,7 @@ namespace MugenMvvm
 
         public static IComponentCollectionProvider ComponentCollectionProvider => Instance<IComponentCollectionProvider>();
 
-        public static IAttachedValueManager AttachedValueManager => Instance<IAttachedValueManager>();
+        public static IAttachedValueProvider AttachedValueProvider => Instance<IAttachedValueProvider>();
 
         public static IReflectionDelegateProvider ReflectionDelegateProvider => Instance<IReflectionDelegateProvider>();
 

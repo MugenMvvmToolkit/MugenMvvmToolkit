@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly IAttachedValueManager? _attachedValueManager;
+        private readonly IAttachedValueProvider? _attachedValueProvider;
 
         private const string BindPrefix = "@#b";
 
@@ -27,9 +27,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingHolderComponent(IAttachedValueManager? attachedValueManager = null)
+        public BindingHolderComponent(IAttachedValueProvider? attachedValueProvider = null)
         {
-            _attachedValueManager = attachedValueManager;
+            _attachedValueProvider = attachedValueProvider;
         }
 
         #endregion
@@ -45,13 +45,9 @@ namespace MugenMvvm.Binding.Core.Components
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
-            var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetAttachedValueProvider(target, metadata);
-            if (attachedValueProvider == null)
-                return default;
-
             var values = path == null
-                ? attachedValueProvider.GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
-                : attachedValueProvider.GetValues(target, path, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(pair.Key, StringComparison.Ordinal));
+                ? _attachedValueProvider.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
+                : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(pair.Key, StringComparison.Ordinal));
 
             if (values.Count == 0)
                 return default;
@@ -71,9 +67,8 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            _attachedValueManager
+            _attachedValueProvider
                 .DefaultIfNull()
-                .GetOrAddAttachedValueProvider(target, metadata)
                 .AddOrUpdate(target, GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
         }
@@ -84,9 +79,7 @@ namespace MugenMvvm.Binding.Core.Components
             var target = binding.Target.Target;
             if (target == null)
                 return false;
-
-            var attachedValueProvider = _attachedValueManager.DefaultIfNull().GetAttachedValueProvider(target, metadata);
-            return attachedValueProvider != null && attachedValueProvider.Clear(target, GetPath(binding.Target.Path));
+            return _attachedValueProvider.DefaultIfNull().Clear(target, GetPath(binding.Target.Path));
         }
 
         #endregion
