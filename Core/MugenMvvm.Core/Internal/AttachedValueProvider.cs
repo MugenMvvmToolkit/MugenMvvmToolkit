@@ -20,7 +20,7 @@ namespace MugenMvvm.Internal
 
         #region Constructors
 
-        public AttachedValueProvider(IComponentCollectionProvider? componentCollectionProvider) : base(componentCollectionProvider)
+        public AttachedValueProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IAttachedValueProviderComponent, AttachedValueProvider>((components, state, _) => state._components = components, this);
