@@ -11,7 +11,7 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private readonly ConditionalWeakTable<object, StringOrdinalLightDictionary<object>> _weakTable;
+        private readonly ConditionalWeakTable<object, StringOrdinalLightDictionary<object?>> _weakTable;
 
         #endregion
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.Internal.Components
 
         public ConditionalWeakTableAttachedValueProviderComponent()
         {
-            _weakTable = new ConditionalWeakTable<object, StringOrdinalLightDictionary<object>>();
+            _weakTable = new ConditionalWeakTable<object, StringOrdinalLightDictionary<object?>>();
         }
 
         #endregion
@@ -45,7 +45,7 @@ namespace MugenMvvm.Internal.Components
                 return value;
             }
 
-            return _weakTable.GetValue(item, key => new StringOrdinalLightDictionary<object>(3));
+            return _weakTable.GetValue(item, key => new StringOrdinalLightDictionary<object?>(3));
         }
 
         protected override bool ClearInternal(object item)

@@ -76,7 +76,7 @@ namespace MugenMvvm.Internal.Components
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            var dictionary = GetAttachedDictionary(item, false);
+            var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var value))
@@ -98,7 +98,7 @@ namespace MugenMvvm.Internal.Components
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(addValueFactory, nameof(addValueFactory));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            var dictionary = GetAttachedDictionary(item, false);
+            var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var value))
@@ -118,7 +118,7 @@ namespace MugenMvvm.Internal.Components
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
-            var dictionary = GetAttachedDictionary(item, false);
+            var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
@@ -133,7 +133,7 @@ namespace MugenMvvm.Internal.Components
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
-            var dictionary = GetAttachedDictionary(item, false);
+            var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
@@ -148,7 +148,7 @@ namespace MugenMvvm.Internal.Components
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
-            var dictionary = GetAttachedDictionary(item, false);
+            var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
                 dictionary[path] = BoxingExtensions.Box(value);
@@ -168,7 +168,7 @@ namespace MugenMvvm.Internal.Components
             bool removed;
             lock (dictionary)
             {
-                removed = dictionary.Remove(path);
+                removed = dictionary.Remove(path!);
                 clear = removed && dictionary.Count == 0;
             }
 
