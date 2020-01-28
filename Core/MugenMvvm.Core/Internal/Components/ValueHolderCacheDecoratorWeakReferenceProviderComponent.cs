@@ -20,9 +20,6 @@ namespace MugenMvvm.Internal.Components
 
         public IWeakReference? TryGetWeakReference(object item, IReadOnlyMetadataContext? metadata)
         {
-            if (item is IWeakReference w)
-                return w;
-
             if (item is IValueHolder<IWeakReference> holder)
             {
                 if (holder.Value == null)
