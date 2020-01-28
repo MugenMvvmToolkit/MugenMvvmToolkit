@@ -14,7 +14,7 @@ namespace MugenMvvm.Internal
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IAttachedValueProviderComponent?[] _components;
+        private IAttachedValueProviderComponent?[]? _components;
 
         #endregion
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Internal
 
         public IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null) where TItem : class
         {
-            return GetComponentOptional(item).TryGetValues(item, state, predicate) ?? Default.EmptyArray<KeyValuePair<string, object?>>();
+            return GetComponentOptional(item)?.TryGetValues(item, state, predicate) ?? Default.EmptyArray<KeyValuePair<string, object?>>();
         }
 
         public bool TryGet<TValue>(object item, string path, out TValue value)
@@ -40,7 +40,7 @@ namespace MugenMvvm.Internal
             var component = GetComponentOptional(item);
             if (component == null)
             {
-                value = default;
+                value = default!;
                 return false;
             }
 
