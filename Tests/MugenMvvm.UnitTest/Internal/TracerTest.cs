@@ -3,6 +3,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
+using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Components;
 using Should;
 using Xunit;
@@ -39,10 +40,8 @@ namespace MugenMvvm.UnitTest.Internal
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
-                var canCreate = count - 1 == i;
-                var component = new TestTracerComponent();
-                component.Priority = -i;
-                component.CanTrace = (level, metadata) =>
+                var canTrace = count - 1 == i;
+                var component = new DelegateTracerComponent((level, s, arg3, arg4) => { }, (level, metadata) =>
                 {
                     ++invokeCount;
                     level.ShouldEqual(traceLevelValue);
@@ -50,8 +49,9 @@ namespace MugenMvvm.UnitTest.Internal
                         metadata.ShouldEqual(DefaultMetadata);
                     else
                         metadata.ShouldBeNull();
-                    return canCreate;
-                };
+                    return canTrace;
+                });
+                component.Priority = -i;
                 tracer.AddComponent(component);
             }
 
@@ -75,10 +75,7 @@ namespace MugenMvvm.UnitTest.Internal
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
-                var canCreate = count - 1 == i;
-                var component = new TestTracerComponent();
-                component.Priority = -i;
-                component.Trace = (level, m, exc, metadata) =>
+                var component = new DelegateTracerComponent((level, m, exc, metadata) =>
                 {
                     ++invokeCount;
                     message.ShouldEqual(m);
@@ -88,7 +85,8 @@ namespace MugenMvvm.UnitTest.Internal
                         metadata.ShouldEqual(DefaultMetadata);
                     else
                         metadata.ShouldBeNull();
-                };
+                }, (level, context) => true);
+                component.Priority = -i;
                 tracer.AddComponent(component);
             }
 
