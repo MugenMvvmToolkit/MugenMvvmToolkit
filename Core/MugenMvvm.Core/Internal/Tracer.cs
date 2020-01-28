@@ -14,7 +14,8 @@ namespace MugenMvvm.Internal
     {
         #region Constructors
 
-        public Tracer(IComponentCollectionProvider? componentCollectionProvider) : base(componentCollectionProvider)
+        public Tracer(IComponentCollectionProvider? componentCollectionProvider = null)
+            : base(componentCollectionProvider)
         {
         }
 
