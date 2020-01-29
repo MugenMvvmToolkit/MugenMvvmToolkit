@@ -173,6 +173,8 @@ namespace MugenMvvm.Extensions
                 return Expression.Block(expression, type == typeof(object) ? NullConstantExpression : (Expression)Expression.Default(type));
             if (!exactly && !expression.Type.IsValueType && !type.IsValueType && type.IsAssignableFrom(expression.Type))
                 return expression;
+            if (type.IsByRef && expression is ParameterExpression parameterExpression && parameterExpression.IsByRef && parameterExpression.Type == type.GetElementType())
+                return expression;
             return Expression.Convert(expression, type);
         }
 

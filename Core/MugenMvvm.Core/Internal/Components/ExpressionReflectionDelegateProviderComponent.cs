@@ -195,41 +195,69 @@ namespace MugenMvvm.Internal.Components
         {
             var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
             var delegateParameters = delegateMethod.GetParameters();
-            if (delegateParameters.Length != 1 || delegateMethod.ReturnType == typeof(void))
+            if (delegateMethod.ReturnType == typeof(void))
                 return null;
 
-            var target = Expression.Parameter(delegateParameters[0].ParameterType);
-            return Expression
-                .Lambda(delegateType, Expression
-                    .MakeMemberAccess(member.IsStatic() ? null : target.ConvertIfNeed(member.DeclaringType, false), member)
-                    .ConvertIfNeed(delegateMethod.ReturnType, false), target)
-                .CompileEx();
+            LambdaExpression expression;
+            if (member.IsStatic())
+            {
+                if (delegateParameters.Length != 0)
+                    return null;
+                expression = Expression.Lambda(delegateType, Expression
+                    .MakeMemberAccess(null, member)
+                    .ConvertIfNeed(delegateMethod.ReturnType, false));
+            }
+            else
+            {
+                if (delegateParameters.Length != 1)
+                    return null;
+                var targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
+                expression = Expression.Lambda(delegateType, Expression
+                    .MakeMemberAccess(targetParameter.ConvertIfNeed(member.DeclaringType, false), member)
+                    .ConvertIfNeed(delegateMethod.ReturnType, false), targetParameter);
+            }
+            return expression.CompileEx();
         }
 
         public static Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType)
         {
             var delegateMethod = delegateType.GetMethodOrThrow(nameof(Action.Invoke), BindingFlagsEx.InstanceOnly);
             var delegateParameters = delegateMethod.GetParameters();
-            if (delegateParameters.Length != 2)
-                return null;
 
-            var fieldInfo = member as FieldInfo;
             Expression expression;
-            var targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
-            var valueParameter = Expression.Parameter(delegateParameters[1].ParameterType);
-            if (fieldInfo == null)
+            ParameterExpression targetParameter;
+            if (member.IsStatic())
+            {
+                if (delegateParameters.Length != 1)
+                    return null;
+                targetParameter = null;
+            }
+            else
+            {
+                if (delegateParameters.Length != 2)
+                    return null;
+                targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
+            }
+            var valueParameter = Expression.Parameter(delegateParameters[targetParameter == null ? 0 : 1].ParameterType);
+            if (member is FieldInfo fieldInfo)
+            {
+                expression = Expression.Assign(Expression.Field(fieldInfo.IsStatic ? null : targetParameter.ConvertIfNeed(member.DeclaringType, false), fieldInfo),
+                    valueParameter.ConvertIfNeed(fieldInfo.FieldType, false));
+            }
+            else
             {
                 var propertyInfo = member as PropertyInfo;
                 Should.MethodBeSupported(propertyInfo != null, MessageConstant.ShouldSupportOnlyFieldsReadonlyFields);
                 expression = Expression.Assign(Expression.Property(propertyInfo.IsStatic() ? null : targetParameter.ConvertIfNeed(member.DeclaringType, false), propertyInfo),
                     valueParameter.ConvertIfNeed(propertyInfo.PropertyType, false));
             }
-            else
-            {
-                expression = Expression.Assign(Expression.Field(fieldInfo.IsStatic ? null : targetParameter.ConvertIfNeed(member.DeclaringType, false), fieldInfo),
-                    valueParameter.ConvertIfNeed(fieldInfo.FieldType, false));
-            }
 
+            if (targetParameter == null)
+            {
+                return Expression
+                    .Lambda(delegateType, expression, valueParameter)
+                    .CompileEx();
+            }
             return Expression
                 .Lambda(delegateType, expression, targetParameter, valueParameter)
                 .CompileEx();
