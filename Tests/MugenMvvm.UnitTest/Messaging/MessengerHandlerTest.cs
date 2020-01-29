@@ -1,0 +1,53 @@
+﻿using MugenMvvm.Enums;
+using MugenMvvm.Messaging;
+using Should;
+using Xunit;
+
+namespace MugenMvvm.UnitTest.Messaging
+{
+    public class MessengerHandlerTest : UnitTestBase
+    {
+        #region Methods
+
+        [Fact]
+        public void IsEmptyShouldReturnTrueForDefault()
+        {
+            MessengerHandler handler = default;
+            handler.IsEmpty.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void HandleShouldReturnIgnoredDefault()
+        {
+            MessengerHandler handler = default;
+            handler.Handle(new MessageContext(new object(), new object(), DefaultMetadata)).ShouldEqual(MessengerResult.Ignored);
+        }
+
+        [Fact]
+        public void HandleShouldUseDelegate()
+        {
+            var messageContext = new MessageContext(new object(), new object(), DefaultMetadata);
+            var subscriber = new object();
+            var state = new object();
+            int invokeCount = 0;
+            var result = MessengerResult.Ignored;
+            var messengerHandler = new MessengerHandler((o, o1, arg3) =>
+            {
+                ++invokeCount;
+                o.ShouldEqual(subscriber);
+                o1.ShouldEqual(state);
+                arg3.ShouldEqual(messageContext);
+                return result;
+            }, subscriber, state);
+
+            messengerHandler.Handle(messageContext).ShouldEqual(result);
+            invokeCount.ShouldEqual(1);
+
+            result = MessengerResult.Handled;
+            messengerHandler.Handle(messageContext).ShouldEqual(result);
+            invokeCount.ShouldEqual(2);
+        }
+
+        #endregion
+    }
+}
