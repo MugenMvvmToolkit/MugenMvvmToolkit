@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Busy
         #region Methods
 
         [Fact]
-        public void ShouldNotifyListenersOnAttach()
+        public void OnAttachShouldNotifyListeners()
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Busy
         }
 
         [Fact]
-        public void ShouldNotifyListenersOnDetach()
+        public void OnDetachShouldNotifyListeners()
         {
             var count = 0;
             var busyManagerComponent = new BusyManagerComponent();

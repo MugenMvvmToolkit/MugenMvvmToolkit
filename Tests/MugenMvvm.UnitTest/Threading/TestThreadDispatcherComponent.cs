@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTest.Threading
     {
         #region Properties
 
-        public Func<ThreadExecutionMode, bool>? CanExecute { get; set; }
+        public Func<ThreadExecutionMode, bool>? CanExecuteInline { get; set; }
 
         public Action<Action<object?>, ThreadExecutionMode, object?, Type, IReadOnlyMetadataContext?> Execute { get; set; } = (action, _, state, __, ___) => action(state);
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Threading
 
         bool IThreadDispatcherComponent.CanExecuteInline(ThreadExecutionMode executionMode)
         {
-            return CanExecute?.Invoke(executionMode) ?? true;
+            return CanExecuteInline?.Invoke(executionMode) ?? true;
         }
 
         bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
