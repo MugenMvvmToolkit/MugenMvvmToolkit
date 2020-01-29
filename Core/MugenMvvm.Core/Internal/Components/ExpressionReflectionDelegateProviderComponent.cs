@@ -225,7 +225,7 @@ namespace MugenMvvm.Internal.Components
             var delegateParameters = delegateMethod.GetParameters();
 
             Expression expression;
-            ParameterExpression targetParameter;
+            ParameterExpression? targetParameter;
             if (member.IsStatic())
             {
                 if (delegateParameters.Length != 1)

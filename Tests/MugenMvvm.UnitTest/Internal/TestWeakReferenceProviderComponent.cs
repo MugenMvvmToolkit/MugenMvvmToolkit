@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Internal
     {
         #region Properties
 
-        public Func<object, IReadOnlyMetadataContext?, IWeakReference?> TryGetWeakReference { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, IWeakReference?>? TryGetWeakReference { get; set; }
 
         public int Priority { get; set; }
 

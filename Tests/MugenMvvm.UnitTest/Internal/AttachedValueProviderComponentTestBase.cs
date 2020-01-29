@@ -40,11 +40,11 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var item = GetSupportedItem();
             var component = GetComponent();
-            var hashSet = new HashSet<KeyValuePair<string, object>>();
-            var values = new List<KeyValuePair<string, object>>();
+            var hashSet = new HashSet<KeyValuePair<string, object?>>();
+            var values = new List<KeyValuePair<string, object?>>();
             for (var i = 0; i < count; i++)
             {
-                var pair = new KeyValuePair<string, object>(TestPath + i, i);
+                var pair = new KeyValuePair<string, object?>(TestPath + i, i);
                 component.Set(item, pair.Key, pair.Value);
                 values.Add(pair);
             }

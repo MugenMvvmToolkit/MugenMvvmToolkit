@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Internal
 
         public Func<Type, MethodInfo, bool>? CanCreateDelegate { get; set; }
 
-        public Func<Type, object?, MethodInfo, Delegate>? TryCreateDelegate { get; set; }
+        public Func<Type, object?, MethodInfo, Delegate?>? TryCreateDelegate { get; set; }
 
         public int Priority { get; set; }
 
