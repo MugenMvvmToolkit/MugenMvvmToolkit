@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.UnitTest.Messaging
 {
-    public class TestMessengerSubscriberComponent : IMessengerSubscriberComponent
+    public class TestMessengerSubscriberComponent : IMessengerSubscriberComponent, IHasPriority
     {
         #region Properties
 
@@ -20,6 +21,8 @@ namespace MugenMvvm.UnitTest.Messaging
         public Func<Type, IReadOnlyMetadataContext?, IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>?>? TryGetMessengerHandlers { get; set; }
 
         public Func<IReadOnlyMetadataContext?, IReadOnlyList<MessengerSubscriberInfo>?>? TryGetSubscribers { get; set; }
+
+        public int Priority { get; set; }
 
         #endregion
 
