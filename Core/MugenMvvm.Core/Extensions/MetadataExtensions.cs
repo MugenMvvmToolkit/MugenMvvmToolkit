@@ -55,7 +55,7 @@ namespace MugenMvvm.Extensions
         {
             if (metadataContext is IMetadataContext m)
                 return m;
-            LazyInitialize(ref metadataContext, metadataContext.ToNonReadonly(target, metadataContextProvider));
+            metadataContext = metadataContext.ToNonReadonly(target, metadataContextProvider);
             return (IMetadataContext)metadataContext;
         }
 
