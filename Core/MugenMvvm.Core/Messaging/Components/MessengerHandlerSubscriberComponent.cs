@@ -15,7 +15,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Messaging.Components
 {
-    public sealed class MessengerHandlerComponent : HashSet<MessengerHandlerComponent.HandlerSubscriber>, IMessengerSubscriberComponent, IAttachableComponent, IDetachableComponent, IHasPriority
+    public sealed class MessengerHandlerSubscriberComponent : HashSet<MessengerHandlerSubscriberComponent.HandlerSubscriber>, IMessengerSubscriberComponent, IAttachableComponent, IDetachableComponent, IHasPriority
     {
         #region Fields
 
@@ -29,7 +29,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Constructors
 
-        public MessengerHandlerComponent(IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public MessengerHandlerSubscriberComponent(IReflectionDelegateProvider? reflectionDelegateProvider = null)
             : base(HandlerSubscriberEqualityComparer.Instance)
         {
             _reflectionDelegateProvider = reflectionDelegateProvider;

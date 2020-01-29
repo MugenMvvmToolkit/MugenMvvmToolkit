@@ -59,7 +59,7 @@ namespace MugenMvvm.ViewModels.Components
             {
                 var messenger = new Messenger(_componentCollectionProvider, _metadataContextProvider);
                 messenger.Components.Add(new MessagePublisherComponent(_threadDispatcher), metadata);
-                messenger.Components.Add(new MessengerHandlerComponent(_reflectionDelegateProvider), metadata);
+                messenger.Components.Add(new MessengerHandlerSubscriberComponent(_reflectionDelegateProvider), metadata);
                 return messenger;
             }
 
