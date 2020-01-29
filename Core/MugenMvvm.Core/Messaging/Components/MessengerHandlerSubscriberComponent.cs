@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -33,6 +35,7 @@ namespace MugenMvvm.Messaging.Components
             : base(HandlerSubscriberEqualityComparer.Instance)
         {
             _reflectionDelegateProvider = reflectionDelegateProvider;
+            ExecutionMode = ThreadExecutionMode.Current;
         }
 
         #endregion
@@ -40,6 +43,8 @@ namespace MugenMvvm.Messaging.Components
         #region Properties
 
         public int Priority { get; set; } = MessengerComponentPriority.Subscriber;
+
+        public ThreadExecutionMode ExecutionMode { get; set; }
 
         #endregion
 
@@ -53,7 +58,6 @@ namespace MugenMvvm.Messaging.Components
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             _messenger = owner as IMessenger;
-            _messenger.TryInvalidateCache(metadata);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -65,24 +69,28 @@ namespace MugenMvvm.Messaging.Components
         {
             if (ReferenceEquals(_messenger, owner))
             {
-                _messenger.TryInvalidateCache(metadata);
+                TryUnsubscribeAll(metadata);
                 _messenger = null;
             }
         }
 
         public bool TrySubscribe<TSubscriber>(in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
+            if (_messenger == null)
+                return false;
             if (Default.IsValueType<TSubscriber>())
                 return false;
             if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandler handler)
-                return Add(new HandlerSubscriber(weakReference, handler.GetHashCode(), executionMode), metadata);
+                return Add(new HandlerSubscriber(weakReference, RuntimeHelpers.GetHashCode(handler), executionMode ?? ExecutionMode), metadata);
             if (subscriber is IMessengerHandler)
-                return Add(new HandlerSubscriber(subscriber, subscriber.GetHashCode(), executionMode), metadata);
+                return Add(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), executionMode ?? ExecutionMode), metadata);
             return false;
         }
 
         public bool TryUnsubscribe<TSubscriber>(in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
         {
+            if (_messenger == null)
+                return false;
             if (typeof(TSubscriber) == typeof(HandlerSubscriber))
                 return Remove(MugenExtensions.CastGeneric<TSubscriber, HandlerSubscriber>(subscriber), metadata);
             if (Default.IsValueType<TSubscriber>())
@@ -92,11 +100,11 @@ namespace MugenMvvm.Messaging.Components
                 var target = weakReference.Target;
                 if (target == null)
                     return Remove(weakReference, metadata);
-                return Remove(new HandlerSubscriber(target, subscriber.GetHashCode(), null), metadata);
+                return Remove(new HandlerSubscriber(target, RuntimeHelpers.GetHashCode(target), ExecutionMode), metadata);
             }
 
             if (subscriber is IMessengerHandler)
-                return Remove(new HandlerSubscriber(subscriber, subscriber.GetHashCode(), null), metadata);
+                return Remove(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), ExecutionMode), metadata);
 
             return false;
         }
@@ -140,19 +148,11 @@ namespace MugenMvvm.Messaging.Components
             }
 
             var toRemoveList = toRemove.List;
-            if (toRemoveList != null)
+            var messenger = _messenger;
+            if (toRemoveList != null && messenger != null)
             {
-                var messenger = _messenger;
-                if (messenger == null)
-                {
-                    for (var i = 0; i < toRemoveList.Count; i++)
-                        Remove(toRemoveList[i], metadata);
-                }
-                else
-                {
-                    for (var i = 0; i < toRemoveList.Count; i++)
-                        messenger.Unsubscribe(toRemoveList[i], metadata);
-                }
+                for (var i = 0; i < toRemoveList.Count; i++)
+                    messenger.Unsubscribe(toRemoveList[i], metadata);
             }
 
             return result.List;
@@ -172,6 +172,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Methods
 
+        [Preserve(Conditional = true)]
         private static MessengerResult Handle(object subscriber, object? handler, IMessageContext context)
         {
             if (subscriber is IWeakReference weakReference)
@@ -183,6 +184,7 @@ namespace MugenMvvm.Messaging.Components
             return MessengerResult.Handled;
         }
 
+        [Preserve(Conditional = true)]
         private static MessengerResult HandleRaw(object subscriber, object? _, IMessageContext context)
         {
             if (subscriber is IWeakReference weakReference)
@@ -238,7 +240,7 @@ namespace MugenMvvm.Messaging.Components
             return result;
         }
 
-        public static Action<object?, object?, IMessageContext>? GetHandler(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, Type messageType)
+        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, Type messageType)
         {
             var key = new CacheKey(handlerType, messageType);
             lock (Cache)
@@ -312,11 +314,11 @@ namespace MugenMvvm.Messaging.Components
 
             #region Constructors
 
-            public HandlerSubscriber(object subscriber, int hashCode, ThreadExecutionMode? executionMode)
+            public HandlerSubscriber(object subscriber, int hashCode, ThreadExecutionMode executionMode)
             {
                 Subscriber = subscriber;
                 Hash = hashCode;
-                ExecutionMode = executionMode ?? ThreadExecutionMode.Current;
+                ExecutionMode = executionMode;
             }
 
             #endregion
