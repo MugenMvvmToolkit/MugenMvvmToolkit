@@ -12,7 +12,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Metadata
 {
-    public class MetaContextTest : ReadOnlyMetadataContextTestBase
+    public class MetadataContextTest : ReadOnlyMetadataContextTestBase
     {
         #region Fields
 
