@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public void TryGetReadOnlyMetadataContextShouldReturnMetadataContextDefault()
         {
             var component = new MetadataContextProviderComponent();
-            var context = component.TryGetReadOnlyMetadataContext(this, default);
+            var context = component.TryGetReadOnlyMetadataContext(this, default)!;
             context.ShouldEqual(Default.Metadata);
             EnumeratorCountTest(context, new List<MetadataContextValue>());
             ContainsTest(context, new List<MetadataContextValue>());
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Metadata
             var contextKey = MetadataContextKey.FromKey<int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var component = new MetadataContextProviderComponent();
-            var context = component.TryGetReadOnlyMetadataContext(this, value);
+            var context = component.TryGetReadOnlyMetadataContext(this, value)!;
             EnumeratorCountTest(context, new List<MetadataContextValue> {value});
             ContainsTest(context, new List<MetadataContextValue> {value});
             TryGetTest(context, contextKey, intValue);
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Metadata
             }
 
             var component = new MetadataContextProviderComponent();
-            var context = component.TryGetReadOnlyMetadataContext(this, values);
+            var context = component.TryGetReadOnlyMetadataContext(this, values)!;
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Metadata
             }
 
             var component = new MetadataContextProviderComponent();
-            var context = component.TryGetMetadataContext(this, values);
+            var context = component.TryGetMetadataContext(this, values)!;
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
