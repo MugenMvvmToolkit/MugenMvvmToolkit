@@ -437,7 +437,7 @@ namespace MugenMvvm.UnitTest.Metadata
                         ++listenerInvokedCount;
                         metadataContext.ShouldEqual(context);
                         keyValues.Any(tuple => tuple.Item1.Equals(key)).ShouldBeTrue();
-                        keyValues.Any(tuple => arg3.Equals(tuple.Item2)).ShouldBeTrue();
+                        keyValues.Any(tuple => arg3!.Equals(tuple.Item2)).ShouldBeTrue();
                     },
                     OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
@@ -471,8 +471,8 @@ namespace MugenMvvm.UnitTest.Metadata
                         ++listenerInvokedCount;
                         metadataContext.ShouldEqual(context);
                         keyValues.Any(tuple => tuple.Item1.Equals(key)).ShouldBeTrue();
-                        oldValues.Any(tuple => oldV.Equals(tuple.Item2)).ShouldBeTrue();
-                        keyValues.Any(tuple => newV.Equals(tuple.Item2)).ShouldBeTrue();
+                        oldValues.Any(tuple => oldV!.Equals(tuple.Item2)).ShouldBeTrue();
+                        keyValues.Any(tuple => newV!.Equals(tuple.Item2)).ShouldBeTrue();
                     },
                     OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
@@ -578,7 +578,7 @@ namespace MugenMvvm.UnitTest.Metadata
                         ++listenerInvokedCount;
                         metadataContext.ShouldEqual(context);
                         keyValues.Any(tuple => tuple.Item1.Equals(key)).ShouldBeTrue();
-                        keyValues.Any(tuple => arg3.Equals(tuple.Item2)).ShouldBeTrue();
+                        keyValues.Any(tuple => arg3!.Equals(tuple.Item2)).ShouldBeTrue();
                     }
                 });
             }

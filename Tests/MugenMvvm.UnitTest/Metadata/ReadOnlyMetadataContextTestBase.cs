@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Metadata
 
         #region Methods
 
-        private static string Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string> arg2, object? arg3)
+        private static string? Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string?> arg2, object? arg3)
         {
             ++GetterCount;
             arg2.ShouldEqual(CustomGetterKey);
