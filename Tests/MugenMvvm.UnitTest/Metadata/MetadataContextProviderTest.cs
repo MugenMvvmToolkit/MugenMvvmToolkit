@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
@@ -12,6 +13,18 @@ namespace MugenMvvm.UnitTest.Metadata
     public class MetadataContextProviderTest : ComponentOwnerTestBase<MetadataContextProvider>
     {
         #region Methods
+
+        [Fact]
+        public void GetReadOnlyMetadataContextShouldThrowNoComponents()
+        {
+            ShouldThrow<InvalidOperationException>(() => new MetadataContextProvider().GetReadOnlyMetadataContext());
+        }
+
+        [Fact]
+        public void GetMetadataContextShouldThrowNoComponents()
+        {
+            ShouldThrow<InvalidOperationException>(() => new MetadataContextProvider().GetMetadataContext());
+        }
 
         [Theory]
         [InlineData(1)]
