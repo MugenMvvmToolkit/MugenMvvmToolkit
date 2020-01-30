@@ -48,7 +48,6 @@ namespace MugenMvvm.Metadata
 
         public static MetadataContextValue Create(KeyValuePair<IMetadataContextKey, object?> pair)
         {
-            Should.NotBeNull(pair.Key, nameof(pair.Key));
             return new MetadataContextValue(pair);
         }
 
