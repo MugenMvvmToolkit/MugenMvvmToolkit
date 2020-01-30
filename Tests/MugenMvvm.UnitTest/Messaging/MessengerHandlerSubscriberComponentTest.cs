@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Messaging
             {
                 var handler = new TestMessengerHandler().ToWeakReference();
                 if (keepAlive)
-                    list.Add(handler.Target);
+                    list.Add(handler.Target!);
                 ThreadExecutionMode.TryParse(i, out var mode);
                 component.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
 
@@ -201,7 +201,7 @@ namespace MugenMvvm.UnitTest.Messaging
                 component.TrySubscribe(handler, ThreadExecutionMode.Current, null);
 
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata);
+            var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -209,7 +209,7 @@ namespace MugenMvvm.UnitTest.Messaging
             invokedStringCount.ShouldEqual(0);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata);
+            handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -246,14 +246,14 @@ namespace MugenMvvm.UnitTest.Messaging
                 component.TrySubscribe(handler, ThreadExecutionMode.Current, null);
 
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata);
+            var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata);
+            handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
             handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
             handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
@@ -295,7 +295,7 @@ namespace MugenMvvm.UnitTest.Messaging
                 component.TrySubscribe(handler, ThreadExecutionMode.Current, null);
 
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
-            var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata);
+            var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata)!;
             canHandleType.ShouldEqual(typeof(int));
             handlers.Count.ShouldEqual(1);
             handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
@@ -303,7 +303,7 @@ namespace MugenMvvm.UnitTest.Messaging
             invokedCount.ShouldEqual(1);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
-            handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata);
+            handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata)!;
             canHandleType.ShouldEqual(typeof(string));
             handlers.Count.ShouldEqual(1);
             handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
@@ -321,7 +321,7 @@ namespace MugenMvvm.UnitTest.Messaging
             var weakRef = handler.ToWeakReference();
             component.TrySubscribe(weakRef, null, null);
 
-            component.TryGetMessengerHandlers(typeof(string), null).Count.ShouldEqual(1);
+            component.TryGetMessengerHandlers(typeof(string), null)!.Count.ShouldEqual(1);
             weakRef.Release();
             component.TryGetMessengerHandlers(typeof(string), null).ShouldBeNull();
         }
@@ -340,7 +340,7 @@ namespace MugenMvvm.UnitTest.Messaging
             var weakRef = handler.ToWeakReference();
             component.TrySubscribe(weakRef, null, null);
 
-            var handlers = component.TryGetMessengerHandlers(typeof(string), null);
+            var handlers = component.TryGetMessengerHandlers(typeof(string), null)!;
             weakRef.Release();
             handlers[0].Item2.Handle(new MessageContext(this, "", null)).ShouldEqual(MessengerResult.Invalid);
         }

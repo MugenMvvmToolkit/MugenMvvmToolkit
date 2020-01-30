@@ -10,6 +10,13 @@ namespace MugenMvvm.UnitTest.Metadata
         #region Methods
 
         [Fact]
+        public void TryGetShouldUseCustomGetter()
+        {
+            var context = new ReadOnlyMetadataContext(new[] { MetadataContextValue.Create(CustomGetterKey, DefaultGetterValue) });
+            TryGetGetterTest(context);
+        }
+
+        [Fact]
         public void TryGetShouldUseDefaultValues()
         {
             var context = new ReadOnlyMetadataContext(new MetadataContextValue[0]);

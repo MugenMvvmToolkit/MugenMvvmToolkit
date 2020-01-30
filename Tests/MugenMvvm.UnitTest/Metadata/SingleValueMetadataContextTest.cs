@@ -9,6 +9,13 @@ namespace MugenMvvm.UnitTest.Metadata
         #region Methods
 
         [Fact]
+        public void TryGetShouldUseCustomGetter()
+        {
+            var context = new SingleValueMetadataContext(MetadataContextValue.Create(CustomGetterKey, DefaultGetterValue));
+            TryGetGetterTest(context);
+        }
+
+        [Fact]
         public void TryGetShouldUseDefaultValues()
         {
             var context = new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<int>("t"), 1));

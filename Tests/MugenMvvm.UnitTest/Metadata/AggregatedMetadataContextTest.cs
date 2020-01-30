@@ -9,6 +9,13 @@ namespace MugenMvvm.UnitTest.Metadata
         #region Methods
 
         [Fact]
+        public void TryGetShouldUseCustomGetter()
+        {
+            var context = new AggregatedMetadataContext(new SingleValueMetadataContext(MetadataContextValue.Create(CustomGetterKey, DefaultGetterValue)));
+            TryGetGetterTest(context);
+        }
+
+        [Fact]
         public void TryGetShouldUseDefaultValues()
         {
             var context = new AggregatedMetadataContext();
@@ -21,9 +28,9 @@ namespace MugenMvvm.UnitTest.Metadata
             var contextKey1 = MetadataContextKey.FromKey<object>("1");
             var value1 = MetadataContextValue.Create(contextKey1, 1);
             var context = new AggregatedMetadataContext(new SingleValueMetadataContext(value1));
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value1});
-            ContainsTest(context, new List<MetadataContextValue> {value1});
-            TryGetTest(context, contextKey1, value1.Value);
+            EnumeratorCountTest(context, new List<MetadataContextValue> { value1 });
+            ContainsTest(context, new List<MetadataContextValue> { value1 });
+            TryGetTest(context, contextKey1!, value1.Value);
         }
 
         [Fact]
@@ -36,10 +43,10 @@ namespace MugenMvvm.UnitTest.Metadata
             var value2 = MetadataContextValue.Create(contextKey2, 2);
 
             var context = new AggregatedMetadataContext(new SingleValueMetadataContext(value1), new SingleValueMetadataContext(value2));
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value1, value2});
-            ContainsTest(context, new List<MetadataContextValue> {value1, value2});
-            TryGetTest(context, contextKey1, value1.Value);
-            TryGetTest(context, contextKey2, (int) value2.Value);
+            EnumeratorCountTest(context, new List<MetadataContextValue> { value1, value2 });
+            ContainsTest(context, new List<MetadataContextValue> { value1, value2 });
+            TryGetTest(context, contextKey1!, value1.Value);
+            TryGetTest(context, contextKey2!, (int)value2.Value!);
         }
 
         [Fact]
@@ -55,11 +62,11 @@ namespace MugenMvvm.UnitTest.Metadata
             var value3 = MetadataContextValue.Create(contextKey3, "");
 
             var context = new AggregatedMetadataContext(new SingleValueMetadataContext(value1), new SingleValueMetadataContext(value2), new SingleValueMetadataContext(value3));
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value1, value2, value3});
-            ContainsTest(context, new List<MetadataContextValue> {value1, value2, value3});
-            TryGetTest(context, contextKey1, value1.Value);
-            TryGetTest(context, contextKey2, (int) value2.Value);
-            TryGetTest(context, contextKey3, (string) value3.Value);
+            EnumeratorCountTest(context, new List<MetadataContextValue> { value1, value2, value3 });
+            ContainsTest(context, new List<MetadataContextValue> { value1, value2, value3 });
+            TryGetTest(context, contextKey1!, value1.Value);
+            TryGetTest(context, contextKey2!, (int)value2.Value!);
+            TryGetTest(context, contextKey3!, (string)value3.Value!);
         }
 
         [Theory]
