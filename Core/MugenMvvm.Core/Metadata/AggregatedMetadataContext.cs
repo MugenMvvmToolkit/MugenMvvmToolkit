@@ -18,12 +18,12 @@ namespace MugenMvvm.Metadata
         public AggregatedMetadataContext(IReadOnlyMetadataContext? m1 = null, IReadOnlyMetadataContext? m2 = null, IReadOnlyMetadataContext? m3 = null)
         {
             _list = new List<IReadOnlyMetadataContext>();
-            if (m3 != null)
-                _list.Add(m3);
-            if (m2 != null)
-                _list.Add(m2);
             if (m1 != null)
                 _list.Add(m1);
+            if (m2 != null)
+                _list.Add(m2);
+            if (m3 != null)
+                _list.Add(m3);
         }
 
         #endregion
@@ -73,10 +73,13 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        public void Aggregate(IReadOnlyMetadataContext metadata)
+        public void Aggregate(IReadOnlyMetadataContext metadata, bool toEnd = true)
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            _list.Insert(0, metadata);
+            if (toEnd)
+                _list.Add(metadata);
+            else
+                _list.Insert(0, metadata);
         }
 
         #endregion

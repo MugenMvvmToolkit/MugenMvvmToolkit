@@ -47,7 +47,7 @@ namespace MugenMvvm.Extensions
                     currentMetadata = aggregatedMetadata;
                 }
 
-                aggregatedMetadata.Aggregate(metadata!);
+                aggregatedMetadata.Aggregate(metadata!, false);
             }
         }
 
