@@ -126,11 +126,11 @@ namespace MugenMvvm.Metadata
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            T result;
             object? newValue, oldValue;
             bool added;
             lock (this)
             {
+                T result;
                 if (_dictionary.TryGetValue(contextKey, out oldValue))
                 {
                     result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state);
@@ -150,7 +150,7 @@ namespace MugenMvvm.Metadata
                 OnAdded(contextKey, newValue);
             else
                 OnChanged(contextKey, oldValue, newValue);
-            return result;
+            return contextKey.GetValue(this, newValue);
         }
 
         public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, TState, T> valueFactory,
@@ -158,11 +158,11 @@ namespace MugenMvvm.Metadata
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
-            T result;
             object? newValue, oldValue;
             bool added;
             lock (this)
             {
+                T result;
                 if (_dictionary.TryGetValue(contextKey, out oldValue))
                 {
                     result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state);
@@ -182,7 +182,7 @@ namespace MugenMvvm.Metadata
                 OnAdded(contextKey, newValue);
             else
                 OnChanged(contextKey, oldValue, newValue);
-            return result;
+            return contextKey.GetValue(this, newValue);
         }
 
         public T GetOrAdd<T>(IMetadataContextKey<T> contextKey, T value)
@@ -193,10 +193,7 @@ namespace MugenMvvm.Metadata
             lock (this)
             {
                 if (_dictionary.TryGetValue(contextKey, out valueObj))
-                {
-                    value = contextKey.GetValue(this, valueObj);
                     added = false;
-                }
                 else
                 {
                     valueObj = contextKey.SetValue(this, null, value);
@@ -207,7 +204,7 @@ namespace MugenMvvm.Metadata
 
             if (added)
                 OnAdded(contextKey, valueObj);
-            return value;
+            return contextKey.GetValue(this, valueObj);
         }
 
         public T GetOrAdd<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, TState, T> valueFactory)
@@ -216,18 +213,13 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(valueFactory, nameof(valueFactory));
             object? value;
             bool added;
-            T newValue;
             lock (this)
             {
                 if (_dictionary.TryGetValue(contextKey, out value))
-                {
-                    newValue = contextKey.GetValue(this, value);
                     added = false;
-                }
                 else
                 {
-                    newValue = valueFactory(this, state);
-                    value = contextKey.SetValue(this, null, newValue);
+                    value = contextKey.SetValue(this, null, valueFactory(this, state));
                     _dictionary[contextKey] = value;
                     added = true;
                 }
@@ -235,7 +227,7 @@ namespace MugenMvvm.Metadata
 
             if (added)
                 OnAdded(contextKey, value);
-            return newValue;
+            return contextKey.GetValue(this, value);
         }
 
         public void Set<T>(IMetadataContextKey<T> contextKey, T value)
@@ -266,11 +258,9 @@ namespace MugenMvvm.Metadata
                 {
                     foreach (var item in items)
                     {
-                        KeyValuePair<MetadataContextValue, object?> value;
-                        if (_dictionary.TryGetValue(item.ContextKey, out var oldValue))
-                            value = new KeyValuePair<MetadataContextValue, object?>(item, oldValue);
-                        else
-                            value = new KeyValuePair<MetadataContextValue, object?>(item, this);
+                        var value = _dictionary.TryGetValue(item.ContextKey, out var oldValue)
+                            ? new KeyValuePair<MetadataContextValue, object?>(item, oldValue)
+                            : new KeyValuePair<MetadataContextValue, object?>(item, this);
                         values.Add(value);
                         _dictionary[item.ContextKey] = item.Value;
                     }
@@ -295,9 +285,46 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        bool IMetadataContext.Remove(IMetadataContextKey contextKey)
+        public bool Clear(IMetadataContextKey? contextKey = null)
         {
-            Should.NotBeNull(contextKey, nameof(contextKey));
+            if (contextKey != null)
+                return ClearInternal(contextKey);
+            if (HasComponents)
+            {
+                KeyValuePair<IMetadataContextKey, object?>[] oldValues;
+                lock (this)
+                {
+                    if (_dictionary.Count == 0)
+                        return false;
+                    oldValues = _dictionary.ToArray();
+                    _dictionary.Clear();
+                }
+
+                for (var i = 0; i < oldValues.Length; i++)
+                {
+                    var pair = oldValues[i];
+                    OnRemoved(pair.Key, pair.Value);
+                }
+            }
+            else
+            {
+                lock (this)
+                {
+                    if (_dictionary.Count == 0)
+                        return false;
+                    _dictionary.Clear();
+                }
+            }
+
+            return true;
+        }
+
+        #endregion
+
+        #region Methods
+
+        private bool ClearInternal(IMetadataContextKey contextKey)
+        {
             if (HasComponents)
             {
                 bool changed;
@@ -319,38 +346,6 @@ namespace MugenMvvm.Metadata
                 return Count != 0 && _dictionary.Remove(contextKey);
             }
         }
-
-        void IMetadataContext.Clear()
-        {
-            if (HasComponents)
-            {
-                KeyValuePair<IMetadataContextKey, object?>[] oldValues;
-                lock (this)
-                {
-                    if (Count == 0)
-                        return;
-                    oldValues = _dictionary.ToArray();
-                    _dictionary.Clear();
-                }
-
-                for (var i = 0; i < oldValues.Length; i++)
-                {
-                    var pair = oldValues[i];
-                    OnRemoved(pair.Key, pair.Value);
-                }
-            }
-            else
-            {
-                lock (this)
-                {
-                    _dictionary.Clear();
-                }
-            }
-        }
-
-        #endregion
-
-        #region Methods
 
         private void OnAdded(IMetadataContextKey key, object? newValue)
         {

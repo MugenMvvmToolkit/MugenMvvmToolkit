@@ -259,7 +259,11 @@ namespace MugenMvvm.Metadata
             public T GetValue(IReadOnlyMetadataContext metadataContext, object? value)
             {
                 if (GetValueFunc == null)
+                {
+                    if (value == null)
+                        return default;
                     return (T)value!;
+                }
                 return GetValueFunc(metadataContext, this, value);
             }
 
