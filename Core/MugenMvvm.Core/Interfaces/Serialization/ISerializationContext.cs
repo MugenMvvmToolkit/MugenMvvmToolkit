@@ -4,6 +4,5 @@ namespace MugenMvvm.Interfaces.Serialization
 {
     public interface ISerializationContext : IMetadataOwner<IMetadataContext>
     {
-        ISerializer Serializer { get; }
     }
 }

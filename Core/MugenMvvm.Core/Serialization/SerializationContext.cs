@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 
@@ -6,14 +7,19 @@ namespace MugenMvvm.Serialization
 {
     public sealed class SerializationContext : ISerializationContext
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private IReadOnlyMetadataContext? _metadata;
+
+        #endregion
+
         #region Constructors
 
-        public SerializationContext(ISerializer serializer, IMetadataContext metadata)
+        public SerializationContext(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider = null)
         {
-            Should.NotBeNull(serializer, nameof(serializer));
-            Should.NotBeNull(metadata, nameof(metadata));
-            Metadata = metadata;
-            Serializer = serializer;
+            _metadata = metadata;
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
@@ -23,11 +29,17 @@ namespace MugenMvvm.Serialization
         [field: ThreadStatic]
         public static ISerializationContext? CurrentSerializationContext { get; private set; }
 
-        public bool HasMetadata => Metadata.Count != 0;
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata { get; }
-
-        public ISerializer Serializer { get; }
+        public IMetadataContext Metadata
+        {
+            get
+            {
+                if (_metadata is IMetadataContext ctx)
+                    return ctx;
+                return _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
+            }
+        }
 
         #endregion
 
