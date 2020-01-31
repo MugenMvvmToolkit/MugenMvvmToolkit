@@ -59,7 +59,7 @@ namespace MugenMvvm.Views.Components
                     Owner.GetComponents<IViewManagerListener>().OnViewCleared(Owner, oldView, viewModel, metadata);
                 }
 
-                resultView = new View(mapping, view, null, _metadataContextProvider);
+                resultView = new View(mapping, view, metadata, _metadataContextProvider);
                 views[mapping.Id] = resultView;
             }
 

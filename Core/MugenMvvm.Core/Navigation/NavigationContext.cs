@@ -1,23 +1,17 @@
 ﻿using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Navigation
 {
-    public sealed class NavigationContext : INavigationContext
+    public sealed class NavigationContext : MetadataOwnerBase, INavigationContext
     {
-        #region Fields
-
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-        private IReadOnlyMetadataContext? _metadata;
-
-        #endregion
-
         #region Constructors
 
         public NavigationContext(INavigationProvider navigationProvider, NavigationType navigationType, string navigationOperationId,
-            NavigationMode navigationMode, IMetadataContextProvider? metadataContextProvider, IReadOnlyMetadataContext? metadata)
+            NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+            : base(metadata, metadataContextProvider)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
@@ -27,25 +21,11 @@ namespace MugenMvvm.Navigation
             NavigationOperationId = navigationOperationId;
             NavigationProvider = navigationProvider;
             NavigationMode = navigationMode;
-            _metadataContextProvider = metadataContextProvider;
-            _metadata = metadata;
         }
 
         #endregion
 
         #region Properties
-
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata is IMetadataContext ctx)
-                    return ctx;
-                return _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
-            }
-        }
 
         public NavigationMode NavigationMode { get; }
 

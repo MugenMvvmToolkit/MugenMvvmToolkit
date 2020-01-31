@@ -1,14 +1,17 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Navigation
 {
-    public sealed class NavigationEntry : INavigationEntry
+    public sealed class NavigationEntry : MetadataOwnerBase, INavigationEntry
     {
         #region Constructors
 
-        public NavigationEntry(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType, IMetadataContext metadata)
+        public NavigationEntry(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType,
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+            : base(metadata, metadataContextProvider)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
@@ -17,16 +20,11 @@ namespace MugenMvvm.Navigation
             NavigationType = navigationType;
             NavigationOperationId = navigationOperationId;
             NavigationProvider = navigationProvider;
-            Metadata = metadata;
         }
 
         #endregion
 
         #region Properties
-
-        public bool HasMetadata => Metadata.Count != 0;
-
-        public IMetadataContext Metadata { get; }
 
         public string NavigationOperationId { get; }
 

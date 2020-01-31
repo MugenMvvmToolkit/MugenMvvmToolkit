@@ -6,25 +6,23 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class ExpressionConverterContext<TExpression> : IExpressionConverterContext<TExpression> where TExpression : class
+    public sealed class ExpressionConverterContext<TExpression> : MetadataOwnerBase, IExpressionConverterContext<TExpression> where TExpression : class
     {
         #region Fields
 
         private readonly ExpressionDictionary _expressionsDict;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
         private IExpressionConverterParserComponent<TExpression>[] _converters;
-        private IMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
         {
-            _metadataContextProvider = metadataContextProvider;
             _expressionsDict = new ExpressionDictionary();
             _converters = Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
         }
@@ -32,18 +30,6 @@ namespace MugenMvvm.Binding.Parsing
         #endregion
 
         #region Properties
-
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata == null)
-                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata;
-            }
-        }
 
         public IExpressionConverterParserComponent<TExpression>[] Converters
         {
@@ -96,7 +82,7 @@ namespace MugenMvvm.Binding.Parsing
         public void Initialize(IReadOnlyMetadataContext? metadata)
         {
             _expressionsDict.Clear();
-            _metadata?.Clear();
+            MetadataRaw?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);
         }

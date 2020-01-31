@@ -37,7 +37,7 @@ namespace MugenMvvm.Navigation.Components
         public INavigationContext? TryGetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
-            return new NavigationContext(navigationProvider, navigationType, navigationOperationId, navigationMode, _metadataContextProvider, metadata);
+            return new NavigationContext(navigationProvider, navigationType, navigationOperationId, navigationMode, metadata, _metadataContextProvider);
         }
 
         #endregion

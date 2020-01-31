@@ -6,17 +6,15 @@ using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class TokenParserContext : ITokenParserContext
+    public sealed class TokenParserContext : MetadataOwnerBase, ITokenParserContext
     {
         #region Fields
 
-        private readonly IMetadataContextProvider? _metadataContextProvider;
         private int? _limit;
-
-        private IMetadataContext? _metadata;
         private ITokenParserComponent[] _parsers;
         private int _position;
 
@@ -24,9 +22,8 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public TokenParserContext(IMetadataContextProvider? metadataContextProvider = null)
+        public TokenParserContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
         {
-            _metadataContextProvider = metadataContextProvider;
             Source = string.Empty;
             _parsers = Default.EmptyArray<ITokenParserComponent>();
         }
@@ -36,18 +33,6 @@ namespace MugenMvvm.Binding.Parsing
         #region Properties
 
         public string Source { get; private set; }
-
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata == null)
-                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata;
-            }
-        }
 
         public int Position
         {
@@ -110,7 +95,7 @@ namespace MugenMvvm.Binding.Parsing
             Source = source;
             Position = 0;
             Limit = null;
-            _metadata?.Clear();
+            MetadataRaw?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);
         }

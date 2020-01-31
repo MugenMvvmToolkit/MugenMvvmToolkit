@@ -1,24 +1,17 @@
-﻿using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Messaging;
+﻿using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Messaging
 {
-    public sealed class MessageContext : IMessageContext
+    public sealed class MessageContext : MetadataOwnerBase, IMessageContext
     {
-        #region Fields
-
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-        private IReadOnlyMetadataContext? _metadata;
-
-        #endregion
-
         #region Constructors
 
-        public MessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider = null)
+        public MessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+            : base(metadata, metadataContextProvider)
         {
-            _metadata = metadata;
-            _metadataContextProvider = metadataContextProvider;
+            Should.NotBeNull(message, nameof(message));
             Sender = sender;
             Message = message;
         }
@@ -26,18 +19,6 @@ namespace MugenMvvm.Messaging
         #endregion
 
         #region Properties
-
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
-
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata is IMetadataContext ctx)
-                    return ctx;
-                return _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
-            }
-        }
 
         public object? Sender { get; }
 
