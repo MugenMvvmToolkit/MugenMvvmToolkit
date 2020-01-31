@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var type = NavigationType.Alert;
             var id = "t";
             var mode = NavigationMode.Remove;
-            var context = new NavigationContext(provider, type, id, mode);
+            var context = new NavigationContext(provider, id, type, mode);
             context.NavigationProvider.ShouldEqual(provider);
             context.NavigationType.ShouldEqual(type);
             context.NavigationOperationId.ShouldEqual(id);
@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Navigation
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new NavigationContext(new TestNavigationProvider(), NavigationType.Alert, "t", NavigationMode.Remove, metadata, metadataContextProvider);
+            return new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove, metadata, metadataContextProvider);
         }
 
         #endregion
