@@ -26,6 +26,6 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void OnNavigationFailed(INavigationContext navigationContext, Exception exception);
 
-        void OnNavigationCanceled(INavigationContext navigationContext);
+        void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken);
     }
 }

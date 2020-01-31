@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
@@ -26,7 +25,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(context, nameof(context));
             dispatcher.OnNavigatingAsync(context, cancellationToken)
-                .ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback), TaskContinuationOptions.ExecuteSynchronously);
+                .ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback, cancellationToken), TaskContinuationOptions.ExecuteSynchronously);
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider,
@@ -60,7 +59,7 @@ namespace MugenMvvm.Extensions
                 {
                     var callback = callbacks[j];
                     if (filter(callback))
-                        tasks.Add(callback.WaitAsync());
+                        tasks.Add(callback.AsTask());
                 }
             }
 
@@ -69,16 +68,24 @@ namespace MugenMvvm.Extensions
             return Task.WhenAll(tasks.List);
         }
 
+        public static Task<IReadOnlyMetadataContext> AsTask(this INavigationCallback callback)
+        {
+            Should.NotBeNull(callback, nameof(callback));
+            var result = new NavigationCallbackTaskListener();
+            callback.RegisterCallback(result);
+            return result.Task;
+        }
+
         private static void InvokeCompletedCallback(Task<bool> task, INavigationContext navigationContext,
             INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
-            Action<INavigationDispatcher, INavigationContext, Exception?>? fallback)
+            Action<INavigationDispatcher, INavigationContext, Exception?>? fallback, CancellationToken cancellationToken)
         {
             try
             {
                 if (task.IsCanceled)
                 {
                     fallback?.Invoke(dispatcher, navigationContext, null);
-                    dispatcher.OnNavigationCanceled(navigationContext);
+                    dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
                     return;
                 }
 
@@ -97,7 +104,7 @@ namespace MugenMvvm.Extensions
                 else
                 {
                     fallback?.Invoke(dispatcher, navigationContext, null);
-                    dispatcher.OnNavigationCanceled(navigationContext);
+                    dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
                 }
             }
             catch (Exception e)
@@ -105,6 +112,32 @@ namespace MugenMvvm.Extensions
                 fallback?.Invoke(dispatcher, navigationContext, e);
                 dispatcher.OnNavigationFailed(navigationContext, e);
             }
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class NavigationCallbackTaskListener : TaskCompletionSource<IReadOnlyMetadataContext>, INavigationCallbackListener
+        {
+            #region Implementation of interfaces
+
+            public void OnCompleted(IReadOnlyMetadataContext metadata)
+            {
+                TrySetResult(metadata);
+            }
+
+            public void OnError(Exception exception, IReadOnlyMetadataContext? metadata)
+            {
+                TrySetException(exception);
+            }
+
+            public void OnCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+            {
+                TrySetCanceled(cancellationToken);
+            }
+
+            #endregion
         }
 
         #endregion

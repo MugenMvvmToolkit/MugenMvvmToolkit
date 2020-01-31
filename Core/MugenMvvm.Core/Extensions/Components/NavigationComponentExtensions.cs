@@ -124,13 +124,13 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationFailed(navigationDispatcher, navigationContext, exception);
         }
 
-        public static void OnNavigationCanceled(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
+        public static void OnNavigationCanceled(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnNavigationCanceled(navigationDispatcher, navigationContext);
+                listeners[i].OnNavigationCanceled(navigationDispatcher, navigationContext, cancellationToken);
         }
 
         #endregion

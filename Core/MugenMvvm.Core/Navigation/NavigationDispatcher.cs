@@ -67,9 +67,9 @@ namespace MugenMvvm.Navigation
             GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationFailed(this, navigationContext, exception);
         }
 
-        public void OnNavigationCanceled(INavigationContext navigationContext)
+        public void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationCanceled(this, navigationContext);
+            GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationCanceled(this, navigationContext, cancellationToken);
         }
 
         #endregion
