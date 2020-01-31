@@ -28,23 +28,17 @@ namespace MugenMvvm.Navigation.Components
             if (navigationEntry.NavigationType.IsSystemNavigation)
                 return GetLastRootEntry(metadata);
 
-
             var entries = Owner.GetNavigationEntries(navigationEntry.NavigationType, metadata);
-            if (navigationEntry.NavigationType.IsNestedNavigation)
-            {
-                return entries
-                    .Where(entry => entry.NavigationProvider.Id == navigationEntry.NavigationProvider.Id)
-                    .OrderByDescending(entry => entry.Metadata.Get(NavigationMetadata.NavigationDate))
-                    .FirstOrDefault();
-            }
-
-            if (entries.Count == 0)
+            if (entries.Count == 0 && !navigationEntry.NavigationType.IsNestedNavigation)
                 return GetLastRootEntry(metadata);
 
-            return entries
-                .Where(entry => entry.NavigationProvider.Id == navigationEntry.NavigationProvider.Id)
+            var result = entries
+                .Where(entry => entry.NavigationProvider.Id == navigationEntry.NavigationProvider.Id && entry.NavigationType == navigationEntry.NavigationType)
                 .OrderByDescending(entry => entry.Metadata.Get(NavigationMetadata.NavigationDate))
                 .FirstOrDefault();
+            if (result == null && navigationEntry.NavigationType.IsRootNavigation)
+                return GetLastRootEntry(metadata);
+            return result;
         }
 
         #endregion
