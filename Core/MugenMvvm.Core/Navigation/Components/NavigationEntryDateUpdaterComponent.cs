@@ -7,7 +7,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationEntryUpdaterComponent : INavigationDispatcherEntryListener, IHasPriority
+    public sealed class NavigationEntryDateUpdaterComponent : INavigationDispatcherEntryListener, IHasPriority
     {
         #region Properties
 
