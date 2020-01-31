@@ -65,7 +65,7 @@ namespace MugenMvvm.Navigation
                         var list = GetCallbacksRaw();
                         list.Add(callback);
                         _callbacks = list.GetRawValue();
-                        return new ActionToken((c, listener) => ((NavigationCallback)c!).RemoveCallback((INavigationCallbackListener)listener!));
+                        return new ActionToken((c, listener) => ((NavigationCallback) c!).RemoveCallback((INavigationCallbackListener) listener!), this, callback);
                     }
                 }
             }
@@ -86,36 +86,36 @@ namespace MugenMvvm.Navigation
             }
         }
 
-        private bool TrySetResult(IReadOnlyMetadataContext? metadata)
+        public bool TrySetResult(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             return SetResult(SuccessState, null, metadata, default, false);
         }
 
-        private void SetResult(IReadOnlyMetadataContext? metadata)
+        public void SetResult(IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(metadata, nameof(metadata));
             SetResult(SuccessState, null, metadata, default, true);
         }
 
-        private bool TrySetException(Exception exception, IReadOnlyMetadataContext? metadata)
+        public bool TrySetException(Exception exception, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(exception, nameof(exception));
             return SetResult(ErrorState, exception, metadata, default, false);
         }
 
-        private void SetException(Exception exception, IReadOnlyMetadataContext? metadata)
+        public void SetException(Exception exception, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(exception, nameof(exception));
             SetResult(ErrorState, exception, metadata, default, true);
         }
 
-        private bool TrySetCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public bool TrySetCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             return SetResult(CanceledState, null, metadata, cancellationToken, false);
         }
 
-        private void SetCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public void SetCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             SetResult(CanceledState, null, metadata, cancellationToken, true);
         }
