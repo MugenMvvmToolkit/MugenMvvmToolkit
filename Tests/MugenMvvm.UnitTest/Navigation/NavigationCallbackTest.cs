@@ -88,7 +88,10 @@ namespace MugenMvvm.UnitTest.Navigation
             if (!isCompletedCallback)
             {
                 if (trySetResult)
+                {
                     callback.TrySetResult(DefaultMetadata).ShouldBeTrue();
+                    callback.TrySetResult(DefaultMetadata).ShouldBeFalse();
+                }
                 else
                     callback.SetResult(DefaultMetadata);
             }
@@ -132,7 +135,10 @@ namespace MugenMvvm.UnitTest.Navigation
             if (!isCompletedCallback)
             {
                 if (trySetResult)
+                {
                     callback.TrySetException(ex, DefaultMetadata).ShouldBeTrue();
+                    callback.TrySetException(ex, DefaultMetadata).ShouldBeFalse();
+                }
                 else
                     callback.SetException(ex, DefaultMetadata);
             }
@@ -175,13 +181,38 @@ namespace MugenMvvm.UnitTest.Navigation
             if (!isCompletedCallback)
             {
                 if (trySetResult)
+                {
                     callback.TrySetCanceled(DefaultMetadata, token).ShouldBeTrue();
+                    callback.TrySetCanceled(DefaultMetadata, token).ShouldBeFalse();
+                }
                 else
                     callback.SetCanceled(DefaultMetadata, token);
             }
 
             invokeCount.ShouldEqual(count);
             callback.IsCompleted.ShouldBeTrue();
+        }
+
+        [Fact]
+        public void SetResultShouldThrow()
+        {
+            var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
+            callback.SetResult(DefaultMetadata);
+
+            ShouldThrow<InvalidOperationException>(() => callback.SetResult(DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => callback.SetException(new Exception(), DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => callback.SetCanceled(DefaultMetadata, CancellationToken.None));
+        }
+
+        [Fact]
+        public void TrySetResultShouldReturnFalse()
+        {
+            var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
+            callback.SetResult(DefaultMetadata);
+
+            callback.TrySetResult(DefaultMetadata).ShouldBeFalse();
+            callback.TrySetException(new Exception(), DefaultMetadata).ShouldBeFalse();
+            callback.TrySetCanceled(DefaultMetadata, CancellationToken.None).ShouldBeFalse();
         }
 
         #endregion
