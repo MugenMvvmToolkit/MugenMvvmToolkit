@@ -16,7 +16,6 @@ namespace MugenMvvm.Navigation
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
             Should.NotBeNull(navigationType, nameof(navigationType));
-            Should.NotBeNull(metadata, nameof(metadata));
             NavigationType = navigationType;
             NavigationOperationId = navigationOperationId;
             NavigationProvider = navigationProvider;
