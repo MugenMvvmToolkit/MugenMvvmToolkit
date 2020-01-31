@@ -9,8 +9,8 @@ namespace MugenMvvm.Navigation
     {
         #region Constructors
 
-        public NavigationContext(INavigationProvider navigationProvider, NavigationType navigationType, string navigationOperationId,
-            NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+        public NavigationContext(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType, NavigationMode navigationMode,
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, metadataContextProvider)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
