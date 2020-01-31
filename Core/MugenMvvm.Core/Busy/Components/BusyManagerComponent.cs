@@ -221,23 +221,20 @@ namespace MugenMvvm.Busy.Components
             public ActionToken RegisterCallback(IBusyTokenCallback callback)
             {
                 Should.NotBeNull(callback, nameof(callback));
-                if (IsCompleted)
+                if (!IsCompleted)
                 {
-                    callback.OnCompleted(this);
-                    return default;
-                }
-
-                lock (Locker)
-                {
-                    if (!IsCompleted)
+                    lock (Locker)
                     {
-                        var list = GetListeners();
-                        list.Add(callback);
-                        _listeners = list.GetRawValue();
+                        if (!IsCompleted)
+                        {
+                            var list = GetListeners();
+                            list.Add(callback);
+                            _listeners = list.GetRawValue();
 
-                        if (IsSuspended)
-                            callback.OnSuspendChanged(true);
-                        return new ActionToken((token, cal) => ((BusyToken)token!).RemoveCallback((IBusyTokenCallback)cal!), this, callback);
+                            if (IsSuspended)
+                                callback.OnSuspendChanged(true);
+                            return new ActionToken((token, cal) => ((BusyToken)token!).RemoveCallback((IBusyTokenCallback)cal!), this, callback);
+                        }
                     }
                 }
 
