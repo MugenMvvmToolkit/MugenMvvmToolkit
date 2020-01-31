@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Navigation
     {
         #region Properties
 
-        public Func<INavigationProvider, string, NavigationType, NavigationMode, IReadOnlyMetadataContext?, INavigationContext?> TryGetNavigationContext { get; set; }
+        public Func<INavigationProvider, string, NavigationType, NavigationMode, IReadOnlyMetadataContext?, INavigationContext?>? TryGetNavigationContext { get; set; }
 
         public int Priority { get; set; }
 

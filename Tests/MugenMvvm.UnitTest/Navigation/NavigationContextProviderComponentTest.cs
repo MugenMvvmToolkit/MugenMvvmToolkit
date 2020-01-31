@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var mode = NavigationMode.Remove;
             var metadata = new MetadataContext();
 
-            var context = component.TryGetNavigationContext(provider, id, type, mode, metadata);
+            var context = component.TryGetNavigationContext(provider, id, type, mode, metadata)!;
             context.NavigationProvider.ShouldEqual(provider);
             context.NavigationType.ShouldEqual(type);
             context.NavigationOperationId.ShouldEqual(id);

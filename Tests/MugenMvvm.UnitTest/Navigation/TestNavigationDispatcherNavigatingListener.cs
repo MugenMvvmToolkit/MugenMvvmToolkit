@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Navigation
     {
         #region Properties
 
-        public Func<INavigationDispatcher, INavigationContext, CancellationToken, Task<bool>?> OnNavigatingAsync { get; set; }
+        public Func<INavigationDispatcher, INavigationContext, CancellationToken, Task<bool>?>? OnNavigatingAsync { get; set; }
 
         public int Priority { get; set; }
 

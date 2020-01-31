@@ -6,7 +6,9 @@ namespace MugenMvvm.UnitTest.Models
     {
         #region Properties
 
+#pragma warning disable CS8618
         public T Service { get; set; }
+#pragma warning restore CS8618
 
         #endregion
     }

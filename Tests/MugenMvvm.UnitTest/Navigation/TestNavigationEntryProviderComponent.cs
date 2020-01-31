@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Navigation
     {
         #region Properties
 
-        public Func<NavigationType?, IReadOnlyMetadataContext?, IReadOnlyList<INavigationEntry>?> TryGetNavigationEntries { get; set; }
+        public Func<NavigationType?, IReadOnlyMetadataContext?, IReadOnlyList<INavigationEntry>?>? TryGetNavigationEntries { get; set; }
 
         public int Priority { get; set; }
 
