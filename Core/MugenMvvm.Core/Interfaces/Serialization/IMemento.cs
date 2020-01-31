@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Serialization;
 
 namespace MugenMvvm.Interfaces.Serialization
 {
@@ -8,6 +9,6 @@ namespace MugenMvvm.Interfaces.Serialization
 
         void Preserve(ISerializationContext serializationContext);
 
-        IMementoResult Restore(ISerializationContext serializationContext);
+        MementoResult Restore(ISerializationContext serializationContext);
     }
 }

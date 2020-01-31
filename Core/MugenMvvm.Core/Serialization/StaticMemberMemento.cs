@@ -20,9 +20,6 @@ namespace MugenMvvm.Serialization
         [DataMember(Name = "M")]
         internal MemberInfo? Member;
 
-        [DataMember(Name = "T")]
-        internal Type TargetTypeField;
-
         #endregion
 
         #region Constructors
@@ -37,7 +34,7 @@ namespace MugenMvvm.Serialization
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(member, nameof(member));
-            TargetTypeField = target.GetType();
+            TargetType = target.GetType();
             Member = member;
         }
 
@@ -47,7 +44,8 @@ namespace MugenMvvm.Serialization
 
         [IgnoreDataMember]
         [XmlIgnore]
-        public Type TargetType => TargetTypeField;
+        [field: DataMember(Name = "T")]
+        public Type TargetType { get; internal set; }
 
         #endregion
 
@@ -57,10 +55,10 @@ namespace MugenMvvm.Serialization
         {
         }
 
-        public IMementoResult Restore(ISerializationContext serializationContext)
+        public MementoResult Restore(ISerializationContext serializationContext)
         {
             if (Member == null)
-                return MementoResult.Unrestored;
+                return default;
 
             object target;
             if (Member is PropertyInfo propertyInfo)
@@ -68,8 +66,8 @@ namespace MugenMvvm.Serialization
             else
                 target = ((FieldInfo) Member).GetValue(null);
             if (target == null)
-                return MementoResult.Unrestored;
-            return new MementoResult(target, serializationContext);
+                return default;
+            return new MementoResult(target);
         }
 
         #endregion
