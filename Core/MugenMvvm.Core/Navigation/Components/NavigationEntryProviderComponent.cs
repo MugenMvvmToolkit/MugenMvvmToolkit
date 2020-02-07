@@ -47,7 +47,7 @@ namespace MugenMvvm.Navigation.Components
             INavigationEntry? removedEntry = null;
             lock (_navigationEntries)
             {
-                if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsBack || navigationContext.NavigationMode.IsNew)
+                if (navigationContext.NavigationMode.IsRefresh || navigationContext.NavigationMode.IsNew)
                 {
                     if (!_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
                     {
@@ -63,7 +63,7 @@ namespace MugenMvvm.Navigation.Components
                         list.Add(addedEntry);
                     }
                 }
-                else if (navigationContext.NavigationMode.IsClose)
+                if (navigationContext.NavigationMode.IsClose)
                 {
                     if (_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
                     {

@@ -37,10 +37,22 @@ namespace MugenMvvm.UnitTest.Navigation
             var component = new NavigationEntryDateUpdaterComponent();
 
             var utcNow = DateTime.UtcNow;
-            component.OnNavigationEntryAdded(dispatcher, entry, context);
+            component.OnNavigationEntryUpdated(dispatcher, entry, context);
 
             var dateTime = entry.Metadata.Get(NavigationMetadata.NavigationDate);
             utcNow.ShouldBeLessThanOrEqualTo(dateTime);
+        }
+
+        [Fact]
+        public void OnNavigationEntryRemovedShouldNotSetDate()
+        {
+            var dispatcher = new NavigationDispatcher();
+            var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
+            var context = new NavigationContext(entry.NavigationProvider, entry.NavigationOperationId, entry.NavigationType, NavigationMode.Remove);
+            var component = new NavigationEntryDateUpdaterComponent();
+
+            component.OnNavigationEntryRemoved(dispatcher, entry, context);
+            entry.Metadata.Contains(NavigationMetadata.NavigationDate).ShouldBeFalse();
         }
 
         #endregion
