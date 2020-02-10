@@ -12,11 +12,11 @@ namespace MugenMvvm.UnitTest.Presenters
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, PresenterResult> TryShow { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, PresenterResult>? TryShow { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<PresenterResult>> TryClose { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<PresenterResult>>? TryClose { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<PresenterResult>> TryRestore { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<PresenterResult>>? TryRestore { get; set; }
 
         public int Priority { get; set; }
 
@@ -26,17 +26,17 @@ namespace MugenMvvm.UnitTest.Presenters
 
         PresenterResult IPresenterComponent.TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
-            return TryShow?.Invoke(request, typeof(TRequest), metadata, cancellationToken) ?? default;
+            return TryShow?.Invoke(request!, typeof(TRequest), metadata, cancellationToken) ?? default;
         }
 
         IReadOnlyList<PresenterResult>? IPresenterComponent.TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
-            return TryClose?.Invoke(request, typeof(TRequest), metadata, cancellationToken);
+            return TryClose?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }
 
         IReadOnlyList<PresenterResult>? IPresenterComponent.TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
-            return TryRestore?.Invoke(request, typeof(TRequest), metadata, cancellationToken);
+            return TryRestore?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }
 
         #endregion

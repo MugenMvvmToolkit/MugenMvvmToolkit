@@ -44,9 +44,9 @@ namespace MugenMvvm.UnitTest.Navigation
                         ++invokedCount;
                         navigationDispatcher.ShouldEqual(dispatcher);
                         arg3.ShouldEqual(ctx);
-                        entry.NavigationProvider.ShouldEqual(arg3.NavigationProvider);
-                        entry.NavigationType.ShouldEqual(arg3.NavigationType);
-                        entry.NavigationOperationId.ShouldEqual(arg3.NavigationOperationId);
+                        entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationOperationId.ShouldEqual(arg3!.NavigationOperationId);
                         entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
                     },
                     OnNavigationEntryRemoved = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.Navigation
             ValidateEntries(component.TryGetNavigationEntries(null, null)!, contexts);
 
             foreach (var navigationType in NavigationType.GetAll())
-                ValidateEntries(component.TryGetNavigationEntries(navigationType, DefaultMetadata), contexts.Where(context => context.NavigationType == navigationType).ToList());
+                ValidateEntries(component.TryGetNavigationEntries(navigationType, DefaultMetadata)!, contexts.Where(context => context.NavigationType == navigationType).ToList());
 
             invokedCount.ShouldEqual(contexts.Count * count);
         }
@@ -113,10 +113,10 @@ namespace MugenMvvm.UnitTest.Navigation
                     {
                         ++invokedCount;
                         navigationDispatcher.ShouldEqual(dispatcher);
-                        arg3.ShouldEqual(ctx);
-                        entry.NavigationProvider.ShouldEqual(arg3.NavigationProvider);
-                        entry.NavigationType.ShouldEqual(arg3.NavigationType);
-                        entry.NavigationOperationId.ShouldEqual(arg3.NavigationOperationId);
+                        arg3!.ShouldEqual(ctx);
+                        entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
+                        entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                        entry.NavigationOperationId.ShouldEqual(arg3!.NavigationOperationId);
                         entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
                     }
                 };
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTest.Navigation
             ValidateEntries(component.TryGetNavigationEntries(null, null)!, contexts);
 
             foreach (var navigationType in NavigationType.GetAll())
-                ValidateEntries(component.TryGetNavigationEntries(navigationType, DefaultMetadata), contexts.Where(context => context.NavigationType == navigationType).ToList());
+                ValidateEntries(component.TryGetNavigationEntries(navigationType, DefaultMetadata)!, contexts.Where(context => context.NavigationType == navigationType).ToList());
 
             invokedCount.ShouldEqual(contexts.Count * count);
         }
@@ -176,9 +176,9 @@ namespace MugenMvvm.UnitTest.Navigation
                             ++invokedCount;
                             navigationDispatcher.ShouldEqual(dispatcher);
                             arg3.ShouldEqual(ctx);
-                            entry.NavigationProvider.ShouldEqual(arg3.NavigationProvider);
-                            entry.NavigationType.ShouldEqual(arg3.NavigationType);
-                            entry.NavigationOperationId.ShouldEqual(arg3.NavigationOperationId);
+                            entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
+                            entry.NavigationType.ShouldEqual(arg3!.NavigationType);
+                            entry.NavigationOperationId.ShouldEqual(arg3!.NavigationOperationId);
                             entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
                         },
                         OnNavigationEntryUpdated = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
@@ -197,7 +197,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 ValidateEntries(component.TryGetNavigationEntries(null, null)!, contexts);
 
                 foreach (var navigationType in NavigationType.GetAll())
-                    ValidateEntries(component.TryGetNavigationEntries(navigationType, DefaultMetadata), contexts.Where(context => context.NavigationType == navigationType).ToList());
+                    ValidateEntries(component.TryGetNavigationEntries(navigationType, DefaultMetadata)!, contexts.Where(context => context.NavigationType == navigationType).ToList());
             }
         }
 
