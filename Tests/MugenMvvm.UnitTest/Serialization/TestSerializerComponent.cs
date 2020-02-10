@@ -1,11 +1,12 @@
 ﻿using System;
 using System.IO;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization.Components;
 
 namespace MugenMvvm.UnitTest.Serialization
 {
-    public class TestSerializerComponent : ISerializerComponent
+    public class TestSerializerComponent : ISerializerComponent, IHasPriority
     {
         #region Properties
 
@@ -15,23 +16,25 @@ namespace MugenMvvm.UnitTest.Serialization
 
         public Func<Stream, IReadOnlyMetadataContext?, object?>? TryDeserialize { get; set; }
 
+        public int Priority { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
 
         bool ISerializerComponent.CanSerialize(Type targetType, IReadOnlyMetadataContext? metadata)
         {
-            throw new NotImplementedException();
+            return CanSerialize?.Invoke(targetType, metadata) ?? false;
         }
 
         Stream? ISerializerComponent.TrySerialize(object target, IReadOnlyMetadataContext? metadata)
         {
-            throw new NotImplementedException();
+            return TrySerialize?.Invoke(target, metadata);
         }
 
         object? ISerializerComponent.TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata)
         {
-            throw new NotImplementedException();
+            return TryDeserialize?.Invoke(stream, metadata);
         }
 
         #endregion
