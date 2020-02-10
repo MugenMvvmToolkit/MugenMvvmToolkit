@@ -91,6 +91,7 @@ namespace MugenMvvm.UnitTest.Messaging
                 {
                     mode.ShouldEqual(threadExecutionMode);
                     invokeAction = () => action(arg3);
+                    return true;
                 }
             };
             using var subscriber = TestComponentSubscriber.Subscribe(threadDispatcher, testThreadDispatcherComponent);

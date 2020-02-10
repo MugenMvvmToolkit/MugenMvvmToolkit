@@ -76,7 +76,11 @@ namespace MugenMvvm.UnitTest.Collections
             var dispatcherComponent = new TestThreadDispatcherComponent
             {
                 CanExecuteInline = mode => false,
-                Execute = (action1, mode, arg3, arg4, arg5) => { action += () => action1(arg3); }
+                Execute = (action1, mode, arg3, arg4, arg5) =>
+                {
+                    action += () => action1(arg3);
+                    return true;
+                }
             };
             using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
 

@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Serialization
 
         public Func<Type, IReadOnlyMetadataContext?, bool>? CanSerialize { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, Stream>? TrySerialize { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, Stream?>? TrySerialize { get; set; }
 
         public Func<Stream, IReadOnlyMetadataContext?, object?>? TryDeserialize { get; set; }
 

@@ -15,7 +15,11 @@ namespace MugenMvvm.UnitTest.Threading
 
         public Func<ThreadExecutionMode, bool>? CanExecuteInline { get; set; }
 
-        public Action<Action<object?>, ThreadExecutionMode, object?, Type, IReadOnlyMetadataContext?> Execute { get; set; } = (action, _, state, __, ___) => action(state);
+        public Func<Action<object?>, ThreadExecutionMode, object?, Type, IReadOnlyMetadataContext?, bool> Execute { get; set; } = (action, _, state, __, ___) =>
+        {
+            action(state);
+            return true;
+        };
 
         public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
@@ -30,14 +34,12 @@ namespace MugenMvvm.UnitTest.Threading
 
         bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            Execute(handler.Execute!, executionMode, state, typeof(TState), metadata);
-            return true;
+            return Execute(handler.Execute!, executionMode, state, typeof(TState), metadata);
         }
 
         bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            Execute(o => handler((TState)o!), executionMode, state, typeof(TState), metadata);
-            return true;
+            return Execute(o => handler((TState) o!), executionMode, state, typeof(TState), metadata);
         }
 
         #endregion

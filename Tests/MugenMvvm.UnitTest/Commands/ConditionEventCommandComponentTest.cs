@@ -37,6 +37,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 mode.ShouldEqual(executionMode);
                 invoke = () => action(arg3);
+                return true;
             };
 
             var compositeCommand = new CompositeCommand();
@@ -70,6 +71,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 mode.ShouldEqual(executionMode);
                 invoke = () => action(arg3);
+                return true;
             };
 
             var compositeCommand = new CompositeCommand();
