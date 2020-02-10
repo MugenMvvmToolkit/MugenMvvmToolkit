@@ -19,7 +19,7 @@ namespace MugenMvvm.Serialization
         #region Properties
 
         [field: ThreadStatic]
-        public static ISerializationContext? CurrentSerializationContext { get; private set; }
+        public static ISerializationContext? Current { get; private set; }
 
         #endregion
 
@@ -28,8 +28,10 @@ namespace MugenMvvm.Serialization
         public static ActionToken Begin(ISerializationContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            CurrentSerializationContext = context;
-            return new ActionToken((_, __) => CurrentSerializationContext = null);
+            if (Current != null)
+                ExceptionManager.ThrowObjectInitialized(typeof(SerializationContext), nameof(Current));
+            Current = context;
+            return new ActionToken((_, __) => Current = null);
         }
 
         #endregion
