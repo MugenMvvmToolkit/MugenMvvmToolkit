@@ -86,8 +86,8 @@ namespace MugenMvvm.UnitTest.Messaging
             Action? invokeAction = null;
             var testThreadDispatcherComponent = new TestThreadDispatcherComponent
             {
-                CanExecuteInline = mode => false,
-                Execute = (action, mode, arg3, arg4, arg5) =>
+                CanExecuteInline = (_, __) => false,
+                Execute = (action, mode, arg3, _) =>
                 {
                     mode.ShouldEqual(threadExecutionMode);
                     invokeAction = () => action(arg3);

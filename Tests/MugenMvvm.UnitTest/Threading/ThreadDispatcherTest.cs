@@ -33,23 +33,24 @@ namespace MugenMvvm.UnitTest.Threading
                 var component = new TestThreadDispatcherComponent
                 {
                     Priority = -i,
-                    CanExecuteInline = mode =>
+                    CanExecuteInline = (mode, m) =>
                     {
                         ++executeCount;
                         mode.ShouldEqual(mode);
+                        m.ShouldEqual(DefaultMetadata);
                         return result;
                     }
                 };
                 dispatcher.AddComponent(component);
             }
 
-            dispatcher.CanExecuteInline(mode).ShouldEqual(result);
+            dispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             result = true;
             mode = ThreadExecutionMode.Current;
-            dispatcher.CanExecuteInline(mode).ShouldEqual(result);
+            dispatcher.CanExecuteInline(mode, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
 
@@ -57,8 +58,8 @@ namespace MugenMvvm.UnitTest.Threading
         public void ExecuteShouldThrowNoComponents()
         {
             var dispatcher = new ThreadDispatcher();
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, t => { }, dispatcher));
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler<object>()));
+            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, dispatcher, t => { }));
+            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler<object>(), dispatcher));
         }
 
         [Theory]
@@ -69,18 +70,20 @@ namespace MugenMvvm.UnitTest.Threading
             var dispatcher = new ThreadDispatcher();
             var executeCount = 0;
             var mode = ThreadExecutionMode.Background;
+            object? handler = null;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
                 var component = new TestThreadDispatcherComponent
                 {
-                    Execute = (action, m, arg3, arg4, arg5) =>
+                    TryExecute = (m, h, state, stateType, meta) =>
                     {
                         ++executeCount;
+                        h.ShouldEqual(handler);
                         mode.ShouldEqual(m);
-                        arg3.ShouldEqual(dispatcher);
-                        arg4.ShouldEqual(dispatcher.GetType());
-                        arg5.ShouldEqual(DefaultMetadata);
+                        state.ShouldEqual(dispatcher);
+                        stateType.ShouldEqual(dispatcher.GetType());
+                        meta.ShouldEqual(DefaultMetadata);
                         return isLast;
                     },
                     Priority = -i
@@ -88,11 +91,13 @@ namespace MugenMvvm.UnitTest.Threading
                 dispatcher.AddComponent(component);
             }
 
-            dispatcher.Execute(mode, t => { }, dispatcher, DefaultMetadata);
+            handler = new Action<ThreadDispatcher>(t => { });
+            dispatcher.Execute(mode, handler, dispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
-            dispatcher.Execute(mode, new TestThreadDispatcherHandler<ThreadDispatcher>(), dispatcher, DefaultMetadata);
+            handler = new TestThreadDispatcherHandler<ThreadDispatcher>();
+            dispatcher.Execute(mode, handler, dispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
         }
 

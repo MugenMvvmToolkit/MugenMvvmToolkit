@@ -13,9 +13,11 @@ namespace MugenMvvm.UnitTest.Threading
     {
         #region Properties
 
-        public Func<ThreadExecutionMode, bool>? CanExecuteInline { get; set; }
+        public Func<ThreadExecutionMode, IReadOnlyMetadataContext?, bool>? CanExecuteInline { get; set; }
 
-        public Func<Action<object?>, ThreadExecutionMode, object?, Type, IReadOnlyMetadataContext?, bool> Execute { get; set; } = (action, _, state, __, ___) =>
+        public Func<ThreadExecutionMode, object, object?, Type, IReadOnlyMetadataContext?, bool>? TryExecute { get; set; }
+
+        public Func<Action<object?>, ThreadExecutionMode, object?, IReadOnlyMetadataContext?, bool> Execute { get; set; } = (action, _, state, ___) =>
         {
             action(state);
             return true;
@@ -27,19 +29,27 @@ namespace MugenMvvm.UnitTest.Threading
 
         #region Implementation of interfaces
 
-        bool IThreadDispatcherComponent.CanExecuteInline(ThreadExecutionMode executionMode)
+        bool IThreadDispatcherComponent.CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
-            return CanExecuteInline?.Invoke(executionMode) ?? true;
+            return CanExecuteInline?.Invoke(executionMode, metadata) ?? true;
         }
 
-        bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
+        bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            return Execute(handler.Execute!, executionMode, state, typeof(TState), metadata);
-        }
-
-        bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
-        {
-            return Execute(o => handler((TState) o!), executionMode, state, typeof(TState), metadata);
+            if (TryExecute != null)
+                return TryExecute(executionMode, handler, state, typeof(TState), metadata);
+            Action<object?> del;
+            if (handler is Action action)
+                del = o => action();
+            else if (handler is Action<TState> actionState)
+                del = actionState.Invoke!;
+            else if (handler is IThreadDispatcherHandler h)
+                del = o => h.Execute();
+            else if (handler is IThreadDispatcherHandler<TState> handlerState)
+                del = handlerState.Execute!;
+            else
+                return false;
+            return Execute(del, executionMode, state, metadata);
         }
 
         #endregion

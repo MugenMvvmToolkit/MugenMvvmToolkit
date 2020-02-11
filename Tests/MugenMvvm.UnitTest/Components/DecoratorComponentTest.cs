@@ -58,17 +58,12 @@ namespace MugenMvvm.UnitTest.Components
         {
             #region Implementation of interfaces
 
-            public bool CanExecuteInline(ThreadExecutionMode executionMode)
+            public bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
             {
                 throw new NotSupportedException();
             }
 
-            public bool TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
-            {
-                throw new NotSupportedException();
-            }
-
-            public bool TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
+            public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
             {
                 throw new NotSupportedException();
             }

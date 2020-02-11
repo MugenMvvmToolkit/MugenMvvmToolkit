@@ -36,11 +36,6 @@ namespace MugenMvvm.Extensions
             threadDispatcher.DefaultIfNull().Execute<object?>(executionMode, handler, null, metadata);
         }
 
-        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata = null)
-        {
-            threadDispatcher.DefaultIfNull().Execute(executionMode, handler, state, metadata);
-        }
-
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class
         {

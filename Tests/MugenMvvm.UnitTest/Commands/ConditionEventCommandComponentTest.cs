@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Commands
             var threadDispatcher = new ThreadDispatcher();
             var threadDispatcherComponent = new TestThreadDispatcherComponent();
             threadDispatcher.AddComponent(threadDispatcherComponent);
-            threadDispatcherComponent.Execute = (action, mode, arg3, arg4, arg5) =>
+            threadDispatcherComponent.Execute = (action, mode, arg3, _) =>
             {
                 mode.ShouldEqual(executionMode);
                 invoke = () => action(arg3);
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Commands
             Action? invoke = null;
             var threadDispatcherComponent = new TestThreadDispatcherComponent();
             using var subscriber = TestComponentSubscriber.Subscribe(threadDispatcherComponent);
-            threadDispatcherComponent.Execute = (action, mode, arg3, arg4, arg5) =>
+            threadDispatcherComponent.Execute = (action, mode, arg3, _) =>
             {
                 mode.ShouldEqual(executionMode);
                 invoke = () => action(arg3);
