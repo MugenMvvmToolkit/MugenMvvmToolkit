@@ -49,7 +49,7 @@ namespace MugenMvvm.Views.Components
         public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
-            if (dispatcher.CanExecuteInline(InitializeExecutionMode))
+            if (dispatcher.CanExecuteInline(InitializeExecutionMode, metadata))
                 return Components.TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
 
             var tcs = new TaskCompletionSource<ViewInitializationResult>();
@@ -81,7 +81,7 @@ namespace MugenMvvm.Views.Components
         public Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
-            if (dispatcher.CanExecuteInline(CleanupExecutionMode))
+            if (dispatcher.CanExecuteInline(CleanupExecutionMode, metadata))
                 return Components.TryCleanupAsync(view, viewModel, metadata, cancellationToken);
 
             var tcs = new TaskCompletionSource<ViewInitializationResult>();
