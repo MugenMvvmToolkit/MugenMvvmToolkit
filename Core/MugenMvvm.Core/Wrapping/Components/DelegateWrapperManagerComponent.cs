@@ -45,7 +45,9 @@ namespace MugenMvvm.Wrapping.Components
 
         public object? TryWrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata)
         {
-            return _wrapperFactory(target, wrapperType, _state, metadata);
+            if (CanWrap(target.GetType(), wrapperType, metadata))
+                return _wrapperFactory(target, wrapperType, _state, metadata);
+            return null;
         }
 
         #endregion
