@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTest.Threading
 
         private void WaitThreadPool()
         {
-            var taskCompletionSource = new TaskCompletionSource<object>();
+            var taskCompletionSource = new TaskCompletionSource<object?>();
             ThreadPool.QueueUserWorkItem(state => taskCompletionSource.SetResult(null));
             taskCompletionSource.Task.Wait();
             Task.Delay(10).Wait();

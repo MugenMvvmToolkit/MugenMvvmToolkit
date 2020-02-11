@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.ViewModels
 
         public int Priority { get; set; }
 
-        public Func<IViewModelBase, Type, IReadOnlyMetadataContext?, object?> TryGetService { get; set; }
+        public Func<IViewModelBase, Type, IReadOnlyMetadataContext?, object?>? TryGetService { get; set; }
 
         #endregion
 
