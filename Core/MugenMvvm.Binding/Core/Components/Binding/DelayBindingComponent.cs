@@ -16,7 +16,7 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.Binding.Core.Components.Binding
 {
-    public abstract class DelayBindingComponent : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler<object?>
+    public abstract class DelayBindingComponent : IComponent<IBinding>, IHasPriority, IAttachableComponent, IDetachableComponent, IThreadDispatcherHandler
     {
         #region Fields
 
@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _binding = (IBinding) owner;
+            _binding = (IBinding)owner;
             _timer = new Timer(CallbackDelegate, this.ToWeakReference(), Timeout.Infinite, Timeout.Infinite);
         }
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             _binding = null;
         }
 
-        void IThreadDispatcherHandler<object?>.Execute(object? state)
+        void IThreadDispatcherHandler.Execute()
         {
             try
             {
@@ -100,7 +100,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private static void Callback(object state)
         {
-            var component = (DelayBindingComponent?) ((IWeakReference) state).Target;
+            var component = (DelayBindingComponent?)((IWeakReference)state).Target;
             if (component != null)
                 MugenService.ThreadDispatcher.Execute(ExecutionMode, component);
         }

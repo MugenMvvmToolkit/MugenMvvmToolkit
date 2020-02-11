@@ -142,12 +142,12 @@ namespace MugenMvvm.Collections.Components
 
         protected void OnBeginBatchUpdate()
         {
-            ThreadDispatcher.Execute(ExecutionMode, o => o.OnBeginBatchUpdateImpl(), this);
+            ThreadDispatcher.Execute(ExecutionMode, this, o => o.OnBeginBatchUpdateImpl());
         }
 
         protected void OnEndBatchUpdate()
         {
-            ThreadDispatcher.Execute(ExecutionMode, o => o.OnEndBatchUpdateImpl(), this);
+            ThreadDispatcher.Execute(ExecutionMode, this, o => o.OnEndBatchUpdateImpl());
         }
 
         protected void OnItemChanged(T item, int index, object? args)
@@ -360,7 +360,7 @@ namespace MugenMvvm.Collections.Components
         {
             if (IsResetEvent(e))
             {
-                OnReset((IEnumerable<T>) sender);
+                OnReset((IEnumerable<T>)sender);
                 return;
             }
 
@@ -368,22 +368,22 @@ namespace MugenMvvm.Collections.Components
             {
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems.Count == 1)
-                        OnAdded((T) e.NewItems[0], e.NewStartingIndex);
+                        OnAdded((T)e.NewItems[0], e.NewStartingIndex);
                     else
                     {
                         for (var i = 0; i < e.NewItems.Count; i++)
-                            OnAdded((T) e.NewItems[i], e.NewStartingIndex + i);
+                            OnAdded((T)e.NewItems[i], e.NewStartingIndex + i);
                     }
 
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    OnMoved((T) e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
+                    OnMoved((T)e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    OnRemoved((T) e.OldItems[0], e.OldStartingIndex);
+                    OnRemoved((T)e.OldItems[0], e.OldStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    OnReplaced((T) e.OldItems[0], (T) e.NewItems[0], e.NewStartingIndex);
+                    OnReplaced((T)e.OldItems[0], (T)e.NewItems[0], e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     OnCleared();
@@ -474,7 +474,7 @@ namespace MugenMvvm.Collections.Components
                         listener.OnClearedInternal(batch);
                         break;
                     case CollectionChangedAction.Reset:
-                        listener.OnResetInternal((IEnumerable<T>) State!, batch);
+                        listener.OnResetInternal((IEnumerable<T>)State!, batch);
                         break;
                     case CollectionChangedAction.Changed:
                         listener.OnItemChangedInternal(OldItem, OldIndex, State, batch);

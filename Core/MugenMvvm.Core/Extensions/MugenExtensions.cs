@@ -12,7 +12,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Validation;
 
@@ -21,6 +20,26 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null)
+        {
+            threadDispatcher.DefaultIfNull().Execute<object?>(executionMode, action, null, metadata);
+        }
+
+        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, TState state, Action<TState> action, IReadOnlyMetadataContext? metadata = null)
+        {
+            threadDispatcher.DefaultIfNull().Execute(executionMode, action, state, metadata);
+        }
+
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, IReadOnlyMetadataContext? metadata = null)
+        {
+            threadDispatcher.DefaultIfNull().Execute<object?>(executionMode, handler, null, metadata);
+        }
+
+        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata = null)
+        {
+            threadDispatcher.DefaultIfNull().Execute(executionMode, handler, state, metadata);
+        }
 
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class

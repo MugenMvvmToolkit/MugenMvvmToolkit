@@ -16,7 +16,7 @@ using MugenMvvm.Interfaces.Threading;
 namespace MugenMvvm.Commands.Components
 {
     public sealed class ConditionEventCommandComponent : AttachableComponentBase<ICompositeCommand>, IConditionEventCommandComponent,
-        IThreadDispatcherHandler<object?>, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
+        IThreadDispatcherHandler, IValueHolder<Delegate>, ISuspendable, IDisposable, IHasPriority
     {
         #region Fields
 
@@ -114,7 +114,7 @@ namespace MugenMvvm.Commands.Components
             return new ActionToken((o, _) => ((ConditionEventCommandComponent)o!).EndSuspendNotifications(), this);
         }
 
-        void IThreadDispatcherHandler<object?>.Execute(object? _)
+        void IThreadDispatcherHandler.Execute()
         {
             _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
         }

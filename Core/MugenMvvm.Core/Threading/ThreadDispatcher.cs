@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Components;
+﻿using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -21,18 +20,12 @@ namespace MugenMvvm.Threading
 
         #region Implementation of interfaces
 
-        public bool CanExecuteInline(ThreadExecutionMode executionMode)
+        public bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IThreadDispatcherComponent>().CanExecuteInline(executionMode);
+            return GetComponents<IThreadDispatcherComponent>().CanExecuteInline(executionMode, metadata);
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state = default, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (!GetComponents<IThreadDispatcherComponent>().TryExecute(executionMode, handler, state, metadata))
-                ExceptionManager.ThrowObjectNotInitialized(this);
-        }
-
-        public void Execute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state = default, IReadOnlyMetadataContext? metadata = null)
+        public void Execute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata = null)
         {
             if (!GetComponents<IThreadDispatcherComponent>().TryExecute(executionMode, handler, state, metadata))
                 ExceptionManager.ThrowObjectNotInitialized(this);

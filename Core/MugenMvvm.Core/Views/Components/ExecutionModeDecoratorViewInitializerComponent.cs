@@ -54,7 +54,7 @@ namespace MugenMvvm.Views.Components
 
             var tcs = new TaskCompletionSource<ViewInitializationResult>();
             var valueTuple = (this, tcs, mapping, view, viewModel, cancellationToken, metadata);
-            dispatcher.Execute(InitializeExecutionMode, state =>
+            dispatcher.Execute(InitializeExecutionMode, valueTuple, state =>
             {
                 try
                 {
@@ -73,7 +73,7 @@ namespace MugenMvvm.Views.Components
                 {
                     state.tcs.TrySetException(e);
                 }
-            }, valueTuple, metadata: metadata);
+            }, metadata);
             return tcs.Task;
         }
 
@@ -86,26 +86,26 @@ namespace MugenMvvm.Views.Components
 
             var tcs = new TaskCompletionSource<ViewInitializationResult>();
             var valueTuple = (this, tcs, view, viewModel, cancellationToken, metadata);
-            dispatcher.Execute(CleanupExecutionMode, state =>
-            {
-                try
-                {
-                    if (state.cancellationToken.IsCancellationRequested)
-                    {
-                        state.tcs.TrySetCanceled(state.cancellationToken);
-                        return;
-                    }
+            dispatcher.Execute(CleanupExecutionMode, valueTuple, state =>
+             {
+                 try
+                 {
+                     if (state.cancellationToken.IsCancellationRequested)
+                     {
+                         state.tcs.TrySetCanceled(state.cancellationToken);
+                         return;
+                     }
 
-                    var task = state.Item1.Components.TryCleanupAsync(state.view, state.viewModel, state.metadata, state.cancellationToken);
-                    if (task == null)
-                        ExceptionManager.ThrowObjectNotInitialized(state.Item1);
-                    state.tcs.TrySetFromTask(task);
-                }
-                catch (Exception e)
-                {
-                    state.tcs.TrySetException(e);
-                }
-            }, valueTuple, metadata: metadata);
+                     var task = state.Item1.Components.TryCleanupAsync(state.view, state.viewModel, state.metadata, state.cancellationToken);
+                     if (task == null)
+                         ExceptionManager.ThrowObjectNotInitialized(state.Item1);
+                     state.tcs.TrySetFromTask(task);
+                 }
+                 catch (Exception e)
+                 {
+                     state.tcs.TrySetException(e);
+                 }
+             }, metadata);
             return tcs.Task;
         }
 

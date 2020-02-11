@@ -3,7 +3,6 @@ using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -42,89 +41,19 @@ namespace MugenMvvm.Threading.Components
 
         #region Implementation of interfaces
 
-        public bool CanExecuteInline(ThreadExecutionMode executionMode)
+        public bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public bool TryExecute<TState>(ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
+        public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
         {
-            if (CanExecuteInline(executionMode))
-            {
-                handler.Execute(state);
-                return true;
-            }
-
+            if (CanExecuteInline(executionMode, metadata))
+                return ExecuteInline(handler, state);
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
-            {
-                if (state == null)
-                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler<TState>) o).Execute(default!), handler);
-                else
-                {
-                    if (handler is IValueHolder<Delegate> valueHolder)
-                    {
-                        if (!(valueHolder.Value is SendOrPostCallback sendOrPostCallback))
-                        {
-                            sendOrPostCallback = handler.Execute;
-                            valueHolder.Value = sendOrPostCallback;
-                        }
-
-                        _synchronizationContext.Post(sendOrPostCallback, state);
-                    }
-                    else
-                        _synchronizationContext.Post(handler.Execute, state);
-                }
-
-                return true;
-            }
-
+                return ExecuteMainThread(handler, state);
             if (executionMode == ThreadExecutionMode.Background)
-            {
-                if (handler is IValueHolder<Delegate> valueHolder)
-                {
-                    if (!(valueHolder.Value is WaitCallback waitCallback))
-                    {
-                        waitCallback = handler.Execute;
-                        valueHolder.Value = waitCallback;
-                    }
-
-                    ThreadPool.QueueUserWorkItem(waitCallback, state);
-                }
-                else
-                    ThreadPool.QueueUserWorkItem(handler.Execute, state);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        public bool TryExecute<TState>(ThreadExecutionMode executionMode, Action<TState> handler, TState state, IReadOnlyMetadataContext? metadata)
-        {
-            if (CanExecuteInline(executionMode))
-            {
-                handler.Invoke(state);
-                return true;
-            }
-
-            if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
-            {
-                if (state == null)
-                    _synchronizationContext.Post(o => ((Action<TState>) o).Invoke(default!), handler);
-                else
-                    _synchronizationContext.Post(handler.Invoke, state);
-                return true;
-            }
-
-            if (executionMode == ThreadExecutionMode.Background)
-            {
-                if (state == null)
-                    ThreadPool.QueueUserWorkItem(o => ((Action<TState>) o).Invoke(default!), handler);
-                else
-                    ThreadPool.QueueUserWorkItem(handler.Invoke, state);
-                return true;
-            }
-
+                return ExecuteBackground(handler, state);
             return false;
         }
 
@@ -132,11 +61,110 @@ namespace MugenMvvm.Threading.Components
 
         #region Methods
 
+        private static bool ExecuteBackground<TState>(object handler, TState state)
+        {
+            if (handler is WaitCallback waitCallback)
+            {
+                ThreadPool.QueueUserWorkItem(waitCallback, state);
+                return true;
+            }
+
+            if (handler is Action)
+            {
+                ThreadPool.QueueUserWorkItem(o => ((Action) o).Invoke(), handler);
+                return true;
+            }
+
+            if (handler is IThreadDispatcherHandler)
+            {
+                ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler) o).Execute(), handler);
+                return true;
+            }
+
+            if (handler is Action<TState> action)
+            {
+                ThreadPool.QueueUserWorkItem(action.Invoke, state);
+                return true;
+            }
+
+            if (handler is IThreadDispatcherHandler<TState> handlerState)
+            {
+                ThreadPool.QueueUserWorkItem(handlerState.Execute, state);
+                return true;
+            }
+
+            return false;
+        }
+
+        private bool ExecuteMainThread<TState>(object handler, TState state)
+        {
+            if (handler is SendOrPostCallback callback)
+            {
+                _synchronizationContext.Post(callback, state);
+                return true;
+            }
+
+            if (handler is Action)
+            {
+                _synchronizationContext.Post(o => ((Action) o).Invoke(), handler);
+                return true;
+            }
+
+            if (handler is IThreadDispatcherHandler)
+            {
+                _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o).Execute(), handler);
+                return true;
+            }
+
+            if (handler is Action<TState> action)
+            {
+                _synchronizationContext.Post(action.Invoke, state);
+                return true;
+            }
+
+            if (handler is IThreadDispatcherHandler<TState> handlerState)
+            {
+                _synchronizationContext.Post(handlerState.Execute, state);
+                return true;
+            }
+
+            return false;
+        }
+
+        private static bool ExecuteInline<TState>(object handler, TState state)
+        {
+            if (handler is Action action)
+            {
+                action.Invoke();
+                return true;
+            }
+
+            if (handler is Action<TState> actionState)
+            {
+                actionState(state);
+                return true;
+            }
+
+            if (handler is IThreadDispatcherHandler h)
+            {
+                h.Execute();
+                return true;
+            }
+
+            if (handler is IThreadDispatcherHandler<TState> handlerState)
+            {
+                handlerState.Execute(state);
+                return true;
+            }
+
+            return false;
+        }
+
         private bool IsOnMainThread()
         {
             if (_mainThreadId == null)
                 return SynchronizationContext.Current == _synchronizationContext;
-            return _mainThreadId == Environment.CurrentManagedThreadId;
+            return _mainThreadId.Value == Environment.CurrentManagedThreadId;
         }
 
         #endregion
