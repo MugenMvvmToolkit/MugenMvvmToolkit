@@ -3,6 +3,24 @@ using MugenMvvm.Interfaces.Threading;
 
 namespace MugenMvvm.UnitTest.Threading
 {
+    public class TestThreadDispatcherHandler : IThreadDispatcherHandler
+    {
+        #region Properties
+
+        public Action? Execute { get; set; }
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        void IThreadDispatcherHandler.Execute()
+        {
+            Execute?.Invoke();
+        }
+
+        #endregion
+    }
+
     public class TestThreadDispatcherHandler<T> : IThreadDispatcherHandler<T>
     {
         #region Properties
