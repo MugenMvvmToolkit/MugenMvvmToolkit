@@ -93,10 +93,9 @@ namespace MugenMvvm.Validation
             GetComponents<IValidator>(metadata).ClearErrors(memberName, metadata);
         }
 
-        public void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
+        public void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberName, nameof(memberName));
-            Should.NotBeNull(errors, nameof(errors));
             if (IsDisposed)
                 ExceptionManager.ThrowObjectDisposed(GetType());
             SetErrorsInternal(memberName, errors, metadata);
@@ -142,7 +141,7 @@ namespace MugenMvvm.Validation
 
         #region Methods
 
-        private void SetErrorsInternal(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
+        private void SetErrorsInternal(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
         {
             if (_inlineValidator == null && MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
             {

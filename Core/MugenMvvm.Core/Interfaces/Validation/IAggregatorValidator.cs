@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Validation
 {
     public interface IAggregatorValidator : IValidator, IComponentOwner<IAggregatorValidator>
     {
-        void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null);
+        void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null);
     }
 }

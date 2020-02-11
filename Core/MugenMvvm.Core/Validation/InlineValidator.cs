@@ -30,7 +30,7 @@ namespace MugenMvvm.Validation
             SetErrors(memberName, errors, metadata);
         }
 
-        public void SetErrors(string memberName, IReadOnlyList<object> errors, IReadOnlyMetadataContext? metadata = null)
+        public void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberName, nameof(memberName));
             UpdateErrors(memberName, errors, false, metadata);
