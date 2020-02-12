@@ -22,12 +22,7 @@ namespace MugenMvvm.Validation
 
         public void SetErrors(string memberName, params object[] errors)
         {
-            SetErrors(memberName, null, errors);
-        }
-
-        public void SetErrors(string memberName, IReadOnlyMetadataContext? metadata = null, params object[] errors)
-        {
-            SetErrors(memberName, errors, metadata);
+            SetErrors(memberName, errors, null);
         }
 
         public void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
