@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -10,13 +9,14 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Validation
 {
-    public abstract class ValidatorBase<TTarget> : ComponentOwnerBase<IValidator>, IValidator
+    public abstract class ValidatorBase<TTarget> : ComponentOwnerBase<IValidator>, IValidator, IHasTarget
         where TTarget : class
     {
         #region Fields
@@ -31,7 +31,6 @@ namespace MugenMvvm.Validation
         private int _state;
         private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
-        private PropertyChangedEventHandler? _weakPropertyHandler;
 
         private const int DisposedState = 1;
 
@@ -45,7 +44,6 @@ namespace MugenMvvm.Validation
         {
             _metadata = metadata;
             _metadataContextProvider = metadataContextProvider;
-            ValidateOnPropertyChanged = true;
             HasAsyncValidation = hasAsyncValidation;
             Errors = new Dictionary<string, IReadOnlyList<object>>(StringComparer.Ordinal);
             _validatingMembers = new HashSet<string>(StringComparer.Ordinal);
@@ -72,15 +70,15 @@ namespace MugenMvvm.Validation
 
         public bool HasErrors => !IsDisposed && HasErrorsInternal();
 
-        public bool ValidateOnPropertyChanged { get; set; }
-
         public bool IsDisposed => _state == DisposedState;
-
-        public bool HasAsyncValidation { get; set; }
 
         public TTarget Target => _target!;
 
+        protected bool HasAsyncValidation { get; set; }
+
         protected bool IsValidating => _validatingTasks != null && _validatingTasks.Count != 0;
+
+        object? IHasTarget.Target => _target;
 
         #endregion
 
@@ -92,8 +90,6 @@ namespace MugenMvvm.Validation
                 return;
             OnDispose();
             _disposeCancellationTokenSource?.Cancel();
-            if (Target is INotifyPropertyChanged notifyPropertyChanged && _weakPropertyHandler != null)
-                notifyPropertyChanged.PropertyChanged -= _weakPropertyHandler;
             this.ClearComponents();
             this.ClearMetadata(true);
         }
@@ -160,13 +156,6 @@ namespace MugenMvvm.Validation
             Should.NotBeNull(target, nameof(target));
             if (!MugenExtensions.LazyInitialize(ref _target, target))
                 ExceptionManager.ThrowObjectInitialized(this);
-
-            if (ValidateOnPropertyChanged && target is INotifyPropertyChanged notifyPropertyChanged)
-            {
-                _weakPropertyHandler = MugenExtensions.MakeWeakPropertyChangedHandler(this, (@this, o, arg3) => @this.OnTargetPropertyChanged(arg3));
-                notifyPropertyChanged.PropertyChanged += _weakPropertyHandler;
-            }
-
             OnInitialized(metadata);
         }
 
@@ -377,12 +366,6 @@ namespace MugenMvvm.Validation
 
             if (notify)
                 OnErrorsChanged(member, metadata);
-        }
-
-        private void OnTargetPropertyChanged(PropertyChangedEventArgs args)
-        {
-            if (ValidateOnPropertyChanged)
-                ValidateAsync(args.PropertyName);
         }
 
         #endregion
