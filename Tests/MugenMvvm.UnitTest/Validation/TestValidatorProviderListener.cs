@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.UnitTest.Validation
 {
-    public class ValidatorProviderListener : IValidatorProviderListener, IHasPriority
+    public class TestValidatorProviderListener : IValidatorProviderListener, IHasPriority
     {
         #region Properties
 
