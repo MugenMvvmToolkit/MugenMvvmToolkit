@@ -88,9 +88,8 @@ namespace MugenMvvm.Validation
 
         public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
-            if (IsDisposed)
-                return;
-            GetComponents<IValidator>(metadata).ClearErrors(memberName, metadata);
+            if (!IsDisposed)
+                GetComponents<IValidator>(metadata).ClearErrors(memberName, metadata);
         }
 
         public void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)

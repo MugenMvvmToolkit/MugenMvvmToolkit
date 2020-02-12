@@ -130,7 +130,7 @@ namespace MugenMvvm.Validation
             }
         }
 
-        public void ClearErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
+        public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (IsDisposed)
                 return;
@@ -275,10 +275,7 @@ namespace MugenMvvm.Validation
             if (!result.HasResult)
                 return;
 
-            var errors = result.GetErrors() ?? new Dictionary<string, IReadOnlyList<object>?>();
-            if (errors.IsReadOnly)
-                errors = new Dictionary<string, IReadOnlyList<object>?>(errors);
-
+            var errors = result.GetNonReadOnlyErrors();
             if (string.IsNullOrEmpty(memberName))
             {
                 lock (Errors)
@@ -334,14 +331,14 @@ namespace MugenMvvm.Validation
                 CancellationTokenSource? oldValue;
                 lock (_validatingTasks)
                 {
-                    if (_validatingTasks.TryGetValue(member, out oldValue))
-                        _validatingTasks[member] = source;
+                    _validatingTasks.TryGetValue(member, out oldValue);
+                    _validatingTasks[member] = source;
                 }
 
                 oldValue?.Cancel();
                 OnAsyncValidation(member, task, metadata);
                 // ReSharper disable once MethodSupportsCancellation
-                task.ContinueWith(t => OnAsyncValidationCompleted(member, source, metadata));
+                task.ContinueWith(t => OnAsyncValidationCompleted(member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
             }
 
             return task;
