@@ -18,7 +18,7 @@ namespace MugenMvvm.Validation
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private IMetadataContext? _metadata;
+        private IReadOnlyMetadataContext? _metadata;
         private int _state;
 
         private const int DisposedState = -1;
@@ -28,9 +28,10 @@ namespace MugenMvvm.Validation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public AggregatorValidator(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public AggregatorValidator(IReadOnlyMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
+            _metadata = metadata;
             _metadataContextProvider = metadataContextProvider;
         }
 
@@ -40,15 +41,7 @@ namespace MugenMvvm.Validation
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata == null)
-                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata;
-            }
-        }
+        public IMetadataContext Metadata => _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
 
         public bool HasErrors => !IsDisposed && GetComponents<IValidator>().HasErrors();
 
