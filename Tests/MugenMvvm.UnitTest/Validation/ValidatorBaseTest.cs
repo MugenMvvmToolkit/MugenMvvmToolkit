@@ -4,10 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
-using MugenMvvm.UnitTest.Metadata;
 using MugenMvvm.Validation;
 using Should;
 using Xunit;
@@ -30,7 +28,7 @@ namespace MugenMvvm.UnitTest.Validation
             {
                 {expectedMember, new[] {expectedMember}}
             });
-            var validator = new TestValidator<object>(isAsync);
+            var validator = new TestValidatorBase<object>(isAsync);
             validator.Initialize(this);
             validator.GetErrorsAsyncDelegate = (s, token, meta) =>
             {
@@ -60,7 +58,7 @@ namespace MugenMvvm.UnitTest.Validation
         public void ValidateAsyncShouldUseCancellationToken()
         {
             var expectedMember = "test";
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
             var tcs = new TaskCompletionSource<ValidationResult>();
             validator.GetErrorsAsyncDelegate = (s, token, _) =>
@@ -81,7 +79,7 @@ namespace MugenMvvm.UnitTest.Validation
         public void ValidateAsyncShouldCancelPreviousValidation()
         {
             var expectedMember = "test";
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
             var tcs = new TaskCompletionSource<ValidationResult>();
             validator.GetErrorsAsyncDelegate = (s, token, _) =>
@@ -101,7 +99,7 @@ namespace MugenMvvm.UnitTest.Validation
         public void ValidateAsyncShouldBeCanceledDispose()
         {
             var expectedMember = "test";
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
             var tcs = new TaskCompletionSource<ValidationResult>();
             validator.GetErrorsAsyncDelegate = (s, token, _) =>
@@ -122,7 +120,7 @@ namespace MugenMvvm.UnitTest.Validation
         {
             var expectedMember = "test";
             int invokeCount = 0;
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
             var tcs = new TaskCompletionSource<ValidationResult>();
             validator.GetErrorsAsyncDelegate = (s, token, _) =>
@@ -142,7 +140,7 @@ namespace MugenMvvm.UnitTest.Validation
         {
             int invokeCount = 0;
             var expectedMember = "test";
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
             validator.GetErrorsAsyncDelegate = (s, token, _) =>
             {
@@ -162,7 +160,7 @@ namespace MugenMvvm.UnitTest.Validation
         public void DisposeShouldClearComponentsMetadataNotifyListeners(int count)
         {
             int invokeCount = 0;
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
 
             for (int i = 0; i < count; i++)
@@ -188,7 +186,7 @@ namespace MugenMvvm.UnitTest.Validation
         public void HasErrorsShouldReturnTrueAsync()
         {
             var expectedMember = "test";
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             validator.Initialize(this);
             var tcs = new TaskCompletionSource<ValidationResult>();
             validator.GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(tcs.Task);
@@ -205,7 +203,7 @@ namespace MugenMvvm.UnitTest.Validation
         [InlineData(10)]
         public void GetErrorsShouldReturnErrors(int count)
         {
-            var validator = new TestValidator<object>(false) { GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.SingleResult(s, s)) };
+            var validator = new TestValidatorBase<object>(false) { GetErrorsAsyncDelegate = (s, token, _) => new ValueTask<ValidationResult>(ValidationResult.SingleResult(s, s)) };
             validator.Initialize(this);
             validator.HasErrors.ShouldBeFalse();
 
@@ -255,7 +253,7 @@ namespace MugenMvvm.UnitTest.Validation
         [InlineData(10)]
         public void ValidateAsyncShouldUpdateAllErrorsEmptyString(int count)
         {
-            var validator = new TestValidator<object>(false)
+            var validator = new TestValidatorBase<object>(false)
             {
                 GetErrorsAsyncDelegate = (s, token, _) =>
                 {
@@ -289,7 +287,7 @@ namespace MugenMvvm.UnitTest.Validation
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var validator = new TestValidator<object>(false);
+            var validator = new TestValidatorBase<object>(false);
             validator.Initialize(this);
             validator.GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.SingleResult(s, s));
 
@@ -319,7 +317,7 @@ namespace MugenMvvm.UnitTest.Validation
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var validator = new TestValidator<object>(true);
+            var validator = new TestValidatorBase<object>(true);
             Task? expectedTask = null;
             validator.Initialize(this);
             validator.GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(new TaskCompletionSource<ValidationResult>().Task);
@@ -352,7 +350,7 @@ namespace MugenMvvm.UnitTest.Validation
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var validator = new TestValidator<object>(false);
+            var validator = new TestValidatorBase<object>(false);
             validator.Initialize(this);
             validator.GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.SingleResult(s, s));
             validator.ValidateAsync(expectedMember, CancellationToken.None, DefaultMetadata);
@@ -383,7 +381,7 @@ namespace MugenMvvm.UnitTest.Validation
         {
             var invokeCount = 0;
             var expectedMember = "test";
-            var validator = new TestValidator<object>(false);
+            var validator = new TestValidatorBase<object>(false);
             validator.Initialize(this);
             validator.GetErrorsAsyncDelegate = (s, token, meta) => new ValueTask<ValidationResult>(ValidationResult.SingleResult(s, s));
             validator.ValidateAsync(expectedMember, CancellationToken.None, DefaultMetadata);
@@ -409,19 +407,7 @@ namespace MugenMvvm.UnitTest.Validation
 
         protected override ValidatorBase<object> GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new TestValidator<object>(false, componentCollectionProvider: collectionProvider);
-        }
-
-        #endregion
-    }
-
-    public class ValidatorBaseMetadataOwnerTest : MetadataOwnerTestBase
-    {
-        #region Methods
-
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
-        {
-            return new TestValidator<object>(false, metadata, metadataContextProvider: metadataContextProvider);
+            return new TestValidatorBase<object>(false, componentCollectionProvider: collectionProvider);
         }
 
         #endregion

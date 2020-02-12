@@ -44,10 +44,10 @@ namespace MugenMvvm.UnitTest.Components
             var componentOwner = GetComponentOwner();
             componentOwner.HasComponents.ShouldBeFalse();
 
-            componentOwner.Components.Add(componentOwner);
+            componentOwner.Components.Add(this);
             componentOwner.HasComponents.ShouldBeTrue();
 
-            componentOwner.Components.Remove(componentOwner);
+            componentOwner.Components.Remove(this);
             componentOwner.HasComponents.ShouldBeFalse();
         }
 

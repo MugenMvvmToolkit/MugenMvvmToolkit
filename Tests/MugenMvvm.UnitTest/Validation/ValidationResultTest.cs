@@ -35,8 +35,8 @@ namespace MugenMvvm.UnitTest.Validation
             var result = new object[] { "1", "2" };
             var singleResult = ValidationResult.SingleResult("test", DefaultMetadata, result);
             singleResult.Metadata.ShouldEqual(DefaultMetadata);
-            singleResult.ErrorsRaw.Count.ShouldEqual(1);
-            singleResult.ErrorsRaw[memberName].SequenceEqual(result).ShouldBeTrue();
+            singleResult.ErrorsRaw!.Count.ShouldEqual(1);
+            singleResult.ErrorsRaw![memberName].SequenceEqual(result).ShouldBeTrue();
         }
 
         [Fact]
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Validation
             errors.IsReadOnly.ShouldBeFalse();
 
             v = new ValidationResult(new Dictionary<string, IReadOnlyList<object>?>());
-            v.GetErrorsNonReadOnly().ShouldEqual((object)v.ErrorsRaw);
+            v.GetErrorsNonReadOnly().ShouldEqual((object)v.ErrorsRaw!);
 
 
             var readonlyDict = new ReadOnlyDictionary<string, IReadOnlyList<object>?>(new Dictionary<string, IReadOnlyList<object>?>
