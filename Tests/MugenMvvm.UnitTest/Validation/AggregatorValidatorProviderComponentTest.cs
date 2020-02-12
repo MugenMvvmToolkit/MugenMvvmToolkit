@@ -12,7 +12,8 @@ namespace MugenMvvm.UnitTest.Validation
         [Fact]
         public void TryGetAggregatorValidatorShouldReturnAggregatorValidator()
         {
-            new AggregatorValidatorProviderComponent().TryGetAggregatorValidator(this, DefaultMetadata).ShouldBeType<AggregatorValidator>();
+            var component = new AggregatorValidatorProviderComponent();
+            component.TryGetAggregatorValidator(this, DefaultMetadata).ShouldBeType<AggregatorValidator>();
         }
 
         #endregion
