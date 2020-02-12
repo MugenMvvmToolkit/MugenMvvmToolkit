@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
@@ -27,7 +26,7 @@ namespace MugenMvvm.Validation
         protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
         private CancellationTokenSource? _disposeCancellationTokenSource;
 
-        private IMetadataContext? _metadata;
+        private IReadOnlyMetadataContext? _metadata;
         private int _state;
         private TTarget? _target;
         private Dictionary<string, CancellationTokenSource>? _validatingTasks;
@@ -38,7 +37,7 @@ namespace MugenMvvm.Validation
 
         #region Constructors
 
-        protected ValidatorBase(bool hasAsyncValidation, IMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
+        protected ValidatorBase(bool hasAsyncValidation, IReadOnlyMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null,
             IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
@@ -58,15 +57,7 @@ namespace MugenMvvm.Validation
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata == null)
-                    _metadataContextProvider.LazyInitialize(ref _metadata, this);
-                return _metadata;
-            }
-        }
+        public IMetadataContext Metadata => _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
 
         public bool HasErrors => !IsDisposed && HasErrorsInternal();
 
@@ -366,57 +357,6 @@ namespace MugenMvvm.Validation
 
             if (notify)
                 OnErrorsChanged(member, metadata);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        [StructLayout(LayoutKind.Auto)]
-        protected internal readonly struct ValidationResult
-        {
-            #region Fields
-
-            public static readonly ValidationResult NoErrors = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>?>());
-            public static readonly ValueTask<ValidationResult> NoErrorsTask = new ValueTask<ValidationResult>(NoErrors);
-
-            public readonly IReadOnlyDictionary<string, IReadOnlyList<object>?>? ErrorsRaw;
-            public readonly IReadOnlyMetadataContext Metadata;
-
-            #endregion
-
-            #region Constructors
-
-            public ValidationResult(IReadOnlyDictionary<string, IReadOnlyList<object>?> errors, IReadOnlyMetadataContext? metadata = null)
-            {
-                Should.NotBeNull(errors, nameof(errors));
-                ErrorsRaw = errors;
-                Metadata = metadata.DefaultIfNull();
-            }
-
-            #endregion
-
-            #region Properties
-
-            public bool HasResult => ErrorsRaw != null;
-
-            #endregion
-
-            #region Methods
-
-            public IDictionary<string, IReadOnlyList<object>?> GetErrors()
-            {
-                if (ErrorsRaw == null)
-                    return new Dictionary<string, IReadOnlyList<object>?>();
-                if (ErrorsRaw is IDictionary<string, IReadOnlyList<object>?> errors && !errors.IsReadOnly)
-                    return errors;
-                var result = new Dictionary<string, IReadOnlyList<object>?>(ErrorsRaw.Count);
-                foreach (var pair in ErrorsRaw)
-                    result[pair.Key] = pair.Value;
-                return result;
-            }
-
-            #endregion
         }
 
         #endregion
