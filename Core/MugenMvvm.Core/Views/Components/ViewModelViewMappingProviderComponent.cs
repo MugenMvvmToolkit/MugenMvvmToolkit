@@ -9,6 +9,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
@@ -41,43 +42,37 @@ namespace MugenMvvm.Views.Components
         public IReadOnlyList<IViewModelViewMapping>? TryGetMappingByView(object view, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(view, nameof(view));
-            List<IViewModelViewMapping>? mappings = null;
+            LazyList<IViewModelViewMapping> mappings = default;
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
                 {
                     var mapping = _mappings[i];
                     var viewModelType = mapping.GetViewModelType(view, metadata);
-                    if (viewModelType == null)
-                        continue;
-                    if (mappings == null)
-                        mappings = new List<IViewModelViewMapping>(2);
-                    mappings.Add(new ViewModelViewMapping(mapping.Id, view.GetType(), viewModelType, mapping.Metadata));
+                    if (viewModelType != null)
+                        mappings.Add(new ViewModelViewMapping(mapping.Id, view.GetType(), viewModelType, mapping.Metadata));
                 }
             }
 
-            return mappings;
+            return mappings.List;
         }
 
         public IReadOnlyList<IViewModelViewMapping>? TryGetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            List<IViewModelViewMapping>? mappings = null;
+            LazyList<IViewModelViewMapping> mappings = default;
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
                 {
                     var mapping = _mappings[i];
                     var viewType = mapping.GetViewType(viewModel, metadata);
-                    if (viewType == null)
-                        continue;
-                    if (mappings == null)
-                        mappings = new List<IViewModelViewMapping>(2);
-                    mappings.Add(new ViewModelViewMapping(mapping.Id, viewType, viewModel.GetType(), mapping.Metadata));
+                    if (viewType != null)
+                        mappings.Add(new ViewModelViewMapping(mapping.Id, viewType, viewModel.GetType(), mapping.Metadata));
                 }
             }
 
-            return mappings;
+            return mappings.List;
         }
 
         #endregion
