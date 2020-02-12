@@ -47,7 +47,7 @@ namespace MugenMvvm.Views.Components
         {
             if (viewModel == null || view == null)
                 return null;
-            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?) null, (context, _) => new StringOrdinalLightDictionary<IView>(1));
+            var views = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, _) => new StringOrdinalLightDictionary<IView>(1));
             View resultView;
             lock (views)
             {
@@ -95,6 +95,8 @@ namespace MugenMvvm.Views.Components
                 return null;
             lock (views)
             {
+                if (views.Count == 0)
+                    return null;
                 return views.ValuesToArray();
             }
         }
