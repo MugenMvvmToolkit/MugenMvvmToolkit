@@ -373,14 +373,12 @@ namespace MugenMvvm.Validation
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        protected readonly struct ValidationResult
+        protected internal readonly struct ValidationResult
         {
             #region Fields
 
-            public static readonly ValidationResult DoNothing;
-            public static readonly ValidationResult Empty = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>?>());
-            public static readonly ValueTask<ValidationResult> DoNothingTask = new ValueTask<ValidationResult>(DoNothing);
-            public static readonly ValueTask<ValidationResult> EmptyTask = new ValueTask<ValidationResult>(Empty);
+            public static readonly ValidationResult NoErrors = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>?>());
+            public static readonly ValueTask<ValidationResult> NoErrorsTask = new ValueTask<ValidationResult>(NoErrors);
 
             public readonly IReadOnlyDictionary<string, IReadOnlyList<object>?>? ErrorsRaw;
             public readonly IReadOnlyMetadataContext Metadata;

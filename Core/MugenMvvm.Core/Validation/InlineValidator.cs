@@ -38,7 +38,7 @@ namespace MugenMvvm.Validation
 
         protected override ValueTask<ValidationResult> GetErrorsAsync(string memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return ValidationResult.DoNothingTask;
+            return default;
         }
 
         #endregion
