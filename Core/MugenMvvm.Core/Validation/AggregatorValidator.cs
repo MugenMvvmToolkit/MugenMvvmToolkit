@@ -18,8 +18,6 @@ namespace MugenMvvm.Validation
         #region Fields
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
-
-        private InlineValidator<object>? _inlineValidator;
         private IMetadataContext? _metadata;
         private int _state;
 
@@ -92,14 +90,6 @@ namespace MugenMvvm.Validation
                 GetComponents<IValidator>(metadata).ClearErrors(memberName, metadata);
         }
 
-        public void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(memberName, nameof(memberName));
-            if (IsDisposed)
-                ExceptionManager.ThrowObjectDisposed(GetType());
-            SetErrorsInternal(memberName, errors, metadata);
-        }
-
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IValidator validator)
@@ -134,22 +124,6 @@ namespace MugenMvvm.Validation
         void IValidatorListener.OnDisposed(IValidator validator)
         {
             Components.Remove(validator);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private void SetErrorsInternal(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (_inlineValidator == null && MugenExtensions.LazyInitialize(ref _inlineValidator, new InlineValidator<object>()))
-            {
-                _inlineValidator.Initialize(this);
-                _inlineValidator.AddComponent(this, metadata);
-                Components.Add(_inlineValidator, metadata);
-            }
-
-            _inlineValidator.SetErrors(memberName, errors, metadata);
         }
 
         #endregion
