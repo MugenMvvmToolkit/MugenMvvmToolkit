@@ -63,6 +63,7 @@ namespace MugenMvvm.UnitTest.Wrapping
         {
             var manager = new WrapperManager();
             var executeCount = 0;
+            var listenerExecuteCount = 0;
             var expectedWrapperType = typeof(bool);
             object result = true;
             for (var i = 0; i < count; i++)
@@ -84,10 +85,23 @@ namespace MugenMvvm.UnitTest.Wrapping
                     Priority = -i
                 };
                 manager.AddComponent(component);
+                manager.AddComponent(new TestWrapperManagerListener
+                {
+                    OnWrapped = (wrapperManager, wrapper, item, wrapperType, metadata) =>
+                    {
+                        ++listenerExecuteCount;
+                        wrapperManager.ShouldEqual(manager);
+                        wrapper.ShouldEqual(result);
+                        item.ShouldEqual(manager);
+                        wrapperType.ShouldEqual(expectedWrapperType);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    }
+                });
             }
 
             manager.Wrap(manager, expectedWrapperType, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
+            listenerExecuteCount.ShouldEqual(count);
         }
 
         protected override WrapperManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
