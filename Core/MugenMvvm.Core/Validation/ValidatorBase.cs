@@ -275,7 +275,7 @@ namespace MugenMvvm.Validation
             if (!result.HasResult)
                 return;
 
-            var errors = result.GetNonReadOnlyErrors();
+            var errors = result.GetErrorsNonReadOnly();
             if (string.IsNullOrEmpty(memberName))
             {
                 lock (Errors)

@@ -36,15 +36,20 @@ namespace MugenMvvm.Validation
 
         #region Methods
 
-        public static ValidationResult SingleResult(string member, object error)
+        public static ValidationResult SingleResult(string member, params object[] errors)
+        {
+            return SingleResult(member, null, errors);
+        }
+
+        public static ValidationResult SingleResult(string member, IReadOnlyMetadataContext? metadata, params object[] errors)
         {
             return new ValidationResult(new Dictionary<string, IReadOnlyList<object>?>
             {
-                {member, new[] {error}}
-            });
+                {member, errors}
+            }, metadata);
         }
 
-        public IDictionary<string, IReadOnlyList<object>?> GetNonReadOnlyErrors()
+        public IDictionary<string, IReadOnlyList<object>?> GetErrorsNonReadOnly()
         {
             if (ErrorsRaw == null)
                 return new Dictionary<string, IReadOnlyList<object>?>();
