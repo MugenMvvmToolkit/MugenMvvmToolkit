@@ -39,13 +39,13 @@ namespace MugenMvvm.UnitTest.Views
             {
                 var view = new object();
                 var mapping = new ViewModelViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None).Result);
+                results.Add(component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result);
             }
 
             for (int i = 0; i < count; i++)
             {
                 component.TryGetViews(viewModel, DefaultMetadata).SequenceEqual(results.Select(result => result.View)).ShouldBeTrue();
-                component.TryCleanupAsync(results[0].View, viewModel, DefaultMetadata, CancellationToken.None).IsCompleted.ShouldBeTrue();
+                component.TryCleanupAsync(results[0].View, viewModel, DefaultMetadata, CancellationToken.None)!.IsCompleted.ShouldBeTrue();
                 results.RemoveAt(0);
             }
             component.TryGetViews(viewModel, DefaultMetadata).ShouldBeNull();
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Views
             {
                 var view = new object();
                 var mapping = new ViewModelViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None).Result);
+                results.Add(component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result);
             }
 
             int invokeCount = 0;
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTest.Views
             for (int i = 0; i < viewCount; i++)
             {
                 expectedView = results[0].View;
-                component.TryCleanupAsync(results[0].View, viewModel, DefaultMetadata, CancellationToken.None).IsCompleted.ShouldBeTrue();
+                component.TryCleanupAsync(results[0].View, viewModel, DefaultMetadata, CancellationToken.None)!.IsCompleted.ShouldBeTrue();
                 results.RemoveAt(0);
             }
 
@@ -138,7 +138,7 @@ namespace MugenMvvm.UnitTest.Views
                 manager.AddComponent(listener);
             }
 
-            var result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None).Result;
+            var result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
             result.View.View.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
@@ -148,7 +148,7 @@ namespace MugenMvvm.UnitTest.Views
 
             invokeCount = 0;
             clearInvokeCount = 0;
-            result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None).Result;
+            result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
             result.View.View.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTest.Views
             invokeCount = 0;
             clearInvokeCount = 0;
             view = new object();
-            result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None).Result;
+            result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
             result.View.View.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);

@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Views
     {
         #region Properties
 
-        public Func<IViewModelBase, IReadOnlyMetadataContext?, IReadOnlyList<IView>?> TryGetViews { get; set; }
+        public Func<IViewModelBase, IReadOnlyMetadataContext?, IReadOnlyList<IView>?>? TryGetViews { get; set; }
 
         public int Priority { get; set; }
 
