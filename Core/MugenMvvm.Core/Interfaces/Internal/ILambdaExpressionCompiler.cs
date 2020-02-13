@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Internal
     {
         Delegate Compile(LambdaExpression lambdaExpression);
 
-        TDelegate Compile<TDelegate>(LambdaExpression lambdaExpression) where TDelegate : Delegate;
+        TDelegate Compile<TDelegate>(Expression<TDelegate> lambdaExpression) where TDelegate : Delegate;
     }
 }

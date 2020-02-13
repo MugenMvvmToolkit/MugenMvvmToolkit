@@ -98,9 +98,14 @@ namespace MugenMvvm
                 Configuration<TService>.Initialize(serviceConfiguration);
             }
 
-            public static void Initialize<TService>(TService service) where TService : class
+            public static void InitializeInstance<TService>(TService service) where TService : class
             {
                 Configuration<TService>.Initialize(service);
+            }
+
+            public static void Clear<TService>() where TService : class
+            {
+                Configuration<TService>.Clear();
             }
 
             #endregion
@@ -163,6 +168,13 @@ namespace MugenMvvm
             {
                 Should.NotBeNull(service, nameof(service));
                 InitializeInternal(service);
+            }
+
+            public static void Clear()
+            {
+                _service = null;
+                _serviceConfiguration = null;
+                _serviceConfigurationOptional = null;
             }
 
             private static TService GetFallbackService()

@@ -32,7 +32,7 @@ namespace MugenMvvm.Extensions
             var compiler = MugenService.Optional<ILambdaExpressionCompiler>();
             if (compiler == null)
                 return lambdaExpression.Compile();
-            return compiler.Compile<TDelegate>(lambdaExpression);
+            return compiler.Compile(lambdaExpression);
         }
 
         public static bool IsStatic(this MemberInfo member)
