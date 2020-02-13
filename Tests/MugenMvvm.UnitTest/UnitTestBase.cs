@@ -31,24 +31,24 @@ namespace MugenMvvm.UnitTest
 
         public UnitTestBase()
         {
-            MugenService.Configuration.Initialize<IComponentCollectionProvider>(new ComponentCollectionProvider());
+            MugenService.Configuration.InitializeInstance<IComponentCollectionProvider>(new ComponentCollectionProvider());
 
             var metadataContextProvider = new MetadataContextProvider();
             metadataContextProvider.AddComponent(new MetadataContextProviderComponent());
-            MugenService.Configuration.Initialize<IMetadataContextProvider>(metadataContextProvider);
+            MugenService.Configuration.InitializeInstance<IMetadataContextProvider>(metadataContextProvider);
 
             var weakReferenceProvider = new WeakReferenceProvider();
             weakReferenceProvider.AddComponent(new WeakReferenceProviderComponent());
-            MugenService.Configuration.Initialize<IWeakReferenceProvider>(weakReferenceProvider);
+            MugenService.Configuration.InitializeInstance<IWeakReferenceProvider>(weakReferenceProvider);
 
             InitializeThreadDispatcher();
 
             var reflectionDelegateProvider = new ReflectionDelegateProvider();
             reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
-            MugenService.Configuration.Initialize<IReflectionDelegateProvider>(reflectionDelegateProvider);
+            MugenService.Configuration.InitializeInstance<IReflectionDelegateProvider>(reflectionDelegateProvider);
 
             var commandProvider = new CommandProvider();
-            MugenService.Configuration.Initialize<ICommandProvider>(commandProvider);
+            MugenService.Configuration.InitializeInstance<ICommandProvider>(commandProvider);
         }
 
         #endregion
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTest
         {
             var threadDispatcher = new ThreadDispatcher();
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
-            MugenService.Configuration.Initialize<IThreadDispatcher>(threadDispatcher);
+            MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
         }
 
         protected static void ShouldThrow<T>(Action action) where T : Exception

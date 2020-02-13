@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Collections
         protected override void InitializeThreadDispatcher()
         {
             var threadDispatcher = new ThreadDispatcher();
-            MugenService.Configuration.Initialize<IThreadDispatcher>(threadDispatcher);
+            MugenService.Configuration.InitializeInstance<IThreadDispatcher>(threadDispatcher);
         }
 
         [Fact]

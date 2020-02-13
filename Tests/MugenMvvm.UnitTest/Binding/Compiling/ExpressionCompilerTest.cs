@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Compiling;
+﻿using System;
+using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -11,6 +12,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
     public class ExpressionCompilerTest : ComponentOwnerTestBase<ExpressionCompiler>
     {
         #region Methods
+
+        [Fact]
+        public void CompileShouldThrowNoComponents()
+        {
+            var compiler = GetComponentOwner();
+            ShouldThrow<InvalidOperationException>(() => compiler.Compile(ConstantExpressionNode.False));
+        }
 
         [Theory]
         [InlineData(1)]
