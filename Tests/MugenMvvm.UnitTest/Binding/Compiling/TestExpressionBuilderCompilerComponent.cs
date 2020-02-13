@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
     {
         #region Properties
 
-        public Func<IExpressionBuilderContext, IExpressionNode, Expression?> TryBuild { get; set; }
+        public Func<IExpressionBuilderContext, IExpressionNode, Expression?>? TryBuild { get; set; }
 
         #endregion
 

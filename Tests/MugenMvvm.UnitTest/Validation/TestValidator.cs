@@ -39,17 +39,17 @@ namespace MugenMvvm.UnitTest.Validation
 
         bool IValidator.HasErrors => HasErrors?.Invoke() ?? false;
 
-        public Func<bool> HasErrors { get; set; }
+        public Func<bool>? HasErrors { get; set; }
 
-        public Action Dispose { get; set; }
+        public Action? Dispose { get; set; }
 
-        public Func<string?, IReadOnlyMetadataContext?, IReadOnlyList<object>> GetErrors { get; set; }
+        public Func<string?, IReadOnlyMetadataContext?, IReadOnlyList<object>>? GetErrors { get; set; }
 
-        public Func<IReadOnlyMetadataContext?, IReadOnlyDictionary<string, IReadOnlyList<object>>> GetAllErrors { get; set; }
+        public Func<IReadOnlyMetadataContext?, IReadOnlyDictionary<string, IReadOnlyList<object>>>? GetAllErrors { get; set; }
 
-        public Func<string?, CancellationToken, IReadOnlyMetadataContext?, Task> ValidateAsync { get; set; }
+        public Func<string?, CancellationToken, IReadOnlyMetadataContext?, Task>? ValidateAsync { get; set; }
 
-        public Action<string?, IReadOnlyMetadataContext?> ClearErrors { get; set; }
+        public Action<string?, IReadOnlyMetadataContext?>? ClearErrors { get; set; }
 
         public int Priority { get; set; }
 
