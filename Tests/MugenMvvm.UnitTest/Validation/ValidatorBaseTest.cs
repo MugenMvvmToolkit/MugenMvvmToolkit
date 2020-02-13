@@ -175,8 +175,10 @@ namespace MugenMvvm.UnitTest.Validation
                 });
             }
 
+            validator.IsDisposed.ShouldBeFalse();
             validator.Metadata.Set(ValidationMetadata.IgnoreMembers, new List<string>());
             validator.Dispose();
+            validator.IsDisposed.ShouldBeTrue();
             invokeCount.ShouldEqual(count);
             validator.Components.Count.ShouldEqual(0);
             validator.Metadata.Count.ShouldEqual(0);

@@ -6,11 +6,12 @@ using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 
 namespace MugenMvvm.UnitTest.Validation
 {
-    public class TestValidator : ComponentOwnerBase<IValidator>, IValidator
+    public class TestValidator : ComponentOwnerBase<IValidator>, IValidator, IHasPriority
     {
         #region Fields
 
@@ -49,6 +50,8 @@ namespace MugenMvvm.UnitTest.Validation
         public Func<string?, CancellationToken, IReadOnlyMetadataContext?, Task> ValidateAsync { get; set; }
 
         public Action<string?, IReadOnlyMetadataContext?> ClearErrors { get; set; }
+
+        public int Priority { get; set; }
 
         #endregion
 
