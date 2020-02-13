@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Validation
             var listenerCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var validator = new InlineValidator<object>();
+                var validator = new InlineValidator();
                 validators.Add(validator);
                 var component = new TestValidatorProviderComponent
                 {
