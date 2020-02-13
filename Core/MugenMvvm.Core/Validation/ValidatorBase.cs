@@ -15,7 +15,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Validation
 {
-    public abstract class ValidatorBase<TTarget> : ComponentOwnerBase<IValidator>, IValidator, IHasTarget
+    public abstract class ValidatorBase<TTarget> : ComponentOwnerBase<IValidator>, IValidator, IHasTarget, IHasPriority
         where TTarget : class
     {
         #region Fields
@@ -70,6 +70,8 @@ namespace MugenMvvm.Validation
         protected bool IsValidating => _validatingTasks != null && _validatingTasks.Count != 0;
 
         object? IHasTarget.Target => _target;
+
+        public int Priority { get; set; }
 
         #endregion
 
