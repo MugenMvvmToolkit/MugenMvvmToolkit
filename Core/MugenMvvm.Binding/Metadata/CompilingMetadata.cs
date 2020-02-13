@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 
@@ -10,6 +11,7 @@ namespace MugenMvvm.Binding.Metadata
         #region Fields
 
         private static IMetadataContextKey<List<string>>? _compilingErrors;
+        private static IMetadataContextKey<IParameterInfo>? _lambdaParameter;
 
         #endregion
 
@@ -20,6 +22,13 @@ namespace MugenMvvm.Binding.Metadata
         {
             get => _compilingErrors ??= GetBuilder<List<string>>(nameof(CompilingErrors)).Build();
             set => _compilingErrors = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<IParameterInfo> LambdaParameter
+        {
+            get => _lambdaParameter ??= GetBuilder<IParameterInfo>(nameof(LambdaParameter)).Build();
+            set => _lambdaParameter = value;
         }
 
         #endregion

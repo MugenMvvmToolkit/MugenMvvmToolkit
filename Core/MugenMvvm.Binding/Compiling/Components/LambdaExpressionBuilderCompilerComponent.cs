@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
@@ -26,7 +27,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (!(expression is ILambdaExpressionNode lambdaExpression))
                 return null;
 
-            var method = context.TryGetLambdaParameter()?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
+            var method = context.Metadata.Get(CompilingMetadata.LambdaParameter!)?.ParameterType.GetMethod(nameof(Action.Invoke), BindingFlagsEx.InstancePublic);
             if (method == null)
             {
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileLambdaExpressionDelegateFormat1.Format(lambdaExpression));

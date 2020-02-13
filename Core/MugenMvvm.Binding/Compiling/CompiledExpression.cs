@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Constants;
@@ -7,7 +6,6 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
@@ -28,10 +26,9 @@ namespace MugenMvvm.Binding.Compiling
         private readonly object?[] _values;
 
         private IExpressionBuilderCompilerComponent[] _expressionBuilders;
-        private List<IParameterInfo>? _lambdaParameters;
         private IMetadataContext? _metadata;
 
-        private static readonly ParameterExpression[] ArrayParameterArray = {MugenExtensions.GetParameterExpression<object[]>()};
+        private static readonly ParameterExpression[] ArrayParameterArray = { MugenExtensions.GetParameterExpression<object[]>() };
 
         #endregion
 
@@ -45,7 +42,7 @@ namespace MugenMvvm.Binding.Compiling
             _expression = expression.Accept(this, metadata);
             _values = new object[_expressionsDict.Count + 1];
             _expressionBuilders = Default.EmptyArray<IExpressionBuilderCompilerComponent>();
-            MetadataParameter = MugenExtensions.GetIndexExpression(_expressionsDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
+            MetadataExpression = MugenExtensions.GetIndexExpression(_expressionsDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
         }
 
         #endregion
@@ -64,7 +61,7 @@ namespace MugenMvvm.Binding.Compiling
             }
         }
 
-        public Expression MetadataParameter { get; }
+        public Expression MetadataExpression { get; }
 
         public IExpressionBuilderCompilerComponent[] ExpressionBuilders
         {
@@ -85,7 +82,7 @@ namespace MugenMvvm.Binding.Compiling
         public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
         {
             var list = values.List;
-            var key = list ?? values.Item.Type ?? (object) Default.EmptyArray<Type>();
+            var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<ExpressionValue>();
             if (!TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);
@@ -117,27 +114,6 @@ namespace MugenMvvm.Binding.Compiling
             {
                 Array.Clear(_values, 0, _values.Length);
             }
-        }
-
-        public IParameterInfo? TryGetLambdaParameter()
-        {
-            if (_lambdaParameters == null || _lambdaParameters.Count == 0)
-                return default;
-            return _lambdaParameters[0];
-        }
-
-        public void SetLambdaParameter(IParameterInfo parameter)
-        {
-            Should.NotBeNull(parameter, nameof(parameter));
-            if (_lambdaParameters == null)
-                _lambdaParameters = new List<IParameterInfo>(2);
-            _lambdaParameters.Insert(0, parameter);
-        }
-
-        public void ClearLambdaParameter(IParameterInfo parameter)
-        {
-            Should.NotBeNull(parameter, nameof(parameter));
-            _lambdaParameters?.Remove(parameter);
         }
 
         public Expression? TryGetExpression(IExpressionNode expression)
@@ -217,10 +193,8 @@ namespace MugenMvvm.Binding.Compiling
             }
             finally
             {
-                _lambdaParameters?.Clear();
                 if (_metadata != null)
                 {
-                    this.TryGetErrors()?.Clear();
                     _metadata.Clear();
                     if (!_inputMetadata.IsNullOrEmpty())
                         _metadata.Merge(_inputMetadata!);
@@ -241,25 +215,16 @@ namespace MugenMvvm.Binding.Compiling
 
             var typesX = x as Type[];
             var typesY = y as Type[];
-            if (typesX == null && typesY == null)
+            if (typesX == null && typesY == null)//not supported state
             {
-                var valuesX = (ExpressionValue[]) x;
-                var valuesY = (ExpressionValue[]) y;
-                if (valuesX.Length != valuesY.Length)
-                    return false;
-                for (var i = 0; i < valuesX.Length; i++)
-                {
-                    if (valuesX[i].Type != valuesY[i].Type)
-                        return false;
-                }
-
-                return true;
+                ExceptionManager.ThrowNotSupported(nameof(Equals));
+                return false;
             }
 
             if (typesX == null)
-                return Equals(typesY!, (ExpressionValue[]) x);
+                return Equals(typesY!, (ExpressionValue[])x);
             if (typesY == null)
-                return Equals(typesX!, (ExpressionValue[]) y);
+                return Equals(typesX!, (ExpressionValue[])y);
 
             if (typesX.Length != typesY.Length)
                 return false;
@@ -285,7 +250,7 @@ namespace MugenMvvm.Binding.Compiling
             }
             else
             {
-                var types = (Type[]) key;
+                var types = (Type[])key;
                 for (var index = 0; index < types.Length; index++)
                     hashCode.Add(types[index]);
             }

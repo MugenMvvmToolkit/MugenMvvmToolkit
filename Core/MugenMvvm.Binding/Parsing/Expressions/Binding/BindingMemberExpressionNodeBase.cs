@@ -26,6 +26,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             Should.NotBeNull(path, nameof(path));
             Path = path;
             ObserverProvider = observerProvider;
+            Index = -1;
         }
 
         #endregion

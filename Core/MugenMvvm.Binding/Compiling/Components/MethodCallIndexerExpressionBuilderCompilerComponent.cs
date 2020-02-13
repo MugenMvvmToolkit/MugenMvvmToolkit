@@ -13,6 +13,7 @@ using MugenMvvm.Binding.Interfaces.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -150,7 +151,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 ExpressionCallBuffer[1] = Expression.Constant(methodName);
                 ExpressionCallBuffer[2] = Expression.NewArrayInit(typeof(object), arrayArgs);
                 ExpressionCallBuffer[3] = Expression.Constant(typeArgs);
-                ExpressionCallBuffer[4] = context.MetadataParameter;
+                ExpressionCallBuffer[4] = context.MetadataExpression;
                 return Expression.Call(Expression.Constant(new MethodInvoker(this)), MethodInvokerInvokeMethod, ExpressionCallBuffer);
             }
             finally
@@ -248,14 +249,18 @@ namespace MugenMvvm.Binding.Compiling.Components
                         var data = arguments[index];
                         if (data.IsLambda)
                         {
-                            context.SetLambdaParameter(method.Parameters[index]);
+                            var oldLambdaParameter = context.Metadata.Get(CompilingMetadata.LambdaParameter!);
+                            context.Metadata.Set(CompilingMetadata.LambdaParameter, method.Parameters[index]);
                             try
                             {
                                 data = data.UpdateExpression(context.Build(data.Node));
                             }
                             finally
                             {
-                                context.ClearLambdaParameter(method.Parameters[index]);
+                                if (oldLambdaParameter == null)
+                                    context.Metadata.Clear(CompilingMetadata.LambdaParameter);
+                                else
+                                    context.Metadata.Set(CompilingMetadata.LambdaParameter, oldLambdaParameter);
                             }
 
                             arguments[index] = data;
@@ -294,7 +299,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var invokeArgs = new Expression[3];
             invokeArgs[0] = target.Expression.ConvertIfNeed(typeof(object), false) ?? MugenExtensions.NullConstantExpression;
             invokeArgs[1] = Expression.NewArrayInit(typeof(object), resultArgs.Select(expression => expression.ConvertIfNeed(typeof(object), false)));
-            invokeArgs[2] = context.MetadataParameter;
+            invokeArgs[2] = context.MetadataExpression;
             return Expression.Call(Expression.Constant(result.Method), InvokeMethod, invokeArgs).ConvertIfNeed(result.Method.Type, true);
         }
 
@@ -455,7 +460,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         else
                         {
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
-                                result[j] = context.MetadataParameter;
+                                result[j] = context.MetadataExpression;
                             else
                                 result[j] = Expression.Constant(parameter.DefaultValue).ConvertIfNeed(parameter.ParameterType, false);
                         }
