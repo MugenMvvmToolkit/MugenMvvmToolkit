@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class InlineValidator<T> : ValidatorBase<T> where T : class
+    public sealed class InlineValidator : ValidatorBase<object>
     {
         #region Constructors
 
@@ -14,6 +14,7 @@ namespace MugenMvvm.Validation
             IMetadataContextProvider? metadataContextProvider = null)
             : base(false, metadata, componentCollectionProvider, metadataContextProvider)
         {
+            Initialize(this);
         }
 
         #endregion
