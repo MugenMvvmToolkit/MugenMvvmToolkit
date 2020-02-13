@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Constructors
 
-        internal ExpressionValue(object? value)
+        public ExpressionValue(object? value)
         {
             Type = null!;
             Value = value;
@@ -33,6 +33,8 @@ namespace MugenMvvm.Binding.Compiling
         #region Properties
 
         public bool IsEmpty => Type == null;
+
+        public bool HasValue => !IsEmpty || Value != null;
 
         #endregion
     }
