@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 using Should;
 
 namespace MugenMvvm.UnitTest
@@ -6,6 +7,11 @@ namespace MugenMvvm.UnitTest
     public static class UnitTestExtensions
     {
         #region Methods
+
+        public static object? Invoke(this Expression expression, params object?[] args)
+        {
+            return Expression.Lambda(expression).Compile().DynamicInvoke(args);
+        }
 
         public static void ShouldContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable)
         {

@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         #region Properties
 
-        public Expression MetadataExpression { get; set; }
+        public Expression MetadataExpression { get; set; } = default!;
 
         public Func<IExpressionNode, Expression?>? TryGetExpression { get; set; }
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         public Action<IExpressionNode>? ClearExpression { get; set; }
 
-        public Func<IExpressionNode, Expression>? Build { get; set; }
+        public Func<IExpressionNode, Expression>? Build { get; set; } = node => Expression.Constant(((IConstantExpressionNode)node).Value, ((IConstantExpressionNode)node).Type);
 
         #endregion
 

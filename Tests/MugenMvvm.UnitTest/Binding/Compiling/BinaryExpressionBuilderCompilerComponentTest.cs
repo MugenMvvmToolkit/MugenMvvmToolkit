@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
@@ -16,7 +14,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         #region Methods
 
         [Fact]
-        public void TryBuildShouldNotSupportNonBinaryExpression()
+        public void TryBuildShouldIgnoreNotBinaryExpression()
         {
             var component = new BinaryExpressionBuilderCompilerComponent();
             var ctx = new TestExpressionBuilderContext();
@@ -43,12 +41,12 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                 return;
             }
 
-            var expression = component.TryBuild(context, binaryExpression);
+            var expression = component.TryBuild(context, binaryExpression)!;
             expression.ShouldNotBeNull();
-            Expression.Lambda(expression).Compile().DynamicInvoke().ShouldEqual(result);
+            expression.Invoke().ShouldEqual(result);
         }
 
-        public static IEnumerable<object[]> GetData()
+        public static IEnumerable<object?[]> GetData()
         {
             return new[]
             {
@@ -128,29 +126,18 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
                 GetBinary(BinaryTokenType.NullCoalescing, null, "f", null ?? "f", false),
                 GetBinary(BinaryTokenType.NullCoalescing, "f", "t", "f" ?? "t", false),
-                GetBinary(BinaryTokenType.NullCoalescing, "f", 1, null, true),
+                GetBinary(BinaryTokenType.NullCoalescing, "f", 1, null, true)
             };
         }
 
-        private static object[] GetBinary(BinaryTokenType binaryToken, object left, object right, object result, bool invalid)
+        private static object?[] GetBinary(BinaryTokenType binaryToken, object? left, object? right, object? result, bool invalid)
         {
             var leftExpression = ConstantExpressionNode.Get(left);
             var rightExpression = ConstantExpressionNode.Get(right);
-            var context = new TestExpressionBuilderContext
-            {
-                Build = node =>
-                {
-                    if (node == leftExpression)
-                        return Expression.Constant(left);
-                    if (node == rightExpression)
-                        return Expression.Constant(right);
-                    throw new NotSupportedException();
-                }
-            };
             return new[]
             {
                 new BinaryExpressionNode(binaryToken, leftExpression, rightExpression),
-                context,
+                new TestExpressionBuilderContext(),
                 result,
                 invalid
             };
