@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Members
             {
                 _parameters = new IParameterInfo[l];
                 for (var i = 0; i < _parameters.Length; i++)
-                    _parameters[i] = new Parameter(parameterInfos[i + startIndex]);
+                    _parameters[i] = new ParameterInfoImpl(parameterInfos[i + startIndex]);
             }
         }
 
@@ -152,49 +152,6 @@ namespace MugenMvvm.Binding.Members
         {
             _invoker = _method.GetMethodInvoker(_reflectionDelegateProvider);
             return _invoker(target, args);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class Parameter : IParameterInfo
-        {
-            #region Fields
-
-            private readonly ParameterInfo _parameterInfo;
-
-            #endregion
-
-            #region Constructors
-
-            public Parameter(ParameterInfo parameterInfo)
-            {
-                _parameterInfo = parameterInfo;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public object? UnderlyingParameter => _parameterInfo;
-
-            public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
-
-            public Type ParameterType => _parameterInfo.ParameterType;
-
-            public object? DefaultValue => _parameterInfo.DefaultValue;
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public bool IsDefined(Type type)
-            {
-                return _parameterInfo.IsDefined(typeof(ParamArrayAttribute), false);
-            }
-
-            #endregion
         }
 
         #endregion
