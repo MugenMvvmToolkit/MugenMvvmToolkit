@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest
 
         protected void ShouldThrow(Action action)
         {
-            ShouldThrow<Exception>(action);
+            Assert.ThrowsAny<Exception>(action);
         }
 
         protected static Exception GetOriginalException(AggregateException aggregateException)
