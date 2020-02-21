@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Metadata
     {
     }
 
-    public interface IMetadataContextKey<T> : IMetadataContextKey
+    public interface IMetadataContextKey<T> : IMetadataContextKey//todo change TFrom, TTO
     {
         T GetValue(IReadOnlyMetadataContext metadataContext, object? value);
 

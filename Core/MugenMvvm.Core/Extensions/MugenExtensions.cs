@@ -146,18 +146,6 @@ namespace MugenMvvm.Extensions
             return string.Format(format, args);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Execute<TState>(this IThreadDispatcherHandler<TState> handler, object state)
-        {
-            handler.Execute((TState)state);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Invoke<TState>(this Action<TState> handler, object state)
-        {
-            handler.Invoke((TState)state);
-        }
-
         public static void TrySetFromTask<TResult>(this TaskCompletionSource<TResult> tcs, Task task, TaskContinuationOptions continuationOptions = TaskContinuationOptions.ExecuteSynchronously)
         {
             Should.NotBeNull(tcs, nameof(tcs));
@@ -180,6 +168,18 @@ namespace MugenMvvm.Extensions
             }
             else
                 task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, continuationOptions);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void Execute<TState>(this IThreadDispatcherHandler<TState> handler, object state)
+        {
+            handler.Execute((TState)state);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static void Invoke<TState>(this Action<TState> handler, object state)
+        {
+            handler.Invoke((TState)state);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference> valueHolder)
