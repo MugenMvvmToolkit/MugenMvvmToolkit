@@ -34,8 +34,6 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         #region Properties
 
-        public object Self => this;
-
         public static string? StaticProperty { get; set; }
 
         public string? InstanceProperty { get; set; }

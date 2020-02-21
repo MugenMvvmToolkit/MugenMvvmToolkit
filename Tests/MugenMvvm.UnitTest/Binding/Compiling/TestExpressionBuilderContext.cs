@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -9,19 +10,26 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 {
     public class TestExpressionBuilderContext : MetadataOwnerBase, IExpressionBuilderContext
     {
+        #region Fields
+
+        private readonly Dictionary<IExpressionNode, Expression> _dictionary;
+
+        #endregion
+
         #region Constructors
 
         public TestExpressionBuilderContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, metadataContextProvider)
         {
             MetadataExpression = Expression.Parameter(typeof(IReadOnlyMetadataContext));
+            _dictionary = new Dictionary<IExpressionNode, Expression>();
         }
 
         #endregion
 
         #region Properties
 
-        public Expression MetadataExpression { get; set; } = default!;
+        public Expression MetadataExpression { get; set; }
 
         public Func<IExpressionNode, Expression?>? TryGetExpression { get; set; }
 
@@ -29,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         public Action<IExpressionNode>? ClearExpression { get; set; }
 
-        public Func<IExpressionNode, Expression>? Build { get; set; } = node => Expression.Constant(((IConstantExpressionNode)node).Value, ((IConstantExpressionNode)node).Type);
+        public Func<IExpressionNode, Expression?>? Build { get; set; } = node => Expression.Constant(((IConstantExpressionNode)node).Value, ((IConstantExpressionNode)node).Type);
 
         #endregion
 
@@ -37,22 +45,36 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         Expression? IExpressionBuilderContext.TryGetExpression(IExpressionNode expression)
         {
-            return TryGetExpression?.Invoke(expression);
+            var result = TryGetExpression?.Invoke(expression);
+            if (result == null)
+                _dictionary.TryGetValue(expression, out result);
+            return result;
         }
 
         void IExpressionBuilderContext.SetExpression(IExpressionNode expression, Expression value)
         {
-            SetExpression?.Invoke(expression, value);
+            if (SetExpression == null)
+                _dictionary[expression] = value;
+            else
+                SetExpression.Invoke(expression, value);
         }
 
         void IExpressionBuilderContext.ClearExpression(IExpressionNode expression)
         {
-            ClearExpression?.Invoke(expression);
+            if (ClearExpression == null)
+                _dictionary.Remove(expression);
+            else
+                ClearExpression.Invoke(expression);
         }
 
         Expression IExpressionBuilderContext.Build(IExpressionNode expression)
         {
-            return Build?.Invoke(expression) ?? throw new NotSupportedException();
+            var result = Build?.Invoke(expression);
+            if (result == null)
+                _dictionary.TryGetValue(expression, out result);
+            if (result == null)
+                throw new NotSupportedException();
+            return result;
         }
 
         #endregion
