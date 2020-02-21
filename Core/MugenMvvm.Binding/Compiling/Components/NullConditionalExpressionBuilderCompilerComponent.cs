@@ -56,8 +56,10 @@ namespace MugenMvvm.Binding.Compiling.Components
                     type = typeof(Nullable<>).MakeGenericType(GenericTypeBuffer);
                 }
 
-                var conditionalExpression = Expression.Condition(Expression.ReferenceEqual(variable, MugenExtensions.NullConstantExpression), Expression.Constant(null, type),
-                    exp.ConvertIfNeed(type, false));
+                var nullConstant = Expression.Constant(null, type);
+                var conditionalExpression = Expression.Condition(targetEx.Type.IsValueType
+                        ? Expression.Equal(variable, MugenExtensions.NullConstantExpression)
+                        : Expression.ReferenceEqual(variable, MugenExtensions.NullConstantExpression), nullConstant, exp.ConvertIfNeed(type, false));
                 ParameterExpressionBuffer[0] = variable;
                 ExpressionBuffer[0] = Expression.Assign(variable, targetEx);
                 ExpressionBuffer[1] = conditionalExpression;
