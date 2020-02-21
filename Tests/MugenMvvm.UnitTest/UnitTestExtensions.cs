@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using Should;
 
@@ -11,6 +12,11 @@ namespace MugenMvvm.UnitTest
         public static object? Invoke(this Expression expression, params object?[] args)
         {
             return Expression.Lambda(expression).Compile().DynamicInvoke(args);
+        }
+
+        public static object? Invoke(this Expression expression, IEnumerable<Expression> parameters, params object?[] args)
+        {
+            return Expression.Lambda(expression, parameters.OfType<ParameterExpression>()).Compile().DynamicInvoke(args);
         }
 
         public static void ShouldContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable)

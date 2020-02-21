@@ -14,6 +14,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public TestExpressionBuilderContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, metadataContextProvider)
         {
+            MetadataExpression = Expression.Parameter(typeof(IReadOnlyMetadataContext));
         }
 
         #endregion
@@ -24,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         public Func<IExpressionNode, Expression?>? TryGetExpression { get; set; }
 
-        public Action<IExpressionNode, Expression?>? SetExpression { get; set; }
+        public Action<IExpressionNode, Expression>? SetExpression { get; set; }
 
         public Action<IExpressionNode>? ClearExpression { get; set; }
 

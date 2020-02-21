@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
             var parameter1 = new ParameterExpressionNode("i");
             var lambdaExpressionNode = new LambdaExpressionNode(parameter1, new[] { parameter1 });
-            var expression = (Expression<Func<int, int>>)component.TryBuild(ctx, lambdaExpressionNode);
+            var expression = (Expression<Func<int, int>>)component.TryBuild(ctx, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
 
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var parameter1 = new ParameterExpressionNode("i1");
             var parameter2 = new ParameterExpressionNode("i2");
             var lambdaExpressionNode = new LambdaExpressionNode(parameter2, new[] { parameter1, parameter2 });
-            var expression = (Expression<Func<int, int, int>>)component.TryBuild(ctx, lambdaExpressionNode);
+            var expression = (Expression<Func<int, int, int>>)component.TryBuild(ctx, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
 
@@ -102,12 +102,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
             ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
             var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Default.EmptyArray<IParameterExpressionNode>());
-            var expression = (Expression<Func<bool>>)component.TryBuild(ctx, lambdaExpressionNode);
+            var expression = (Expression<Func<bool>>)component.TryBuild(ctx, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();
             expression.Compile().Invoke().ShouldEqual(false);
         }
 
+#pragma warning disable xUnit1013 // Public method should be marked as test
         public static void MethodWithFunc1(Func<int, int> func)
         {
         }
@@ -119,6 +120,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public static void MethodWithFunc3(Func<bool> func)
         {
         }
+#pragma warning restore xUnit1013 // Public method should be marked as test
 
         #endregion
     }

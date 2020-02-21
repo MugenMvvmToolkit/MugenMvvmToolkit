@@ -22,12 +22,12 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         {
             var component = new ConstantExpressionBuilderCompilerComponent();
             var ctx = new TestExpressionBuilderContext();
-            var build = component.TryBuild(ctx, ConstantExpressionNode.False);
+            var build = component.TryBuild(ctx, ConstantExpressionNode.False)!;
             build.ShouldEqual(ConstantExpressionNode.False.ConstantExpression);
             build.Invoke().ShouldEqual(false);
 
             var constantExpressionNode = new ConstantExpressionNode(1);
-            build = component.TryBuild(ctx, constantExpressionNode);
+            build = component.TryBuild(ctx, constantExpressionNode)!;
             build.Invoke().ShouldEqual(constantExpressionNode.Value);
         }
 
