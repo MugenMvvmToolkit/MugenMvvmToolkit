@@ -117,7 +117,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(indexExpression.Arguments[i]), null);
             }
 
-            return TryBuildExpression(context, type == typeof(string) ? "get_Chars" : "get_Item", targetData, args, Default.EmptyArray<Type>());
+            return TryBuildExpression(context, "get_Item", targetData, args, Default.EmptyArray<Type>());
         }
 
         private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)

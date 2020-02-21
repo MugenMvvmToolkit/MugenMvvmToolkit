@@ -89,9 +89,11 @@ namespace MugenMvvm.Binding.Compiling.Components
             if (result != null)
                 return result;
 
-            var methodCall = Expression.Call(Expression.Constant(member),
-                GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression);
-            return Expression.Convert(methodCall, member.Type);
+            if (target == null)
+                return Expression.Call(Expression.Constant(member), GetValuePropertyMethod, MugenExtensions.NullConstantExpression, context.MetadataExpression).ConvertIfNeed(member.Type, false);
+            return Expression
+                .Call(Expression.Constant(member), GetValuePropertyMethod, target.ConvertIfNeed(typeof(object), false), context.MetadataExpression)
+                .ConvertIfNeed(member.Type, false);
         }
 
         #endregion
@@ -103,9 +105,9 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             if (target == null)
                 return null;
-            var property = MugenBindingService
-                    .MemberProvider
-                    .GetMember(target.GetType(), member, MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), metadata) as IMemberAccessorInfo;
+            var property = _memberProvider
+                .DefaultIfNull()
+                .GetMember(target.GetType(), member, MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), metadata) as IMemberAccessorInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property.GetValue(target, metadata);
