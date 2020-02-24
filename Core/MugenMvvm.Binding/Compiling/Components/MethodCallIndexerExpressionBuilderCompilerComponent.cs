@@ -492,8 +492,13 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (!m.IsGenericMethodDefinition)
                     return m;
             }
-            else if (m.IsGenericMethodDefinition && m.GetGenericArguments().Count == typeArgs.Length)
-                return m.MakeGenericMethod(typeArgs);
+            else
+            {
+                if (m.IsGenericMethod && !m.IsGenericMethodDefinition)
+                    m = m.GetGenericMethodDefinition();
+                if (m.IsGenericMethodDefinition && m.GetGenericArguments().Count == typeArgs.Length)
+                    return m.MakeGenericMethod(typeArgs);
+            }
 
             return null;
         }
@@ -542,7 +547,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 if (members[i] is IMethodInfo method)
                 {
-                    var m = typeArgs == null ? method : ApplyTypeArgs(method, typeArgs);
+                    var m = typeArgs == null || typeArgs.Length == 0 ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
                         methods[count++] = new MethodData(m);
                 }

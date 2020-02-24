@@ -14,6 +14,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         IReadOnlyList<Type> GetGenericArguments();
 
+        IMethodInfo GetGenericMethodDefinition();
+
         IMethodInfo MakeGenericMethod(Type[] types);
 
         object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);

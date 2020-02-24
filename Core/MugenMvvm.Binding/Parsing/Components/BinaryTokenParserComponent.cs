@@ -28,25 +28,25 @@ namespace MugenMvvm.Binding.Parsing.Components
             _buffers = new List<KeyValuePair<List<IExpressionNode>, List<BinaryTokenType>>>();
             Tokens = new List<BinaryTokenType>
             {
+                BinaryTokenType.LeftShift,
+                BinaryTokenType.RightShift,
+                BinaryTokenType.LessThanOrEqual,
+                BinaryTokenType.GreaterThanOrEqual,
+                BinaryTokenType.Equality,
+                BinaryTokenType.NotEqual,
+                BinaryTokenType.ConditionalAnd,
+                BinaryTokenType.ConditionalOr,
+                BinaryTokenType.NullCoalescing,
                 BinaryTokenType.Multiplication,
                 BinaryTokenType.Division,
                 BinaryTokenType.Remainder,
                 BinaryTokenType.Addition,
                 BinaryTokenType.Subtraction,
-                BinaryTokenType.LeftShift,
-                BinaryTokenType.RightShift,
                 BinaryTokenType.LessThan,
                 BinaryTokenType.GreaterThan,
-                BinaryTokenType.LessThanOrEqual,
-                BinaryTokenType.GreaterThanOrEqual,
-                BinaryTokenType.Equality,
-                BinaryTokenType.NotEqual,
                 BinaryTokenType.LogicalAnd,
                 BinaryTokenType.LogicalXor,
-                BinaryTokenType.LogicalOr,
-                BinaryTokenType.ConditionalAnd,
-                BinaryTokenType.ConditionalOr,
-                BinaryTokenType.NullCoalescing
+                BinaryTokenType.LogicalOr
             };
         }
 

@@ -115,6 +115,11 @@ namespace MugenMvvm.Binding.Members
             return _genericArguments ?? _method.GetGenericArguments();
         }
 
+        public IMethodInfo GetGenericMethodDefinition()
+        {
+            return new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionDelegateProvider);
+        }
+
         public IMethodInfo MakeGenericMethod(Type[] types)
         {
             var method = _method;
