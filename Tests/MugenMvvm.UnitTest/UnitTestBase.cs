@@ -2,6 +2,9 @@
 using MugenMvvm.Binding.Converters;
 using MugenMvvm.Binding.Converters.Components;
 using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Resources;
+using MugenMvvm.Binding.Resources;
+using MugenMvvm.Binding.Resources.Components;
 using MugenMvvm.Commands;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
@@ -15,6 +18,7 @@ using MugenMvvm.Internal.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Metadata.Components;
 using MugenMvvm.Threading;
+using MugenMvvm.UnitTest.Resources;
 using MugenMvvm.UnitTest.Threading;
 using Xunit;
 
@@ -56,6 +60,10 @@ namespace MugenMvvm.UnitTest
             var converter = new GlobalValueConverter();
             converter.AddComponent(new GlobalValueConverterComponent());
             MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(converter);
+
+            var resourceResolver = new ResourceResolver();
+            resourceResolver.AddComponent(new TypeResolverComponent());
+            MugenService.Configuration.InitializeInstance<IResourceResolver>(resourceResolver);
         }
 
         #endregion

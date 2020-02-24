@@ -19,6 +19,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
         public Func<Type[], IMethodInfo>? MakeGenericMethod { get; set; }
 
+        public Func<IMethodInfo>? GetGenericMethodDefinition { get; set; }
+
         public Func<object?, object?[], IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
 
         #endregion
@@ -33,6 +35,11 @@ namespace MugenMvvm.UnitTest.Binding.Members
         IReadOnlyList<Type> IMethodInfo.GetGenericArguments()
         {
             return GetGenericArguments?.Invoke() ?? Default.EmptyArray<Type>();
+        }
+
+        IMethodInfo IMethodInfo.GetGenericMethodDefinition()
+        {
+            return GetGenericMethodDefinition?.Invoke();
         }
 
         IMethodInfo IMethodInfo.MakeGenericMethod(Type[] types)
