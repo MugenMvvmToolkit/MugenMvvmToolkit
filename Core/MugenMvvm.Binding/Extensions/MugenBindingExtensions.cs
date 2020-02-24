@@ -12,6 +12,7 @@ using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
@@ -167,6 +168,23 @@ namespace MugenMvvm.Binding.Extensions
         public static bool IsAllMembersAvailable(this IMemberPathObserver observer)
         {
             return observer.GetLastMember().IsAvailable;
+        }
+
+        public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (types == null || types.Count == 0)
+                return Default.EmptyArray<Type>();
+            resourceResolver = resourceResolver.DefaultIfNull();
+            var typeArgs = new Type[types.Count];
+            for (var i = 0; i < types.Count; i++)
+            {
+                var type = resourceResolver.TryGetType<object?>(types[i], null, metadata);
+                if (type == null)
+                    BindingExceptionManager.ThrowCannotResolveType(types[i]);
+                typeArgs[i] = type;
+            }
+
+            return typeArgs;
         }
 
         public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
@@ -418,7 +436,7 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         public static object?[]? TryGetInvokeArgs<TState>(this IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
-            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out bool isLastParameterMetadata)
+            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out bool isLastParameterMetadata, IGlobalValueConverter? globalValueConverter = null)
         {
             isLastParameterMetadata = false;
             var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
@@ -471,15 +489,19 @@ namespace MugenMvvm.Binding.Extensions
                     result[i] = array;
                 }
                 else
-                    result[i] = value;
+                {
+                    if (globalValueConverter == null)
+                        globalValueConverter = MugenBindingService.GlobalValueConverter;
+                    result[i] = globalValueConverter.Convert(value, parameterInfo.ParameterType, parameterInfo);
+                }
             }
 
             return result;
         }
 
-        public static object?[]? TryGetInvokeArgs(this IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
+        public static object?[]? TryGetInvokeArgs(this IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata, IGlobalValueConverter? globalValueConverter = null)
         {
-            args = parameters.TryGetInvokeArgs(args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var isLastParameterMetadata)!;
+            args = parameters.TryGetInvokeArgs(args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var isLastParameterMetadata, globalValueConverter)!;
             if (args != null && isLastParameterMetadata)
                 args[args.Length - 1] = metadata;
             return args;
@@ -494,7 +516,7 @@ namespace MugenMvvm.Binding.Extensions
                     {
                         var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
-                    }, null, out isLastParameterMetadata);
+                    }, null, out isLastParameterMetadata, converter);
             }
             catch
             {

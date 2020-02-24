@@ -83,16 +83,8 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             Expression? target = context.Build(methodCallExpression.Target);
             var type = MugenBindingExtensions.GetTargetType(ref target);
-
-            var targetData = new TargetData(type, target);
-            var args = new ArgumentData[methodCallExpression.Arguments.Count];
-            for (var i = 0; i < args.Length; i++)
-            {
-                var node = methodCallExpression.Arguments[i];
-                args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(methodCallExpression.Arguments[i]), null);
-            }
-
-            return TryBuildExpression(context, methodCallExpression.Method, targetData, args, GetTypes(methodCallExpression.TypeArgs));
+            return TryBuildExpression(context, methodCallExpression.Method, new TargetData(type, target), GetArguments(methodCallExpression, context),
+                _resourceResolver.GetTypes(methodCallExpression.TypeArgs, context.Metadata));
         }
 
         private Expression? TryBuildIndex(IExpressionBuilderContext context, IIndexExpressionNode indexExpression)
@@ -108,16 +100,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             if (type.IsArray)
                 return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
-
-            var targetData = new TargetData(type, target);
-            var args = new ArgumentData[indexExpression.Arguments.Count];
-            for (var i = 0; i < args.Length; i++)
-            {
-                var node = indexExpression.Arguments[i];
-                args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(indexExpression.Arguments[i]), null);
-            }
-
-            return TryBuildExpression(context, "get_Item", targetData, args, Default.EmptyArray<Type>());
+            return TryBuildExpression(context, "get_Item", new TargetData(type, target), GetArguments(indexExpression, context), Default.EmptyArray<Type>());
         }
 
         private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
@@ -158,23 +141,6 @@ namespace MugenMvvm.Binding.Compiling.Components
             {
                 Array.Clear(ExpressionCallBuffer, 0, ExpressionCallBuffer.Length);
             }
-        }
-
-        private Type[] GetTypes(IReadOnlyList<string>? types)
-        {
-            if (types == null || types.Count == 0)
-                return Default.EmptyArray<Type>();
-            var resolver = _resourceResolver.DefaultIfNull();
-            var typeArgs = new Type[types.Count];
-            for (var i = 0; i < types.Count; i++)
-            {
-                var type = resolver.TryGetType<object?>(types[i], null);
-                if (type == null)
-                    BindingExceptionManager.ThrowCannotResolveType(types[i]);
-                typeArgs[i] = type;
-            }
-
-            return typeArgs;
         }
 
         private static MethodData[] GetBestMethodCandidates(MethodData[] methods, ArgumentData[] arguments)
@@ -484,6 +450,20 @@ namespace MugenMvvm.Binding.Compiling.Components
             return result;
         }
 
+        private static ArgumentData[] GetArguments(IHasArgumentsExpressionNode<IExpressionNode> hasArguments, IExpressionBuilderContext context)
+        {
+            var arguments = hasArguments.Arguments;
+            if (arguments.Count == 0)
+                return Default.EmptyArray<ArgumentData>();
+            var args = new ArgumentData[arguments.Count];
+            for (var i = 0; i < args.Length; i++)
+            {
+                var node = arguments[i];
+                args[i] = new ArgumentData(node, node.ExpressionType == ExpressionNodeType.Lambda ? null : context.Build(node), null);
+            }
+            return args;
+        }
+
         private static MethodData TryInferMethod(IMethodInfo method, ArgumentData[] args)
         {
             if (!method.IsGenericMethodDefinition)
@@ -614,7 +594,6 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
-
                 return method.Method.Invoke(target, method.Parameters.TryGetInvokeArgs(args, metadata)!, metadata);
             }
 
@@ -783,6 +762,8 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             public MethodData WithArgs(object?[] args, ref Type[]? instanceArgs)
             {
+                if (IsEmpty)
+                    return default;
                 if (instanceArgs == null)
                 {
                     if (args.Length == 0)

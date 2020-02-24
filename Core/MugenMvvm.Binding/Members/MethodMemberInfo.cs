@@ -31,13 +31,13 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberInfo(string name, MethodInfo method, bool checkExtensionMethod, Type reflectedType, IObserverProvider? observerProvider,
+        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObserverProvider? observerProvider,
             IReflectionDelegateProvider? reflectionDelegateProvider)
-            : this(name, method, checkExtensionMethod, reflectedType, observerProvider, reflectionDelegateProvider, null, null)
+            : this(name, method, isExtensionMethodSupported, reflectedType, observerProvider, reflectionDelegateProvider, null, null)
         {
         }
 
-        internal MethodMemberInfo(string name, MethodInfo method, bool checkExtensionMethod, Type reflectedType,
+        internal MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType,
             IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider, ParameterInfo[]? parameterInfos, Type[]? genericArguments)
         {
             Should.NotBeNull(name, nameof(name));
@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Members
 
             if (parameterInfos == null)
                 parameterInfos = _method.GetParameters();
-            AccessModifiers = _method.GetAccessModifiers(checkExtensionMethod, ref parameterInfos);
+            AccessModifiers = _method.GetAccessModifiers(isExtensionMethodSupported, ref parameterInfos);
             DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType;
             if (parameterInfos.Length == 0)
             {
