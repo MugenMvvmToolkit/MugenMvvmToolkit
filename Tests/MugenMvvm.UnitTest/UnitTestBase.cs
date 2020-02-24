@@ -1,4 +1,7 @@
 ﻿using System;
+using MugenMvvm.Binding.Converters;
+using MugenMvvm.Binding.Converters.Components;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Commands;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
@@ -49,6 +52,10 @@ namespace MugenMvvm.UnitTest
 
             var commandProvider = new CommandProvider();
             MugenService.Configuration.InitializeInstance<ICommandProvider>(commandProvider);
+
+            var converter = new GlobalValueConverter();
+            converter.AddComponent(new GlobalValueConverterComponent());
+            MugenService.Configuration.InitializeInstance<IGlobalValueConverter>(converter);
         }
 
         #endregion

@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         #region Methods
 
         [Fact]
-        public void TryBuildShouldIgnoreNullConditionalExpression()
+        public void TryBuildShouldIgnoreNotNullConditionalExpression()
         {
             var component = new NullConditionalExpressionBuilderCompilerComponent();
             var ctx = new TestExpressionBuilderContext();

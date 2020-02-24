@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Binding.Compiling.Components;
+﻿using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -16,8 +15,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
     {
         #region Fields
 
+        private readonly MemberExpressionBuilderCompilerComponent _component;
         private readonly TestMemberManagerComponent _memberManagerComponent;
-        private readonly IMemberProvider _memberProvider;
 
         #endregion
 
@@ -25,9 +24,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         public MemberExpressionBuilderCompilerComponentTest()
         {
-            _memberProvider = new MemberProvider();
+            IMemberProvider memberProvider = new MemberProvider();
             _memberManagerComponent = new TestMemberManagerComponent();
-            _memberProvider.AddComponent(_memberManagerComponent);
+            memberProvider.AddComponent(_memberManagerComponent);
+            _component = new MemberExpressionBuilderCompilerComponent(memberProvider);
         }
 
         #endregion
@@ -45,74 +45,14 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [Fact]
         public void TryBuildShouldIgnoreNotMemberExpression()
         {
-            var component = new MemberExpressionBuilderCompilerComponent();
             var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMemberAccessInstanceUnderlyingMember()
-        {
-            const string memberName = nameof(InstanceProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
-            IMemberAccessorInfo result = new TestMemberAccessorInfo
-            {
-                UnderlyingMember = GetType().GetProperty(memberName)
-            };
-            _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
-            {
-                type.ShouldEqual(GetType());
-                s.ShouldEqual(memberName);
-                memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
-            var build = component.TryBuild(ctx, expressionNode)!;
-
-            build.Invoke().ShouldEqual(InstanceProperty);
-            InstanceProperty = "f";
-            build.Invoke().ShouldEqual(InstanceProperty);
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMemberAccessInstanceUnderlyingMemberStatic()
-        {
-            const string memberName = nameof(StaticProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
-            IMemberAccessorInfo result = new TestMemberAccessorInfo
-            {
-                UnderlyingMember = GetType().GetProperty(memberName)
-            };
-            _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
-            {
-                type.ShouldEqual(GetType());
-                s.ShouldEqual(memberName);
-                memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
-            var build = component.TryBuild(ctx, expressionNode)!;
-
-            build.Invoke().ShouldEqual(StaticProperty);
-            StaticProperty = "f";
-            build.Invoke().ShouldEqual(StaticProperty);
+            _component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
 
         [Fact]
         public void TryBuildShouldBuildMemberAccessInstance()
         {
             const string memberName = nameof(InstanceProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             IMemberAccessorInfo result = new TestMemberAccessorInfo
@@ -130,24 +70,113 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                 type.ShouldEqual(GetType());
                 s.ShouldEqual(memberName);
                 memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
                 context.ShouldEqual(metadataContext);
                 return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
-            var build = component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(ctx, expressionNode)!;
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
             InstanceProperty = "f";
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
         }
+
+        [Fact]
+        public void TryBuildShouldBuildMemberAccessInstanceUnderlyingMember()
+        {
+            const string memberName = nameof(InstanceProperty);
+            var ctx = new TestExpressionBuilderContext();
+            var metadataContext = ctx.Metadata;
+            IMemberAccessorInfo result = new TestMemberAccessorInfo
+            {
+                UnderlyingMember = GetType().GetProperty(memberName)
+            };
+            _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
+            {
+                type.ShouldEqual(GetType());
+                s.ShouldEqual(memberName);
+                memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                context.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
+            var build = _component.TryBuild(ctx, expressionNode)!;
+
+            build.Invoke().ShouldEqual(InstanceProperty);
+            InstanceProperty = "f";
+            build.Invoke().ShouldEqual(InstanceProperty);
+        }
+
+        [Fact]
+        public void TryBuildShouldBuildMemberAccessInstanceDynamic()
+        {
+            const string memberName = nameof(InstanceProperty);
+            var ctx = new TestExpressionBuilderContext();
+            var metadataContext = ctx.Metadata;
+            IMemberAccessorInfo? result = null;
+            _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
+            {
+                type.ShouldEqual(GetType());
+                s.ShouldEqual(memberName);
+                memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                context.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
+            var build = _component.TryBuild(ctx, expressionNode)!;
+
+            var invokeCount = 0;
+            result = new TestMemberAccessorInfo
+            {
+                GetValue = (o, context) =>
+                {
+                    ++invokeCount;
+                    o.ShouldEqual(this);
+                    context.ShouldEqual(DefaultMetadata);
+                    return InstanceProperty;
+                },
+                Type = typeof(string)
+            };
+
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
+            InstanceProperty = "f";
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(InstanceProperty);
+            invokeCount.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void TryBuildShouldThrowAccessInstanceDynamic()
+        {
+            const string memberName = nameof(InstanceProperty);
+            var ctx = new TestExpressionBuilderContext();
+            var metadataContext = ctx.Metadata;
+            IMemberAccessorInfo? result = null;
+            _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
+            {
+                type.ShouldEqual(GetType());
+                s.ShouldEqual(memberName);
+                memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                context.ShouldEqual(metadataContext);
+                return result;
+            };
+
+            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
+            var build = _component.TryBuild(ctx, expressionNode)!;
+            ShouldThrow(() => build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata));
+        }
+
 
         [Fact]
         public void TryBuildShouldBuildMemberAccessStatic()
         {
             const string memberName = nameof(StaticProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             IMemberAccessorInfo result = new TestMemberAccessorInfo
@@ -165,87 +194,51 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                 type.ShouldEqual(GetType());
                 s.ShouldEqual(memberName);
                 memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 context.ShouldEqual(metadataContext);
                 return result;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
-            var build = component.TryBuild(ctx, expressionNode)!;
+            var build = _component.TryBuild(ctx, expressionNode)!;
 
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
             StaticProperty = "f";
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(StaticProperty);
+            build.Invoke(new[] {ctx.MetadataExpression}, DefaultMetadata).ShouldEqual(StaticProperty);
         }
 
         [Fact]
-        public void TryBuildShouldBuildMemberAccessInstanceDynamic()
+        public void TryBuildShouldBuildMemberAccessStaticUnderlyingMember()
         {
-            const string memberName = nameof(InstanceProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
+            const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            IMemberAccessorInfo? result = null;
+            IMemberAccessorInfo result = new TestMemberAccessorInfo
+            {
+                UnderlyingMember = GetType().GetProperty(memberName)
+            };
             _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
             {
                 type.ShouldEqual(GetType());
                 s.ShouldEqual(memberName);
                 memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 context.ShouldEqual(metadataContext);
                 return result;
             };
 
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
-            var build = component.TryBuild(ctx, expressionNode)!;
+            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
+            var build = _component.TryBuild(ctx, expressionNode)!;
 
-            int invokeCount = 0;
-            result = new TestMemberAccessorInfo
-            {
-                GetValue = (o, context) =>
-                {
-                    ++invokeCount;
-                    o.ShouldEqual(this);
-                    context.ShouldEqual(DefaultMetadata);
-                    return InstanceProperty;
-                },
-                Type = typeof(string)
-            };
-
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
-            InstanceProperty = "f";
-            build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(InstanceProperty);
-            invokeCount.ShouldEqual(2);
-        }
-
-        [Fact]
-        public void TryBuildShouldBuildMemberAccessInstanceDynamicThrow()
-        {
-            const string memberName = nameof(InstanceProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
-            var ctx = new TestExpressionBuilderContext();
-            var metadataContext = ctx.Metadata;
-            IMemberAccessorInfo? result = null;
-            _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
-            {
-                type.ShouldEqual(GetType());
-                s.ShouldEqual(memberName);
-                memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
-                return result;
-            };
-
-            var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(this), memberName);
-            var build = component.TryBuild(ctx, expressionNode)!;
-            ShouldThrow(() => build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata));
+            build.Invoke().ShouldEqual(StaticProperty);
+            StaticProperty = "f";
+            build.Invoke().ShouldEqual(StaticProperty);
         }
 
         [Fact]
         public void TryBuildShouldBuildMemberAccessStaticIgnoreDynamic()
         {
             const string memberName = nameof(StaticProperty);
-            var component = new MemberExpressionBuilderCompilerComponent(_memberProvider);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             _memberManagerComponent.TryGetMember = (type, s, memberType, flags, context) =>
@@ -253,13 +246,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                 type.ShouldEqual(GetType());
                 s.ShouldEqual(memberName);
                 memberType.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                flags.HasFlagEx(component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
                 context.ShouldEqual(metadataContext);
                 return null;
             };
 
             var expressionNode = new MemberExpressionNode(ConstantExpressionNode.Get(GetType()), memberName);
-            component.TryBuild(ctx, expressionNode).ShouldBeNull();
+            _component.TryBuild(ctx, expressionNode).ShouldBeNull();
         }
 
         #endregion
