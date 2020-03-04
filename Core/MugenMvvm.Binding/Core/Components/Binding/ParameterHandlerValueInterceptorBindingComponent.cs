@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public object? InterceptSourceValue(IBinding binding, MemberPathLastMember sourceMember, object? value, IReadOnlyMetadataContext metadata)
         {
-            var converter = _converter.GetValue<IBindingValueConverter>(metadata);
+            var converter = _converter.GetValue<IBindingValueConverter?>(metadata);
             if (converter != null)
                 value = converter.ConvertBack(value, sourceMember.Member.Type, _converterParameter.GetValue<object?>(metadata), metadata);
 
@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             if (!_converter.IsEmpty && !value.IsUnsetValue())
             {
-                var converter = _converter.GetValue<IBindingValueConverter>(metadata);
+                var converter = _converter.GetValue<IBindingValueConverter?>(metadata);
                 if (converter != null)
                     value = converter.Convert(value, targetMember.Member.Type, _converterParameter.GetValue<object?>(metadata), metadata);
             }
