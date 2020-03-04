@@ -25,9 +25,9 @@ namespace MugenMvvm.ViewModels
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyMetadataContext OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, metadata).DefaultIfNull();
+            return GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, state, metadata).DefaultIfNull();
         }
 
         public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)

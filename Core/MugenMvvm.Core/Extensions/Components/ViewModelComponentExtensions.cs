@@ -10,15 +10,15 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IReadOnlyMetadataContext? OnLifecycleChanged(this IViewModelLifecycleDispatcherComponent[] components, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
-            IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyMetadataContext? OnLifecycleChanged<TState>(this IViewModelLifecycleDispatcherComponent[] components, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+            in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
-                components[i].OnLifecycleChanged(viewModel, lifecycleState, metadata).Aggregate(ref result);
+                components[i].OnLifecycleChanged(viewModel, lifecycleState, state, metadata).Aggregate(ref result);
             return result;
         }
 
