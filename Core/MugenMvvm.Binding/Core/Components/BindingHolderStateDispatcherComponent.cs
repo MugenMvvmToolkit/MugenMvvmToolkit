@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -38,15 +39,15 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyMetadataContext? OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v) && v)
                 return null;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
-                _components.TryRegister(binding, metadata);
+                _components.TryRegister(typeof(TState) == typeof(BindingTargetState) ? MugenExtensions.CastGeneric<TState, BindingTargetState>(state).Target : binding.Target.Target, binding, metadata);
             else if (lifecycleState == BindingLifecycleState.Disposed)
-                _components.TryUnregister(binding, metadata);
+                _components.TryUnregister(binding.Target.Target, binding, metadata);
 
             return null;
         }

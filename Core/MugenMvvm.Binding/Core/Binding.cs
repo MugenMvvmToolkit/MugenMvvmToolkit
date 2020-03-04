@@ -119,7 +119,7 @@ namespace MugenMvvm.Binding.Core
                 return;
             SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
             OnDispose();
-            MugenBindingService.BindingManager.OnLifecycleChanged(this, BindingLifecycleState.Disposed, this);
+            MugenBindingService.BindingManager.OnLifecycleChanged<object?>(this, BindingLifecycleState.Disposed, null);
             if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
             Target.Dispose();

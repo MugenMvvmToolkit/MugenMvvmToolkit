@@ -277,7 +277,7 @@ namespace MugenMvvm.Binding.Core.Components
                 if (_componentBuilders!.Length != 0)
                     binding.Initialize(_componentBuilders.TryGetBindingComponents(binding!, binding, target, source, metadata), metadata);
                 if (binding.State == BindingState.Valid)
-                    _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, metadata);
+                    _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, new BindingTargetState(target), metadata);
                 return binding;
             }
 

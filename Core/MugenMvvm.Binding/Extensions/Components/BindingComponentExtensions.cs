@@ -469,33 +469,34 @@ namespace MugenMvvm.Binding.Extensions.Components
             return result.Cast<IReadOnlyList<IBinding>>();
         }
 
-        public static bool TryRegister(this IBindingHolderComponent[] components, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public static bool TryRegister(this IBindingHolderComponent[] components, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(binding, nameof(binding));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryRegister(binding, metadata))
+                if (components[i].TryRegister(target, binding, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryUnregister(this IBindingHolderComponent[] components, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public static bool TryUnregister(this IBindingHolderComponent[] components, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(binding, nameof(binding));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryUnregister(binding, metadata))
+                if (components[i].TryUnregister(target, binding, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static IReadOnlyMetadataContext? OnLifecycleChanged(this IBindingStateDispatcherComponent[] components, IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyMetadataContext? OnLifecycleChanged<TState>(this IBindingStateDispatcherComponent[] components, IBinding binding,
+            BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(binding, nameof(binding));
@@ -503,11 +504,11 @@ namespace MugenMvvm.Binding.Extensions.Components
             if (components.Length == 0)
                 return null;
             if (components.Length == 1)
-                return components[0].OnLifecycleChanged(binding, lifecycleState, metadata);
+                return components[0].OnLifecycleChanged(binding, lifecycleState, state, metadata);
 
             IReadOnlyMetadataContext? result = null;
             for (var i = 0; i < components.Length; i++)
-                components[i].OnLifecycleChanged(binding, lifecycleState, metadata).Aggregate(ref result);
+                components[i].OnLifecycleChanged(binding, lifecycleState, state, metadata).Aggregate(ref result);
             return result;
         }
 

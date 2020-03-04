@@ -54,11 +54,11 @@ namespace MugenMvvm.Binding.Core
             return _holderComponents!.TryGetBindings(target, path, metadata);
         }
 
-        public IReadOnlyMetadataContext OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyMetadataContext OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
             if (_stateDispatcherComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _stateDispatcherComponents!.OnLifecycleChanged(binding, lifecycleState, metadata).DefaultIfNull();
+            return _stateDispatcherComponents!.OnLifecycleChanged(binding, lifecycleState, state, metadata).DefaultIfNull();
         }
 
         #endregion

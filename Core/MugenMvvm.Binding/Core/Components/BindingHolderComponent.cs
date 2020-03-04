@@ -52,18 +52,17 @@ namespace MugenMvvm.Binding.Core.Components
             if (values.Count == 0)
                 return default;
             if (values.Count == 1)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding)values[0].Value!);
+                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding) values[0].Value!);
 
             var bindings = new IBinding[values.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding)values[i].Value!;
+                bindings[i] = (IBinding) values[i].Value!;
             return bindings;
         }
 
-        public bool TryRegister(IBinding binding, IReadOnlyMetadataContext? metadata)
+        public bool TryRegister(object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
-            var target = binding.Target.Target;
             if (target == null)
                 return false;
 
@@ -73,10 +72,9 @@ namespace MugenMvvm.Binding.Core.Components
             return true;
         }
 
-        public bool TryUnregister(IBinding binding, IReadOnlyMetadataContext? metadata)
+        public bool TryUnregister(object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
-            var target = binding.Target.Target;
             if (target == null)
                 return false;
             return _attachedValueProvider.DefaultIfNull().Clear(target, GetPath(binding.Target.Path));
