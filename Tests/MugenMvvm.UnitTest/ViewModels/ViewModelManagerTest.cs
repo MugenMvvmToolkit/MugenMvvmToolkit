@@ -22,6 +22,7 @@ namespace MugenMvvm.UnitTest.ViewModels
         {
             var manager = new ViewModelManager();
             var context = new MetadataContext();
+            var state = "state";
             var viewModel = new TestViewModel();
             var lifecycleState = ViewModelLifecycleState.Created;
             for (var i = 0; i < count; i++)
@@ -31,10 +32,12 @@ namespace MugenMvvm.UnitTest.ViewModels
                 context.Merge(ctx);
                 var component = new TestViewModelLifecycleDispatcherComponent
                 {
-                    OnLifecycleChanged = (vm, state, metadata) =>
+                    OnLifecycleChanged = (vm, viewModelLifecycleState, st, stateType, metadata) =>
                     {
                         vm.ShouldEqual(viewModel);
-                        state.ShouldEqual(lifecycleState);
+                        st.ShouldEqual(state);
+                        stateType.ShouldEqual(state.GetType());
+                        viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                         return ctx;
                     },
@@ -43,7 +46,7 @@ namespace MugenMvvm.UnitTest.ViewModels
                 manager.AddComponent(component);
             }
 
-            var changed = manager.OnLifecycleChanged(viewModel, lifecycleState, DefaultMetadata);
+            var changed = manager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
             changed.SequenceEqual(context).ShouldBeTrue();
         }
 

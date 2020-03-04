@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.ViewModels
     {
         #region Properties
 
-        public Func<IViewModelBase, ViewModelLifecycleState, IReadOnlyMetadataContext?, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
+        public Func<IViewModelBase, ViewModelLifecycleState, object?, Type, IReadOnlyMetadataContext?, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.ViewModels
 
         #region Implementation of interfaces
 
-        IReadOnlyMetadataContext? IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, IReadOnlyMetadataContext? metadata)
+        IReadOnlyMetadataContext? IViewModelLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            return OnLifecycleChanged?.Invoke(viewModel, lifecycleState, metadata);
+            return OnLifecycleChanged?.Invoke(viewModel, lifecycleState, state, typeof(TState), metadata);
         }
 
         #endregion
