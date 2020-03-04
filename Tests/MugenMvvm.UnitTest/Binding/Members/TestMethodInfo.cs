@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
         IMethodInfo IMethodInfo.GetGenericMethodDefinition()
         {
-            return GetGenericMethodDefinition?.Invoke();
+            return GetGenericMethodDefinition?.Invoke()!;
         }
 
         IMethodInfo IMethodInfo.MakeGenericMethod(Type[] types)

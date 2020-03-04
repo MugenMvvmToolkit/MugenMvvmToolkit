@@ -399,12 +399,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 1)]
-        [InlineData(false, 2)]
-        public void TryBuildShouldBuildMethodCallInstance5(bool underlying, int state)
+        [InlineData(0)]
+        [InlineData(1)]
+        [InlineData(2)]
+        public void TryBuildShouldBuildMethodCallInstance5(int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method4);
             var members = new[]
@@ -554,11 +552,9 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         }
 
         [Theory]
-        [InlineData(true, 0)]
-        [InlineData(true, 2)]
-        [InlineData(false, 0)]
-        [InlineData(false, 2)]
-        public void TryBuildShouldBuildMethodCallStatic5(bool underlying, int state)
+        [InlineData(0)]
+        [InlineData(2)]
+        public void TryBuildShouldBuildMethodCallStatic5(int state)
         {
             const string memberName = nameof(MethodInvokerInstance.Method4);
             var members = new[]
@@ -717,8 +713,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                         break;
                     }
 
-                    target = new BindingInstanceMemberExpressionNode(instance, "") { Index = 0 };
-                    parameters.Add(Expression.Parameter(instance.GetType()));
+                    target = new BindingInstanceMemberExpressionNode(instance!, "") { Index = 0 };
+                    parameters.Add(Expression.Parameter(instance!.GetType()));
                     compilingArgs = compilingArgs.InsertFirstArg(instance);
                     break;
             }
@@ -747,7 +743,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
             var node = new MethodCallExpressionNode(target, method, arguments, typeArgs);
             var expression = _component.TryBuild(context, node);
-            return (expression, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] { DefaultMetadata }).ToArray());
+            return (expression!, parameters.ToArray(), args, state == 0 && underlying ? compilingArgs : compilingArgs.Concat(new[] { DefaultMetadata }).ToArray());
         }
 
         #endregion
@@ -786,7 +782,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                 {
                     var array = o as Array;
                     if (array == null)
-                        objects.Add(o);
+                        objects.Add(o!);
                     else
                         objects.AddRange(array.OfType<object>());
                 }
@@ -896,7 +892,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
                 {
                     var array = o as Array;
                     if (array == null)
-                        objects.Add(o);
+                        objects.Add(o!);
                     else
                         objects.AddRange(array.OfType<object>());
                 }

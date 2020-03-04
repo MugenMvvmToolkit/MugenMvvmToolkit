@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Binding.Internal
     {
         #region Methods
 
-        public static string ToCode(IExpressionNode expression, bool valueToConstant)
+        public static string ToCode(IExpressionNode? expression, bool valueToConstant)
         {
             if (expression == null)
                 return "null";
@@ -42,14 +42,14 @@ namespace MugenMvvm.UnitTest.Binding.Internal
             }
         }
 
-        private static string ToCodeValue(object value)
+        private static string ToCodeValue(object? value)
         {
+            if (value == null)
+                return "null";
             if (value is string)
                 return "\"" + value + "\"";
             if (value is Type type)
                 return $"typeof({type.Name})";
-            if (value == null)
-                return "null";
             if (value is bool)
                 return value.ToString().ToLowerInvariant();
             return value.ToString();
