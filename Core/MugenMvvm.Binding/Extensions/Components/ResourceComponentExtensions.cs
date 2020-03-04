@@ -24,20 +24,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static IBindingValueConverter? TryGetConverter<TRequest>(this IBindingValueConverterResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(name, nameof(name));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var converter = components[i].TryGetConverter(name, request, metadata);
-                if (converter != null)
-                    return converter;
-            }
-
-            return null;
-        }
-
         public static Type? TryGetType<TRequest>(this ITypeResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

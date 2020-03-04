@@ -157,7 +157,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     {
                         var value = _observerProvider.DefaultIfNull()
                             .GetMemberPath(_memberBuilder.GetPath(), metadata)
-                            .GetValueFromPath(type, null, MemberFlags | MemberFlags.Static, 0, metadata, _memberProvider);
+                            .GetValueFromPath(type, null, MemberFlags.SetInstanceOrStaticFlags(true), 0, metadata, _memberProvider);
                         return ConstantExpressionNode.Get(value);
                     }
 
