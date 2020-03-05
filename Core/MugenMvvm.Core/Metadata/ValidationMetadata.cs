@@ -9,16 +9,16 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<ICollection<string>>? _ignoredMembers;
+        private static IMetadataContextKey<ICollection<string>, ICollection<string>>? _ignoredMembers;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<ICollection<string>> IgnoreMembers
+        public static IMetadataContextKey<ICollection<string>, ICollection<string>> IgnoreMembers
         {
-            get => _ignoredMembers ??= GetBuilder<ICollection<string>>(nameof(IgnoreMembers)).NotNull().Build();
+            get => _ignoredMembers ??= GetBuilder(_ignoredMembers, nameof(IgnoreMembers)).NotNull().Build();
             set => _ignoredMembers = value;
         }
 
@@ -26,9 +26,9 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
         {
-            return MetadataContextKey.Create<T>(typeof(ValidationMetadata), name);
+            return MetadataContextKey.Create<TGet, TSet>(typeof(ValidationMetadata), name);
         }
 
         #endregion

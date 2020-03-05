@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void TryGetShouldUseDefaultValues()
         {
-            var context = new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<int>("t"), 1));
+            var context = new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<int, int>("t"), 1));
             TryGetDefaultTest(context);
         }
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10)]
         public void ConstructorShouldInitializeContext(int intValue)
         {
-            var contextKey = MetadataContextKey.FromKey<int>(intValue.ToString());
+            var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var context = new SingleValueMetadataContext(value);
             EnumeratorCountTest(context, new List<MetadataContextValue> {value});

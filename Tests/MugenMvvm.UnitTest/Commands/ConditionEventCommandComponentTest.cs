@@ -297,8 +297,8 @@ namespace MugenMvvm.UnitTest.Commands
         public void ShouldListenPropertyChangedWeak()
         {
             var propertyChangedModel = new TestNotifyPropertyChangedModel();
-            var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, new[] { propertyChangedModel }, null);
+            CompositeCommand? compositeCommand = new CompositeCommand();
+            ConditionEventCommandComponent? conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, new[] { propertyChangedModel }, null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;

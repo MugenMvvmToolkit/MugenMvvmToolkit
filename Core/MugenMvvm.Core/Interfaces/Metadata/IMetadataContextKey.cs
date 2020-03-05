@@ -6,12 +6,8 @@ namespace MugenMvvm.Interfaces.Metadata
     {
     }
 
-    public interface IMetadataContextKey<T> : IMetadataContextKey//todo change TFrom, TTO
+    public interface IMetadataContextKey<TGet, in TSet> : IReadOnlyMetadataContextKey<TGet>
     {
-        T GetValue(IReadOnlyMetadataContext metadataContext, object? value);
-
-        object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, T newValue);
-
-        T GetDefaultValue(IReadOnlyMetadataContext metadataContext, T defaultValue);
+        object? SetValue(IReadOnlyMetadataContext metadataContext, object? oldValue, TSet newValue);
     }
 }

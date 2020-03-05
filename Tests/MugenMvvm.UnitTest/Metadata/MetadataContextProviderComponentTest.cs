@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public void TryGetReadOnlyMetadataContextShouldReturnMetadataContextSingleValue()
         {
             const int intValue = 1;
-            var contextKey = MetadataContextKey.FromKey<int>(intValue.ToString());
+            var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var component = new MetadataContextProviderComponent();
             var context = component.TryGetReadOnlyMetadataContext(this, value)!;
@@ -38,10 +38,10 @@ namespace MugenMvvm.UnitTest.Metadata
         public void TryGetReadOnlyMetadataContextShouldReturnMetadataContextList()
         {
             var values = new List<MetadataContextValue>();
-            var keyValues = new List<(IMetadataContextKey<int>, int)>();
+            var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
             for (var i = 0; i < 10; i++)
             {
-                var contextKey = MetadataContextKey.FromKey<int>(i.ToString());
+                var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
                 var value = MetadataContextValue.Create(contextKey, i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));
@@ -59,10 +59,10 @@ namespace MugenMvvm.UnitTest.Metadata
         public void TryGetMetadataContextShouldReturnMetadataContext()
         {
             var values = new List<MetadataContextValue>();
-            var keyValues = new List<(IMetadataContextKey<int>, int)>();
+            var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
             for (var i = 0; i < 10; i++)
             {
-                var contextKey = MetadataContextKey.FromKey<int>(i.ToString());
+                var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
                 var value = MetadataContextValue.Create(contextKey, i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));

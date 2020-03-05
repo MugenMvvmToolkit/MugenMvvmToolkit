@@ -46,7 +46,7 @@ namespace MugenMvvm.Metadata
             return GetEnumerator();
         }
 
-        public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
         {
             for (var i = 0; i < _list.Count; i++)
             {

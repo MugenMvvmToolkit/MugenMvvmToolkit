@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Observers
 
         public static void Raise(object item, string path, object message, IAttachedValueProvider? attachedValueProvider = null)
         {
-            attachedValueProvider.DefaultIfNull().TryGet(item, path, out EventListenerCollection collection);
+            attachedValueProvider.DefaultIfNull().TryGet(item, path, out EventListenerCollection? collection);
             collection?.Raise(item, message);
         }
 

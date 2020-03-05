@@ -12,32 +12,32 @@ namespace MugenMvvm.Binding.Metadata
         public static readonly object UnsetValue = new object();
         public static readonly object DoNothing = new object();
 
-        private static IMetadataContextKey<IBinding>? _binding;
-        private static IMetadataContextKey<object>? _eventArgs;
-        private static IMetadataContextKey<bool>? _suppressHolderRegistration;
+        private static IMetadataContextKey<IBinding, IBinding>? _binding;
+        private static IMetadataContextKey<object, object>? _eventArgs;
+        private static IMetadataContextKey<bool, bool>? _suppressHolderRegistration;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<IBinding> Binding
+        public static IMetadataContextKey<IBinding, IBinding> Binding
         {
-            get => _binding ??= GetBuilder<IBinding>(nameof(Binding)).Build();
+            get => _binding ??= GetBuilder(_binding, nameof(Binding)).Build();
             set => _binding = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<object> EventArgs
+        public static IMetadataContextKey<object, object> EventArgs
         {
-            get => _eventArgs ??= GetBuilder<object>(nameof(EventArgs)).Build();
+            get => _eventArgs ??= GetBuilder(_eventArgs, nameof(EventArgs)).Build();
             set => _eventArgs = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> SuppressHolderRegistration
+        public static IMetadataContextKey<bool, bool> SuppressHolderRegistration
         {
-            get => _suppressHolderRegistration ??= GetBuilder<bool>(nameof(SuppressHolderRegistration)).Build();
+            get => _suppressHolderRegistration ??= GetBuilder(_suppressHolderRegistration, nameof(SuppressHolderRegistration)).Build();
             set => _suppressHolderRegistration = value;
         }
 
@@ -45,9 +45,9 @@ namespace MugenMvvm.Binding.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
         {
-            return MetadataContextKey.Create<T>(typeof(BindingMetadata), name);
+            return MetadataContextKey.Create<TGet, TSet>(typeof(BindingMetadata), name);
         }
 
         #endregion

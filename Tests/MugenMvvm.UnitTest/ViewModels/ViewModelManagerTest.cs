@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.ViewModels
             for (var i = 0; i < count; i++)
             {
                 var ctx = new MetadataContext();
-                ctx.Set(MetadataContextKey.FromKey<int>("i" + i), i);
+                ctx.Set(MetadataContextKey.FromKey<int, int>("i" + i), i);
                 context.Merge(ctx);
                 var component = new TestViewModelLifecycleDispatcherComponent
                 {

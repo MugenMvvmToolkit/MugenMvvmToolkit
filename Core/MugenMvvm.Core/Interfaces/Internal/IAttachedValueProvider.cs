@@ -12,19 +12,16 @@ namespace MugenMvvm.Interfaces.Internal
         IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class;
 
-        bool TryGet<TValue>(object item, string path, [NotNullWhen(true)] out TValue value);
+        bool TryGet<TValue>(object item, string path, [MaybeNullWhen(false)] out TValue value);
 
         bool Contains(object item, string path);
 
-        [return: NotNullIfNotNull("addValue")]
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory)
+        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
             where TItem : class;
 
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory)
+        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
             where TItem : class;
 
-        [return: NotNullIfNotNull("value")]
         TValue GetOrAdd<TValue>(object item, string path, TValue value);
 
         TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory)

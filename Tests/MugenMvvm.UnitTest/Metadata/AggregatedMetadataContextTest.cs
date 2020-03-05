@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void ConstructorShouldMergeContexts1()
         {
-            var contextKey1 = MetadataContextKey.FromKey<object>("1");
+            var contextKey1 = MetadataContextKey.FromKey<object?, object>("1");
             var value1 = MetadataContextValue.Create(contextKey1, 1);
             var context = new AggregatedMetadataContext(new SingleValueMetadataContext(value1));
             EnumeratorCountTest(context, new List<MetadataContextValue> { value1 });
@@ -36,10 +36,10 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void ConstructorShouldMergeContexts2()
         {
-            var contextKey1 = MetadataContextKey.FromKey<object>("1");
+            var contextKey1 = MetadataContextKey.FromKey<object?, object>("1");
             var value1 = MetadataContextValue.Create(contextKey1, 1);
 
-            var contextKey2 = MetadataContextKey.FromKey<int>("2");
+            var contextKey2 = MetadataContextKey.FromKey<int, int>("2");
             var value2 = MetadataContextValue.Create(contextKey2, 2);
 
             var context = new AggregatedMetadataContext(new SingleValueMetadataContext(value1), new SingleValueMetadataContext(value2));
@@ -52,13 +52,13 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void ConstructorShouldMergeContexts3()
         {
-            var contextKey1 = MetadataContextKey.FromKey<object>("1");
+            var contextKey1 = MetadataContextKey.FromKey<object?, object>("1");
             var value1 = MetadataContextValue.Create(contextKey1, 1);
 
-            var contextKey2 = MetadataContextKey.FromKey<int>("2");
+            var contextKey2 = MetadataContextKey.FromKey<int, int>("2");
             var value2 = MetadataContextValue.Create(contextKey2, 2);
 
-            var contextKey3 = MetadataContextKey.FromKey<string>("3");
+            var contextKey3 = MetadataContextKey.FromKey<string?, string>("3");
             var value3 = MetadataContextValue.Create(contextKey3, "");
 
             var context = new AggregatedMetadataContext(new SingleValueMetadataContext(value1), new SingleValueMetadataContext(value2), new SingleValueMetadataContext(value3));
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTest.Metadata
             var values = new List<MetadataContextValue>();
             for (var i = 0; i < count; i++)
             {
-                var contextKey = MetadataContextKey.FromKey<int>(i.ToString());
+                var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
                 var value = MetadataContextValue.Create(contextKey, i);
                 context.Aggregate(new SingleValueMetadataContext(value), toEnd);
                 if (toEnd)

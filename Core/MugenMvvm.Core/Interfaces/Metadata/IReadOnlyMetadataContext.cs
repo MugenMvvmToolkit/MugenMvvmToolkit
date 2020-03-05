@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IReadOnlyMetadataContext : IReadOnlyCollection<MetadataContextValue>
     {
-        bool TryGet<T>(IMetadataContextKey<T> contextKey, [NotNullWhen(true), MaybeNull, NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue = default!);
+        bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false), NotNullIfNotNull("defaultValue")] out T value, [AllowNull] T defaultValue);
 
         bool Contains(IMetadataContextKey contextKey);
     }

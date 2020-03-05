@@ -53,13 +53,12 @@ namespace MugenMvvm.Internal
             return component != null && component.Contains(item, path);
         }
 
-        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory) where TItem : class
+        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             return GetComponent(item).AddOrUpdate(item, path, addValue, state, updateValueFactory);
         }
 
-        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory) where TItem : class
+        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             return GetComponent(item).AddOrUpdate(item, path, state, addValueFactory, updateValueFactory);
         }

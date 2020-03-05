@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.Internal
 
         public Func<object, string, bool>? Contains { get; set; }
 
-        public Func<object?, Type, string, object?, Type, object?, Type, UpdateValueDelegate<object?, object?, object?, object?>, object?>? AddOrUpdate { get; set; }
+        public Func<object?, Type, string, object?, Type, object?, Type, UpdateValueDelegate<object?, object?, object?, object?, object?>, object?>? AddOrUpdate { get; set; }
 
-        public Func<object?, Type, string, object?, Type, Func<object?, object?, object?>, Type, UpdateValueDelegate<object?, Func<object?, object?, object?>, object?, object?>, object?>? AddOrUpdate1 { get; set; }
+        public Func<object?, Type, string, object?, Type, Func<object?, object?, object?>, Type, UpdateValueDelegate<object?, Func<object?, object?, object?>, object?, object?, object?>, object?>? AddOrUpdate1 { get; set; }
 
         public Func<object, string, object?, Type, object?>? GetOrAdd { get; set; }
 
@@ -66,14 +66,14 @@ namespace MugenMvvm.UnitTest.Internal
             return Contains!.Invoke(item, path);
         }
 
-        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory)
+        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
         {
             return (TValue)AddOrUpdate!.Invoke(item, typeof(TItem), path, addValue, typeof(TValue), state, typeof(TState),
                 (o, value, currentValue, state1) => updateValueFactory((TItem)o!, (TValue)value!, (TValue)currentValue!, (TState)state1!))!;
         }
 
         TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory)
+            UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
         {
             Func<object?, object?, object?> func = (o, o1) => addValueFactory((TItem)o!, (TState)o1!);
             return (TValue)AddOrUpdate1!.Invoke(item, typeof(TItem), path, state, typeof(TState), func, typeof(TValue),

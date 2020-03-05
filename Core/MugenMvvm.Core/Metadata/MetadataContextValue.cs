@@ -51,7 +51,7 @@ namespace MugenMvvm.Metadata
             return new MetadataContextValue(pair);
         }
 
-        public static MetadataContextValue Create<T>(IMetadataContextKey<T> contextKey, T value)
+        public static MetadataContextValue Create<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             return new MetadataContextValue(contextKey, contextKey.SetValue(Default.Metadata, null, value));

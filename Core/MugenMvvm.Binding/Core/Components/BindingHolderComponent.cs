@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private const string BindPrefix = "@#b";
 
-        private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?> UpdateBindingDelegate = UpdateBinding;
+        private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?, IBinding> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
 
@@ -52,11 +52,11 @@ namespace MugenMvvm.Binding.Core.Components
             if (values.Count == 0)
                 return default;
             if (values.Count == 1)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding) values[0].Value!);
+                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding)values[0].Value!);
 
             var bindings = new IBinding[values.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding) values[i].Value!;
+                bindings[i] = (IBinding)values[i].Value!;
             return bindings;
         }
 

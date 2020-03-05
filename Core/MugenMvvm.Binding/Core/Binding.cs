@@ -299,7 +299,7 @@ namespace MugenMvvm.Binding.Core
             return GetMetadataEnumerator();
         }
 
-        bool IReadOnlyMetadataContext.TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
+        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue)
         {
             return TryGetMetadata(contextKey, out value, defaultValue);
         }
@@ -439,7 +439,7 @@ namespace MugenMvvm.Binding.Core
             return Default.SingleValueEnumerator(MetadataContextValue.Create(BindingMetadata.Binding, this));
         }
 
-        protected virtual bool TryGetMetadata<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue)
+        protected virtual bool TryGetMetadata<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue)
         {
             if (BindingMetadata.Binding.Equals(contextKey))
             {

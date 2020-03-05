@@ -232,7 +232,7 @@ namespace MugenMvvm.Validation
 
         protected virtual bool CanValidateMember(string memberName)
         {
-            var collection = _metadata?.Get(ValidationMetadata.IgnoreMembers!);
+            var collection = _metadata?.Get(ValidationMetadata.IgnoreMembers);//todo add component
             if (collection == null)
                 return true;
             return !collection.Contains(memberName);

@@ -14,55 +14,55 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<Guid>? _id;
-        private static IMetadataContextKey<ViewModelLifecycleState>? _lifecycleState;
-        private static IMetadataContextKey<bool>? _broadcastAllMessages;
-        private static IMetadataContextKey<BusyMessageHandlerType>? _busyMessageHandlerType;
-        private static IMetadataContextKey<IViewModelBase?>? _parentViewModel;
-        private static IMetadataContextKey<bool>? _noState;
-        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>>? _closeHandler;
-        private static IMetadataContextKey<Type>? _type;
+        private static IMetadataContextKey<Guid, Guid>? _id;
+        private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
+        private static IMetadataContextKey<bool, bool>? _broadcastAllMessages;
+        private static IMetadataContextKey<BusyMessageHandlerType, BusyMessageHandlerType>? _busyMessageHandlerType;
+        private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _parentViewModel;
+        private static IMetadataContextKey<bool, bool>? _noState;
+        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>>? _closeHandler;
+        private static IMetadataContextKey<Type, Type>? _type;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<Guid> Id
+        public static IMetadataContextKey<Guid, Guid> Id
         {
-            get => _id ??= GetBuilder<Guid>(nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
+            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
             set => _id = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<ViewModelLifecycleState> LifecycleState
+        public static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState> LifecycleState
         {
-            get => _lifecycleState ??= GetBuilder<ViewModelLifecycleState>(nameof(LifecycleState))
-                    .NotNull()
-                    .Serializable()
-                    .DefaultValue(ViewModelLifecycleState.Disposed)
-                    .Build();
+            get => _lifecycleState ??= GetBuilder(_lifecycleState, nameof(LifecycleState))
+                .NotNull()
+                .Serializable()
+                .DefaultValue(ViewModelLifecycleState.Disposed)
+                .Build();
             set => _lifecycleState = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> BroadcastAllMessages
+        public static IMetadataContextKey<bool, bool> BroadcastAllMessages
         {
-            get => _broadcastAllMessages ??= GetBuilder<bool>(nameof(BroadcastAllMessages)).Serializable().Build();
+            get => _broadcastAllMessages ??= GetBuilder(_broadcastAllMessages, nameof(BroadcastAllMessages)).Serializable().Build();
             set => _broadcastAllMessages = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<BusyMessageHandlerType> BusyMessageHandlerType
+        public static IMetadataContextKey<BusyMessageHandlerType, BusyMessageHandlerType> BusyMessageHandlerType
         {
-            get => _busyMessageHandlerType ??= GetBuilder<BusyMessageHandlerType>(nameof(BusyMessageHandlerType)).Serializable().Build();
+            get => _busyMessageHandlerType ??= GetBuilder(_busyMessageHandlerType, nameof(BusyMessageHandlerType)).Serializable().Build();
             set => _busyMessageHandlerType = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<IViewModelBase?> ParentViewModel
+        public static IMetadataContextKey<IViewModelBase?, IViewModelBase?> ParentViewModel
         {
-            get => _parentViewModel ??= GetBuilder<IViewModelBase?>(nameof(ParentViewModel))
+            get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
                 .Serializable()
                 .Getter((context, k, o) => (IViewModelBase?)(o as IWeakReference)?.Target)
                 .Setter((context, k, oldValue, newValue) => newValue?.ToWeakReference())
@@ -71,25 +71,25 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> NoState
+        public static IMetadataContextKey<bool, bool> NoState
         {
-            get => _noState ??= GetBuilder<bool>(nameof(NoState)).Serializable().Build();
+            get => _noState ??= GetBuilder(_noState, nameof(NoState)).Serializable().Build();
             set => _noState = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>> CloseHandler
+        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>> CloseHandler
         {
-            get => _closeHandler ??= GetBuilder<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>>(nameof(CloseHandler))
-                    .NotNull()
-                    .Build();
+            get => _closeHandler ??= GetBuilder(_closeHandler, nameof(CloseHandler))
+                .NotNull()
+                .Build();
             set => _closeHandler = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<Type> Type
+        public static IMetadataContextKey<Type, Type> Type
         {
-            get => _type ??= GetBuilder<Type>(nameof(Type)).NotNull().Build();
+            get => _type ??= GetBuilder(_type, nameof(Type)).NotNull().Build();
             set => _type = value;
         }
 
@@ -97,16 +97,16 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static Guid GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, IMetadataContextKey<Guid> key, Guid value)
+        private static Guid GetViewModelIdDefaultValue(IReadOnlyMetadataContext ctx, IMetadataContextKey<Guid, Guid> key, Guid value)
         {
             if (value == Guid.Empty && ctx is IMetadataContext context)
                 return context.GetOrAdd(key, Guid.NewGuid());
             return value;
         }
 
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
         {
-            return MetadataContextKey.Create<T>(typeof(ViewModelMetadata), name);
+            return MetadataContextKey.Create<TGet, TSet>(typeof(ViewModelMetadata), name);
         }
 
         #endregion

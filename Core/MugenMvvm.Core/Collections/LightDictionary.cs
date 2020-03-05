@@ -132,7 +132,7 @@ namespace MugenMvvm.Collections
             return false;
         }
 
-        public bool TryGetValue(TKey key, [NotNullWhen(true)] out TValue value)
+        public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
         {
             var hashCode = GetHashCode(key) & int.MaxValue;
             for (var i = _buckets![hashCode % _buckets.Length]; i >= 0; i = _entries[i].Next)

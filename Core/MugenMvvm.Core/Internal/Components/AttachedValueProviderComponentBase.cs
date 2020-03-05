@@ -71,7 +71,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState> updateValueFactory) where TItem : class
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -91,8 +91,8 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, Func<TItem, TState, TValue>, TValue, TState> updateValueFactory) where TItem : class
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory, 
+            UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));

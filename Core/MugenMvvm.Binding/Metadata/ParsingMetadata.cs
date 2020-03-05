@@ -9,16 +9,16 @@ namespace MugenMvvm.Binding.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<List<string>>? _parsingErrors;
+        private static IMetadataContextKey<List<string>, List<string>>? _parsingErrors;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<List<string>> ParsingErrors
+        public static IMetadataContextKey<List<string>, List<string>> ParsingErrors
         {
-            get => _parsingErrors ??= GetBuilder<List<string>>(nameof(ParsingErrors)).Build();
+            get => _parsingErrors ??= GetBuilder(_parsingErrors, nameof(ParsingErrors)).Build();
             set => _parsingErrors = value;
         }
 
@@ -26,9 +26,9 @@ namespace MugenMvvm.Binding.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
         {
-            return MetadataContextKey.Create<T>(typeof(ParsingMetadata), name);
+            return MetadataContextKey.Create<TGet, TSet>(typeof(ParsingMetadata), name);
         }
 
         #endregion

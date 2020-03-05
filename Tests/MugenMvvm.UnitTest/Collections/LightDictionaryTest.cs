@@ -227,8 +227,8 @@ namespace MugenMvvm.UnitTest.Collections
         [Category("NotWorking")]
         public void Remove_ZeroOut()
         {
-            var key = new object();
-            var value = new object();
+            object? key = new object();
+            object? value = new object();
 
             var wrKey = new WeakReference(key);
             var wrValue = new WeakReference(value);
@@ -282,8 +282,8 @@ namespace MugenMvvm.UnitTest.Collections
         [Category("NotWorking")]
         public void Clear_ZeroOut()
         {
-            var key = new object();
-            var value = new object();
+            object? key = new object();
+            object? value = new object();
 
             var wrKey = new WeakReference(key);
             var wrValue = new WeakReference(value);
@@ -328,14 +328,14 @@ namespace MugenMvvm.UnitTest.Collections
             _dictionary.Add("key2", "value2");
             _dictionary.Add("key3", "value3");
             _dictionary.Add("key4", "value4");
-            object value = "";
+            object? value = "";
             var retrieved = _dictionary.TryGetValue("key4", out value);
             retrieved.ShouldBeTrue();
-            "value4".ShouldEqual((string)value, "TryGetValue does not return value!");
+            "value4".ShouldEqual((string?)value, "TryGetValue does not return value!");
 
             retrieved = _dictionary.TryGetValue("key7", out value);
             retrieved.ShouldBeFalse();
-            value.ShouldBeNull("value for non existant value should be null!");
+            value!.ShouldBeNull("value for non existant value should be null!");
         }
 
         [Fact]

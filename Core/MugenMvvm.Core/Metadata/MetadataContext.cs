@@ -92,7 +92,7 @@ namespace MugenMvvm.Metadata
             return list.GetEnumerator();
         }
 
-        public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? obj;
@@ -121,8 +121,7 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, T addValue, TState state,
-            UpdateValueDelegate<IMetadataContext, T, T, TState> updateValueFactory)
+        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -130,7 +129,7 @@ namespace MugenMvvm.Metadata
             bool added;
             lock (this)
             {
-                T result;
+                TSet result;
                 if (_dictionary.TryGetValue(contextKey, out oldValue))
                 {
                     result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state);
@@ -153,8 +152,8 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, newValue);
         }
 
-        public T AddOrUpdate<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, TState, T> valueFactory,
-            UpdateValueDelegate<IMetadataContext, Func<IMetadataContext, TState, T>, T, TState> updateValueFactory)
+        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory,
+            UpdateValueDelegate<IMetadataContext, TGet, TState, TSet> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -162,7 +161,7 @@ namespace MugenMvvm.Metadata
             bool added;
             lock (this)
             {
-                T result;
+                TSet result;
                 if (_dictionary.TryGetValue(contextKey, out oldValue))
                 {
                     result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state);
@@ -185,7 +184,7 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, newValue);
         }
 
-        public T GetOrAdd<T>(IMetadataContextKey<T> contextKey, T value)
+        public TGet GetOrAdd<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? valueObj;
@@ -207,7 +206,7 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, valueObj);
         }
 
-        public T GetOrAdd<T, TState>(IMetadataContextKey<T> contextKey, TState state, Func<IMetadataContext, TState, T> valueFactory)
+        public TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(valueFactory, nameof(valueFactory));
@@ -230,7 +229,7 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, value);
         }
 
-        public void Set<T>(IMetadataContextKey<T> contextKey, T value)
+        public void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? oldValue, newValue;

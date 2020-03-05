@@ -9,16 +9,16 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IComponentCollection>? _wrappers;
+        private static IMetadataContextKey<IComponentCollection, IComponentCollection>? _wrappers;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<IComponentCollection> Wrappers
+        public static IMetadataContextKey<IComponentCollection, IComponentCollection> Wrappers
         {
-            get => _wrappers ??= GetBuilder<IComponentCollection>(nameof(Wrappers)).NotNull().Build();
+            get => _wrappers ??= GetBuilder(_wrappers, nameof(Wrappers)).NotNull().Build();
             set => _wrappers = value;
         }
 
@@ -26,9 +26,9 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
         {
-            return MetadataContextKey.Create<T>(typeof(ViewMetadata), name);
+            return MetadataContextKey.Create<TGet, TSet>(typeof(ViewMetadata), name);
         }
 
         #endregion

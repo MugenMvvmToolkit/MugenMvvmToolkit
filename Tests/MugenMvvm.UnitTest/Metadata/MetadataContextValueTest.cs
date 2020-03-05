@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10)]
         public void ToContextShouldCreateSingleValueContext(int intValue)
         {
-            var contextKey = MetadataContextKey.FromKey<int>(intValue.ToString());
+            var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var context = value.ToContext();
             EnumeratorCountTest(context, new List<MetadataContextValue> {value});
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void CreateShouldCreateMetadataFromKeyValuePair()
         {
-            var contextKey = MetadataContextKey.FromKey<int>("test");
+            var contextKey = MetadataContextKey.FromKey<int, int>("test");
             var value = MetadataContextValue.Create(new KeyValuePair<IMetadataContextKey, object?>(contextKey, 1));
             var context = value.ToContext();
             EnumeratorCountTest(context, new List<MetadataContextValue> {value});

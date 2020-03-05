@@ -21,8 +21,8 @@ namespace MugenMvvm.Views.Components
 
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
-        private static readonly IMetadataContextKey<StringOrdinalLightDictionary<IView>> ViewsMetadataKey =
-            MetadataContextKey.FromMember<StringOrdinalLightDictionary<IView>>(typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
+        private static readonly IMetadataContextKey<StringOrdinalLightDictionary<IView>, StringOrdinalLightDictionary<IView>> ViewsMetadataKey =
+            MetadataContextKey.FromMember(ViewsMetadataKey, typeof(ViewInitializerComponent), nameof(ViewsMetadataKey));
 
         #endregion
 
@@ -73,7 +73,7 @@ namespace MugenMvvm.Views.Components
                 return null;
 
             var removed = false;
-            var views = viewModel.Metadata.Get(ViewsMetadataKey!);
+            var views = viewModel.Metadata.Get(ViewsMetadataKey);
             if (views != null)
             {
                 lock (views)
@@ -90,7 +90,7 @@ namespace MugenMvvm.Views.Components
         public IReadOnlyList<IView>? TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var views = viewModel.Metadata.Get(ViewsMetadataKey!);
+            var views = viewModel.Metadata.Get(ViewsMetadataKey);
             if (views == null)
                 return null;
             lock (views)

@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Navigation
     {
         #region Fields
 
-        private static readonly IMetadataContextKey<int> Key = MetadataContextKey.FromKey<int>("i");
+        private static readonly IMetadataContextKey<int, int> Key = MetadataContextKey.FromKey<int, int>("i");
 
         #endregion
 

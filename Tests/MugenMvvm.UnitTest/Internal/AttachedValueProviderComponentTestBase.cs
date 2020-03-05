@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Internal
             var component = GetComponent();
 
             component.Contains(item, TestPath).ShouldBeFalse();
-            component.TryGet(item, TestPath, out AttachedValueProviderComponentTestBase value).ShouldBeFalse();
+            component.TryGet(item, TestPath, out AttachedValueProviderComponentTestBase? value).ShouldBeFalse();
             value.ShouldBeNull();
 
             component.Set(item, TestPath, this);
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Internal
             var item = GetSupportedItem();
             var component = GetComponent();
             component.AddOrUpdate(item, TestPath, this, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(this);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
         }
 
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Internal
                 state.ShouldEqual(this);
                 return this;
             }, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(this);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
@@ -106,7 +106,7 @@ namespace MugenMvvm.UnitTest.Internal
                 state.ShouldEqual(this);
                 return newValue;
             }).ShouldEqual(newValue);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(newValue);
             invokeCount.ShouldEqual(1);
         }
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTest.Internal
                 state.ShouldEqual(this);
                 return value(o, state);
             }).ShouldEqual(newValue);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(newValue);
             invokeCount.ShouldEqual(1);
         }
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTest.Internal
             var item = GetSupportedItem();
             var component = GetComponent();
             component.GetOrAdd(item, TestPath, this).ShouldEqual(this);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
         }
 
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTest.Internal
                 providerComponent.ShouldEqual(component);
                 return this;
             }).ShouldEqual(this);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
             invokeCount.ShouldEqual(1);
         }
@@ -176,7 +176,7 @@ namespace MugenMvvm.UnitTest.Internal
             var component = GetComponent();
             component.Set(item, TestPath, oldValue);
             component.GetOrAdd(item, TestPath, newValue).ShouldEqual(oldValue);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(oldValue);
         }
 
@@ -188,7 +188,7 @@ namespace MugenMvvm.UnitTest.Internal
             var component = GetComponent();
             component.Set(item, TestPath, oldValue);
             component.GetOrAdd<object, object, object>(item, TestPath, this, (_, __) => throw new NotSupportedException()).ShouldEqual(oldValue);
-            component.TryGet(item, TestPath, out object v).ShouldBeTrue();
+            component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(oldValue);
         }
 
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public virtual void ShouldBeEphemeron1()
         {
-            var item = GetSupportedItem();
+            object? item = GetSupportedItem();
             var component = GetComponent();
 
             var value = new object();
@@ -277,7 +277,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public virtual void ShouldBeEphemeron2()
         {
-            var item = GetSupportedItem();
+            object? item = GetSupportedItem();
             var component = GetComponent();
 
             var value = item;

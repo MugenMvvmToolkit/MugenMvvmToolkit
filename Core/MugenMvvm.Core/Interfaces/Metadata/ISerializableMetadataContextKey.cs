@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface ISerializableMetadataContextKey : IMetadataContextKey, IHasMemento
+    public interface ISerializableMetadataContextKey : IMetadataContextKey
     {
         bool CanSerialize(object? item, ISerializationContext serializationContext);
 

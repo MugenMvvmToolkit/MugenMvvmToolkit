@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public virtual void HasMetadataShouldReturnCorrectValue(bool emptyValue)
         {
-            var context = emptyValue ? DefaultMetadata : new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<object>("test"), ""));
+            var context = emptyValue ? DefaultMetadata : new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<object?, object>("test"), ""));
             var owner = GetMetadataOwner(context, null);
             owner.HasMetadata.ShouldEqual(!emptyValue);
         }

@@ -215,7 +215,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         var data = arguments[index];
                         if (data.IsLambda)
                         {
-                            var oldLambdaParameter = context.Metadata.Get(CompilingMetadata.LambdaParameter!);
+                            var oldLambdaParameter = context.Metadata.Get(CompilingMetadata.LambdaParameter);
                             context.Metadata.Set(CompilingMetadata.LambdaParameter, method.Parameters[index]);
                             try
                             {

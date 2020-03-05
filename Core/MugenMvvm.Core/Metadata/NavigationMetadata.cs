@@ -10,41 +10,41 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IViewModelBase>? _viewModel;
-        private static IMetadataContextKey<string>? _viewName;
-        private static IMetadataContextKey<bool>? _isModal;
-        private static IMetadataContextKey<DateTime>? _navigationDate;
+        private static IMetadataContextKey<IViewModelBase, IViewModelBase>? _viewModel;
+        private static IMetadataContextKey<string, string>? _viewName;
+        private static IMetadataContextKey<bool, bool>? _isModal;
+        private static IMetadataContextKey<DateTime, DateTime>? _navigationDate;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<IViewModelBase> ViewModel
+        public static IMetadataContextKey<IViewModelBase, IViewModelBase> ViewModel
         {
-            get => _viewModel ??= GetBuilder<IViewModelBase>(nameof(ViewModel)).NotNull().Serializable().Build();
+            get => _viewModel ??= GetBuilder(_viewModel, nameof(ViewModel)).NotNull().Serializable().Build();
             set => _viewModel = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<string> ViewName
+        public static IMetadataContextKey<string, string> ViewName
         {
-            get => _viewName ??= GetBuilder<string>(nameof(ViewName)).Serializable().NotNull().Build();
+            get => _viewName ??= GetBuilder(_viewName, nameof(ViewName)).Serializable().NotNull().Build();
             set => _viewName = value;
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool> IsModal
+        public static IMetadataContextKey<bool, bool> IsModal
         {
-            get => _isModal ??= GetBuilder<bool>(nameof(IsModal)).Serializable().Build();
+            get => _isModal ??= GetBuilder(_isModal, nameof(IsModal)).Serializable().Build();
             set => _isModal = value;
         }
 
 
         [AllowNull]
-        public static IMetadataContextKey<DateTime> NavigationDate
+        public static IMetadataContextKey<DateTime, DateTime> NavigationDate
         {
-            get => _navigationDate ??= GetBuilder<DateTime>(nameof(NavigationDate)).Build();
+            get => _navigationDate ??= GetBuilder(_navigationDate, nameof(NavigationDate)).Build();
             set => _navigationDate = value;
         }
 
@@ -52,9 +52,9 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        private static MetadataContextKey.Builder<T> GetBuilder<T>(string name)
+        private static MetadataContextKey.Builder<TGet, TSet> GetBuilder<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string name)
         {
-            return MetadataContextKey.Create<T>(typeof(NavigationMetadata), name);
+            return MetadataContextKey.Create<TGet, TSet>(typeof(NavigationMetadata), name);
         }
 
         #endregion

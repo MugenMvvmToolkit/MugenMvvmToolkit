@@ -44,7 +44,7 @@ namespace MugenMvvm.Metadata
             return _dictionary.Select(MetadataContextValue.CreateDelegate).GetEnumerator();
         }
 
-        public bool TryGet<T>(IMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
         {
             if (_dictionary.TryGetValue(contextKey, out var objValue))
             {

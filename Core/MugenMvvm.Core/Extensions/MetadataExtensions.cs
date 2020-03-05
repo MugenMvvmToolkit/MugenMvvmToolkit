@@ -107,33 +107,46 @@ namespace MugenMvvm.Extensions
             return builder.ToString();
         }
 
-        public static void AddHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
-            where T : Delegate
+        public static void AddHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T, T> key, T handler)
+            where T : Delegate?
         {
             Should.NotBeNull(metadata, nameof(metadata));
             metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Combine(currentValue, value));
         }
 
-        public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T> key, T handler)
-            where T : Delegate
+        public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T, T> key, T handler)
+            where T : Delegate?
         {
             Should.NotBeNull(metadata, nameof(metadata));
             metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Remove(currentValue, value));
         }
 
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.TryGet(contextKey, out value, default);
+        }
+
         [return: MaybeNull, NotNullIfNotNull("defaultValue")]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IMetadataContextKey<T> key, [AllowNull] T defaultValue = default!)
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key)
+        {
+            return metadataContext.Get(key, default);
+        }
+
+        [return: MaybeNull, NotNullIfNotNull("defaultValue")]
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull]T defaultValue)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             metadataContext.TryGet(key, out var value, defaultValue);
             return value;
         }
 
-        public static MetadataContextKey.Builder<T> NotNull<T>(this MetadataContextKey.Builder<T> builder) where T : class?
+        public static MetadataContextKey.Builder<TGet, TSet> NotNull<TGet, TSet>(this MetadataContextKey.Builder<TGet, TSet> builder)
+            where TSet : class
         {
             if (_notNullValidateAction == null)
                 _notNullValidateAction = (ctx, k, value) => Should.NotBeNull(value, nameof(value));
-            return builder.WithValidation(_notNullValidateAction!);
+            return builder.WithValidation(_notNullValidateAction);
         }
 
         public static void ClearMetadata<T>(this IMetadataOwner<T> metadataOwner, bool clearComponents) where T : class, IMetadataContext
@@ -147,7 +160,8 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        public static T GetOrAdd<T>(this IMetadataContext metadataContext, IMetadataContextKey<T> contextKey, Func<IMetadataContext, T> valueFactory)
+        [return: NotNull]
+        public static TGet GetOrAdd<TGet, TSet>(this IMetadataContext metadataContext, IMetadataContextKey<TGet, TSet> contextKey, Func<IMetadataContext, TSet> valueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             return metadataContext.GetOrAdd(contextKey, valueFactory, (ctx, s) => s(ctx));

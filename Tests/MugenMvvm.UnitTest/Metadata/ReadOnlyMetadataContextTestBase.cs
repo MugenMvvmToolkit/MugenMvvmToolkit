@@ -10,13 +10,13 @@ namespace MugenMvvm.UnitTest.Metadata
     {
         #region Fields
 
-        protected static readonly IMetadataContextKey<string?> CustomGetterKey = MetadataContextKey
-            .Create<string?>(nameof(CustomGetterKey))
+        protected static readonly IMetadataContextKey<string?, string?> CustomGetterKey = MetadataContextKey
+            .Create<string?, string?>(nameof(CustomGetterKey))
             .Getter(Getter)
             .Build();
 
-        protected static readonly IMetadataContextKey<int> CustomSetterKey = MetadataContextKey
-            .Create<int>(nameof(CustomSetterKey))
+        protected static readonly IMetadataContextKey<int, int> CustomSetterKey = MetadataContextKey
+            .Create<int, int>(nameof(CustomSetterKey))
             .Setter(Setter)
             .Build();
 
@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Metadata
 
         #region Methods
 
-        private static string? Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string?> arg2, object? arg3)
+        private static string? Getter(IReadOnlyMetadataContext arg1, IMetadataContextKey<string?, string?> arg2, object? arg3)
         {
             ++GetterCount;
             arg2.ShouldEqual(CustomGetterKey);
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Metadata
             return GetterValue;
         }
 
-        private static object? Setter(IReadOnlyMetadataContext arg1, IMetadataContextKey<int> arg2, object? arg3, int arg4)
+        private static object? Setter(IReadOnlyMetadataContext arg1, IMetadataContextKey<int, int> arg2, object? arg3, int arg4)
         {
             ++SetterCount;
             arg2.ShouldEqual(CustomSetterKey);
@@ -72,9 +72,9 @@ namespace MugenMvvm.UnitTest.Metadata
                 metadataContext.Contains(metadataContextValue.ContextKey);
         }
 
-        public void TryGetTest<T>(IReadOnlyMetadataContext context, IMetadataContextKey<T> key, T expectedValue)
+        public void TryGetTest<T>(IReadOnlyMetadataContext context, IReadOnlyMetadataContextKey<T> key, T expectedValue)
         {
-            context.TryGet(key, out var value).ShouldBeTrue();
+            context.TryGet(key, out var value, default).ShouldBeTrue();
             value.ShouldEqual(expectedValue);
         }
 
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Metadata
             GetterCount = 0;
             GetterValue = getterValueToSet;
 
-            metadataContext.TryGet(CustomGetterKey, out var value).ShouldBeTrue();
+            metadataContext.TryGet(CustomGetterKey, out var value, null).ShouldBeTrue();
             GetterCount.ShouldEqual(1);
             CurrentGetterContext.ShouldEqual(metadataContext);
             CurrentGetterValue.ShouldEqual(DefaultGetterValue);
@@ -95,15 +95,15 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             const string defaultValue = "Test1";
             const string defaultValueGet = "t";
-            var contextKey = MetadataContextKey.Create<string>("Test").DefaultValue(defaultValue).Build();
-            metadataContext.TryGet(contextKey!, out var value).ShouldBeFalse();
+            var contextKey = MetadataContextKey.Create<string?, string>("Test").DefaultValue(defaultValue).Build();
+            metadataContext.TryGet(contextKey!, out var value, null).ShouldBeFalse();
             value.ShouldEqual(defaultValue);
 
             metadataContext.TryGet(contextKey!, out value, defaultValueGet).ShouldBeFalse();
             value.ShouldEqual(defaultValue);
 
             var invokedCount = 0;
-            contextKey = MetadataContextKey.Create<string>("Test").DefaultValue((context, key, arg3) =>
+            contextKey = MetadataContextKey.Create<string?, string>("Test").DefaultValue((context, key, arg3) =>
             {
                 ++invokedCount;
                 context.ShouldEqual(metadataContext);

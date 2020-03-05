@@ -189,7 +189,7 @@ namespace MugenMvvm.Views.Components
 
             private static string? GetViewNameFromContext(IReadOnlyMetadataContext? metadata)
             {
-                return metadata?.Get(NavigationMetadata.ViewName!) ?? metadata?.Get(NavigationMetadata.ViewModel!)?.Metadata.Get(NavigationMetadata.ViewName!);
+                return metadata?.Get(NavigationMetadata.ViewName) ?? metadata?.Get(NavigationMetadata.ViewModel)?.Metadata.Get(NavigationMetadata.ViewName);
             }
 
             #endregion
