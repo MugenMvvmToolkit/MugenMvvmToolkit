@@ -10,7 +10,6 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Metadata;
 using MugenMvvm.ViewModels;
 
 namespace MugenMvvm.Views.Components

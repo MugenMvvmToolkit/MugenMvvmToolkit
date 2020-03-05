@@ -18,7 +18,6 @@ using MugenMvvm.Internal.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Metadata.Components;
 using MugenMvvm.Threading;
-using MugenMvvm.UnitTest.Resources;
 using MugenMvvm.UnitTest.Threading;
 using Xunit;
 

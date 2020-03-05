@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Interfaces.Compiling;

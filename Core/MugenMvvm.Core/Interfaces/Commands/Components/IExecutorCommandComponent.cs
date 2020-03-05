@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using System.Windows.Input;
 using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Commands.Components

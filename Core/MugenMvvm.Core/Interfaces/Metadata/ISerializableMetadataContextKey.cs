@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.Serialization;
+﻿using MugenMvvm.Interfaces.Serialization;
 
 namespace MugenMvvm.Interfaces.Metadata
 {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.ViewModels;
 using MugenMvvm.Views.Components;
