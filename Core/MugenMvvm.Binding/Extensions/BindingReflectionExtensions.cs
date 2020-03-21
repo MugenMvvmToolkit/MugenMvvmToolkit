@@ -317,7 +317,7 @@ namespace MugenMvvm.Binding.Extensions
         internal static object? GetDefaultValue(this Type type)
         {
             if (typeof(bool) == type)
-                return BoxingExtensions.TrueObject;
+                return BoxingExtensions.FalseObject;
             if (!typeof(ValueType).IsAssignableFrom(type))
                 return null;
             if (!DefaultValueCache.TryGetValue(type, out var value))

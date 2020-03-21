@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Globalization;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Converters.Components;
@@ -23,17 +22,36 @@ namespace MugenMvvm.Binding.Converters.Components
         public bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {
             if (value == null)
+            {
                 value = targetType.GetDefaultValue();
-            else if (targetType.IsInstanceOfType(value))
                 return true;
-            else if (targetType == typeof(string))
-                value = value.ToString();
-            else if (value is IConvertible)
-                value = Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider?.Invoke() ?? CultureInfo.CurrentCulture);
-            else if (targetType.IsEnum)
-                value = Enum.Parse(targetType, value.ToString());
+            }
 
-            return true;
+            if (targetType.IsInstanceOfType(value))
+                return true;
+            if (targetType == typeof(string))
+            {
+                value = FormatProvider == null
+                    ? value.ToString()
+                    : Convert.ToString(value, FormatProvider.Invoke());
+                return true;
+            }
+
+            if (targetType.IsEnum)
+            {
+                value = Enum.Parse(targetType, value.ToString());
+                return true;
+            }
+
+            if (value is IConvertible)
+            {
+                value = FormatProvider == null
+                    ? Convert.ChangeType(value, targetType.GetNonNullableType())
+                    : Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider.Invoke());
+                return true;
+            }
+
+            return false;
         }
 
         #endregion
