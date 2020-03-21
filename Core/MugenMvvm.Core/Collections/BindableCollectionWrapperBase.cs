@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Threading;
 
-namespace MugenMvvm.Collections.Components
+namespace MugenMvvm.Collections
 {
     public abstract class BindableCollectionWrapperBase<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged,
         IObservableCollectionBatchUpdateListener<T>, IThreadDispatcherHandler<BindableCollectionWrapperBase<T>.CollectionChangedEvent>, IValueHolder<Delegate>
