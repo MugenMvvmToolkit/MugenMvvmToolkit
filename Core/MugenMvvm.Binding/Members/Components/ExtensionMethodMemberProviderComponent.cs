@@ -107,24 +107,22 @@ namespace MugenMvvm.Binding.Members.Components
                     if (parameters.Length == 0)
                         continue;
 
-                    var isGenericMethod = method.IsGenericMethodDefinition;
-                    if (!parameters[0].ParameterType.IsAssignableFrom(type) && !isGenericMethod)
+                    if (parameters[0].ParameterType.IsAssignableFrom(type))
+                    {
+                        members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionDelegateProvider, parameters, null));
+                        continue;
+                    }
+
+                    if (!method.IsGenericMethodDefinition)
                         continue;
 
-                    Type[]? genericArgs;
-                    if (isGenericMethod)
-                    {
-                        method = TryMakeGenericMethod(method, type, out genericArgs)!;
-                        if (method == null)
-                            continue;
-                        parameters = method.GetParameters();
-                        if (!parameters[0].ParameterType.IsAssignableFrom(type))
-                            continue;
-                    }
-                    else
-                        genericArgs = null;
+                    method = TryMakeGenericMethod(method, type, out var genericArgs)!;
+                    if (method == null)
+                        continue;
 
-                    members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionDelegateProvider, parameters, genericArgs));
+                    parameters = method.GetParameters();
+                    if (parameters[0].ParameterType.IsAssignableFrom(type))
+                        members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionDelegateProvider, parameters, genericArgs));
                 }
             }
 
