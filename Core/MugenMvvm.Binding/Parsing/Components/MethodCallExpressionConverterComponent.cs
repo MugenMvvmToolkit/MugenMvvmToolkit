@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class MethodCallExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
+    public sealed class MethodCallExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 

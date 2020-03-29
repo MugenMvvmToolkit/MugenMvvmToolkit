@@ -32,7 +32,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             _context = new ExpressionConverterContext<Expression>(metadataContextProvider);
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IExpressionConverterParserComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
+            _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
             _tryParseDelegate = Parse;
         }
 

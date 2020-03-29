@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class LambdaExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
+    public sealed class LambdaExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 

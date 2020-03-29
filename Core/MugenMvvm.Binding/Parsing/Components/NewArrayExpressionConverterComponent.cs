@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class NewArrayExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
+    public sealed class NewArrayExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 
@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (!(expression is NewArrayExpression newArrayExpression) || newArrayExpression.NodeType != ExpressionType.NewArrayInit)
                 return null;
 
-            return new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverterParserComponent>(), nameof(NewArrayInit),
+            return new MethodCallExpressionNode(ConstantExpressionNode.Get<NewArrayExpressionConverterComponent>(), nameof(NewArrayInit),
                 context.Convert(newArrayExpression.Expressions), new[] {expression.Type.GetElementType()!.AssemblyQualifiedName});
         }
 

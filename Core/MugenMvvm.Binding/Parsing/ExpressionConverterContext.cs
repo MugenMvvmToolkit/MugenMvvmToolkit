@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Parsing
         #region Fields
 
         private readonly ExpressionDictionary _expressionsDict;
-        private IExpressionConverterParserComponent<TExpression>[] _converters;
+        private IExpressionConverterComponent<TExpression>[] _converters;
 
         #endregion
 
@@ -24,14 +24,14 @@ namespace MugenMvvm.Binding.Parsing
         public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
         {
             _expressionsDict = new ExpressionDictionary();
-            _converters = Default.EmptyArray<IExpressionConverterParserComponent<TExpression>>();
+            _converters = Default.EmptyArray<IExpressionConverterComponent<TExpression>>();
         }
 
         #endregion
 
         #region Properties
 
-        public IExpressionConverterParserComponent<TExpression>[] Converters
+        public IExpressionConverterComponent<TExpression>[] Converters
         {
             get => _converters;
             set

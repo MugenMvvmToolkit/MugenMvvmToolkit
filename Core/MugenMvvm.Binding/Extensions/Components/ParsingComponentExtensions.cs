@@ -13,7 +13,7 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static IExpressionNode? TryConvert<TExpression>(this IExpressionConverterParserComponent<TExpression>[] components, IExpressionConverterContext<TExpression> context, TExpression expression)
+        public static IExpressionNode? TryConvert<TExpression>(this IExpressionConverterComponent<TExpression>[] components, IExpressionConverterContext<TExpression> context, TExpression expression)
             where TExpression : class
         {
             Should.NotBeNull(components, nameof(components));

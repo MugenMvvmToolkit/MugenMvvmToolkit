@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class IndexerExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
+    public sealed class IndexerExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 

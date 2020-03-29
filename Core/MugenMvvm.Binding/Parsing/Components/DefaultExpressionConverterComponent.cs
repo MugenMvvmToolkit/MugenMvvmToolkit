@@ -9,11 +9,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class MemberExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
+    public sealed class DefaultExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = ParsingComponentPriority.Member;
+        public int Priority { get; set; } = ParsingComponentPriority.Convert;
 
         #endregion
 
@@ -21,8 +21,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (expression is MemberExpression memberExpression)
-                return new MemberExpressionNode(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);
+            if (expression is DefaultExpression d)
+                return ConstantExpressionNode.Get(d.Type.GetDefaultValue(), d.Type);
             return null;
         }
 

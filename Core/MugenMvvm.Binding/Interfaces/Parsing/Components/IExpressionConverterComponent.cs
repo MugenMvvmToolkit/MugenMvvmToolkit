@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Binding.Interfaces.Parsing.Components
 {
-    public interface IExpressionConverterParserComponent<TExpression> : IComponent<IExpressionParser> where TExpression : class
+    public interface IExpressionConverterComponent<TExpression> : IComponent<IExpressionParser> where TExpression : class
     {
         IExpressionNode? TryConvert(IExpressionConverterContext<TExpression> context, TExpression expression);
     }

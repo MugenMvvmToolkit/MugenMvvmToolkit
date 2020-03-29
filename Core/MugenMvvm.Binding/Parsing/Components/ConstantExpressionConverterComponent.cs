@@ -8,11 +8,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    public sealed class ConditionExpressionConverterParserComponent : IExpressionConverterParserComponent<Expression>, IHasPriority
+    public sealed class ConstantExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = ParsingComponentPriority.Condition;
+        public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
         #endregion
 
@@ -20,8 +20,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (expression is ConditionalExpression c)
-                return new ConditionExpressionNode(context.Convert(c.Test), context.Convert(c.IfTrue), context.Convert(c.IfFalse));
+            if (expression is ConstantExpression c)
+                return new ConstantExpressionNode(c.Value, c.Type, c);
             return null;
         }
 
