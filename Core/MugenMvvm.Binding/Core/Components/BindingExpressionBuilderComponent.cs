@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
-        private bool _isCachePerTypeRequired;
+        private bool _isCachePerTypeRequired;//todo move
 
         #endregion
 
@@ -81,13 +81,13 @@ namespace MugenMvvm.Binding.Core.Components
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IBindingExpressionInterceptorComponent)
+            if (component is IBindingExpressionNodeInterceptorComponent)
                 OnComponentsChanged(metadata);
         }
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IBindingExpressionInterceptorComponent)
+            if (component is IBindingExpressionNodeInterceptorComponent)
                 OnComponentsChanged(metadata);
         }
 
@@ -115,7 +115,7 @@ namespace MugenMvvm.Binding.Core.Components
             return new BindingExpression(this, targetExpression, sourceExpression, parameters.GetRawValue());
         }
 
-        private int GetPriority(IBindingExpression expression)
+        private int GetPriority(IBindingExpression expression)//todo move to order component
         {
             if (expression is BindingExpressionCache expressionCache)
                 return GetPriority(expressionCache.TargetExpression);
@@ -130,7 +130,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private void OnComponentsChanged(IReadOnlyMetadataContext? metadata)
         {
-            _isCachePerTypeRequired = Owner.Components.Get<IBindingExpressionInterceptorComponent>(metadata).IsCachePerTypeRequired();
+            _isCachePerTypeRequired = Owner.Components.Get<IBindingExpressionNodeInterceptorComponent>(metadata).IsCachePerTypeRequired();
         }
 
         #endregion
@@ -284,7 +284,7 @@ namespace MugenMvvm.Binding.Core.Components
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                _owner.Owner.Components.Get<IBindingExpressionInterceptorComponent>(metadata).Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
+                _owner.Owner.Components.Get<IBindingExpressionNodeInterceptorComponent>(metadata).Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
 
                 if (!(_targetExpression is IBindingMemberExpressionNode))
                     BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));

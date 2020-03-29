@@ -20,7 +20,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingInitializerExpressionInterceptorComponent : AttachableComponentBase<IBindingManager>, IBindingExpressionInterceptorComponent, IHasPriority
+    public sealed class BindingInitializerExpressionNodeInterceptorComponent : AttachableComponentBase<IBindingManager>, IBindingExpressionNodeInterceptorComponent, IHasPriority
     {
         #region Fields
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingInitializerExpressionInterceptorComponent(IExpressionCompiler? compiler = null, IMemberProvider? memberProvider = null)
+        public BindingInitializerExpressionNodeInterceptorComponent(IExpressionCompiler? compiler = null, IMemberProvider? memberProvider = null)
         {
             _context = new BindingParameterContext();
             _getEventHandlerDelegate = GetEventHandlerComponent;

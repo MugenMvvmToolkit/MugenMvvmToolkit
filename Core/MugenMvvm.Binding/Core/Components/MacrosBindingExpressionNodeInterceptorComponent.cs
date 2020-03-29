@@ -12,11 +12,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class MacrosBindingExpressionInterceptorComponent : IBindingExpressionInterceptorComponent, IHasPriority
+    public sealed class MacrosBindingExpressionNodeInterceptorComponent : IBindingExpressionNodeInterceptorComponent, IHasPriority
     {
         #region Constructors
 
-        public MacrosBindingExpressionInterceptorComponent()
+        public MacrosBindingExpressionNodeInterceptorComponent()
         {
             Visitors = new List<IExpressionVisitor>();
         }

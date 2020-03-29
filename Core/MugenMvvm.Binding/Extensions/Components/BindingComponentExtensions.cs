@@ -417,7 +417,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static bool IsCachePerTypeRequired(this IBindingExpressionInterceptorComponent[] components)
+        public static bool IsCachePerTypeRequired(this IBindingExpressionNodeInterceptorComponent[] components)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -429,7 +429,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return false;
         }
 
-        public static void Intercept(this IBindingExpressionInterceptorComponent[] components, object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
+        public static void Intercept(this IBindingExpressionNodeInterceptorComponent[] components, object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
             ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
