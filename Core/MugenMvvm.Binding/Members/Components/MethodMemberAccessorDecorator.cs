@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MethodMemberAccessorDecoratorComponent : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
+    public sealed class MethodMemberAccessorDecorator : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public MethodMemberAccessorDecoratorComponent(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
+        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
         {
             _globalValueConverter = globalValueConverter;
             _observerProvider = observerProvider;

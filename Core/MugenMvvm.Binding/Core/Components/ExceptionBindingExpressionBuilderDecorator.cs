@@ -11,7 +11,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class ExceptionWrapperBindingExpressionBuilderComponent : DecoratorComponentBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IHasPriority
+    public sealed class ExceptionBindingExpressionBuilderDecorator : DecoratorComponentBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IHasPriority
     {
         #region Properties
 

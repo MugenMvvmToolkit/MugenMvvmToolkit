@@ -18,7 +18,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public class IndexerAccessorDecoratorComponent : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
+    public class IndexerAccessorMemberDecorator : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public IndexerAccessorDecoratorComponent(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
+        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
         {
             _globalValueConverter = globalValueConverter;
             _observerProvider = observerProvider;
