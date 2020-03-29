@@ -6,14 +6,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class ConditionExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class ConditionExpressionBuilderComponentTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void TryBuildShouldIgnoreNotConditionExpression()
         {
-            var component = new ConditionExpressionBuilderCompilerComponent();
+            var component = new ConditionExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [InlineData(false, 1, 2, 2)]
         public void TryBuildShouldBuildConditionExpression(bool condition, object ifTrueValue, object ifFalseValue, object result)
         {
-            var component = new ConditionExpressionBuilderCompilerComponent();
+            var component = new ConditionExpressionBuilderComponent();
             var conditionExpression = ConstantExpressionNode.Get(condition);
             var ifTrueExp = ConstantExpressionNode.Get(ifTrueValue);
             var ifFalseExp = ConstantExpressionNode.Get(ifFalseValue);
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [Fact]
         public void TryBuildShouldThrowInvalidException()
         {
-            var component = new ConditionExpressionBuilderCompilerComponent();
+            var component = new ConditionExpressionBuilderComponent();
             var conditionExpression = ConstantExpressionNode.Get(1);
             var ifTrueExp = ConstantExpressionNode.Get(0);
             var ifFalseExp = ConstantExpressionNode.Get(1);

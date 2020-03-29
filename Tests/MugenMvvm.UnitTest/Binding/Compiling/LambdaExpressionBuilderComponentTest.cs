@@ -11,14 +11,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class LambdaExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class LambdaExpressionBuilderComponentTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void TryBuildShouldIgnoreNotLambdaExpression()
         {
-            var component = new LambdaExpressionBuilderCompilerComponent();
+            var component = new LambdaExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [Fact]
         public void TryBuildShouldIgnoreLambdaExpressionNoParameter()
         {
-            var component = new LambdaExpressionBuilderCompilerComponent();
+            var component = new LambdaExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.EmptyArray<IParameterExpressionNode>())).ShouldBeNull();
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public void TryBuildShouldIgnoreLambdaExpressionWrongParameterCount()
         {
             var parameterInfoImpl = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilderCompilerComponent();
+            var component = new LambdaExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
             component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.EmptyArray<IParameterExpressionNode>())).ShouldBeNull();
@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public void TryBuildShouldBuildLambdaExpression1()
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc1))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilderCompilerComponent();
+            var component = new LambdaExpressionBuilderComponent();
             var dictionary = new Dictionary<IExpressionNode, Expression>();
             var ctx = new TestExpressionBuilderContext
             {
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public void TryBuildShouldBuildLambdaExpression2()
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc2))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilderCompilerComponent();
+            var component = new LambdaExpressionBuilderComponent();
             var dictionary = new Dictionary<IExpressionNode, Expression>();
             var ctx = new TestExpressionBuilderContext
             {
@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public void TryBuildShouldBuildLambdaExpression3()
         {
             var parameterInfo = new ParameterInfoImpl(GetType().GetMethod(nameof(MethodWithFunc3))!.GetParameters()[0]);
-            var component = new LambdaExpressionBuilderCompilerComponent();
+            var component = new LambdaExpressionBuilderComponent();
             var dictionary = new Dictionary<IExpressionNode, Expression>();
             var ctx = new TestExpressionBuilderContext();
 

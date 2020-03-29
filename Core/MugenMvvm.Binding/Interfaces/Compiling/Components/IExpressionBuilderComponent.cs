@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Binding.Interfaces.Compiling.Components
 {
-    public interface IExpressionBuilderCompilerComponent : IComponent<IExpressionCompiler>
+    public interface IExpressionBuilderComponent : IComponent<IExpressionCompiler>
     {
         Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression);
     }

@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public class CacheDecoratorReflectionDelegateProviderComponentTest : UnitTestBase
+    public class CacheReflectionDelegateProviderDecoratorTest : UnitTestBase
     {
         #region Fields
 

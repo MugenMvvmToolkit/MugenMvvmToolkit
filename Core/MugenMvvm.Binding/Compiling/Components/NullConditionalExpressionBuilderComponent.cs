@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class NullConditionalExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent, IHasPriority
+    public sealed class NullConditionalExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 

@@ -11,23 +11,23 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class MemberExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class MemberExpressionBuilderComponentTest : UnitTestBase
     {
         #region Fields
 
-        private readonly MemberExpressionBuilderCompilerComponent _component;
+        private readonly MemberExpressionBuilderComponent _component;
         private readonly TestMemberManagerComponent _memberManagerComponent;
 
         #endregion
 
         #region Constructors
 
-        public MemberExpressionBuilderCompilerComponentTest()
+        public MemberExpressionBuilderComponentTest()
         {
             IMemberProvider memberProvider = new MemberProvider();
             _memberManagerComponent = new TestMemberManagerComponent();
             memberProvider.AddComponent(_memberManagerComponent);
-            _component = new MemberExpressionBuilderCompilerComponent(memberProvider);
+            _component = new MemberExpressionBuilderComponent(memberProvider);
         }
 
         #endregion

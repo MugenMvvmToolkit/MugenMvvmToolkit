@@ -9,14 +9,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class UnaryExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class UnaryExpressionBuilderComponentTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void TryBuildShouldIgnoreNotUnaryExpression()
         {
-            var component = new UnaryExpressionBuilderCompilerComponent();
+            var component = new UnaryExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [Fact]
         public void TryBuildShouldIgnoreNotSupportUnaryExpression()
         {
-            var component = new UnaryExpressionBuilderCompilerComponent();
+            var component = new UnaryExpressionBuilderComponent();
             component.UnaryTokenMapping.Clear();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, ConstantExpressionNode.False)).ShouldBeNull();
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [MemberData(nameof(GetData))]
         public void TryBuildShouldBuildUnaryExpression(IUnaryExpressionNode unaryExpression, IExpressionBuilderContext context, object result, bool invalid)
         {
-            var component = new UnaryExpressionBuilderCompilerComponent();
+            var component = new UnaryExpressionBuilderComponent();
             if (invalid)
             {
                 ShouldThrow(() => component.TryBuild(context, unaryExpression));

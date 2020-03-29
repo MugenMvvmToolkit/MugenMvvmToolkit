@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Compiling
         private readonly IMetadataContextProvider? _metadataContextProvider;
         private readonly object?[] _values;
 
-        private IExpressionBuilderCompilerComponent[] _expressionBuilders;
+        private IExpressionBuilderComponent[] _expressionBuilders;
         private IMetadataContext? _metadata;
 
         private static readonly ParameterExpression[] ArrayParameterArray = { MugenExtensions.GetParameterExpression<object[]>() };
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling
             _expressionsDict = new ExpressionDictionary();
             _expression = expression.Accept(this, metadata);
             _values = new object[_expressionsDict.Count + 1];
-            _expressionBuilders = Default.EmptyArray<IExpressionBuilderCompilerComponent>();
+            _expressionBuilders = Default.EmptyArray<IExpressionBuilderComponent>();
             MetadataExpression = MugenExtensions.GetIndexExpression(_expressionsDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
         }
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.Binding.Compiling
 
         public Expression MetadataExpression { get; }
 
-        public IExpressionBuilderCompilerComponent[] ExpressionBuilders
+        public IExpressionBuilderComponent[] ExpressionBuilders
         {
             get => _expressionBuilders;
             set

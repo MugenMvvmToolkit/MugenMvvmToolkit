@@ -21,11 +21,11 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class MethodCallIndexerExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class MethodCallIndexerExpressionBuilderComponentTest : UnitTestBase
     {
         #region Fields
 
-        private readonly MethodCallIndexerExpressionBuilderCompilerComponent _component;
+        private readonly MethodCallIndexerExpressionBuilderComponent _component;
         private readonly TestMemberManagerComponent _memberManagerComponent;
         private readonly TestTypeResolverComponent _typeResolver;
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         #region Constructors
 
-        public MethodCallIndexerExpressionBuilderCompilerComponentTest()
+        public MethodCallIndexerExpressionBuilderComponentTest()
         {
             var memberProvider = new MemberProvider();
             _memberManagerComponent = new TestMemberManagerComponent();
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             _typeResolver = new TestTypeResolverComponent();
             resourceResolver.AddComponent(_typeResolver);
 
-            _component = new MethodCallIndexerExpressionBuilderCompilerComponent(memberProvider, resourceResolver);
+            _component = new MethodCallIndexerExpressionBuilderComponent(memberProvider, resourceResolver);
         }
 
         #endregion
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [Fact]
         public void TryBuildShouldIgnoreNotNullMethodCallExpression()
         {
-            var component = new MethodCallIndexerExpressionBuilderCompilerComponent();
+            var component = new MethodCallIndexerExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }

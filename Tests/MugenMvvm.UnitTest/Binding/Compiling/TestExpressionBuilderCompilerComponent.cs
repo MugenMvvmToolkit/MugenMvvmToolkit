@@ -6,7 +6,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class TestExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent
+    public class TestExpressionBuilderComponent : IExpressionBuilderComponent
     {
         #region Properties
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         #region Implementation of interfaces
 
-        Expression? IExpressionBuilderCompilerComponent.TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
+        Expression? IExpressionBuilderComponent.TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
         {
             return TryBuild?.Invoke(context, expression);
         }

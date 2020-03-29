@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var compiledExpression = (CompiledExpression)component.TryCompile(ConstantExpressionNode.False, DefaultMetadata)!;
             compiledExpression.ExpressionBuilders.ShouldBeEmpty();
 
-            var testBuilder = new TestExpressionBuilderCompilerComponent();
+            var testBuilder = new TestExpressionBuilderComponent();
             expressionCompiler.AddComponent(testBuilder);
 
             compiledExpression = (CompiledExpression)component.TryCompile(ConstantExpressionNode.False, DefaultMetadata)!;

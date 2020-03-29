@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public class ValueHolderCacheDecoratorWeakReferenceProviderComponentTest : UnitTestBase
+    public class ValueHolderCacheWeakReferenceProviderDecoratorTest : UnitTestBase
     {
         #region Methods
 

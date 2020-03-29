@@ -5,14 +5,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class ConstantExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class ConstantExpressionBuilderComponentTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void TryBuildShouldIgnoreNotConstantExpression()
         {
-            var component = new ConstantExpressionBuilderCompilerComponent();
+            var component = new ConstantExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, MemberExpressionNode.Self).ShouldBeNull();
         }
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         [Fact]
         public void TryBuildShouldBuildConstantExpression()
         {
-            var component = new ConstantExpressionBuilderCompilerComponent();
+            var component = new ConstantExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             var build = component.TryBuild(ctx, ConstantExpressionNode.False)!;
             build.ShouldEqual(ConstantExpressionNode.False.ConstantExpression);

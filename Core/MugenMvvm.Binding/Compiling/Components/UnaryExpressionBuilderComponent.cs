@@ -12,11 +12,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
-    public sealed class UnaryExpressionBuilderCompilerComponent : IExpressionBuilderCompilerComponent, IHasPriority
+    public sealed class UnaryExpressionBuilderComponent : IExpressionBuilderComponent, IHasPriority
     {
         #region Constructors
 
-        public UnaryExpressionBuilderCompilerComponent()
+        public UnaryExpressionBuilderComponent()
         {
             UnaryTokenMapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
             {

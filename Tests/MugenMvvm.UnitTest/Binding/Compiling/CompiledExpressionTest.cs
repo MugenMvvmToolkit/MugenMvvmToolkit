@@ -62,11 +62,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
             var compiledExpression = new CompiledExpression(expressionNode);
 
-            var components = new List<IExpressionBuilderCompilerComponent>();
+            var components = new List<IExpressionBuilderComponent>();
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderCompilerComponent
+                components.Add(new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
@@ -100,11 +100,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var expressionNode = new BinaryExpressionNode(BinaryTokenType.Addition, member1, member2);
             var compiledExpression = new CompiledExpression(expressionNode);
 
-            var components = new List<IExpressionBuilderCompilerComponent>();
+            var components = new List<IExpressionBuilderComponent>();
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderCompilerComponent
+                components.Add(new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
@@ -135,11 +135,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var expressionNode = ConstantExpressionNode.False;
             var compiledExpression = new CompiledExpression(expressionNode);
 
-            var components = new List<IExpressionBuilderCompilerComponent>();
+            var components = new List<IExpressionBuilderComponent>();
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                components.Add(new TestExpressionBuilderCompilerComponent
+                components.Add(new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var compiledExpression = new CompiledExpression(expressionNode);
             compiledExpression.ExpressionBuilders = new[]
             {
-                new TestExpressionBuilderCompilerComponent
+                new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
@@ -209,7 +209,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var compiledExpression = new CompiledExpression(expressionNode);
             compiledExpression.ExpressionBuilders = new[]
             {
-                new TestExpressionBuilderCompilerComponent
+                new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
@@ -247,7 +247,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "test1", null) { Index = 0 }, inputMetadata);
             compiledExpression.ExpressionBuilders = new[]
             {
-                new TestExpressionBuilderCompilerComponent
+                new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) =>
                     {
@@ -271,7 +271,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "test1", null) { Index = 0 });
             compiledExpression.ExpressionBuilders = new[]
             {
-                new TestExpressionBuilderCompilerComponent
+                new TestExpressionBuilderComponent
                 {
                     TryBuild = (context, node) => result
                 }

@@ -12,7 +12,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Views
 {
-    public class ExecutionModeDecoratorViewInitializerComponentTest : UnitTestBase
+    public class ExecutionModeViewInitializerDecoratorTest : UnitTestBase
     {
         #region Methods
 

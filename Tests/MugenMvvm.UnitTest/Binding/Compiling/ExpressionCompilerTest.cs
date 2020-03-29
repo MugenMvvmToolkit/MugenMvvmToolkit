@@ -200,14 +200,14 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             memberProvider.AddComponent(new ExtensionMethodMemberProviderComponent());
 
             var expressionCompiler = new ExpressionCompiler();
-            expressionCompiler.AddComponent(new BinaryExpressionBuilderCompilerComponent());
-            expressionCompiler.AddComponent(new ConditionExpressionBuilderCompilerComponent());
-            expressionCompiler.AddComponent(new ConstantExpressionBuilderCompilerComponent());
-            expressionCompiler.AddComponent(new LambdaExpressionBuilderCompilerComponent());
-            expressionCompiler.AddComponent(new MemberExpressionBuilderCompilerComponent(memberProvider));
-            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilderCompilerComponent(memberProvider));
-            expressionCompiler.AddComponent(new NullConditionalExpressionBuilderCompilerComponent());
-            expressionCompiler.AddComponent(new UnaryExpressionBuilderCompilerComponent());
+            expressionCompiler.AddComponent(new BinaryExpressionBuilderComponent());
+            expressionCompiler.AddComponent(new ConditionExpressionBuilderComponent());
+            expressionCompiler.AddComponent(new ConstantExpressionBuilderComponent());
+            expressionCompiler.AddComponent(new LambdaExpressionBuilderComponent());
+            expressionCompiler.AddComponent(new MemberExpressionBuilderComponent(memberProvider));
+            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilderComponent(memberProvider));
+            expressionCompiler.AddComponent(new NullConditionalExpressionBuilderComponent());
+            expressionCompiler.AddComponent(new UnaryExpressionBuilderComponent());
             expressionCompiler.AddComponent(new ExpressionCompilerComponent());
             return expressionCompiler;
         }

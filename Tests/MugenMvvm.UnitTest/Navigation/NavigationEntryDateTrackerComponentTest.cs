@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Navigation
 {
-    public class NavigationEntryDateUpdaterComponentTest : UnitTestBase
+    public class NavigationEntryDateTrackerComponentTest : UnitTestBase
     {
         #region Methods
 

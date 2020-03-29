@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static Expression? TryBuild(this IExpressionBuilderCompilerComponent[] components, IExpressionBuilderContext context, IExpressionNode expression)
+        public static Expression? TryBuild(this IExpressionBuilderComponent[] components, IExpressionBuilderContext context, IExpressionNode expression)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(expression, nameof(expression));

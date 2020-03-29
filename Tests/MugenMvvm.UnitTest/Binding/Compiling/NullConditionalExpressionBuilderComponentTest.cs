@@ -10,14 +10,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class NullConditionalExpressionBuilderCompilerComponentTest : UnitTestBase
+    public class NullConditionalExpressionBuilderComponentTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void TryBuildShouldIgnoreNotNullConditionalExpression()
         {
-            var component = new NullConditionalExpressionBuilderCompilerComponent();
+            var component = new NullConditionalExpressionBuilderComponent();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, ConstantExpressionNode.False).ShouldBeNull();
         }
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         public void TryBuildShouldBuildNullConditionalExpression1(string? value, int? result)
         {
             var node = new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, typeof(string))), nameof(string.Length));
-            var component = new NullConditionalExpressionBuilderCompilerComponent();
+            var component = new NullConditionalExpressionBuilderComponent();
             TestExpressionBuilderContext ctx = null!;
             ctx = new TestExpressionBuilderContext
             {
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         {
             var node = new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, value.HasValue ? typeof(int) : typeof(int?))), nameof(ToString),
                 Default.EmptyArray<IExpressionNode>());
-            var component = new NullConditionalExpressionBuilderCompilerComponent();
+            var component = new NullConditionalExpressionBuilderComponent();
             TestExpressionBuilderContext ctx = null!;
             ctx = new TestExpressionBuilderContext
             {

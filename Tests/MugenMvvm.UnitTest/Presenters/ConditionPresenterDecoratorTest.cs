@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Presenters
 {
-    public class ConditionDecoratorPresenterComponentTest : UnitTestBase
+    public class ConditionPresenterDecoratorTest : UnitTestBase
     {
         #region Methods
 
