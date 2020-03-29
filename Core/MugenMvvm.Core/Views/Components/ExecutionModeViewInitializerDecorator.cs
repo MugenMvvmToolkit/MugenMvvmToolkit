@@ -15,7 +15,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ExecutionModeDecoratorViewInitializerComponent : DecoratorComponentBase<IViewManager, IViewInitializerComponent>, IViewInitializerComponent, IHasPriority
+    public sealed class ExecutionModeViewInitializerDecorator : DecoratorComponentBase<IViewManager, IViewInitializerComponent>, IViewInitializerComponent, IHasPriority
     {
         #region Fields
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Views.Components
 
         #region Constructors
 
-        public ExecutionModeDecoratorViewInitializerComponent(IThreadDispatcher? threadDispatcher = null)
+        public ExecutionModeViewInitializerDecorator(IThreadDispatcher? threadDispatcher = null)
         {
             _threadDispatcher = threadDispatcher;
             InitializeExecutionMode = ThreadExecutionMode.Main;

@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Views
         public void TryInitializeAsyncShouldBeExecutedInline()
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeDecoratorViewInitializerComponent(dispatcher);
+            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new object();
             var viewModel = new TestViewModel();
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Views
         public void TryInitializeAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeDecoratorViewInitializerComponent(dispatcher);
+            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new object();
             var viewModel = new TestViewModel();
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTest.Views
         public void TryCleanupAsyncShouldBeExecutedInline()
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeDecoratorViewInitializerComponent(dispatcher);
+            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new View(mapping, new object());
             var viewModel = new TestViewModel();
@@ -176,7 +176,7 @@ namespace MugenMvvm.UnitTest.Views
         public void TryCleanupAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeDecoratorViewInitializerComponent(dispatcher);
+            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new View(mapping, new object());
             var viewModel = new TestViewModel();

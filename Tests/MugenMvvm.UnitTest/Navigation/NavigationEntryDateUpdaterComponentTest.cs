@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(entry.NavigationProvider, entry.NavigationOperationId, entry.NavigationType, NavigationMode.Remove);
-            var component = new NavigationEntryDateUpdaterComponent();
+            var component = new NavigationEntryDateTrackerComponent();
 
             var utcNow = DateTime.UtcNow;
             component.OnNavigationEntryAdded(dispatcher, entry, context);
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(entry.NavigationProvider, entry.NavigationOperationId, entry.NavigationType, NavigationMode.Remove);
-            var component = new NavigationEntryDateUpdaterComponent();
+            var component = new NavigationEntryDateTrackerComponent();
 
             var utcNow = DateTime.UtcNow;
             component.OnNavigationEntryUpdated(dispatcher, entry, context);
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(entry.NavigationProvider, entry.NavigationOperationId, entry.NavigationType, NavigationMode.Remove);
-            var component = new NavigationEntryDateUpdaterComponent();
+            var component = new NavigationEntryDateTrackerComponent();
 
             component.OnNavigationEntryRemoved(dispatcher, entry, context);
             entry.Metadata.Contains(NavigationMetadata.NavigationDate).ShouldBeFalse();

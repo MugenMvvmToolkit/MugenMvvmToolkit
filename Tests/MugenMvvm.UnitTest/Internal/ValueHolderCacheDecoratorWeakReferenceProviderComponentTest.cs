@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var weak = new WeakReferenceImpl(this, true);
-            var cacheComponent = new ValueHolderCacheDecoratorWeakReferenceProviderComponent();
+            var cacheComponent = new ValueHolderCacheWeakReferenceProviderDecorator();
             var providerComponent = new TestWeakReferenceProviderComponent
             {
                 TryGetWeakReference = (o, context) =>

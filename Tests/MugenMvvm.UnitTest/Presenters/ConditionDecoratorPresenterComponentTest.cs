@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Presenters
         public void TryShowShouldBeHandledByComponents()
         {
             var presenter = new Presenter();
-            presenter.AddComponent(new ConditionDecoratorPresenterComponent());
+            presenter.AddComponent(new ConditionPresenterDecorator());
 
             var canExecute = false;
             var component = new TestConditionPresenterComponent
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Presenters
         public void TryCloseShouldBeHandledByComponents()
         {
             var presenter = new Presenter();
-            presenter.AddComponent(new ConditionDecoratorPresenterComponent());
+            presenter.AddComponent(new ConditionPresenterDecorator());
 
             var canExecute = false;
             var component = new TestConditionPresenterComponent
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Presenters
         public void TryRestoreShouldBeHandledByComponents()
         {
             var presenter = new Presenter();
-            presenter.AddComponent(new ConditionDecoratorPresenterComponent());
+            presenter.AddComponent(new ConditionPresenterDecorator());
 
             var canExecute = false;
             var component = new TestConditionPresenterComponent
