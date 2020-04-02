@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Nested types
 
-        private sealed class ExceptionWrapperBindingExpression : IBindingExpression
+        private sealed class ExceptionWrapperBindingExpression : IBindingExpression, IWrapper<IBindingExpression>
         {
             #region Fields
 
@@ -66,6 +66,12 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 _bindingExpression = bindingExpression;
             }
+
+            #endregion
+
+            #region Properties
+
+            IBindingExpression IWrapper<IBindingExpression>.Target => _bindingExpression;
 
             #endregion
 

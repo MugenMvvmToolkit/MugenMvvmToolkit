@@ -63,8 +63,6 @@ namespace MugenMvvm.Binding.Core.Components
 
         public int Priority { get; set; } = ComponentPriority.PostInitializer;
 
-        public bool IsCachePerTypeRequired { get; set; }
-
         #endregion
 
         #region Implementation of interfaces

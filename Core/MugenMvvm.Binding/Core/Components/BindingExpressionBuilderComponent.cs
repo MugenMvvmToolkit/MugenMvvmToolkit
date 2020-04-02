@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
@@ -10,19 +8,16 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
-using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionBuilderComponent : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority,
-        IComponentCollectionChangedListener, IComparer<IBindingExpression>
+    public sealed class BindingExpressionBuilderComponent : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 
@@ -30,7 +25,6 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
-        private bool _isCachePerTypeRequired;//todo move
 
         #endregion
 
@@ -64,139 +58,21 @@ namespace MugenMvvm.Binding.Core.Components
                 for (var i = 0; i < bindingExpressions.Length; i++)
                 {
                     var result = list[i];
-                    MugenExtensions.AddOrdered(bindingExpressions, GetBindingExpression(result.Target, result.Source, result.Parameters), i, this);
+                    bindingExpressions[i] = new BindingExpression(this, result.Target, result.Source, result.Parameters.GetRawValue());
                 }
 
                 return bindingExpressions;
             }
 
             var item = parserResult.Item;
-            return new ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>(GetBindingExpression(item.Target, item.Source, item.Parameters));
-        }
-
-        int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
-        {
-            return GetPriority(y).CompareTo(GetPriority(x));
-        }
-
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is IBindingExpressionNodeInterceptorComponent)
-                OnComponentsChanged(metadata);
-        }
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is IBindingExpressionNodeInterceptorComponent)
-                OnComponentsChanged(metadata);
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnAttachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            OnComponentsChanged(metadata);
-            owner.Components.AddComponent(this, metadata);
-        }
-
-        protected override void OnDetachedInternal(IBindingManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            owner.Components.RemoveComponent(this, metadata);
-            OnComponentsChanged(metadata);
-        }
-
-        private IBindingExpression GetBindingExpression(IExpressionNode targetExpression, IExpressionNode sourceExpression,
-            ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters)
-        {
-            if (_isCachePerTypeRequired)
-                return new BindingExpressionCache(this, targetExpression, sourceExpression, parameters.GetRawValue());
-            return new BindingExpression(this, targetExpression, sourceExpression, parameters.GetRawValue());
-        }
-
-        private int GetPriority(IBindingExpression expression)//todo move to order component
-        {
-            if (expression is BindingExpressionCache expressionCache)
-                return GetPriority(expressionCache.TargetExpression);
-            return GetPriority(((BindingExpression)expression).TargetExpression);
-        }
-
-        private int GetPriority(IExpressionNode expression)
-        {
-            Owner.Components.Get<IBindingExpressionPriorityProviderComponent>().TryGetPriority(expression, out var priority);
-            return priority;
-        }
-
-        private void OnComponentsChanged(IReadOnlyMetadataContext? metadata)
-        {
-            _isCachePerTypeRequired = Owner.Components.Get<IBindingExpressionNodeInterceptorComponent>(metadata).IsCachePerTypeRequired();
+            return new BindingExpression(this, item.Target, item.Source, item.Parameters.GetRawValue());
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class BindingExpressionCache : LightDictionary<CacheKey, BindingExpression>, IBindingExpression
-        {
-            #region Fields
-
-            private readonly BindingExpressionBuilderComponent _owner;
-            private readonly object? _parametersRaw;
-            private readonly IExpressionNode _sourceExpression;
-
-            #endregion
-
-            #region Constructors
-
-            public BindingExpressionCache(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw)
-            {
-                _owner = owner;
-                TargetExpression = targetExpression;
-                _sourceExpression = sourceExpression;
-                _parametersRaw = parametersRaw;
-            }
-
-            #endregion
-
-            #region Properties
-
-            public IExpressionNode TargetExpression { get; }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
-            {
-                var cacheKey = new CacheKey(target, source);
-                if (!TryGetValue(cacheKey, out var value))
-                {
-                    value = new BindingExpression(_owner, TargetExpression, _sourceExpression, _parametersRaw);
-                    this[cacheKey] = value;
-                }
-
-                return value.Build(target, source, metadata);
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(CacheKey x, CacheKey y)
-            {
-                return x.SourceType == y.SourceType && x.TargetType == y.TargetType;
-            }
-
-            protected override int GetHashCode(CacheKey key)
-            {
-                return HashCode.Combine(key.SourceType, key.TargetType);
-            }
-
-            #endregion
-        }
-
-        private sealed class BindingExpression : IBindingExpression
+        private sealed class BindingExpression : IHasTargetExpressionBindingExpression
         {
             #region Fields
 
@@ -297,31 +173,11 @@ namespace MugenMvvm.Binding.Core.Components
 
                 var dictionary = _owner._componentsDictionary;
                 dictionary.Clear();
-                _owner.Owner.Components.Get<IBindingComponentProviderComponent>(metadata).TrySetComponentBuilders(dictionary, _targetExpression, _sourceExpression,
-                    parameters.Cast<IReadOnlyList<IExpressionNode>>(), metadata);
+                _owner.Owner.Components
+                    .Get<IBindingComponentProviderComponent>(metadata)
+                    .TrySetComponentBuilders(dictionary, _targetExpression, _sourceExpression, parameters.Cast<IReadOnlyList<IExpressionNode>>(), metadata);
                 _parametersRaw = null;
                 _componentBuilders = dictionary.ValuesToArray();
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct CacheKey
-        {
-            #region Fields
-
-            public readonly Type? SourceType;
-            public readonly Type TargetType;
-
-            #endregion
-
-            #region Constructors
-
-            public CacheKey(object target, object? source)
-            {
-                TargetType = target.GetType();
-                SourceType = source?.GetType();
             }
 
             #endregion

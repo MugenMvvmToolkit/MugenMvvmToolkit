@@ -417,18 +417,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static bool IsCachePerTypeRequired(this IBindingExpressionNodeInterceptorComponent[] components)
-        {
-            Should.NotBeNull(components, nameof(components));
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].IsCachePerTypeRequired)
-                    return true;
-            }
-
-            return false;
-        }
-
         public static void Intercept(this IBindingExpressionNodeInterceptorComponent[] components, object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
             ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
@@ -438,20 +426,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(sourceExpression, nameof(sourceExpression));
             for (var i = 0; i < components.Length; i++)
                 components[i].Intercept(target, source, ref targetExpression, ref sourceExpression, ref parameters, metadata);
-        }
-
-        public static bool TryGetPriority(this IBindingExpressionPriorityProviderComponent[] components, IExpressionNode expression, out int priority)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(expression, nameof(expression));
-            for (var i = 0; i < components.Length; i++)
-            {
-                if (components[i].TryGetPriority(expression, out priority))
-                    return true;
-            }
-
-            priority = 0;
-            return false;
         }
 
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, object target, string? path, IReadOnlyMetadataContext? metadata)

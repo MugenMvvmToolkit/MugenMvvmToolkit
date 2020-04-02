@@ -11,7 +11,7 @@
 
         public const int ComponentProvider = 0;
         public const int ExpressionBuilder = 0;
-        public const int ExpressionPriorityProvider = 0;
+        public const int ExpressionPriorityDecorator = 1;
         public const int BindingHolder = 0;
 
         #endregion
