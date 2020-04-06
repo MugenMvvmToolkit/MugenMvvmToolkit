@@ -417,7 +417,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static void Intercept(this IBindingExpressionNodeInterceptorComponent[] components, object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
+        public static void Intercept(this IExpressionNodeInterceptorComponent[] components, object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
             ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

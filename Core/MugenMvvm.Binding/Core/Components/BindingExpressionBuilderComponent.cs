@@ -160,7 +160,7 @@ namespace MugenMvvm.Binding.Core.Components
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                _owner.Owner.Components.Get<IBindingExpressionNodeInterceptorComponent>(metadata).Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
+                _owner.Owner.Components.Get<IExpressionNodeInterceptorComponent>(metadata).Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
 
                 if (!(_targetExpression is IBindingMemberExpressionNode))
                     BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));
