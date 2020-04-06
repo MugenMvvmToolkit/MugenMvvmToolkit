@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
@@ -47,7 +49,19 @@ namespace MugenMvvm.Binding.Core.Components
             var list = expressions.List;
             if (expressions.Item != null || list == null)
                 return expressions;
-            return default;
+
+            if (list is IBindingExpression[] array)
+                Array.Sort(array, this);
+            else if (list is List<IBindingExpression> l)
+                l.Sort(this);
+            else
+            {
+                var result = list.ToArray();
+                Array.Sort(result, this);
+                return result;
+            }
+
+            return expressions;
         }
 
         int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
