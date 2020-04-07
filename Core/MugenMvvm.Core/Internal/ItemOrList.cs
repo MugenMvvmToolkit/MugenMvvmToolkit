@@ -23,7 +23,7 @@ namespace MugenMvvm.Internal
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ItemOrList([AllowNull]TItem item)
         {
-            Item = item;
+            Item = item!;
             List = null;
         }
 
@@ -75,13 +75,13 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>(TItem item)
+        public static implicit operator ItemOrList<TItem, TList>([AllowNull]TItem item)
         {
             return new ItemOrList<TItem, TList>(item);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>(TList items)
+        public static implicit operator ItemOrList<TItem, TList>(TList? items)
         {
             return new ItemOrList<TItem, TList>(items);
         }

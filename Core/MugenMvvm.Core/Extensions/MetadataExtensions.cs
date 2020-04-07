@@ -159,7 +159,6 @@ namespace MugenMvvm.Extensions
             }
         }
 
-        [return: NotNull]
         public static TGet GetOrAdd<TGet, TSet>(this IMetadataContext metadataContext, IMetadataContextKey<TGet, TSet> contextKey, Func<IMetadataContext, TSet> valueFactory)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));

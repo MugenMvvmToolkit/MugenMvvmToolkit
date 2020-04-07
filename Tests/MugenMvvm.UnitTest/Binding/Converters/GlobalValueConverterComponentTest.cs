@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTest.Binding.Converters
         {
             var component = new GlobalValueConverterComponent();
             var v = new object();
-            var value = v;
+            object? value = v;
 
             component.TryConvert(ref value, GetType(), null, null).ShouldBeFalse();
             value.ShouldEqual(v);

@@ -17,7 +17,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedMemberProviderComponent, IEqualityComparer<IMemberInfo>, IHasPriority
+    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberManager>, IAttachedMemberProviderComponent, IEqualityComparer<IMemberInfo>, IHasPriority
     {
         #region Fields
 

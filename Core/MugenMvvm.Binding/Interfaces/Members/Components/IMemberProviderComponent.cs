@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members.Components
 {
-    public interface IMemberProviderComponent : IComponent<IMemberProvider>
+    public interface IMemberProviderComponent : IComponent<IMemberManager>
     {
         IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata);
     }

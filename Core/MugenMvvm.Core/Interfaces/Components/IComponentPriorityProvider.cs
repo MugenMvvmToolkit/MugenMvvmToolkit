@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentPriorityManager : IComponent<IMugenApplication>
+    public interface IComponentPriorityProvider : IComponent<IMugenApplication>
     {
         int GetPriority(object component, object? owner);
     }

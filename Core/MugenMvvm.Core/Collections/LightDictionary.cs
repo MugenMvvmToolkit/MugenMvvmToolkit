@@ -62,6 +62,17 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
+        internal KeyValuePair<TKey, TValue> FirstOrDefault
+        {
+            get
+            {
+                // ReSharper disable once GenericEnumeratorNotDisposed
+                var enumerator = GetEnumerator();
+                enumerator.MoveNext();
+                return enumerator.Current;
+            }
+        }
+
         [DataMember(Name = "vi")]
         [Preserve(Conditional = true)]
         internal KeyValuePair<TKey, TValue>[] ValuesInternal
@@ -465,8 +476,7 @@ namespace MugenMvvm.Collections
                 {
                     if (_dictionary._entries[_index].HashCode >= 0)
                     {
-                        Current = new KeyValuePair<TKey, TValue>(_dictionary._entries[_index].Key,
-                            _dictionary._entries[_index].Value);
+                        Current = new KeyValuePair<TKey, TValue>(_dictionary._entries[_index].Key, _dictionary._entries[_index].Value);
                         ++_index;
                         return true;
                     }

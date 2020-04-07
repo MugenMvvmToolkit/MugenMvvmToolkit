@@ -155,7 +155,7 @@ namespace MugenMvvm.Binding.Observers
 
                 var paths = Path.Members;
                 var members = new IMemberInfo[paths.Count];
-                var provider = MugenBindingService.MemberProvider;
+                var memberManager = MugenBindingService.MemberManager;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
                 var type = memberFlags.GetTargetType(target);
@@ -164,7 +164,7 @@ namespace MugenMvvm.Binding.Observers
                 {
                     if (i == 1)
                         memberFlags = memberFlags.SetInstanceOrStaticFlags(false);
-                    var member = provider.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, metadata);
+                    var member = memberManager.GetMember(type, paths[i], i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, metadata);
                     if (member == null)
                     {
                         if (Optional)

@@ -90,7 +90,7 @@ namespace MugenMvvm.Extensions
 
         public static int GetComponentPriority(object component, object? owner)
         {
-            var manager = MugenService.Optional<IComponentPriorityManager>();
+            var manager = MugenService.Optional<IComponentPriorityProvider>();
             if (manager != null)
                 return manager.GetPriority(component, owner);
             if (component is IHasPriority p)

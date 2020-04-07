@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Fields
 
-        private readonly IMemberProvider? _memberProvider;
+        private readonly IMemberManager? _memberManager;
         private readonly IResourceResolver? _resourceResolver;
 
         private const float NotExactlyEqualWeight = 1f;
@@ -41,9 +41,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public MethodCallIndexerExpressionBuilderComponent(IMemberProvider? memberProvider = null, IResourceResolver? resourceResolver = null)
+        public MethodCallIndexerExpressionBuilderComponent(IMemberManager? memberManager = null, IResourceResolver? resourceResolver = null)
         {
-            _memberProvider = memberProvider;
+            _memberManager = memberManager;
             _resourceResolver = resourceResolver;
         }
 
@@ -537,15 +537,15 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private MethodData[] GetMethods(Type type, string methodName, bool isStatic, Type[]? typeArgs, IReadOnlyMetadataContext? metadata)
         {
-            var members = _memberProvider
+            var members = _memberManager
                 .DefaultIfNull()
                 .GetMembers(type, methodName, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), metadata);
 
-            var methods = new MethodData[members.Count];
+            var methods = new MethodData[members.Count()];
             var count = 0;
             for (int i = 0; i < methods.Length; i++)
             {
-                if (members[i] is IMethodInfo method)
+                if (members.Get(i) is IMethodInfo method)
                 {
                     var m = typeArgs == null || typeArgs.Length == 0 ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)

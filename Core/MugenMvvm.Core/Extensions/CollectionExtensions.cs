@@ -131,6 +131,15 @@ namespace MugenMvvm.Extensions
             }
         }
 
+        public static TItem? FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class
+            where TList : class, IReadOnlyList<TItem>
+        {
+            if (itemOrList.Item != null)
+                return itemOrList.Item;
+            return itemOrList.List?[0];
+        }
+
         public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
             where TItem : class
             where TList : class, IReadOnlyList<TItem>

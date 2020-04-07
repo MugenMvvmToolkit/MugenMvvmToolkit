@@ -147,7 +147,7 @@ namespace MugenMvvm.Binding.Observers
 
                 var metadata = GetMetadata();
                 var lastMember = MugenBindingService
-                      .MemberProvider
+                      .MemberManager
                       .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
                 if (lastMember == null)
                 {

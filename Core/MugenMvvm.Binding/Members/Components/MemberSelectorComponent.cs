@@ -7,11 +7,11 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class SelectorMemberProviderComponent : ISelectorMemberProviderComponent, IHasPriority
+    public class MemberSelectorComponent : IMemberSelectorComponent
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
-        public SelectorMemberProviderComponent()
+        public MemberSelectorComponent()
         {
             _selectorDictionary = new SelectorDictionary();
         }
@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TrySelectMembers(IReadOnlyList<IMemberInfo> members, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TrySelectMembers(IReadOnlyList<IMemberInfo> members, Type type, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             _selectorDictionary.Clear();
             for (var i = 0; i < members.Count; i++)
@@ -56,6 +56,10 @@ namespace MugenMvvm.Binding.Members.Components
                     _selectorDictionary[member] = member;
             }
 
+            if (_selectorDictionary.Count == 0)
+                return default;
+            if (_selectorDictionary.Count == 1)
+                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(_selectorDictionary.FirstOrDefault.Value);
             return _selectorDictionary.ValuesToArray();
         }
 

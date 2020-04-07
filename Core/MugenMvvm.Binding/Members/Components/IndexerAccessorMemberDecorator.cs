@@ -18,7 +18,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public class IndexerAccessorMemberDecorator : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
+    public class IndexerAccessorMemberDecorator : DecoratorComponentBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -133,14 +133,14 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
 
-            var selectors = Owner.GetComponents<ISelectorMemberProviderComponent>();
+            var selectors = Owner.GetComponents<IMemberSelectorComponent>();
             foreach (var item in _membersDictionary)
             {
                 IMethodInfo? getter = null, setter = null;
                 if (item.Value.Item1 != null)
-                    getter = selectors.TrySelectMembers(item.Value.Item1, type, getterName, MemberType.Method, MemberFlags.All, metadata)?.FirstOrDefault() as IMethodInfo;
+                    getter = selectors.TrySelectMembers(item.Value.Item1, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
                 if (item.Value.Item2 != null)
-                    setter = selectors.TrySelectMembers(item.Value.Item2, type, setterName!, MemberType.Method, MemberFlags.All, metadata)?.FirstOrDefault() as IMethodInfo;
+                    setter = selectors.TrySelectMembers(item.Value.Item2, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
 
                 if (getter != null || setter != null)
                     _members.Add(new MethodMemberAccessorInfo(name, getter, setter, item.Value.Item3, item.Value.Item4, type, _observerProvider));

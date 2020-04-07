@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedDynamicMemberProviderComponent : AttachableComponentBase<IMemberProvider>, IAttachedMemberProviderComponent, IHasPriority
+    public sealed class AttachedDynamicMemberProviderComponent : AttachableComponentBase<IMemberManager>, IAttachedMemberProviderComponent, IHasPriority
     {
         #region Fields
 

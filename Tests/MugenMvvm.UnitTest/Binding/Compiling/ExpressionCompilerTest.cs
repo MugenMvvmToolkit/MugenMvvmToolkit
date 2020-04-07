@@ -193,19 +193,19 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
 
         private static ExpressionCompiler GetInitializedCompiler()
         {
-            var memberProvider = new MemberProvider();
-            memberProvider.AddComponent(new SelectorMemberProviderComponent());
-            memberProvider.AddComponent(new MemberManagerComponent());
-            memberProvider.AddComponent(new ReflectionMemberProviderComponent());
-            memberProvider.AddComponent(new ExtensionMethodMemberProviderComponent());
+            var memberManager = new MemberManager();
+            memberManager.AddComponent(new MemberSelectorComponent());
+            memberManager.AddComponent(new MemberManagerComponent());
+            memberManager.AddComponent(new ReflectionMemberProviderComponent());
+            memberManager.AddComponent(new ExtensionMethodMemberProviderComponent());
 
             var expressionCompiler = new ExpressionCompiler();
             expressionCompiler.AddComponent(new BinaryExpressionBuilderComponent());
             expressionCompiler.AddComponent(new ConditionExpressionBuilderComponent());
             expressionCompiler.AddComponent(new ConstantExpressionBuilderComponent());
             expressionCompiler.AddComponent(new LambdaExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new MemberExpressionBuilderComponent(memberProvider));
-            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilderComponent(memberProvider));
+            expressionCompiler.AddComponent(new MemberExpressionBuilderComponent(memberManager));
+            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilderComponent(memberManager));
             expressionCompiler.AddComponent(new NullConditionalExpressionBuilderComponent());
             expressionCompiler.AddComponent(new UnaryExpressionBuilderComponent());
             expressionCompiler.AddComponent(new ExpressionCompilerComponent());

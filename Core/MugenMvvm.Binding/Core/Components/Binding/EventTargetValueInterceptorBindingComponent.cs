@@ -2,6 +2,7 @@
 using System.Windows.Input;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -165,7 +166,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             if (command is ICompositeCommand m && !m.HasCanExecute)
                 return false;
 
-            _enabledMember = GetMemberProvider()
+            _enabledMember = GetMemberManager()
                 .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.Public | MemberFlags.Extension | MemberFlags.Dynamic, _currentMetadata) as IMemberAccessorInfo;
             if (_enabledMember == null)
                 return false;
@@ -240,11 +241,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         //         components[i].OnEventError(exception, sender, message, _currentMetadata);
         // }
 
-        private IMemberProvider GetMemberProvider()
+        private IMemberManager GetMemberManager()
         {
             if (_bindingManager == null)
-                return MugenBindingService.MemberProvider;
-            return _bindingManager.GetComponentOptional<IMemberProvider>(_currentMetadata).DefaultIfNull();
+                return MugenBindingService.MemberManager;
+            return _bindingManager.GetComponentOptional<IMemberManager>(_currentMetadata).DefaultIfNull();
         }
 
         #endregion

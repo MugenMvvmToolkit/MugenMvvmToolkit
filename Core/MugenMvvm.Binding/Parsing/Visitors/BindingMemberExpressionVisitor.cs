@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         private readonly Func<IExpressionNode, bool> _condition;
 
         private readonly StringBuilder _memberBuilder;
-        private readonly IMemberProvider? _memberProvider;
+        private readonly IMemberManager? _memberManager;
         private readonly MemberDictionary _members;
         private readonly IObserverProvider? _observerProvider;
         private readonly IResourceResolver? _resourceResolver;
@@ -34,11 +34,11 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Constructors
 
-        public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null, IMemberProvider? memberProvider = null)
+        public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null, IMemberManager? memberManager = null)
         {
             _observerProvider = observerProvider;
             _resourceResolver = resourceResolver;
-            _memberProvider = memberProvider;
+            _memberManager = memberManager;
             _members = new MemberDictionary();
             _memberBuilder = new StringBuilder();
             _condition = Condition;
@@ -157,7 +157,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     {
                         var value = _observerProvider.DefaultIfNull()
                             .GetMemberPath(_memberBuilder.GetPath(), metadata)
-                            .GetValueFromPath(type, null, MemberFlags.SetInstanceOrStaticFlags(true), 0, metadata, _memberProvider);
+                            .GetValueFromPath(type, null, MemberFlags.SetInstanceOrStaticFlags(true), 0, metadata, _memberManager);
                         return ConstantExpressionNode.Get(value);
                     }
 
@@ -176,7 +176,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     var value = _observerProvider
                         .DefaultIfNull()
                         .GetMemberPath(_memberBuilder.GetPath(), metadata)
-                        .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags.SetInstanceOrStaticFlags(false), 0, metadata, _memberProvider);
+                        .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags.SetInstanceOrStaticFlags(false), 0, metadata, _memberManager);
                     return ConstantExpressionNode.Get(value);
                 }
 

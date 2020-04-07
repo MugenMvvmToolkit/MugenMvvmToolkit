@@ -13,34 +13,17 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static bool TryGetMember(this IMemberManagerComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(this IMemberManagerComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetMember(type, name, memberTypes, flags, metadata, out member))
-                    return true;
-            }
-
-            member = null;
-            return false;
-        }
-
-        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberManagerComponent[] components, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var members = components[i].TryGetMembers(type, name, memberTypes, flags, metadata);
-                if (members != null)
+                var members = components[i].TryGetMembers(request, metadata);
+                if (!members.IsNullOrEmpty())
                     return members;
             }
 
-            return null;
+            return default;
         }
 
         public static void TryAddMembers(this IMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, IReadOnlyMetadataContext? metadata)
@@ -71,21 +54,20 @@ namespace MugenMvvm.Binding.Extensions.Components
             return result.List;
         }
 
-        public static IReadOnlyList<IMemberInfo>? TrySelectMembers(this ISelectorMemberProviderComponent[] components, IReadOnlyList<IMemberInfo> members,
-            Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TrySelectMembers(this IMemberSelectorComponent[] components, IReadOnlyList<IMemberInfo> members,
+            Type type, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(members, nameof(members));
             Should.NotBeNull(type, nameof(type));
-            Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TrySelectMembers(members, type, name, memberTypes, flags, metadata);
-                if (result != null)
+                var result = components[i].TrySelectMembers(members, type, memberTypes, flags, metadata);
+                if (!result.IsNullOrEmpty())
                     return result;
             }
 
-            return null;
+            return default;
         }
 
         #endregion

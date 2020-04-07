@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Compiling.Components
     {
         #region Fields
 
-        private readonly IMemberProvider? _memberProvider;
+        private readonly IMemberManager? _memberManager;
         private readonly Expression _thisExpression;
 
         private static readonly MethodInfo GetValuePropertyMethod =
@@ -32,9 +32,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public MemberExpressionBuilderComponent(IMemberProvider? memberProvider = null)
+        public MemberExpressionBuilderComponent(IMemberManager? memberManager = null)
         {
-            _memberProvider = memberProvider;
+            _memberManager = memberManager;
             _thisExpression = Expression.Constant(this);
         }
 
@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             else
                 flags = MemberFlags.SetInstanceOrStaticFlags(false);
 
-            var member = _memberProvider
+            var member = _memberManager
                 .DefaultIfNull()
                 .GetMember(type, memberExpression.Member, MemberType.Accessor, flags, context.GetMetadataOrDefault()) as IMemberAccessorInfo;
 
@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             if (target == null)
                 return null;
-            var property = _memberProvider
+            var property = _memberManager
                 .DefaultIfNull()
                 .GetMember(target.GetType(), member, MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), metadata) as IMemberAccessorInfo;
             if (property == null)

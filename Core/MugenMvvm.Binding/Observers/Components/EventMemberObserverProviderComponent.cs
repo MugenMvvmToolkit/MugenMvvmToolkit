@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly IMemberProvider? _memberProvider;
+        private readonly IMemberManager? _memberManager;
         private readonly FuncIn<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
@@ -28,9 +28,9 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventMemberObserverProviderComponent(IMemberProvider? memberProvider = null)
+        public EventMemberObserverProviderComponent(IMemberManager? memberManager = null)
         {
-            _memberProvider = memberProvider;
+            _memberManager = memberManager;
             _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
         }
 
@@ -121,7 +121,7 @@ namespace MugenMvvm.Binding.Observers.Components
             if (EventFinder != null)
                 return EventFinder(type, memberName, metadata);
 
-            var provider = _memberProvider.DefaultIfNull();
+            var provider = _memberManager.DefaultIfNull();
             return provider.GetMember(type, memberName + BindingInternalConstant.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
                    ?? provider.GetMember(type, memberName + "Change", MemberType.Event, flags, metadata) as IEventInfo;
         }

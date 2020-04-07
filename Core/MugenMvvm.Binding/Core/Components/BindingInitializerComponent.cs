@@ -33,18 +33,18 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly BindingParameterContext _context;
         private readonly IExpressionCompiler? _compiler;
         private readonly FuncIn<((object?, ICompiledExpression?), bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _getEventHandlerDelegate;
-        private readonly IMemberProvider? _memberProvider;
+        private readonly IMemberManager? _memberManager;
 
         #endregion
 
         #region Constructors
 
-        public BindingInitializerComponent(IExpressionCompiler? compiler = null, IMemberProvider? memberProvider = null)
+        public BindingInitializerComponent(IExpressionCompiler? compiler = null, IMemberManager? memberManager = null)
         {
             _context = new BindingParameterContext();
             _getEventHandlerDelegate = GetEventHandlerComponent;
             _compiler = compiler;
-            _memberProvider = memberProvider;
+            _memberManager = memberManager;
         }
 
         #endregion
@@ -140,7 +140,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (targetExpression is IBindingMemberExpressionNode bindingMemberExpression)
             {
                 target = bindingMemberExpression.GetTarget(target, source, metadata, out var path, out var flags);
-                return path.GetLastMemberFromPath(flags.GetTargetType(target), target, flags, MemberType.Event, metadata, _memberProvider) != null;
+                return path.GetLastMemberFromPath(flags.GetTargetType(target), target, flags, MemberType.Event, metadata, _memberManager) != null;
             }
 
             return false;

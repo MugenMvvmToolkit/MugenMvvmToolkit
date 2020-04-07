@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -9,10 +7,11 @@ using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MemberManagerComponent : AttachableComponentBase<IMemberProvider>, IMemberManagerComponent, IHasPriority
+    public class MemberManagerComponent : AttachableComponentBase<IMemberManager>, IMemberManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -31,33 +30,23 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = MemberComponentPriority.Provider;
+        public int Priority { get; set; } = MemberComponentPriority.Manager;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public bool TryGetMember(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata, out IMemberInfo? member)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            _members.Clear();
-            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
-
-            var members = Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
-            if (members != null)
+            if (typeof(TRequest) == typeof(MemberManagerRequest))
             {
-                member = members.Count == 0 ? null : members[0];
-                return true;
+                var r = MugenExtensions.CastGeneric<TRequest, MemberManagerRequest>(request);
+                _members.Clear();
+                Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, r.Type, r.Name, metadata);
+                return Owner.GetComponents<IMemberSelectorComponent>(metadata).TrySelectMembers(_members, r.Type, r.MemberTypes, r.Flags, metadata);
             }
 
-            member = null;
-            return false;
-        }
-
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
-        {
-            _members.Clear();
-            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
-            return Owner.GetComponents<ISelectorMemberProviderComponent>(metadata).TrySelectMembers(_members, type, name, memberTypes, flags, metadata);
+            return default;
         }
 
         #endregion

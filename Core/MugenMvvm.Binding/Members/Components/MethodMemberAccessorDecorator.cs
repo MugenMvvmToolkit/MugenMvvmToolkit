@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MethodMemberAccessorDecorator : DecoratorComponentBase<IMemberProvider, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
+    public sealed class MethodMemberAccessorDecorator : DecoratorComponentBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
