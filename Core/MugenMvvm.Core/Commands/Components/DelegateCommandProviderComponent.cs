@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
-using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
@@ -18,7 +17,6 @@ namespace MugenMvvm.Commands.Components
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IThreadDispatcher? _threadDispatcher;
-        private readonly FuncIn<DelegateCommandRequest, ICompositeCommand?> _tryGetCommandDelegate;
 
         #endregion
 
@@ -31,7 +29,6 @@ namespace MugenMvvm.Commands.Components
             _threadDispatcher = threadDispatcher;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             EventThreadMode = ThreadExecutionMode.Main;
-            _tryGetCommandDelegate = TryGetCommand;
         }
 
         #endregion
@@ -52,8 +49,8 @@ namespace MugenMvvm.Commands.Components
 
         public ICompositeCommand? TryGetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (_tryGetCommandDelegate is FuncIn<TRequest, ICompositeCommand> func)
-                return func(request);
+            if (typeof(TRequest) == typeof(DelegateCommandRequest))
+                return MugenExtensions.CastGeneric<TRequest, DelegateCommandRequest>(request).TryGetCommand(this, null);
             return null;
         }
 
@@ -65,15 +62,6 @@ namespace MugenMvvm.Commands.Components
             if (request.CanExecute != null && request.Notifiers != null && request.Notifiers.Count > 0)
                 command.AddComponent(new ConditionEventCommandComponent(_threadDispatcher, request.EventThreadMode ?? EventThreadMode, request.Notifiers, request.CanNotify));
             return command;
-        }
-
-        #endregion
-
-        #region Methods
-
-        private ICompositeCommand? TryGetCommand(in DelegateCommandRequest request)
-        {
-            return request.TryGetCommand(this, null);
         }
 
         #endregion

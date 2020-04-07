@@ -23,8 +23,6 @@ namespace MugenMvvm.Busy.Components
         private IBusyManager? _owner;
         private int _suspendCount;
 
-        private static readonly FuncIn<BeginBusyRequest, BusyManagerComponent, IReadOnlyMetadataContext?, IBusyToken> BeginBusyRequestDelegate = Begin;
-
         #endregion
 
         #region Properties
@@ -69,9 +67,10 @@ namespace MugenMvvm.Busy.Components
         {
             if (Default.IsValueType<TRequest>())
             {
-                if (BeginBusyRequestDelegate is FuncIn<TRequest, BusyManagerComponent, IReadOnlyMetadataContext?, IBusyToken> handler)
-                    return handler(request, this, metadata);
-                return null;
+                var busyRequest = MugenExtensions.CastGeneric<TRequest, BeginBusyRequest>(request);
+                if (busyRequest.ParentToken != null)
+                    return Begin(busyRequest.ParentToken, busyRequest.MillisecondsDelay, metadata);
+                return Begin(busyRequest.Message, busyRequest.MillisecondsDelay, metadata);
             }
 
             if (request is IBusyToken busyToken)
@@ -79,7 +78,7 @@ namespace MugenMvvm.Busy.Components
             return Begin(request, 0, metadata);
         }
 
-        public IBusyToken? TryGetToken<TState>(in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
+        public IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
         {
             return _busyTail?.TryGetToken(filter, state, metadata);
         }
@@ -106,13 +105,6 @@ namespace MugenMvvm.Busy.Components
         #endregion
 
         #region Methods
-
-        private static IBusyToken Begin(in BeginBusyRequest request, BusyManagerComponent manager, IReadOnlyMetadataContext? metadata)
-        {
-            if (request.ParentToken != null)
-                return manager.Begin(request.ParentToken, request.MillisecondsDelay, metadata);
-            return manager.Begin(request.Message, request.MillisecondsDelay, metadata);
-        }
 
         private IBusyToken Begin(IBusyToken parentToken, int millisecondsDelay, IReadOnlyMetadataContext? metadata)
         {
@@ -284,7 +276,7 @@ namespace MugenMvvm.Busy.Components
 
             #region Methods
 
-            public IBusyToken? TryGetToken<TState>(FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata)
+            public IBusyToken? TryGetToken<TState>(Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata)
             {
                 Should.NotBeNull(filter, nameof(filter));
                 lock (Locker)

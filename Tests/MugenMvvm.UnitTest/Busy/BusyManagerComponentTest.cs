@@ -592,7 +592,7 @@ namespace MugenMvvm.UnitTest.Busy
             var token2 = busyManagerComponent.TryBeginBusy("Test2", null)!;
             var tokens = new List<IBusyToken>();
 
-            busyManagerComponent.TryGetToken(busyManagerComponent, (in BusyManagerComponent component, IBusyToken token, IReadOnlyMetadataContext? arg3) =>
+            busyManagerComponent.TryGetToken(busyManagerComponent, (component, token, arg3) =>
             {
                 busyManagerComponent.ShouldEqual(component);
                 tokens.Add(token);
@@ -613,13 +613,13 @@ namespace MugenMvvm.UnitTest.Busy
             var tokens = new List<IBusyToken>();
 
             busyManagerComponent
-                .TryGetToken(busyManagerComponent, (in BusyManagerComponent component, IBusyToken token, IReadOnlyMetadataContext? arg3) => ReferenceEquals(token, token1), DefaultMetadata)
+                .TryGetToken(busyManagerComponent, (component, token, arg3) => ReferenceEquals(token, token1), DefaultMetadata)
                 .ShouldEqual(token1);
             busyManagerComponent
-                .TryGetToken(busyManagerComponent, (in BusyManagerComponent component, IBusyToken token, IReadOnlyMetadataContext? arg3) => ReferenceEquals(token, token2), DefaultMetadata)
+                .TryGetToken(busyManagerComponent, (component, token, arg3) => ReferenceEquals(token, token2), DefaultMetadata)
                 .ShouldEqual(token2);
             busyManagerComponent
-                .TryGetToken(busyManagerComponent, (in BusyManagerComponent component, IBusyToken token, IReadOnlyMetadataContext? arg3) => false, DefaultMetadata)
+                .TryGetToken(busyManagerComponent, (component, token, arg3) => false, DefaultMetadata)
                 .ShouldBeNull();
         }
 

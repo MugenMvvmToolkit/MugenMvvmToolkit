@@ -4,7 +4,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -21,7 +20,6 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
-        private readonly FuncIn<MemberObserverRequest, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
             .GetMethodOrThrow(nameof(EventListenerCollection.Raise), BindingFlagsEx.InstancePublic);
@@ -35,7 +33,6 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             _attachedValueProvider = attachedValueProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
-            _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
             _createWeakListenerDelegate = CreateWeakListener;
             _memberObserverHandler = TryObserve;
         }
@@ -54,8 +51,8 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (Default.IsValueType<TMember>())
             {
-                if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, MemberObserver> provider)
-                    return provider.Invoke(member);
+                if (typeof(TMember) == typeof(MemberObserverRequest) && MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member).ReflectionMember is EventInfo eventInfo)
+                    return TryGetMemberObserver(eventInfo);
             }
             else if (member is EventInfo eventInfo)
                 return TryGetMemberObserver(eventInfo);
@@ -78,13 +75,6 @@ namespace MugenMvvm.Binding.Observers.Components
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
-        }
-
-        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request)
-        {
-            if (request.ReflectionMember is EventInfo eventInfo)
-                return TryGetMemberObserver(eventInfo);
-            return default;
         }
 
         private MemberObserver TryGetMemberObserver(EventInfo member)

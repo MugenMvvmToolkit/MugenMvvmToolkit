@@ -7,7 +7,6 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -19,8 +18,6 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Fields
 
         private readonly IMemberManager? _memberManager;
-        private readonly FuncIn<MemberObserverRequest, Type, IReadOnlyMetadataContext?, MemberObserver> _tryGetMemberObserverRequestDelegate;
-
         private static readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> MemberObserverHandler = TryObserve;
 
         #endregion
@@ -31,7 +28,6 @@ namespace MugenMvvm.Binding.Observers.Components
         public EventMemberObserverProviderComponent(IMemberManager? memberManager = null)
         {
             _memberManager = memberManager;
-            _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
         }
 
         #endregion
@@ -50,8 +46,30 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (Default.IsValueType<TMember>())
             {
-                if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, IReadOnlyMetadataContext?, MemberObserver> provider)
-                    return provider.Invoke(member, type, metadata);
+                if (typeof(TMember) == typeof(MemberObserverRequest))
+                {
+                    var request = MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member);
+                    string? memberName;
+                    switch (request.ReflectionMember)
+                    {
+                        case PropertyInfo p:
+                            if (request.MemberInfo == null)
+                                return TryGetMemberObserver(p, type, metadata);
+                            memberName = p.Name;
+                            break;
+                        case MethodInfo m:
+                            if (request.MemberInfo == null)
+                                return TryGetMemberObserver(m, type, metadata);
+                            memberName = m.Name;
+                            break;
+                        default:
+                            return default;
+                    }
+
+                    var observableMember = TryGetEvent(type, memberName, request.MemberInfo.AccessModifiers, metadata);
+                    if (observableMember != null)
+                        return new MemberObserver(MemberObserverHandler, observableMember);
+                }
 
                 return default;
             }
@@ -70,32 +88,6 @@ namespace MugenMvvm.Binding.Observers.Components
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
-        }
-
-        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type, IReadOnlyMetadataContext? metadata)
-        {
-            string? memberName;
-            switch (request.ReflectionMember)
-            {
-                case PropertyInfo p:
-                    if (request.MemberInfo == null)
-                        return TryGetMemberObserver(p, type, metadata);
-                    memberName = p.Name;
-                    break;
-                case MethodInfo m:
-                    if (request.MemberInfo == null)
-                        return TryGetMemberObserver(m, type, metadata);
-                    memberName = m.Name;
-                    break;
-                default:
-                    return default;
-            }
-
-            var observableMember = TryGetEvent(type, memberName, request.MemberInfo.AccessModifiers, metadata);
-            if (observableMember != null)
-                return new MemberObserver(MemberObserverHandler, observableMember);
-
-            return default;
         }
 
         private MemberObserver TryGetMemberObserver(MethodInfo member, Type type, IReadOnlyMetadataContext? metadata)

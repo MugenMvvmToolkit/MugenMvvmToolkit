@@ -8,7 +8,6 @@ using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Components;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -22,7 +21,6 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private readonly ComponentTracker _componentTracker;
         private readonly ExpressionConverterContext<Expression> _context;
-        private readonly FuncIn<ExpressionConverterRequest, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> _tryParseDelegate;
 
         #endregion
 
@@ -33,7 +31,6 @@ namespace MugenMvvm.Binding.Parsing.Components
             _context = new ExpressionConverterContext<Expression>(metadataContextProvider);
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
-            _tryParseDelegate = Parse;
         }
 
         #endregion
@@ -50,8 +47,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             if (Default.IsValueType<TExpression>())
             {
-                if (_tryParseDelegate is FuncIn<TExpression, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>> parser)
-                    return parser(expression, metadata);
+                if (typeof(TExpression) == typeof(ExpressionConverterRequest))
+                    return Parse(MugenExtensions.CastGeneric<TExpression, ExpressionConverterRequest>(expression), metadata);
             }
             else if (expression is IReadOnlyList<ExpressionConverterRequest> expressions)
             {
@@ -85,20 +82,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             _componentTracker.Detach(owner, metadata);
         }
 
-        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(in IReadOnlyList<ExpressionConverterRequest> expressions, IReadOnlyMetadataContext? metadata)
-        {
-            if (expressions.Count == 0)
-                return default;
-            if (expressions.Count == 1)
-                return Parse(expressions[0], metadata);
-
-            var result = new ExpressionParserResult[expressions.Count];
-            for (var i = 0; i < result.Length; i++)
-                result[i] = Parse(expressions[i], metadata).Item;
-            return result;
-        }
-
-        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(in ExpressionConverterRequest expression, IReadOnlyMetadataContext? metadata)
+        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(ExpressionConverterRequest expression, IReadOnlyMetadataContext? metadata)
         {
             _context.Initialize(metadata);
             var target = _context.Convert(GetExpression(expression.Target));

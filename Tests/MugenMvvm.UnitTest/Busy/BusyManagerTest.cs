@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Busy
         public void TryGetTokenShouldReturnNullNoComponents()
         {
             var componentOwner = GetComponentOwner();
-            componentOwner.TryGetToken(componentOwner, (in BusyManager manager, IBusyToken token, IReadOnlyMetadataContext? arg3) => true).ShouldBeNull();
+            componentOwner.TryGetToken(componentOwner, (manager, token, arg3) => true).ShouldBeNull();
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTest.Busy
             var componentOwner = GetComponentOwner();
             var busyToken = new TestBusyToken();
             var methodCallCount = 0;
-            FuncIn<BusyManager, IBusyToken, IReadOnlyMetadataContext?, bool> filter = (in BusyManager manager, IBusyToken token, IReadOnlyMetadataContext? arg3) => true;
+            Func<BusyManager, IBusyToken, IReadOnlyMetadataContext?, bool> filter = (manager, token, arg3) => true;
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestBusyManagerComponent();
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTest.Busy
                 {
                     ++methodCallCount;
                     context.ShouldEqual(DefaultMetadata);
-                    return new[] {new TestBusyToken(), new TestBusyToken()};
+                    return new[] { new TestBusyToken(), new TestBusyToken() };
                 };
                 componentOwner.AddComponent(component);
             }

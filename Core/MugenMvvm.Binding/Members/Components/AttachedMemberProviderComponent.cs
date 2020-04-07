@@ -17,12 +17,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberManager>, IAttachedMemberProviderComponent, IEqualityComparer<IMemberInfo>, IHasPriority
+    public sealed class AttachedMemberProviderComponent : AttachableComponentBase<IMemberManager>, IAttachedMemberProviderComponent, IHasPriority
     {
         #region Fields
 
         private readonly TypeStringLightDictionary<List<IMemberInfo>?> _cache;
-        private readonly StringOrdinalLightDictionary<HashSet<IMemberInfo>> _registeredMembers;
+        private readonly StringOrdinalLightDictionary<List<IMemberInfo>> _registeredMembers;
 
         #endregion
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public AttachedMemberProviderComponent()
         {
-            _registeredMembers = new StringOrdinalLightDictionary<HashSet<IMemberInfo>>(59);
+            _registeredMembers = new StringOrdinalLightDictionary<List<IMemberInfo>>(59);
             _cache = new TypeStringLightDictionary<List<IMemberInfo>?>(59);
         }
 
@@ -50,11 +50,12 @@ namespace MugenMvvm.Binding.Members.Components
             var key = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(key, out var list))
             {
-                if (_registeredMembers.TryGetValue(name, out var set))
+                if (_registeredMembers.TryGetValue(name, out var members))
                 {
                     LazyList<IMemberInfo> result = default;
-                    foreach (var memberInfo in set)
+                    for (var index = 0; index < members.Count; index++)
                     {
+                        var memberInfo = members[index];
                         if (memberInfo.DeclaringType.IsAssignableFromGeneric(type))
                             result.Add(memberInfo);
                     }
@@ -73,33 +74,6 @@ namespace MugenMvvm.Binding.Members.Components
             return _registeredMembers.SelectMany(pair => pair.Value).ToList();
         }
 
-        bool IEqualityComparer<IMemberInfo>.Equals(IMemberInfo x, IMemberInfo y)
-        {
-            if (x.MemberType != y.MemberType || x.Name != y.Name || x.DeclaringType != y.DeclaringType)
-                return false;
-
-            if (x.MemberType != MemberType.Method)
-                return true;
-
-            var xM = ((IMethodInfo)x).GetParameters();
-            var yM = ((IMethodInfo)y).GetParameters();
-            if (xM.Count != yM.Count)
-                return false;
-
-            for (var i = 0; i < xM.Count; i++)
-            {
-                if (xM[i].ParameterType != yM[i].ParameterType)
-                    return false;
-            }
-
-            return true;
-        }
-
-        int IEqualityComparer<IMemberInfo>.GetHashCode(IMemberInfo obj)
-        {
-            return HashCode.Combine(obj.DeclaringType, (int)obj.MemberType, obj.Name);
-        }
-
         #endregion
 
         #region Methods
@@ -107,7 +81,14 @@ namespace MugenMvvm.Binding.Members.Components
         public void Register(IMemberInfo member, string? name = null)
         {
             Should.NotBeNull(member, nameof(member));
-            AddMember(name ?? member.Name, member);
+            if (name == null)
+                name = member.Name;
+            if (!_registeredMembers.TryGetValue(name, out var list))
+            {
+                list = new List<IMemberInfo>();
+                _registeredMembers[name] = list;
+            }
+            list.Add(member);
             ClearCache();
         }
 
@@ -138,8 +119,10 @@ namespace MugenMvvm.Binding.Members.Components
                 if (name != null && pair.Key != name)
                     continue;
 
-                foreach (var member in pair.Value)
+                var list = pair.Value;
+                for (var index = 0; index < list.Count; index++)
                 {
+                    var member = list[index];
                     if (!memberType.HasFlagEx(member.MemberType))
                         continue;
 
@@ -151,6 +134,9 @@ namespace MugenMvvm.Binding.Members.Components
                         if (cachePair.Value != null && cachePair.Value.Remove(member))
                             Owner.TryInvalidateCache(cachePair.Key.Type);
                     }
+
+                    list.RemoveAt(index);
+                    --index;
                 }
             }
         }
@@ -165,18 +151,6 @@ namespace MugenMvvm.Binding.Members.Components
         {
             _cache.Clear();
             Owner.TryInvalidateCache();
-        }
-
-        private void AddMember(string key, IMemberInfo member)
-        {
-            if (!_registeredMembers.TryGetValue(key, out var list))
-            {
-                list = new HashSet<IMemberInfo>(this);
-                _registeredMembers[key] = list;
-            }
-
-            list.Remove(member);
-            list.Add(member);
         }
 
         #endregion

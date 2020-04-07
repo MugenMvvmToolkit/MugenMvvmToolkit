@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvm.Attributes;
 using MugenMvvm.Commands;
+using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Internal;
@@ -93,10 +94,10 @@ namespace MugenMvvm.Extensions
             return (value & flag) == flag;
         }
 
-        public static TTo CastGeneric<TFrom, TTo>(TFrom value)
+        public static TTo CastGeneric<TFrom, TTo>(in TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+                return ((FuncIn<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
             return (TTo)(object)value!;
         }
 
@@ -240,7 +241,7 @@ namespace MugenMvvm.Extensions
         {
             #region Fields
 
-            public static readonly Func<T, T> Cast = arg => arg;
+            public static readonly FuncIn<T, T> Cast = (in T arg1) => arg1;
 
             #endregion
         }

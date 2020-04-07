@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -20,7 +19,6 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private readonly IAttachedValueProvider? _attachedValueProvider;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
-        private readonly FuncIn<MemberObserverRequest, Type, MemberObserver> _tryGetMemberObserverRequestDelegate;
 
         private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
@@ -32,7 +30,6 @@ namespace MugenMvvm.Binding.Observers.Components
         public PropertyChangedMemberObserverProviderComponent(IAttachedValueProvider? attachedValueProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;
-            _tryGetMemberObserverRequestDelegate = TryGetMemberObserver;
             _memberObserverHandler = TryObserve;
         }
 
@@ -50,8 +47,13 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (Default.IsValueType<TMember>())
             {
-                if (_tryGetMemberObserverRequestDelegate is FuncIn<TMember, Type, MemberObserver> provider)
-                    return provider.Invoke(member, type);
+                if (typeof(TMember) == typeof(MemberObserverRequest))
+                {
+                    var request = MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member);
+                    if (request.ReflectionMember is PropertyInfo)
+                        return TryGetMemberObserver(request.Path, type);
+                }
+
                 return default;
             }
 
@@ -79,13 +81,6 @@ namespace MugenMvvm.Binding.Observers.Components
                 .DefaultIfNull()
                 .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
                 .Add(listener, (string) member);
-        }
-
-        private MemberObserver TryGetMemberObserver(in MemberObserverRequest request, Type type)
-        {
-            if (request.ReflectionMember is PropertyInfo)
-                return TryGetMemberObserver(request.Path, type);
-            return default;
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)

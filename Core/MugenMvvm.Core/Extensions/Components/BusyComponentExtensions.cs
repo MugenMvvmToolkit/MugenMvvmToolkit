@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
@@ -24,7 +25,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, in TState state, FuncIn<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
+        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(filter, nameof(filter));
