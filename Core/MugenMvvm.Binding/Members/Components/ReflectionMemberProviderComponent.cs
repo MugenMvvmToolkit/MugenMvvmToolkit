@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObserverProvider? _bindingObserverProvider;
-        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
+        private readonly TypeStringLightDictionary<object?> _cache;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         #endregion
@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
-            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);
+            _cache = new TypeStringLightDictionary<object?>(59);
         }
 
         #endregion
@@ -46,28 +46,28 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(cacheKey, out var list))
             {
-                list = GetMembers(type, name, metadata);
+                list = GetMembers(type, name, metadata).GetRawValue();
                 _cache[cacheKey] = list;
             }
 
-            return list;
+            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(list);
         }
 
         #endregion
 
         #region Methods
 
-        private List<IMemberInfo>? GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        private ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var hasProperty = false;
             var hasEvent = false;
             var hasField = false;
-            LazyList<IMemberInfo> result = default;
+            ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
             var types = MugenBindingExtensions.SelfAndBaseTypes(type);
             foreach (var t in types)
             {
@@ -96,10 +96,10 @@ namespace MugenMvvm.Binding.Members.Components
                 }
             }
 
-            return result;
+            return result.Cast<IReadOnlyList<IMemberInfo>>();
         }
 
-        private bool AddEvents(Type requestedType, Type t, string name, ref LazyList<IMemberInfo> result, IReadOnlyMetadataContext? metadata)
+        private bool AddEvents(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result, IReadOnlyMetadataContext? metadata)
         {
             var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
             if (eventInfo == null)
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        private bool AddFields(Type requestedType, Type t, string name, ref LazyList<IMemberInfo> result)
+        private bool AddFields(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result)
         {
             var field = t.GetField(name, BindingFlagsEx.All);
             if (field == null)
@@ -123,7 +123,7 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        private bool AddProperties(Type requestedType, Type t, string name, ref LazyList<IMemberInfo> result)
+        private bool AddProperties(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result)
         {
             var property = t.GetProperty(name, BindingFlagsEx.All);
             if (property == null)

@@ -15,6 +15,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
@@ -49,7 +50,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var indexerArgsRaw = MugenBindingExtensions.GetIndexerArgsRaw(name);
             if (indexerArgsRaw == null)
@@ -146,8 +147,15 @@ namespace MugenMvvm.Binding.Members.Components
                     _members.Add(new MethodMemberAccessorInfo(name, getter, setter, item.Value.Item3, item.Value.Item4, type, _observerProvider));
             }
 
-            Components.TryAddMembers(_members, type, name, metadata);
             _membersDictionary.Clear();
+            Components.TryAddMembers(_members, type, name, metadata);
+            if (_members.Count == 1)
+            {
+                var memberInfo = _members[0];
+                _members.Clear();
+                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(memberInfo);
+            }
+
             var result = _members.ToArray();
             _members.Clear();
             return result;

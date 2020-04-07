@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Components;
-using MugenMvvm.Delegates;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;

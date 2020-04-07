@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
@@ -13,7 +14,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<IReadOnlyList<IMemberInfo>> _cache;
+        private readonly StringOrdinalLightDictionary<ConstantMemberInfo> _cache;
 
         public const char FakeMemberPrefixSymbol = '#';
         public const string FakeMemberPrefix = "Fake";
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public FakeMemberProviderComponent()
         {
-            _cache = new StringOrdinalLightDictionary<IReadOnlyList<IMemberInfo>>(7);
+            _cache = new StringOrdinalLightDictionary<ConstantMemberInfo>(7);
         }
 
         #endregion
@@ -37,18 +38,18 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             if (name.Length == 0 || name[0] != FakeMemberPrefixSymbol && !name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal))
-                return null;
+                return default;
 
-            if (!_cache.TryGetValue(name, out var list))
+            if (!_cache.TryGetValue(name, out var value))
             {
-                list = new IMemberInfo[] { new ConstantMemberInfo(name, null, true) };
-                _cache[name] = list;
+                value = new ConstantMemberInfo(name, null, true);
+                _cache[name] = value;
             }
 
-            return list;
+            return value;
         }
 
         #endregion

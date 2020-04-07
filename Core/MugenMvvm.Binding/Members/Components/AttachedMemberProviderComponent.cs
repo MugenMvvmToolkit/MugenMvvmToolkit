@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -21,7 +19,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly TypeStringLightDictionary<List<IMemberInfo>?> _cache;
+        private readonly TypeStringLightDictionary<object?> _cache;
         private readonly StringOrdinalLightDictionary<List<IMemberInfo>> _registeredMembers;
 
         #endregion
@@ -32,7 +30,7 @@ namespace MugenMvvm.Binding.Members.Components
         public AttachedMemberProviderComponent()
         {
             _registeredMembers = new StringOrdinalLightDictionary<List<IMemberInfo>>(59);
-            _cache = new TypeStringLightDictionary<List<IMemberInfo>?>(59);
+            _cache = new TypeStringLightDictionary<object?>(59);
         }
 
         #endregion
@@ -45,14 +43,14 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var key = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(key, out var list))
             {
                 if (_registeredMembers.TryGetValue(name, out var members))
                 {
-                    LazyList<IMemberInfo> result = default;
+                    ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
                     for (var index = 0; index < members.Count; index++)
                     {
                         var memberInfo = members[index];
@@ -60,18 +58,21 @@ namespace MugenMvvm.Binding.Members.Components
                             result.Add(memberInfo);
                     }
 
-                    list = result;
+                    list = result.GetRawValue();
                 }
 
                 _cache[key] = list;
             }
 
-            return list;
+            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(list);
         }
 
-        public IReadOnlyList<IMemberInfo> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
         {
-            return _registeredMembers.SelectMany(pair => pair.Value).ToList();
+            ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
+            foreach (var keyValuePair in _registeredMembers)
+                members.AddRange(keyValuePair.Value);
+            return members.Cast<IReadOnlyList<IMemberInfo>>();
         }
 
         #endregion
@@ -88,6 +89,7 @@ namespace MugenMvvm.Binding.Members.Components
                 list = new List<IMemberInfo>();
                 _registeredMembers[name] = list;
             }
+
             list.Add(member);
             ClearCache();
         }
@@ -105,39 +107,26 @@ namespace MugenMvvm.Binding.Members.Components
             if (!removed)
                 return;
 
+            LazyList<KeyValuePair<TypeStringKey, object?>> valuesToUpdate = default;
             foreach (var cachePair in _cache)
             {
-                if (cachePair.Value != null && cachePair.Value.Remove(member))
-                    Owner?.TryInvalidateCache(cachePair.Key.Type);
-            }
-        }
-
-        public void Unregister(Type? type = null, string? name = null, MemberType memberType = MemberType.All)
-        {
-            foreach (var pair in _registeredMembers)
-            {
-                if (name != null && pair.Key != name)
+                var members = ItemOrList<IMemberInfo, List<IMemberInfo>>.FromRawValue(cachePair.Value);
+                if (!members.Remove(member))
                     continue;
+                Owner?.TryInvalidateCache(cachePair.Key.Type);
+                valuesToUpdate.Add(new KeyValuePair<TypeStringKey, object?>(cachePair.Key, members.GetRawValue()));
+            }
 
-                var list = pair.Value;
-                for (var index = 0; index < list.Count; index++)
-                {
-                    var member = list[index];
-                    if (!memberType.HasFlagEx(member.MemberType))
-                        continue;
-
-                    if (type != null && member.DeclaringType != type)
-                        continue;
-
-                    foreach (var cachePair in _cache)
-                    {
-                        if (cachePair.Value != null && cachePair.Value.Remove(member))
-                            Owner.TryInvalidateCache(cachePair.Key.Type);
-                    }
-
-                    list.RemoveAt(index);
-                    --index;
-                }
+            var list = valuesToUpdate.List;
+            if (list == null)
+                return;
+            for (var i = 0; i < list.Count; i++)
+            {
+                var keyValuePair = list[i];
+                if (keyValuePair.Value == null)
+                    _cache.Remove(keyValuePair.Key);
+                else
+                    _cache[keyValuePair.Key] = keyValuePair.Value;
             }
         }
 

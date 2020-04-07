@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -18,7 +17,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
+        private readonly TypeStringLightDictionary<object?> _cache;
         private readonly List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
 
         #endregion
@@ -29,7 +28,7 @@ namespace MugenMvvm.Binding.Members.Components
         public AttachedDynamicMemberProviderComponent()
         {
             _dynamicMembers = new List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>>();
-            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);
+            _cache = new TypeStringLightDictionary<object?>(59);
         }
 
         #endregion
@@ -42,28 +41,35 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var key = new TypeStringKey(type, name);
-            if (!_cache.TryGetValue(key, out var list))
+            if (!_cache.TryGetValue(key, out var result))
             {
                 if (_dynamicMembers.Count != 0)
                 {
-                    LazyList<IMemberInfo> members = default;
+                    ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
                     for (var i = 0; i < _dynamicMembers.Count; i++)
-                        members.AddIfNotNull(_dynamicMembers[i].Invoke(type, name, metadata));
-                    list = members.List;
+                    {
+                        var value = _dynamicMembers[i].Invoke(type, name, metadata);
+                        if (value != null)
+                            members.Add(value);
+                    }
+                    result = members.GetRawValue();
                 }
 
-                _cache[key] = list;
+                _cache[key] = result;
             }
 
-            return list;
+            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(result);
         }
 
-        public IReadOnlyList<IMemberInfo> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
         {
-            return _cache.SelectMany(pair => pair.Value).ToList();
+            ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
+            foreach (var keyValuePair in _cache)
+                members.AddRange(ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(keyValuePair.Value));
+            return members.Cast<IReadOnlyList<IMemberInfo>>();
         }
 
         #endregion

@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObserverProvider? _bindingObserverProvider;
-        private readonly TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?> _cache;
+        private readonly TypeStringLightDictionary<object?> _cache;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly Type[] _singleTypeBuffer;
         private readonly HashSet<Type> _types;
@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Members.Components
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _singleTypeBuffer = new Type[1];
-            _cache = new TypeStringLightDictionary<IReadOnlyList<IMemberInfo>?>(59);
+            _cache = new TypeStringLightDictionary<object?>(59);
             _types = new HashSet<Type>
             {
                 typeof(Enumerable)
@@ -55,16 +55,16 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IMemberInfo>? TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             var cacheKey = new TypeStringKey(type, name);
             if (!_cache.TryGetValue(cacheKey, out var list))
             {
-                list = GetMembers(type, name);
+                list = GetMembers(type, name).GetRawValue();
                 _cache[cacheKey] = list;
             }
 
-            return list;
+            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(list);
         }
 
         #endregion
@@ -91,9 +91,9 @@ namespace MugenMvvm.Binding.Members.Components
             }
         }
 
-        private IReadOnlyList<IMemberInfo>? GetMembers(Type type, string name)
+        private ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers(Type type, string name)
         {
-            LazyList<IMemberInfo> members = default;
+            ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
             foreach (var exType in _types)
             {
                 var methods = exType.GetMethods(BindingFlagsEx.All);
@@ -126,7 +126,7 @@ namespace MugenMvvm.Binding.Members.Components
                 }
             }
 
-            return members.List;
+            return members.Cast<IReadOnlyList<IMemberInfo>>();
         }
 
         private MethodInfo? TryMakeGenericMethod(MethodInfo method, Type type, out Type[]? genericArguments)

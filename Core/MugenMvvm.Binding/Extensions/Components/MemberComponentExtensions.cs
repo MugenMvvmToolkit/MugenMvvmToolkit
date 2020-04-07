@@ -35,23 +35,20 @@ namespace MugenMvvm.Binding.Extensions.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var members = components[i].TryGetMembers(type, name, metadata);
-                if (members == null || members.Count == 0)
-                    continue;
-
-                for (var j = 0; j < members.Count; j++)
-                    result.Add(members[j]);
+                for (var j = 0; j < members.Count(); j++)
+                    result.Add(members.Get(j));
             }
         }
 
-        public static IReadOnlyList<IMemberInfo>? TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
-            LazyList<IMemberInfo> result = default;
+            ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMembers(type, name, metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<IMemberInfo>>();
         }
 
         public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TrySelectMembers(this IMemberSelectorComponent[] components, IReadOnlyList<IMemberInfo> members,

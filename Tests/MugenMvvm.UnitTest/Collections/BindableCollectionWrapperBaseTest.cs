@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Collections;
-using MugenMvvm.Collections.Components;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Threading;
