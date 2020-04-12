@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
     {
         #region Fields
 
-        public string Field1;
+        public string? Field1;
         public int Field2;
 
         #endregion

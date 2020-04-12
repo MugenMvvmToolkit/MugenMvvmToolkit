@@ -12,9 +12,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
     {
         #region Events
 
-        public event Action Event1;
+        public event Action? Event1;
 
-        public event Action<object> Event2;
+        public event Action<object>? Event2;
 
         #endregion
 
