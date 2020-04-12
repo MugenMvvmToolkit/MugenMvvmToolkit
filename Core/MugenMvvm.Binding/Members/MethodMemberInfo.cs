@@ -24,7 +24,6 @@ namespace MugenMvvm.Binding.Members
         private readonly Type _reflectedType;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private Func<object?, object?[], object?> _invoker;
-
         private MemberObserver? _observer;
 
         #endregion
@@ -101,7 +100,7 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.DefaultIfNull().GetMemberObserver(_reflectedType, _method);
+                _observer = _observerProvider.DefaultIfNull().GetMemberObserver(_reflectedType, _method, metadata);
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 

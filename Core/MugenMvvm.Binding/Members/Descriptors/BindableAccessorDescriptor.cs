@@ -37,9 +37,9 @@ namespace MugenMvvm.Binding.Members.Descriptors
             return new BindableAccessorDescriptor<TTarget, TNewType>(Name);
         }
 
-        public static implicit operator BindableAccessorDescriptor<TTarget, TValue>(string path)
+        public static implicit operator BindableAccessorDescriptor<TTarget, TValue>(string name)
         {
-            return new BindableAccessorDescriptor<TTarget, TValue>(path);
+            return new BindableAccessorDescriptor<TTarget, TValue>(name);
         }
 
         public static implicit operator string(BindableAccessorDescriptor<TTarget, TValue> member)

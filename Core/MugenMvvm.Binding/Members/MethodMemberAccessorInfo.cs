@@ -36,13 +36,13 @@ namespace MugenMvvm.Binding.Members
                 Should.NotBeNull(setMethod, nameof(setMethod));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             Name = name;
+            Type = getMethod?.Type ?? setMethod!.GetParameters().Last().ParameterType;
             _getMethod = getMethod;
             _setMethod = setMethod;
             _args = args;
             _isLastParameterMetadata = isLastParameterMetadata;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
-            Type = _getMethod?.Type ?? _setMethod!.GetParameters().Last().ParameterType;
         }
 
         #endregion
@@ -80,7 +80,7 @@ namespace MugenMvvm.Binding.Members
             {
                 _observer = _observerProvider
                     .DefaultIfNull()
-                    .GetMemberObserver(_reflectedType, new MemberObserverRequest(Name, (_getMethod?.UnderlyingMember ?? _setMethod?.UnderlyingMember) as MemberInfo, _args, this));
+                    .GetMemberObserver(_reflectedType, new MemberObserverRequest(Name, (_getMethod?.UnderlyingMember ?? _setMethod?.UnderlyingMember) as MemberInfo, _args, this), metadata);
             }
 
             return _observer.Value.TryObserve(target, listener, metadata);
@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Members
             object?[] args;
             if (_isLastParameterMetadata)
             {
-                args = new object?[_args.Length];
+                args = new object?[_args.Length + 1];
                 Array.Copy(_args, args, _args.Length);
                 args[args.Length - 1] = metadata;
             }
@@ -107,11 +107,11 @@ namespace MugenMvvm.Binding.Members
         {
             if (_setMethod == null)
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
-            var args = new object?[_args.Length + 1];
+            var args = new object?[_args.Length + (_isLastParameterMetadata ? 2 : 1)];
             Array.Copy(_args, args, _args.Length);
             args[_args.Length] = value;
             if (_isLastParameterMetadata)
-                args[_args.Length - 1] = metadata;
+                args[args.Length - 1] = metadata;
             _setMethod.Invoke(target, args, metadata);
         }
 

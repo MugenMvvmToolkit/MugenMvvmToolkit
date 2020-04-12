@@ -31,9 +31,9 @@ namespace MugenMvvm.Binding.Members.Descriptors
             return new BindableEventDescriptor<TNewSource>(Name);
         }
 
-        public static implicit operator BindableEventDescriptor<TTarget>(string path)
+        public static implicit operator BindableEventDescriptor<TTarget>(string name)
         {
-            return new BindableEventDescriptor<TTarget>(path);
+            return new BindableEventDescriptor<TTarget>(name);
         }
 
         public static implicit operator string(BindableEventDescriptor<TTarget> member)

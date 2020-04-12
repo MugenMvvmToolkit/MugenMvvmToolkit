@@ -31,9 +31,9 @@ namespace MugenMvvm.Binding.Members.Descriptors
             return new BindableMethodDescriptor<TNewSource>(Name);
         }
 
-        public static implicit operator BindableMethodDescriptor<TTarget>(string path)
+        public static implicit operator BindableMethodDescriptor<TTarget>(string name)
         {
-            return new BindableMethodDescriptor<TTarget>(path);
+            return new BindableMethodDescriptor<TTarget>(name);
         }
 
         public static implicit operator string(BindableMethodDescriptor<TTarget> member)
