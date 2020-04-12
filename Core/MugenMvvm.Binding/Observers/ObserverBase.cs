@@ -210,7 +210,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = null;
                 return true;
             }
-
+            
             if (!(_listeners is IMemberPathObserverListener[] items))
                 return false;
 
@@ -248,7 +248,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Nested types
 
-        internal interface IMethodPathObserver : IMemberPathObserver
+        protected internal interface IMethodPathObserver : IMemberPathObserver
         {
             MemberFlags MemberFlags { get; }
 

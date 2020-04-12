@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Members
 
         public bool IsDefined(Type type)
         {
-            return _parameterInfo.IsDefined(typeof(ParamArrayAttribute), false);
+            return _parameterInfo.IsDefined(type, false);
         }
 
         #endregion

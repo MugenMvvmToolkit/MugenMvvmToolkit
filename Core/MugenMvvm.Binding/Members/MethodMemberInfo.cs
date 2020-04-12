@@ -17,7 +17,6 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly Type[]? _genericArguments;
-
         private readonly MethodInfo _method;
         private readonly IObserverProvider? _observerProvider;
         private readonly IParameterInfo[] _parameters;
@@ -30,8 +29,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObserverProvider? observerProvider,
-            IReflectionDelegateProvider? reflectionDelegateProvider)
+        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
             : this(name, method, isExtensionMethodSupported, reflectedType, observerProvider, reflectionDelegateProvider, null, null)
         {
         }
@@ -49,7 +47,17 @@ namespace MugenMvvm.Binding.Members
             _invoker = CompileMethod;
             Name = name;
             if (_method.IsGenericMethod || _method.IsGenericMethodDefinition)
+            {
                 _genericArguments = genericArguments ?? _method.GetGenericArguments();
+                for (var i = 0; i < _genericArguments.Length; i++)
+                {
+                    if (_genericArguments[i].IsGenericParameter)
+                    {
+                        IsGenericMethodDefinition = true;
+                        break;
+                    }
+                }
+            }
 
             if (parameterInfos == null)
                 parameterInfos = _method.GetParameters();
@@ -62,12 +70,12 @@ namespace MugenMvvm.Binding.Members
             }
 
             var startIndex = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? 1 : 0;
-            var l = parameterInfos.Length - startIndex;
-            if (l == 0)
+            var length = parameterInfos.Length - startIndex;
+            if (length == 0)
                 _parameters = Default.EmptyArray<IParameterInfo>();
             else
             {
-                _parameters = new IParameterInfo[l];
+                _parameters = new IParameterInfo[length];
                 for (var i = 0; i < _parameters.Length; i++)
                     _parameters[i] = new ParameterInfoImpl(parameterInfos[i + startIndex]);
             }
@@ -91,7 +99,7 @@ namespace MugenMvvm.Binding.Members
 
         public bool IsGenericMethod => _method.IsGenericMethod;
 
-        public bool IsGenericMethodDefinition => IsNotResolvedGeneric();
+        public bool IsGenericMethodDefinition { get; }
 
         #endregion
 
@@ -122,10 +130,9 @@ namespace MugenMvvm.Binding.Members
         public IMethodInfo MakeGenericMethod(Type[] types)
         {
             var method = _method;
-            if (!method.IsGenericMethodDefinition && IsNotResolvedGeneric())
+            if (IsGenericMethodDefinition)
                 method = _method.GetGenericMethodDefinition();
-            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider,
-                _reflectionDelegateProvider);
+            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionDelegateProvider);
         }
 
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
@@ -139,23 +146,10 @@ namespace MugenMvvm.Binding.Members
 
         #region Methods
 
-        private bool IsNotResolvedGeneric()
-        {
-            if (_genericArguments == null)
-                return false;
-            for (var i = 0; i < _genericArguments.Length; i++)
-            {
-                if (_genericArguments[i].IsGenericParameter)
-                    return true;
-            }
-
-            return false;
-        }
-
         private object? CompileMethod(object? target, object?[] args)
         {
             _invoker = _method.GetMethodInvoker(_reflectionDelegateProvider);
-            return _invoker(target, args);
+            return Invoke(target, args);
         }
 
         #endregion
