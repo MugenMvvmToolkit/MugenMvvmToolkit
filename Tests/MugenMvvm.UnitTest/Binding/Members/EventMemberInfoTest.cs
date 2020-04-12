@@ -42,6 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 return result;
             }, eventInfo);
             var memberInfo = new EventMemberInfo(name, eventInfo, memberObserver);
+            memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(eventInfo.EventHandlerType);
             memberInfo.DeclaringType.ShouldEqual(eventInfo.DeclaringType);
             memberInfo.UnderlyingMember.ShouldEqual(eventInfo);
