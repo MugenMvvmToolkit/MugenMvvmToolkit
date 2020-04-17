@@ -25,9 +25,11 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryGetMembersShouldRegisterUnregisterMembers(int count)
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void TryGetMembersShouldRegisterUnregisterMembers(int count, bool clear)
         {
             var requestType = typeof(string);
             var name = "test";
@@ -64,11 +66,17 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;
-            foreach (var @delegate in delegates)
-                component.Unregister(@delegate);
+            if (clear)
+                component.Clear();
+            else
+            {
+                foreach (var @delegate in delegates)
+                    component.Unregister(@delegate);
+            }
+
             component.TryGetMembers(typeof(object), string.Empty, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
             component.GetAttachedMembers(DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            invalidateCount.ShouldEqual(count);
+            invalidateCount.ShouldEqual(clear ? 1 : count);
         }
 
         #endregion
