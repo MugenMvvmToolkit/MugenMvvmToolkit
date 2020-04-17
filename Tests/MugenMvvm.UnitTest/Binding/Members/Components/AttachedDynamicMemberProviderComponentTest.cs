@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var invalidateCount = 0;
             var hasCache = new TestHasCache
             {
-                Invalidate = (o, type, arg3) => { ++invalidateCount; }
+                Invalidate = (o, type, arg3) => ++invalidateCount
             };
             var owner = new MemberManager();
             var component = new AttachedDynamicMemberProviderComponent();
