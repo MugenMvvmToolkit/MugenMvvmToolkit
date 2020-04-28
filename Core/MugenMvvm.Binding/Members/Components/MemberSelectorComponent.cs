@@ -93,6 +93,7 @@ namespace MugenMvvm.Binding.Members.Components
                     }
                 }
             }
+            priority += GetArgsPriority(member);
 
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Attached))
                 return AttachedPriority + priority;
@@ -101,6 +102,24 @@ namespace MugenMvvm.Binding.Members.Components
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Dynamic))
                 return DynamicPriority + priority;
             return InstancePriority + priority;
+        }
+
+        private static int GetArgsPriority(IMemberInfo member)
+        {
+            if (!(member is IHasArgsMemberInfo hasArgs))
+                return 0;
+            switch (hasArgs.ArgumentFlags)
+            {
+                case ArgumentFlags.Optional:
+                case ArgumentFlags.Metadata:
+                    return -1;
+                case ArgumentFlags.ParamArray:
+                    return -2;
+                case ArgumentFlags.EmptyParamArray:
+                    return -3;
+                default:
+                    return 0;
+            }
         }
 
         #endregion
