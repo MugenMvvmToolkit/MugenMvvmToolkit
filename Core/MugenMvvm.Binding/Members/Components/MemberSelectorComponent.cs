@@ -78,12 +78,12 @@ namespace MugenMvvm.Binding.Members.Components
                     priority = 1;
                 else
                 {
-                    var type = requestedType.DeclaringType;
+                    var type = requestedType;
                     var nestedCount = 0;
                     while (type != null)
                     {
                         type = type.BaseType;
-                        if (type == requestedType)
+                        if (type == member.DeclaringType)
                         {
                             priority = MaxDeclaringTypePriority - nestedCount;
                             break;
@@ -110,13 +110,14 @@ namespace MugenMvvm.Binding.Members.Components
                 return 0;
             switch (hasArgs.ArgumentFlags)
             {
-                case ArgumentFlags.Optional:
                 case ArgumentFlags.Metadata:
                     return -1;
-                case ArgumentFlags.ParamArray:
+                case ArgumentFlags.Optional:
                     return -2;
-                case ArgumentFlags.EmptyParamArray:
+                case ArgumentFlags.ParamArray:
                     return -3;
+                case ArgumentFlags.EmptyParamArray:
+                    return -4;
                 default:
                     return 0;
             }
