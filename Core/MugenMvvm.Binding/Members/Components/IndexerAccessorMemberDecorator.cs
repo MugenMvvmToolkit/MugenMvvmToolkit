@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Members.Components
             }
             else if (type == typeof(string))
             {
-                getterName = "get_Char";
+                getterName = "get_Chars";
                 setterName = null;
             }
             else
@@ -83,18 +83,18 @@ namespace MugenMvvm.Binding.Members.Components
                     continue;
 
                 var parameters = method.GetParameters();
-                var args = _globalValueConverter.TryGetInvokeArgs(parameters, indexerArgsRaw, metadata, out var isLastParameterMetadata);
+                var args = _globalValueConverter.TryGetInvokeArgs(parameters, indexerArgsRaw, metadata, out var flags);
                 if (args == null || args.Length == 0)
                     continue;
 
                 var key = new MemberKey(method.DeclaringType, method.Type, parameters, false);
                 if (!_membersDictionary.TryGetValue(key, out var value))
                 {
-                    value = (new List<IMethodInfo>(), null, args, isLastParameterMetadata);
+                    value = (new List<IMethodInfo>(), null, args, flags);
                     _membersDictionary[key] = value;
                 }
 
-                value.Item1!.Add(method);
+                value.getters!.Add(method);
             }
 
             if (setterName != null)
@@ -115,36 +115,36 @@ namespace MugenMvvm.Binding.Members.Components
                     var key = new MemberKey(method.DeclaringType, lastParameter.ParameterType, parameters, true);
                     if (!_membersDictionary.TryGetValue(key, out var value))
                     {
-                        var args = _globalValueConverter.TryGetInvokeArgs(parameters.Take(parameters.Count - 1).ToList(), indexerArgsRaw, metadata, out var isLastParameterMetadata);
+                        var args = _globalValueConverter.TryGetInvokeArgs(parameters.Take(parameters.Count - 1).ToList(), indexerArgsRaw, metadata, out var flags);
                         if (args == null || args.Length == 0)
                             continue;
 
-                        value = (null, new List<IMethodInfo>(), args, isLastParameterMetadata);
+                        value = (null, new List<IMethodInfo>(), args, flags);
                         _membersDictionary[key] = value;
                     }
 
-                    if (value.Item2 == null)
+                    if (value.setters == null)
                     {
-                        value = (value.Item1, new List<IMethodInfo>(), value.Item3, value.Item4);
+                        value = (value.getters, new List<IMethodInfo>(), value.args, value.flags);
                         _membersDictionary[key] = value;
                     }
 
-                    value.Item2.Add(method);
+                    value.setters!.Add(method);
                 }
             }
 
-
+            _members.Clear();
             var selectors = Owner.GetComponents<IMemberSelectorComponent>();
             foreach (var item in _membersDictionary)
             {
                 IMethodInfo? getter = null, setter = null;
-                if (item.Value.Item1 != null)
-                    getter = selectors.TrySelectMembers(item.Value.Item1, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
-                if (item.Value.Item2 != null)
-                    setter = selectors.TrySelectMembers(item.Value.Item2, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
+                if (item.Value.getters != null)
+                    getter = selectors.TrySelectMembers(item.Value.getters, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
+                if (item.Value.setters != null)
+                    setter = selectors.TrySelectMembers(item.Value.setters, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
 
                 if (getter != null || setter != null)
-                    _members.Add(new MethodMemberAccessorInfo(name, getter, setter, item.Value.Item3, item.Value.Item4, type, _observerProvider));
+                    _members.Add(new MethodMemberAccessorInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));
             }
 
             _membersDictionary.Clear();
@@ -197,7 +197,7 @@ namespace MugenMvvm.Binding.Members.Components
             #endregion
         }
 
-        private sealed class MemberDictionary : LightDictionary<MemberKey, (List<IMethodInfo>?, List<IMethodInfo>?, object?[], bool)>
+        private sealed class MemberDictionary : LightDictionary<MemberKey, (List<IMethodInfo>? getters, List<IMethodInfo>? setters, object?[] args, ArgumentFlags flags)>
         {
             #region Constructors
 

@@ -83,6 +83,12 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(string.Format(CannotParseBindingParameterFormat3, parameterName, expectedValue, currentValue));
         }
 
+        [DoesNotReturn]
+        public static void ThrowCannotConvertType(object? value, Type type)
+        {
+            throw new InvalidOperationException(string.Format(CannotConvertTypeFormat2, value, type));
+        }
+
         #endregion
     }
 }

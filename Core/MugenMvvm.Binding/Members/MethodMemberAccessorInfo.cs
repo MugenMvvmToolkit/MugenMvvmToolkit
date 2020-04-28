@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
@@ -17,7 +18,6 @@ namespace MugenMvvm.Binding.Members
 
         private readonly object?[] _args;
         private readonly IMethodInfo? _getMethod;
-        private readonly bool _isLastParameterMetadata;
         private readonly IObserverProvider? _observerProvider;
         private readonly Type _reflectedType;
         private readonly IMethodInfo? _setMethod;
@@ -27,8 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberAccessorInfo(string name, IMethodInfo? getMethod, IMethodInfo? setMethod, object?[] args,
-            bool isLastParameterMetadata, Type reflectedType, IObserverProvider? observerProvider)
+        public MethodMemberAccessorInfo(string name, IMethodInfo? getMethod, IMethodInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObserverProvider? observerProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));
@@ -40,7 +39,7 @@ namespace MugenMvvm.Binding.Members
             _getMethod = getMethod;
             _setMethod = setMethod;
             _args = args;
-            _isLastParameterMetadata = isLastParameterMetadata;
+            ArgumentFlags = argumentFlags;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
         }
@@ -48,6 +47,8 @@ namespace MugenMvvm.Binding.Members
         #endregion
 
         #region Properties
+
+        public ArgumentFlags ArgumentFlags { get; }
 
         public string Name { get; }
 
@@ -91,7 +92,7 @@ namespace MugenMvvm.Binding.Members
             if (_getMethod == null)
                 BindingExceptionManager.ThrowBindingMemberMustBeReadable(this);
             object?[] args;
-            if (_isLastParameterMetadata)
+            if (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata))
             {
                 args = new object?[_args.Length + 1];
                 Array.Copy(_args, args, _args.Length);
@@ -107,10 +108,10 @@ namespace MugenMvvm.Binding.Members
         {
             if (_setMethod == null)
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
-            var args = new object?[_args.Length + (_isLastParameterMetadata ? 2 : 1)];
+            var args = new object?[_args.Length + (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata) ? 2 : 1)];
             Array.Copy(_args, args, _args.Length);
             args[_args.Length] = value;
-            if (_isLastParameterMetadata)
+            if (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata))
                 args[args.Length - 1] = metadata;
             _setMethod.Invoke(target, args, metadata);
         }

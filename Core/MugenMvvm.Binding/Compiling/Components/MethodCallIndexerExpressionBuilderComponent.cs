@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Compiling.Components;
+using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
@@ -28,6 +29,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         private readonly IMemberManager? _memberManager;
         private readonly IResourceResolver? _resourceResolver;
+        private readonly IGlobalValueConverter? _globalValueConverter;
 
         private const float NotExactlyEqualWeight = 1f;
         private const float NotExactlyEqualBoxWeight = 1.1f;
@@ -41,10 +43,11 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Constructors
 
-        public MethodCallIndexerExpressionBuilderComponent(IMemberManager? memberManager = null, IResourceResolver? resourceResolver = null)
+        public MethodCallIndexerExpressionBuilderComponent(IMemberManager? memberManager = null, IResourceResolver? resourceResolver = null, IGlobalValueConverter? globalValueConverter = null)
         {
             _memberManager = memberManager;
             _resourceResolver = resourceResolver;
+            _globalValueConverter = globalValueConverter;
         }
 
         #endregion
@@ -599,7 +602,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (method.IsEmpty)
                     BindingExceptionManager.ThrowInvalidBindingMember(type, methodName);
-                return method.Method.Invoke(target, method.Parameters.TryGetInvokeArgs(args, metadata)!, metadata);
+                return method.Method.Invoke(target, _component._globalValueConverter.TryGetInvokeArgs(method.Parameters, args, metadata)!, metadata);
             }
 
             private static Type[] GetArgTypes(object?[]? args)
