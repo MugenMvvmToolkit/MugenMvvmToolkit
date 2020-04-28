@@ -25,6 +25,12 @@ namespace MugenMvvm.UnitTest
                 CollectionAssertExtensions.ShouldContain(enumerable, item);
         }
 
+        public static void ShouldNotContain<T>(this IEnumerable<T> enumerable, IEnumerable<T> itemsEnumerable)
+        {
+            foreach (var item in itemsEnumerable)
+                CollectionAssertExtensions.ShouldNotContain(enumerable, item);
+        }
+
         public static void ShouldContain<T>(this IEnumerable<T> enumerable, params T[] items)
         {
             ShouldContain(enumerable, itemsEnumerable: items);
