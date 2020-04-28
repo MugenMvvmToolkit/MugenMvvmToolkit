@@ -448,10 +448,10 @@ namespace MugenMvvm.Binding.Extensions
             return new WeakEventListener<TState>(listener, state);
         }
 
-        public static object?[]? TryGetInvokeArgs<TState>(this IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
-            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out bool isLastParameterMetadata, IGlobalValueConverter? globalValueConverter = null)
+        public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
+            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out ArgumentFlags flags)
         {
-            isLastParameterMetadata = false;
+            flags = 0;
             var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
             object?[] result;
             if (arguments != null && argsLength == parameters.Count)
@@ -470,15 +470,17 @@ namespace MugenMvvm.Binding.Extensions
                         {
                             ArraySize[0] = 0;
                             result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
+                            flags |= ArgumentFlags.EmptyParamArray;
                         }
                         else
                         {
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
-                                isLastParameterMetadata = true;
+                                flags |= ArgumentFlags.Metadata;
                             else
                             {
                                 if (!parameter.HasDefaultValue)
                                     return null;
+                                flags |= ArgumentFlags.Optional;
                                 result[j] = parameter.DefaultValue;
                             }
                         }
@@ -491,6 +493,7 @@ namespace MugenMvvm.Binding.Extensions
                 var value = getValue(state, i, parameterInfo);
                 if (i == parameters.Count - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
                 {
+                    flags |= ArgumentFlags.ParamArray;
                     ArraySize[0] = argsLength - i;
                     var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType(), ArraySize);
                     for (var j = i; j < argsLength; j++)
@@ -503,37 +506,37 @@ namespace MugenMvvm.Binding.Extensions
                 }
                 else
                 {
-                    if (globalValueConverter == null)
-                        globalValueConverter = MugenBindingService.GlobalValueConverter;
-                    result[i] = globalValueConverter.Convert(value, parameterInfo.ParameterType, parameterInfo);
+                    if (converter == null)
+                        converter = MugenBindingService.GlobalValueConverter;
+                    result[i] = converter.Convert(value, parameterInfo.ParameterType, parameterInfo);
                 }
             }
 
             return result;
         }
 
-        public static object?[]? TryGetInvokeArgs(this IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata, IGlobalValueConverter? globalValueConverter = null)
+        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
         {
-            args = parameters.TryGetInvokeArgs(args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var isLastParameterMetadata, globalValueConverter)!;
-            if (args != null && isLastParameterMetadata)
+            args = converter.TryGetInvokeArgs(parameters, args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var flags)!;
+            if (args != null && flags.HasFlagEx(ArgumentFlags.Metadata))
                 args[args.Length - 1] = metadata;
             return args;
         }
 
-        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out bool isLastParameterMetadata)
+        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out ArgumentFlags flags)
         {
             try
             {
-                return parameters.TryGetInvokeArgs((args, converter.DefaultIfNull(), metadata), args.Length,
+                return converter.TryGetInvokeArgs(parameters, (args, converter.DefaultIfNull(), metadata), args.Length,
                     (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
                         var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
-                    }, null, out isLastParameterMetadata, converter);
+                    }, null, out flags);
             }
             catch
             {
-                isLastParameterMetadata = false;
+                flags = 0;
                 return null;
             }
         }
@@ -555,7 +558,8 @@ namespace MugenMvvm.Binding.Extensions
 
             return path
                 .RemoveBounds(start)
-                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                .UnescapeString();
         }
 
         public static string[]? GetMethodArgsRaw(string path, out string methodName)
@@ -570,7 +574,8 @@ namespace MugenMvvm.Binding.Extensions
             methodName = path.Substring(0, startIndex);
             return path
                 .RemoveBounds(startIndex + 1)
-                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries);
+                .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
+                .UnescapeString();
         }
 
         public static Type GetTargetType(this MemberFlags flags, object target)
@@ -598,6 +603,12 @@ namespace MugenMvvm.Binding.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
+        {
+            return (value & flag) == flag;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool HasFlagEx(this ArgumentFlags value, ArgumentFlags flag)
         {
             return (value & flag) == flag;
         }
@@ -712,6 +723,19 @@ namespace MugenMvvm.Binding.Extensions
         private static string RemoveBounds(this string st, int start = 1) //todo Span?
         {
             return st.Substring(start, st.Length - start - 1);
+        }
+
+        private static string[] UnescapeString(this string[] args)
+        {
+            for (int i = 0; i < args.Length; i++)
+            {
+                var value = args[i].Trim();
+                if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)
+                    || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
+                    value = value.RemoveBounds();
+                args[i] = value;
+            }
+            return args;
         }
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)

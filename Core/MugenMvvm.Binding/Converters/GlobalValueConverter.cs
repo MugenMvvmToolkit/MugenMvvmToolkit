@@ -35,7 +35,8 @@ namespace MugenMvvm.Binding.Converters
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            _components!.TryConvert(ref value, targetType, member, metadata);
+            if (!_components!.TryConvert(ref value, targetType, member, metadata))
+                BindingExceptionManager.ThrowCannotConvertType(value, targetType);
             return value;
         }
 

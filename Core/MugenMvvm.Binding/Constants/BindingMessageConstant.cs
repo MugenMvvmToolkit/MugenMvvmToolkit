@@ -44,6 +44,7 @@
         public const string CannotResolveResourceFormat1 = "Cannot resolve resource '{0}'";
         public const string CannotUseExpressionExpected = "Cannot use expression '{0}' expected type '{1}'";
         public const string CannotParseBindingParameterFormat3 = "Cannot parse binding parameter '{0}' expected parameter value '{1}' current value '{2}'";
+        public const string CannotConvertTypeFormat2 = "Cannot convert value from '{0}' to type '{1}'";
 
         #endregion
     }
