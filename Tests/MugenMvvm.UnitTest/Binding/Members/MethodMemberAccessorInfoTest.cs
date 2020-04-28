@@ -31,9 +31,14 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var getValueCount = 0;
             var setValueCount = 0;
             var declaringType = typeof(object);
-            var inputArgs = new object[] {"1", 2};
-            var checkGetterArgs = isLastParameterMetadata ? inputArgs.Concat(new[] {DefaultMetadata}).ToArray() : inputArgs;
-            var checkSetterArgs = isLastParameterMetadata ? inputArgs.Concat(new object[] {setValue, DefaultMetadata}).ToArray() : inputArgs.Concat(new object[] {setValue}).ToArray();
+            var inputArgs = isLastParameterMetadata ? new object?[] { "1", 2, null } : new object[] { "1", 2 };
+            var checkGetterArgs = inputArgs.ToArray();
+            if (isLastParameterMetadata)
+                checkGetterArgs[checkGetterArgs.Length - 1] = DefaultMetadata;
+            var checkSetterArgs = inputArgs.Concat(new object[] { setValue }).ToArray();
+            if (isLastParameterMetadata)
+                checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
+
             var memberFlags = MemberFlags.All;
             IMethodInfo? getMethod = null;
             IMethodInfo? setMethod = null;
@@ -69,7 +74,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                         metadata.ShouldEqual(DefaultMetadata);
                         return null;
                     },
-                    GetParameters = () => new[] {new TestParameterInfo {ParameterType = type}}
+                    GetParameters = () => new[] { new TestParameterInfo { ParameterType = type } }
                 };
             }
 
@@ -102,7 +107,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            memberInfo = new MethodMemberAccessorInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata, reflectedType, observerProvider);
+            memberInfo = new MethodMemberAccessorInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : 0, reflectedType, observerProvider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.Type.ShouldEqual(type);

@@ -94,7 +94,7 @@ namespace MugenMvvm.Binding.Members
             object?[] args;
             if (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata))
             {
-                args = new object?[_args.Length + 1];
+                args = new object?[_args.Length];
                 Array.Copy(_args, args, _args.Length);
                 args[args.Length - 1] = metadata;
             }
@@ -108,11 +108,11 @@ namespace MugenMvvm.Binding.Members
         {
             if (_setMethod == null)
                 BindingExceptionManager.ThrowBindingMemberMustBeWritable(this);
-            var args = new object?[_args.Length + (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata) ? 2 : 1)];
+            var args = new object?[_args.Length + 1];
             Array.Copy(_args, args, _args.Length);
-            args[_args.Length] = value;
+            args[args.Length - 1] = value;
             if (ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata))
-                args[args.Length - 1] = metadata;
+                args[args.Length - 2] = metadata;
             _setMethod.Invoke(target, args, metadata);
         }
 
