@@ -35,5 +35,11 @@ namespace MugenMvvm.Binding.Observers
         }
 
         #endregion
+
+        #region Properties
+
+        public bool IsEmpty => Path == null;
+
+        #endregion
     }
 }
