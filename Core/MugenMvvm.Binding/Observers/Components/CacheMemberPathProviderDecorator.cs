@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<IMemberPath> _cache;
+        private readonly StringOrdinalLightDictionary<IMemberPath?> _cache;
 
         #endregion
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public CacheMemberPathProviderDecorator()
         {
-            _cache = new StringOrdinalLightDictionary<IMemberPath>(59);
+            _cache = new StringOrdinalLightDictionary<IMemberPath?>(59);
         }
 
         #endregion
@@ -49,8 +49,6 @@ namespace MugenMvvm.Binding.Observers.Components
             if (!_cache.TryGetValue(stringPath, out var value))
             {
                 value = Components.TryGetMemberPath(stringPath, metadata)!;
-                if (value == null)
-                    return null;
                 _cache[stringPath] = value;
             }
 

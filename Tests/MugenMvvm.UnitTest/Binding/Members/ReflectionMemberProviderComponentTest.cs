@@ -22,15 +22,15 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
         #region Properties
 
-        public static object PropertyStatic { get; set; }
+        public static object? PropertyStatic { get; set; }
 
         #endregion
 
         #region Events
 
-        public event Action Event;
+        public event Action? Event;
 
-        public static event Action EventStatic;
+        public static event Action? EventStatic;
 
         #endregion
 
