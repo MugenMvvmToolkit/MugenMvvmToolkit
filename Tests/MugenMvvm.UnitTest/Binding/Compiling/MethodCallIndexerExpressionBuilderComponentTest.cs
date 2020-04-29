@@ -15,7 +15,7 @@ using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTest.Binding.Members;
-using MugenMvvm.UnitTest.Resources;
+using MugenMvvm.UnitTest.Binding.Resources;
 using Should;
 using Xunit;
 

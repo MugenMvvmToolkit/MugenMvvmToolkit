@@ -4,14 +4,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Resources
 {
-    public class ResourceResolverRequestTest : UnitTestBase
+    public class BindingResourceStateTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void DefaultShouldBeEmpty()
         {
-            default(ResourceResolverRequest).IsEmpty.ShouldBeTrue();
+            default(BindingResourceState).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources
             var target = typeof(object);
             var source = "";
             var state = "test";
-            var memberManagerRequest = new ResourceResolverRequest(target, source, state);
+            var memberManagerRequest = new BindingResourceState(target, source, state);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
             memberManagerRequest.State.ShouldEqual(state);

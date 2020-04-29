@@ -3,7 +3,7 @@ using MugenMvvm.Binding.Interfaces.Resources.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.UnitTest.Resources
+namespace MugenMvvm.UnitTest.Binding.Resources
 {
     public class TestTypeResolverComponent : ITypeResolverComponent, IHasPriority
     {
@@ -17,9 +17,9 @@ namespace MugenMvvm.UnitTest.Resources
 
         #region Implementation of interfaces
 
-        Type? ITypeResolverComponent.TryGetType<TRequest>(string name, in TRequest request, IReadOnlyMetadataContext? metadata)
+        Type? ITypeResolverComponent.TryGetType<TRequest>(string name, in TRequest state, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetType?.Invoke(name, request, typeof(TRequest), metadata);
+            return TryGetType?.Invoke(name, state, typeof(TRequest), metadata);
         }
 
         #endregion
