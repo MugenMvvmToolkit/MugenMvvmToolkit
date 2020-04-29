@@ -7,7 +7,7 @@ using MugenMvvm.UnitTest.Internal;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTest.Binding.Members.Components
+namespace MugenMvvm.UnitTest.Binding.Members
 {
     public class AttachedMemberProviderComponentTest : UnitTestBase
     {
