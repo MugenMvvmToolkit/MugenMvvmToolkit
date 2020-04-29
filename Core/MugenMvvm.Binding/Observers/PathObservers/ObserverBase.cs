@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.PathObservers
 {
     public abstract class ObserverBase : IMemberPathObserver
     {

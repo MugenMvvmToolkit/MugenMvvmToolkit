@@ -8,7 +8,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.PathObservers
 {
     public abstract class MultiPathObserverBase : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {

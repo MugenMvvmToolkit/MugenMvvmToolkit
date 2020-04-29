@@ -2,7 +2,7 @@
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.MemberPaths
 {
     public sealed class EmptyMemberPath : IMemberPath, IValueHolder<string>
     {

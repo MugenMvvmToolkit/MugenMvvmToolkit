@@ -17,6 +17,7 @@ using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;

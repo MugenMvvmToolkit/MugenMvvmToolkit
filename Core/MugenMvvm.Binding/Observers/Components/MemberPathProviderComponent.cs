@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 

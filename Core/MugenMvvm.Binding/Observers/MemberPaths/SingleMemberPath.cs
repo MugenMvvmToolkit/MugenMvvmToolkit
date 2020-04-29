@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.MemberPaths
 {
     public sealed class SingleMemberPath : IMemberPath, IValueHolder<string>, IReadOnlyList<string>
     {

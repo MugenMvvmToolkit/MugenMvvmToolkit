@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.PathObservers
 {
     public sealed class EmptyPathObserver : IMemberPathObserver
     {

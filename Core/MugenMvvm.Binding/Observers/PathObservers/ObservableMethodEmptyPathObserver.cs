@@ -3,11 +3,12 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.PathObservers
 {
     public sealed class ObservableMethodEmptyPathObserver : ObserverBase, IEventListener, IValueHolder<IWeakReference>
     {

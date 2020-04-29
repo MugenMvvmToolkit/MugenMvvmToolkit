@@ -4,7 +4,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.MemberPaths
 {
     public sealed class MultiMemberPath : IMemberPath, IValueHolder<string>
     {

@@ -5,7 +5,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.Binding.Observers
+namespace MugenMvvm.Binding.Observers.PathObservers
 {
     public sealed class ObservableMethodSinglePathObserver : SinglePathObserver, ObserverBase.IMethodPathObserver
     {
