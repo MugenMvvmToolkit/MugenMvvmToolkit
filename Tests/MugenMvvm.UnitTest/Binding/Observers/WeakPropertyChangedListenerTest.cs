@@ -100,24 +100,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         {
             var sender = this;
             var args = new PropertyChangedEventArgs("Test");
-            var weakListeners = new TestEventListener[count];
             var listeners = new TestEventListener[count];
-
-            for (var i = 0; i < weakListeners.Length; i++)
-            {
-                var index = i;
-                weakListeners[index] = new TestEventListener
-                {
-                    IsAlive = true,
-                    IsWeak = true,
-                    TryHandle = (o, o1) =>
-                    {
-                        o.ShouldEqual(sender);
-                        o1.ShouldEqual(args);
-                        return weakListeners[index].IsAlive;
-                    }
-                };
-            }
 
             for (var i = 0; i < listeners.Length; i++)
             {
@@ -125,7 +108,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 listeners[index] = new TestEventListener
                 {
                     IsAlive = true,
-                    IsWeak = false,
+                    IsWeak = i % 2 == 0,
                     TryHandle = (o, o1) =>
                     {
                         o.ShouldEqual(sender);
@@ -138,77 +121,55 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var listener = new WeakPropertyChangedListener();
             for (var i = 0; i < count; i++)
             {
-                listener.Add(weakListeners[i], args.PropertyName);
                 listener.Add(listeners[i], args.PropertyName);
 
                 listener.Raise(sender, args);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
-                ValidateInvokeCount(weakListeners, 1, true, 0, i + 1);
             }
 
             var removeCount = Math.Min(count, 100);
             for (var i = 0; i < removeCount; i++)
-            {
-                weakListeners[i].IsAlive = false;
                 listeners[i].IsAlive = false;
-            }
 
             listener.Raise(sender, args);
             ValidateInvokeCount(listeners, 1);
-            ValidateInvokeCount(weakListeners, 1);
 
             listener.Raise(sender, args);
             ValidateInvokeCount(listeners, 1, true, removeCount);
-            ValidateInvokeCount(weakListeners, 1, true, removeCount);
 
-            var weakTokens = new List<ActionToken>();
             var tokens = new List<ActionToken>();
             for (var i = 0; i < removeCount; i++)
             {
-                weakListeners[i].IsAlive = true;
                 listeners[i].IsAlive = true;
-                weakTokens.Add(listener.Add(weakListeners[i], args.PropertyName));
                 tokens.Add(listener.Add(listeners[i], args.PropertyName));
             }
 
             listener.Raise(sender, args);
             ValidateInvokeCount(listeners, 1);
-            ValidateInvokeCount(weakListeners, 1);
 
 
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
-                weakTokens[index].Dispose();
                 listener.Raise(sender, args);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
-                ValidateInvokeCount(weakListeners, 1, true, index + 1);
             }
 
             for (var i = 0; i < removeCount; i++)
-            {
-                listener.Add(weakListeners[i], args.PropertyName);
                 listener.Add(listeners[i], args.PropertyName);
-            }
 
             listener.Raise(sender, args);
             ValidateInvokeCount(listeners, 1);
-            ValidateInvokeCount(weakListeners, 1);
 
 
             for (var i = 0; i < count; i++)
-            {
-                weakListeners[i].IsAlive = false;
                 listeners[i].IsAlive = false;
-            }
 
             listener.Raise(sender, args);
             ValidateInvokeCount(listeners, 1);
-            ValidateInvokeCount(weakListeners, 1);
 
             listener.Raise(sender, args);
             ValidateInvokeCount(listeners, 0);
-            ValidateInvokeCount(weakListeners, 0);
         }
 
         private static void ValidateInvokeCount(TestEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
