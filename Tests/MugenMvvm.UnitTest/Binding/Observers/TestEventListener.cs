@@ -11,6 +11,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
         public bool IsWeak { get; set; }
 
+        public int InvokeCount { get; set; }
+
         public Func<object, object?, bool>? TryHandle { get; set; }
 
         #endregion
@@ -19,6 +21,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
         bool IEventListener.TryHandle(object sender, object? message)
         {
+            ++InvokeCount;
             return TryHandle?.Invoke(sender, message) ?? true;
         }
 

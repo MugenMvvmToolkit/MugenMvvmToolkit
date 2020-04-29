@@ -134,7 +134,7 @@ namespace MugenMvvm.Binding.Observers
 
         private bool RemoveAt(object?[] listeners, int index)
         {
-            if (!ReferenceEquals(listeners, _listeners))
+            if (!ReferenceEquals(listeners, _listeners) || listeners[index] == null)
                 return false;
 
             listeners[index] = null;
