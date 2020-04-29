@@ -33,6 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 return result;
             }, member);
 
+            observer.IsEmpty.ShouldBeFalse();
             observer.Member.ShouldEqual(member);
             observer.TryObserve(target, listener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
