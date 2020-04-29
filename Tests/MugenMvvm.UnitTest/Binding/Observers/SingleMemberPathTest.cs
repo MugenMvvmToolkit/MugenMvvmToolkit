@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         #region Methods
 
         [Fact]
-        public void ConstructorShouldInitializeValues1()
+        public void ConstructorShouldInitializeValues()
         {
             const string path = "Path";
             var singleMemberPath = new SingleMemberPath(path);
