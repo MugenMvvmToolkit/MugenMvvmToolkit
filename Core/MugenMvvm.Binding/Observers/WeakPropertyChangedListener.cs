@@ -122,7 +122,7 @@ namespace MugenMvvm.Binding.Observers
             {
                 var reference = _listeners[i];
                 _listeners[i] = default;
-                if (WeakEventListener.GetIsAlive(reference))
+                if (reference.IsAlive)
                     _listeners[_size++] = reference;
             }
 
