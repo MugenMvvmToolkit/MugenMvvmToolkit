@@ -31,7 +31,6 @@ namespace MugenMvvm.Binding.Observers
         {
             Should.NotBeNull(exception, nameof(exception));
             _target = exception;
-            _target = null;
             _members = null;
         }
 
@@ -70,8 +69,8 @@ namespace MugenMvvm.Binding.Observers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ThrowIfError()
         {
-            if (Error != null)
-                throw Error;
+            if (_target is Exception exception)
+                throw exception;
         }
 
         #endregion
