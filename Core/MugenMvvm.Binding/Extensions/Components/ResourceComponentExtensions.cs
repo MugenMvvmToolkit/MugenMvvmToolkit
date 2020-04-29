@@ -9,13 +9,13 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static IResourceValue? TryGetResourceValue<TRequest>(this IResourceResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IResourceValue? TryGetResourceValue<TState>(this IResourceResolverComponent[] components, string name, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var value = components[i].TryGetResourceValue(name, request, metadata);
+                var value = components[i].TryGetResourceValue(name, state, metadata);
                 if (value != null)
                     return value;
             }
@@ -23,13 +23,13 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static Type? TryGetType<TRequest>(this ITypeResolverComponent[] components, string name, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static Type? TryGetType<TState>(this ITypeResolverComponent[] components, string name, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var type = components[i].TryGetType(name, request, metadata);
+                var type = components[i].TryGetType(name, state, metadata);
                 if (type != null)
                     return type;
             }

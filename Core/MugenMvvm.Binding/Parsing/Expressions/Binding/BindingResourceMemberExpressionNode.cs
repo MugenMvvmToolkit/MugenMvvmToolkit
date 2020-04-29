@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         private IResourceValue GetResource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, new ResourceResolverRequest(target, source), metadata);
+            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, new BindingResourceState(target, source), metadata);
             if (resourceValue == null)
                 BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
             return resourceValue;

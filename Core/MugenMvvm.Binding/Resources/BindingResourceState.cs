@@ -3,7 +3,7 @@
 namespace MugenMvvm.Binding.Resources
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ResourceResolverRequest
+    public readonly struct BindingResourceState
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Resources
 
         #region Constructors
 
-        public ResourceResolverRequest(object target, object? source, object? state = null)
+        public BindingResourceState(object target, object? source, object? state = null)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
