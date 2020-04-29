@@ -45,8 +45,12 @@ namespace MugenMvvm.Binding.Observers
                 if (hasDeadRef && ReferenceEquals(_listeners, listeners))
                     TrimIfNeed(listeners);
             }
-            else
-                WeakEventListener.TryHandle(_listeners, sender, args);
+            else if (_listeners != null && !WeakEventListener.TryHandle(_listeners, sender, args))
+            {
+                _listeners = null;
+                _size = 0;
+                _removedSize = 0;
+            }
         }
 
         public ActionToken Add(IEventListener listener)
