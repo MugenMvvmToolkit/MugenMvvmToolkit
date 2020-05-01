@@ -74,7 +74,6 @@ namespace MugenMvvm.Binding.Core.Components
             _context.Initialize(parameters);
             SetMemberVisitorSettings();
 
-            MemberExpressionVisitor.MemberFlags = MemberFlags;
             targetExpression = MemberExpressionVisitor.Visit(targetExpression, metadata);
             if (IsEvent(target, source, targetExpression, metadata))
             {
@@ -101,6 +100,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (_context.ComponentBuilders.ContainsKey(BindingParameterNameConstant.ParameterHandler))
                 return;
 
+            MemberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;
             bool hasResult = false;
             var converter = GetValueOrExpression(BindingParameterNameConstant.Converter, metadata, ref hasResult);
             var converterParameter = GetValueOrExpression(BindingParameterNameConstant.ConverterParameter, metadata, ref hasResult);
@@ -119,6 +119,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private void SetMemberVisitorSettings()
         {
+            MemberExpressionVisitor.MemberFlags = MemberFlags;
             MemberExpressionVisitor.Flags = Flags;
             MemberExpressionVisitor.IgnoreMethodMembers = _context.TryGetBool(BindingParameterNameConstant.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
             MemberExpressionVisitor.IgnoreIndexMembers = _context.TryGetBool(BindingParameterNameConstant.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);

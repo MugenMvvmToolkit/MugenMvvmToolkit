@@ -41,10 +41,10 @@ namespace MugenMvvm.Binding.Observers.Components
             if (!string.IsNullOrEmpty(observableMethod))
             {
                 if (membersCount == 0)
-                    return new ObservableMethodEmptyPathObserver(observableMethod!, target, memberFlags);
+                    return new MethodEmptyPathObserver(observableMethod!, target, memberFlags);
                 if (membersCount == 1)
-                    return new ObservableMethodSinglePathObserver(observableMethod!, target, path, memberFlags, observerRequest.Optional);
-                return new ObservableMethodMultiPathObserver(observableMethod!, target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+                    return new MethodSinglePathObserver(observableMethod!, target, path, memberFlags, observerRequest.Optional);
+                return new MethodMultiPathObserver(observableMethod!, target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
             }
 
             if (membersCount == 0)
@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             if (observerRequest.Observable)
                 return new MultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
-            return new ObservableRootMultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+            return new RootMultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
         }
 
         #endregion

@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers.PathObservers
 {
-    public sealed class ObservableMethodMultiPathObserver : MultiPathObserver, ObserverBase.IMethodPathObserver
+    public sealed class MethodSinglePathObserver : SinglePathObserver, ObserverBase.IMethodPathObserver
     {
         #region Fields
 
@@ -20,8 +20,8 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Constructors
 
-        public ObservableMethodMultiPathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
-            : base(target, path, memberFlags, hasStablePath, optional)
+        public MethodSinglePathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool optional)
+            : base(target, path, memberFlags, optional)
         {
             Should.NotBeNull(method, nameof(method));
             _method = method;
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         IEventListener IMethodPathObserver.GetMethodListener()
         {
-            return GetLastMemberListener();
+            return this;
         }
 
         #endregion

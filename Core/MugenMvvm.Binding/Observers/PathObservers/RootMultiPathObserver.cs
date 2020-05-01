@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers.PathObservers
 {
-    public sealed class ObservableRootMultiPathObserver : MultiPathObserverBase
+    public sealed class RootMultiPathObserver : MultiPathObserverBase
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Constructors
 
-        public ObservableRootMultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+        public RootMultiPathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
             : base(target, path, memberFlags, hasStablePath, optional)
         {
         }
