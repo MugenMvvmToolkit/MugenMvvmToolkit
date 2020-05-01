@@ -35,9 +35,9 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             return _lastMemberListener;
         }
 
-        protected override void OnListenerAdded(IMemberPathObserverListener listener)
+        protected override void OnListenersAdded()
         {
-            base.OnListenerAdded(listener);
+            base.OnListenersAdded();
             if (Members != null && _listeners[_listeners.Length - 1].IsEmpty && PenultimateValueOrException is IWeakReference penultimateRef)
             {
                 var target = penultimateRef.Target;

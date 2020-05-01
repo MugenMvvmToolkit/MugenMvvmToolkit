@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public BindingParameterValue(object? parameter, ICompiledExpression? expression)//todo add empty subscriber to observers for activation
+        public BindingParameterValue(object? parameter, ICompiledExpression? expression)
         {
             Parameter = parameter;
             Expression = expression;
@@ -40,10 +40,10 @@ namespace MugenMvvm.Binding.Core
         public T GetValue<T>(IReadOnlyMetadataContext? metadata)
         {
             if (Expression != null)
-                return (T) Expression.Invoke(Parameter, metadata)!;
+                return (T)Expression.Invoke(Parameter, metadata)!;
             if (Parameter is IMemberPathObserver observer)
-                return (T) observer.GetLastMember(metadata).GetValue(metadata)!;
-            return (T) Parameter!;
+                return (T)observer.GetLastMember(metadata).GetValue(metadata)!;
+            return (T)Parameter!;
         }
 
         public void Dispose()
@@ -54,11 +54,11 @@ namespace MugenMvvm.Binding.Core
                     observer.Dispose();
                     break;
                 case object[] observers:
-                {
-                    for (var i = 0; i < observers.Length; i++)
-                        (observers[i] as IMemberPathObserver)?.Dispose();
-                    break;
-                }
+                    {
+                        for (var i = 0; i < observers.Length; i++)
+                            (observers[i] as IMemberPathObserver)?.Dispose();
+                        break;
+                    }
             }
         }
 

@@ -83,18 +83,20 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             Should.NotBeNull(listener, nameof(listener));
             if (IsDisposed)
                 return;
-            if (_listeners == null)
+            var oldListeners = _listeners;
+            if (oldListeners == null)
                 _listeners = listener;
-            else if (_listeners is IMemberPathObserverListener[] listeners)
+            else if (oldListeners is IMemberPathObserverListener[] listeners)
             {
                 Array.Resize(ref listeners, listeners.Length + 1);
                 listeners[listeners.Length - 1] = listener;
                 _listeners = listeners;
             }
             else
-                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
+                _listeners = new[] { (IMemberPathObserverListener)oldListeners, listener };
 
-            OnListenerAdded(listener);
+            if (oldListeners == null)
+                OnListenersAdded();
         }
 
         public void RemoveListener(IMemberPathObserverListener listener)
@@ -134,7 +136,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             return TryGetMetadata(_listeners);
         }
 
-        protected virtual void OnListenerAdded(IMemberPathObserverListener listener)
+        protected virtual void OnListenersAdded()
         {
         }
 

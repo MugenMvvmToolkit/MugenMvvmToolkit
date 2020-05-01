@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 var target = Target;
                 if (target == null)
                     return default;
-                return new MemberPathMembers(target, new[] {member});
+                return new MemberPathMembers(target, new[] { member });
             }
 
             if (_lastMemberOrException is Exception e)
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             return default;
         }
 
-        protected override void OnListenerAdded(IMemberPathObserverListener listener)
+        protected override void OnListenersAdded()
         {
             UpdateIfNeed();
             if (_lastMemberUnsubscriber.IsEmpty && _lastMemberOrException is IMemberInfo lastMember)
@@ -121,14 +121,12 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         private void UpdateIfNeed()
         {
             if (!CheckFlag(InitializedFlag))
-            {
-                _state |= InitializedFlag;
                 Update();
-            }
         }
 
         private void Update()
         {
+            bool hasException = false;
             try
             {
                 var target = Target;
@@ -160,14 +158,20 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             }
             catch (Exception e)
             {
+                hasException = true;
                 SetLastMember(null, e);
                 OnError(e);
+            }
+            finally
+            {
+                if (!hasException)
+                    _state |= InitializedFlag;
             }
         }
 
         private void SetLastMember(IMemberInfo? lastMember, Exception? exception)
         {
-            _lastMemberOrException = (object?) exception ?? lastMember;
+            _lastMemberOrException = (object?)exception ?? lastMember;
             OnLastMemberChanged();
         }
 

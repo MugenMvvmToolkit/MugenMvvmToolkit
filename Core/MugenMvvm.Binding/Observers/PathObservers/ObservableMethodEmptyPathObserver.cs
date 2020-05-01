@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             this.ReleaseWeakReference();
         }
 
-        protected override void OnListenerAdded(IMemberPathObserverListener listener)
+        protected override void OnListenersAdded()
         {
             if (!_unsubscriber.IsEmpty)
                 return;

@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             return default;
         }
 
-        protected override void OnListenerAdded(IMemberPathObserverListener listener)
+        protected override void OnListenersAdded()
         {
             UpdateIfNeed();
         }
@@ -128,14 +128,12 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         private void UpdateIfNeed()
         {
             if (!CheckFlag(InitializedFlag))
-            {
-                _state |= InitializedFlag;
                 Update();
-            }
         }
 
         private bool Update()
         {
+            bool hasException = false;
             try
             {
                 var target = Target;
@@ -197,8 +195,14 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             }
             catch (Exception e)
             {
+                hasException = true;
                 SetMembers(null, null, e);
                 OnError(e);
+            }
+            finally
+            {
+                if (!hasException)
+                    _state |= InitializedFlag;
             }
 
             return true;
