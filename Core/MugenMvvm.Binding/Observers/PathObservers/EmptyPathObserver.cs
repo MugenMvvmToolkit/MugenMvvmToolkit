@@ -52,8 +52,6 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         public IMemberPath Path => EmptyMemberPath.Instance;
 
-        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> Listeners => default;
-
         #endregion
 
         #region Implementation of interfaces
@@ -64,6 +62,11 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         public void RemoveListener(IMemberPathObserverListener listener)
         {
+        }
+
+        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners()
+        {
+            return default;
         }
 
         public MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null)

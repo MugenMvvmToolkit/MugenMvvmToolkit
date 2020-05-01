@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 if (target == null)
                     _lastMemberUnsubscriber = ActionToken.NoDoToken;
                 else
-                    SubscribeLastMember(target, lastMember, GetMetadata());
+                    SubscribeLastMember(target, lastMember, TryGetMetadata());
             }
         }
 
@@ -145,7 +145,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 if (_lastMemberOrException is IMemberInfo)
                     return;
 
-                var metadata = GetMetadata();
+                var metadata = TryGetMetadata();
                 var lastMember = MugenBindingService
                       .MemberManager
                       .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);

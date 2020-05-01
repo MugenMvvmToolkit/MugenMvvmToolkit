@@ -61,8 +61,6 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         public abstract IMemberPath Path { get; }
 
-        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> Listeners => ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>>.FromRawValue(_listeners);
-
         protected bool HasListeners => _listeners != null;
 
         protected bool IsDisposed => ReferenceEquals(_listeners, DisposedItems);
@@ -94,7 +92,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
+                _listeners = new[] {(IMemberPathObserverListener) _listeners, listener};
 
             OnListenerAdded(listener);
         }
@@ -106,6 +104,11 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 OnListenersRemoved();
         }
 
+        public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners()
+        {
+            return ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>>.FromRawValue(_listeners);
+        }
+
         public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
 
         public abstract MemberPathLastMember GetLastMember(IReadOnlyMetadataContext? metadata = null);
@@ -114,13 +117,13 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Methods
 
-        protected IReadOnlyMetadataContext? GetMetadata()
+        protected IReadOnlyMetadataContext? TryGetMetadata()
         {
             if (_listeners is IMemberPathObserverListener[] l)
             {
-                for (int i = 0; i < l.Length; i++)
+                for (var i = 0; i < l.Length; i++)
                 {
-                    var metadata = GetMetadata(l[i]);
+                    var metadata = TryGetMetadata(l[i]);
                     if (metadata != null)
                         return metadata;
                 }
@@ -128,7 +131,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 return null;
             }
 
-            return GetMetadata(_listeners);
+            return TryGetMetadata(_listeners);
         }
 
         protected virtual void OnListenerAdded(IMemberPathObserverListener listener)
@@ -210,7 +213,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 _listeners = null;
                 return true;
             }
-            
+
             if (!(_listeners is IMemberPathObserverListener[] items))
                 return false;
 
@@ -237,7 +240,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             return false;
         }
 
-        private static IReadOnlyMetadataContext? GetMetadata(object? value)
+        private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
         {
             if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
                 return metadataOwner.Metadata;

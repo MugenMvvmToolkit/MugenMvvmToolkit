@@ -13,11 +13,11 @@ namespace MugenMvvm.Binding.Interfaces.Observers
 
         IMemberPath Path { get; }
 
-        ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> Listeners { get; }
-
         void AddListener(IMemberPathObserverListener listener);
 
         void RemoveListener(IMemberPathObserverListener listener);
+
+        ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners();
 
         MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
 

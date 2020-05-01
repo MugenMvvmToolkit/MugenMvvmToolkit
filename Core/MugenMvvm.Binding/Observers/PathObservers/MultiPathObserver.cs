@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             {
                 var target = penultimateRef.Target;
                 if (target != null)
-                    SubscribeLastMember(target, Members[Members.Length - 1], GetMetadata());
+                    SubscribeLastMember(target, Members[Members.Length - 1], TryGetMetadata());
             }
         }
 

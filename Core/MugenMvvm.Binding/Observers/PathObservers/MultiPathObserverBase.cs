@@ -159,7 +159,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
                 var type = memberFlags.GetTargetType(target);
-                var metadata = GetMetadata();
+                var metadata = TryGetMetadata();
                 for (var i = 0; i < members.Length; i++)
                 {
                     if (i == 1)
@@ -206,7 +206,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         private void UpdateHasStablePath(IMemberInfo[] members, object target)
         {
-            var metadata = GetMetadata();
+            var metadata = TryGetMetadata();
             for (var index = 0; index < members.Length - 1; index++)
             {
                 var member = members[index];
