@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         #region Constructors
 
         public ObservableMethodSinglePathObserver(string method, object target, IMemberPath path, MemberFlags memberFlags, bool optional)
-            : base(target, path, memberFlags, true, optional)
+            : base(target, path, memberFlags, optional)
         {
             Should.NotBeNull(method, nameof(method));
             _method = method;

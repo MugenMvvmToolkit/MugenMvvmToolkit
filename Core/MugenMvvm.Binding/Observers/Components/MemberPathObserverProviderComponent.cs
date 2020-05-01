@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
@@ -17,7 +16,6 @@ namespace MugenMvvm.Binding.Observers.Components
         [Preserve(Conditional = true)]
         public MemberPathObserverProviderComponent()
         {
-            ObservableRootMembers = new HashSet<string> {BindableMembers.Object.DataContext};
         }
 
         #endregion
@@ -25,8 +23,6 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Properties
 
         public int Priority { get; set; } = ObserverComponentPriority.ObserverProvider;
-
-        public HashSet<string> ObservableRootMembers { get; }
 
         #endregion
 
@@ -54,13 +50,11 @@ namespace MugenMvvm.Binding.Observers.Components
             if (membersCount == 0)
                 return new EmptyPathObserver(target);
             if (membersCount == 1)
-                return new SinglePathObserver(target, path, memberFlags, observerRequest.Observable || ObservableRootMembers.Contains(path.Path), observerRequest.Optional);
+                return new SinglePathObserver(target, path, memberFlags, observerRequest.Optional);
 
             if (observerRequest.Observable)
                 return new MultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
-            if (ObservableRootMembers.Contains(path.Members[0]))
-                return new ObservableRootMultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
-            return new NonObservableMultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
+            return new ObservableRootMultiPathObserver(target, path, memberFlags, observerRequest.HasStablePath, observerRequest.Optional);
         }
 
         #endregion

@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             {
                 if (_target is IWeakItem w)
                     return w.IsAlive;
-                return true;
+                return !IsDisposed;
             }
         }
 
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 _listeners = listeners;
             }
             else
-                _listeners = new[] {(IMemberPathObserverListener) _listeners, listener};
+                _listeners = new[] { (IMemberPathObserverListener)_listeners, listener };
 
             OnListenerAdded(listener);
         }

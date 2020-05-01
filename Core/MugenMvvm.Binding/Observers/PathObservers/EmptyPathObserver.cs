@@ -34,8 +34,8 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         {
             get
             {
-                if (_target is IWeakReference w)
-                    return w.Target != null;
+                if (_target is IWeakItem w)
+                    return w.IsAlive;
                 return true;
             }
         }

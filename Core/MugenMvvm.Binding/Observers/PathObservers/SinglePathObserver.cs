@@ -24,13 +24,11 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Constructors
 
-        public SinglePathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool observable, bool optional)
+        public SinglePathObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional)
             : base(target)
         {
             Should.NotBeNull(path, nameof(path));
             MemberFlags = memberFlags;
-            if (observable)
-                _state |= ObservableFlag;
             if (optional)
                 _state |= OptionalFlag;
             Path = path;
@@ -45,8 +43,6 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         public bool IsWeak => false;
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
-
-        protected bool Observable => CheckFlag(ObservableFlag);
 
         protected bool Optional => CheckFlag(OptionalFlag);
 
@@ -72,7 +68,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 var target = Target;
                 if (target == null)
                     return default;
-                return new MemberPathMembers(target, new[] { member });
+                return new MemberPathMembers(target, new[] {member});
             }
 
             if (_lastMemberOrException is Exception e)
@@ -99,7 +95,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         protected override void OnListenerAdded(IMemberPathObserverListener listener)
         {
             UpdateIfNeed();
-            if (Observable && _lastMemberUnsubscriber.IsEmpty && _lastMemberOrException is IMemberInfo lastMember)
+            if (_lastMemberUnsubscriber.IsEmpty && _lastMemberOrException is IMemberInfo lastMember)
             {
                 var target = Target;
                 if (target == null)
@@ -147,8 +143,8 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
                 var metadata = TryGetMetadata();
                 var lastMember = MugenBindingService
-                      .MemberManager
-                      .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
+                    .MemberManager
+                    .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)
@@ -158,7 +154,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                     return;
                 }
 
-                if (Observable && HasListeners)
+                if (HasListeners)
                     SubscribeLastMember(target, lastMember, metadata);
                 SetLastMember(lastMember, null);
             }
@@ -171,7 +167,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         private void SetLastMember(IMemberInfo? lastMember, Exception? exception)
         {
-            _lastMemberOrException = (object?)exception ?? lastMember;
+            _lastMemberOrException = (object?) exception ?? lastMember;
             OnLastMemberChanged();
         }
 
