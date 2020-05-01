@@ -79,7 +79,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private MemberObserver TryGetMemberObserver(EventInfo member)
         {
-            if (member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionDelegateProvider))
+            if (member.EventHandlerType == typeof(EventHandler) || member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionDelegateProvider))
                 return new MemberObserver(_memberObserverHandler, member);
             return default;
         }

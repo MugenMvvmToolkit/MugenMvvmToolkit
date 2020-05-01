@@ -39,6 +39,10 @@ namespace MugenMvvm.UnitTest
         {
             MugenService.Configuration.InitializeInstance<IComponentCollectionProvider>(new ComponentCollectionProvider());
 
+            var attachedValueProvider = new AttachedValueProvider();
+            attachedValueProvider.AddComponent(new ConditionalWeakTableAttachedValueProviderComponent());
+            MugenService.Configuration.InitializeInstance<IAttachedValueProvider>(attachedValueProvider);
+
             var metadataContextProvider = new MetadataContextProvider();
             metadataContextProvider.AddComponent(new MetadataContextProviderComponent());
             MugenService.Configuration.InitializeInstance<IMetadataContextProvider>(metadataContextProvider);
