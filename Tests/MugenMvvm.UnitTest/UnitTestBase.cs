@@ -2,7 +2,9 @@
 using MugenMvvm.Binding.Converters;
 using MugenMvvm.Binding.Converters.Components;
 using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Resources;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Binding.Resources.Components;
 using MugenMvvm.Commands;
@@ -67,6 +69,9 @@ namespace MugenMvvm.UnitTest
             var resourceResolver = new ResourceResolver();
             resourceResolver.AddComponent(new TypeResolverComponent());
             MugenService.Configuration.InitializeInstance<IResourceResolver>(resourceResolver);
+
+            var memberManager = new MemberManager();
+            MugenService.Configuration.InitializeInstance<IMemberManager>(memberManager);
         }
 
         #endregion

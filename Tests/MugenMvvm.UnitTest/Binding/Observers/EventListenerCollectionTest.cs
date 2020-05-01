@@ -65,7 +65,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             collection.Raise(sender, msg);
             ValidateInvokeCount(listeners, 1);
 
-
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
