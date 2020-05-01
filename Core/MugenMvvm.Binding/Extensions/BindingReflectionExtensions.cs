@@ -268,6 +268,18 @@ namespace MugenMvvm.Binding.Extensions
             return IsNullableType(type) ? type.GetGenericArguments()[0] : type;
         }
 
+        public static MemberFlags GetAccessModifiers(this MemberInfo member)
+        {
+            return member switch
+            {
+                FieldInfo f => f.GetAccessModifiers(),
+                PropertyInfo p => p.GetAccessModifiers(),
+                EventInfo e => e.GetAccessModifiers(),
+                MethodBase m => m.GetAccessModifiers(),
+                _ => 0
+            };
+        }
+
         public static MemberFlags GetAccessModifiers(this FieldInfo? fieldInfo)
         {
             if (fieldInfo == null)

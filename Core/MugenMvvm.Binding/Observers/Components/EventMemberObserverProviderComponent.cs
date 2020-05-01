@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; } = ObserverComponentPriority.Event;
 
-        public Func<Type, string, IReadOnlyMetadataContext?, IEventInfo?>? EventFinder { get; set; }
+        public Func<Type, object, IReadOnlyMetadataContext?, IEventInfo?>? EventFinder { get; set; }
 
         #endregion
 
@@ -46,38 +46,20 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             if (Default.IsValueType<TMember>())
             {
-                if (typeof(TMember) == typeof(MemberObserverRequest))
-                {
-                    var request = MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member);
-                    string? memberName;
-                    switch (request.ReflectionMember)
-                    {
-                        case PropertyInfo p:
-                            if (request.MemberInfo == null)
-                                return TryGetMemberObserver(p, type, metadata);
-                            memberName = p.Name;
-                            break;
-                        case MethodInfo m:
-                            if (request.MemberInfo == null)
-                                return TryGetMemberObserver(m, type, metadata);
-                            memberName = m.Name;
-                            break;
-                        default:
-                            return default;
-                    }
+                if (typeof(TMember) != typeof(MemberObserverRequest))
+                    return default;
 
-                    var observableMember = TryGetEvent(type, memberName, request.MemberInfo.AccessModifiers, metadata);
-                    if (observableMember != null)
-                        return new MemberObserver(MemberObserverHandler, observableMember);
-                }
-
-                return default;
+                var request = MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member);
+                var m = request.ReflectionMember ?? (object?)request.MemberInfo;
+                if (m == null)
+                    return default;
+                return TryGetMemberObserverInternal(type, m, metadata);
             }
 
-            if (member is MethodInfo method)
-                return TryGetMemberObserver(method, type, metadata);
-            if (member is PropertyInfo propertyInfo)
-                return TryGetMemberObserver(propertyInfo, type, metadata);
+            if (member is MemberInfo reflectionMember && reflectionMember.MemberType != MemberTypes.Event)
+                return TryGetMemberObserverInternal(type, reflectionMember, metadata);
+            if (member is IMemberInfo memberInfo && memberInfo.MemberType != MemberType.Event)
+                return TryGetMemberObserverInternal(type, memberInfo, metadata);
             return default;
         }
 
@@ -87,35 +69,39 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
+            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
         }
 
-        private MemberObserver TryGetMemberObserver(MethodInfo member, Type type, IReadOnlyMetadataContext? metadata)
+        private MemberObserver TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
-            var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
-            if (observableMember != null)
-                return new MemberObserver(MemberObserverHandler, observableMember);
+            IEventInfo? eventInfo;
+            if (EventFinder == null)
+            {
+                string memberName;
+                MemberFlags flags;
+                if (member is MemberInfo m)
+                {
+                    flags = m.GetAccessModifiers();
+                    memberName = m.Name;
+                }
+                else if (member is IMemberInfo memberInfo)
+                {
+                    flags = memberInfo.AccessModifiers;
+                    memberName = memberInfo.Name;
+                }
+                else
+                    return default;
 
-            return default;
-        }
+                var manager = _memberManager.DefaultIfNull();
+                eventInfo = manager.GetMember(type, memberName + BindingInternalConstant.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
+                            ?? manager.GetMember(type, memberName + BindingInternalConstant.ChangeEventPostfix, MemberType.Event, flags, metadata) as IEventInfo;
+            }
+            else
+                eventInfo = EventFinder(type, member, metadata);
 
-        private MemberObserver TryGetMemberObserver(PropertyInfo member, Type type, IReadOnlyMetadataContext? metadata)
-        {
-            var observableMember = TryGetEvent(type, member.Name, member.GetAccessModifiers(), metadata);
-            if (observableMember != null)
-                return new MemberObserver(MemberObserverHandler, observableMember);
-
-            return default;
-        }
-
-        private IEventInfo? TryGetEvent(Type type, string memberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
-        {
-            if (EventFinder != null)
-                return EventFinder(type, memberName, metadata);
-
-            var provider = _memberManager.DefaultIfNull();
-            return provider.GetMember(type, memberName + BindingInternalConstant.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
-                   ?? provider.GetMember(type, memberName + "Change", MemberType.Event, flags, metadata) as IEventInfo;
+            if (eventInfo == null)
+                return default;
+            return new MemberObserver(MemberObserverHandler, eventInfo);
         }
 
         #endregion
