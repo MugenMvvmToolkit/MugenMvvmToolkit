@@ -47,7 +47,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             memberPathObserver.GetMembers(DefaultMetadata).IsAvailable.ShouldBeFalse();
             memberPathObserver.IsAlive.ShouldBeFalse();
             memberPathObserver.Target.ShouldBeNull();
-
         }
 
         [Theory]
@@ -92,7 +91,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             observer.GetListeners().IsNullOrEmpty().ShouldBeTrue();
         }
 
-        protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action onCleared, int validationCount = 1)
+        protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1)
         {
             var listeners = new TestMemberPathObserverListener[count];
             for (var i = 0; i < listeners.Length; i++)
@@ -103,13 +102,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                     OnPathMembersChanged = pathObserver =>
                     {
                         pathObserver.ShouldEqual(observer);
-                        if (mode != ListenerMode.Members)
+                        if (mode == ListenerMode.LastMember)
                             throw new NotSupportedException();
                     },
                     OnLastMemberChanged = pathObserver =>
                     {
                         pathObserver.ShouldEqual(observer);
-                        if (mode != ListenerMode.LastMember)
+                        if (mode == ListenerMode.Members)
                             throw new NotSupportedException();
                     },
                     OnError = (pathObserver, exception) =>
@@ -138,20 +137,21 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 ValidateInvokeCount(listeners, mode, 0, true, 0, i + 1);
             }
 
-            onCleared();
+            onCleared(false);
             raiseEvent();
             ValidateInvokeCount(listeners, mode, 0, true, 0, count);
 
             for (var i = 0; i < count; i++)
             {
                 observer.AddListener(listeners[i]);
-                raiseEvent();
+                if (i != 0 || mode != ListenerMode.Error)
+                    raiseEvent();
                 ValidateInvokeCount(listeners, mode, validationCount, true, 0, i + 1);
                 ValidateInvokeCount(listeners, mode, 0, true, i + 1);
             }
 
             observer.Dispose();
-            onCleared();
+            onCleared(true);
             ValidateInvokeCount(listeners, mode, 0, true, 0, count);
         }
 

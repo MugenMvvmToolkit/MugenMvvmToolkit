@@ -191,7 +191,24 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             using var _ = TestComponentSubscriber.Subscribe(component);
 
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, null), () => currentListener.ShouldBeNull());
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, null), disposed => currentListener.ShouldBeNull());
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ObserverShouldNotifyListenersError(int count)
+        {
+            IEventListener? currentListener = null;
+            IEventListener? lastListener = null;
+            var component = new TestMemberManagerComponent
+            {
+                TryGetMembers = (r, type, arg3) => default
+            };
+            using var _ = TestComponentSubscriber.Subscribe(component);
+
+            var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.Error, count, () => observer.GetMembers(), disposed => currentListener.ShouldBeNull());
         }
 
         protected virtual SinglePathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool optional)
