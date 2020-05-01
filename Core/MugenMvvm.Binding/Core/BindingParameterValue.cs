@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public BindingParameterValue(object? parameter, ICompiledExpression? expression)
+        public BindingParameterValue(object? parameter, ICompiledExpression? expression)//todo add empty subscriber to observers for activation
         {
             Parameter = parameter;
             Expression = expression;
