@@ -50,11 +50,8 @@ namespace MugenMvvm.Binding.Observers.Components
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TMember>())
-            {
-                if (typeof(TMember) == typeof(MemberObserverRequest) && MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member).ReflectionMember is EventInfo eventInfo)
-                    return TryGetMemberObserver(eventInfo);
-            }
-            else if (member is EventInfo eventInfo)
+                return default;
+            if (member is EventInfo eventInfo)
                 return TryGetMemberObserver(eventInfo);
             return default;
         }

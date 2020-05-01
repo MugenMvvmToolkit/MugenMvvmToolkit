@@ -45,17 +45,7 @@ namespace MugenMvvm.Binding.Observers.Components
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TMember>())
-            {
-                if (typeof(TMember) != typeof(MemberObserverRequest))
-                    return default;
-
-                var request = MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member);
-                var m = request.ReflectionMember ?? (object?)request.MemberInfo;
-                if (m == null)
-                    return default;
-                return TryGetMemberObserverInternal(type, m, metadata);
-            }
-
+                return default;
             if (member is MemberInfo reflectionMember && reflectionMember.MemberType != MemberTypes.Event)
                 return TryGetMemberObserverInternal(type, reflectionMember, metadata);
             if (member is IMemberInfo memberInfo && memberInfo.MemberType != MemberType.Event)
@@ -69,7 +59,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
+            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
         }
 
         private MemberObserver TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)

@@ -3,6 +3,9 @@ using System.ComponentModel;
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Extensions;
@@ -45,26 +48,12 @@ namespace MugenMvvm.Binding.Observers.Components
         public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TMember>())
-            {
-                if (typeof(TMember) == typeof(MemberObserverRequest))
-                {
-                    var request = MugenExtensions.CastGeneric<TMember, MemberObserverRequest>(member);
-                    if (request.ReflectionMember is PropertyInfo)
-                        return TryGetMemberObserver(request.Path, type);
-                }
-
                 return default;
-            }
 
-            if (member is PropertyInfo property)
-            {
-                if (typeof(INotifyPropertyChanged).IsAssignableFrom(type) && !property.IsStatic())
-                    return new MemberObserver(_memberObserverHandler, property.Name);
-                return default;
-            }
-
-            if (member is string stringMember)
-                return TryGetMemberObserver(stringMember, type);
+            if (member is PropertyInfo p && !p.IsStatic())
+                return TryGetMemberObserver(p.Name, type);
+            if (member is IMemberAccessorInfo accessor && !accessor.AccessModifiers.HasFlagEx(MemberFlags.Static))
+                return TryGetMemberObserver(accessor.Name, type);
             return default;
         }
 
