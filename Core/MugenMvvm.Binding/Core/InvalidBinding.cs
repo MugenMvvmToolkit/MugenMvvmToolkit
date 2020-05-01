@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Observers;
 using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -16,7 +15,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public InvalidBinding(Exception exception) : base(EmptyPathObserver.Empty, sourceRaw: null)
+        public InvalidBinding(Exception exception) : base(EmptyPathObserver.Empty, null)
         {
             SetFlag(InvalidFlag);
             _exception = exception;
