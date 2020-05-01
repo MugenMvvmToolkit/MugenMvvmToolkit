@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers;
@@ -45,6 +44,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var testEventListener = new TestEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
+            PropertyMemberAccessorInfo? memberInfo = null;
 
             var memberObserver = new MemberObserver((target, member, listener, meta) =>
             {
@@ -63,8 +63,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
                     ++observerRequestCount;
-                    o.ShouldEqual(propertyInfo);
-                    arg3.ShouldEqual(typeof(PropertyInfo));
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(typeof(PropertyMemberAccessorInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var delegateProvider = new ReflectionDelegateProvider();
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
 
-            var memberInfo = new PropertyMemberAccessorInfo(name, propertyInfo, reflectedType, observerProvider, delegateProvider);
+            memberInfo = new PropertyMemberAccessorInfo(name, propertyInfo, reflectedType, observerProvider, delegateProvider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(propertyInfo.PropertyType);
             memberInfo.DeclaringType.ShouldEqual(propertyInfo.DeclaringType);

@@ -21,10 +21,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             component.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldObserveEventHandler(bool rawRequest)
+        [Fact]
+        public void TryGetMemberObserverShouldObserveEventHandler()
         {
             var msg = new EventArgs();
             var target = new TestEventClass();
@@ -43,9 +41,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProviderComponent();
 
-            var observer = rawRequest
-                ? component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata)
-                : component.TryGetMemberObserver(typeof(TestEventClass), new MemberObserverRequest(eventInfo.Name, eventInfo, null), DefaultMetadata);
+            var observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -62,10 +58,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             listener.InvokeCount.ShouldEqual(2);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldObserveEventUsingReflectionDelegateProvider(bool rawRequest)
+        [Fact]
+        public void TryGetMemberObserverShouldObserveEventUsingReflectionDelegateProvider()
         {
             var delegateProvider = new ReflectionDelegateProvider();
             var testDelegateProvider = new TestReflectionDelegateProviderComponent();
@@ -89,9 +83,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProviderComponent(reflectionDelegateProvider: delegateProvider);
 
-            var observer = rawRequest
-                ? component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata)
-                : component.TryGetMemberObserver(typeof(TestEventClass), new MemberObserverRequest(eventInfo.Name, eventInfo, null), DefaultMetadata);
+            var observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
             observer.IsEmpty.ShouldBeTrue();
 
             testDelegateProvider.CanCreateDelegate = (type, info) =>
@@ -99,13 +91,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 type.ShouldEqual(typeof(Action));
                 return true;
             };
-            observer = rawRequest
-                ? component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata)
-                : component.TryGetMemberObserver(typeof(TestEventClass), new MemberObserverRequest(eventInfo.Name, eventInfo, null), DefaultMetadata);
+            observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
 
             testDelegateProvider.TryCreateDelegate = (type, o, arg3) =>
             {
-                var collection = (EventListenerCollection) o;
+                var collection = (EventListenerCollection) o!;
                 return new Action(() => collection.Raise(target, msg));
             };
 
@@ -131,9 +121,9 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         {
             #region Events
 
-            public event EventHandler EventHandler;
+            public event EventHandler? EventHandler;
 
-            public event Action Action;
+            public event Action? Action;
 
             #endregion
 

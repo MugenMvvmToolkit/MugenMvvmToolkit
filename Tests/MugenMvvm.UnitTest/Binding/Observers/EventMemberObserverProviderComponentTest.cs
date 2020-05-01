@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observers;
 using MugenMvvm.Binding.Observers.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTest.Binding.Members;
@@ -22,10 +22,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             component.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldUseEventFinder1(bool rawRequest)
+        [Fact]
+        public void TryGetMemberObserverShouldUseEventFinder1()
         {
             var target = new object();
             var listener = new TestEventListener();
@@ -58,9 +56,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 }
             };
 
-            var observer = rawRequest
-                ? component.TryGetMemberObserver(requestType, member, DefaultMetadata)
-                : component.TryGetMemberObserver(requestType, new MemberObserverRequest("", member, null), DefaultMetadata);
+            var observer = component.TryGetMemberObserver(requestType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
             tryObserveCount.ShouldEqual(0);
@@ -69,10 +65,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             tryObserveCount.ShouldEqual(1);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldUseEventFinder2(bool rawRequest)
+        [Fact]
+        public void TryGetMemberObserverShouldUseEventFinder2()
         {
             var target = new object();
             var listener = new TestEventListener();
@@ -105,9 +99,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 }
             };
 
-            var observer = rawRequest
-                ? component.TryGetMemberObserver(requestType, member, DefaultMetadata)
-                : component.TryGetMemberObserver(requestType, new MemberObserverRequest("", null, null, member), DefaultMetadata);
+            var observer = component.TryGetMemberObserver(requestType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             invokeCount.ShouldEqual(1);
             tryObserveCount.ShouldEqual(0);
@@ -116,10 +108,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             tryObserveCount.ShouldEqual(1);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldUseMemberManager1(bool rawRequest)
+        [Fact]
+        public void TryGetMemberObserverShouldUseMemberManager1()
         {
             const string memberName = "Test";
             var set = new HashSet<string>();
@@ -130,7 +120,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var tryObserveCount = 0;
 
             var requestType = typeof(string);
-            var member = new TestMemberAccessorInfo {Name = memberName, AccessModifiers = flags};
+            var member = new TestMemberAccessorInfo { Name = memberName, AccessModifiers = flags };
             var result = new TestEventInfo
             {
                 TryObserve = (o, l, arg3) =>
@@ -148,7 +138,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             {
                 TryGetMembers = (o, type, arg3) =>
                 {
-                    var managerRequest = (MemberManagerRequest) o;
+                    var managerRequest = (MemberManagerRequest)o;
                     set.Add(managerRequest.Name);
                     if (managerRequest.Name == memberName + BindingInternalConstant.ChangeEventPostfix)
                         return result;
@@ -158,9 +148,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
             var component = new EventMemberObserverProviderComponent(memberManager);
 
-            var observer = rawRequest
-                ? component.TryGetMemberObserver(requestType, member, DefaultMetadata)
-                : component.TryGetMemberObserver(requestType, new MemberObserverRequest("", null, null, member), DefaultMetadata);
+            var observer = component.TryGetMemberObserver(requestType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();
@@ -171,21 +159,19 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             tryObserveCount.ShouldEqual(1);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void TryGetMemberObserverShouldUseMemberManager2(bool rawRequest)
+        [Fact]
+        public void TryGetMemberObserverShouldUseMemberManager2()
         {
             const string memberName = nameof(TryGetMemberObserverShouldUseMemberManager2);
+            var member = typeof(EventMemberObserverProviderComponentTest).GetMethod(memberName);
             var set = new HashSet<string>();
-            var flags = MemberFlags.Attached | MemberFlags.Public;
+            var flags = member.GetAccessModifiers();
             var target = new object();
             var listener = new TestEventListener();
             var token = ActionToken.NoDoToken;
             var tryObserveCount = 0;
 
             var requestType = typeof(string);
-            var member = typeof(EventMemberObserverProviderComponentTest).GetMethod(memberName);
             var result = new TestEventInfo
             {
                 TryObserve = (o, l, arg3) =>
@@ -203,7 +189,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             {
                 TryGetMembers = (o, type, arg3) =>
                 {
-                    var managerRequest = (MemberManagerRequest) o;
+                    var managerRequest = (MemberManagerRequest)o;
+                    managerRequest.Flags.ShouldEqual(flags);
                     set.Add(managerRequest.Name);
                     if (managerRequest.Name == memberName + BindingInternalConstant.ChangeEventPostfix)
                         return result;
@@ -212,10 +199,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             });
 
             var component = new EventMemberObserverProviderComponent(memberManager);
-
-            var observer = rawRequest
-                ? component.TryGetMemberObserver(requestType, member, DefaultMetadata)
-                : component.TryGetMemberObserver(requestType, new MemberObserverRequest("", member, null), DefaultMetadata);
+            var observer = component.TryGetMemberObserver(requestType, member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
             set.Count.ShouldEqual(2);
             set.Contains(memberName + BindingInternalConstant.ChangedEventPostfix).ShouldBeTrue();

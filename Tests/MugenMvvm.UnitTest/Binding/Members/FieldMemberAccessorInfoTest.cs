@@ -34,6 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var testEventListener = new TestEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
+            FieldMemberAccessorInfo? memberInfo = null;
 
             var memberObserver = new MemberObserver((target, member, listener, meta) =>
             {
@@ -52,8 +53,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
                     ++observerRequestCount;
-                    o.ShouldEqual(fieldInfo);
-                    arg3.ShouldEqual(typeof(FieldInfo));
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(typeof(FieldMemberAccessorInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
@@ -63,7 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var delegateProvider = new ReflectionDelegateProvider();
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
 
-            var memberInfo = new FieldMemberAccessorInfo(name, fieldInfo, reflectedType, observerProvider, delegateProvider);
+            memberInfo = new FieldMemberAccessorInfo(name, fieldInfo, reflectedType, observerProvider, delegateProvider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(fieldInfo.FieldType);
             memberInfo.DeclaringType.ShouldEqual(fieldInfo.DeclaringType);

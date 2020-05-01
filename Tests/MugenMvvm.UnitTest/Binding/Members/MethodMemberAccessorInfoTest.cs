@@ -99,8 +99,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
                     ++observerRequestCount;
-                    o.ShouldEqual(new MemberObserverRequest(name, null, inputArgs, memberInfo));
-                    arg3.ShouldEqual(typeof(MemberObserverRequest));
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(typeof(MethodMemberAccessorInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;

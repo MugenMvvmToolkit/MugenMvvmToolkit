@@ -8,7 +8,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
     {
         #region Implementation of interfaces
 
-        ActionToken IEventInfo.TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        ActionToken IEventInfo.TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             return TryObserve?.Invoke(target, listener, metadata) ?? default;
         }

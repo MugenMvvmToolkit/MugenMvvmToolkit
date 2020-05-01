@@ -34,6 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var reflectedType = typeof(string);
             string name = "Test";
             var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method1));
+            MethodMemberInfo? memberInfo = null;
 
             var testEventListener = new TestEventListener();
             var result = new ActionToken((o, o1) => { });
@@ -54,8 +55,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
                     ++observerRequestCount;
-                    o.ShouldEqual(methodInfo);
-                    arg3.ShouldEqual(typeof(MethodInfo));
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(typeof(MethodMemberInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
@@ -64,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
             var provider = new ReflectionDelegateProvider();
             provider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
-            var memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType, observerProvider, provider);
+            memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType, observerProvider, provider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
