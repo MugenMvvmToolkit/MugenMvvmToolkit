@@ -10,6 +10,12 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 {
     public abstract class ObserverBaseTest<TObserver> : UnitTestBase where TObserver : IMemberPathObserver
     {
+        #region Fields
+
+        protected const string MethodName = "MM";
+
+        #endregion
+
         #region Methods
 
         [Fact]
@@ -24,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var o = new TestWeakReference { IsAlive = true, Target = new object() };
+            var o = new TestWeakReference {IsAlive = true, Target = new object()};
             var observer = GetObserver(o);
             observer.IsAlive.ShouldBeTrue();
             observer.Target.ShouldEqual(o.Target);
@@ -91,7 +97,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             observer.GetListeners().IsNullOrEmpty().ShouldBeTrue();
         }
 
-        protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1)
+        protected void ObserverShouldManageListenerEvents(TObserver observer, ListenerMode mode, int count, Action raiseEvent, Action<bool> onCleared, int validationCount = 1, bool ignoreFirstMember = true)
         {
             var listeners = new TestMemberPathObserverListener[count];
             for (var i = 0; i < listeners.Length; i++)
@@ -99,12 +105,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 var index = i;
                 listeners[index] = new TestMemberPathObserverListener
                 {
-                    OnPathMembersChanged = pathObserver =>
-                    {
-                        pathObserver.ShouldEqual(observer);
-                        if (mode == ListenerMode.LastMember)
-                            throw new NotSupportedException();
-                    },
+                    OnPathMembersChanged = pathObserver => { pathObserver.ShouldEqual(observer); },
                     OnLastMemberChanged = pathObserver =>
                     {
                         pathObserver.ShouldEqual(observer);
@@ -123,7 +124,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             for (var i = 0; i < count; i++)
             {
                 observer.AddListener(listeners[i]);
-                if (i != 0)
+                if (!ignoreFirstMember || i != 0)
                     raiseEvent();
                 ValidateInvokeCount(listeners, mode, validationCount, true, 0, i + 1);
                 ValidateInvokeCount(listeners, mode, 0, true, i + 1);

@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
     {
         #region Fields
 
-        private static readonly SingleMemberPath DefaultPath = new SingleMemberPath("test");
+        protected static readonly SingleMemberPath DefaultPath = new SingleMemberPath("test");
 
         #endregion
 
@@ -36,6 +36,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 TryGetMembers = (r, type, arg3) =>
                 {
                     var request = (MemberManagerRequest)r;
+                    request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
                     request.Type.ShouldEqual(GetType());
                     request.Flags.ShouldEqual(memberFlags);
                     request.Name.ShouldEqual(path.Path);
@@ -85,6 +86,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 TryGetMembers = (r, type, arg3) =>
                 {
                     var request = (MemberManagerRequest)r;
+                    request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
                     request.Type.ShouldEqual(GetType());
                     request.Flags.ShouldEqual(memberFlags);
                     request.Name.ShouldEqual(path.Path);
@@ -146,7 +148,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         }
 
         [Fact]
-        public void NonOptionalShouldThrow()
+        public void NonOptionalShouldReturnError()
         {
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
