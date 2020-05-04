@@ -12,7 +12,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollection<T>>, IDecoratorObservableCollectionComponent<T>, IEnumerable<T>, IHasPriority
+    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollection<T>>, IObservableCollectionDecorator<T>, IEnumerable<T>, IHasPriority
     {
         #region Fields
 
@@ -59,7 +59,7 @@ namespace MugenMvvm.Collections.Components
 
         #region Implementation of interfaces
 
-        IEnumerable<T> IDecoratorObservableCollectionComponent<T>.DecorateItems(IEnumerable<T> items)
+        IEnumerable<T> IObservableCollectionDecorator<T>.DecorateItems(IEnumerable<T> items)
         {
             var filter = Filter;
             if (filter == null)
@@ -68,7 +68,7 @@ namespace MugenMvvm.Collections.Components
             return items.Where(filter);
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
         {
             if (!HasFilter)
                 return true;
@@ -97,7 +97,7 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnAdded(ref T item, ref int index)
+        bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
         {
             if (!HasFilter)
                 return true;
@@ -110,7 +110,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
+        bool IObservableCollectionDecorator<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
         {
             if (!HasFilter)
                 return true;
@@ -139,7 +139,7 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
+        bool IObservableCollectionDecorator<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
         {
             if (!HasFilter)
                 return true;
@@ -157,7 +157,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnRemoved(ref T item, ref int index)
+        bool IObservableCollectionDecorator<T>.OnRemoved(ref T item, ref int index)
         {
             if (!HasFilter)
                 return true;
@@ -172,7 +172,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnReset(ref IEnumerable<T> items)
+        bool IObservableCollectionDecorator<T>.OnReset(ref IEnumerable<T> items)
         {
             var filter = Filter;
             if (filter == null)
@@ -184,7 +184,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnCleared()
+        bool IObservableCollectionDecorator<T>.OnCleared()
         {
             Clear();
             return true;

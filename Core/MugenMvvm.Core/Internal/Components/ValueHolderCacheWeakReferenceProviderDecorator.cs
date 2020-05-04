@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderCacheWeakReferenceProviderDecorator : DecoratorComponentBase<IWeakReferenceProvider, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent, IHasPriority
+    public sealed class ValueHolderCacheWeakReferenceProviderDecorator : ComponentDecoratorBase<IWeakReferenceProvider, IWeakReferenceProviderComponent>, IWeakReferenceProviderComponent, IHasPriority
     {
         #region Properties
 

@@ -14,7 +14,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionPriorityDecorator : DecoratorComponentBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IComparer<IBindingExpression>, IHasPriority
+    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IComparer<IBindingExpression>, IHasPriority
     {
         #region Constructors
 

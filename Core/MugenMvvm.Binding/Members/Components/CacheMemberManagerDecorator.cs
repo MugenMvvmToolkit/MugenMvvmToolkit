@@ -15,7 +15,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class CacheMemberManagerDecorator : DecoratorComponentBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority, IHasCache
+    public sealed class CacheMemberManagerDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority, IHasCache
     {
         #region Fields
 

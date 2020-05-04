@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Internal
             };
             var cacheComponent = new CacheReflectionDelegateProviderDecorator();
 
-            ((IDecoratorComponentCollectionComponent<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
+            ((IComponentCollectionDecorator<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IActivatorReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             cacheComponent.TryGetActivator(TestConstructor).ShouldEqual(result);
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Internal
             };
             var cacheComponent = new CacheReflectionDelegateProviderDecorator();
 
-            ((IDecoratorComponentCollectionComponent<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
+            ((IComponentCollectionDecorator<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IActivatorReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             cacheComponent.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTest.Internal
             };
             var cacheComponent = new CacheReflectionDelegateProviderDecorator();
 
-            ((IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>)cacheComponent)
+            ((IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMemberReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             cacheComponent.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTest.Internal
             };
             var cacheComponent = new CacheReflectionDelegateProviderDecorator();
 
-            ((IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>)cacheComponent)
+            ((IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMemberReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             cacheComponent.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTest.Internal
             };
             var cacheComponent = new CacheReflectionDelegateProviderDecorator();
 
-            ((IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>)cacheComponent)
+            ((IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMethodReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             cacheComponent.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTest.Internal
             };
             var cacheComponent = new CacheReflectionDelegateProviderDecorator();
 
-            ((IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>)cacheComponent)
+            ((IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMethodReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             cacheComponent.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);

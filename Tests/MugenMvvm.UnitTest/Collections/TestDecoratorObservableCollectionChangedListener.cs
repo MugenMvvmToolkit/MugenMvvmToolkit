@@ -7,7 +7,7 @@ using Should;
 
 namespace MugenMvvm.UnitTest.Collections
 {
-    public class TestDecoratorObservableCollectionChangedListener<T> : IDecoratorObservableCollectionChangedListener<T>, IHasPriority
+    public class TestDecoratorObservableCollectionChangedListener<T> : IObservableCollectionChangedDecoratorListener<T>, IHasPriority
     {
         #region Fields
 
@@ -48,12 +48,12 @@ namespace MugenMvvm.UnitTest.Collections
 
         #region Implementation of interfaces
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        void IObservableCollectionChangedDecoratorListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
         {
             OnItemChanged?.Invoke(collection, item, index, args);
         }
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)
+        void IObservableCollectionChangedDecoratorListener<T>.OnAdded(IObservableCollection<T> collection, T item, int index)
         {
             _collection.ShouldEqual(collection);
             if (OnAdded == null && ThrowErrorNullDelegate)
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Collections
             OnAdded?.Invoke(collection, item, index);
         }
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
+        void IObservableCollectionChangedDecoratorListener<T>.OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             _collection.ShouldEqual(collection);
             if (OnReplaced == null && ThrowErrorNullDelegate)
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Collections
             OnReplaced?.Invoke(collection, oldItem, newItem, index);
         }
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        void IObservableCollectionChangedDecoratorListener<T>.OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             _collection.ShouldEqual(collection);
             if (OnMoved == null && ThrowErrorNullDelegate)
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Collections
             OnMoved?.Invoke(collection, item, oldIndex, newIndex);
         }
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnRemoved(IObservableCollection<T> collection, T item, int index)
+        void IObservableCollectionChangedDecoratorListener<T>.OnRemoved(IObservableCollection<T> collection, T item, int index)
         {
             _collection.ShouldEqual(collection);
             if (OnRemoved == null && ThrowErrorNullDelegate)
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Collections
             OnRemoved?.Invoke(collection, item, index);
         }
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
+        void IObservableCollectionChangedDecoratorListener<T>.OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
         {
             _collection.ShouldEqual(collection);
             if (OnReset == null && ThrowErrorNullDelegate)
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Collections
             OnReset?.Invoke(collection, items);
         }
 
-        void IDecoratorObservableCollectionChangedListener<T>.OnCleared(IObservableCollection<T> collection)
+        void IObservableCollectionChangedDecoratorListener<T>.OnCleared(IObservableCollection<T> collection)
         {
             _collection.ShouldEqual(collection);
             if (OnCleared == null && ThrowErrorNullDelegate)

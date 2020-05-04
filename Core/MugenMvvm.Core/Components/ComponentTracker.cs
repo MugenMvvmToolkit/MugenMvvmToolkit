@@ -37,7 +37,7 @@ namespace MugenMvvm.Components
             where T : class
             where TState : class
         {
-            var l = new Listener(listener, state, o => o is T || o is IDecoratorComponentCollectionComponent<T>, (b, l, s, collection, metadata) =>
+            var l = new Listener(listener, state, o => o is T || o is IComponentCollectionDecorator<T>, (b, l, s, collection, metadata) =>
             {
                 var action = (Action<T[], TState, IReadOnlyMetadataContext?>) l;
                 action.Invoke(b ? collection.Get<T>() : Default.EmptyArray<T>(), (TState) s!, metadata);

@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ConditionPresenterDecorator : DecoratorComponentBase<IPresenter, IPresenterComponent>, IHasPriority, IPresenterComponent
+    public sealed class ConditionPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IHasPriority, IPresenterComponent
     {
         #region Properties
 

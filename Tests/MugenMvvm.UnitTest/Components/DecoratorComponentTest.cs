@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Components
         public void AttachDetachShouldAddRemoveDecorator()
         {
             var threadDispatcher = new ThreadDispatcher();
-            var decorator = new TestDecoratorThreadDispatcherComponent();
+            var decorator = new TestThreadDispatcherDecorator();
             threadDispatcher.AddComponent(decorator);
 
             threadDispatcher.Components.Get<object>().Single().ShouldEqual(decorator);
@@ -36,14 +36,14 @@ namespace MugenMvvm.UnitTest.Components
         [Fact]
         public void ShouldDecorateItems()
         {
-            var decorator1 = new TestDecoratorThreadDispatcherComponent();
-            var decorator2 = new TestDecoratorThreadDispatcherComponent();
+            var decorator1 = new TestThreadDispatcherDecorator();
+            var decorator2 = new TestThreadDispatcherDecorator();
             var component1 = new TestThreadDispatcherComponent();
             var component2 = new TestThreadDispatcherComponent();
             var components = new List<IThreadDispatcherComponent> {decorator1, decorator2, component1, component2};
 
-            ((IDecoratorComponentCollectionComponent<IThreadDispatcherComponent>) decorator2).Decorate(components, DefaultMetadata);
-            ((IDecoratorComponentCollectionComponent<IThreadDispatcherComponent>) decorator1).Decorate(components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator2).Decorate(components, DefaultMetadata);
+            ((IComponentCollectionDecorator<IThreadDispatcherComponent>) decorator1).Decorate(components, DefaultMetadata);
 
             components.Single().ShouldEqual(decorator1);
             decorator1.Components.Single().ShouldEqual(decorator2);
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Components
 
         #region Nested types
 
-        private sealed class TestDecoratorThreadDispatcherComponent : TestDecoratorComponent<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
+        private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
         {
             #region Implementation of interfaces
 

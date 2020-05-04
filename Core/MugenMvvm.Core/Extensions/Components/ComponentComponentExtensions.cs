@@ -136,20 +136,20 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnRemoved(collection, component, metadata);
         }
 
-        public static TComponent[] Decorate<TComponent>(this IDecoratorComponentCollectionComponent[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
+        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
             {
-                if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent> decorator)
+                if (decorators[i] is IComponentCollectionDecorator<TComponent> decorator)
                     decorator.Decorate(components, metadata);
             }
 
             return components.ToArray();
         }
 
-        public static TComponent[] Decorate<TComponent>(this IDecoratorComponentCollectionComponent<TComponent>[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
+        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             Should.NotBeNull(components, nameof(components));
@@ -158,19 +158,19 @@ namespace MugenMvvm.Extensions.Components
             return components.ToArray();
         }
 
-        public static bool HasDecorators<TComponent>(this IDecoratorComponentCollectionComponent[] decorators) where TComponent : class
+        public static bool HasDecorators<TComponent>(this IComponentCollectionDecorator[] decorators) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             for (var i = 0; i < decorators.Length; i++)
             {
-                if (decorators[i] is IDecoratorComponentCollectionComponent<TComponent>)
+                if (decorators[i] is IComponentCollectionDecorator<TComponent>)
                     return true;
             }
 
             return false;
         }
 
-        public static TComponent[] Decorate<TComponent>(this IDecoratorComponentCollectionComponent<TComponent> decorator, IList<TComponent> components)
+        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent> decorator, IList<TComponent> components)
             where TComponent : class
         {
             Should.NotBeNull(decorator, nameof(decorator));

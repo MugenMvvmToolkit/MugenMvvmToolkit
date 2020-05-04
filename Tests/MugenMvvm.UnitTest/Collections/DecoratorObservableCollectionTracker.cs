@@ -10,7 +10,7 @@ using Should;
 
 namespace MugenMvvm.UnitTest.Collections
 {
-    public class DecoratorObservableCollectionTracker<T> : IDecoratorObservableCollectionChangedListener<T>
+    public class DecoratorObservableCollectionTracker<T> : IObservableCollectionChangedDecoratorListener<T>
     {
         #region Fields
 

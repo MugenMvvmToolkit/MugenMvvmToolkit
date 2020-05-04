@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IComparer<IDecoratorComponentCollectionComponent>
+    public sealed class ComponentCollection : IComponentCollection, IComparer<object>, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IComparer<IComponentCollectionDecorator>
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Components
         private IComponentCollection? _components;
         private IComponentTracker[] _componentTrackers;
 
-        private IDecoratorComponentCollectionComponent[] _decorators;
+        private IComponentCollectionDecorator[] _decorators;
 
         #endregion
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Components
             Owner = owner;
             _items = new List<object>();
             _componentTrackers = Default.EmptyArray<IComponentTracker>();
-            _decorators = Default.EmptyArray<IDecoratorComponentCollectionComponent>();
+            _decorators = Default.EmptyArray<IComponentCollectionDecorator>();
         }
 
         #endregion
@@ -53,7 +53,7 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        int IComparer<IDecoratorComponentCollectionComponent>.Compare(IDecoratorComponentCollectionComponent x, IDecoratorComponentCollectionComponent y)
+        int IComparer<IComponentCollectionDecorator>.Compare(IComponentCollectionDecorator x, IComponentCollectionDecorator y)
         {
             int result = MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
             if (result == 0)
@@ -147,7 +147,7 @@ namespace MugenMvvm.Components
 
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IDecoratorComponentCollectionComponent decorator)
+            if (component is IComponentCollectionDecorator decorator)
             {
                 MugenExtensions.AddOrdered(ref _decorators, decorator, this);
                 UpdateTrackers(null, decorator);
@@ -156,7 +156,7 @@ namespace MugenMvvm.Components
 
         void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            if (component is IDecoratorComponentCollectionComponent decorator)
+            if (component is IComponentCollectionDecorator decorator)
             {
                 MugenExtensions.Remove(ref _decorators, decorator);
                 UpdateTrackers(null, decorator);
@@ -176,7 +176,7 @@ namespace MugenMvvm.Components
             return tracker.Components;
         }
 
-        private void UpdateTrackers(object? component, IDecoratorComponentCollectionComponent? decorator = null)
+        private void UpdateTrackers(object? component, IComponentCollectionDecorator? decorator = null)
         {
             var componentTrackers = _componentTrackers;
             var newSize = 0;
@@ -201,7 +201,7 @@ namespace MugenMvvm.Components
         {
             bool IsComponentSupported(object? component);
 
-            bool IsDecoratorSupported(IDecoratorComponentCollectionComponent? decorator);
+            bool IsDecoratorSupported(IComponentCollectionDecorator? decorator);
         }
 
         private sealed class ComponentTracker<TComponent> : IComponentTracker
@@ -231,9 +231,9 @@ namespace MugenMvvm.Components
                 return component is TComponent;
             }
 
-            public bool IsDecoratorSupported(IDecoratorComponentCollectionComponent? decorator)
+            public bool IsDecoratorSupported(IComponentCollectionDecorator? decorator)
             {
-                return decorator is IDecoratorComponentCollectionComponent<TComponent>;
+                return decorator is IComponentCollectionDecorator<TComponent>;
             }
 
             #endregion

@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         {
             var decorator = new IndexerAccessorMemberDecorator();
             var component = new ReflectionMemberProviderComponent();
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             decorator.TryGetMembers(typeof(string), "get_Chars", DefaultMetadata).Item.ShouldNotBeNull();
         }
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = (MethodMemberAccessorInfo)decorator.TryGetMembers(typeof(int[]), "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = (MethodMemberAccessorInfo)decorator.TryGetMembers(typeof(string), "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"[{index.ToString(CultureInfo.InvariantCulture)}]", DefaultMetadata)
                 .ToArray()
@@ -135,7 +135,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"['{index1}']", DefaultMetadata)
                 .ToArray()
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"[{index1}]", DefaultMetadata)
                 .ToArray()
@@ -230,7 +230,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"[{index1}, {string.Join(",", args)}]", DefaultMetadata)
                 .ToArray()
@@ -277,7 +277,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
-            ((IDecoratorComponentCollectionComponent<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"['{index1}']", DefaultMetadata)
                 .ToArray()

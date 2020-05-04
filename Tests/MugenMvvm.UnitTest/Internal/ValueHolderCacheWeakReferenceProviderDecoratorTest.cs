@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Internal
                     return weak;
                 }
             };
-            ((IDecoratorComponentCollectionComponent<IWeakReferenceProviderComponent>)cacheComponent).Decorate(new List<IWeakReferenceProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
+            ((IComponentCollectionDecorator<IWeakReferenceProviderComponent>)cacheComponent).Decorate(new List<IWeakReferenceProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
 
             var target = new TestValueHolder<IWeakReference>();
             cacheComponent.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);

@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public abstract class DecoratorComponentBase<T, TComponent> : AttachableComponentBase<T>, IDecoratorComponentCollectionComponent<TComponent>
+    public abstract class ComponentDecoratorBase<T, TComponent> : AttachableComponentBase<T>, IComponentCollectionDecorator<TComponent>
         where TComponent : class
         where T : class, IComponentOwner<T>
     {
@@ -18,7 +18,7 @@ namespace MugenMvvm.Components
 
         #region Constructors
 
-        protected DecoratorComponentBase()
+        protected ComponentDecoratorBase()
         {
             Components = Default.EmptyArray<TComponent>();
         }
@@ -27,7 +27,7 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        void IDecoratorComponentCollectionComponent<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionDecorator<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
             DecorateInternal(components, metadata);
         }

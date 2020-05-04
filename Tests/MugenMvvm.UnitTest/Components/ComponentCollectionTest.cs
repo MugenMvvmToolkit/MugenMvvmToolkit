@@ -333,8 +333,8 @@ namespace MugenMvvm.UnitTest.Components
             var componentDecorated1 = new TestThreadDispatcherComponent();
             var componentDecorated2 = new TestThreadDispatcherComponent();
 
-            var decoratorComponent1 = new TestDecoratorComponent<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
-            var decoratorComponent2 = new TestDecoratorComponent<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
+            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
+            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
             var component = new TestThreadDispatcherComponent();
             componentCollection.Add(component);
 
@@ -385,7 +385,7 @@ namespace MugenMvvm.UnitTest.Components
             var executed = 0;
             for (var i = 0; i < TestIterationCount; i++)
             {
-                var decoratorComponent = new TestDecoratorThreadDispatcherComponent();
+                var decoratorComponent = new TestThreadDispatcherDecorator();
                 decoratorComponent.Decorate = (list, context) =>
                 {
                     ++executed;
@@ -410,7 +410,7 @@ namespace MugenMvvm.UnitTest.Components
 
         #region Nested types
 
-        private sealed class TestDecoratorThreadDispatcherComponent : TestDecoratorComponent<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
+        private sealed class TestThreadDispatcherDecorator : TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent>, IThreadDispatcherComponent
         {
             #region Implementation of interfaces
 

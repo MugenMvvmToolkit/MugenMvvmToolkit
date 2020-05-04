@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.UnitTest.Collections
 {
-    public class TestObservableCollectionDecorator<T> : IDecoratorObservableCollectionComponent<T>, IHasPriority
+    public class TestObservableCollectionDecorator<T> : IObservableCollectionDecorator<T>, IHasPriority
     {
         #region Properties
 
@@ -33,56 +33,56 @@ namespace MugenMvvm.UnitTest.Collections
 
         #region Implementation of interfaces
 
-        IEnumerable<T> IDecoratorObservableCollectionComponent<T>.DecorateItems(IEnumerable<T> items)
+        IEnumerable<T> IObservableCollectionDecorator<T>.DecorateItems(IEnumerable<T> items)
         {
             if (DecorateItems == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return DecorateItems?.Invoke(items) ?? items;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
         {
             if (OnItemChanged == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnItemChanged?.Invoke(ref item, ref index, ref args) ?? true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnAdded(ref T item, ref int index)
+        bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
         {
             if (OnAdded == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnAdded?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
+        bool IObservableCollectionDecorator<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
         {
             if (OnReplaced == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnReplaced?.Invoke(ref oldItem, ref newItem, ref index) ?? true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
+        bool IObservableCollectionDecorator<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
         {
             if (OnMoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnMoved?.Invoke(ref item, ref oldIndex, ref newIndex) ?? true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnRemoved(ref T item, ref int index)
+        bool IObservableCollectionDecorator<T>.OnRemoved(ref T item, ref int index)
         {
             if (OnRemoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnRemoved?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnReset(ref IEnumerable<T> items)
+        bool IObservableCollectionDecorator<T>.OnReset(ref IEnumerable<T> items)
         {
             if (OnReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnReset?.Invoke(ref items) ?? true;
         }
 
-        bool IDecoratorObservableCollectionComponent<T>.OnCleared()
+        bool IObservableCollectionDecorator<T>.OnCleared()
         {
             if (OnCleared == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();

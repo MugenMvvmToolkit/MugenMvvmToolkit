@@ -15,9 +15,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class CacheReflectionDelegateProviderDecorator : DecoratorComponentBase<IReflectionDelegateProvider, IActivatorReflectionDelegateProviderComponent>,
+    public sealed class CacheReflectionDelegateProviderDecorator : ComponentDecoratorBase<IReflectionDelegateProvider, IActivatorReflectionDelegateProviderComponent>,
         IActivatorReflectionDelegateProviderComponent, IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent,
-        IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>, IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>, IHasPriority, IHasCache
+        IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>, IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>, IHasPriority, IHasCache
     {
         #region Fields
 
@@ -86,13 +86,13 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        void IDecoratorComponentCollectionComponent<IMemberReflectionDelegateProviderComponent>.Decorate(IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>.Decorate(IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
             _memberComponents = this.Decorate(components);
             Invalidate(false, false, true);
         }
 
-        void IDecoratorComponentCollectionComponent<IMethodReflectionDelegateProviderComponent>.Decorate(IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>.Decorate(IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
             _methodComponents = this.Decorate(components);
             Invalidate(false, true, false);

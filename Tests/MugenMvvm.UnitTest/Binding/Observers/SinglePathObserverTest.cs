@@ -200,7 +200,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         public void ObserverShouldNotifyListenersError(int count)
         {
             IEventListener? currentListener = null;
-            IEventListener? lastListener = null;
             var component = new TestMemberManagerComponent
             {
                 TryGetMembers = (r, type, arg3) => default

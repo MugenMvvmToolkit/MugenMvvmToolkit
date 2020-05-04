@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             };
             var cacheComponent = new CacheMemberManagerDecorator();
-            ((IDecoratorComponentCollectionComponent<IMemberManagerComponent>) cacheComponent).Decorate(new List<IMemberManagerComponent> {cacheComponent, providerComponent}, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberManagerComponent>) cacheComponent).Decorate(new List<IMemberManagerComponent> {cacheComponent, providerComponent}, DefaultMetadata);
 
             cacheComponent.TryGetMembers(request, DefaultMetadata).ShouldEqual(result);
             cacheComponent.TryGetMembers(request, DefaultMetadata).ShouldEqual(result);
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             };
             var cacheComponent = new CacheMemberManagerDecorator();
-            ((IDecoratorComponentCollectionComponent<IMemberManagerComponent>) cacheComponent).Decorate(new List<IMemberManagerComponent> {cacheComponent, providerComponent}, DefaultMetadata);
+            ((IComponentCollectionDecorator<IMemberManagerComponent>) cacheComponent).Decorate(new List<IMemberManagerComponent> {cacheComponent, providerComponent}, DefaultMetadata);
 
             cacheComponent.TryGetMembers(request1, DefaultMetadata).ShouldEqual(result);
             cacheComponent.TryGetMembers(request1, DefaultMetadata).ShouldEqual(result);

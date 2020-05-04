@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.UnitTest.Components
 {
-    public class TestDecoratorComponent<T, TComponent> : DecoratorComponentBase<T, TComponent>, IHasPriority
+    public class TestComponentDecorator<T, TComponent> : ComponentDecoratorBase<T, TComponent>, IHasPriority
         where T : class, IComponentOwner<T>
         where TComponent : class
     {

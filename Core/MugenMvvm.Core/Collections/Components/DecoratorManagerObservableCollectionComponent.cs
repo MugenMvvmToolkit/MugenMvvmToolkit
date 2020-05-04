@@ -19,7 +19,7 @@ namespace MugenMvvm.Collections.Components
 
         #region Implementation of interfaces
 
-        public IEnumerable<T> DecorateItems(IDecoratorObservableCollectionComponent<T>? decorator = null)
+        public IEnumerable<T> DecorateItems(IObservableCollectionDecorator<T>? decorator = null)
         {
             IEnumerable<T> items = Owner;
             var decorators = GetDecorators(decorator, out var startIndex, true);
@@ -29,7 +29,7 @@ namespace MugenMvvm.Collections.Components
             return items;
         }
 
-        public void OnItemChanged(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index, object? args)
+        public void OnItemChanged(IObservableCollectionDecorator<T>? decorator, T item, int index, object? args)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -38,10 +38,10 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnItemChanged(Owner, item, index, args);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnItemChanged(Owner, item, index, args);
         }
 
-        public void OnAdded(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index)
+        public void OnAdded(IObservableCollectionDecorator<T>? decorator, T item, int index)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -50,10 +50,10 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnAdded(Owner, item, index);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnAdded(Owner, item, index);
         }
 
-        public void OnReplaced(IDecoratorObservableCollectionComponent<T>? decorator, T oldItem, T newItem, int index)
+        public void OnReplaced(IObservableCollectionDecorator<T>? decorator, T oldItem, T newItem, int index)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -62,10 +62,10 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnReplaced(Owner, oldItem, newItem, index);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnReplaced(Owner, oldItem, newItem, index);
         }
 
-        public void OnMoved(IDecoratorObservableCollectionComponent<T>? decorator, T item, int oldIndex, int newIndex)
+        public void OnMoved(IObservableCollectionDecorator<T>? decorator, T item, int oldIndex, int newIndex)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -74,10 +74,10 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnMoved(Owner, item, oldIndex, newIndex);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnMoved(Owner, item, oldIndex, newIndex);
         }
 
-        public void OnRemoved(IDecoratorObservableCollectionComponent<T>? decorator, T item, int index)
+        public void OnRemoved(IObservableCollectionDecorator<T>? decorator, T item, int index)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -86,10 +86,10 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnRemoved(Owner, item, index);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnRemoved(Owner, item, index);
         }
 
-        public void OnReset(IDecoratorObservableCollectionComponent<T>? decorator, IEnumerable<T> items)
+        public void OnReset(IObservableCollectionDecorator<T>? decorator, IEnumerable<T> items)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -98,10 +98,10 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnReset(Owner, items);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnReset(Owner, items);
         }
 
-        public void OnCleared(IDecoratorObservableCollectionComponent<T>? decorator)
+        public void OnCleared(IObservableCollectionDecorator<T>? decorator)
         {
             var decorators = GetDecorators(decorator, out var startIndex);
             for (var i = startIndex; i < decorators.Length; i++)
@@ -110,7 +110,7 @@ namespace MugenMvvm.Collections.Components
                     return;
             }
 
-            GetComponents<IDecoratorObservableCollectionChangedListener<T>>().OnCleared(Owner);
+            GetComponents<IObservableCollectionChangedDecoratorListener<T>>().OnCleared(Owner);
         }
 
         void IObservableCollectionChangedListener<T>.OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
@@ -152,9 +152,9 @@ namespace MugenMvvm.Collections.Components
 
         #region Methods
 
-        private IDecoratorObservableCollectionComponent<T>[] GetDecorators(IDecoratorObservableCollectionComponent<T>? decorator, out int index, bool isLengthDefault = false)
+        private IObservableCollectionDecorator<T>[] GetDecorators(IObservableCollectionDecorator<T>? decorator, out int index, bool isLengthDefault = false)
         {
-            var components = GetComponents<IDecoratorObservableCollectionComponent<T>>();
+            var components = GetComponents<IObservableCollectionDecorator<T>>();
             index = isLengthDefault ? components.Length : 0;
             if (decorator == null)
                 return components;
