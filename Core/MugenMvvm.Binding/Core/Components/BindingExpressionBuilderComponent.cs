@@ -8,9 +8,9 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -21,7 +21,8 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<IBindingComponentBuilder> _componentsDictionary;
+        private readonly BindingExpressionInitializerContext _context;
+
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
@@ -30,12 +31,12 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingExpressionBuilderComponent(IExpressionParser? parser = null, IExpressionCompiler? expressionCompiler = null)
+        public BindingExpressionBuilderComponent(IExpressionParser? parser = null, IExpressionCompiler? expressionCompiler = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _parser = parser;
             _expressionCompiler = expressionCompiler;
-            _componentsDictionary = new StringOrdinalLightDictionary<IBindingComponentBuilder>(7);
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
+            _context = new BindingExpressionInitializerContext(this, metadataContextProvider);
         }
 
         #endregion
@@ -58,14 +59,14 @@ namespace MugenMvvm.Binding.Core.Components
                 for (var i = 0; i < bindingExpressions.Length; i++)
                 {
                     var result = list[i];
-                    bindingExpressions[i] = new BindingExpression(this, result.Target, result.Source, result.Parameters.GetRawValue());
+                    bindingExpressions[i] = new BindingExpression(_context, result.Target, result.Source, result.Parameters.GetRawValue());
                 }
 
                 return bindingExpressions;
             }
 
             var item = parserResult.Item;
-            return new BindingExpression(this, item.Target, item.Source, item.Parameters.GetRawValue());
+            return new BindingExpression(_context, item.Target, item.Source, item.Parameters.GetRawValue());
         }
 
         #endregion
@@ -76,22 +77,24 @@ namespace MugenMvvm.Binding.Core.Components
         {
             #region Fields
 
-            private readonly BindingExpressionBuilderComponent _owner;
-            private ICompiledExpression? _compiledExpression;
-            private object? _compiledExpressionSource;
-            private IBindingComponentBuilder[]? _componentBuilders;
+            private readonly BindingExpressionInitializerContext _context;
+            private object? _compiledExpression;
             private object? _parametersRaw;
-            private IExpressionNode _sourceExpression;
-            private IExpressionNode _targetExpression;
+            private object _sourceExpression;
+
+            private static readonly object InitializedState = new object();
 
             #endregion
 
             #region Constructors
 
-            public BindingExpression(BindingExpressionBuilderComponent owner, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw)
+            public BindingExpression(BindingExpressionInitializerContext context, IExpressionNode targetExpression, IExpressionNode sourceExpression, object? parametersRaw)
             {
-                _owner = owner;
-                _targetExpression = targetExpression;
+                Should.NotBeNull(context, nameof(context));
+                Should.NotBeNull(targetExpression, nameof(targetExpression));
+                Should.NotBeNull(sourceExpression, nameof(sourceExpression));
+                _context = context;
+                TargetExpression = targetExpression;
                 _sourceExpression = sourceExpression;
                 _parametersRaw = parametersRaw;
             }
@@ -100,7 +103,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Properties
 
-            public IExpressionNode TargetExpression => _targetExpression;
+            public IExpressionNode TargetExpression { get; private set; }
 
             #endregion
 
@@ -108,12 +111,12 @@ namespace MugenMvvm.Binding.Core.Components
 
             public IBinding Build(object target, object? source = null, IReadOnlyMetadataContext? metadata = null)
             {
-                if (_componentBuilders == null)
+                if (_compiledExpression == null)
                     Initialize(target, source, metadata);
 
-                if (_compiledExpression == null)
+                if (ReferenceEquals(_compiledExpression, InitializedState))
                 {
-                    return InitializeBinding(new Core.Binding(((IBindingMemberExpressionNode)_targetExpression).GetBindingTarget(target, source, metadata),
+                    return InitializeBinding(new Core.Binding(((IBindingMemberExpressionNode)TargetExpression).GetBindingTarget(target, source, metadata),
                         ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
@@ -127,7 +130,7 @@ namespace MugenMvvm.Binding.Core.Components
             private IBinding CreateMultiBinding(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 object? sourceRaw;
-                switch (_compiledExpressionSource)
+                switch (_sourceExpression)
                 {
                     case null:
                         sourceRaw = null;
@@ -141,43 +144,62 @@ namespace MugenMvvm.Binding.Core.Components
                             break;
                         }
                     default:
-                        sourceRaw = ((IBindingMemberExpressionNode)_compiledExpressionSource).GetBindingSource(target, source, metadata);
+                        sourceRaw = ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata);
                         break;
                 }
 
-                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)_targetExpression).GetBindingTarget(target, source, metadata), sourceRaw, _compiledExpression!), target, source, metadata);
+                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)TargetExpression).GetBindingTarget(target, source, metadata), sourceRaw,
+                    (ICompiledExpression)_compiledExpression!), target, source, metadata);
             }
 
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                if (_componentBuilders!.Length != 0)
-                    binding.Initialize(_componentBuilders.TryGetBindingComponents(binding!, binding, target, source, metadata), metadata);
+                if (_parametersRaw != null)
+                {
+                    if (_parametersRaw is object[] components)
+                        binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
+                    else
+                        binding.Initialize(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
+                }
+
                 if (binding.State == BindingState.Valid)
-                    _owner.Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, new BindingTargetState(target), metadata);
+                    ((BindingExpressionBuilderComponent)_context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, new BindingTargetState(target), metadata);
                 return binding;
             }
 
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
-                var parameters = ItemOrList<IExpressionNode, List<IExpressionNode>>.FromRawValue(_parametersRaw);
-                _owner.Owner.Components.Get<IExpressionNodeInterceptorComponent>(metadata).Intercept(target, source, ref _targetExpression, ref _sourceExpression, ref parameters, metadata);
+                var component = (BindingExpressionBuilderComponent)_context.Owner;
+                _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, ItemOrList<IExpressionNode, IList<IExpressionNode>>.FromRawValue(_parametersRaw), metadata);
+                component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(_context);
+                TargetExpression = _context.TargetExpression;
+                var sourceExpression = _context.SourceExpression;
 
-                if (!(_targetExpression is IBindingMemberExpressionNode))
-                    BindingExceptionManager.ThrowCannotUseExpressionExpected(_targetExpression, typeof(IBindingMemberExpressionNode));
+                if (!(TargetExpression is IBindingMemberExpressionNode))
+                    BindingExceptionManager.ThrowCannotUseExpressionExpected(TargetExpression, typeof(IBindingMemberExpressionNode));
 
-                if (!(_sourceExpression is IBindingMemberExpressionNode))
+                if (sourceExpression is IBindingMemberExpressionNode)
                 {
-                    _compiledExpressionSource = _owner._expressionCollectorVisitor.Collect(_sourceExpression, metadata).GetRawValue();
-                    _compiledExpression = _owner._expressionCompiler.DefaultIfNull().Compile(_sourceExpression, metadata);
+                    _sourceExpression = sourceExpression;
+                    _compiledExpression = InitializedState;
+                }
+                else
+                {
+                    if (sourceExpression == null)
+                        BindingExceptionManager.ThrowExpressionNodeCannotBeNull(typeof(BindingExpression));
+                    _sourceExpression = component._expressionCollectorVisitor.Collect(sourceExpression, metadata).GetRawValue()!;
+                    _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }
 
-                var dictionary = _owner._componentsDictionary;
-                dictionary.Clear();
-                _owner.Owner.Components
-                    .Get<IBindingComponentProviderComponent>(metadata)
-                    .TrySetComponentBuilders(dictionary, _targetExpression, _sourceExpression, parameters.Cast<IReadOnlyList<IExpressionNode>>(), metadata);
-                _parametersRaw = null;
-                _componentBuilders = dictionary.ValuesToArray();
+                ItemOrList<object, List<object>> components = default;
+                foreach (var componentPair in _context.BindingComponents)
+                {
+                    if (componentPair.Value != null)
+                        components.Add(componentPair.Value);
+                }
+
+                _parametersRaw = components.Item ?? components.List?.ToArray();
+                _context.Clear();
             }
 
             #endregion

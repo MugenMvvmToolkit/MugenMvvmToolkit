@@ -8,9 +8,11 @@ namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
     public readonly struct ItemOrList<TItem, TList>
-        where TList : class, IReadOnlyCollection<TItem>
+        where TList : class, IEnumerable<TItem>
     {
         #region Fields
+
+        private static readonly TItem[] SingleItemArray = new TItem[1];
 
         [MaybeNull]
         public readonly TItem Item;
@@ -21,7 +23,7 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public ItemOrList([AllowNull]TItem item)
+        public ItemOrList([AllowNull] TItem item)
         {
             Item = item!;
             List = null;
@@ -36,21 +38,84 @@ namespace MugenMvvm.Internal
                 Item = default!;
                 return;
             }
-            var count = list.Count;
-            if (count == 0)
+
+            if (list is TItem[] array)
             {
-                List = default;
-                Item = default!;
+                var count = array.Length;
+                if (count == 0)
+                {
+                    List = default;
+                    Item = default!;
+                }
+                else if (count == 1)
+                {
+                    List = default;
+                    Item = array[0];
+                }
+                else
+                {
+                    List = list;
+                    Item = default!;
+                }
             }
-            else if (count == 1)
+            else if (list is IReadOnlyList<TItem> l)
             {
-                List = default;
-                Item = list.First();
+                var count = l.Count;
+                if (count == 0)
+                {
+                    List = default;
+                    Item = default!;
+                }
+                else if (count == 1)
+                {
+                    List = default;
+                    Item = l[0];
+                }
+                else
+                {
+                    List = list;
+                    Item = default!;
+                }
+            }
+            else if (list is ICollection<TItem> c)
+            {
+                var count = c.Count;
+                if (count == 0)
+                {
+                    List = default;
+                    Item = default!;
+                }
+                else if (count == 1)
+                {
+                    c.CopyTo(SingleItemArray, 0);
+                    List = default;
+                    Item = SingleItemArray[0];
+                    SingleItemArray[0] = default!;
+                }
+                else
+                {
+                    List = list;
+                    Item = default!;
+                }
             }
             else
             {
-                List = list;
-                Item = default!;
+                var count = list.Count();
+                if (count == 0)
+                {
+                    List = default;
+                    Item = default!;
+                }
+                else if (count == 1)
+                {
+                    List = default;
+                    Item = list.FirstOrDefault();
+                }
+                else
+                {
+                    List = list;
+                    Item = default!;
+                }
             }
         }
 
@@ -75,7 +140,7 @@ namespace MugenMvvm.Internal
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static implicit operator ItemOrList<TItem, TList>([AllowNull]TItem item)
+        public static implicit operator ItemOrList<TItem, TList>([AllowNull] TItem item)
         {
             return new ItemOrList<TItem, TList>(item);
         }

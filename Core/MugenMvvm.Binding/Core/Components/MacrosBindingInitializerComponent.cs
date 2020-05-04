@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -6,13 +7,11 @@ using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class MacrosBindingInitializerComponent : IExpressionNodeInterceptorComponent, IHasPriority
+    public sealed class MacrosBindingInitializerComponent : IBindingExpressionInitializerComponent, IHasPriority
     {
         #region Constructors
 
@@ -33,26 +32,32 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void Intercept(object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression, ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters,
-            IReadOnlyMetadataContext? metadata)
+        public void Initialize(IBindingExpressionInitializerContext context)
         {
             //source is empty, target is expression
-            if (sourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.Member)
-                                                                 && !(targetExpression is IMemberExpressionNode)
-                                                                 && !(targetExpression is IBindingMemberExpressionNode))
+            if (context.SourceExpression is IMemberExpressionNode member && string.IsNullOrEmpty(member.Member)
+                                                                         && !(context.TargetExpression is IMemberExpressionNode)
+                                                                         && !(context.TargetExpression is IBindingMemberExpressionNode))
             {
-                sourceExpression = targetExpression;
-                targetExpression = new MemberExpressionNode(null, FakeMemberProviderComponent.FakeMemberPrefixSymbol + Default.NextCounter().ToString());
+                context.SourceExpression = context.TargetExpression;
+                context.TargetExpression = new MemberExpressionNode(null, FakeMemberProviderComponent.FakeMemberPrefixSymbol + Default.NextCounter().ToString());
             }
 
-            for (int i = 0; i < Visitors.Count; i++)
+            if (Visitors.Count == 0)
+                return;
+
+            var metadata = context.GetMetadataOrDefault();
+            var parameters = context.Parameters;
+            for (var i = 0; i < Visitors.Count; i++)
             {
                 var visitor = Visitors[i];
-                targetExpression = targetExpression.Accept(visitor, metadata);
-                sourceExpression = sourceExpression.Accept(visitor, metadata);
-                for (int j = 0; j < parameters.Count(); j++)
+                context.TargetExpression = context.TargetExpression.Accept(visitor, metadata);
+                context.SourceExpression = context.SourceExpression?.Accept(visitor, metadata);
+                for (var j = 0; j < parameters.Count(); j++)
                     parameters.Set(parameters.Get(j).Accept(visitor, metadata), j);
             }
+
+            context.Parameters = parameters;
         }
 
         #endregion

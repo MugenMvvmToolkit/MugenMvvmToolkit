@@ -6,9 +6,11 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -18,6 +20,7 @@ using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -37,6 +40,36 @@ namespace MugenMvvm.Binding.Extensions
         #endregion
 
         #region Methods
+
+        public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler, BindingMemberExpressionVisitor memberExpressionVisitor,
+            BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor, string parameterName, IReadOnlyMetadataContext? metadata)
+        {
+            var expression = context.TryGetParameterValue<IExpressionNode>(parameterName);
+            if (expression == null)
+                return default;
+
+            expression = memberExpressionVisitor.Visit(expression, metadata);
+            if (expression is IConstantExpressionNode constant)
+                return new BindingParameterExpression(constant.Value, null);
+
+            if (expression is IBindingMemberExpressionNode)
+                return new BindingParameterExpression(expression, null);
+
+            var collect = memberExpressionCollectorVisitor.Collect(expression, metadata);
+            var compiledExpression = compiler.DefaultIfNull().Compile(expression, metadata);
+            if (collect.Item == null && collect.List == null)
+                return new BindingParameterExpression(compiledExpression.Invoke(default, metadata), null);
+            return new BindingParameterExpression(collect.GetRawValue(), compiledExpression);
+        }
+
+        public static void ApplyFlags(this IBindingExpressionInitializerContext context, BindingMemberExpressionVisitor memberExpressionVisitor, string parameterName, BindingMemberExpressionFlags flag)
+        {
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(memberExpressionVisitor, nameof(memberExpressionVisitor));
+            var b = context.TryGetParameterValue<bool?>(parameterName);
+            if (b.GetValueOrDefault())
+                memberExpressionVisitor.Flags |= flag;
+        }
 
         public static IMemberInfo? GetMember(this IMemberManager memberManager, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
         {

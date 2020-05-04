@@ -9,7 +9,8 @@
         public const int ParameterHandler = 1000;
         public const int Mode = -100;
 
-        public const int ComponentProvider = 0;
+        public const int BindingInitializer = 0;
+        public const int BindingParameterInitializer = -1;
         public const int ExpressionBuilder = 0;
         public const int ExpressionPriorityDecorator = 1;
         public const int BindingHolder = 0;

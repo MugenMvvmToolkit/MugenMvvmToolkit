@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -7,7 +8,6 @@ using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -382,27 +382,6 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnEventError(exception, sender, message, metadata);
         }
 
-        public static void TrySetComponentBuilders(this IBindingComponentProviderComponent[] components, LightDictionary<string, IBindingComponentBuilder> dictionary,
-            IExpressionNode targetExpression, IExpressionNode sourceExpression, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(dictionary, nameof(dictionary));
-            Should.NotBeNull(targetExpression, nameof(targetExpression));
-            Should.NotBeNull(sourceExpression, nameof(sourceExpression));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var builders = components[i].TryGetComponentBuilders(targetExpression, sourceExpression, parameters, metadata);
-                for (var j = 0; j < builders.Count(); j++)
-                {
-                    var item = builders.Get(j);
-                    if (item.IsEmpty)
-                        dictionary.Remove(item.Name);
-                    else
-                        dictionary[item.Name] = item;
-                }
-            }
-        }
-
         public static ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(this IBindingExpressionBuilderComponent[] components,
             in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
@@ -417,15 +396,12 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static void Intercept(this IExpressionNodeInterceptorComponent[] components, object target, object? source, ref IExpressionNode targetExpression, ref IExpressionNode sourceExpression,
-            ref ItemOrList<IExpressionNode, List<IExpressionNode>> parameters, IReadOnlyMetadataContext? metadata)
+        public static void Initialize(this IBindingExpressionInitializerComponent[] components, IBindingExpressionInitializerContext context)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(target, nameof(target));
-            Should.NotBeNull(targetExpression, nameof(targetExpression));
-            Should.NotBeNull(sourceExpression, nameof(sourceExpression));
+            Should.NotBeNull(context, nameof(context));
             for (var i = 0; i < components.Length; i++)
-                components[i].Intercept(target, source, ref targetExpression, ref sourceExpression, ref parameters, metadata);
+                components[i].Initialize(context);
         }
 
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, object target, string? path, IReadOnlyMetadataContext? metadata)
@@ -486,22 +462,22 @@ namespace MugenMvvm.Binding.Extensions.Components
             return result;
         }
 
-        public static ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]> TryGetBindingComponents(this IBindingComponentBuilder[] builders, IComparer<IComponent<IBinding>?> comparer,
+        public static ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]> TryGetBindingComponents(object?[] bindingComponents, IComparer<IComponent<IBinding>?> comparer,
             IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNull(builders, nameof(builders));
+            Should.NotBeNull(bindingComponents, nameof(bindingComponents));
             Should.NotBeNull(comparer, nameof(comparer));
             Should.NotBeNull(binding, nameof(binding));
             Should.NotBeNull(target, nameof(target));
-            if (builders!.Length == 1)
-                return new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(builders[0].GetComponent(binding, target, source, metadata));
-            if (builders.Length != 0)
+            if (bindingComponents!.Length == 1)
+                return new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(TryGetBindingComponent(bindingComponents[0], binding, target, source, metadata));
+            if (bindingComponents.Length != 0)
             {
-                var components = new IComponent<IBinding>?[builders.Length];
+                var components = new IComponent<IBinding>?[bindingComponents.Length];
                 var size = 0;
                 for (var i = 0; i < components.Length; i++)
                 {
-                    var component = builders[i].GetComponent(binding, target, source, metadata);
+                    var component = TryGetBindingComponent(bindingComponents[i], binding, target, source, metadata);
                     if (component != null)
                         MugenExtensions.AddOrdered(components!, component, size++, comparer);
                 }
@@ -510,6 +486,12 @@ namespace MugenMvvm.Binding.Extensions.Components
             }
 
             return default;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IComponent<IBinding>? TryGetBindingComponent(object? item, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        {
+            return (item as IComponent<IBinding>) ?? (item as IBindingComponentProvider)?.GetComponent(binding, target, source, metadata);
         }
 
         #endregion

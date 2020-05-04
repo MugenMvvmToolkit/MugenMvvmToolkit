@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Collections;
@@ -67,7 +68,7 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item == null ? 0 : 1;
         }
 
-        public static int Count<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
+        public static int Count<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
             where TItem : class
         {
             if (itemOrList.List != null)
@@ -154,7 +155,7 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static TItem Get<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, int index)
+        public static TItem Get<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, int index)
             where TItem : class
         {
             if (itemOrList.List != null)
@@ -180,28 +181,9 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static void Set<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item, int index)
-            where TItem : class
-        {
-            Should.NotBeNull(item, nameof(item));
-            if (itemOrList.List != null)
-            {
-                itemOrList.List[index] = item;
-                return;
-            }
-
-            if (index == 0 && itemOrList.Item != null)
-            {
-                itemOrList = item;
-                return;
-            }
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-        }
-
         public static void Set<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item, int index)
             where TItem : class
-            where TList : class, IList<TItem>, IReadOnlyCollection<TItem>
+            where TList : class, IList<TItem>
         {
             Should.NotBeNull(item, nameof(item));
             if (itemOrList.List != null)
@@ -221,7 +203,7 @@ namespace MugenMvvm.Extensions
 
         public static bool Remove<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item)
             where TItem : class
-            where TList : class, ICollection<TItem>, IReadOnlyList<TItem>
+            where TList : class, ICollection<TItem>
         {
             if (itemOrList.List != null)
                 return itemOrList.List.Remove(item);
@@ -237,7 +219,7 @@ namespace MugenMvvm.Extensions
 
         public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, int index)
             where TItem : class
-            where TList : class, IList<TItem>, IReadOnlyList<TItem>
+            where TList : class, IList<TItem>
         {
             if (itemOrList.List != null)
             {
@@ -256,16 +238,11 @@ namespace MugenMvvm.Extensions
 
         public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class
-            where TList : class, IReadOnlyList<TItem>
+            where TList : class, IEnumerable<TItem>
         {
             var list = itemOrList.List;
             if (list != null)
-            {
-                var items = new TItem[list.Count];
-                for (int i = 0; i < list.Count; i++)
-                    items[i] = list[i];
-                return items;
-            }
+                return list.ToArray();
 
             if (itemOrList.Item == null)
                 return Default.EmptyArray<TItem>();
@@ -275,7 +252,7 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class?, IReadOnlyCollection<TItem>
+            where TList : class?, IEnumerable<TItem>
         {
             return (object?)itemOrList.Item ?? itemOrList.List;
         }
@@ -283,7 +260,7 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class
-            where TList : class, IReadOnlyCollection<TItem>
+            where TList : class, IEnumerable<TItem>
         {
             return itemOrList.Item == null && itemOrList.List == null;
         }

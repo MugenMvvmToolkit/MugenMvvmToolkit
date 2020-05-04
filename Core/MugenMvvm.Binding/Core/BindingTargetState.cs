@@ -3,7 +3,7 @@
 namespace MugenMvvm.Binding.Core
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingTargetState
+    public readonly struct BindingTargetState//todo merge
     {
         #region Fields
 

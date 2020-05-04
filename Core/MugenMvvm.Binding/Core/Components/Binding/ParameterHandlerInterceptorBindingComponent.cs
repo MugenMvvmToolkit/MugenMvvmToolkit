@@ -10,8 +10,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components.Binding
 {
-    public sealed class ParameterHandlerValueInterceptorBindingComponent : ISourceValueInterceptorBindingComponent,
-        ITargetValueInterceptorBindingComponent, IHasPriority, IDetachableComponent
+    public sealed class ParameterHandlerInterceptorBindingComponent : ISourceValueInterceptorBindingComponent, ITargetValueInterceptorBindingComponent, IHasPriority, IDetachableComponent
     {
         #region Fields
 
@@ -24,7 +23,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Constructors
 
-        public ParameterHandlerValueInterceptorBindingComponent(BindingParameterValue converter, BindingParameterValue converterParameter, BindingParameterValue fallback,
+        public ParameterHandlerInterceptorBindingComponent(BindingParameterValue converter, BindingParameterValue converterParameter, BindingParameterValue fallback,
             BindingParameterValue targetNullValue)
         {
             _converter = converter;

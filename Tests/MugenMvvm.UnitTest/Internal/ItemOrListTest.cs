@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Internal;
 using Should;
 using Xunit;
@@ -26,15 +27,39 @@ namespace MugenMvvm.UnitTest.Internal
         }
 
         [Fact]
-        public void ShouldHandleSingleItemInList()
+        public void ShouldHandleSingleItemInList1()
         {
-            var itemOrList = new ItemOrList<object, object[]>(new[] { this });
+            var itemOrList = new ItemOrList<object, object[]>(new object[] { this });
             itemOrList.Item.ShouldEqual(this);
             itemOrList.List.ShouldBeNull();
         }
 
         [Fact]
-        public void ShouldHandleEmptyList()
+        public void ShouldHandleSingleItemInList2()
+        {
+            var itemOrList = new ItemOrList<object, List<object>>(new List<object> { this });
+            itemOrList.Item.ShouldEqual(this);
+            itemOrList.List.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleSingleItemInList3()
+        {
+            var itemOrList = new ItemOrList<object, HashSet<object>>(new HashSet<object> { this });
+            itemOrList.Item.ShouldEqual(this);
+            itemOrList.List.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleSingleItemInList4()
+        {
+            var itemOrList = new ItemOrList<object, IEnumerable<object>>(new object[] { this }.Where(o => o != null));
+            itemOrList.Item.ShouldEqual(this);
+            itemOrList.List.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleEmptyList1()
         {
             var itemOrList = new ItemOrList<object, object[]>(new object[0]);
             itemOrList.Item.ShouldBeNull();
@@ -42,10 +67,61 @@ namespace MugenMvvm.UnitTest.Internal
         }
 
         [Fact]
-        public void ShouldHandleList()
+        public void ShouldHandleEmptyList2()
+        {
+            var itemOrList = new ItemOrList<object, List<object>>(new List<object>());
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.List.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleEmptyList3()
+        {
+            var itemOrList = new ItemOrList<object, HashSet<object>>(new HashSet<object>());
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.List.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleEmptyList4()
+        {
+            var itemOrList = new ItemOrList<object, IEnumerable<object>>(new object[0].Where(o => o != null));
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.List.ShouldBeNull();
+        }
+
+        [Fact]
+        public void ShouldHandleList1()
         {
             var list = new object[] { this, this };
             var itemOrList = new ItemOrList<object, object[]>(list);
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.List.ShouldEqual(list);
+        }
+
+        [Fact]
+        public void ShouldHandleList2()
+        {
+            var list = new List<object> { this, this };
+            var itemOrList = new ItemOrList<object, List<object>>(list);
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.List.ShouldEqual(list);
+        }
+
+        [Fact]
+        public void ShouldHandleList3()
+        {
+            var list = new HashSet<object> { this, "" };
+            var itemOrList = new ItemOrList<object, HashSet<object>>(list);
+            itemOrList.Item.ShouldBeNull();
+            itemOrList.List.ShouldEqual(list);
+        }
+
+        [Fact]
+        public void ShouldHandleList4()
+        {
+            var list = new object[] { this, this }.Where(o => o != null);
+            var itemOrList = new ItemOrList<object, IEnumerable<object>>(list);
             itemOrList.Item.ShouldBeNull();
             itemOrList.List.ShouldEqual(list);
         }
