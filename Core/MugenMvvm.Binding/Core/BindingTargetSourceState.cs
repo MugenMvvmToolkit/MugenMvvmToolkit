@@ -1,26 +1,24 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace MugenMvvm.Binding.Resources
+namespace MugenMvvm.Binding.Core
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingResourceState
+    public readonly struct BindingTargetSourceState
     {
         #region Fields
 
-        public readonly object? Source;
         public readonly object Target;
-        public readonly object? State;
+        public readonly object? Source;
 
         #endregion
 
         #region Constructors
 
-        public BindingResourceState(object target, object? source, object? state = null)
+        public BindingTargetSourceState(object target, object? source)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
             Source = source;
-            State = state;
         }
 
         #endregion

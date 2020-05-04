@@ -163,7 +163,7 @@ namespace MugenMvvm.Binding.Core.Components
                 }
 
                 if (binding.State == BindingState.Valid)
-                    ((BindingExpressionBuilderComponent)_context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, new BindingTargetState(target), metadata);
+                    ((BindingExpressionBuilderComponent)_context.Owner).Owner.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, new BindingTargetSourceState(target, source), metadata);
                 return binding;
             }
 

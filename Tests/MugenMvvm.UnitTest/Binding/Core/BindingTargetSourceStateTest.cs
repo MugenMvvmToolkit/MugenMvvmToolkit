@@ -1,17 +1,17 @@
-﻿using MugenMvvm.Binding.Resources;
+﻿using MugenMvvm.Binding.Core;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTest.Binding.Resources
+namespace MugenMvvm.UnitTest.Binding.Core
 {
-    public class BindingResourceStateTest : UnitTestBase
+    public class BindingTargetSourceStateTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void DefaultShouldBeEmpty()
         {
-            default(BindingResourceState).IsEmpty.ShouldBeTrue();
+            default(BindingTargetSourceState).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -19,11 +19,9 @@ namespace MugenMvvm.UnitTest.Binding.Resources
         {
             var target = typeof(object);
             var source = "";
-            var state = "test";
-            var memberManagerRequest = new BindingResourceState(target, source, state);
+            var memberManagerRequest = new BindingTargetSourceState(target, source);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
-            memberManagerRequest.State.ShouldEqual(state);
             memberManagerRequest.IsEmpty.ShouldBeFalse();
         }
 

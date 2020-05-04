@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Resources;
-using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         private IResourceValue GetResource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, new BindingResourceState(target, source), metadata);
+            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, new BindingTargetSourceState(target, source), metadata);
             if (resourceValue == null)
                 BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
             return resourceValue;

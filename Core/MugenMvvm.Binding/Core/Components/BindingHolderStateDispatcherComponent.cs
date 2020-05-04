@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return null;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
-                _components.TryRegister(typeof(TState) == typeof(BindingTargetState) ? MugenExtensions.CastGeneric<TState, BindingTargetState>(state).Target : binding.Target.Target, binding, metadata);
+                _components.TryRegister(typeof(TState) == typeof(BindingTargetSourceState) ? MugenExtensions.CastGeneric<TState, BindingTargetSourceState>(state).Target : binding.Target.Target, binding, metadata);
             else if (lifecycleState == BindingLifecycleState.Disposed)
                 _components.TryUnregister(binding.Target.Target, binding, metadata);
 
