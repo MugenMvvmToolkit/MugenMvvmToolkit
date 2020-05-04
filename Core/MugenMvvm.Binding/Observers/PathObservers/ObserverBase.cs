@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         private object? _listeners;
         private object? _target;
 
-        protected const byte ObservableFlag = 1 << 1;
+        protected const byte UpdatingFlag = 1 << 1;
         protected const byte OptionalFlag = 1 << 2;
         protected const byte HasStablePathFlag = 1 << 3;
         protected const byte InitializedFlag = 1 << 4;

@@ -741,7 +741,7 @@ namespace MugenMvvm.Binding.Extensions
             lastValueRef = value.ToWeakReference();
             var member = MugenBindingService.MemberManager.GetMember(type, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false), metadata);
             if (member is IObservableMemberInfo observable)
-                unsubscriber = observable.TryObserve(target, observer.GetMethodListener(), metadata);
+                unsubscriber = observable.TryObserve(value, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)
                 unsubscriber = ActionToken.NoDoToken;
         }

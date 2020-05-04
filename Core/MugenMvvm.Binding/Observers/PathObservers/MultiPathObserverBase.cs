@@ -127,15 +127,15 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void UpdateIfNeed()
         {
-            if (!CheckFlag(InitializedFlag))
+            if (!CheckFlag(InitializedFlag) && !CheckFlag(UpdatingFlag))
                 Update();
         }
 
         private bool Update()
         {
-            bool hasException = false;
             try
             {
+                _state |= UpdatingFlag;
                 var target = Target;
                 if (target == null)
                 {
@@ -195,14 +195,12 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             }
             catch (Exception e)
             {
-                hasException = true;
                 SetMembers(null, null, e);
                 OnError(e);
             }
             finally
             {
-                if (!hasException)
-                    _state |= InitializedFlag;
+                _state = (byte)(_state & ~UpdatingFlag);
             }
 
             return true;
@@ -235,6 +233,8 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         {
             PenultimateValueOrException = (object?)exception ?? penultimateValue;
             Members = members;
+            if (exception == null)
+                _state |= InitializedFlag;
             OnPathMembersChanged();
         }
 
