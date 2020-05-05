@@ -18,11 +18,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             BinaryTokenType tokenType = BinaryTokenType.Equality;
             var left = new ConstantExpressionNode("1");
             var right = new ConstantExpressionNode("2");
-            var binaryExpressionNode = new BinaryExpressionNode(tokenType, left, right);
-            binaryExpressionNode.ExpressionType.ShouldEqual(ExpressionNodeType.Binary);
-            binaryExpressionNode.Left.ShouldEqual(left);
-            binaryExpressionNode.Right.ShouldEqual(right);
-            binaryExpressionNode.Token.ShouldEqual(tokenType);
+            var exp = new BinaryExpressionNode(tokenType, left, right);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.Binary);
+            exp.Left.ShouldEqual(left);
+            exp.Right.ShouldEqual(right);
+            exp.Token.ShouldEqual(tokenType);
         }
 
         [Theory]
@@ -44,10 +44,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
 
             var left = new ConstantExpressionNode("1");
             var right = new ConstantExpressionNode("2");
-            var binaryExpressionNode = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
+            var exp = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
 
-            var result = isPostOrder ? new IExpressionNode[] {left, right, binaryExpressionNode} : new IExpressionNode[] {binaryExpressionNode, left, right};
-            binaryExpressionNode.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(binaryExpressionNode);
+            var result = isPostOrder ? new IExpressionNode[] {left, right, exp} : new IExpressionNode[] {exp, left, right};
+            exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
 
@@ -72,12 +72,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 },
                 IsPostOrder = isPostOrder
             };
-            var binaryExpressionNode = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
-            var expressionNode = (BinaryExpressionNode) binaryExpressionNode.Accept(testExpressionVisitor, DefaultMetadata);
-            expressionNode.ShouldNotEqual(binaryExpressionNode);
+            var exp = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
+            var expressionNode = (BinaryExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
+            expressionNode.ShouldNotEqual(exp);
             expressionNode.Left.ShouldEqual(leftChanged);
             expressionNode.Right.ShouldEqual(rightChanged);
-            expressionNode.ExpressionType.ShouldEqual(binaryExpressionNode.ExpressionType);
+            expressionNode.ExpressionType.ShouldEqual(exp.ExpressionType);
         }
 
         [Fact]
@@ -89,8 +89,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 Visit = (node, context) => left
             };
-            var binaryExpressionNode = new BinaryExpressionNode(BinaryTokenType.Equality, left, right);
-            binaryExpressionNode.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(left);
+            new BinaryExpressionNode(BinaryTokenType.Equality, left, right).Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(left);
         }
 
         #endregion
