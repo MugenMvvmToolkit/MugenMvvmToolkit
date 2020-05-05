@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTest.Metadata;
 using Should;
@@ -92,6 +94,20 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         {
             var context = new ExpressionConverterContext<Expression>();
             ShouldThrow<InvalidOperationException>(() => context.Convert(Expression.Constant("")));
+        }
+
+        [Fact]
+        public void InitializeShouldClearPrevValues()
+        {
+            var constantExpression = Expression.Constant("");
+            var result = ConstantExpressionNode.Null;
+            var context = new ExpressionConverterContext<Expression>();
+            context.SetExpression(constantExpression, result);
+            context.Metadata.Set(BindingMetadata.EventArgs, "");
+
+            context.Initialize(DefaultMetadata);
+            context.TryGetExpression(constantExpression).ShouldBeNull();
+            context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
