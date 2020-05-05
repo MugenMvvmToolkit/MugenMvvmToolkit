@@ -126,6 +126,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
 
             exp.GetBindingTarget(t, src, DefaultMetadata).ShouldEqual(observer);
             exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
+
+            resource.IsStatic = true;
+            exp.GetBindingSource(t, src, DefaultMetadata).ShouldBeNull();
         }
 
         protected override BindingMemberExpressionNodeBase GetExpression()
