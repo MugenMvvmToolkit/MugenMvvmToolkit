@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
 
             ConstantExpressionNode.Null.Type.ShouldEqual(typeof(object));
             ConstantExpressionNode.Null.Value.ShouldEqual(null);
-            ConstantExpressionNode.Null.ConstantExpression!.Value.ShouldEqual(null);
+            ConstantExpressionNode.Null.ConstantExpression!.Value.ShouldBeNull();
         }
 
         [Theory]
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         {
             var exp = ConstantExpressionNode.Get<string>();
             exp.Type.ShouldEqual(typeof(Type));
-            exp.ConstantExpression.Value.ShouldEqual(typeof(string));
+            exp.ConstantExpression!.Value.ShouldEqual(typeof(string));
             exp.Value.ShouldEqual(typeof(string));
             exp.ShouldEqual(ConstantExpressionNode.Get<string>());
         }
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -167,7 +167,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -190,7 +190,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -213,7 +213,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -236,7 +236,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);
@@ -282,7 +282,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             {
                 var expressionNode = ConstantExpressionNode.Get(i);
                 expressionNode.Type.ShouldEqual(i.GetType());
-                expressionNode.ConstantExpression.Value.ShouldEqual(i);
+                expressionNode.ConstantExpression!.Value.ShouldEqual(i);
                 expressionNode.Value.ShouldEqual(i);
 
                 nodes.Add(expressionNode);

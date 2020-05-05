@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingMemberExpressionNode(TargetType targetType, string path, IObserverProvider? observerProvider) : base(path, observerProvider)
+        public BindingMemberExpressionNode(TargetType targetType, string path, IObserverProvider? observerProvider = null) : base(path, observerProvider)
         {
             _targetType = targetType;
         }

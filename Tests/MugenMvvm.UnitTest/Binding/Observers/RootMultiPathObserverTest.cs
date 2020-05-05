@@ -20,7 +20,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var root = this;
             var target1 = new object();
             var target2 = "";
-            var target3 = 1;
             var accessorInfo1 = new TestMemberAccessorInfo
             {
                 GetValue = (o, context) => target1

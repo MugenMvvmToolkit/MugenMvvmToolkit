@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             canReturn = true;
             getMembersCount = 0;
             rootListener.ShouldNotBeNull();
-            rootListener.TryHandle(this, null);
+            rootListener!.TryHandle(this, null);
             members = observer.GetMembers(DefaultMetadata);
             members.Members.SequenceEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 }).ShouldBeTrue();
             members.IsAvailable.ShouldBeTrue();
@@ -225,7 +225,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             canReturn = true;
             getMembersCount = 0;
             rootListener.ShouldNotBeNull();
-            rootListener.TryHandle(this, null);
+            rootListener!.TryHandle(this, null);
             members = observer.GetLastMember(DefaultMetadata);
             members.Member.ShouldEqual(accessorInfo3);
             members.IsAvailable.ShouldBeTrue();

@@ -18,6 +18,16 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         #region Methods
 
         [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path);
+            exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingMember);
+            exp.ResourceName.ShouldEqual(ResourceName);
+            exp.Path.ShouldEqual(Path);
+            exp.Index.ShouldEqual(-1);
+        }
+
+        [Fact]
         public void GetTargetSourceShouldReturnResource()
         {
             var path = new SingleMemberPath(Path);
