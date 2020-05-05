@@ -1,33 +1,44 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
+using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTest.Binding.Observers;
+using MugenMvvm.UnitTest.Binding.Resources;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Parsing
 {
-    public class BindingInstanceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest
+    public class BindingResourceMemberExpressionNodeTest : BindingMemberExpressionNodeBaseTest
     {
         #region Methods
 
         [Fact]
-        public void ConstructorShouldInitializeValues()
-        {
-            var exp = new BindingInstanceMemberExpressionNode(this, Path);
-            exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingMember);
-            exp.Instance.ShouldEqual(this);
-            exp.Path.ShouldEqual(Path);
-            exp.Index.ShouldEqual(-1);
-        }
-
-        [Fact]
-        public void GetTargetSourceShouldReturnInstance()
+        public void GetTargetSourceShouldReturnResource()
         {
             var path = new SingleMemberPath(Path);
+            var t = "r";
+            var src = new object();
+            var resource = new TestResourceValue();
+
+            var resourceResolver = new ResourceResolver();
+            resourceResolver.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResourceValue = (s, o, arg3, arg4) =>
+                {
+                    s.ShouldEqual(ResourceName);
+                    var state = (BindingTargetSourceState)o!;
+                    state.Target.ShouldEqual(t);
+                    state.Source.ShouldEqual(src);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return resource;
+                }
+            });
+
             var observerProvider = new ObserverProvider();
             var component = new TestMemberPathProviderComponent
             {
@@ -40,30 +51,47 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             };
             observerProvider.AddComponent(component);
 
-            var exp = new BindingInstanceMemberExpressionNode(this, Path, observerProvider)
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observerProvider, resourceResolver)
             {
                 MemberFlags = MemberFlags.All
             };
 
-            var target = exp.GetTarget("", "", DefaultMetadata, out var p, out var flags);
-            target.ShouldEqual(this);
+            var target = exp.GetTarget(t, src, DefaultMetadata, out var p, out var flags);
+            target.ShouldEqual(resource);
             flags.ShouldEqual(MemberFlags.All);
             p.ShouldEqual(path);
 
-            target = exp.GetSource("", "", DefaultMetadata, out p, out flags);
-            target.ShouldEqual(this);
+            target = exp.GetSource(t, src, DefaultMetadata, out p, out flags);
+            target.ShouldEqual(resource);
             flags.ShouldEqual(MemberFlags.All);
             p.ShouldEqual(path);
         }
 
         [Fact]
-        public void GetBindingTargetSourceShouldReturnInstanceObserver()
+        public void GetBindingTargetSourceShouldReturnResourceObserver()
         {
             var path = new SingleMemberPath(Path);
             var observer = EmptyPathObserver.Empty;
+            var t = "r";
+            var src = new object();
+            var resource = new TestResourceValue();
+
+            var resourceResolver = new ResourceResolver();
+            resourceResolver.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResourceValue = (s, o, arg3, arg4) =>
+                {
+                    s.ShouldEqual(ResourceName);
+                    var state = (BindingTargetSourceState)o!;
+                    state.Target.ShouldEqual(t);
+                    state.Source.ShouldEqual(src);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return resource;
+                }
+            });
             var observerProvider = new ObserverProvider();
 
-            var exp = new BindingInstanceMemberExpressionNode(this, Path, observerProvider)
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observerProvider, resourceResolver)
             {
                 MemberFlags = MemberFlags.All,
                 Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethod,
@@ -81,10 +109,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             });
             observerProvider.AddComponent(new TestMemberPathObserverProviderComponent
             {
-                TryGetMemberPathObserver = (t, req, arg3, arg4) =>
+                TryGetMemberPathObserver = (target, req, arg3, arg4) =>
                 {
-                    t.ShouldEqual(this);
-                    var request = (MemberPathObserverRequest) req;
+                    target.ShouldEqual(resource);
+                    var request = (MemberPathObserverRequest)req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
@@ -96,13 +124,13 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 }
             });
 
-            exp.GetBindingTarget("", "", DefaultMetadata).ShouldEqual(observer);
-            exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingTarget(t, src, DefaultMetadata).ShouldEqual(observer);
+            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
         }
 
         protected override BindingMemberExpressionNodeBase GetExpression()
         {
-            return new BindingInstanceMemberExpressionNode(this, Path);
+            return new BindingResourceMemberExpressionNode(ResourceName, Path);
         }
 
         #endregion

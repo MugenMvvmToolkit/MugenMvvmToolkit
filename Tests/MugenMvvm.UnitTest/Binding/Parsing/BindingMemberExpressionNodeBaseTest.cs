@@ -10,6 +10,13 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
 {
     public abstract class BindingMemberExpressionNodeBaseTest : UnitTestBase
     {
+        #region Fields
+
+        protected const string Path = "Path";
+        protected const string ResourceName = "R";
+
+        #endregion
+
         #region Methods
 
         [Theory]
