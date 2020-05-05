@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Fields
 
-        private readonly ExpressionDictionary _expressionsDict;
+        private readonly ExpressionDictionary _expressions;
         private IExpressionConverterComponent<TExpression>[] _converters;
 
         #endregion
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
         {
-            _expressionsDict = new ExpressionDictionary();
+            _expressions = new ExpressionDictionary();
             _converters = Default.EmptyArray<IExpressionConverterComponent<TExpression>>();
         }
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Parsing
         public IExpressionNode? TryGetExpression(TExpression expression)
         {
             Should.NotBeNull(expression, nameof(expression));
-            _expressionsDict.TryGetValue(expression, out var value);
+            _expressions.TryGetValue(expression, out var value);
             return value;
         }
 
@@ -56,13 +56,13 @@ namespace MugenMvvm.Binding.Parsing
         {
             Should.NotBeNull(expression, nameof(expression));
             Should.NotBeNull(value, nameof(value));
-            _expressionsDict[expression] = value;
+            _expressions[expression] = value;
         }
 
         public void ClearExpression(TExpression expression)
         {
             Should.NotBeNull(expression, nameof(expression));
-            _expressionsDict.Remove(expression);
+            _expressions.Remove(expression);
         }
 
         public IExpressionNode Convert(TExpression expression)
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public void Initialize(IReadOnlyMetadataContext? metadata)
         {
-            _expressionsDict.Clear();
+            _expressions.Clear();
             MetadataRaw?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);
