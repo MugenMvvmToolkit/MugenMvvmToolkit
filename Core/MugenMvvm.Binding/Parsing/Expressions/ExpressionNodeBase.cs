@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using System.Collections.Generic;
+using System.Linq;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -48,6 +50,26 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (notNull && result == null)
                 BindingExceptionManager.ThrowExpressionNodeCannotBeNull(GetType());
             return (T)result!;
+        }
+
+        protected IReadOnlyList<T> VisitWithCheck<T>(IExpressionVisitor visitor, IReadOnlyList<T> nodes, ref bool changed, IReadOnlyMetadataContext? metadata)
+            where T : class, IExpressionNode
+        {
+            T[]? newArgs = null;
+            for (var i = 0; i < nodes.Count; i++)
+            {
+                var itemsChanged = false;
+                var node = VisitWithCheck(visitor, nodes[i], true, ref itemsChanged, metadata);
+                if (!itemsChanged)
+                    continue;
+                if (newArgs == null)
+                    newArgs = nodes.ToArray();
+                newArgs[i] = node;
+            }
+
+            if (!changed && newArgs != null)
+                changed = true;
+            return newArgs ?? nodes;
         }
 
         #endregion

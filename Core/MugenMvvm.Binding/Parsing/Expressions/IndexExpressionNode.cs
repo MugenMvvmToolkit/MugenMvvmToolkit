@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -57,19 +56,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             IExpressionNode? target = null;
             if (Target != null)
                 target = VisitWithCheck(visitor, Target, false, ref changed, metadata);
-            var itemsChanged = false;
-            IExpressionNode[]? newArgs = null;
-            for (var i = 0; i < Arguments.Count; i++)
-            {
-                var node = VisitWithCheck(visitor, Arguments[i], true, ref itemsChanged, metadata);
-                if (itemsChanged)
-                    newArgs = Arguments.ToArray();
-                if (newArgs != null)
-                    newArgs[i] = node;
-            }
-
-            if (changed || itemsChanged)
-                return new IndexExpressionNode(target!, newArgs ?? Arguments);
+            var newArgs = VisitWithCheck(visitor, Arguments, ref changed, metadata);
+            if (changed)
+                return new IndexExpressionNode(target, newArgs);
             return this;
         }
 

@@ -65,19 +65,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             IExpressionNode? target = null;
             if (Target != null)
                 target = VisitWithCheck(visitor, Target, false, ref changed, metadata);
-            var itemsChanged = false;
-            IExpressionNode[]? newArgs = null;
-            for (var i = 0; i < Arguments.Count; i++)
-            {
-                var node = VisitWithCheck(visitor, Arguments[i], true, ref itemsChanged, metadata);
-                if (itemsChanged)
-                    newArgs = Arguments.ToArray();
-                if (newArgs != null)
-                    newArgs[i] = node;
-            }
-
-            if (changed || itemsChanged)
-                return new MethodCallExpressionNode(target, Method, newArgs ?? Arguments, TypeArgs);
+            var newArgs = VisitWithCheck(visitor, Arguments, ref changed, metadata);
+            if (changed)
+                return new MethodCallExpressionNode(target, Method, newArgs, TypeArgs);
             return this;
         }
 

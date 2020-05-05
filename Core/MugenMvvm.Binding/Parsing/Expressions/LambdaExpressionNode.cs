@@ -36,20 +36,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             var changed = false;
             var body = VisitWithCheck(visitor, Body, true, ref changed, metadata);
-
-            var itemsChanged = false;
-            IParameterExpressionNode[]? newParams = null;
-            for (var i = 0; i < Parameters.Count; i++)
-            {
-                var node = VisitWithCheck(visitor, Parameters[i], true, ref itemsChanged, metadata);
-                if (itemsChanged)
-                    newParams = Parameters.ToArray();
-                if (newParams != null)
-                    newParams[i] = node;
-            }
-
-            if (changed || itemsChanged)
-                return new LambdaExpressionNode(body, newParams ?? Parameters);
+            var newParams = VisitWithCheck(visitor, Parameters, ref changed, metadata);
+            if (changed)
+                return new LambdaExpressionNode(body, newParams);
             return this;
         }
 
