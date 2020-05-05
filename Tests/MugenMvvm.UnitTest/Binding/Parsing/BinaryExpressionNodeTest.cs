@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Left.ShouldEqual(leftChanged);
             expressionNode.Right.ShouldEqual(rightChanged);
-            expressionNode.ExpressionType.ShouldEqual(exp.ExpressionType);
+            expressionNode.Token.ShouldEqual(exp.Token);
         }
 
         [Fact]
