@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Parsing
             get => _position;
             set
             {
-                Should.BeValid(nameof(value), value <= Length);
+                Should.BeValid(nameof(value), value <= Length && value >= 0);
                 _position = value;
             }
         }
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Parsing
             get => _limit;
             set
             {
-                Should.BeValid(nameof(value), value == null || value.Value <= Source.Length);
+                Should.BeValid(nameof(value), value == null || (value.Value <= Source.Length && value >= 0));
                 _limit = value;
             }
         }
