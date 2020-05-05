@@ -37,7 +37,7 @@ namespace MugenMvvm.Extensions
         public static object Box(sbyte value)
         {
             if (value < 0)
-                return Cache<sbyte>.NegativeItems[-value];
+                return Cache<sbyte>.NegativeItems[~value];
             return Cache<sbyte>.Items[value];
         }
 
@@ -53,8 +53,8 @@ namespace MugenMvvm.Extensions
         {
             if (value < 0)
             {
-                if (value > -CacheSize)
-                    return Cache<short>.NegativeItems[-value];
+                if (value >= -CacheSize)
+                    return Cache<short>.NegativeItems[~value];
             }
             else if (value < CacheSize)
                 return Cache<short>.Items[value];
@@ -74,8 +74,8 @@ namespace MugenMvvm.Extensions
         {
             if (value < 0)
             {
-                if (value > -CacheSize)
-                    return Cache<int>.NegativeItems[-value];
+                if (value >= -CacheSize)
+                    return Cache<int>.NegativeItems[~value];
             }
             else if (value < CacheSize)
                 return Cache<int>.Items[value];
@@ -94,8 +94,8 @@ namespace MugenMvvm.Extensions
         {
             if (value < 0)
             {
-                if (value > -CacheSize)
-                    return Cache<long>.NegativeItems[-value];
+                if (value >= -CacheSize)
+                    return Cache<long>.NegativeItems[~value];
             }
             else if (value < CacheSize)
                 return Cache<long>.Items[value];
@@ -122,8 +122,10 @@ namespace MugenMvvm.Extensions
         {
             #region Fields
 
+            // ReSharper disable StaticMemberInGenericType
             public static readonly object[] Items = GenerateItems(false);
             public static readonly object[] NegativeItems = GenerateItems(true);
+            // ReSharper restore StaticMemberInGenericType
 
             #endregion
 
@@ -136,8 +138,16 @@ namespace MugenMvvm.Extensions
                     return Default.EmptyArray<object>();
 
                 var items = new object[cacheSize];
-                for (var i = 0; i < items.Length; i++)
-                    items[i] = Convert.ChangeType(negative ? -i : i, typeof(T));
+                if (negative)
+                {
+                    for (var i = -items.Length; i < 0; i++)
+                        items[~i] = Convert.ChangeType(i, typeof(T));
+                }
+                else
+                {
+                    for (var i = 0; i < items.Length; i++)
+                        items[i] = Convert.ChangeType(i, typeof(T));
+                }
                 return items;
             }
 
@@ -146,7 +156,7 @@ namespace MugenMvvm.Extensions
                 if (negative)
                 {
                     if (typeof(T) == typeof(sbyte))
-                        return -sbyte.MinValue + 1;
+                        return -sbyte.MinValue;
                     if (typeof(T) == typeof(short) || typeof(T) == typeof(int) || typeof(T) == typeof(long))
                         return CacheSize;
                     return 0;

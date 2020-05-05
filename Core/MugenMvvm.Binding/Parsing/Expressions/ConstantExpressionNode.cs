@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         public static ConstantExpressionNode Get(sbyte value)
         {
             if (value < 0)
-                return ExpressionCache<sbyte>.NegativeItems[-value];
+                return ExpressionCache<sbyte>.NegativeItems[~value];
             return ExpressionCache<sbyte>.Items[value];
         }
 
@@ -83,8 +83,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (value < 0)
             {
-                if (value > -BoxingExtensions.CacheSize)
-                    return ExpressionCache<short>.NegativeItems[-value];
+                if (value >= -BoxingExtensions.CacheSize)
+                    return ExpressionCache<short>.NegativeItems[~value];
             }
             else if (value < BoxingExtensions.CacheSize)
                 return ExpressionCache<short>.Items[value];
@@ -103,8 +103,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (value < 0)
             {
-                if (value > -BoxingExtensions.CacheSize)
-                    return ExpressionCache<int>.NegativeItems[-value];
+                if (value >= -BoxingExtensions.CacheSize)
+                    return ExpressionCache<int>.NegativeItems[~value];
             }
             else if (value < BoxingExtensions.CacheSize)
                 return ExpressionCache<int>.Items[value];
@@ -123,8 +123,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             if (value < 0)
             {
-                if (value > -BoxingExtensions.CacheSize)
-                    return ExpressionCache<long>.NegativeItems[-value];
+                if (value >= -BoxingExtensions.CacheSize)
+                    return ExpressionCache<long>.NegativeItems[~value];
             }
             else if (value < BoxingExtensions.CacheSize)
                 return ExpressionCache<long>.Items[value];
@@ -167,8 +167,10 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             #region Fields
 
+            // ReSharper disable StaticMemberInGenericType
             public static readonly ConstantExpressionNode[] Items = GenerateItems(false);
             public static readonly ConstantExpressionNode[] NegativeItems = GenerateItems(true);
+            // ReSharper restore StaticMemberInGenericType
 
             #endregion
 

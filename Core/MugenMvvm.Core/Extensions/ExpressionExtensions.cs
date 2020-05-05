@@ -124,8 +124,10 @@ namespace MugenMvvm.Extensions
         {
             #region Fields
 
+            // ReSharper disable StaticMemberInGenericType
             public static readonly ConstantExpression[] Items = GenerateItems(false);
             public static readonly ConstantExpression[] NegativeItems = GenerateItems(true);
+            // ReSharper restore StaticMemberInGenericType
 
             #endregion
 
