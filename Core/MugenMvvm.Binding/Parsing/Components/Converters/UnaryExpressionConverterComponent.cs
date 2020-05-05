@@ -9,7 +9,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Converters
 {
     public sealed class UnaryExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
@@ -41,15 +41,12 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (expression is UnaryExpression unaryExpression)
+            if (expression is UnaryExpression unaryExpression && Mapping.TryGetValue(unaryExpression.NodeType, out var func))
             {
-                if (Mapping.TryGetValue(unaryExpression.NodeType, out var func))
-                {
-                    var type = func(unaryExpression);
-                    if (type == null)
-                        return context.Convert(unaryExpression.Operand);
-                    return new UnaryExpressionNode(type, context.Convert(unaryExpression.Operand));
-                }
+                var type = func(unaryExpression);
+                if (type == null)
+                    return context.Convert(unaryExpression.Operand);
+                return new UnaryExpressionNode(type, context.Convert(unaryExpression.Operand));
             }
 
             return null;

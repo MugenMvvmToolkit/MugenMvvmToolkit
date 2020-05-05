@@ -8,7 +8,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Parsers
 {
     public sealed class ConstantTokenParserComponent : ITokenParserComponent, IHasPriority
     {

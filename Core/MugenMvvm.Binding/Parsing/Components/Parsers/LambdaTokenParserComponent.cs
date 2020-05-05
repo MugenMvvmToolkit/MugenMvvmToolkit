@@ -8,7 +8,7 @@ using MugenMvvm.Collections.Internal;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Parsers
 {
     public sealed class LambdaTokenParserComponent : ITokenParserComponent, IHasPriority
     {

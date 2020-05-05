@@ -1,18 +1,19 @@
 ﻿using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Converters
 {
-    public sealed class ConstantExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
+    public sealed class DefaultExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = ParsingComponentPriority.Constant;
+        public int Priority { get; set; } = ParsingComponentPriority.Convert;
 
         #endregion
 
@@ -20,8 +21,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (expression is ConstantExpression c)
-                return new ConstantExpressionNode(c.Value, c.Type, c);
+            if (expression is DefaultExpression d)
+                return ConstantExpressionNode.Get(d.Type.GetDefaultValue(), d.Type);
             return null;
         }
 

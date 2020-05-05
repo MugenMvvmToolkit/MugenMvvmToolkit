@@ -6,13 +6,13 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Parsers
 {
-    public sealed class NullConditionalMemberTokenParserComponent : ITokenParserComponent, IHasPriority
+    public sealed class IndexerTokenParserComponent : ITokenParserComponent, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = ParsingComponentPriority.Member;
+        public int Priority { get; set; } = ParsingComponentPriority.Indexer;
 
         #endregion
 
@@ -33,17 +33,16 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private static IExpressionNode? TryParseInternal(ITokenParserContext context, IExpressionNode? expression)
         {
-            if (expression == null)
+            if (!context.SkipWhitespaces().IsToken('['))
                 return null;
 
-            context.SkipWhitespaces();
-            if (context.IsToken('?') && !context.IsToken("??"))
-            {
-                context.MoveNext();
-                return context.TryParse(new NullConditionalMemberExpressionNode(expression));
-            }
-
-            return null;
+            var args = context
+                .MoveNext()
+                .SkipWhitespaces()
+                .ParseArguments("]");
+            if (args == null)
+                return null;
+            return new IndexExpressionNode(expression, args);
         }
 
         #endregion

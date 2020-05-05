@@ -12,7 +12,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Parsers
 {
     //https://devblogs.microsoft.com/csharpfaq/what-character-escape-sequences-are-available/
     //note doesn't support unicode escape sequence

@@ -9,7 +9,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Parsing.Components
+namespace MugenMvvm.Binding.Parsing.Components.Converters
 {
     public sealed class BinaryExpressionConverterComponent : IExpressionConverterComponent<Expression>, IHasPriority
     {
@@ -55,11 +55,8 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (expression is BinaryExpression binary)
-            {
-                if (Mapping.TryGetValue(binary.NodeType, out var func))
-                    return new BinaryExpressionNode(func(binary), context.Convert(binary.Left), context.Convert(binary.Right));
-            }
+            if (expression is BinaryExpression binary && Mapping.TryGetValue(binary.NodeType, out var func))
+                return new BinaryExpressionNode(func(binary), context.Convert(binary.Left), context.Convert(binary.Right));
 
             return null;
         }

@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Components;
+using MugenMvvm.Binding.Parsing.Components.Parsers;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
