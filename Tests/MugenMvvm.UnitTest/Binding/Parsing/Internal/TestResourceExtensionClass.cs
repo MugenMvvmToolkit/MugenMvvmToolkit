@@ -7,16 +7,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
     {
         #region Fields
 
-        public object? Field;
-
-        [ResourceBindingSyntaxExtension(FieldResource)]
-        public object? FieldResourceExt;
-
         public const string ClassResource = "c1";
         public const string MethodResource = "c2";
-        public const string FieldResource = "c3";
-        public const string PropertyResource = "c4";
-        public const string IndexerResource = "c5";
+        public const string PropertyResource = "c3";
+        public const string IndexerResource = "c4";
 
         #endregion
 

@@ -199,7 +199,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             #region Fields
 
-            public static readonly ConstantExpressionNode TypeConstant = new ConstantExpressionNode(typeof(TType), typeof(Type), Expression.Constant(typeof(TType)));
+            public static readonly ConstantExpressionNode TypeConstant = new ConstantExpressionNode(typeof(TType), typeof(TType).GetType(), Expression.Constant(typeof(TType)));
 
             #endregion
         }
