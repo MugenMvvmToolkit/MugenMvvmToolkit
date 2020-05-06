@@ -10,7 +10,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
     {
         #region Fields
 
-        private readonly TargetType _targetType;
         private IMemberPath? _dataContextMemberPath;
 
         #endregion
@@ -19,8 +18,14 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         public BindingMemberExpressionNode(TargetType targetType, string path, IObserverProvider? observerProvider = null) : base(path, observerProvider)
         {
-            _targetType = targetType;
+            Type = targetType;
         }
+
+        #endregion
+
+        #region Properties
+
+        public TargetType Type { get; }
 
         #endregion
 
@@ -30,7 +35,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         {
             memberFlags = MemberFlags;
             path = GetMemberPath(metadata);
-            if (_targetType == TargetType.SourceOnly)
+            if (Type == TargetType.SourceOnly)
                 return source ?? target;
             return target;
         }
@@ -38,21 +43,21 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             memberFlags = MemberFlags;
-            if (_targetType == TargetType.Default && source == null)
+            if (Type == TargetType.Default && source == null)
             {
                 path = GetDataContextPath(metadata);
                 return target;
             }
 
             path = GetMemberPath(metadata);
-            if (_targetType == TargetType.TargetOnly)
+            if (Type == TargetType.TargetOnly)
                 return target;
             return source ?? target;
         }
 
         public override IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            if (_targetType == TargetType.SourceOnly && source != null)
+            if (Type == TargetType.SourceOnly && source != null)
                 target = source;
             return GetObserver(target, GetMemberPath(metadata), metadata);
         }
@@ -60,12 +65,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             IMemberPath path;
-            if (_targetType == TargetType.Default && source == null)
+            if (Type == TargetType.Default && source == null)
                 path = GetDataContextPath(metadata);
             else
             {
                 path = GetMemberPath(metadata);
-                if (_targetType != TargetType.TargetOnly && source != null)
+                if (Type != TargetType.TargetOnly && source != null)
                     target = source;
             }
 

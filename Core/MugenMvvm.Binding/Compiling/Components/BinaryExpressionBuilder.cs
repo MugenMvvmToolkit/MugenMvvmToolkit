@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public BinaryExpressionBuilder()
         {
-            BinaryTokenMapping = new Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>
+            Mapping = new Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>>
             {
                 [BinaryTokenType.Multiplication] = (l, r) => l.GenerateExpression(r, Expression.Multiply),
                 [BinaryTokenType.Division] = (l, r) => l.GenerateExpression(r, Expression.Divide),
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Properties
 
-        public Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>> BinaryTokenMapping { get; }
+        public Dictionary<BinaryTokenType, Func<Expression, Expression, Expression>> Mapping { get; }
 
         public int Priority { get; set; } = CompilingComponentPriority.Binary;
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             if (expression is IBinaryExpressionNode binaryExpression)
             {
-                if (BinaryTokenMapping.TryGetValue(binaryExpression.Token, out var func))
+                if (Mapping.TryGetValue(binaryExpression.Token, out var func))
                     return func(context.Build(binaryExpression.Left), context.Build(binaryExpression.Right));
 
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileBinaryExpressionFormat2.Format(expression, binaryExpression.Token));

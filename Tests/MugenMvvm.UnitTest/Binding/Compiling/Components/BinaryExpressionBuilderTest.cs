@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         public void TryBuildShouldIgnoreNotSupportBinaryExpression()
         {
             var component = new BinaryExpressionBuilder();
-            component.BinaryTokenMapping.Clear();
+            component.Mapping.Clear();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, new BinaryExpressionNode(BinaryTokenType.LogicalOr, ConstantExpressionNode.False, ConstantExpressionNode.False)).ShouldBeNull();
         }

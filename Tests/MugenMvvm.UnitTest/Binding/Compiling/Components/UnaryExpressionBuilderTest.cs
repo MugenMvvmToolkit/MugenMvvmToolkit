@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         public void TryBuildShouldIgnoreNotSupportUnaryExpression()
         {
             var component = new UnaryExpressionBuilder();
-            component.UnaryTokenMapping.Clear();
+            component.Mapping.Clear();
             var ctx = new TestExpressionBuilderContext();
             component.TryBuild(ctx, new UnaryExpressionNode(UnaryTokenType.LogicalNegation, ConstantExpressionNode.False)).ShouldBeNull();
         }

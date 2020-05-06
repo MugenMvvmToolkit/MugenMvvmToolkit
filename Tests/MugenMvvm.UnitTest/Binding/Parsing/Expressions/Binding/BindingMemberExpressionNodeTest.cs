@@ -17,10 +17,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
-            var exp = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, Path);
+            var exp = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.SourceOnly, Path);
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.BindingMember);
             exp.Path.ShouldEqual(Path);
             exp.Index.ShouldEqual(-1);
+            exp.Type.ShouldEqual(BindingMemberExpressionNode.TargetType.SourceOnly);
         }
 
         [Fact]
@@ -170,7 +171,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 TryGetMemberPathObserver = (target, req, arg3, arg4) =>
                 {
                     target.ShouldEqual(expectedTarget);
-                    var request = (MemberPathObserverRequest) req;
+                    var request = (MemberPathObserverRequest)req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
@@ -236,7 +237,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 TryGetMemberPathObserver = (target, req, arg3, arg4) =>
                 {
                     target.ShouldEqual(expectedTarget);
-                    var request = (MemberPathObserverRequest) req;
+                    var request = (MemberPathObserverRequest)req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);

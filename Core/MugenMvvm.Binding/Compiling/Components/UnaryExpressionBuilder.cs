@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public UnaryExpressionBuilder()
         {
-            UnaryTokenMapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
+            Mapping = new Dictionary<UnaryTokenType, Func<Expression, Expression>>
             {
                 [UnaryTokenType.Minus] = Expression.Negate,
                 [UnaryTokenType.Plus] = Expression.UnaryPlus,
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Properties
 
-        public Dictionary<UnaryTokenType, Func<Expression, Expression>> UnaryTokenMapping { get; }
+        public Dictionary<UnaryTokenType, Func<Expression, Expression>> Mapping { get; }
 
         public int Priority { get; set; } = CompilingComponentPriority.Unary;
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             if (expression is IUnaryExpressionNode unaryExpressionNode)
             {
-                if (UnaryTokenMapping.TryGetValue(unaryExpressionNode.Token, out var func))
+                if (Mapping.TryGetValue(unaryExpressionNode.Token, out var func))
                     return func(context.Build(unaryExpressionNode.Operand));
 
                 context.TryGetErrors()?.Add(BindingMessageConstant.CannotCompileUnaryExpressionFormat2.Format(expression, unaryExpressionNode.Token));
