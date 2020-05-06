@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -21,9 +22,14 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
 
         public IExpressionNode? TryConvert(IExpressionConverterContext<Expression> context, Expression expression)
         {
-            if (expression is MemberExpression memberExpression)
-                return new MemberExpressionNode(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);
-            return null;
+            if (!(expression is MemberExpression memberExpression))
+                return null;
+
+            var attribute = BindingSyntaxExtensionAttributeBase.TryGet(memberExpression.Member);
+            if (attribute != null && attribute.TryConvert(context, expression, out var result))
+                return result;
+
+            return new MemberExpressionNode(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);
         }
 
         #endregion

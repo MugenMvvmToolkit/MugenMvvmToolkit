@@ -48,10 +48,10 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {"HasErrors", "HasErrors"},
                 {"Rel", BindableMembers.Object.RelativeSource},
                 {"Relative", BindableMembers.Object.RelativeSource},
-                {"RelativeSourceType", BindableMembers.Object.RelativeSource},
+                {BindableMembers.Object.RelativeSource, BindableMembers.Object.RelativeSource},
                 {"El", BindableMembers.Object.ElementSource},
                 {"Element", BindableMembers.Object.ElementSource},
-                {"ElementSourceType", BindableMembers.Object.ElementSource}
+                {BindableMembers.Object.ElementSource, BindableMembers.Object.ElementSource}
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>
             {

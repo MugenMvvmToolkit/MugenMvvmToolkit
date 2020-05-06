@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
+using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
@@ -27,6 +29,9 @@ namespace MugenMvvm.Binding.Extensions
 
         public static IExpressionNode ConvertTarget(this IExpressionConverterContext<Expression> context, Expression? expression, MemberInfo member)
         {
+            var extAttribute = BindingSyntaxExtensionAttributeBase.TryGet(member.DeclaringType);
+            if (extAttribute != null && extAttribute.TryConvert(context, expression, out var result) && result != null)
+                return result;
             return context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
         }
 
@@ -43,6 +48,32 @@ namespace MugenMvvm.Binding.Extensions
             for (int i = 0; i < expressions.Count; i++)
                 nodes.Add(context.Convert(expressions[i]));
             return nodes;
+        }
+
+        public static IMethodCallExpressionNode ConvertMethodCall(this IExpressionConverterContext<Expression> context, MethodCallExpression methodCallExpression, string? methodName = null)
+        {
+            var method = methodCallExpression.Method;
+            ParameterInfo[]? parameters = null;
+            IExpressionNode target;
+            var args = context.Convert(methodCallExpression.Arguments);
+            if (method.GetAccessModifiers(true, ref parameters).HasFlagEx(MemberFlags.Extension))
+            {
+                target = args[0];
+                args.RemoveAt(0);
+            }
+            else
+                target = context.ConvertTarget(methodCallExpression.Object, method);
+
+            string[]? typeArgs = null;
+            if (method.IsGenericMethod)
+            {
+                var genericArguments = method.GetGenericArguments();
+                typeArgs = new string[genericArguments.Length];
+                for (var i = 0; i < typeArgs.Length; i++)
+                    typeArgs[i] = genericArguments[i].AssemblyQualifiedName;
+            }
+
+            return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs);
         }
 
         [DoesNotReturn]
