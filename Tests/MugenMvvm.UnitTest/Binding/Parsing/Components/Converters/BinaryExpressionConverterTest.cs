@@ -74,11 +74,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
             var context = new ExpressionConverterContext<Expression>();
             var left = Expression.Constant(v1);
             var right = Expression.Constant(v2);
-            var leftR = ConstantExpressionNode.Get(1);
-            var rightR = ConstantExpressionNode.Get(2);
-            context.SetExpression(left, leftR);
-            context.SetExpression(right, rightR);
-            return new object[] {context, Expression.MakeBinary(expressionType, left, right), new BinaryExpressionNode(binaryTokenType, leftR, rightR)};
+            var result = new BinaryExpressionNode(binaryTokenType, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
+            context.SetExpression(left, result.Left);
+            context.SetExpression(right, result.Right);
+            return new object[] { context, Expression.MakeBinary(expressionType, left, right), result };
         }
 
         #endregion
