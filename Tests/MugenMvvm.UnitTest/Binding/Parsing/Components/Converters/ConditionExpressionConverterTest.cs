@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         #region Methods
 
         [Fact]
-        public void TryConvertShouldIgnoreNotBinaryExpression()
+        public void TryConvertShouldIgnoreNotConditionExpression()
         {
             var component = new ConditionExpressionConverter();
             var ctx = new ExpressionConverterContext<Expression>();
