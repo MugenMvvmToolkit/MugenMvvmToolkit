@@ -18,9 +18,7 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Metadata;
-using MugenMvvm.Metadata.Components;
 using MugenMvvm.Threading;
-using MugenMvvm.UnitTest.Threading;
 using MugenMvvm.UnitTest.Threading.Internal;
 using Xunit;
 
@@ -43,11 +41,11 @@ namespace MugenMvvm.UnitTest
             MugenService.Configuration.InitializeInstance<IComponentCollectionProvider>(new ComponentCollectionProvider());
 
             var attachedValueProvider = new AttachedValueProvider();
-            attachedValueProvider.AddComponent(new ConditionalWeakTableAttachedValueProviderComponent());
+            attachedValueProvider.AddComponent(new ConditionalWeakTableAttachedValueProvider());
             MugenService.Configuration.InitializeInstance<IAttachedValueProvider>(attachedValueProvider);
 
-            var metadataContextProvider = new MetadataContextProvider();
-            metadataContextProvider.AddComponent(new MetadataContextProviderComponent());
+            var metadataContextProvider = new MugenMvvm.Metadata.MetadataContextProvider();
+            metadataContextProvider.AddComponent(new MugenMvvm.Metadata.Components.MetadataContextProviderComponent());
             MugenService.Configuration.InitializeInstance<IMetadataContextProvider>(metadataContextProvider);
 
             var weakReferenceProvider = new WeakReferenceProvider();
@@ -57,7 +55,7 @@ namespace MugenMvvm.UnitTest
             InitializeThreadDispatcher();
 
             var reflectionDelegateProvider = new ReflectionDelegateProvider();
-            reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
+            reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
             MugenService.Configuration.InitializeInstance<IReflectionDelegateProvider>(reflectionDelegateProvider);
 
             var commandProvider = new CommandProvider();

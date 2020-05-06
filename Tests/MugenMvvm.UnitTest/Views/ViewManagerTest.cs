@@ -7,7 +7,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.UnitTest.Components;
-using MugenMvvm.UnitTest.ViewModels;
 using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.UnitTest.Views.Internal;
 using MugenMvvm.Views;

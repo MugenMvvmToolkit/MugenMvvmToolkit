@@ -25,8 +25,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             const int index = 1;
             var manager = new MemberManager();
             var decorator = new MethodMemberAccessorDecorator();
-            var component = new ReflectionMemberProviderComponent();
-            var selector = new MemberSelectorComponent();
+            var component = new ReflectionMemberProvider();
+            var selector = new MemberSelector();
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
@@ -58,8 +58,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             const string index1 = "t1";
             var manager = new MemberManager();
             var decorator = new MethodMemberAccessorDecorator();
-            var component = new ReflectionMemberProviderComponent();
-            var selector = new MemberSelectorComponent();
+            var component = new ReflectionMemberProvider();
+            var selector = new MemberSelector();
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
@@ -92,8 +92,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             const int index1 = 2;
             var manager = new MemberManager();
             var decorator = new MethodMemberAccessorDecorator();
-            var component = new ReflectionMemberProviderComponent();
-            var selector = new MemberSelectorComponent();
+            var component = new ReflectionMemberProvider();
+            var selector = new MemberSelector();
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
@@ -127,8 +127,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var args = new[] { 2, 3, 4, 56 };
             var manager = new MemberManager();
             var decorator = new MethodMemberAccessorDecorator();
-            var component = new ReflectionMemberProviderComponent();
-            var selector = new MemberSelectorComponent();
+            var component = new ReflectionMemberProvider();
+            var selector = new MemberSelector();
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);
@@ -161,8 +161,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             const string index1 = "test";
             var manager = new MemberManager();
             var decorator = new MethodMemberAccessorDecorator();
-            var component = new ReflectionMemberProviderComponent();
-            var selector = new MemberSelectorComponent();
+            var component = new ReflectionMemberProvider();
+            var selector = new MemberSelector();
             manager.AddComponent(decorator);
             manager.AddComponent(component);
             manager.AddComponent(selector);

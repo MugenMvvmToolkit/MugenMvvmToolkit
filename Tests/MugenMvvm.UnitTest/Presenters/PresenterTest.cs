@@ -7,7 +7,6 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Presenters;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Models;
-using MugenMvvm.UnitTest.Navigation;
 using MugenMvvm.UnitTest.Navigation.Internal;
 using MugenMvvm.UnitTest.Presenters.Internal;
 using Should;

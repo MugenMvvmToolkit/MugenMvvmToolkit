@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Enums;
 using MugenMvvm.Presenters;
-using MugenMvvm.UnitTest.Navigation;
 using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
 using Xunit;

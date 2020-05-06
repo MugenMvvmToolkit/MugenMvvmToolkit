@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.UnitTest.Binding.Observers;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
 using Xunit;
@@ -73,7 +72,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             });
 
             var delegateProvider = new ReflectionDelegateProvider();
-            delegateProvider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
+            delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
 
             memberInfo = new PropertyMemberAccessorInfo(name, propertyInfo, reflectedType, observerProvider, delegateProvider);
             memberInfo.Name.ShouldEqual(name);

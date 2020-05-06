@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Binding.Enums;
@@ -8,7 +7,6 @@ using MugenMvvm.Binding.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
-using MugenMvvm.UnitTest.Binding.Observers;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
 using Xunit;
@@ -65,7 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             });
 
             var provider = new ReflectionDelegateProvider();
-            provider.AddComponent(new ExpressionReflectionDelegateProviderComponent());
+            provider.AddComponent(new ExpressionReflectionDelegateProvider());
             memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType, observerProvider, provider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(methodInfo.ReturnType);

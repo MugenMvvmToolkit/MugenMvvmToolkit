@@ -15,7 +15,7 @@ namespace MugenMvvm.Extensions
             Func<object, Type, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
-            var factory = new DelegateWrapperManagerComponent<TState>(condition, wrapperFactory, state) {Priority = priority};
+            var factory = new DelegateWrapperManager<TState>(condition, wrapperFactory, state) {Priority = priority};
             wrapperManager.Components.Add(factory, metadata);
             return factory;
         }

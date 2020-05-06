@@ -65,19 +65,19 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         private static IExpressionParser GetInitializedExpressionParser()
         {
             var expressionParser = new ExpressionParser();
-            expressionParser.AddComponent(new BinaryTokenParserComponent());
-            expressionParser.AddComponent(new ConditionTokenParserComponent());
-            expressionParser.AddComponent(new ConstantTokenParserComponent());
-            expressionParser.AddComponent(new DigitTokenParserComponent());
-            expressionParser.AddComponent(new IndexerTokenParserComponent());
-            expressionParser.AddComponent(new LambdaTokenParserComponent());
-            expressionParser.AddComponent(new MemberTokenParserComponent());
-            expressionParser.AddComponent(new MethodCallTokenParserComponent());
-            expressionParser.AddComponent(new NullConditionalMemberTokenParserComponent());
-            expressionParser.AddComponent(new ParenTokenParserComponent());
-            expressionParser.AddComponent(new StringTokenParserComponent());
-            expressionParser.AddComponent(new TokenExpressionParserComponent());
-            expressionParser.AddComponent(new UnaryTokenParserComponent());
+            expressionParser.AddComponent(new BinaryTokenParser());
+            expressionParser.AddComponent(new ConditionTokenParser());
+            expressionParser.AddComponent(new ConstantTokenParser());
+            expressionParser.AddComponent(new DigitTokenParser());
+            expressionParser.AddComponent(new IndexerTokenParser());
+            expressionParser.AddComponent(new LambdaTokenParser());
+            expressionParser.AddComponent(new MemberTokenParser());
+            expressionParser.AddComponent(new MethodCallTokenParser());
+            expressionParser.AddComponent(new NullConditionalMemberTokenParser());
+            expressionParser.AddComponent(new ParenTokenParser());
+            expressionParser.AddComponent(new StringTokenParser());
+            expressionParser.AddComponent(new ExpressionParserComponent());
+            expressionParser.AddComponent(new UnaryTokenParser());
             return expressionParser;
         }
 

@@ -1,0 +1,78 @@
+﻿using System;
+using System.Linq.Expressions;
+using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Interfaces.Compiling;
+using MugenMvvm.Binding.Interfaces.Compiling.Components;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Models;
+
+namespace MugenMvvm.Binding.Compiling.Components
+{
+    public sealed class NullConditionalExpressionBuilder : IExpressionBuilderComponent, IHasPriority
+    {
+        #region Fields
+
+        private static readonly Type[] GenericTypeBuffer = new Type[1];
+        private static readonly ParameterExpression[] ParameterExpressionBuffer = new ParameterExpression[1];
+        private static readonly Expression[] ExpressionBuffer = new Expression[2];
+
+        #endregion
+
+        #region Properties
+
+        public int Priority { get; set; } = CompilingComponentPriority.NullConditionalMember;
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public Expression? TryBuild(IExpressionBuilderContext context, IExpressionNode expression)
+        {
+            if (!(expression is IHasTargetExpressionNode<IExpressionNode> hasTarget) || !(hasTarget.Target is NullConditionalMemberExpressionNode nullConditional))
+                return null;
+
+            if (context.TryGetExpression(nullConditional) != null)
+                return null;
+
+            var targetEx = context.Build(nullConditional.Target!);
+            try
+            {
+                if (targetEx.Type.IsValueType && !targetEx.Type.IsNullableType())
+                {
+                    context.SetExpression(nullConditional, targetEx);
+                    return context.Build(expression);
+                }
+
+                var variable = Expression.Variable(targetEx.Type);
+                context.SetExpression(nullConditional, variable);
+                var exp = context.Build(expression);
+                var type = exp.Type;
+                if (type.IsValueType && !type.IsNullableType())
+                {
+                    GenericTypeBuffer[0] = type;
+                    type = typeof(Nullable<>).MakeGenericType(GenericTypeBuffer);
+                }
+
+                var nullConstant = Expression.Constant(null, type);
+                var conditionalExpression = Expression.Condition(targetEx.Type.IsValueType
+                        ? Expression.Equal(variable, MugenExtensions.NullConstantExpression)
+                        : Expression.ReferenceEqual(variable, MugenExtensions.NullConstantExpression), nullConstant, exp.ConvertIfNeed(type, false));
+                ParameterExpressionBuffer[0] = variable;
+                ExpressionBuffer[0] = Expression.Assign(variable, targetEx);
+                ExpressionBuffer[1] = conditionalExpression;
+
+                return Expression.Block(ParameterExpressionBuffer, ExpressionBuffer);
+            }
+            finally
+            {
+                context.ClearExpression(nullConditional);
+                Array.Clear(ExpressionBuffer, 0, ExpressionBuffer.Length);
+            }
+        }
+
+        #endregion
+    }
+}

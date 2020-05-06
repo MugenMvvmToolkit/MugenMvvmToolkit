@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canTrace = count - 1 == i;
-                var component = new DelegateTracerComponent((level, s, arg3, arg4) => { }, (level, metadata) =>
+                var component = new DelegateTracer((level, s, arg3, arg4) => { }, (level, metadata) =>
                 {
                     ++invokeCount;
                     level.ShouldEqual(traceLevelValue);
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTest.Internal
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
-                var component = new DelegateTracerComponent((level, m, exc, metadata) =>
+                var component = new DelegateTracer((level, m, exc, metadata) =>
                 {
                     ++invokeCount;
                     message.ShouldEqual(m);

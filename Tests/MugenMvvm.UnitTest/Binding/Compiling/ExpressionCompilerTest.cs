@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -16,7 +15,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class ExpressionCompilerTest : ComponentOwnerTestBase<ExpressionCompiler>
+    public class ExpressionCompilerTest : ComponentOwnerTestBase<MugenMvvm.Binding.Compiling.ExpressionCompiler>
     {
         #region Methods
 
@@ -192,30 +191,30 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
 
-        private static ExpressionCompiler GetInitializedCompiler()
+        private static MugenMvvm.Binding.Compiling.ExpressionCompiler GetInitializedCompiler()
         {
             var memberManager = new MemberManager();
-            memberManager.AddComponent(new MemberSelectorComponent());
+            memberManager.AddComponent(new MemberSelector());
             memberManager.AddComponent(new MemberManagerComponent());
-            memberManager.AddComponent(new ReflectionMemberProviderComponent());
-            memberManager.AddComponent(new ExtensionMethodMemberProviderComponent());
+            memberManager.AddComponent(new ReflectionMemberProvider());
+            memberManager.AddComponent(new ExtensionMethodMemberProvider());
 
-            var expressionCompiler = new ExpressionCompiler();
-            expressionCompiler.AddComponent(new BinaryExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new ConditionExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new ConstantExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new LambdaExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new MemberExpressionBuilderComponent(memberManager));
-            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilderComponent(memberManager));
-            expressionCompiler.AddComponent(new NullConditionalExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new UnaryExpressionBuilderComponent());
-            expressionCompiler.AddComponent(new ExpressionCompilerComponent());
+            var expressionCompiler = new MugenMvvm.Binding.Compiling.ExpressionCompiler();
+            expressionCompiler.AddComponent(new BinaryExpressionBuilder());
+            expressionCompiler.AddComponent(new ConditionExpressionBuilder());
+            expressionCompiler.AddComponent(new ConstantExpressionBuilder());
+            expressionCompiler.AddComponent(new LambdaExpressionBuilder());
+            expressionCompiler.AddComponent(new MemberExpressionBuilder(memberManager));
+            expressionCompiler.AddComponent(new MethodCallIndexerExpressionBuilder(memberManager));
+            expressionCompiler.AddComponent(new NullConditionalExpressionBuilder());
+            expressionCompiler.AddComponent(new UnaryExpressionBuilder());
+            expressionCompiler.AddComponent(new MugenMvvm.Binding.Compiling.Components.ExpressionCompilerComponent());
             return expressionCompiler;
         }
 
-        protected override ExpressionCompiler GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override MugenMvvm.Binding.Compiling.ExpressionCompiler GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new ExpressionCompiler(collectionProvider);
+            return new MugenMvvm.Binding.Compiling.ExpressionCompiler(collectionProvider);
         }
 
         #endregion

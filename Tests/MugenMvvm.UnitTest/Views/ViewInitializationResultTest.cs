@@ -1,5 +1,4 @@
-﻿using MugenMvvm.UnitTest.ViewModels;
-using MugenMvvm.UnitTest.ViewModels.Internal;
+﻿using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.Views;
 using Should;
 using Xunit;
