@@ -18,7 +18,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
-    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor
+    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor//todo add observable method names
     {
         #region Fields
 

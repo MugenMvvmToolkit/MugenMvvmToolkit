@@ -25,13 +25,16 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
             var expressions = lambda.Parameters;
             try
             {
+                var parameters = new IParameterExpressionNode[expressions.Count];
                 for (var i = 0; i < expressions.Count; i++)
                 {
                     var parameterExpression = expressions[i];
-                    context.SetExpression(parameterExpression, new ParameterExpressionNode(parameterExpression.Name));
+                    var parameterExpressionNode = new ParameterExpressionNode(parameterExpression.Name);
+                    parameters[i] = parameterExpressionNode;
+                    context.SetExpression(parameterExpression, parameterExpressionNode);
                 }
 
-                return context.Convert(lambda.Body);
+                return new LambdaExpressionNode(context.Convert(lambda.Body), parameters);
             }
             finally
             {
