@@ -31,12 +31,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
         #region Methods
 
         [ResourceBindingSyntaxExtension(MethodResource)]
-        public object? MethodResourceExt()
+        public object? MethodResourceExt(object? arg)
         {
             return null;
         }
 
-        public object? Method()
+        public object? Method(object? arg)
         {
             return null;
         }

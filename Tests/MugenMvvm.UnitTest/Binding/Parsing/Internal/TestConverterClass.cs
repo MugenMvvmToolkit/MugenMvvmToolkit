@@ -14,12 +14,12 @@
 
         #region Methods
 
-        public object? Method()
+        public object? Method(object? arg)
         {
             return null;
         }
 
-        public static object? MethodStatic()
+        public static object? MethodStatic(object? arg)
         {
             return null;
         }
