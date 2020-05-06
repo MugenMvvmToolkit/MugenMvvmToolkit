@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         {
             var component = new MethodCallExpressionConverter();
             var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldNotBeNull();
+            component.TryConvert(ctx, Expression.Parameter(typeof(object))).ShouldBeNull();
         }
 
 

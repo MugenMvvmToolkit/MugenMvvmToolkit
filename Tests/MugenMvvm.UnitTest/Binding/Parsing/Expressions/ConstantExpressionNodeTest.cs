@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
         public void GetTypeShouldUseCache()
         {
             var exp = ConstantExpressionNode.Get<string>();
-            exp.Type.ShouldEqual(typeof(Type));
+            exp.Type.ShouldEqual(typeof(string).GetType());
             exp.ConstantExpression!.Value.ShouldEqual(typeof(string));
             exp.Value.ShouldEqual(typeof(string));
             exp.ShouldEqual(ConstantExpressionNode.Get<string>());
