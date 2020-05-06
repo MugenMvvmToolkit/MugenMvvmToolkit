@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Converters;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.UnitTest.Binding.Converters.Internal;
 using MugenMvvm.UnitTest.Components;
 using Should;
 using Xunit;

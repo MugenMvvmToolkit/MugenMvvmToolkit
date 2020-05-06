@@ -4,6 +4,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Components;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 

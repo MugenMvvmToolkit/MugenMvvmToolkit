@@ -9,7 +9,9 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Threading;
+using MugenMvvm.UnitTest.Components.Internal;
 using MugenMvvm.UnitTest.Threading;
+using MugenMvvm.UnitTest.Threading.Internal;
 using Should;
 using Xunit;
 

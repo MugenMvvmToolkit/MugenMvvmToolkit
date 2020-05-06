@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.UnitTest.Components.Internal;
 using Should;
 using Xunit;
 

@@ -21,6 +21,7 @@ using MugenMvvm.Metadata;
 using MugenMvvm.Metadata.Components;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTest.Threading;
+using MugenMvvm.UnitTest.Threading.Internal;
 using Xunit;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]

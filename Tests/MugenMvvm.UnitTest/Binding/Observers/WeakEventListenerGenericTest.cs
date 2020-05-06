@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Binding.Observers;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
 using Xunit;
 

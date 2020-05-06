@@ -6,6 +6,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Navigation;
+using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
 using Xunit;
 

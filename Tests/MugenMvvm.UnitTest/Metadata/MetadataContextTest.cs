@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
+using MugenMvvm.UnitTest.Metadata.Internal;
 using Should;
 using Xunit;
 

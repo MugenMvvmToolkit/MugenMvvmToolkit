@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
 using Xunit;
 

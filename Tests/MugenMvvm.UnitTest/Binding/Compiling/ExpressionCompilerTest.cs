@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Components;
 using Should;
 using Xunit;

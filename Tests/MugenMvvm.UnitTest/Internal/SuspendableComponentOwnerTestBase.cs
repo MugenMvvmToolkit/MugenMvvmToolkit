@@ -2,6 +2,7 @@
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.UnitTest.Components;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 

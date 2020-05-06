@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
 using Xunit;
 

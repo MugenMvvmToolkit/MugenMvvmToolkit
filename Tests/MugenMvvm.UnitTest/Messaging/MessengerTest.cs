@@ -8,7 +8,10 @@ using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
+using MugenMvvm.UnitTest.Messaging.Internal;
 using MugenMvvm.UnitTest.Metadata;
+using MugenMvvm.UnitTest.Metadata.Internal;
 using Should;
 using Xunit;
 

@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.UnitTest.Binding.Members;
+using MugenMvvm.UnitTest.Binding.Members.Internal;
 using Should;
 using Xunit;
 

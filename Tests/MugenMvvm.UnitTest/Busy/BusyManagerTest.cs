@@ -5,6 +5,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.UnitTest.Busy.Internal;
 using MugenMvvm.UnitTest.Internal;
 using Should;
 using Xunit;

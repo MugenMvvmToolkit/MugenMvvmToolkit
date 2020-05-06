@@ -9,6 +9,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTest.Components;
+using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
 using Xunit;
 

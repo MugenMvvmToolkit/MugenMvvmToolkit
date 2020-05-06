@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
+using MugenMvvm.UnitTest.Validation.Internal;
 using MugenMvvm.Validation;
 using Should;
 using Xunit;

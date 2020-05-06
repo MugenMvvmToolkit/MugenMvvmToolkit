@@ -3,6 +3,7 @@ using MugenMvvm.Commands;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.UnitTest.Commands.Internal;
 using MugenMvvm.UnitTest.Components;
 using Should;
 using Xunit;

@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Components;
 using Should;
 using Xunit;

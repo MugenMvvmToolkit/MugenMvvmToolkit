@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTest.Metadata;
+using MugenMvvm.UnitTest.Validation.Internal;
 
 namespace MugenMvvm.UnitTest.Validation
 {

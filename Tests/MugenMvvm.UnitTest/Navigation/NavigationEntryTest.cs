@@ -2,6 +2,7 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTest.Metadata;
+using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
 using Xunit;
 

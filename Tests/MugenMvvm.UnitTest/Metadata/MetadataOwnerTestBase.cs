@@ -2,6 +2,8 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
+using MugenMvvm.UnitTest.Metadata.Internal;
 using Should;
 using Xunit;
 
