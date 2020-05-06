@@ -27,10 +27,18 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
+        public static bool TryConvertExtension(this IExpressionConverterContext<Expression> context, MemberInfo member, Expression? expression, out IExpressionNode? result)
+        {
+            var attribute = BindingSyntaxExtensionAttributeBase.TryGet(member);
+            if (attribute != null)
+                return attribute.TryConvert(context, expression, out result);
+            result = null;
+            return false;
+        }
+
         public static IExpressionNode ConvertTarget(this IExpressionConverterContext<Expression> context, Expression? expression, MemberInfo member)
         {
-            var extAttribute = BindingSyntaxExtensionAttributeBase.TryGet(member.DeclaringType);
-            if (extAttribute != null && extAttribute.TryConvert(context, expression, out var result) && result != null)
+            if (context.TryConvertExtension(member.DeclaringType, expression, out var result) && result != null)
                 return result;
             return context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
         }

@@ -20,6 +20,7 @@ namespace MugenMvvm.Binding.Attributes
 
         public static BindingSyntaxExtensionAttributeBase? TryGet(MemberInfo member)
         {
+            Should.NotBeNull(member, nameof(member));
             lock (Cache)
             {
                 if (!Cache.TryGetValue(member, out var attribute))

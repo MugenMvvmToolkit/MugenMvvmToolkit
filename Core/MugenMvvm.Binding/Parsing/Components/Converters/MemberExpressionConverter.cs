@@ -25,8 +25,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
             if (!(expression is MemberExpression memberExpression))
                 return null;
 
-            var attribute = BindingSyntaxExtensionAttributeBase.TryGet(memberExpression.Member);
-            if (attribute != null && attribute.TryConvert(context, expression, out var result))
+            if (context.TryConvertExtension(memberExpression.Member, expression, out var result))
                 return result;
 
             return new MemberExpressionNode(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);

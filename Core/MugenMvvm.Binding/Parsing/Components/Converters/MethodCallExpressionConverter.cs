@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -24,8 +23,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
             if (!(expression is MethodCallExpression methodCallExpression))
                 return null;
 
-            var attribute = BindingSyntaxExtensionAttributeBase.TryGet(methodCallExpression.Method);
-            if (attribute != null && attribute.TryConvert(context, expression, out var result))
+            if (context.TryConvertExtension(methodCallExpression.Method, expression, out var result))
                 return result;
 
             return context.ConvertMethodCall(methodCallExpression);

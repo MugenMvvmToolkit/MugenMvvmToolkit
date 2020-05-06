@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -25,8 +24,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
             if (!(expression is IndexExpression index))
                 return null;
 
-            var attribute = BindingSyntaxExtensionAttributeBase.TryGet(index.Indexer);
-            if (attribute != null && attribute.TryConvert(context, expression, out var result))
+            if (context.TryConvertExtension(index.Indexer, expression, out var result))
                 return result;
 
             return new IndexExpressionNode(context.ConvertTarget(index.Object, index.Indexer), context.Convert(index.Arguments));
