@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.NoArgsStatic));
             var invoker = (Action)component.TryGetMethodInvoker(method, typeof(Action))!;
 
-            TestMethodClass.IsNoArgsStaticInvoked.ShouldBeFalse();
+            TestMethodClass.IsNoArgsStaticInvoked = false;
             invoker.Invoke();
             TestMethodClass.IsNoArgsStaticInvoked.ShouldBeTrue();
         }

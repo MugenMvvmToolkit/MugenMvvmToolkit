@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
             ctx.SetExpression(ifFalse, result.IfFalse);
 
             var component = new ConditionExpressionConverter();
-            component.TryConvert(ctx, Expression.Condition(condition, ifTrue, ifFalse)).EqualsEx(result).ShouldBeTrue();
+            component.TryConvert(ctx, Expression.Condition(condition, ifTrue, ifFalse)).ShouldEqual(result);
         }
 
         #endregion

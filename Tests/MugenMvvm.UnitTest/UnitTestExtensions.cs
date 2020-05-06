@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using Should;
 
@@ -44,6 +45,11 @@ namespace MugenMvvm.UnitTest
             @object.ShouldBeNull();
         }
 
+        public static void ShouldEqual(this IExpressionNode? x1, IExpressionNode? x2)
+        {
+            x1.EqualsEx(x2).ShouldBeTrue();
+        }
+
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {
             if (x1 == null || x2 == null)
@@ -53,28 +59,35 @@ namespace MugenMvvm.UnitTest
             switch (x1)
             {
                 case IBinaryExpressionNode binaryExpressionNode:
-                    return binaryExpressionNode.EqualsEx((IBinaryExpressionNode) x2);
+                    return binaryExpressionNode.EqualsEx((IBinaryExpressionNode)x2);
                 case IBindingMemberExpressionNode bindingMemberExpressionNode:
-                    return bindingMemberExpressionNode.EqualsEx((IBindingMemberExpressionNode) x2);
+                    return bindingMemberExpressionNode.EqualsEx((IBindingMemberExpressionNode)x2);
                 case IConditionExpressionNode conditionExpressionNode:
-                    return conditionExpressionNode.EqualsEx((IConditionExpressionNode) x2);
+                    return conditionExpressionNode.EqualsEx((IConditionExpressionNode)x2);
                 case IConstantExpressionNode constantExpressionNode:
-                    return constantExpressionNode.EqualsEx((IConstantExpressionNode) x2);
+                    return constantExpressionNode.EqualsEx((IConstantExpressionNode)x2);
                 case IIndexExpressionNode indexExpressionNode:
-                    return indexExpressionNode.EqualsEx((IIndexExpressionNode) x2);
+                    return indexExpressionNode.EqualsEx((IIndexExpressionNode)x2);
                 case ILambdaExpressionNode lambdaExpressionNode:
-                    return lambdaExpressionNode.EqualsEx((ILambdaExpressionNode) x2);
+                    return lambdaExpressionNode.EqualsEx((ILambdaExpressionNode)x2);
                 case IMemberExpressionNode memberExpressionNode:
-                    return memberExpressionNode.EqualsEx((IMemberExpressionNode) x2);
+                    return memberExpressionNode.EqualsEx((IMemberExpressionNode)x2);
                 case IMethodCallExpressionNode methodCallExpressionNode:
-                    return methodCallExpressionNode.EqualsEx((IMethodCallExpressionNode) x2);
+                    return methodCallExpressionNode.EqualsEx((IMethodCallExpressionNode)x2);
                 case IParameterExpressionNode parameterExpressionNode:
-                    return parameterExpressionNode.EqualsEx((IParameterExpressionNode) x2);
+                    return parameterExpressionNode.EqualsEx((IParameterExpressionNode)x2);
                 case IUnaryExpressionNode unaryExpressionNode:
-                    return unaryExpressionNode.EqualsEx((IUnaryExpressionNode) x2);
+                    return unaryExpressionNode.EqualsEx((IUnaryExpressionNode)x2);
+                case NullConditionalMemberExpressionNode nullConditionalMember:
+                    return nullConditionalMember.Equals((NullConditionalMemberExpressionNode)x2);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(x1));
             }
+        }
+
+        private static bool EqualsEx(this NullConditionalMemberExpressionNode x1, NullConditionalMemberExpressionNode x2)
+        {
+            return x1.Target.EqualsEx(x2.Target);
         }
 
         private static bool EqualsEx(this IBinaryExpressionNode x1, IBinaryExpressionNode x2)
@@ -89,11 +102,11 @@ namespace MugenMvvm.UnitTest
             switch (x1)
             {
                 case BindingMemberExpressionNode bindingMemberExpressionNode:
-                    return bindingMemberExpressionNode.Type == ((BindingMemberExpressionNode) x2).Type;
+                    return bindingMemberExpressionNode.Type == ((BindingMemberExpressionNode)x2).Type;
                 case BindingInstanceMemberExpressionNode bindingInstanceMemberExpressionNode:
-                    return Equals(bindingInstanceMemberExpressionNode.Instance, ((BindingInstanceMemberExpressionNode) x2).Instance);
+                    return Equals(bindingInstanceMemberExpressionNode.Instance, ((BindingInstanceMemberExpressionNode)x2).Instance);
                 case BindingResourceMemberExpressionNode bindingResourceMemberExpressionNode:
-                    return bindingResourceMemberExpressionNode.ResourceName == ((BindingResourceMemberExpressionNode) x2).ResourceName;
+                    return bindingResourceMemberExpressionNode.ResourceName == ((BindingResourceMemberExpressionNode)x2).ResourceName;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(x1));
             }

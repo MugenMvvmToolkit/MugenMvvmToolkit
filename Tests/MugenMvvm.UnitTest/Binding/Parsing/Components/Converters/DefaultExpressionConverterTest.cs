@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         {
             var component = new DefaultExpressionConverter();
             var ctx = new ExpressionConverterContext<Expression>();
-            component.TryConvert(ctx, Expression.Default(typeof(int))).EqualsEx(ConstantExpressionNode.Get(0)).ShouldBeTrue();
+            component.TryConvert(ctx, Expression.Default(typeof(int))).ShouldEqual(ConstantExpressionNode.Get(0));
         }
 
         #endregion

@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            return TryParse?.Invoke(expression, typeof(TExpression), metadata) ?? default;
+            return TryParse?.Invoke(expression!, typeof(TExpression), metadata) ?? default;
         }
 
         #endregion

@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         [MemberData(nameof(GetData))]
         public void TryConvertShouldConvertBinaryExpression(ExpressionConverterContext<Expression> ctx, Expression expression, IExpressionNode result)
         {
-            new BinaryExpressionConverter().TryConvert(ctx, expression).EqualsEx(result).ShouldBeTrue();
+            new BinaryExpressionConverter().TryConvert(ctx, expression).ShouldEqual(result);
         }
 
         public static IEnumerable<object?[]> GetData()
