@@ -40,6 +40,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
         [InlineData("1UL", 1UL)]
         [InlineData("1Ul", 1Ul)]
         [InlineData("1uL", 1uL)]
+        [InlineData("1e-", null)]
+        [InlineData("1e+", null)]
+        [InlineData("1.1UL", null)]
         public void TryParseShouldParseDigitExpression(string expression, object result)
         {
             if (expression.EndsWith("m", StringComparison.OrdinalIgnoreCase))
@@ -47,7 +50,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             var component = new DigitTokenParser();
             var ctx = new TokenParserContext();
             ctx.Initialize(expression, DefaultMetadata);
-            component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
+            if (result == null)
+                component.TryParse(ctx, null).ShouldBeNull();
+            else
+                component.TryParse(ctx, null).ShouldEqual(ConstantExpressionNode.Get(result));
         }
 
         [Fact]
