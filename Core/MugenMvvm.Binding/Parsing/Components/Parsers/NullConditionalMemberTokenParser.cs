@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 return null;
 
             context.SkipWhitespaces();
-            if (context.IsToken('?') && !context.IsToken("??"))
+            if (context.IsToken('?') && context.IsToken('.', context.SkipWhitespacesPosition(context.Position + 1)))
             {
                 context.MoveNext();
                 return context.TryParse(new NullConditionalMemberExpressionNode(expression));

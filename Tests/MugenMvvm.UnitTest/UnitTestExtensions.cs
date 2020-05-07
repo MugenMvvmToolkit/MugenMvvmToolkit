@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest
                 case IUnaryExpressionNode unaryExpressionNode:
                     return unaryExpressionNode.EqualsEx((IUnaryExpressionNode)x2);
                 case NullConditionalMemberExpressionNode nullConditionalMember:
-                    return nullConditionalMember.Equals((NullConditionalMemberExpressionNode)x2);
+                    return nullConditionalMember.EqualsEx((NullConditionalMemberExpressionNode)x2);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(x1));
             }
