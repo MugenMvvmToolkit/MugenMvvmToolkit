@@ -18,8 +18,14 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
         public void TryParseShouldIgnoreNotBinaryExpression()
         {
             var component = new BinaryTokenParser();
-            var ctx = new TokenParserContext();
-            ctx.Initialize("+ 1", DefaultMetadata);
+            var ctx = new TokenParserContext
+            {
+                Parsers = new ITokenParserComponent[]
+                {
+                    new DigitTokenParser()
+                }
+            };
+            ctx.Initialize("1", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
         }
 
@@ -28,7 +34,13 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
         {
             var component = new BinaryTokenParser();
             component.Tokens.Clear();
-            var ctx = new TokenParserContext();
+            var ctx = new TokenParserContext
+            {
+                Parsers = new ITokenParserComponent[]
+                {
+                    new DigitTokenParser()
+                }
+            };
             ctx.Initialize("+ 1", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Get(1)).ShouldBeNull();
         }
@@ -97,7 +109,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
                 }
             };
             var result = new BinaryExpressionNode(binaryToken, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2));
-            context.Initialize($"{binaryToken.Value} {((IConstantExpressionNode)result.Right).Value}", DefaultMetadata);
+            context.Initialize($"{binaryToken.Value} {((IConstantExpressionNode) result.Right).Value}", DefaultMetadata);
             return new object[]
             {
                 context, result.Left, result
