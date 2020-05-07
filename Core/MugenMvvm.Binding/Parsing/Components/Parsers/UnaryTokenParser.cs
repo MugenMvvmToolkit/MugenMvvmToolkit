@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         public UnaryTokenParser()
         {
-            TokenMapping = new Dictionary<char, UnaryTokenType[]>(7)
+            Mapping = new Dictionary<char, UnaryTokenType[]>(7)
             {
                 {UnaryTokenType.Minus.Value[0], new[] {UnaryTokenType.Minus}},
                 {UnaryTokenType.Plus.Value[0], new[] {UnaryTokenType.Plus}},
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         #region Properties
 
-        public Dictionary<char, UnaryTokenType[]> TokenMapping { get; }
+        public Dictionary<char, UnaryTokenType[]> Mapping { get; }
 
         public int Priority { get; set; } = ParsingComponentPriority.Unary;
 
@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 return null;
 
             var position = context.SkipWhitespacesPosition();
-            if (context.IsEof(position) || !TokenMapping.TryGetValue(context.TokenAt(position), out var values))
+            if (context.IsEof(position) || !Mapping.TryGetValue(context.TokenAt(position), out var values))
                 return null;
 
             for (var i = 0; i < values.Length; i++)
@@ -68,12 +68,12 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                     continue;
 
                 context.Position = position + value.Value.Length;
-                if (value == UnaryTokenType.DynamicExpression || value == UnaryTokenType.StaticExpression)
+                if (value.IsSingleExpression)
                 {
                     var node = context.TryParse();
                     if (node == null || node is ConstantExpressionNode)
                     {
-                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position)));
+                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position).ToString()));
                         return null;
                     }
                     return new UnaryExpressionNode(value, node);
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                     return new UnaryExpressionNode(value, operand);
             }
 
-            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position)));
+            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position).ToString()));
             return null;
         }
 

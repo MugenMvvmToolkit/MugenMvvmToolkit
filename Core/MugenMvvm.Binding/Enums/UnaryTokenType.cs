@@ -10,8 +10,8 @@ namespace MugenMvvm.Binding.Enums
     {
         #region Fields
 
-        public static readonly UnaryTokenType DynamicExpression = new UnaryTokenType("$");
-        public static readonly UnaryTokenType StaticExpression = new UnaryTokenType("$$");
+        public static readonly UnaryTokenType DynamicExpression = new UnaryTokenType("$") { IsSingleExpression = true };
+        public static readonly UnaryTokenType StaticExpression = new UnaryTokenType("$$") { IsSingleExpression = true };
         public static readonly UnaryTokenType Minus = new UnaryTokenType("-");
         public static readonly UnaryTokenType Plus = new UnaryTokenType("+");
         public static readonly UnaryTokenType LogicalNegation = new UnaryTokenType("!");
@@ -30,6 +30,12 @@ namespace MugenMvvm.Binding.Enums
             : base(value)
         {
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsSingleExpression { get; set; }
 
         #endregion
 
