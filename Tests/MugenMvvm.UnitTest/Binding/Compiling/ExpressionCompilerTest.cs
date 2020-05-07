@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -191,7 +192,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             compiler.Compile(node).Invoke(default, DefaultMetadata).ShouldEqual(result);
         }
 
-        private static MugenMvvm.Binding.Compiling.ExpressionCompiler GetInitializedCompiler()
+        private static ExpressionCompiler GetInitializedCompiler()
         {
             var memberManager = new MemberManager();
             memberManager.AddComponent(new MemberSelector());

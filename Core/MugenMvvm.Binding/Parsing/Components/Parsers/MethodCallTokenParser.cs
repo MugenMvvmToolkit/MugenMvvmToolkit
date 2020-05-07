@@ -58,7 +58,6 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                     return null;
             }
 
-
             if (!context.IsToken('('))
             {
                 if (typeArgs != null)
