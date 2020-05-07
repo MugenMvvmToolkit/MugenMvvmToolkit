@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
         }
 
         [Fact]
-        public void TryParseShouldParseIndexer()
+        public void TryParseShouldParseIndexerExpression()
         {
             var ctx = new TokenParserContext
             {
