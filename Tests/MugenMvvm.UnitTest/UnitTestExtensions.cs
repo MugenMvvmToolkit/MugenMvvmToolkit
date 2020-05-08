@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
+using MugenMvvm.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTest
@@ -47,10 +48,17 @@ namespace MugenMvvm.UnitTest
 
         public static void ShouldEqual(this IExpressionNode? x1, IExpressionNode? x2)
         {
-            x1.EqualsEx(x2).ShouldBeTrue();
+            x1!.ShouldEqual(x2!, ExpressionNodeEqualityComparer.Instance);
         }
 
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
+        {
+            if (x1.EqualsInternal(x2))
+                return true;
+            return false;
+        }
+
+        private static bool EqualsInternal(this IExpressionNode? x1, IExpressionNode? x2)
         {
             if (x1 == null || x2 == null)
                 return x1 == x2;
@@ -163,6 +171,50 @@ namespace MugenMvvm.UnitTest
             }
 
             return true;
+        }
+
+        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List.ToArray();
+            if (itemOrList.Item == null)
+                return Default.EmptyArray<TItem>();
+            return new[] { itemOrList.Item! };
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class ExpressionNodeEqualityComparer : IEqualityComparer<IExpressionNode>
+        {
+            #region Fields
+
+            public static readonly ExpressionNodeEqualityComparer Instance = new ExpressionNodeEqualityComparer();
+
+            #endregion
+
+            #region Constructors
+
+            private ExpressionNodeEqualityComparer()
+            {
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public bool Equals(IExpressionNode x, IExpressionNode y)
+            {
+                return x.EqualsEx(y);
+            }
+
+            public int GetHashCode(IExpressionNode obj)
+            {
+                return 0;
+            }
+
+            #endregion
         }
 
         #endregion
