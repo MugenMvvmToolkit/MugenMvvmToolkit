@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Binding.Compiling.Components;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -616,7 +617,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         public void TryBuildShouldBuildMethodCallIndexer()
         {
             var invokeCount = 0;
-            const string memberName = "get_Item";
+            const string memberName = BindingInternalConstant.IndexerGetterName;
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             var result = new TestMethodInfo
