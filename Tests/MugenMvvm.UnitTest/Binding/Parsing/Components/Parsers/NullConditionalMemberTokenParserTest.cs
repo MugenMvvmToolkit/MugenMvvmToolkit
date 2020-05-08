@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Parsing;
+﻿using MugenMvvm.Binding.Interfaces.Parsing.Components;
+using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Components.Parsers;
 using MugenMvvm.Binding.Parsing.Expressions;
 using Should;
@@ -26,7 +27,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
         public void TryParseShouldParseNullConditionalExpression()
         {
             const string memberName = "Test";
-            var ctx = new TokenParserContext {Parsers = new[] {new MemberTokenParser()}};
+            var ctx = new TokenParserContext {Parsers = new ITokenParserComponent[] {new MemberTokenParser(), new IndexerTokenParser()}};
             ctx.Initialize($"?.{memberName}", DefaultMetadata);
 
             var component = new NullConditionalMemberTokenParser();
@@ -34,6 +35,18 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
 
             ctx.Initialize($"?      .{memberName}", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new MemberExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), memberName));
+
+            ctx.Initialize($"?[{memberName}]", DefaultMetadata);
+            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), new[]
+            {
+                new MemberExpressionNode(null, memberName)
+            }));
+
+            ctx.Initialize($"?      [{memberName}]", DefaultMetadata);
+            component.TryParse(ctx, ConstantExpressionNode.Null).ShouldEqual(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Null), new[]
+            {
+                new MemberExpressionNode(null, memberName)
+            }));
 
             ctx.Initialize($"?{memberName}", DefaultMetadata);
             component.TryParse(ctx, ConstantExpressionNode.Null).ShouldBeNull();

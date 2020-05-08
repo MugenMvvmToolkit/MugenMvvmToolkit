@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Binding.Internal
     {
         #region Methods
 
-        public static string ToCode(IExpressionNode? expression, bool valueToConstant)
+        public static string ToCode(this IExpressionNode? expression, bool valueToConstant)
         {
             if (expression == null)
                 return "null";

@@ -71,10 +71,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         {
             var expectedResult = new ConditionExpressionNode(
                 new BinaryExpressionNode(BinaryTokenType.Equality,
-                    new MethodCallExpressionNode(ConstantExpressionNode.Get("1"), "IndexOf", new IExpressionNode[] {ConstantExpressionNode.Get("1", typeof(string))}, new string[0]),
+                    new MethodCallExpressionNode(ConstantExpressionNode.Get("1"), "IndexOf", new IExpressionNode[] { ConstantExpressionNode.Get("1", typeof(string)) }, new string[0]),
                     ConstantExpressionNode.Get(0, typeof(int))),
                 new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(string)), "Format",
-                    new IExpressionNode[] {ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)}, new string[0]),
+                    new IExpressionNode[] { ConstantExpressionNode.Get("{0} - {1}", typeof(string)), ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2) }, new string[0]),
                 new ConditionExpressionNode(new BinaryExpressionNode(BinaryTokenType.GreaterThanOrEqual, ConstantExpressionNode.Get(2), ConstantExpressionNode.Get(10, typeof(int))),
                     ConstantExpressionNode.Get("test", typeof(string)),
                     new BinaryExpressionNode(BinaryTokenType.NullCoalescing, ConstantExpressionNode.Get(null, typeof(object)), ConstantExpressionNode.Get("value", typeof(string)))));
@@ -173,14 +173,14 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
                             new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
-                    }, new[] {"string"}), "Aggregate",
+                    }, new[] { "string" }), "Aggregate",
                 new IExpressionNode[]
                 {
                     ConstantExpressionNode.Get("seed", typeof(string)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
                         new IParameterExpressionNode[] {new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")}),
                     new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"), new IParameterExpressionNode[] {new ParameterExpressionNode("s1")})
-                }, new[] {"string", "string", "int"});
+                }, new[] { "string", "string", "int" });
             var source = "1.Where<string>(x => x == \"test\").Aggregate<string, string, int>(\"seed\", (s1, s2) => s1 + s2, s1 => s1.Length)";
             ValidateExpression(source, expectedResult, count, parameterCount);
         }
@@ -205,6 +205,32 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                                 ConstantExpressionNode.Get(1, typeof(int)))), ConstantExpressionNode.Get(4, typeof(int))), ConstantExpressionNode.Get(5, typeof(int))),
                 ConstantExpressionNode.Get(10, typeof(int)));
             var source = "-1 + 2 * ~1 / 8 % 1 << 4 >> 5 < 10";
+            ValidateExpression(source, expectedResult, count, parameterCount);
+        }
+
+        [Theory]
+        [InlineData(1, 0)]
+        [InlineData(1, 1)]
+        [InlineData(1, 5)]
+        [InlineData(5, 0)]
+        [InlineData(5, 1)]
+        [InlineData(5, 5)]
+        public void ParseShouldParseExpression7(int count, int parameterCount)
+        {
+            var expectedResult = new BinaryExpressionNode(BinaryTokenType.Addition,
+                new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(1)), "Where",
+                    new IExpressionNode[]
+                    {
+                        new LambdaExpressionNode(
+                            new BinaryExpressionNode(BinaryTokenType.Equality,
+                                new IndexExpressionNode(new NullConditionalMemberExpressionNode(new ParameterExpressionNode("x")), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(Int32))}),
+                                new IndexExpressionNode(ConstantExpressionNode.Get("n", typeof(String)), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(Int32))})),
+                            new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
+                    }, new string[0]),
+                new MethodCallExpressionNode(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(2)), new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(Int32)) }),
+                    "ToString", new IExpressionNode[0], new string[0]));
+
+            var source = "1?.Where(x => x?[0] == 'n'[0]) + 2?[1].ToString()";
             ValidateExpression(source, expectedResult, count, parameterCount);
         }
 
@@ -237,13 +263,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 var array = result.Parameters.ToArray();
                 for (var j = 0; j < parameterCount; j++)
                 {
-                    var binaryExpressionNode = (BinaryExpressionNode) array[j];
+                    var binaryExpressionNode = (BinaryExpressionNode)array[j];
                     binaryExpressionNode.Token.ShouldEqual(BinaryTokenType.Assignment);
                     binaryExpressionNode.Left.ShouldEqual(new MemberExpressionNode(null, parameterName + j));
                     binaryExpressionNode.Right.ShouldEqual(expectedResult);
                 }
             }
         }
+
+
 
         private static IExpressionParser GetInitializedExpressionParser()
         {
