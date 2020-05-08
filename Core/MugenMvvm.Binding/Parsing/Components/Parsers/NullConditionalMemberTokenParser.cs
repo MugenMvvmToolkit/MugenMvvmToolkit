@@ -37,10 +37,14 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 return null;
 
             context.SkipWhitespaces();
-            if (context.IsToken('?') && context.IsToken('.', context.SkipWhitespacesPosition(context.Position + 1)))
+            if (context.IsToken('?'))
             {
-                context.MoveNext();
-                return context.TryParse(new NullConditionalMemberExpressionNode(expression));
+                var position = context.SkipWhitespacesPosition(context.Position + 1);
+                if (context.IsToken('.', position) || context.IsToken('[', position))
+                {
+                    context.MoveNext();
+                    return context.TryParse(new NullConditionalMemberExpressionNode(expression));
+                }
             }
 
             return null;
