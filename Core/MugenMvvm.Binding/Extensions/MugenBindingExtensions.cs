@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding.Extensions
         public static List<string>? TryGetErrors(this IExpressionBuilderContext context)
         {
             Should.NotBeNull(context, nameof(context));
-            if (context.HasMetadata && context.Metadata.TryGet(CompilingMetadata.CompilingErrors!, out var errors))
+            if (context.HasMetadata && context.Metadata.TryGet(CompilingMetadata.CompilingErrors, out var errors))
                 return errors;
             return null;
         }
