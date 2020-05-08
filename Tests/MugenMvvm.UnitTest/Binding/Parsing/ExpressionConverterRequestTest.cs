@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         {
             var target = Expression.Constant("1");
             var source = Expression.Constant("2");
-            var parameter = new KeyValuePair<string, object>("", "");
+            var parameter = new KeyValuePair<string?, object>("", "");
             var memberManagerRequest = new ExpressionConverterRequest(target, source, parameter);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
