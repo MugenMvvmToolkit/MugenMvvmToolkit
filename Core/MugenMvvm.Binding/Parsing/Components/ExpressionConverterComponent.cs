@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
@@ -85,8 +84,8 @@ namespace MugenMvvm.Binding.Parsing.Components
         private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(ExpressionConverterRequest expression, IReadOnlyMetadataContext? metadata)
         {
             _context.Initialize(metadata);
-            var target = _context.Convert(GetExpression(expression.Target));
-            var source = expression.Source == null ? MemberExpressionNode.Empty : _context.Convert(GetExpression(expression.Source));
+            var target = Convert(expression.Target, false);
+            var source = Convert(expression.Source, false);
 
             var list = expression.Parameters.List;
             ItemOrList<IExpressionNode, List<IExpressionNode>> parameters = default;
@@ -101,28 +100,50 @@ namespace MugenMvvm.Binding.Parsing.Components
             return new ExpressionParserResult(target, source, parameters.Cast<IReadOnlyList<IExpressionNode>>());
         }
 
-        [return: NotNullIfNotNull("expression")]
-        private static Expression? GetExpression(Expression? expression)
+        private IExpressionNode Convert(object? expression, bool allowConstant, bool stringAsMember = true)
         {
-            if (expression is LambdaExpression lambda)
-                return lambda.Body;
-            return expression;
+            if (expression == null)
+                return MemberExpressionNode.Empty;
+
+            if (expression is Expression exp)
+            {
+                if (!(exp is LambdaExpression lambdaExpression))
+                    return _context.Convert(exp);
+
+                var parameters = lambdaExpression.Parameters;
+                try
+                {
+                    for (var i = 0; i < parameters.Count; i++)
+                        _context.SetExpression(parameters[i], MemberExpressionNode.Null);
+                    return _context.Convert(lambdaExpression.Body);
+                }
+                finally
+                {
+                    for (var i = 0; i < parameters.Count; i++)
+                        _context.ClearExpression(parameters[i]);
+                }
+            }
+
+            if (expression is IExpressionNode expressionNode)
+                return expressionNode;
+            if (allowConstant)
+                return ConstantExpressionNode.Get(expression);
+            if (stringAsMember && expression is string member)
+                return new MemberExpressionNode(null, member);
+            BindingExceptionManager.ThrowCannotParseExpression(expression);
+            return null!;
         }
 
         private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result)
         {
             if (parameter.Key == null)
             {
-                if (parameter.Value is Expression ex)
-                    result.Add(_context.Convert(ex));
+                if (parameter.Value != null)
+                    result.Add(Convert(parameter.Value, false, false));
                 return;
             }
-            IExpressionNode right;
-            if (parameter.Value is Expression expression)
-                right = _context.Convert(GetExpression(expression));
-            else
-                right = ConstantExpressionNode.Get(parameter.Value);
-            result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, parameter.Key), right));
+
+            result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, parameter.Key), Convert(parameter.Value, true)));
         }
 
         #endregion

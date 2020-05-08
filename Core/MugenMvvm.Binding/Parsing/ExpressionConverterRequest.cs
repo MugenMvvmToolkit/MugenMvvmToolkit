@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using MugenMvvm.Internal;
 
@@ -11,14 +10,14 @@ namespace MugenMvvm.Binding.Parsing
         #region Fields
 
         public readonly ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> Parameters;
-        public readonly Expression? Source;
-        public readonly Expression Target;
+        public readonly object? Source;
+        public readonly object Target;
 
         #endregion
 
         #region Constructors
 
-        public ExpressionConverterRequest(Expression target, Expression? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
+        public ExpressionConverterRequest(object target, object? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;

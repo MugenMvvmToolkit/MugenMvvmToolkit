@@ -36,11 +36,13 @@ namespace MugenMvvm.Binding.Extensions
             return false;
         }
 
-        public static IExpressionNode ConvertTarget(this IExpressionConverterContext<Expression> context, Expression? expression, MemberInfo member)
+        public static IExpressionNode? ConvertTarget(this IExpressionConverterContext<Expression> context, Expression? expression, MemberInfo member)
         {
-            if (context.TryConvertExtension(member.DeclaringType, expression, out var result) && result != null)
-                return result;
-            return context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
+            if (!context.TryConvertExtension(member.DeclaringType, expression, out var result))
+                result = context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
+            if (ReferenceEquals(result, MemberExpressionNode.Null))
+                result = null;
+            return result;
         }
 
         [return: NotNullIfNotNull("expression")]
@@ -62,7 +64,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var method = methodCallExpression.Method;
             ParameterInfo[]? parameters = null;
-            IExpressionNode target;
+            IExpressionNode? target;
             var args = context.Convert(methodCallExpression.Arguments);
             if (method.GetAccessModifiers(true, ref parameters).HasFlagEx(MemberFlags.Extension))
             {

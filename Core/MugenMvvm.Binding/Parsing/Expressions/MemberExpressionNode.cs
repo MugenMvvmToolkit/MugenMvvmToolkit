@@ -10,6 +10,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Fields
 
+        public static readonly MemberExpressionNode Null = new MemberExpressionNode(null, "null");
         public static readonly MemberExpressionNode Empty = new MemberExpressionNode(null, string.Empty);
         public static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstant.Source);
         public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstant.Target);
