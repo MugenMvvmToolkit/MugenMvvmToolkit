@@ -109,16 +109,20 @@ namespace MugenMvvm.Binding.Parsing.Components
             return expression;
         }
 
-        private void AddParameter(KeyValuePair<string, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result)
+        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result)
         {
             if (parameter.Key == null)
+            {
+                if (parameter.Value is Expression ex)
+                    result.Add(_context.Convert(ex));
                 return;
+            }
             IExpressionNode right;
             if (parameter.Value is Expression expression)
                 right = _context.Convert(GetExpression(expression));
             else
                 right = ConstantExpressionNode.Get(parameter.Value);
-            result.Add(new BinaryExpressionNode(BinaryTokenType.Equality, new MemberExpressionNode(null, parameter.Key), right));
+            result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, parameter.Key), right));
         }
 
         #endregion

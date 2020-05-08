@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Core
             Target = null!;
             TargetExpression = null!;
             BindingComponents = new Dictionary<string, object?>();
-            EqualityParameters = new Dictionary<string, IExpressionNode>();
+            AssigmentParameters = new Dictionary<string, IExpressionNode>();
             InlineParameters = new Dictionary<string, bool>();
         }
 
@@ -60,7 +60,7 @@ namespace MugenMvvm.Binding.Core
 
         public Dictionary<string, object?> BindingComponents { get; }
 
-        public Dictionary<string, IExpressionNode> EqualityParameters { get; }
+        public Dictionary<string, IExpressionNode> AssigmentParameters { get; }
 
         public Dictionary<string, bool> InlineParameters { get; }
 
@@ -71,7 +71,7 @@ namespace MugenMvvm.Binding.Core
         public TValue TryGetParameterValue<TValue>(string parameterName, TValue defaultValue = default)
         {
             Should.NotBeNull(parameterName, nameof(parameterName));
-            if (EqualityParameters.TryGetValue(parameterName, out var node))
+            if (AssigmentParameters.TryGetValue(parameterName, out var node))
             {
                 if (node is TValue v)
                     return v;
@@ -80,11 +80,11 @@ namespace MugenMvvm.Binding.Core
                 {
                     if (constant.Value is TValue value)
                         return value;
-                    return (TValue) MugenBindingService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
+                    return (TValue)MugenBindingService.GlobalValueConverter.Convert(constant.Value, typeof(TValue))!;
                 }
 
                 if (typeof(TValue) == typeof(string) && node is IMemberExpressionNode member)
-                    return (TValue) (object) member.Member;
+                    return (TValue)(object)member.Member;
 
                 BindingExceptionManager.ThrowCannotParseBindingParameter(parameterName, typeof(TValue).GetNonNullableType(), node);
             }
@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Core
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(targetExpression, nameof(targetExpression));
-            EqualityParameters.Clear();
+            AssigmentParameters.Clear();
             InlineParameters.Clear();
             BindingComponents.Clear();
             MetadataRaw?.Clear();
@@ -126,14 +126,14 @@ namespace MugenMvvm.Binding.Core
             _parameters = null;
             BindingComponents.Clear();
             InlineParameters.Clear();
-            EqualityParameters.Clear();
+            AssigmentParameters.Clear();
             MetadataRaw?.Clear();
         }
 
         private void InitializeParameters(ItemOrList<IExpressionNode, IList<IExpressionNode>> parameters)
         {
             InlineParameters.Clear();
-            EqualityParameters.Clear();
+            AssigmentParameters.Clear();
             var list = parameters.List;
             if (list != null)
             {
@@ -148,8 +148,8 @@ namespace MugenMvvm.Binding.Core
         {
             switch (expression)
             {
-                case IBinaryExpressionNode binary when binary.Token == BinaryTokenType.Equality && binary.Left is IMemberExpressionNode memberExpression:
-                    EqualityParameters[memberExpression.Member] = binary.Right;
+                case IBinaryExpressionNode binary when binary.Token == BinaryTokenType.Assignment && binary.Left is IMemberExpressionNode memberExpression:
+                    AssigmentParameters[memberExpression.Member] = binary.Right;
                     return;
                 case IUnaryExpressionNode unary when unary.Token == UnaryTokenType.LogicalNegation && unary.Operand is IMemberExpressionNode member:
                     InlineParameters[member.Member] = false;

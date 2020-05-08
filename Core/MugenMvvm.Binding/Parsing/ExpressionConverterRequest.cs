@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Fields
 
-        public readonly ItemOrList<KeyValuePair<string, object>, IReadOnlyList<KeyValuePair<string, object>>> Parameters;
+        public readonly ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> Parameters;
         public readonly Expression? Source;
         public readonly Expression Target;
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionConverterRequest(Expression target, Expression? source, ItemOrList<KeyValuePair<string, object>, IReadOnlyList<KeyValuePair<string, object>>> parameters)
+        public ExpressionConverterRequest(Expression target, Expression? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;

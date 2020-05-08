@@ -355,6 +355,8 @@ namespace MugenMvvm.Binding.Extensions
                         result = new List<ExpressionParserResult> { itemResult };
                     result.Add(r);
                 }
+
+                context.SkipWhitespaces();
             }
 
             if (result == null)

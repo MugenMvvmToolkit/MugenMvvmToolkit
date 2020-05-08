@@ -14,6 +14,7 @@
         public const int Binary = 950;
         public const int Condition = 940;
         public const int Convert = 930;
+        public const int Assignment = 920;
 
         public const int TokenParser = 0;
         public const int Converter = 0;

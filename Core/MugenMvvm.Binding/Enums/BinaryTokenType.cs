@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Enums
         public static readonly BinaryTokenType GreaterThan = new BinaryTokenType(">", 960, "&gt;");
         public static readonly BinaryTokenType LessThanOrEqual = new BinaryTokenType("<=", 960);
         public static readonly BinaryTokenType GreaterThanOrEqual = new BinaryTokenType(">=", 960);
-        public static readonly BinaryTokenType Equality = new BinaryTokenType("==", 950, "=");
+        public static readonly BinaryTokenType Equality = new BinaryTokenType("==", 950);
         public static readonly BinaryTokenType NotEqual = new BinaryTokenType("!=", 950);
         public static readonly BinaryTokenType LogicalAnd = new BinaryTokenType("&", 940, "&amp;");
         public static readonly BinaryTokenType LogicalXor = new BinaryTokenType("^", 930);
@@ -31,6 +31,7 @@ namespace MugenMvvm.Binding.Enums
         public static readonly BinaryTokenType ConditionalAnd = new BinaryTokenType("&&", 910, "and");
         public static readonly BinaryTokenType ConditionalOr = new BinaryTokenType("||", 900, "or");
         public static readonly BinaryTokenType NullCoalescing = new BinaryTokenType("??", 890);
+        public static readonly BinaryTokenType Assignment = new BinaryTokenType("=", 880);
 
         #endregion
 
