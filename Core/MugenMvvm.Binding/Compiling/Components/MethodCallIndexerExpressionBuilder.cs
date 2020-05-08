@@ -103,7 +103,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             if (type.IsArray)
                 return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
-            return TryBuildExpression(context, "get_Item", new TargetData(type, target), GetArguments(indexExpression, context), Default.EmptyArray<Type>());
+            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), Default.EmptyArray<Type>());
         }
 
         private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)

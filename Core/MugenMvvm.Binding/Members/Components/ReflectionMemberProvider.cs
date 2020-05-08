@@ -64,6 +64,8 @@ namespace MugenMvvm.Binding.Members.Components
 
         private ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
         {
+            if (type == typeof(string) && name == BindingInternalConstant.IndexerGetterName)
+                name = BindingInternalConstant.IndexerStringGetterName;
             var hasProperty = false;
             var hasEvent = false;
             var hasField = false;
