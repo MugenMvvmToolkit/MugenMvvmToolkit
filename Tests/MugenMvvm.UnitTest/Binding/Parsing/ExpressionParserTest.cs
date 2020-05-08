@@ -249,10 +249,14 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         [Fact]
         public void ParserShouldParseActionExpression()
         {
-            var result = GetInitializedExpressionParser().Parse("@1+2").Item;
-            result.Target.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
-            result.Source.ShouldEqual(MemberExpressionNode.Empty);
-            result.Parameters.IsNullOrEmpty().ShouldBeTrue();
+            var result = GetInitializedExpressionParser().Parse("@1+2; @1+2").ToArray();
+            result.Length.ShouldEqual(2);
+            for (int i = 0; i < result.Length; i++)
+            {
+                result[i].Target.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
+                result[i].Source.ShouldEqual(MemberExpressionNode.Empty);
+                result[i].Parameters.IsNullOrEmpty().ShouldBeTrue();   
+            }
         }
 
         protected override ExpressionParser GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
