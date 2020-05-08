@@ -246,6 +246,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             ValidateExpression(source, expectedResult, count, parameterCount);
         }
 
+        [Fact]
+        public void ParserShouldParseActionExpression()
+        {
+            var result = GetInitializedExpressionParser().Parse("@1+2").Item;
+            result.Target.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
+            result.Source.ShouldEqual(MemberExpressionNode.Empty);
+            result.Parameters.IsNullOrEmpty().ShouldBeTrue();
+        }
+
         protected override ExpressionParser GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
             return new ExpressionParser(collectionProvider);
@@ -282,8 +291,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 }
             }
         }
-
-
 
         private static IExpressionParser GetInitializedExpressionParser()
         {
