@@ -218,19 +218,31 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         public void ParseShouldParseExpression7(int count, int parameterCount)
         {
             var expectedResult = new BinaryExpressionNode(BinaryTokenType.Addition,
-                new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(1)), "Where",
-                    new IExpressionNode[]
-                    {
-                        new LambdaExpressionNode(
-                            new BinaryExpressionNode(BinaryTokenType.Equality,
-                                new IndexExpressionNode(new NullConditionalMemberExpressionNode(new ParameterExpressionNode("x")), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(Int32))}),
-                                new IndexExpressionNode(ConstantExpressionNode.Get("n", typeof(String)), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(Int32))})),
-                            new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
-                    }, new string[0]),
-                new MethodCallExpressionNode(new IndexExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(2)), new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(Int32)) }),
-                    "ToString", new IExpressionNode[0], new string[0]));
+                new BinaryExpressionNode(BinaryTokenType.Addition,
+                    new BinaryExpressionNode(BinaryTokenType.Addition,
+                        new MethodCallExpressionNode(
+                            new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value1")), "Where",
+                                new IExpressionNode[]
+                                {
+                                    new LambdaExpressionNode(
+                                        new BinaryExpressionNode(BinaryTokenType.Equality,
+                                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new ParameterExpressionNode("x")), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(Int32))}),
+                                            new IndexExpressionNode(ConstantExpressionNode.Get("n", typeof(String)), new IExpressionNode[] {ConstantExpressionNode.Get(0, typeof(Int32))})),
+                                        new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
+                                }, new string[0]), "FirstOrDefault", new IExpressionNode[0], new string[0]),
+                        new MethodCallExpressionNode(
+                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value2")), new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(Int32)) }), "ToString",
+                            new IExpressionNode[0], new string[0])),
+                    new MemberExpressionNode(
+                        new NullConditionalMemberExpressionNode(new MethodCallExpressionNode(
+                            new IndexExpressionNode(new NullConditionalMemberExpressionNode(new MemberExpressionNode(null, "value3")), new IExpressionNode[] { ConstantExpressionNode.Get(1, typeof(Int32)) }), "ToString",
+                            new IExpressionNode[0], new string[0])), "Length")),
+                new MethodCallExpressionNode(
+                    new NullConditionalMemberExpressionNode(new ConditionExpressionNode(
+                        new BinaryExpressionNode(BinaryTokenType.Equality, new MemberExpressionNode(null, "value2"), ConstantExpressionNode.Get("xx", typeof(String))), ConstantExpressionNode.Get(null, typeof(Object)),
+                        new MemberExpressionNode(null, "value2"))), "ToString", new IExpressionNode[0], new string[0]));
 
-            var source = "1?.Where(x => x?[0] == 'n'[0]) + 2?[1].ToString()";
+            var source = "value1?.Where(x => x?[0] == 'n'[0]).FirstOrDefault() + value2?[1].ToString() + value3?[1].ToString()?.Length + (value2 == 'xx' ? null : value2)?.ToString()";
             ValidateExpression(source, expectedResult, count, parameterCount);
         }
 

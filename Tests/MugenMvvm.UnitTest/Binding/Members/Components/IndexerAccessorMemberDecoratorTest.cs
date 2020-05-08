@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -26,7 +27,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var component = new ReflectionMemberProvider();
             ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
-            decorator.TryGetMembers(typeof(string), "get_Chars", DefaultMetadata).Item.ShouldNotBeNull();
+            decorator.TryGetMembers(typeof(string), BindingInternalConstant.IndexerStringGetterName, DefaultMetadata).Item.ShouldNotBeNull();
         }
 
         [Fact]

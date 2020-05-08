@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
 
 namespace MugenMvvm.UnitTest.Binding.Internal
 {
@@ -37,6 +38,8 @@ namespace MugenMvvm.UnitTest.Binding.Internal
                     return $"new UnaryExpressionNode({ToCode(ex.Token)}, {ToCode(ex.Operand, valueToConstant)})";
                 case IParameterExpressionNode ex:
                     return $"new ParameterExpressionNode(\"{ex.Name}\")";
+                case NullConditionalMemberExpressionNode nullConditional:
+                    return $"new NullConditionalMemberExpressionNode({ToCode(nullConditional.Target, valueToConstant)})";
                 default:
                     throw new NotSupportedException();
             }
