@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
         #region Methods
 
         [Fact]
-        public void VisitShouldCollectBindingMemberExpressions1()
+        public void CollectShouldCollectBindingMemberExpressions1()
         {
             var expressionNode = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test");
             var visitor = new BindingMemberExpressionCollectorVisitor();
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
         }
 
         [Fact]
-        public void VisitShouldCollectBindingMemberExpressions2()
+        public void CollectShouldCollectBindingMemberExpressions2()
         {
             var ex1 = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test1");
             var ex2 = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test2");
