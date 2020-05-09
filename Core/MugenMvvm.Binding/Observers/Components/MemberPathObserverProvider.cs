@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Attributes;
+﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
@@ -24,6 +25,8 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; } = ObserverComponentPriority.ObserverProvider;
 
+        public HashSet<string>? ObservableMethods { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -38,7 +41,7 @@ namespace MugenMvvm.Binding.Observers.Components
             var path = observerRequest.Path;
             var observableMethod = observerRequest.ObservableMethodName;
             var membersCount = path.Members.Count;
-            if (!string.IsNullOrEmpty(observableMethod))
+            if (!string.IsNullOrEmpty(observableMethod) && (ObservableMethods == null || ObservableMethods.Contains(observableMethod!)))
             {
                 if (membersCount == 0)
                     return new MethodEmptyPathObserver(observableMethod!, target, memberFlags);
