@@ -25,9 +25,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Properties
 
-        public bool IsPostOrder => false;
-
-        public bool IsMultiExpression { get; private set; }
+        bool IExpressionVisitor.IsPostOrder => false;
 
         #endregion
 
@@ -53,7 +51,6 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             if (expression == null)
                 return default;
 
-            IsMultiExpression = false;
             expression.Accept(this, metadata);
             if (_members.Count == 0)
                 return Default.EmptyArray<IBindingMemberExpressionNode>();
