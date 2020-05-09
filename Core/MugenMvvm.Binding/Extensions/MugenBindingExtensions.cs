@@ -241,13 +241,12 @@ namespace MugenMvvm.Binding.Extensions
             memberManager = memberManager.DefaultIfNull();
             if (path.Members.Count == 0)
             {
-                if (firstMemberIndex > 1)
+                if (firstMemberIndex > 0)
                     ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(firstMemberIndex));
 
-                if (firstMemberIndex == 1)
-                    return target;
-
-                return memberManager.GetValue(type, target, path.Path, flags, metadata);
+                if (flags.HasFlagEx(MemberFlags.Static))
+                    return type;
+                return target;
             }
 
             if (firstMemberIndex > path.Members.Count)
