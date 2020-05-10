@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public BindingExpressionInitializerContext(object owner, IMetadataContextProvider? metadataContextProvider)
+        public BindingExpressionInitializerContext(object owner, IMetadataContextProvider? metadataContextProvider = null)
             : base(null, metadataContextProvider)
         {
             Should.NotBeNull(owner, nameof(owner));

@@ -1,0 +1,119 @@
+﻿using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.UnitTest.Metadata;
+using Should;
+using Xunit;
+
+namespace MugenMvvm.UnitTest.Binding.Core
+{
+    public class BindingExpressionInitializerContextTest : MetadataOwnerTestBase
+    {
+        #region Methods
+
+        [Fact]
+        public void InitializeClearShouldInitializeClearValues()
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            context.Owner.ShouldEqual(this);
+            context.BindingComponents.ShouldBeEmpty();
+            context.AssignmentParameters.ShouldBeEmpty();
+            context.InlineParameters.ShouldBeEmpty();
+
+            var target = new object();
+            var source = new object();
+            var targetExp = MemberExpressionNode.Self;
+            var sourceExp = MemberExpressionNode.Source;
+            var parameters = new[] { MemberExpressionNode.Self, MemberExpressionNode.Source };
+            context.Initialize(target, source, targetExp, sourceExp, parameters, DefaultMetadata);
+
+            context.Target.ShouldEqual(target);
+            context.Source.ShouldEqual(source);
+            context.TargetExpression.ShouldEqual(targetExp);
+            context.SourceExpression.ShouldEqual(sourceExp);
+            context.Parameters.ShouldEqual(parameters);
+
+            context.Clear();
+            context.Owner.ShouldEqual(this);
+            context.BindingComponents.ShouldBeEmpty();
+            context.AssignmentParameters.ShouldBeEmpty();
+            context.InlineParameters.ShouldBeEmpty();
+            context.Target.ShouldBeNull();
+            context.Source.ShouldBeNull();
+            context.TargetExpression.ShouldBeNull();
+            context.SourceExpression.ShouldBeNull();
+            context.Parameters.ShouldEqual(default);
+
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ParametersShouldInitializeValues(bool reinitialize)
+        {
+            const string parameter1 = "p1";
+            const string parameter2 = "p2";
+            const string parameter3 = "p3";
+            const string parameter4 = "p4";
+
+            var parameterValue1 = new object();
+            var parameterValue2 = false;
+            var parameterValue3 = true;
+            var parameterValue4 = true;
+
+            var context = new BindingExpressionInitializerContext(this);
+            var items = new IExpressionNode[]
+            {
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, parameter1), ConstantExpressionNode.Get(parameterValue1)),
+                new UnaryExpressionNode(UnaryTokenType.LogicalNegation, new MemberExpressionNode(null, parameter2)),
+                new MemberExpressionNode(null, parameter3)
+            };
+            context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, items, null);
+
+            context.AssignmentParameters.Count.ShouldEqual(1);
+            context.AssignmentParameters[parameter1].ShouldEqual(ConstantExpressionNode.Get(parameterValue1));
+            context.TryGetParameterValue<IExpressionNode>(parameter1).ShouldEqual(ConstantExpressionNode.Get(parameterValue1));
+
+            context.InlineParameters.Count.ShouldEqual(2);
+            context.InlineParameters[parameter2].ShouldEqual(parameterValue2);
+            context.TryGetParameterValue<bool>(parameter2).ShouldEqual(parameterValue2);
+            context.TryGetParameterValue<bool?>(parameter2).ShouldEqual(parameterValue2);
+
+            context.InlineParameters[parameter3].ShouldEqual(parameterValue3);
+            context.TryGetParameterValue<bool>(parameter3).ShouldEqual(parameterValue3);
+            context.TryGetParameterValue<bool?>(parameter3).ShouldEqual(parameterValue3);
+
+            if (reinitialize)
+                context.Initialize(this, this, MemberExpressionNode.Self, MemberExpressionNode.Source, new[] { new MemberExpressionNode(null, parameter4) }, null);
+            else
+                context.Parameters = new[] { new MemberExpressionNode(null, parameter4) };
+
+            context.AssignmentParameters.Count.ShouldEqual(0);
+            context.TryGetParameterValue<IExpressionNode>(parameter1).ShouldBeNull();
+
+            context.InlineParameters.Count.ShouldEqual(1);
+            context.InlineParameters.ContainsKey(parameter2).ShouldBeFalse();
+            context.TryGetParameterValue<bool>(parameter2).ShouldBeFalse();
+            context.TryGetParameterValue<bool?>(parameter2).ShouldBeNull();
+
+            context.InlineParameters.ContainsKey(parameter3).ShouldBeFalse();
+            context.TryGetParameterValue<bool>(parameter3).ShouldBeFalse();
+            context.TryGetParameterValue<bool?>(parameter3).ShouldBeNull();
+
+            context.InlineParameters[parameter4].ShouldEqual(parameterValue4);
+            context.TryGetParameterValue<bool>(parameter4).ShouldEqual(parameterValue4);
+            context.TryGetParameterValue<bool?>(parameter4).ShouldEqual(parameterValue4);
+        }
+
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+        {
+            var context = new BindingExpressionInitializerContext(this, metadataContextProvider);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Empty, default, metadata);
+            return context;
+        }
+
+        #endregion
+    }
+}
