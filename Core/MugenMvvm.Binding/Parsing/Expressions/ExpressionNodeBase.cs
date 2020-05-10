@@ -20,6 +20,18 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         public IExpressionNode Accept(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(visitor, nameof(visitor));
+            var node = AcceptInternal(visitor, metadata);
+            if (node == this)
+                return node;
+            return node.Accept(visitor, metadata);
+        }
+
+        #endregion
+
+        #region Methods
+
+        private IExpressionNode AcceptInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        {
             IExpressionNode? node;
             var changed = false;
             if (!visitor.IsPostOrder)
@@ -35,16 +47,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return node;
         }
 
-        #endregion
-
-        #region Methods
-
         protected abstract IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata);
 
         protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode
         {
-            var result = ReferenceEquals(this, node) ? visitor.Visit(node, metadata) : node.Accept(visitor, metadata);
+            var result = this == node ? visitor.Visit(node, metadata) : node.Accept(visitor, metadata);
             if (!changed && result != node)
                 changed = true;
             if (notNull && result == null)
