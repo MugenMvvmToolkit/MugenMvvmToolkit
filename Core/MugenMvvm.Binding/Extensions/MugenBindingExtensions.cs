@@ -41,6 +41,17 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
+        public static void DisposeBindingSource(object? source)
+        {
+            if (source is IMemberPathObserver disposable)
+                disposable.Dispose();
+            else if (source is object[] sources)
+            {
+                for (int i = 0; i < sources.Length; i++)
+                    (sources[i] as IMemberPathObserver)?.Dispose();
+            }
+        }
+
         public static BindingParameterExpression TryGetParameterExpression(this IBindingExpressionInitializerContext context, IExpressionCompiler? compiler, BindingMemberExpressionVisitor memberExpressionVisitor,
             BindingMemberExpressionCollectorVisitor memberExpressionCollectorVisitor, string parameterName, IReadOnlyMetadataContext? metadata)
         {

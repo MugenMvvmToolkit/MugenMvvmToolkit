@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Properties
 
-        public bool IsEmpty => Parameter == null;
+        public bool IsEmpty => Parameter == null && Expression == null;
 
         #endregion
 
@@ -42,24 +42,14 @@ namespace MugenMvvm.Binding.Core
             if (Expression != null)
                 return (T) Expression.Invoke(Parameter, metadata)!;
             if (Parameter is IMemberPathObserver observer)
-                return (T) observer.GetLastMember(metadata).GetValue(metadata)!;
+                return (T) observer.GetLastMember(metadata).GetValueOrThrow(metadata)!;
             return (T) Parameter!;
         }
 
         public void Dispose()
         {
-            switch (Parameter)
-            {
-                case IMemberPathObserver observer:
-                    observer.Dispose();
-                    break;
-                case object[] observers:
-                {
-                    for (var i = 0; i < observers.Length; i++)
-                        (observers[i] as IMemberPathObserver)?.Dispose();
-                    break;
-                }
-            }
+            Expression?.Dispose();
+            MugenBindingExtensions.DisposeBindingSource(Parameter);
         }
 
         #endregion

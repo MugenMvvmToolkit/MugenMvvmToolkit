@@ -12,6 +12,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
 
         public Func<ItemOrList<ExpressionValue, ExpressionValue[]>, IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
 
+        public Action? Dispose { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -19,6 +21,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
         object? ICompiledExpression.Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
         {
             return Invoke?.Invoke(values, metadata);
+        }
+
+        void IDisposable.Dispose()
+        {
+            Dispose?.Invoke();
         }
 
         #endregion

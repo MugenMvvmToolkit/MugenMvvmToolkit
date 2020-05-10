@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -101,11 +102,11 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        public IMemberPathObserver Target { get; }
+        public IMemberPathObserver Target { get; private set; }
 
         public ItemOrList<object?, object?[]> Source => ItemOrList<object?, object?[]>.FromRawValue(SourceRaw);
 
-        protected object? SourceRaw { get; }
+        protected object? SourceRaw { get; private set; }
 
         int IReadOnlyCollection<MetadataContextValue>.Count => GetMetadataCount();
 
@@ -118,21 +119,17 @@ namespace MugenMvvm.Binding.Core
             if (CheckFlag(DisposedFlag))
                 return;
             SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
-            OnDispose();
             MugenBindingService.BindingManager.OnLifecycleChanged<object?>(this, BindingLifecycleState.Disposed, null);
+            OnDispose();
             if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
-            Target.Dispose();
             if (CheckFlag(HasSourceObserverListener))
                 BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            if (SourceRaw is IDisposable disposable)
-                disposable.Dispose();
-            else if (SourceRaw is object[] sources)
-            {
-                for (int i = 0; i < sources.Length; i++)
-                    (sources[i] as IDisposable)?.Dispose();
-            }
-            Components.Clear(null);
+            Components.Clear();
+            Target.Dispose();
+            Target = EmptyPathObserver.Empty;
+            MugenBindingExtensions.DisposeBindingSource(SourceRaw);
+            SourceRaw = null;
         }
 
         public ItemOrList<object, object[]> GetComponents()

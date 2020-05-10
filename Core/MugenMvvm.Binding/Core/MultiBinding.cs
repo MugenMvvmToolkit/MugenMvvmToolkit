@@ -63,6 +63,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override void OnDispose()
         {
+            _expression?.Dispose();
             _expression = null;
         }
 

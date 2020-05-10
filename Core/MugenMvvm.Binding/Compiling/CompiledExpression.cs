@@ -19,11 +19,13 @@ namespace MugenMvvm.Binding.Compiling
     {
         #region Fields
 
+        private static readonly object?[] DisposedValues = new object?[0];
+
         private readonly IExpressionNode _expression;
         private readonly ExpressionDictionary _expressionsDict;
         private readonly IReadOnlyMetadataContext? _inputMetadata;
         private readonly IMetadataContextProvider? _metadataContextProvider;
-        private readonly object?[] _values;
+        private object?[] _values;
 
         private IExpressionBuilderComponent[] _expressionBuilders;
         private IMetadataContext? _metadata;
@@ -81,6 +83,8 @@ namespace MugenMvvm.Binding.Compiling
 
         public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
         {
+            if (ReferenceEquals(_values, DisposedValues))
+                ExceptionManager.ThrowObjectDisposed(this);
             var list = values.List;
             var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<ExpressionValue>();
             if (!TryGetValue(key, out var invoker))
@@ -114,6 +118,15 @@ namespace MugenMvvm.Binding.Compiling
             {
                 Array.Clear(_values, 0, _values.Length);
             }
+        }
+
+        public void Dispose()
+        {
+            if (ReferenceEquals(_values, DisposedValues))
+                return;
+            _values = DisposedValues;
+            _expressionsDict.Clear();
+            Clear();
         }
 
         public Expression? TryGetExpression(IExpressionNode expression)
@@ -215,7 +228,7 @@ namespace MugenMvvm.Binding.Compiling
 
             var typesX = x as Type[];
             var typesY = y as Type[];
-            if (typesX == null && typesY == null)//not supported state
+            if (typesX == null && typesY == null) //not supported state
             {
                 ExceptionManager.ThrowNotSupported(nameof(Equals));
                 return false;

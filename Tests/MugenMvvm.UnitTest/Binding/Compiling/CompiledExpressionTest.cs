@@ -52,6 +52,24 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             ShouldThrow<InvalidOperationException>(() => new CompiledExpression(expressionNode));
         }
 
+        [Fact]
+        public void InvokeShouldThrowDisposed()
+        {
+            var member1 = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "test", null) { Index = 0 };
+            var expressionNode = new UnaryExpressionNode(UnaryTokenType.Minus, member1);
+            var compiledExpression = new CompiledExpression(expressionNode);
+
+            var components = new List<IExpressionBuilderComponent>();
+            components.Add(new TestExpressionBuilderComponent
+            {
+                TryBuild = (context, node) => context.TryGetExpression(member1)
+            });
+
+            compiledExpression.ExpressionBuilders = components.ToArray();
+            compiledExpression.Dispose();
+            ShouldThrow<ObjectDisposedException>(() => compiledExpression.Invoke(new ExpressionValue(typeof(string), "test"), DefaultMetadata));
+        }
+
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
