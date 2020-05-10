@@ -106,30 +106,30 @@ namespace MugenMvvm.Extensions
         public static void AddRange<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value)
             where TItem : class
         {
-            var list = value.List;
-            var item = value.Item;
-            if (item == null && list == null)
+            if (value.Item == null && value.List == null)
                 return;
 
-            if (itemOrList.Item != null)
-                itemOrList = new List<TItem> { itemOrList.Item };
-
-            if (itemOrList.List != null)
+            var items = itemOrList.List;
+            if (items == null)
             {
-                if (item == null)
-                    itemOrList.List.AddRange(list);
-                else
-                    itemOrList.List.Add(item);
-                return;
+                if (itemOrList.Item == null)
+                {
+                    if (value.Item == null)
+                        itemOrList = value.List.ToList();
+                    else
+                        itemOrList = value.Item;
+                    return;
+                }
+
+                items = new List<TItem> { itemOrList.Item };
             }
 
-            if (itemOrList.Item == null)
-            {
-                if (item == null)
-                    itemOrList = new List<TItem>(list);
-                else
-                    itemOrList = item;
-            }
+            if (value.Item == null)
+                items.AddRange(value.List);
+            else
+                items.Add(value.Item);
+
+            itemOrList = items;
         }
 
         public static TItem? FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
