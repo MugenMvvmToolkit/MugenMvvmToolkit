@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstant.Target);
         public static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstant.Context);
         public static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstant.Binding);
-        public static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstant.Args);
+        public static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstant.EventArgs);
 
         #endregion
 
@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                     return Context;
                 if (member == MacrosConstant.Source)
                     return Source;
-                if (member == MacrosConstant.Args)
+                if (member == MacrosConstant.EventArgs)
                     return Args;
                 if (member == MacrosConstant.Binding)
                     return Binding;

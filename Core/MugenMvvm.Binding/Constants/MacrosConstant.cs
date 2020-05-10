@@ -10,8 +10,7 @@
         public const string This = "this";
         public const string Target = "target";
         public const string Binding = "binding";
-        public const string Args = "args";
-        public const string Arg = "arg";
+        public const string EventArgs = "args";
 
         #endregion
     }

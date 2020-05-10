@@ -13,13 +13,13 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
-    public class MacrosExpressionVisitor : IExpressionVisitor
+    public sealed class MacrosExpressionVisitor : IExpressionVisitor
     {
         #region Fields
 
         private readonly StringBuilder _memberBuilder;
-        protected static readonly UnaryExpressionNode TargetMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self);
-        protected static readonly UnaryExpressionNode ContextMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context);
+        private static readonly UnaryExpressionNode TargetMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self);
+        private static readonly UnaryExpressionNode ContextMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context);
 
         #endregion
 
@@ -28,13 +28,11 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         public MacrosExpressionVisitor()
         {
             _memberBuilder = new StringBuilder();
-            var argsMethod = new MethodCallExpressionNode(ConstantExpressionNode.Get(typeof(MugenBindingExtensions), typeof(Type)), nameof(MugenBindingExtensions.GetEventArgs),
-                Default.EmptyArray<IExpressionNode>());
-            MacrosMethods = new Dictionary<string, IMethodCallExpressionNode>
+            var target = ConstantExpressionNode.Get(typeof(MugenBindingExtensions), typeof(Type));
+            Macros = new Dictionary<string, IExpressionNode>
             {
-                {MacrosConstant.Binding, new MethodCallExpressionNode(argsMethod.Target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
-                {MacrosConstant.Args, argsMethod},
-                {MacrosConstant.Arg, argsMethod}
+                {MacrosConstant.Binding, new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
+                {MacrosConstant.EventArgs, new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetEventArgs), Default.EmptyArray<IExpressionNode>())}
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {
@@ -48,21 +46,18 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {"HasErrors", "HasErrors"},
                 {"Rel", BindableMembers.Object.RelativeSource},
                 {"Relative", BindableMembers.Object.RelativeSource},
-                {BindableMembers.Object.RelativeSource, BindableMembers.Object.RelativeSource},
                 {"El", BindableMembers.Object.ElementSource},
-                {"Element", BindableMembers.Object.ElementSource},
-                {BindableMembers.Object.ElementSource, BindableMembers.Object.ElementSource}
+                {"Element", BindableMembers.Object.ElementSource}
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>
             {
                 {nameof(INotifyDataErrorInfo.GetErrors), ContextMacros},
                 {"HasErrors", ContextMacros},
                 {"Rel", TargetMacros},
-                {"Relative", TargetMacros},
-                {"RelativeSource", TargetMacros},
+                {BindableMembers.Object.RelativeSource, TargetMacros},
                 {"El", TargetMacros},
                 {"Element", TargetMacros},
-                {"ElementSource", TargetMacros}
+                {BindableMembers.Object.ElementSource, TargetMacros}
             };
         }
 
@@ -70,9 +65,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Properties
 
-        public bool IsPostOrder => true;
+        bool IExpressionVisitor.IsPostOrder => true;
 
-        public Dictionary<string, IMethodCallExpressionNode> MacrosMethods { get; }
+        public Dictionary<string, IExpressionNode> Macros { get; }
 
         public Dictionary<string, IMethodCallExpressionNode> MethodAliases { get; }
 
@@ -84,7 +79,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Implementation of interfaces
 
-        public virtual IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        public IExpressionNode? Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             if (expression is IMethodCallExpressionNode method && ConstantParametersMethods.TryGetValue(method.Method, out var methodName))
             {
@@ -120,12 +115,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
             {
-                if (unaryExpression.Operand is IMemberExpressionNode memberExpression && MacrosMethods.TryGetValue(memberExpression.Member, out var m))
-                    return m;
+                if (unaryExpression.Operand is IMemberExpressionNode memberExpression && Macros.TryGetValue(memberExpression.Member, out var member))
+                    return member;
 
                 if (unaryExpression.Operand is IMethodCallExpressionNode methodCallExpression)
                 {
-                    if (MethodAliases.TryGetValue(methodCallExpression.Method, out m))
+                    if (MethodAliases.TryGetValue(methodCallExpression.Method, out var m))
                         return m.UpdateArguments(methodCallExpression.Arguments);
 
                     if (methodCallExpression.Target == null && MacrosTargets.TryGetValue(methodCallExpression.Method, out var target))
