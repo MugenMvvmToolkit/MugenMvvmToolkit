@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Core;
+﻿using System;
+using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
@@ -105,6 +106,27 @@ namespace MugenMvvm.UnitTest.Binding.Core
             context.InlineParameters[parameter4].ShouldEqual(parameterValue4);
             context.TryGetParameterValue<bool>(parameter4).ShouldEqual(parameterValue4);
             context.TryGetParameterValue<bool?>(parameter4).ShouldEqual(parameterValue4);
+        }
+
+        [Fact]
+        public void TryGetParameterValueShouldReturnCorrectValues()
+        {
+            const string parameter1 = "p1";
+            var context = new BindingExpressionInitializerContext(this);
+
+            context.TryGetParameterValue(parameter1, int.MaxValue).ShouldEqual(int.MaxValue);
+
+            context.AssignmentParameters[parameter1] = ConstantExpressionNode.Get(1);
+            context.TryGetParameterValue<int>(parameter1).ShouldEqual(1);
+
+            context.AssignmentParameters[parameter1] = ConstantExpressionNode.Get(parameter1);
+            context.TryGetParameterValue<string>(parameter1).ShouldEqual(parameter1);
+
+            context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
+            context.TryGetParameterValue<string>(parameter1).ShouldEqual(parameter1);
+
+            context.AssignmentParameters[parameter1] = new MemberExpressionNode(null, parameter1);
+            ShouldThrow<InvalidOperationException>(() => context.TryGetParameterValue<int>(parameter1));
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
