@@ -13,7 +13,14 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingModeInitializer()
         {
-            BindingModes = new Dictionary<string, object>();
+            BindingModes = new Dictionary<string, object?>
+            {
+                {"OneTime", OneTimeBindingMode.Instance},
+                {"OneWay", OneWayBindingMode.Instance},
+                {"OneWayToSource", OneWayToSourceBindingMode.Instance},
+                {"TwoWay", TwoWayBindingMode.Instance},
+                {"None", null}
+            };
             DefaultMode = OneWayBindingMode.Instance;
         }
 
@@ -23,7 +30,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public object? DefaultMode { get; set; }
 
-        public Dictionary<string, object> BindingModes { get; }
+        public Dictionary<string, object?> BindingModes { get; }
 
         public int Priority { get; set; } = BindingComponentPriority.BindingParameterInitializer;
 
@@ -54,7 +61,8 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 if (!context.TryGetParameterValue<bool>(mode.Key))
                 {
-                    context.BindingComponents[BindingParameterNameConstant.Mode] = mode.Value;
+                    if (mode.Value != null)
+                        context.BindingComponents[BindingParameterNameConstant.Mode] = mode.Value;
                     return;
                 }
             }
