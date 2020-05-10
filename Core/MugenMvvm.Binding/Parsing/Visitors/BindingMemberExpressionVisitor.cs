@@ -117,7 +117,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                     return expression;
             }
 
-            return expression.UpdateTarget(member).Accept(this, metadata);
+            return expression.UpdateTarget(member);
         }
 
         private IExpressionNode? GetOrAddBindingMember(IExpressionNode target, string? methodName, IReadOnlyMetadataContext? metadata)
