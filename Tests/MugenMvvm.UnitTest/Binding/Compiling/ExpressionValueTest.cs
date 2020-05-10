@@ -34,17 +34,6 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             expressionValue.Value.ShouldEqual(value);
         }
 
-        [Fact]
-        public void ConstructorShouldInitializeValues2()
-        {
-            var value = "";
-            var expressionValue = new ExpressionValue(value);
-            expressionValue.HasValue.ShouldBeTrue();
-            expressionValue.IsEmpty.ShouldBeTrue();
-            expressionValue.Type.ShouldBeNull();
-            expressionValue.Value.ShouldEqual(value);
-        }
-
         #endregion
     }
 }
