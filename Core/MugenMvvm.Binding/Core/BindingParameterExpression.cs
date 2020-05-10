@@ -19,6 +19,8 @@ namespace MugenMvvm.Binding.Core
 
         public BindingParameterExpression(object? value, ICompiledExpression? compiledExpression)
         {
+            if (value is IBindingMemberExpressionNode[])
+                Should.NotBeNull(compiledExpression, nameof(compiledExpression));
             _value = value;
             _compiledExpression = compiledExpression;
         }
