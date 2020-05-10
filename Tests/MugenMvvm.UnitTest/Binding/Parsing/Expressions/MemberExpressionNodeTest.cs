@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             MemberExpressionNode.Binding.Member.ShouldEqual(MacrosConstant.Binding);
 
             MemberExpressionNode.Args.Target.ShouldBeNull();
-            MemberExpressionNode.Args.Member.ShouldEqual(MacrosConstant.Args);
+            MemberExpressionNode.Args.Member.ShouldEqual(MacrosConstant.EventArgs);
         }
 
         [Fact]
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             MemberExpressionNode.Get(null, MacrosConstant.Target).ShouldEqual(MemberExpressionNode.Self);
             MemberExpressionNode.Get(null, MacrosConstant.Context).ShouldEqual(MemberExpressionNode.Context);
             MemberExpressionNode.Get(null, MacrosConstant.Source).ShouldEqual(MemberExpressionNode.Source);
-            MemberExpressionNode.Get(null, MacrosConstant.Args).ShouldEqual(MemberExpressionNode.Args);
+            MemberExpressionNode.Get(null, MacrosConstant.EventArgs).ShouldEqual(MemberExpressionNode.Args);
             MemberExpressionNode.Get(null, MacrosConstant.Binding).ShouldEqual(MemberExpressionNode.Binding);
 
             var node = MemberExpressionNode.Get(ConstantExpressionNode.False, MacrosConstant.Self);
