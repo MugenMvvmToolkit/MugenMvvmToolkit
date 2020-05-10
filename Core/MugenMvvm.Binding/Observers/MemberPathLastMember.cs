@@ -82,6 +82,16 @@ namespace MugenMvvm.Binding.Observers
                 throw e;
         }
 
+        public object? GetValueOrThrow(IReadOnlyMetadataContext? metadata = null)
+        {
+            if (_member == null)
+            {
+                ThrowIfError();
+                return BindingMetadata.UnsetValue;
+            }
+            return ((IMemberAccessorInfo)_member).GetValue(_target, metadata);
+        }
+
         public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
             return ((IMemberAccessorInfo)_member!).GetValue(_target, metadata);

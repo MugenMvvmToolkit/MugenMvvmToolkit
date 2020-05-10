@@ -20,6 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             member.Error.ShouldBeNull();
             member.Target.ShouldEqual(BindingMetadata.UnsetValue);
             member.Member.ShouldEqual(ConstantMemberInfo.Unset);
+            member.GetValueOrThrow(DefaultMetadata).ShouldEqual(BindingMetadata.UnsetValue);
         }
 
         [Fact]
@@ -34,6 +35,16 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             try
             {
                 member.ThrowIfError();
+                throw new NotSupportedException();
+            }
+            catch (Exception e)
+            {
+                e.ShouldEqual(member.Error);
+            }
+
+            try
+            {
+                member.GetValueOrThrow(DefaultMetadata);
                 throw new NotSupportedException();
             }
             catch (Exception e)
@@ -75,6 +86,10 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             member.ThrowIfError();
 
             member.GetValue(DefaultMetadata).ShouldEqual(target);
+            getCount.ShouldEqual(1);
+
+            getCount = 0;
+            member.GetValueOrThrow(DefaultMetadata).ShouldEqual(target);
             getCount.ShouldEqual(1);
 
             member.SetValueWithConvert(value, DefaultMetadata);

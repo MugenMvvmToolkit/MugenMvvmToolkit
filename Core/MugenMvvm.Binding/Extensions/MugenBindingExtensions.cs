@@ -109,32 +109,26 @@ namespace MugenMvvm.Binding.Extensions
             if (expression == null)
                 return BindingMetadata.UnsetValue;
             ItemOrList<ExpressionValue, ExpressionValue[]> values;
-            switch (sourceRaw)
+            if (sourceRaw == null)
+                values = default;
+            else if (sourceRaw is object?[] sources)
             {
-                case null:
-                    values = Default.EmptyArray<ExpressionValue>();
-                    break;
-                case object?[] sources:
-                    {
-                        var expressionValues = new ExpressionValue[sources.Length];
-                        for (var i = 0; i < sources.Length; i++)
-                        {
-                            var expressionValue = GetExpressionValue(sources[i], metadata);
-                            if (expressionValue.IsEmpty)
-                                return expressionValue.Value;
-                            expressionValues[i] = expressionValue;
-                        }
+                var expressionValues = new ExpressionValue[sources.Length];
+                for (var i = 0; i < sources.Length; i++)
+                {
+                    var expressionValue = GetExpressionValue(sources[i], metadata);
+                    if (expressionValue.Value.IsUnsetValueOrDoNothing())
+                        return expressionValue.Value;
+                    expressionValues[i] = expressionValue;
+                }
 
-                        values = expressionValues;
-                        break;
-                    }
-                default:
-                    {
-                        values = GetExpressionValue(sourceRaw, metadata);
-                        if (values.Item.IsEmpty)
-                            return values.Item.Value;
-                        break;
-                    }
+                values = expressionValues;
+            }
+            else
+            {
+                values = GetExpressionValue(sourceRaw, metadata);
+                if (values.Item.Value.IsUnsetValueOrDoNothing())
+                    return values.Item.Value;
             }
             return expression.Invoke(values, metadata);
         }
@@ -625,9 +619,9 @@ namespace MugenMvvm.Binding.Extensions
             if (sourceRaw is IMemberPathObserver observer)
             {
                 var members = observer.GetLastMember(metadata);
-                var value = members.GetValue(metadata);
+                var value = members.GetValueOrThrow(metadata);
                 if (value.IsUnsetValueOrDoNothing())
-                    return new ExpressionValue(value);
+                    return new ExpressionValue(typeof(object), value);
                 return new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
             }
 
