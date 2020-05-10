@@ -19,13 +19,12 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         private readonly IExpressionCompiler? _compiler;
+        private readonly BindingMemberExpressionCollectorVisitor _memberExpressionCollectorVisitor;
+        private readonly BindingMemberExpressionVisitor _memberExpressionVisitor;
 
         private static readonly
             FuncIn<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?>
             GetParametersComponentDelegate = GetParametersComponent;
-
-        private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor { IgnoreIndexMembers = true, IgnoreMethodMembers = true };
-        private static readonly BindingMemberExpressionCollectorVisitor MemberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
 
         #endregion
 
@@ -33,6 +32,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingParameterInitializer(IExpressionCompiler? compiler = null)
         {
+            _memberExpressionVisitor = new BindingMemberExpressionVisitor { IgnoreIndexMembers = true, IgnoreMethodMembers = true };
+            _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             _compiler = compiler;
         }
 
@@ -53,17 +54,18 @@ namespace MugenMvvm.Binding.Core.Components
             if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.ParameterHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler))
                 return;
 
-            MemberExpressionVisitor.MemberFlags = MemberFlags;
-            MemberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
+            _memberExpressionVisitor.MemberFlags = MemberFlags;
+            _memberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
             var metadata = context.GetMetadataOrDefault();
-            var converter = context.TryGetParameterExpression(_compiler, MemberExpressionVisitor, MemberExpressionCollectorVisitor, BindingParameterNameConstant.Converter, metadata);
-            var converterParameter = context.TryGetParameterExpression(_compiler, MemberExpressionVisitor, MemberExpressionCollectorVisitor, BindingParameterNameConstant.ConverterParameter, metadata);
-            var fallback = context.TryGetParameterExpression(_compiler, MemberExpressionVisitor, MemberExpressionCollectorVisitor, BindingParameterNameConstant.Fallback, metadata);
-            var targetNullValue = context.TryGetParameterExpression(_compiler, MemberExpressionVisitor, MemberExpressionCollectorVisitor, BindingParameterNameConstant.TargetNullValue, metadata);
+            var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Converter, metadata);
+            var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.ConverterParameter, metadata);
+            var fallback = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Fallback, metadata);
+            var targetNullValue = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.TargetNullValue, metadata);
             if (!converter.IsEmpty || !converterParameter.IsEmpty || !fallback.IsEmpty || !targetNullValue.IsEmpty)
             {
                 var state = (converter, converterParameter, fallback, targetNullValue);
-                var provider = new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
+                var provider =
+                    new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
                 context.BindingComponents[BindingParameterNameConstant.ParameterHandler] = provider;
             }
         }

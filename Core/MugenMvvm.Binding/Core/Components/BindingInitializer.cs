@@ -23,10 +23,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         private readonly IExpressionCompiler? _compiler;
         private readonly FuncIn<(BindingParameterExpression, bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _getEventHandlerDelegate;
+        private readonly BindingMemberExpressionCollectorVisitor _memberExpressionCollectorVisitor;
+        private readonly BindingMemberExpressionVisitor _memberExpressionVisitor;
         private readonly IMemberManager? _memberManager;
-
-        private static readonly BindingMemberExpressionVisitor MemberExpressionVisitor = new BindingMemberExpressionVisitor();
-        private static readonly BindingMemberExpressionCollectorVisitor MemberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
 
         #endregion
 
@@ -34,6 +33,8 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingInitializer(IExpressionCompiler? compiler = null, IMemberManager? memberManager = null)
         {
+            _memberExpressionVisitor = new BindingMemberExpressionVisitor();
+            _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             _getEventHandlerDelegate = GetEventHandlerComponent;
             _compiler = compiler;
             _memberManager = memberManager;
@@ -62,31 +63,31 @@ namespace MugenMvvm.Binding.Core.Components
         public void Initialize(IBindingExpressionInitializerContext context)
         {
             var metadata = context.GetMetadataOrDefault();
-            MemberExpressionVisitor.MemberFlags = MemberFlags;
-            MemberExpressionVisitor.Flags = Flags;
-            MemberExpressionVisitor.IgnoreMethodMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
-            MemberExpressionVisitor.IgnoreIndexMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);
-            context.ApplyFlags(MemberExpressionVisitor, BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable);
-            context.ApplyFlags(MemberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
-            context.ApplyFlags(MemberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
-            context.ApplyFlags(MemberExpressionVisitor, BindingParameterNameConstant.ObservableMethod, BindingMemberExpressionFlags.ObservableMethod);
+            _memberExpressionVisitor.MemberFlags = MemberFlags;
+            _memberExpressionVisitor.Flags = Flags;
+            _memberExpressionVisitor.IgnoreMethodMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
+            _memberExpressionVisitor.IgnoreIndexMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable);
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.ObservableMethod, BindingMemberExpressionFlags.ObservableMethod);
 
-            context.TargetExpression = MemberExpressionVisitor.Visit(context.TargetExpression, metadata);
+            context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, metadata);
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
             {
-                context.SourceExpression = MemberExpressionVisitor.Visit(context.SourceExpression, metadata);
+                context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, metadata);
                 return;
             }
 
-            MemberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod);
-            MemberExpressionVisitor.IgnoreIndexMembers = true;
-            MemberExpressionVisitor.IgnoreMethodMembers = true;
-            context.SourceExpression = MemberExpressionVisitor.Visit(context.SourceExpression, metadata);
+            _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod);
+            _memberExpressionVisitor.IgnoreIndexMembers = true;
+            _memberExpressionVisitor.IgnoreMethodMembers = true;
+            context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, metadata);
             context.BindingComponents[BindingParameterNameConstant.Mode] = null;
             if (!context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler))
             {
-                MemberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;
-                var parameter = context.TryGetParameterExpression(_compiler, MemberExpressionVisitor, MemberExpressionCollectorVisitor, BindingParameterNameConstant.CommandParameter, metadata);
+                _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;
+                var parameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.CommandParameter, metadata);
                 var toggle = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
                 context.BindingComponents[BindingParameterNameConstant.EventHandler] = new DelegateBindingComponentProvider<(BindingParameterExpression, bool)>(_getEventHandlerDelegate, (parameter, toggle));
             }
