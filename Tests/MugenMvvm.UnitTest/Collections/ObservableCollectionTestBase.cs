@@ -15,12 +15,6 @@ namespace MugenMvvm.UnitTest.Collections
 {
     public class ObservableCollectionTestBase : ComponentOwnerTestBase<IObservableCollection<object>>
     {
-        #region Fields
-
-        protected const int TestIterationCount = 50;
-
-        #endregion
-
         #region Methods
 
         [Fact]
@@ -377,9 +371,11 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void AddShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void AddShouldNotifyListeners(int listenersCount, int count)
         {
             var adding = 0;
             var added = 0;
@@ -432,35 +428,37 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = new TestCollectionItem();
                 expectedIndex = 0;
                 collection.Add(expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             adding.ShouldEqual(0);
             added.ShouldEqual(0);
 
             condition = 0;
             canAdd = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = new TestCollectionItem();
                 expectedIndex = i;
                 collection.Add(expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            adding.ShouldEqual(TestIterationCount * listenersCount);
-            added.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            adding.ShouldEqual(count * listenersCount);
+            added.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void InsertShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void InsertShouldNotifyListeners(int listenersCount, int count)
         {
             var adding = 0;
             var added = 0;
@@ -513,35 +511,37 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = new TestCollectionItem();
                 expectedIndex = 0;
                 collection.Insert(0, expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             adding.ShouldEqual(0);
             added.ShouldEqual(0);
 
             condition = 0;
             canAdd = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = new TestCollectionItem();
                 expectedIndex = 0;
                 collection.Insert(0, expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            adding.ShouldEqual(TestIterationCount * listenersCount);
-            added.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            adding.ShouldEqual(count * listenersCount);
+            added.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ReplaceShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void ReplaceShouldNotifyListeners(int listenersCount, int count)
         {
             var replacing = 0;
             var replaced = 0;
@@ -550,7 +550,7 @@ namespace MugenMvvm.UnitTest.Collections
             var canReplace = false;
             TestCollectionItem? expectedOldItem = null, expectedNewItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
@@ -599,7 +599,7 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedNewItem = new TestCollectionItem();
                 expectedOldItem = collection[i];
@@ -607,13 +607,13 @@ namespace MugenMvvm.UnitTest.Collections
                 collection[i] = expectedNewItem;
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             replacing.ShouldEqual(0);
             replaced.ShouldEqual(0);
 
             condition = 0;
             canReplace = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedNewItem = new TestCollectionItem();
                 expectedOldItem = collection[i];
@@ -621,15 +621,17 @@ namespace MugenMvvm.UnitTest.Collections
                 collection[i] = expectedNewItem;
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            replacing.ShouldEqual(TestIterationCount * listenersCount);
-            replaced.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            replacing.ShouldEqual(count * listenersCount);
+            replaced.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void MoveShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void MoveShouldNotifyListeners(int listenersCount, int count)
         {
             var moving = 0;
             var moved = 0;
@@ -639,7 +641,7 @@ namespace MugenMvvm.UnitTest.Collections
             var canMove = false;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < TestIterationCount + 1; i++)
+            for (var i = 0; i < count + 1; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
@@ -688,7 +690,7 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedOldIndex = i;
                 expectedNewIndex = i + 1;
@@ -696,13 +698,13 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.Move(expectedOldIndex, expectedNewIndex);
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             moving.ShouldEqual(0);
             moved.ShouldEqual(0);
 
             condition = 0;
             canMove = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedOldIndex = i;
                 expectedNewIndex = i + 1;
@@ -710,15 +712,17 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.Move(expectedOldIndex, expectedNewIndex);
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            moving.ShouldEqual(TestIterationCount * listenersCount);
-            moved.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            moving.ShouldEqual(count * listenersCount);
+            moved.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RemoveShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void RemoveShouldNotifyListeners(int listenersCount, int count)
         {
             var removing = 0;
             var removed = 0;
@@ -727,7 +731,7 @@ namespace MugenMvvm.UnitTest.Collections
             var canRemove = false;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
@@ -773,35 +777,37 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.Remove(expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             removing.ShouldEqual(0);
             removed.ShouldEqual(0);
 
             condition = 0;
             canRemove = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.Remove(expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            removing.ShouldEqual(TestIterationCount * listenersCount);
-            removed.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            removing.ShouldEqual(count * listenersCount);
+            removed.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RemoveAtShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void RemoveAtShouldNotifyListeners(int listenersCount, int count)
         {
             var removing = 0;
             var removed = 0;
@@ -810,7 +816,7 @@ namespace MugenMvvm.UnitTest.Collections
             var canRemove = false;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
@@ -856,35 +862,37 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.RemoveAt(expectedIndex);
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             removing.ShouldEqual(0);
             removed.ShouldEqual(0);
 
             condition = 0;
             canRemove = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = collection[0];
                 expectedIndex = 0;
                 collection.RemoveAt(expectedIndex);
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            removing.ShouldEqual(TestIterationCount * listenersCount);
-            removed.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            removing.ShouldEqual(count * listenersCount);
+            removed.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ResetShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(1, 50)]
+        [InlineData(10, 1)]
+        [InlineData(10, 50)]
+        public void ResetShouldNotifyListeners(int listenersCount, int count)
         {
             var resetting = 0;
             var reset = 0;
@@ -892,7 +900,7 @@ namespace MugenMvvm.UnitTest.Collections
             var canReset = false;
             IEnumerable<TestCollectionItem>? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
@@ -935,42 +943,43 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
                 collection.Reset(expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             resetting.ShouldEqual(0);
             reset.ShouldEqual(0);
 
             condition = 0;
             canReset = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 expectedItem = new[] { new TestCollectionItem(), new TestCollectionItem() };
                 collection.Reset(expectedItem);
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            resetting.ShouldEqual(TestIterationCount * listenersCount);
-            reset.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            resetting.ShouldEqual(count * listenersCount);
+            reset.ShouldEqual(count * listenersCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(2)]
-        public void ClearShouldNotifyListeners(int listenersCount)
+        [InlineData(1, 1)]
+        [InlineData(2, 10)]
+        [InlineData(2, 1)]
+        [InlineData(2, 10)]
+        public void ClearShouldNotifyListeners(int listenersCount, int count)
         {
-            const int TestIterationCount = 10;
             var clearing = 0;
             var clear = 0;
             var condition = 0;
             var canClear = false;
 
             var collection = CreateCollection<TestCollectionItem>();
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
@@ -1013,24 +1022,24 @@ namespace MugenMvvm.UnitTest.Collections
                 collection.AddComponent(changedListener);
             }
 
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
                 collection.Clear();
-            condition.ShouldEqual(TestIterationCount);
+            condition.ShouldEqual(count);
             clearing.ShouldEqual(0);
             clear.ShouldEqual(0);
 
             condition = 0;
             canClear = true;
-            for (var i = 0; i < TestIterationCount; i++)
+            for (var i = 0; i < count; i++)
             {
                 collection.Clear();
-                for (var j = 0; j < TestIterationCount; j++)
+                for (var j = 0; j < count; j++)
                     collection.Add(new TestCollectionItem());
             }
 
-            condition.ShouldEqual(TestIterationCount * listenersCount);
-            clearing.ShouldEqual(TestIterationCount * listenersCount);
-            clear.ShouldEqual(TestIterationCount * listenersCount);
+            condition.ShouldEqual(count * listenersCount);
+            clearing.ShouldEqual(count * listenersCount);
+            clear.ShouldEqual(count * listenersCount);
         }
 
         protected virtual IObservableCollection<T> CreateCollection<T>(params T[] items)
