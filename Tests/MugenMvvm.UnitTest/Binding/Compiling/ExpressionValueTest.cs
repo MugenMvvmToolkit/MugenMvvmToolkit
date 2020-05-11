@@ -16,19 +16,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         }
 
         [Fact]
-        public void HasValueShouldBeFalseDefault()
-        {
-            ExpressionValue value = default;
-            value.HasValue.ShouldBeFalse();
-        }
-
-        [Fact]
         public void ConstructorShouldInitializeValues1()
         {
             var type = typeof(object);
             var value = "";
             var expressionValue = new ExpressionValue(typeof(object), value);
-            expressionValue.HasValue.ShouldBeTrue();
             expressionValue.IsEmpty.ShouldBeFalse();
             expressionValue.Type.ShouldEqual(type);
             expressionValue.Value.ShouldEqual(value);
