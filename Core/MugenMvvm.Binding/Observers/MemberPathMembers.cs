@@ -67,10 +67,16 @@ namespace MugenMvvm.Binding.Observers
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ThrowIfError()
+        public bool ThrowIfError()
         {
-            if (_target is Exception exception)
-                throw exception;
+            if (_members == null)
+            {
+                if (_target is Exception e)
+                    throw e;
+                return false;
+            }
+
+            return true;
         }
 
         #endregion

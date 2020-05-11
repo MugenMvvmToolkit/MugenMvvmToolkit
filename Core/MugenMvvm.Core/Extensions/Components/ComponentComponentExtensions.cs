@@ -77,16 +77,16 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static void OnComponentRemoved(object? components, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        public static void OnComponentRemoved(object? components, int startIndex, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
             Should.NotBeNull(component, nameof(component));
             if (components is object[] c)
             {
-                for (var i = 0; i < c.Length; i++)
+                for (var i = startIndex; i < c.Length; i++)
                     (c[i] as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
             }
-            else
+            else if (startIndex == 0)
                 (components as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
         }
 

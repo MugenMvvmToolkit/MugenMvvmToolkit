@@ -44,12 +44,6 @@ namespace MugenMvvm.Binding.Core
         protected const int HasTargetObserverListener = 1 << 10;
         protected const int HasSourceObserverListener = 1 << 11;
 
-        protected const int HasTargetValueGetterFlag = 1 << 12;
-        protected const int HasSourceValueGetterFlag = 1 << 13;
-
-        protected const int HasTargetLastMemberProviderFlag = 1 << 14;
-        protected const int HasSourceLastMemberProviderFlag = 1 << 15;
-
         protected const int InvalidFlag = 1 << 30;
         protected const int DisposedFlag = 1 << 31;
 
@@ -233,7 +227,7 @@ namespace MugenMvvm.Binding.Core
             if (!RemoveComponent(component, metadata))
                 return false;
 
-            OnComponentRemoved(component, true, metadata);
+            OnComponentRemoved(_components, 0, component, true, metadata);
             return true;
         }
 
@@ -245,13 +239,13 @@ namespace MugenMvvm.Binding.Core
             if (components is object[] array)
             {
                 for (var i = 0; i < array.Length; i++)
-                    OnComponentRemoved(array[i], isValid, metadata);
+                    OnComponentRemoved(components, i + 1, array[i], isValid, metadata);
             }
             else
             {
                 var component = components;
                 if (component != null)
-                    OnComponentRemoved(component, isValid, metadata);
+                    OnComponentRemoved(null, 0, component, isValid, metadata);
             }
             return true;
         }
@@ -352,33 +346,32 @@ namespace MugenMvvm.Binding.Core
                 OnComponentAdded(list[i]!, metadata);
         }
 
+        protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
+        {
+            return Target.GetLastMember(this).GetValueOrThrow(this);
+        }
+
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            return ((IMemberPathObserver)SourceRaw!).GetLastMember(this).GetValue(this);
+            return ((IMemberPathObserver)SourceRaw!).GetLastMember(this).GetValueOrThrow(this);
         }
 
         protected virtual bool UpdateSourceInternal(out object? newValue)
         {
-            if (!CheckFlag(HasSourceLastMemberProviderFlag) || !BindingComponentExtensions.TryGetSourceLastMember(_components, this, this, out var pathLastMember))
-            {
-                if (!(SourceRaw is IMemberPathObserver sourceObserver))
-                {
-                    newValue = null;
-                    return false;
-                }
-                pathLastMember = sourceObserver.GetLastMember(this);
-            }
-
-            pathLastMember.ThrowIfError();
-            if (!pathLastMember.IsAvailable)
+            if (!(SourceRaw is IMemberPathObserver sourceObserver))
             {
                 newValue = null;
                 return false;
             }
 
-            if (!CheckFlag(HasTargetValueGetterFlag) || !BindingComponentExtensions.TryGetTargetValue(_components, this, pathLastMember, this, out newValue))
-                newValue = GetTargetValue(pathLastMember);
+            var pathLastMember = sourceObserver.GetLastMember(this);
+            if (!pathLastMember.ThrowIfError())
+            {
+                newValue = null;
+                return false;
+            }
 
+            newValue = GetTargetValue(pathLastMember);
             if (CheckFlag(HasSourceValueInterceptorFlag))
                 newValue = BindingComponentExtensions.InterceptSourceValue(_components, this, pathLastMember, newValue, this);
 
@@ -394,26 +387,16 @@ namespace MugenMvvm.Binding.Core
             return true;
         }
 
-        protected virtual object? GetTargetValue(MemberPathLastMember sourceMember)
-        {
-            return Target.GetLastMember(this).GetValue(this);
-        }
-
         protected virtual bool UpdateTargetInternal(out object? newValue)
         {
-            if (!CheckFlag(HasTargetLastMemberProviderFlag) || !BindingComponentExtensions.TryGetTargetLastMember(_components, this, this, out var pathLastMember))
-                pathLastMember = Target.GetLastMember(this);
-
-            pathLastMember.ThrowIfError();
-            if (!pathLastMember.IsAvailable)
+            var pathLastMember = Target.GetLastMember(this);
+            if (!pathLastMember.ThrowIfError())
             {
                 newValue = null;
                 return false;
             }
 
-            if (!CheckFlag(HasSourceValueGetterFlag) || !BindingComponentExtensions.TryGetSourceValue(_components, this, pathLastMember, this, out newValue))
-                newValue = GetSourceValue(pathLastMember);
-
+            newValue = GetSourceValue(pathLastMember);
             if (CheckFlag(HasTargetValueInterceptorFlag))
                 newValue = BindingComponentExtensions.InterceptTargetValue(_components, this, pathLastMember, newValue, this);
 
@@ -550,14 +533,7 @@ namespace MugenMvvm.Binding.Core
                 SetFlag(HasComponentChangingListener);
             if (component is IComponentCollectionChangedListener)
                 SetFlag(HasComponentChangedListener);
-            if (component is ISourceValueGetterBindingComponent)
-                SetFlag(HasSourceValueGetterFlag);
-            if (component is ITargetValueGetterBindingComponent)
-                SetFlag(HasTargetValueGetterFlag);
-            if (component is ISourceLastMemberProviderBindingComponent)
-                SetFlag(HasSourceLastMemberProviderFlag);
-            if (component is ITargetLastMemberProviderBindingComponent)
-                SetFlag(HasTargetLastMemberProviderFlag);
+
             if (!CheckFlag(HasTargetObserverListener) && component is IBindingTargetObserverListener)
             {
                 SetFlag(HasTargetObserverListener);
@@ -581,7 +557,7 @@ namespace MugenMvvm.Binding.Core
             return !CheckFlag(HasComponentChangingListener) || ComponentComponentExtensions.OnComponentRemoving(_components, this, component, metadata);
         }
 
-        private void OnComponentRemoved(object component, bool isValidState, IReadOnlyMetadataContext? metadata)
+        private void OnComponentRemoved(object? components, int startIndex, object component, bool isValidState, IReadOnlyMetadataContext? metadata)
         {
             if (isValidState)
             {
@@ -598,7 +574,7 @@ namespace MugenMvvm.Binding.Core
 
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);
                 if (CheckFlag(HasComponentChangedListener))
-                    ComponentComponentExtensions.OnComponentRemoved(_components, this, component, this);
+                    ComponentComponentExtensions.OnComponentRemoved(components, startIndex, this, component, metadata);
             }
             else
                 ComponentComponentExtensions.OnComponentRemoved(this, component, metadata);

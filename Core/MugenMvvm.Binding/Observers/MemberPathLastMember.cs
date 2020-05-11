@@ -76,10 +76,16 @@ namespace MugenMvvm.Binding.Observers
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public void ThrowIfError()
+        public bool ThrowIfError()
         {
-            if (_member == null && _target is Exception e)
-                throw e;
+            if (_member == null)
+            {
+                if (_target is Exception e)
+                    throw e;
+                return false;
+            }
+
+            return true;
         }
 
         public object? GetValueOrThrow(IReadOnlyMetadataContext? metadata = null)

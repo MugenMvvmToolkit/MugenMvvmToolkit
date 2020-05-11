@@ -20,6 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             member.Error.ShouldBeNull();
             member.Target.ShouldEqual(BindingMetadata.UnsetValue);
             member.Member.ShouldEqual(ConstantMemberInfo.Unset);
+            member.ThrowIfError().ShouldBeFalse();
             member.GetValueOrThrow(DefaultMetadata).ShouldEqual(BindingMetadata.UnsetValue);
         }
 
@@ -83,7 +84,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             member.Error.ShouldBeNull();
             member.Target.ShouldEqual(target);
             member.Member.ShouldEqual(memberInfo);
-            member.ThrowIfError();
+            member.ThrowIfError().ShouldBeTrue();
 
             member.GetValue(DefaultMetadata).ShouldEqual(target);
             getCount.ShouldEqual(1);

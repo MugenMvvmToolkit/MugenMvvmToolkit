@@ -220,25 +220,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             return value;
         }
 
-        public static bool TryGetTargetValue(object? components, IBinding binding, MemberPathLastMember sourceMember, IReadOnlyMetadataContext metadata, out object? value)
-        {
-            Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(binding, sourceMember, metadata, out value))
-                        return true;
-                }
-            }
-            else if (components is ITargetValueGetterBindingComponent setter && setter.TryGetTargetValue(binding, sourceMember, metadata, out value))
-                return true;
-
-            value = null;
-            return false;
-        }
-
         public static bool TrySetTargetValue(object? components, IBinding binding, MemberPathLastMember targetMember, object? newValue, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
@@ -257,25 +238,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             return false;
         }
 
-        public static bool TryGetSourceValue(object? components, IBinding binding, MemberPathLastMember targetMember, IReadOnlyMetadataContext metadata, out object? value)
-        {
-            Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(binding, targetMember, metadata, out value))
-                        return true;
-                }
-            }
-            else if (components is ISourceValueGetterBindingComponent setter && setter.TryGetSourceValue(binding, targetMember, metadata, out value))
-                return true;
-
-            value = null;
-            return false;
-        }
-
         public static bool TrySetSourceValue(object? components, IBinding binding, MemberPathLastMember sourceMember, object? newValue, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
@@ -291,44 +253,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             else if (components is ISourceValueSetterBindingComponent setter && setter.TrySetSourceValue(binding, sourceMember, newValue, metadata))
                 return true;
 
-            return false;
-        }
-
-        public static bool TryGetTargetLastMember(object? components, IBinding binding, IReadOnlyMetadataContext metadata, out MemberPathLastMember targetMember)
-        {
-            Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ITargetLastMemberProviderBindingComponent provider && provider.TryGetTargetLastMember(binding, metadata, out targetMember))
-                        return true;
-                }
-            }
-            else if (components is ITargetLastMemberProviderBindingComponent provider && provider.TryGetTargetLastMember(binding, metadata, out targetMember))
-                return true;
-
-            targetMember = default;
-            return false;
-        }
-
-        public static bool TryGetSourceLastMember(object? components, IBinding binding, IReadOnlyMetadataContext metadata, out MemberPathLastMember sourceMember)
-        {
-            Should.NotBeNull(binding, nameof(binding));
-            Should.NotBeNull(metadata, nameof(metadata));
-            if (components is object[] c)
-            {
-                for (var i = 0; i < c.Length; i++)
-                {
-                    if (c[i] is ISourceLastMemberProviderBindingComponent provider && provider.TryGetSourceLastMember(binding, metadata, out sourceMember))
-                        return true;
-                }
-            }
-            else if (components is ISourceLastMemberProviderBindingComponent provider && provider.TryGetSourceLastMember(binding, metadata, out sourceMember))
-                return true;
-
-            sourceMember = default;
             return false;
         }
 

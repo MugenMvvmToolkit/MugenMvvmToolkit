@@ -29,13 +29,13 @@ namespace MugenMvvm.UnitTest.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void AddShouldAddOrderedComponent(int count)
+        public void AddShouldAddOrderedComponent(int count)
         {
             var componentCollection = new ComponentCollection(this);
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent {Priority = i};
+                var component = new TestComponentCollectionProviderComponent { Priority = i };
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata).ShouldBeTrue();
             }
@@ -48,13 +48,13 @@ namespace MugenMvvm.UnitTest.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void RemoveShouldRemoveComponent(int count)
+        public void RemoveShouldRemoveComponent(int count)
         {
             var componentCollection = new ComponentCollection(this);
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent {Priority = i};
+                var component = new TestComponentCollectionProviderComponent { Priority = i };
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata);
             }
@@ -73,13 +73,13 @@ namespace MugenMvvm.UnitTest.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void ClearShouldClearComponents(int count)
+        public void ClearShouldClearComponents(int count)
         {
             var componentCollection = new ComponentCollection(this);
             var components = new List<TestComponentCollectionProviderComponent>();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestComponentCollectionProviderComponent {Priority = i};
+                var component = new TestComponentCollectionProviderComponent { Priority = i };
                 components.Insert(0, component);
                 componentCollection.Add(component, DefaultMetadata);
             }
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void AddShouldNotifyListeners(int count)
+        public void AddShouldNotifyListeners(int count)
         {
             var addingCount = 0;
             var addedCount = 0;
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTest.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void RemoveShouldNotifyListeners(int count)
+        public void RemoveShouldNotifyListeners(int count)
         {
             var removingCount = 0;
             var removedCount = 0;
@@ -211,7 +211,7 @@ namespace MugenMvvm.UnitTest.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void ClearShouldNotifyListeners(int count)
+        public void ClearShouldNotifyListeners(int count)
         {
             var items = new HashSet<object>();
             var removedCount = 0;
@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public virtual void AddShouldCallOnAttachingOnAttachedMethods()
+        public void AddShouldCallOnAttachingOnAttachedMethods()
         {
             var attachingCount = 0;
             var attachedCount = 0;
@@ -275,7 +275,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public virtual void RemoveShouldCallOnDetachingOnDetachedMethods()
+        public void RemoveShouldCallOnDetachingOnDetachedMethods()
         {
             var detachingCount = 0;
             var detachedCount = 0;
@@ -312,7 +312,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public virtual void ClearShouldCallOnDetachedMethods()
+        public void ClearShouldCallOnDetachedMethods()
         {
             var detachedCount = 0;
             var componentCollection = new ComponentCollection(this);
@@ -331,7 +331,7 @@ namespace MugenMvvm.UnitTest.Components
         }
 
         [Fact]
-        public virtual void GetShouldDecorateItems()
+        public void GetShouldDecorateItems()
         {
             var executed = 0;
             var threadDispatcher = new ThreadDispatcher();
@@ -340,53 +340,53 @@ namespace MugenMvvm.UnitTest.Components
             var componentDecorated1 = new TestThreadDispatcherComponent();
             var componentDecorated2 = new TestThreadDispatcherComponent();
 
-            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 0};
-            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> {Priority = 1};
+            var decoratorComponent1 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> { Priority = 0 };
+            var decoratorComponent2 = new TestComponentDecorator<IThreadDispatcher, IThreadDispatcherComponent> { Priority = 1 };
             var component = new TestThreadDispatcherComponent();
             componentCollection.Add(component);
 
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component }).ShouldBeTrue();
             decoratorComponent1.Decorate = (list, context) =>
             {
                 ++executed;
-                list.SequenceEqual(new[] {component}).ShouldBeTrue();
+                list.SequenceEqual(new[] { component }).ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated1);
             };
             componentCollection.AddComponent(decoratorComponent1);
 
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             decoratorComponent2.Decorate = (list, context) =>
             {
                 ++executed;
-                list.SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
+                list.SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated2);
             };
             componentCollection.AddComponent(decoratorComponent2);
 
             executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1, componentDecorated2}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1, componentDecorated2 }).ShouldBeTrue();
             executed.ShouldEqual(2);
 
             componentCollection.RemoveComponent(decoratorComponent2);
             executed = 0;
-            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] {component, componentDecorated1}).ShouldBeTrue();
+            componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
             executed.ShouldEqual(1);
 
             executed = 0;
             componentCollection.RemoveComponent(decoratorComponent1);
             var components = componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata);
-            components.SequenceEqual(new[] {component}).ShouldBeTrue();
+            components.SequenceEqual(new[] { component }).ShouldBeTrue();
             executed.ShouldEqual(0);
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public virtual void ShouldUseCorrectOrderForDecorators(int count)
+        public void ShouldUseCorrectOrderForDecorators(int count)
         {
             var threadDispatcher = new ThreadDispatcher();
             var componentCollection = new ComponentCollection(threadDispatcher);

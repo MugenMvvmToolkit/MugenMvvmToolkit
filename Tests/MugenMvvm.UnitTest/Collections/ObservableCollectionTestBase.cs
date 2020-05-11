@@ -968,7 +968,7 @@ namespace MugenMvvm.UnitTest.Collections
 
         [Theory]
         [InlineData(1, 1)]
-        [InlineData(2, 10)]
+        [InlineData(1, 10)]
         [InlineData(2, 1)]
         [InlineData(2, 10)]
         public void ClearShouldNotifyListeners(int listenersCount, int count)

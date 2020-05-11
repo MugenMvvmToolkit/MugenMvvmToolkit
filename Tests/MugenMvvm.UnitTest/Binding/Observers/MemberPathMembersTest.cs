@@ -17,6 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         {
             var member = default(MemberPathMembers);
             member.IsAvailable.ShouldBeFalse();
+            member.ThrowIfError().ShouldBeFalse();
             member.Error.ShouldBeNull();
             member.Target.ShouldEqual(BindingMetadata.UnsetValue);
             member.Members.ShouldEqual(ConstantMemberInfo.UnsetArray);
@@ -58,7 +59,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             member.Error.ShouldBeNull();
             member.Target.ShouldEqual(target);
             member.Members.ShouldEqual(memberInfos);
-            member.ThrowIfError();
+            member.ThrowIfError().ShouldBeTrue();
         }
 
         #endregion
