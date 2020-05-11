@@ -623,22 +623,6 @@ namespace MugenMvvm.Binding.Extensions
             return target.GetType();
         }
 
-        public static ExpressionValue GetExpressionValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
-        {
-            if (sourceRaw == null)
-                return new ExpressionValue(typeof(object), null);
-            if (sourceRaw is IMemberPathObserver observer)
-            {
-                var members = observer.GetLastMember(metadata);
-                var value = members.GetValueOrThrow(metadata);
-                if (value.IsUnsetValueOrDoNothing())
-                    return new ExpressionValue(typeof(object), value);
-                return new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
-            }
-
-            return new ExpressionValue(sourceRaw.GetType(), sourceRaw);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this MemberFlags value, MemberFlags flag)
         {
@@ -748,6 +732,22 @@ namespace MugenMvvm.Binding.Extensions
                 unsubscriber = observable.TryObserve(value, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)
                 unsubscriber = ActionToken.NoDoToken;
+        }
+
+        private static ExpressionValue GetExpressionValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
+        {
+            if (sourceRaw == null)
+                return new ExpressionValue(typeof(object), null);
+            if (sourceRaw is IMemberPathObserver observer)
+            {
+                var members = observer.GetLastMember(metadata);
+                var value = members.GetValueOrThrow(metadata);
+                if (value.IsUnsetValueOrDoNothing())
+                    return new ExpressionValue(typeof(object), value);
+                return new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
+            }
+
+            return new ExpressionValue(sourceRaw.GetType(), sourceRaw);
         }
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
