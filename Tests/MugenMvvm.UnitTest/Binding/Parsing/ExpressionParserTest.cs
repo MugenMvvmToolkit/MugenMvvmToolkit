@@ -47,13 +47,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
 
         #region Methods
 
-        [Fact]
-        public void ParseMemberPathShouldThrowEmpty()
-        {
-            var parser = new ExpressionParser();
-            ShouldThrow<InvalidOperationException>(() => parser.Parse(this, DefaultMetadata));
-        }
-
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
@@ -83,7 +76,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 parser.AddComponent(component);
             }
 
-            parser.Parse(request, DefaultMetadata).ShouldEqual(result);
+            parser.TryParse(request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -276,7 +269,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         [Fact]
         public void ParserShouldParseActionExpression()
         {
-            var result = GetInitializedExpressionParser().Parse("@1+2; @1+2", DefaultMetadata).ToArray();
+            var result = GetInitializedExpressionParser().TryParse("@1+2; @1+2", DefaultMetadata).ToArray();
             result.Length.ShouldEqual(2);
             for (var i = 0; i < result.Length; i++)
             {
@@ -368,51 +361,51 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         public void ParserShouldConvertExpressions()
         {
             var parser = GetInitializedExpressionParser();
-            var item = parser.Parse(new ExpressionConverterRequest(nameof(Test), null, default), DefaultMetadata).Item;
+            var item = parser.TryParse(new ExpressionConverterRequest(nameof(Test), null, default), DefaultMetadata).Item;
             item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.IsNullOrEmpty().ShouldBeTrue();
 
-            item = parser.Parse(new ExpressionConverterRequest(nameof(Test), nameof(StringProperty), default), DefaultMetadata).Item;
+            item = parser.TryParse(new ExpressionConverterRequest(nameof(Test), nameof(StringProperty), default), DefaultMetadata).Item;
             item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
             item.Source.ShouldEqual(new MemberExpressionNode(null, nameof(StringProperty)));
             item.Parameters.IsNullOrEmpty().ShouldBeTrue();
 
-            item = parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, nameof(StringProperty), default), DefaultMetadata).Item;
+            item = parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, nameof(StringProperty), default), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(new MemberExpressionNode(null, nameof(StringProperty)));
             item.Parameters.IsNullOrEmpty().ShouldBeTrue();
 
 
-            item = parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
+            item = parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(nameof(StringProperty), nameof(Test))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), ConstantExpressionNode.Get(nameof(Test))));
 
-            item = parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
+            item = parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(nameof(StringProperty), MemberExpressionNode.Empty)), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), MemberExpressionNode.Empty));
 
-            item = parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
+            item = parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(nameof(StringProperty), Expression.Constant(nameof(Test)))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), ConstantExpressionNode.Get(nameof(Test))));
 
 
-            ShouldThrow<InvalidOperationException>(() => parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
+            ShouldThrow<InvalidOperationException>(() => parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(null, nameof(Test))), DefaultMetadata));
 
-            item = parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
+            item = parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(null, MemberExpressionNode.Empty)), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(MemberExpressionNode.Empty);
 
-            item = parser.Parse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
+            item = parser.TryParse(new ExpressionConverterRequest(MemberExpressionNode.Empty, MemberExpressionNode.Empty,
                 new KeyValuePair<string?, object>(null, Expression.Constant(nameof(Test)))), DefaultMetadata).Item;
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
@@ -438,7 +431,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             }
 
             var parser = GetInitializedExpressionParser();
-            var list = (requests.Count == 1 ? parser.Parse(requests[0], DefaultMetadata) : parser.Parse(requests, DefaultMetadata)).ToArray();
+            var list = (requests.Count == 1 ? parser.TryParse(requests[0], DefaultMetadata) : parser.TryParse(requests, DefaultMetadata)).ToArray();
             list.Length.ShouldEqual(count);
             for (var i = 0; i < count; i++)
             {
@@ -470,7 +463,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             }
 
             var exp = builder.ToString();
-            var list = GetInitializedExpressionParser().Parse(exp, DefaultMetadata).ToArray();
+            var list = GetInitializedExpressionParser().TryParse(exp, DefaultMetadata).ToArray();
             list.Length.ShouldEqual(count);
             for (var i = 0; i < count; i++)
             {

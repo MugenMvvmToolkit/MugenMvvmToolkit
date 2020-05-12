@@ -22,12 +22,9 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Implementation of interfaces
 
-        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IExpressionParserComponent>(metadata).TryParse(expression, metadata);
-            if (result.Item.IsEmpty && result.List == null)
-                BindingExceptionManager.ThrowCannotParseExpression(expression);
-            return result;
+            return GetComponents<IExpressionParserComponent>(metadata).TryParse(expression, metadata);
         }
 
         #endregion

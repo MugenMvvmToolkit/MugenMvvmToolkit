@@ -23,7 +23,6 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         private readonly BindingExpressionInitializerContext _context;
-
         private readonly BindingMemberExpressionCollectorVisitor _expressionCollectorVisitor;
         private readonly IExpressionCompiler? _expressionCompiler;
         private readonly IExpressionParser? _parser;
@@ -52,7 +51,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            var parserResult = _parser.DefaultIfNull().Parse(expression, metadata);
+            var parserResult = _parser.DefaultIfNull().TryParse(expression, metadata);
             var list = parserResult.List;
             if (list != null)
             {
@@ -67,6 +66,8 @@ namespace MugenMvvm.Binding.Core.Components
             }
 
             var item = parserResult.Item;
+            if (item.IsEmpty)
+                return default;
             return new BindingExpression(_context, item.Target, item.Source, item.Parameters.GetRawValue());
         }
 
