@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Components.Internal
 {
-    public class TestAttachableComponent<T> : AttachableComponentBase<T>, IComponent where T : class
+    public class TestAttachableComponent<T> : AttachableComponentBase<T>, IComponent<T> where T : class
     {
         #region Properties
 

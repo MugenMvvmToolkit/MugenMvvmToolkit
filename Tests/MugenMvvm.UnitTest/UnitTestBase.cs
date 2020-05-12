@@ -1,7 +1,9 @@
 ﻿using System;
 using MugenMvvm.Binding.Converters;
 using MugenMvvm.Binding.Converters.Components;
+using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members;
@@ -71,6 +73,9 @@ namespace MugenMvvm.UnitTest
 
             var memberManager = new MemberManager();
             MugenService.Configuration.InitializeInstance<IMemberManager>(memberManager);
+
+            IBindingManager bindingManager = new BindingManager();
+            MugenService.Configuration.InitializeInstance(bindingManager);
         }
 
         #endregion
