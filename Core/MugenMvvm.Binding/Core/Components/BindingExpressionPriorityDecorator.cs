@@ -84,10 +84,12 @@ namespace MugenMvvm.Binding.Core.Components
 
         private int TryGetPriority(IExpressionNode expression)
         {
+            if (expression is IBindingMemberExpressionNode bindingMemberExpression && BindingMemberPriorities.TryGetValue(bindingMemberExpression.Path, out var priority))
+                return priority;
             var node = expression.TryGetRootMemberExpression();
             if (node is IHasPriority hasPriority)
                 return hasPriority.Priority;
-            if (node is IMemberExpressionNode member && BindingMemberPriorities.TryGetValue(member.Member, out var priority))
+            if (node is IMemberExpressionNode member && BindingMemberPriorities.TryGetValue(member.Member, out priority))
                 return priority;
             return 0;
         }
