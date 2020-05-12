@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -120,37 +121,13 @@ namespace MugenMvvm.Binding.Core.Components
                         ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
-                return CreateMultiBinding(target, source, metadata);
+                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)TargetExpression).GetBindingTarget(target, source, metadata),
+                    MugenBindingExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression)_compiledExpression!), target, source, metadata);
             }
 
             #endregion
 
             #region Methods
-
-            private IBinding CreateMultiBinding(object target, object? source, IReadOnlyMetadataContext? metadata)
-            {
-                object? sourceRaw;
-                switch (_sourceExpression)
-                {
-                    case null:
-                        sourceRaw = null;
-                        break;
-                    case IBindingMemberExpressionNode[] expressions:
-                        {
-                            var array = new object?[expressions.Length];
-                            for (var i = 0; i < array.Length; i++)
-                                array[i] = expressions[i].GetBindingSource(target, source, metadata);
-                            sourceRaw = array;
-                            break;
-                        }
-                    default:
-                        sourceRaw = ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata);
-                        break;
-                }
-
-                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)TargetExpression).GetBindingTarget(target, source, metadata), sourceRaw,
-                    (ICompiledExpression)_compiledExpression!), target, source, metadata);
-            }
 
             private IBinding InitializeBinding(Core.Binding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
             {

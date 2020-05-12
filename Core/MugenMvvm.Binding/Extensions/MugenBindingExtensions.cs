@@ -41,6 +41,22 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
+        public static object? ToBindingSource(object? sourceExpression, object target, object? source, IReadOnlyMetadataContext? metadata)
+        {
+            if (sourceExpression is IBindingMemberExpressionNode v)
+                return v.GetBindingSource(target, source, metadata);
+
+            if (sourceExpression is IBindingMemberExpressionNode[] nodes)
+            {
+                var observers = new object?[nodes.Length];
+                for (var i = 0; i < nodes.Length; i++)
+                    observers[i] = nodes[i].GetBindingSource(target, source, metadata);
+                return observers;
+            }
+
+            return sourceExpression;
+        }
+
         public static void DisposeBindingSource(object? source)
         {
             if (source is IMemberPathObserver disposable)
