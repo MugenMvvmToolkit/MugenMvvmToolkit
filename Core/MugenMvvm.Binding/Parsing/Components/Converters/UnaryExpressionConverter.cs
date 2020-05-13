@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
                 var type = func(unaryExpression);
                 if (type == null)
                     return context.Convert(unaryExpression.Operand);
-                return new UnaryExpressionNode(type, context.Convert(unaryExpression.Operand));
+                return UnaryExpressionNode.Get(type, context.Convert(unaryExpression.Operand));
             }
 
             return null;

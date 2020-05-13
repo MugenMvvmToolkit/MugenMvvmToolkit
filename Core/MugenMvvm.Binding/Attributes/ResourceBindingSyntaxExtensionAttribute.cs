@@ -21,14 +21,14 @@ namespace MugenMvvm.Binding.Attributes
         public ResourceBindingSyntaxExtensionAttribute(string resourceName, bool isStatic = false)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));
-            _expressionNode = new UnaryExpressionNode(isStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, resourceName));
+            _expressionNode = UnaryExpressionNode.Get(isStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, resourceName));
         }
 
         #endregion
 
         #region Properties
 
-        public string ResourceName => ((MemberExpressionNode) _expressionNode.Operand).Member;
+        public string ResourceName => ((MemberExpressionNode)_expressionNode.Operand).Member;
 
         public bool IsStatic => _expressionNode.Token == UnaryTokenType.StaticExpression;
 

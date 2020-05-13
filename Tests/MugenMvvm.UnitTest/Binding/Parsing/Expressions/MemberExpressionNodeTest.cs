@@ -38,20 +38,22 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             MemberExpressionNode.Binding.Target.ShouldBeNull();
             MemberExpressionNode.Binding.Member.ShouldEqual(MacrosConstant.Binding);
 
-            MemberExpressionNode.Args.Target.ShouldBeNull();
-            MemberExpressionNode.Args.Member.ShouldEqual(MacrosConstant.EventArgs);
+            MemberExpressionNode.EventArgs.Target.ShouldBeNull();
+            MemberExpressionNode.EventArgs.Member.ShouldEqual(MacrosConstant.EventArgs);
         }
 
         [Fact]
-        public void GetShouldReturnMacrosMembers()
+        public void GetShouldReturnCachedMembers()
         {
             MemberExpressionNode.Get(null, MacrosConstant.Self).ShouldEqual(MemberExpressionNode.Self);
             MemberExpressionNode.Get(null, MacrosConstant.This).ShouldEqual(MemberExpressionNode.Self);
             MemberExpressionNode.Get(null, MacrosConstant.Target).ShouldEqual(MemberExpressionNode.Self);
             MemberExpressionNode.Get(null, MacrosConstant.Context).ShouldEqual(MemberExpressionNode.Context);
             MemberExpressionNode.Get(null, MacrosConstant.Source).ShouldEqual(MemberExpressionNode.Source);
-            MemberExpressionNode.Get(null, MacrosConstant.EventArgs).ShouldEqual(MemberExpressionNode.Args);
+            MemberExpressionNode.Get(null, MacrosConstant.EventArgs).ShouldEqual(MemberExpressionNode.EventArgs);
             MemberExpressionNode.Get(null, MacrosConstant.Binding).ShouldEqual(MemberExpressionNode.Binding);
+            MemberExpressionNode.Get(null, MacrosConstant.Action).ShouldEqual(MemberExpressionNode.Action);
+            MemberExpressionNode.Get(null, "").ShouldEqual(MemberExpressionNode.Empty);
 
             var node = MemberExpressionNode.Get(ConstantExpressionNode.False, MacrosConstant.Self);
             node.ShouldNotEqual(MemberExpressionNode.Self);
@@ -104,7 +106,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             var target = new ConstantExpressionNode("1");
             var exp = new MemberExpressionNode(target, MemberName);
 
-            var result = isPostOrder ? new IExpressionNode[] {target, exp} : new IExpressionNode[] {exp, target};
+            var result = isPostOrder ? new IExpressionNode[] { target, exp } : new IExpressionNode[] { exp, target };
             exp.Accept(testExpressionVisitor, DefaultMetadata).ShouldEqual(exp);
             result.SequenceEqual(nodes).ShouldBeTrue();
         }
@@ -128,7 +130,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
                 IsPostOrder = isPostOrder
             };
             var exp = new MemberExpressionNode(target, MemberName);
-            var expressionNode = (MemberExpressionNode) exp.Accept(testExpressionVisitor, DefaultMetadata);
+            var expressionNode = (MemberExpressionNode)exp.Accept(testExpressionVisitor, DefaultMetadata);
             expressionNode.ShouldNotEqual(exp);
             expressionNode.Target.ShouldEqual(targetChanged);
             expressionNode.Member.ShouldEqual(MemberName);

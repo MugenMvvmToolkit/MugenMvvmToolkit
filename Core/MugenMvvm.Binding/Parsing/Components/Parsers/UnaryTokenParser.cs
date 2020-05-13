@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                         context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position).ToString()));
                         return null;
                     }
-                    return new UnaryExpressionNode(value, node);
+                    return UnaryExpressionNode.Get(value, node);
                 }
 
                 IExpressionNode? operand = null;
@@ -89,7 +89,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 }
 
                 if (operand != null)
-                    return new UnaryExpressionNode(value, operand);
+                    return UnaryExpressionNode.Get(value, operand);
             }
 
             context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseUnaryExpressionExpectedExpressionFormat1.Format(context.TokenAt(position).ToString()));

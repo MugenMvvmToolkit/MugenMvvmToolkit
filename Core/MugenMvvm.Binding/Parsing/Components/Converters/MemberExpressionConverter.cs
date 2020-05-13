@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Converters
             if (context.TryConvertExtension(memberExpression.Member, expression, out var result))
                 return result;
 
-            return new MemberExpressionNode(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);
+            return MemberExpressionNode.Get(context.ConvertTarget(memberExpression.Expression, memberExpression.Member), memberExpression.Member.Name);
         }
 
         #endregion

@@ -4,7 +4,6 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using MugenMvvm.Binding.Constants;
-using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -18,8 +17,6 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         #region Fields
 
         private readonly StringBuilder _memberBuilder;
-        private static readonly UnaryExpressionNode TargetMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Self);
-        private static readonly UnaryExpressionNode ContextMacros = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, MemberExpressionNode.Context);
 
         #endregion
 
@@ -51,13 +48,13 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>
             {
-                {nameof(INotifyDataErrorInfo.GetErrors), ContextMacros},
-                {"HasErrors", ContextMacros},
-                {"Rel", TargetMacros},
-                {BindableMembers.Object.RelativeSource, TargetMacros},
-                {"El", TargetMacros},
-                {"Element", TargetMacros},
-                {BindableMembers.Object.ElementSource, TargetMacros}
+                {nameof(INotifyDataErrorInfo.GetErrors), UnaryExpressionNode.ContextMacros},
+                {"HasErrors", UnaryExpressionNode.ContextMacros},
+                {"Rel", UnaryExpressionNode.TargetMacros},
+                {BindableMembers.Object.RelativeSource, UnaryExpressionNode.TargetMacros},
+                {"El", UnaryExpressionNode.TargetMacros},
+                {"Element", UnaryExpressionNode.TargetMacros},
+                {BindableMembers.Object.ElementSource, UnaryExpressionNode.TargetMacros}
             };
         }
 

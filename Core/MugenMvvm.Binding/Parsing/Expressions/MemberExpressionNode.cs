@@ -10,13 +10,13 @@ namespace MugenMvvm.Binding.Parsing.Expressions
     {
         #region Fields
 
-        public static readonly MemberExpressionNode Null = new MemberExpressionNode(null, "null");
-        public static readonly MemberExpressionNode Empty = new MemberExpressionNode(null, string.Empty);
+        public static readonly MemberExpressionNode Action = new MemberExpressionNode(null, MacrosConstant.Action);
+        public static readonly MemberExpressionNode EventArgs = new MemberExpressionNode(null, MacrosConstant.EventArgs);
         public static readonly MemberExpressionNode Source = new MemberExpressionNode(null, MacrosConstant.Source);
         public static readonly MemberExpressionNode Self = new MemberExpressionNode(null, MacrosConstant.Target);
         public static readonly MemberExpressionNode Context = new MemberExpressionNode(null, MacrosConstant.Context);
         public static readonly MemberExpressionNode Binding = new MemberExpressionNode(null, MacrosConstant.Binding);
-        public static readonly MemberExpressionNode Args = new MemberExpressionNode(null, MacrosConstant.EventArgs);
+        public static readonly MemberExpressionNode Empty = new MemberExpressionNode(null, string.Empty);
 
         #endregion
 
@@ -65,9 +65,13 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                 if (member == MacrosConstant.Source)
                     return Source;
                 if (member == MacrosConstant.EventArgs)
-                    return Args;
+                    return EventArgs;
                 if (member == MacrosConstant.Binding)
                     return Binding;
+                if (member == MacrosConstant.Action)
+                    return Action;
+                if (member == "")
+                    return Empty;
             }
 
             return new MemberExpressionNode(target, member);

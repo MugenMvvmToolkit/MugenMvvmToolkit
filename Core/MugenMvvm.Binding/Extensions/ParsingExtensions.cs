@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             if (!context.TryConvertExtension(member.DeclaringType, expression, out var result))
                 result = context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
-            if (ReferenceEquals(result, MemberExpressionNode.Null))
+            if (ReferenceEquals(result, ConstantExpressionNode.Null))
                 result = null;
             return result;
         }
@@ -414,7 +414,7 @@ namespace MugenMvvm.Binding.Extensions
                 if (context.IsToken(';'))
                     context.MoveNext();
                 if (isActionToken)
-                    return new ExpressionParserResult(MemberExpressionNode.Empty, target, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter));
+                    return new ExpressionParserResult(UnaryExpressionNode.ActionMacros, target, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter));
                 return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter));
             }
 

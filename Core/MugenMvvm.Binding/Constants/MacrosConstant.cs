@@ -11,6 +11,7 @@
         public const string Target = "target";
         public const string Binding = "binding";
         public const string EventArgs = "args";
+        public const string Action = "@";
 
         #endregion
     }

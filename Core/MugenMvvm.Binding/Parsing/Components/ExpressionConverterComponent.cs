@@ -114,7 +114,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 try
                 {
                     for (var i = 0; i < parameters.Count; i++)
-                        _context.SetExpression(parameters[i], MemberExpressionNode.Null);
+                        _context.SetExpression(parameters[i], ConstantExpressionNode.Null);
                     return _context.Convert(lambdaExpression.Body);
                 }
                 finally
@@ -129,7 +129,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             if (allowConstant)
                 return ConstantExpressionNode.Get(expression);
             if (stringAsMember && expression is string member)
-                return new MemberExpressionNode(null, member);
+                return MemberExpressionNode.Get(null, member);
             BindingExceptionManager.ThrowCannotParseExpression(expression);
             return null!;
         }
@@ -143,7 +143,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 return;
             }
 
-            result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, parameter.Key), Convert(parameter.Value, true)));
+            result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, true)));
         }
 
         #endregion
