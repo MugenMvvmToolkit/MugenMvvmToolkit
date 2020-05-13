@@ -10,6 +10,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 {
     public class TestBindingMemberExpressionNode : ExpressionNodeBase, IBindingMemberExpressionNode
     {
+        #region Constructors
+
+        public TestBindingMemberExpressionNode(string? path = null)
+        {
+            Path = path!;
+        }
+
+        #endregion
+
         #region Properties
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.BindingMember;
@@ -18,7 +27,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public int Index { get; set; }
 
-        public string Path { get; set; } = null!;
+        public string Path { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath, MemberFlags)>? GetTarget { get; set; }
 
@@ -65,6 +74,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
         protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             return this;
+        }
+
+        public override string ToString()
+        {
+            return Path ?? base.ToString();
         }
 
         #endregion

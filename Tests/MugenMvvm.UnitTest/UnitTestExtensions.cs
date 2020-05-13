@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Internal;
+using MugenMvvm.UnitTest.Binding.Parsing.Internal;
 using Should;
 
 namespace MugenMvvm.UnitTest
@@ -56,6 +57,11 @@ namespace MugenMvvm.UnitTest
             if (x1.EqualsInternal(x2))
                 return true;
             return false;
+        }
+
+        public static bool SequenceEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second)
+        {
+            return first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance);
         }
 
         private static bool EqualsInternal(this IExpressionNode? x1, IExpressionNode? x2)
@@ -115,6 +121,8 @@ namespace MugenMvvm.UnitTest
                     return Equals(bindingInstanceMemberExpressionNode.Instance, ((BindingInstanceMemberExpressionNode)x2).Instance);
                 case BindingResourceMemberExpressionNode bindingResourceMemberExpressionNode:
                     return bindingResourceMemberExpressionNode.ResourceName == ((BindingResourceMemberExpressionNode)x2).ResourceName;
+                case TestBindingMemberExpressionNode exp:
+                    return true;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(x1));
             }
