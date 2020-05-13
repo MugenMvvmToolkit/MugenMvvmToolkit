@@ -7,19 +7,19 @@ namespace MugenMvvm.Binding.Core
 {
     public sealed class InvalidBinding : Binding, IBindingExpression
     {
-        #region Fields
-
-        private readonly Exception _exception;
-
-        #endregion
-
         #region Constructors
 
         public InvalidBinding(Exception exception) : base(EmptyPathObserver.Empty, null)
         {
             SetFlag(InvalidFlag);
-            _exception = exception;
+            Exception = exception;
         }
+
+        #endregion
+
+        #region Properties
+
+        public Exception Exception { get; }
 
         #endregion
 
@@ -36,12 +36,12 @@ namespace MugenMvvm.Binding.Core
 
         protected override bool UpdateSourceInternal(out object? newValue)
         {
-            throw _exception;
+            throw Exception;
         }
 
         protected override bool UpdateTargetInternal(out object? newValue)
         {
-            throw _exception;
+            throw Exception;
         }
 
         #endregion

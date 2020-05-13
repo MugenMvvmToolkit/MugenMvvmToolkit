@@ -16,15 +16,17 @@ namespace MugenMvvm.UnitTest.Binding.Core
         [Fact]
         public void StateShouldBeInvalid()
         {
-            var invalidBinding = new InvalidBinding(new Exception());
+            var ex = new Exception();
+            var invalidBinding = new InvalidBinding(ex);
             invalidBinding.State.ShouldEqual(BindingState.Invalid);
+            invalidBinding.Exception.ShouldEqual(ex);
         }
 
         [Fact]
         public void BuildShouldReturnSelf()
         {
             var invalidBinding = new InvalidBinding(new Exception());
-            ((IBindingExpression) invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
+            ((IBindingExpression)invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
         }
 
         [Theory]

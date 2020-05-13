@@ -27,15 +27,22 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [Fact]
         public void TryBuildBindingExpressionShouldIgnoreNonListResult()
         {
+            var request = "";
             var exp = new TestBindingExpression();
             var decorator = new BindingExpressionPriorityDecorator();
             var component = new TestBindingExpressionBuilderComponent
             {
-                TryBuildBindingExpression = (o, type, arg3) => exp
+                TryBuildBindingExpression = (o, type, arg3) =>
+                {
+                    o.ShouldEqual(request);
+                    type.ShouldEqual(request.GetType());
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return exp;
+                }
             };
             ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
 
-            decorator.TryBuildBindingExpression("", DefaultMetadata).ToArray().Single().ShouldEqual(exp);
+            decorator.TryBuildBindingExpression(request, DefaultMetadata).ToArray().Single().ShouldEqual(exp);
         }
 
         [Theory]
