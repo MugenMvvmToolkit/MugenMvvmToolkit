@@ -413,6 +413,8 @@ namespace MugenMvvm.Binding.Extensions
             {
                 if (context.IsToken(';'))
                     context.MoveNext();
+                if (isActionToken)
+                    return new ExpressionParserResult(MemberExpressionNode.Empty, target, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter));
                 return new ExpressionParserResult(target, source ?? MemberExpressionNode.Empty, parameters ?? new ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>(parameter));
             }
 

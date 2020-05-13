@@ -273,8 +273,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             result.Length.ShouldEqual(2);
             for (var i = 0; i < result.Length; i++)
             {
-                result[i].Target.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
-                result[i].Source.ShouldEqual(MemberExpressionNode.Empty);
+                result[i].Target.ShouldEqual(MemberExpressionNode.Empty);
+                result[i].Source.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Addition, ConstantExpressionNode.Get(1), ConstantExpressionNode.Get(2)));
                 result[i].Parameters.IsNullOrEmpty().ShouldBeTrue();
             }
         }
