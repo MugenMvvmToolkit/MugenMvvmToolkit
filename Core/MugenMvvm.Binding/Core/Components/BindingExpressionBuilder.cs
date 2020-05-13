@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
@@ -148,7 +149,7 @@ namespace MugenMvvm.Binding.Core.Components
             private void Initialize(object target, object? source, IReadOnlyMetadataContext? metadata)
             {
                 var component = (BindingExpressionBuilder)_context.Owner;
-                _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, ItemOrList<IExpressionNode, IList<IExpressionNode>>.FromRawValue(_parametersRaw), metadata);
+                _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, GetParameters(), metadata);
                 component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(_context);
                 TargetExpression = _context.TargetExpression;
                 var sourceExpression = _context.SourceExpression;
@@ -178,6 +179,15 @@ namespace MugenMvvm.Binding.Core.Components
 
                 _parametersRaw = components.Item ?? components.List?.ToArray();
                 _context.Clear();
+            }
+
+            private ItemOrList<IExpressionNode, IList<IExpressionNode>> GetParameters()
+            {
+                if (_parametersRaw == null)
+                    return default;
+                if (_parametersRaw is IReadOnlyList<IExpressionNode> parameters)
+                    return parameters.ToList();
+                return ItemOrList<IExpressionNode, IList<IExpressionNode>>.FromRawValue(_parametersRaw);
             }
 
             #endregion
