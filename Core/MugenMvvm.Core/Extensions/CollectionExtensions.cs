@@ -83,6 +83,25 @@ namespace MugenMvvm.Extensions
                 return itemOrList.List.Length;
             return itemOrList.Item == null ? 0 : 1;
         }
+        
+        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item)
+            where TItem : class
+        {
+            Should.NotBeNull(item, nameof(item));
+            if (itemOrList.List != null)
+            {
+                itemOrList.List.Add(item);
+                return;
+            }
+
+            if (itemOrList.Item == null)
+            {
+                itemOrList = item;
+                return;
+            }
+
+            itemOrList = new ItemOrList<TItem, IList<TItem>>(new List<TItem> { itemOrList.Item, item });
+        }
 
         public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item)
             where TItem : class
