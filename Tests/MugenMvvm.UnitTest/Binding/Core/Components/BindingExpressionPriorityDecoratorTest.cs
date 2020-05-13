@@ -97,9 +97,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             public int Priority { get; set; }
 
-            public IExpressionNode? Target { get; }
+            public IExpressionNode? Target { get; } = null!;
 
-            public string Member { get; }
+            public string Member { get; } = null!;
 
             #endregion
 

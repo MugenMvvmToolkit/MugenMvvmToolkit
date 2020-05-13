@@ -1,5 +1,7 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using Should;
@@ -28,8 +30,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             foreach (var method in visitor.ConstantParametersMethods)
                 new MethodCallExpressionNode(null, method.Key, Default.EmptyArray<IExpressionNode>()).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, Default.EmptyArray<IExpressionNode>()));
 
-            var args = new IExpressionNode[] {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
-            var expectedArgs = new IExpressionNode[] {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
+            var args = new IExpressionNode[] { new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1) };
+            var expectedArgs = new IExpressionNode[] { ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1) };
             foreach (var method in visitor.ConstantParametersMethods)
                 new MethodCallExpressionNode(null, method.Key, args).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, expectedArgs));
         }
@@ -42,9 +44,13 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
 
             foreach (var member in visitor.Macros)
             {
-                new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, member.Key))
-                    .Accept(visitor)
-                    .ShouldEqual(member.Value);
+                var expressionNode = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, member.Key)).Accept(visitor);
+                if (member.Key == MacrosConstant.Action)
+                    expressionNode.ShouldEqual(new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + (Default.NextCounter() - 1).ToString()));
+                else
+                {
+                    expressionNode.ShouldEqual(member.Value(DefaultMetadata));
+                }
             }
         }
 
@@ -57,7 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             foreach (var member in visitor.MethodAliases)
             {
                 var methodCallExpressionNode = new MethodCallExpressionNode(null, member.Key,
-                    new IExpressionNode[] {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)});
+                    new IExpressionNode[] { new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1) });
                 new UnaryExpressionNode(UnaryTokenType.DynamicExpression, methodCallExpressionNode)
                     .Accept(visitor)
                     .ShouldEqual(member.Value.UpdateArguments(methodCallExpressionNode.Arguments));
@@ -70,8 +76,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var visitor = new MacrosExpressionVisitor();
             visitor.MacrosTargets.ShouldNotBeEmpty();
 
-            var args = new IExpressionNode[] {new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1)};
-            var constantArgs = new IExpressionNode[] {ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1)};
+            var args = new IExpressionNode[] { new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1) };
+            var constantArgs = new IExpressionNode[] { ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1) };
             foreach (var member in visitor.MacrosTargets)
             {
                 var arguments = args;

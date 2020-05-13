@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -26,10 +27,13 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             _memberBuilder = new StringBuilder();
             var target = ConstantExpressionNode.Get(typeof(MugenBindingExtensions), typeof(Type));
-            Macros = new Dictionary<string, IExpressionNode>
+            var bindingImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>());
+            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetEventArgs), Default.EmptyArray<IExpressionNode>());
+            Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>
             {
-                {MacrosConstant.Binding, new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>())},
-                {MacrosConstant.EventArgs, new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetEventArgs), Default.EmptyArray<IExpressionNode>())}
+                {MacrosConstant.Binding, context => bindingImpl},
+                {MacrosConstant.EventArgs, context => eventArgsImpl},
+                {MacrosConstant.Action, context => new MemberExpressionNode(null, FakeMemberProvider.FakeMemberPrefixSymbol + Default.NextCounter().ToString())},
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {
@@ -64,7 +68,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         bool IExpressionVisitor.IsPostOrder => true;
 
-        public Dictionary<string, IExpressionNode> Macros { get; }
+        public Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>> Macros { get; }
 
         public Dictionary<string, IMethodCallExpressionNode> MethodAliases { get; }
 
@@ -112,8 +116,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             if (expression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros())
             {
-                if (unaryExpression.Operand is IMemberExpressionNode memberExpression && Macros.TryGetValue(memberExpression.Member, out var member))
-                    return member;
+                if (unaryExpression.Operand is IMemberExpressionNode memberExpression && Macros.TryGetValue(memberExpression.Member, out var getMacros))
+                    return getMacros(metadata);
 
                 if (unaryExpression.Operand is IMethodCallExpressionNode methodCallExpression)
                 {
