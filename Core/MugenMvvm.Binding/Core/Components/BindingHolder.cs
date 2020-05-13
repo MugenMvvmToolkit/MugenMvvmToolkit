@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Core.Components
             Should.NotBeNull(target, nameof(target));
             var values = path == null
                 ? _attachedValueProvider.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
-                : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(pair.Key, StringComparison.Ordinal));
+                : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
             if (values.Count == 0)
                 return default;
