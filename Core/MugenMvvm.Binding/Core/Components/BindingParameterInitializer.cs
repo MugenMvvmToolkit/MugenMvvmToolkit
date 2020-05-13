@@ -32,7 +32,13 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingParameterInitializer(IExpressionCompiler? compiler = null)
         {
-            _memberExpressionVisitor = new BindingMemberExpressionVisitor { IgnoreIndexMembers = true, IgnoreMethodMembers = true };
+            _memberExpressionVisitor = new BindingMemberExpressionVisitor
+            {
+                IgnoreIndexMembers = true,
+                IgnoreMethodMembers = true,
+                Flags = BindingMemberExpressionFlags.Observable,
+                MemberFlags = MemberFlags.All & ~MemberFlags.NonPublic
+            };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             _compiler = compiler;
         }
@@ -43,7 +49,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         public int Priority { get; set; } = BindingComponentPriority.BindingParameterInitializer;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public MemberFlags MemberFlags
+        {
+            get => _memberExpressionVisitor.MemberFlags;
+            set => _memberExpressionVisitor.MemberFlags = value;
+        }
 
         #endregion
 
@@ -54,8 +64,6 @@ namespace MugenMvvm.Binding.Core.Components
             if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.ParameterHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler))
                 return;
 
-            _memberExpressionVisitor.MemberFlags = MemberFlags;
-            _memberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
             var metadata = context.GetMetadataOrDefault();
             var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Converter, metadata);
             var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.ConverterParameter, metadata);
@@ -64,8 +72,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (!converter.IsEmpty || !converterParameter.IsEmpty || !fallback.IsEmpty || !targetNullValue.IsEmpty)
             {
                 var state = (converter, converterParameter, fallback, targetNullValue);
-                var provider =
-                    new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
+                var provider = new DelegateBindingComponentProvider<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression)>(GetParametersComponentDelegate, state);
                 context.BindingComponents[BindingParameterNameConstant.ParameterHandler] = provider;
             }
         }

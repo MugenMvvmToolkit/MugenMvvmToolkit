@@ -33,7 +33,10 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingInitializer(IExpressionCompiler? compiler = null, IMemberManager? memberManager = null)
         {
-            _memberExpressionVisitor = new BindingMemberExpressionVisitor();
+            _memberExpressionVisitor = new BindingMemberExpressionVisitor
+            {
+                MemberFlags = MemberFlags.All & ~MemberFlags.NonPublic
+            };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
             _getEventHandlerDelegate = GetEventHandlerComponent;
             _compiler = compiler;
@@ -46,7 +49,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
 
-        public MemberFlags MemberFlags { get; set; } = MemberFlags.All & ~MemberFlags.NonPublic;
+        public MemberFlags MemberFlags
+        {
+            get => _memberExpressionVisitor.MemberFlags;
+            set => _memberExpressionVisitor.MemberFlags = value;
+        }
 
         public bool IgnoreMethodMembers { get; set; }
 
@@ -63,7 +70,6 @@ namespace MugenMvvm.Binding.Core.Components
         public void Initialize(IBindingExpressionInitializerContext context)
         {
             var metadata = context.GetMetadataOrDefault();
-            _memberExpressionVisitor.MemberFlags = MemberFlags;
             _memberExpressionVisitor.Flags = Flags;
             _memberExpressionVisitor.IgnoreMethodMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreMethodMembers).GetValueOrDefault(IgnoreMethodMembers);
             _memberExpressionVisitor.IgnoreIndexMembers = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.IgnoreIndexMembers).GetValueOrDefault(IgnoreIndexMembers);

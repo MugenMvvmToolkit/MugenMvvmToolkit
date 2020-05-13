@@ -38,6 +38,14 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public static int Priority { get; set; } = BindingComponentPriority.ParameterHandler;
 
+        public BindingParameterValue Converter => _converter;
+
+        public BindingParameterValue ConverterParameter => _converterParameter;
+
+        public BindingParameterValue Fallback => _fallback;
+
+        public BindingParameterValue TargetNullValue => _targetNullValue;
+
         int IHasPriority.Priority => Priority;
 
         #endregion
