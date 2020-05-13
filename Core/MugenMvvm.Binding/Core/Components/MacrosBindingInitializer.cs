@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             TargetVisitors = new List<IExpressionVisitor>();
             SourceVisitors = new List<IExpressionVisitor>();
-            ParametersVisitors = new List<IExpressionVisitor>();
+            ParameterVisitors = new List<IExpressionVisitor>();
         }
 
         #endregion
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public List<IExpressionVisitor> SourceVisitors { get; }
 
-        public List<IExpressionVisitor> ParametersVisitors { get; }
+        public List<IExpressionVisitor> ParameterVisitors { get; }
 
         public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
@@ -47,12 +47,12 @@ namespace MugenMvvm.Binding.Core.Components
                     context.SourceExpression = context.SourceExpression?.Accept(SourceVisitors[i], metadata);
             }
 
-            if (ParametersVisitors.Count != 0)
+            if (ParameterVisitors.Count != 0)
             {
                 var parameters = context.Parameters;
-                for (var i = 0; i < ParametersVisitors.Count; i++)
+                for (var i = 0; i < ParameterVisitors.Count; i++)
                 {
-                    var visitor = ParametersVisitors[i];
+                    var visitor = ParameterVisitors[i];
                     for (var j = 0; j < parameters.Count(); j++)
                         parameters.Set(parameters.Get(j).Accept(visitor, metadata), j);
                 }

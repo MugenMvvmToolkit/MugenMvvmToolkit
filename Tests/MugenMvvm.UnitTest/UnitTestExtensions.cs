@@ -52,6 +52,11 @@ namespace MugenMvvm.UnitTest
             x1!.ShouldEqual(x2!, ExpressionNodeEqualityComparer.Instance);
         }
 
+        public static void ShouldEqual(this IEnumerable<IExpressionNode> first, IEnumerable<IExpressionNode> second)
+        {
+            first.SequenceEqual(second, ExpressionNodeEqualityComparer.Instance).ShouldBeTrue();
+        }
+
         public static bool EqualsEx(this IExpressionNode? x1, IExpressionNode? x2)
         {
             if (x1.EqualsInternal(x2))
