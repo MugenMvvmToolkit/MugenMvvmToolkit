@@ -82,12 +82,9 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public object? InterceptTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
         {
-            if (!_converter.IsEmpty && !value.IsUnsetValue())
-            {
-                var converter = _converter.GetValue<IBindingValueConverter?>(metadata);
-                if (converter != null)
-                    value = converter.Convert(value, targetMember.Member.Type, _converterParameter.GetValue<object?>(metadata), metadata);
-            }
+            var converter = _converter.GetValue<IBindingValueConverter?>(metadata);
+            if (converter != null)
+                value = converter.Convert(value, targetMember.Member.Type, _converterParameter.GetValue<object?>(metadata), metadata);
 
             if (value.IsUnsetValue())
                 value = _fallback.GetValue<object?>(metadata) ?? targetMember.Member.Type.GetDefaultValue();
