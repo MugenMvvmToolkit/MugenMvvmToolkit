@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Enums
 
         #region Properties
 
-        public bool IsSingleExpression { get; set; }
+        public bool IsSingleExpression { get; protected internal set; }
 
         #endregion
 

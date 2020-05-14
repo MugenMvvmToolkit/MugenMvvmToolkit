@@ -44,10 +44,10 @@ namespace MugenMvvm.Enums
         #region Properties
 
         [DataMember(Name = "d")]
-        public bool IsDispose { get; set; }
+        public bool IsDispose { get; protected set; }
 
         [DataMember(Name = "r")]
-        public bool IsRestore { get; set; }
+        public bool IsRestore { get; protected set; }
 
         #endregion
 

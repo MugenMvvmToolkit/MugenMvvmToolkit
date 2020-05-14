@@ -93,7 +93,7 @@ namespace MugenMvvm.Enums
 
         protected abstract bool Equals(TValue value);
 
-        public sealed override bool Equals(object obj)
+        public sealed override bool Equals(object? obj)
         {
             return Equals(obj as TEnumeration);
         }
@@ -133,7 +133,7 @@ namespace MugenMvvm.Enums
             return Enumerations.Values;
         }
 
-        public static bool TryParse(TValue value, [NotNullWhen(true)] out TEnumeration? result)
+        public static bool TryParse([AllowNull]TValue value, [NotNullWhen(true)] out TEnumeration? result)
         {
             if (value == null)
             {
