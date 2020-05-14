@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
         {
-            binding.UpdateTarget();
+            binding.UpdateSource();
         }
 
         void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
