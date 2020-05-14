@@ -46,9 +46,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 context.BindingComponents[BindingParameterNameConstant.Delay].ShouldBeNull();
                 return;
             }
-            var provider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.Delay]!;
-            var component = (DelayBindingComponent.Source) provider.GetComponent(null!, null!, null, DefaultMetadata)!;
-            component.Delay.ShouldEqual((ushort) delay);
+            var provider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.Delay]!;
+            var component = (DelayBindingComponent.Source)provider.GetComponent(null!, null!, null, DefaultMetadata)!;
+            component.Delay.ShouldEqual((ushort)delay);
         }
 
         [Theory]
@@ -67,15 +67,15 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             }
 
             initializer.Initialize(context);
+            context.BindingComponents.Count.ShouldEqual(1);
             if (ignore)
             {
                 context.BindingComponents[BindingParameterNameConstant.TargetDelay].ShouldBeNull();
                 return;
             }
-            context.BindingComponents.Count.ShouldEqual(1);
-            var provider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.TargetDelay]!;
-            var component = (DelayBindingComponent.Target) provider.GetComponent(null!, null!, null, DefaultMetadata)!;
-            component.Delay.ShouldEqual((ushort) delay);
+            var provider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.TargetDelay]!;
+            var component = (DelayBindingComponent.Target)provider.GetComponent(null!, null!, null, DefaultMetadata)!;
+            component.Delay.ShouldEqual((ushort)delay);
         }
 
         #endregion
