@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _binding = (IBinding) owner;
+            _binding = (IBinding)owner;
             _timer = new Timer(CallbackDelegate, this.ToWeakReference(), Timeout.Infinite, Timeout.Infinite);
         }
 
@@ -98,11 +98,15 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Methods
 
-        private static void Callback(object state)
+        protected abstract void Update(IBinding binding);
+
+        protected object? OnValueChanging(object? value)
         {
-            var component = (DelayBindingComponent?) ((IWeakReference) state).Target;
-            if (component != null)
-                MugenService.ThreadDispatcher.Execute(ExecutionMode, component);
+            if (value.IsDoNothing() || _isUpdating)
+                return value;
+
+            _timer?.Change(Delay, Timeout.Infinite);
+            return BindingMetadata.DoNothing;
         }
 
         public static IComponent<IBinding> GetTarget(ushort delay)
@@ -115,15 +119,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             return new Source(delay);
         }
 
-        protected abstract void Update(IBinding binding);
-
-        protected object? OnValueChanging(object? value)
+        private static void Callback(object state)
         {
-            if (value.IsDoNothing() || _isUpdating)
-                return value;
-
-            _timer?.Change(Delay, Timeout.Infinite);
-            return BindingMetadata.DoNothing;
+            var component = (DelayBindingComponent?)((IWeakReference)state).Target;
+            if (component != null)
+                MugenService.ThreadDispatcher.Execute(ExecutionMode, component);
         }
 
         #endregion
