@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 Invoke = (list, context) =>
                 {
                     ++expressionInvoke;
-                    list.ToArray().SequenceEqual(new[] { new ExpressionValue(sourceValue.GetType(), sourceValue) }).ShouldBeTrue();
+                    list.ToArray().SequenceEqual(new[] { new ParameterValue(sourceValue.GetType(), sourceValue) }).ShouldBeTrue();
                     context.ShouldEqual(binding);
                     return expressionValue;
                 }

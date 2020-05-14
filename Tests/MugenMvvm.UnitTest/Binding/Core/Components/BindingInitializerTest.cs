@@ -8,11 +8,14 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Extensions;
+using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
+using MugenMvvm.UnitTest.Binding.Core.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Binding.Parsing.Internal;
@@ -131,6 +134,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [InlineData(false, 3)]
         public void InitializeShouldRespectSettingsEvent(bool parametersSetting, int cmdParameterMode)
         {
+            var binding = new TestBinding();
             var targetSrc = "";
             var sourceSrc = new object();
             var targetPath = new MultiMemberPath("Member1.Member2");
@@ -256,11 +260,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Optional),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled),
+                    new MemberExpressionNode(null, BindingInitializer.OneTimeBindingMode),
                     new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)
                 };
             }
             else
             {
+                binding.Metadata = MetadataContextValue.Create(BindingMetadata.IsMultiBinding, false).ToContext();
                 parameters = new[] { new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode) };
                 component.Flags = flags;
                 component.IgnoreIndexMembers = ignoreIndexMembers;
@@ -312,7 +318,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             sourceVisitCount.ShouldEqual(1);
             context.BindingComponents[BindingParameterNameConstant.Mode].ShouldBeNull();
             var bindingComponentProvider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
-            var bindingComponent = (EventHandlerBindingComponent)bindingComponentProvider.GetComponent(null!, targetSrc, sourceSrc, DefaultMetadata)!;
+            var bindingComponent = (EventHandlerBindingComponent)bindingComponentProvider.GetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
+            if (parametersSetting)
+                bindingComponent.ShouldBeType<EventHandlerBindingComponent>();
+            else
+                bindingComponent.ShouldBeType<EventHandlerBindingComponent.OneWay>();
             bindingComponent.ToggleEnabledState.ShouldEqual(toggleEnabledState);
 
             if (cmdParameterMode == 1)

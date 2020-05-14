@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IExpressionValue
+    public interface IValueExpression
     {
         object? Invoke(IReadOnlyMetadataContext? metadata = null);
     }

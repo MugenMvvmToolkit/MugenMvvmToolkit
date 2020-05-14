@@ -13,7 +13,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class MultiBinding : Binding, IExpressionValue
+    public sealed class MultiBinding : Binding, IValueExpression
     {
         #region Fields
 

@@ -7,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Compiling
 {
     public interface ICompiledExpression : IDisposable
     {
-        object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata);
+        object? Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata);
     }
 }

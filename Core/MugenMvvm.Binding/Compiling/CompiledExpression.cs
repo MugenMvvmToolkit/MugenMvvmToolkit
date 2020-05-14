@@ -81,12 +81,12 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Implementation of interfaces
 
-        public object? Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
+        public object? Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata)
         {
             if (ReferenceEquals(_values, DisposedValues))
                 ExceptionManager.ThrowObjectDisposed(this);
             var list = values.List;
-            var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<ExpressionValue>();
+            var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<ParameterValue>();
             if (!TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);
@@ -179,7 +179,7 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Methods
 
-        private Func<object?[], object?> CompileExpression(ItemOrList<ExpressionValue, ExpressionValue[]> values)
+        private Func<object?[], object?> CompileExpression(ItemOrList<ParameterValue, ParameterValue[]> values)
         {
             try
             {
@@ -235,9 +235,9 @@ namespace MugenMvvm.Binding.Compiling
             }
 
             if (typesX == null)
-                return Equals(typesY!, (ExpressionValue[])x);
+                return Equals(typesY!, (ParameterValue[])x);
             if (typesY == null)
-                return Equals(typesX!, (ExpressionValue[])y);
+                return Equals(typesX!, (ParameterValue[])y);
 
             if (typesX.Length != typesY.Length)
                 return false;
@@ -256,7 +256,7 @@ namespace MugenMvvm.Binding.Compiling
                 return type.GetHashCode();
 
             var hashCode = new HashCode();
-            if (key is ExpressionValue[] values)
+            if (key is ParameterValue[] values)
             {
                 for (var index = 0; index < values.Length; index++)
                     hashCode.Add(values[index].Type);
@@ -271,7 +271,7 @@ namespace MugenMvvm.Binding.Compiling
             return hashCode.ToHashCode();
         }
 
-        private static bool Equals(Type[] types, ExpressionValue[] values)
+        private static bool Equals(Type[] types, ParameterValue[] values)
         {
             if (values.Length != types.Length)
                 return false;

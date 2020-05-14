@@ -9,7 +9,6 @@ using MugenMvvm.Binding.Observers;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -59,7 +58,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
             _binding = (IBinding)owner;
-            _timer = new Timer(CallbackDelegate, this.ToWeakReference(), Timeout.Infinite, Timeout.Infinite);
+            _timer = new Timer(CallbackDelegate, this, Timeout.Infinite, Timeout.Infinite);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -121,9 +120,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private static void Callback(object state)
         {
-            var component = (DelayBindingComponent?)((IWeakReference)state).Target;
-            if (component != null)
-                MugenService.ThreadDispatcher.Execute(ExecutionMode, component);
+            MugenService.ThreadDispatcher.Execute(ExecutionMode, (DelayBindingComponent)state);
         }
 
         #endregion

@@ -135,15 +135,15 @@ namespace MugenMvvm.Binding.Extensions
         {
             if (expression == null)
                 return BindingMetadata.UnsetValue;
-            ItemOrList<ExpressionValue, ExpressionValue[]> values;
+            ItemOrList<ParameterValue, ParameterValue[]> values;
             if (sourceRaw == null)
                 values = default;
             else if (sourceRaw is object?[] sources)
             {
-                var expressionValues = new ExpressionValue[sources.Length];
+                var expressionValues = new ParameterValue[sources.Length];
                 for (var i = 0; i < sources.Length; i++)
                 {
-                    var expressionValue = GetExpressionValue(sources[i], metadata);
+                    var expressionValue = GetParameterValue(sources[i], metadata);
                     if (expressionValue.Value.IsUnsetValueOrDoNothing())
                         return expressionValue.Value;
                     expressionValues[i] = expressionValue;
@@ -153,7 +153,7 @@ namespace MugenMvvm.Binding.Extensions
             }
             else
             {
-                values = GetExpressionValue(sourceRaw, metadata);
+                values = GetParameterValue(sourceRaw, metadata);
                 if (values.Item.Value.IsUnsetValueOrDoNothing())
                     return values.Item.Value;
             }
@@ -754,20 +754,20 @@ namespace MugenMvvm.Binding.Extensions
                 unsubscriber = ActionToken.NoDoToken;
         }
 
-        private static ExpressionValue GetExpressionValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
+        private static ParameterValue GetParameterValue(object? sourceRaw, IReadOnlyMetadataContext? metadata)
         {
             if (sourceRaw == null)
-                return new ExpressionValue(typeof(object), null);
+                return new ParameterValue(typeof(object), null);
             if (sourceRaw is IMemberPathObserver observer)
             {
                 var members = observer.GetLastMember(metadata);
                 var value = members.GetValueOrThrow(metadata);
                 if (value.IsUnsetValueOrDoNothing())
-                    return new ExpressionValue(typeof(object), value);
-                return new ExpressionValue(value?.GetType() ?? members.Member.Type, value);
+                    return new ParameterValue(typeof(object), value);
+                return new ParameterValue(value?.GetType() ?? members.Member.Type, value);
             }
 
-            return new ExpressionValue(sourceRaw.GetType(), sourceRaw);
+            return new ParameterValue(sourceRaw.GetType(), sourceRaw);
         }
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)

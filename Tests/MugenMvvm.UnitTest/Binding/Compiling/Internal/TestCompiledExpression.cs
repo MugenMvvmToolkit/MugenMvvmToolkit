@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
     {
         #region Properties
 
-        public Func<ItemOrList<ExpressionValue, ExpressionValue[]>, IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
+        public Func<ItemOrList<ParameterValue, ParameterValue[]>, IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
 
         public Action? Dispose { get; set; }
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
 
         #region Implementation of interfaces
 
-        object? ICompiledExpression.Invoke(ItemOrList<ExpressionValue, ExpressionValue[]> values, IReadOnlyMetadataContext? metadata)
+        object? ICompiledExpression.Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata)
         {
             return Invoke?.Invoke(values, metadata);
         }

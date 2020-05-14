@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace MugenMvvm.Binding.Compiling
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ExpressionValue
+    public readonly struct ParameterValue
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Constructors
 
-        public ExpressionValue(Type type, object? value)
+        public ParameterValue(Type type, object? value)
         {
             Should.NotBeNull(type, nameof(type));
             Type = type;

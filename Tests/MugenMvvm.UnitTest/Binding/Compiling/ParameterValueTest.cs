@@ -4,14 +4,14 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Compiling
 {
-    public class ExpressionValueTest : UnitTestBase
+    public class ParameterValueTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
         public void IsEmptyShouldBeTrueDefault()
         {
-            ExpressionValue value = default;
+            ParameterValue value = default;
             value.IsEmpty.ShouldBeTrue();
         }
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         {
             var type = typeof(object);
             var value = "";
-            var expressionValue = new ExpressionValue(typeof(object), value);
+            var expressionValue = new ParameterValue(typeof(object), value);
             expressionValue.IsEmpty.ShouldBeFalse();
             expressionValue.Type.ShouldEqual(type);
             expressionValue.Value.ShouldEqual(value);
