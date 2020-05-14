@@ -66,7 +66,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Nested types
 
-        private sealed class OneTimeHandlerComponent : IBindingTargetObserverListener
+        internal sealed class OneTimeHandlerComponent : IBindingTargetObserverListener
         {
             #region Fields
 
@@ -84,17 +84,17 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             #region Implementation of interfaces
 
-            void IBindingTargetObserverListener.OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+            public void OnTargetPathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
             {
                 Invoke(binding);
             }
 
-            void IBindingTargetObserverListener.OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+            public void OnTargetLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
             {
                 Invoke(binding);
             }
 
-            void IBindingTargetObserverListener.OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
+            public void OnTargetError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
             {
             }
 

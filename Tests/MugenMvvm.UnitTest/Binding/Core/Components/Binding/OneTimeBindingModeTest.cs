@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
@@ -100,17 +101,21 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
 
             isAvailableSource = true;
             if (lastMemberChanged)
-                listener.OnSourceLastMemberChanged(binding, null!, DefaultMetadata);
+                listener.OnSourceLastMemberChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
             else
-                listener.OnSourcePathMembersChanged(binding, null!, DefaultMetadata);
+                listener.OnSourcePathMembersChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
             disposeCount.ShouldEqual(0);
             updateCount.ShouldEqual(0);
 
             isAvailableTarget = true;
+            listener.OnSourceError(binding, EmptyPathObserver.Empty, new Exception(), DefaultMetadata);
+            disposeCount.ShouldEqual(0);
+            updateCount.ShouldEqual(0);
+
             if (lastMemberChanged)
-                listener.OnSourceLastMemberChanged(binding, null!, DefaultMetadata);
+                listener.OnSourceLastMemberChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
             else
-                listener.OnSourcePathMembersChanged(binding, null!, DefaultMetadata);
+                listener.OnSourcePathMembersChanged(binding, EmptyPathObserver.Empty, DefaultMetadata);
             disposeCount.ShouldEqual(dispose ? 1 : 0);
             updateCount.ShouldEqual(1);
         }
