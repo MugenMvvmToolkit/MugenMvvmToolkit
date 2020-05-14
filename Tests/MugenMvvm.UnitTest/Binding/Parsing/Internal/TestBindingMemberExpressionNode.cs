@@ -37,6 +37,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public Func<object, object?, IReadOnlyMetadataContext?, object?>? GetBindingSource { get; set; }
 
+        public Func<IExpressionVisitor, IReadOnlyMetadataContext?, IExpressionNode?>? Visit { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
@@ -73,7 +75,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
-            return this;
+            return Visit?.Invoke(visitor, metadata) ?? this;
         }
 
         public override string ToString()
