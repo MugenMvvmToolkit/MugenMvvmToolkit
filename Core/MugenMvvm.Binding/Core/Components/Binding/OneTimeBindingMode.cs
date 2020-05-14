@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             if (_disposeBinding)
                 binding.Dispose();
             else if (attached)
-                binding.RemoveComponent(this, null);
+                binding.RemoveComponent(this);
             return true;
         }
 
