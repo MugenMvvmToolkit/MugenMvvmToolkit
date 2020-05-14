@@ -5,9 +5,14 @@ using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
@@ -30,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var expressionDisposed = false;
             IMemberPathObserverListener? targetListener = null;
             IMemberPathObserverListener? sourceListener = null;
-            var expression = new TestCompiledExpression {Dispose = () => expressionDisposed = true};
+            var expression = new TestCompiledExpression { Dispose = () => expressionDisposed = true };
             var target = new TestMemberPathObserver
             {
                 Dispose = () => targetDisposed = true,
@@ -60,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 }
             };
 
-            var components = new IComponent<IBinding>[] {new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener()};
+            var components = new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() };
             var binding = new MultiBinding(target, sources: source, expression: expression);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
@@ -114,7 +119,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 Invoke = (list, context) =>
                 {
                     ++expressionInvoke;
-                    list.ToArray().SequenceEqual(new[] {new ExpressionValue(sourceValue.GetType(), sourceValue)}).ShouldBeTrue();
+                    list.ToArray().SequenceEqual(new[] { new ExpressionValue(sourceValue.GetType(), sourceValue) }).ShouldBeTrue();
                     context.ShouldEqual(binding);
                     return expressionValue;
                 }
@@ -168,6 +173,21 @@ namespace MugenMvvm.UnitTest.Binding.Core
             binding.Invoke().ShouldEqual(expressionValue);
             sourceGet.ShouldEqual(2);
             expressionInvoke.ShouldEqual(2);
+        }
+
+        [Fact]
+        public void MetadataShouldReturnBindingAndMultiBinding()
+        {
+            var binding = new MultiBinding(EmptyPathObserver.Empty, ItemOrList<object?, object?[]>.FromRawValue(null), new TestCompiledExpression());
+            var context = (IReadOnlyMetadataContext)binding;
+            context.Count.ShouldEqual(2);
+            context.Contains(BindingMetadata.Binding).ShouldBeTrue();
+            context.Contains(BindingMetadata.IsMultiBinding).ShouldBeTrue();
+            context.TryGet(BindingMetadata.Binding, out var b).ShouldBeTrue();
+            context.TryGet(BindingMetadata.IsMultiBinding, out var isMulti).ShouldBeTrue();
+            b.ShouldEqual(binding);
+            isMulti.ShouldBeTrue();
+            context.ToArray().ShouldEqual(new[] { MetadataContextValue.Create(BindingMetadata.Binding, binding), MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true) });
         }
 
         #endregion

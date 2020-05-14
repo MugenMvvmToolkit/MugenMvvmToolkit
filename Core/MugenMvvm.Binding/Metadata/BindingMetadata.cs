@@ -15,6 +15,7 @@ namespace MugenMvvm.Binding.Metadata
         private static IMetadataContextKey<IBinding, IBinding>? _binding;
         private static IMetadataContextKey<object, object>? _eventArgs;
         private static IMetadataContextKey<bool, bool>? _suppressHolderRegistration;
+        private static IMetadataContextKey<bool, bool>? _isMultiBinding;
 
         #endregion
 
@@ -39,6 +40,13 @@ namespace MugenMvvm.Binding.Metadata
         {
             get => _suppressHolderRegistration ??= GetBuilder(_suppressHolderRegistration, nameof(SuppressHolderRegistration)).Build();
             set => _suppressHolderRegistration = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<bool, bool> IsMultiBinding
+        {
+            get => _isMultiBinding ??= GetBuilder(_isMultiBinding, nameof(IsMultiBinding)).Build();
+            set => _isMultiBinding = value;
         }
 
         #endregion

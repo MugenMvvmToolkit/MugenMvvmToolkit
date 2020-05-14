@@ -194,9 +194,6 @@ namespace MugenMvvm.Binding.Core
 
         bool IComponentCollection.Add(object component, IReadOnlyMetadataContext? metadata)
         {
-            if (CheckFlag(DisposedFlag))
-                return false;
-
             if (!OnComponentAdding(component, metadata))
                 return false;
 
@@ -328,6 +325,9 @@ namespace MugenMvvm.Binding.Core
                 if (OnComponentAdding(list[i], metadata))
                     list[currentLength++] = list[i];
             }
+
+            if (CheckFlag(DisposedFlag))
+                return;
 
             if (currentLength == 0)
                 return;
@@ -509,6 +509,8 @@ namespace MugenMvvm.Binding.Core
 
         private bool OnComponentAdding(object? component, IReadOnlyMetadataContext? metadata)
         {
+            if (CheckFlag(DisposedFlag))
+                return false;
             if (component == null || !ComponentComponentExtensions.OnComponentAdding(this, component, metadata))
                 return false;
 
@@ -517,6 +519,8 @@ namespace MugenMvvm.Binding.Core
 
         private void OnComponentAdded(object component, IReadOnlyMetadataContext? metadata)
         {
+            if (CheckFlag(DisposedFlag))
+                return;
             if (component is ISourceValueInterceptorBindingComponent)
                 SetFlag(HasSourceValueInterceptorFlag);
             if (component is ITargetValueInterceptorBindingComponent)
