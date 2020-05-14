@@ -15,11 +15,11 @@ namespace MugenMvvm.Binding.Core.Components
         {
             BindingModes = new Dictionary<string, object?>
             {
+                {"None", null},
                 {"OneTime", OneTimeBindingMode.Instance},
                 {"OneWay", OneWayBindingMode.Instance},
                 {"OneWayToSource", OneWayToSourceBindingMode.Instance},
-                {"TwoWay", TwoWayBindingMode.Instance},
-                {"None", null}
+                {"TwoWay", TwoWayBindingMode.Instance}
             };
             DefaultMode = OneWayBindingMode.Instance;
         }
@@ -51,7 +51,10 @@ namespace MugenMvvm.Binding.Core.Components
             if (modeName != null)
             {
                 if (BindingModes.TryGetValue(modeName, out var mode))
-                    context.BindingComponents[BindingParameterNameConstant.Mode] = mode;
+                {
+                    if (mode != null)
+                        context.BindingComponents[BindingParameterNameConstant.Mode] = mode;
+                }
                 else
                     BindingExceptionManager.ThrowCannotParseBindingParameter(BindingParameterNameConstant.Mode, string.Join(",", BindingModes.Keys), modeName);
                 return;
@@ -59,7 +62,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             foreach (var mode in BindingModes)
             {
-                if (!context.TryGetParameterValue<bool>(mode.Key))
+                if (context.TryGetParameterValue<bool>(mode.Key))
                 {
                     if (mode.Value != null)
                         context.BindingComponents[BindingParameterNameConstant.Mode] = mode.Value;
