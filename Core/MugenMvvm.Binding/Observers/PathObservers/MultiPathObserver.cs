@@ -46,12 +46,12 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             }
         }
 
-        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
+        protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
         {
             _listeners[index] = member.TryObserve(target, this, metadata);
         }
 
-        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
+        protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             ActionToken unsubscriber = default;
             if (lastMember is IObservableMemberInfo observable)

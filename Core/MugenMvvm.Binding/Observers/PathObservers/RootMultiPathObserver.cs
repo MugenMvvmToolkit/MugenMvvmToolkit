@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Methods
 
-        protected override void SubscribeMember(int index, object target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
+        protected override void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata)
         {
             if (index == 0)
             {
@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             }
         }
 
-        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
+        protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
         }
 

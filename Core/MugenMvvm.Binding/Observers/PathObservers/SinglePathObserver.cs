@@ -140,15 +140,16 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                     return;
 
                 var metadata = TryGetMetadata();
+                var targetType = MemberFlags.GetTargetType(ref target);
                 var lastMember = MugenBindingService
                     .MemberManager
-                    .GetMember(MemberFlags.GetTargetType(target), Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
+                    .GetMember(targetType, Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)
                         SetLastMember(null, null);
                     else
-                        BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), Path.Path);
+                        BindingExceptionManager.ThrowInvalidBindingMember(targetType, Path.Path);
                     return;
                 }
 
@@ -175,7 +176,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             OnLastMemberChanged();
         }
 
-        protected virtual void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
+        protected virtual void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             _lastMemberUnsubscriber.Dispose();
             if (lastMember is IObservableMemberInfo observable)

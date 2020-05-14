@@ -61,9 +61,9 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Methods
 
-        protected abstract void SubscribeMember(int index, object target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata);
+        protected abstract void SubscribeMember(int index, object? target, IObservableMemberInfo member, IReadOnlyMetadataContext? metadata);
 
-        protected abstract void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata);
+        protected abstract void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata);
 
         protected abstract void UnsubscribeLastMember();
 
@@ -156,7 +156,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 var memberManager = MugenBindingService.MemberManager;
                 var lastIndex = members.Length - 1;
                 var memberFlags = MemberFlags;
-                var type = memberFlags.GetTargetType(target);
+                var type = memberFlags.GetTargetType(ref target);
                 var metadata = TryGetMetadata();
                 for (var i = 0; i < members.Length; i++)
                 {
@@ -168,7 +168,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                         if (Optional)
                             SetMembers(null, null, null);
                         else
-                            BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), paths[i]);
+                            BindingExceptionManager.ThrowInvalidBindingMember(type, paths[i]);
                         return true;
                     }
 

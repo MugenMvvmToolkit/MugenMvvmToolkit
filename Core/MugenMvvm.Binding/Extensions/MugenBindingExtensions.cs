@@ -632,11 +632,15 @@ namespace MugenMvvm.Binding.Extensions
                 .UnescapeString();
         }
 
-        public static Type GetTargetType(this MemberFlags flags, object target)
+        public static Type GetTargetType(this MemberFlags flags, ref object? target)
         {
             if (flags.HasFlagEx(MemberFlags.Static))
-                return target as Type ?? target.GetType();
-            return target.GetType();
+            {
+                var t = target as Type ?? target!.GetType();
+                target = null;
+                return t;
+            }
+            return target!.GetType();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

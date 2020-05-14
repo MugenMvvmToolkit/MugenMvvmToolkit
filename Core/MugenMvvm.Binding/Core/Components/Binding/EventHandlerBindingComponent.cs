@@ -223,9 +223,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private IMemberManager GetMemberManager()
         {
-            if (_bindingManager == null)
-                return MugenBindingService.MemberManager;
-            return _bindingManager.GetComponentOptional<IMemberManager>(_currentMetadata).DefaultIfNull();
+            return _bindingManager.DefaultIfNull().GetComponentOptional<IMemberManager>(_currentMetadata).DefaultIfNull();
         }
 
         #endregion
