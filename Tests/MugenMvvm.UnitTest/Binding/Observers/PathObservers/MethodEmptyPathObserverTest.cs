@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers.PathObservers;
@@ -34,10 +35,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ObserverShouldNotifyListenersMethodMember(int count)
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void ObserverShouldNotifyListenersMethodMember(int count, bool isStatic)
         {
+            var flags = MemberFlags.Public.SetInstanceOrStaticFlags(isStatic);
             var lastMemberTarget = this;
             IEventListener? currentListener = null;
             IEventListener? lastListener = null;
@@ -45,7 +49,10 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             {
                 TryObserve = (o, listener, arg3) =>
                 {
-                    o.ShouldEqual(lastMemberTarget);
+                    if (isStatic)
+                        o.ShouldBeNull();
+                    else
+                        o.ShouldEqual(lastMemberTarget);
                     currentListener = listener;
                     lastListener = listener;
                     return new ActionToken((o1, o2) => currentListener = null);
@@ -55,12 +62,12 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             {
                 TryGetMembers = (r, type, arg3) =>
                 {
-                    var request = (MemberManagerRequest) r;
+                    var request = (MemberManagerRequest)r;
                     if (request.Name == MethodName)
                     {
                         request.Type.ShouldEqual(lastMemberTarget.GetType());
                         request.MemberTypes.ShouldEqual(MemberType.Method);
-                        request.Flags.ShouldEqual(MemberFlags.All);
+                        request.Flags.ShouldEqual(flags);
                         return methodMember;
                     }
 
@@ -69,7 +76,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             };
             using var _ = TestComponentSubscriber.Subscribe(component);
 
-            var observer = new MethodEmptyPathObserver(MethodName, this, MemberFlags.All);
+            var observer = new MethodEmptyPathObserver(MethodName, this, flags);
             ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, null), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 

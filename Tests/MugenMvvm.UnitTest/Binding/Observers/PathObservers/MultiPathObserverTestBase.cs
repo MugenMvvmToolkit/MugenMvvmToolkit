@@ -28,12 +28,17 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
         #region Methods
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void GetMembersShouldReturnActualMembers(bool hasStablePath, bool optional)
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public void GetMembersShouldReturnActualMembers(bool hasStablePath, bool optional, bool isStatic)
         {
+            var memberFlags = MemberFlags.InstancePublic.SetInstanceOrStaticFlags(isStatic);
             var getMembersCount = 0;
             var canReturn = false;
             var root = this;
@@ -46,12 +51,18 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             {
                 GetValue = (o, context) =>
                 {
-                    o.ShouldEqual(root);
+                    if (isStatic)
+                        o.ShouldBeNull();
+                    else
+                        o.ShouldEqual(root);
                     return target1;
                 },
                 TryObserve = (o, listener, arg3) =>
                 {
-                    o.ShouldEqual(root);
+                    if (isStatic)
+                        o.ShouldBeNull();
+                    else
+                        o.ShouldEqual(root);
                     rootListener = listener;
                     return new ActionToken((o1, o2) => rootListener = null);
                 }
@@ -72,7 +83,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return target3;
                 }
             };
-            var memberFlags = MemberFlags.All;
 
             var component = new TestMemberManagerComponent
             {
@@ -82,7 +92,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     var request = (MemberManagerRequest)r;
                     if (request.Type == target2.GetType())
                     {
-                        request.Flags.ShouldEqual(memberFlags.ClearInstanceOrStaticFlags(false));
+                        request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                         request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
                         return accessorInfo3;
                     }
@@ -96,7 +106,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
                     if (!canReturn)
                         return default;
-                    request.Flags.ShouldEqual(memberFlags.ClearInstanceOrStaticFlags(false));
+                    request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                     if (request.Type == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();
@@ -136,12 +146,17 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
         }
 
         [Theory]
-        [InlineData(true, true)]
-        [InlineData(true, false)]
-        [InlineData(false, true)]
-        [InlineData(false, false)]
-        public void GetLastMemberShouldReturnActualMembers(bool hasStablePath, bool optional)
+        [InlineData(false, false, false)]
+        [InlineData(false, false, true)]
+        [InlineData(false, true, false)]
+        [InlineData(false, true, true)]
+        [InlineData(true, false, false)]
+        [InlineData(true, false, true)]
+        [InlineData(true, true, false)]
+        [InlineData(true, true, true)]
+        public void GetLastMemberShouldReturnActualMembers(bool hasStablePath, bool optional, bool isStatic)
         {
+            var memberFlags = MemberFlags.InstancePublic.SetInstanceOrStaticFlags(isStatic);
             var getMembersCount = 0;
             var canReturn = false;
             var root = this;
@@ -154,12 +169,18 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             {
                 GetValue = (o, context) =>
                 {
-                    o.ShouldEqual(root);
+                    if (isStatic)
+                        o.ShouldBeNull();
+                    else
+                        o.ShouldEqual(root);
                     return target1;
                 },
                 TryObserve = (o, listener, arg3) =>
                 {
-                    o.ShouldEqual(root);
+                    if (isStatic)
+                        o.ShouldBeNull();
+                    else
+                        o.ShouldEqual(root);
                     rootListener = listener;
                     return new ActionToken((o1, o2) => rootListener = null);
                 }
@@ -180,7 +201,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return target3;
                 }
             };
-            var memberFlags = MemberFlags.All;
 
             var component = new TestMemberManagerComponent
             {
@@ -190,7 +210,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     var request = (MemberManagerRequest)r;
                     if (request.Type == target2.GetType())
                     {
-                        request.Flags.ShouldEqual(memberFlags.ClearInstanceOrStaticFlags(false));
+                        request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                         request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
                         return accessorInfo3;
                     }
@@ -204,7 +224,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
                     if (!canReturn)
                         return default;
-                    request.Flags.ShouldEqual(memberFlags.ClearInstanceOrStaticFlags(false));
+                    request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
                     if (request.Type == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();

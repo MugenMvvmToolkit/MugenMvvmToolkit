@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Methods
 
-        protected override void SubscribeLastMember(object target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
+        protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             base.SubscribeLastMember(target, lastMember, metadata);
             this.AddMethodObserver(target, lastMember, metadata, ref _unsubscriber, ref _lastValueRef);

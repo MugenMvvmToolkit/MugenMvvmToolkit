@@ -147,7 +147,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
                 if (HasStablePath && Members != null)
                 {
-                    UpdateHasStablePath(Members, target);
+                    UpdateHasStablePath(Members, MemberFlags.HasFlagEx(MemberFlags.Static) ? null : target);
                     return true;
                 }
 
@@ -206,7 +206,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             return true;
         }
 
-        private void UpdateHasStablePath(IMemberInfo[] members, object target)
+        private void UpdateHasStablePath(IMemberInfo[] members, object? target)
         {
             var metadata = TryGetMetadata();
             for (var index = 0; index < members.Length - 1; index++)
