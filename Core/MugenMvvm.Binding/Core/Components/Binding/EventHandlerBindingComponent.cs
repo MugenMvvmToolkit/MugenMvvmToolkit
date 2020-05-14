@@ -19,8 +19,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components.Binding
 {
-    public sealed class EventHandlerBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent,
-        IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority
+    public class EventHandlerBindingComponent : ITargetValueSetterBindingComponent, IAttachableComponent, IDetachableComponent, IEventListener, IHasEventArgsBindingComponent, IHasPriority
     {
         #region Fields
 
@@ -37,7 +36,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Constructors
 
-        public EventHandlerBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
+        private EventHandlerBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
         {
             _bindingManager = bindingManager;
             CommandParameter = commandParameter;
@@ -68,7 +67,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
-            var targetMember = ((IBinding)owner).Target.GetLastMember();
+            var targetMember = ((IBinding)owner).Target.GetLastMember(metadata);
             if (!(targetMember.Member is IEventInfo eventInfo))
                 return false;
 
@@ -106,14 +105,14 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             try
             {
-                components.OnBeginEvent(sender, message, _currentMetadata);
                 EventArgs = message;
+                components.OnBeginEvent(sender, message, _currentMetadata);
                 switch (_currentValue)
                 {
                     case ICommand command:
                         command.Execute(CommandParameter.GetValue<object?>(_currentMetadata));
                         return true;
-                    case IExpressionValue expression:
+                    case IValueExpression expression:
                         expression.Invoke(_currentMetadata);
                         return true;
                 }
@@ -142,15 +141,14 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
             if (value is ICommand command)
             {
+                _currentValue = value;
                 if (ToggleEnabledState && InitializeCanExecute(targetMember.Target, command))
                 {
                     OnCanExecuteChanged();
                     command.CanExecuteChanged += _canExecuteHandler;
                 }
-
-                _currentValue = value;
             }
-            else if (value is IExpressionValue)
+            else if (value is IValueExpression)
                 _currentValue = value;
 
             return true;
@@ -160,6 +158,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Methods
 
+        public static EventHandlerBindingComponent Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime, IBindingManager? bindingManager = null)
+        {
+            if (isOneTime)
+                return new EventHandlerBindingComponent(commandParameter, toggleEnabledState, bindingManager);
+            return new OneWay(commandParameter, toggleEnabledState, bindingManager);
+        }
+
         private bool InitializeCanExecute(object? target, ICommand command)
         {
             if (target == null)
@@ -168,8 +173,8 @@ namespace MugenMvvm.Binding.Core.Components.Binding
                 return false;
 
             _enabledMember = GetMemberManager()
-                .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.Public | MemberFlags.Extension | MemberFlags.Dynamic, _currentMetadata) as IMemberAccessorInfo;
-            if (_enabledMember == null)
+                .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), _currentMetadata) as IMemberAccessorInfo;
+            if (_enabledMember == null || !_enabledMember.CanWrite)
                 return false;
 
             _targetRef = target.ToWeakReference();
@@ -224,6 +229,40 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         private IMemberManager GetMemberManager()
         {
             return _bindingManager.DefaultIfNull().GetComponentOptional<IMemberManager>(_currentMetadata).DefaultIfNull();
+        }
+
+        #endregion
+
+        #region Nested types
+
+        internal sealed class OneWay : EventHandlerBindingComponent, IBindingSourceObserverListener
+        {
+            #region Constructors
+
+            public OneWay(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
+                : base(commandParameter, toggleEnabledState, bindingManager)
+            {
+            }
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            public void OnSourcePathMembersChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+            {
+                binding.UpdateTarget();
+            }
+
+            public void OnSourceLastMemberChanged(IBinding binding, IMemberPathObserver observer, IReadOnlyMetadataContext metadata)
+            {
+                binding.UpdateTarget();
+            }
+
+            public void OnSourceError(IBinding binding, IMemberPathObserver observer, Exception exception, IReadOnlyMetadataContext metadata)
+            {
+            }
+
+            #endregion
         }
 
         #endregion
