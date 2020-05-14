@@ -107,12 +107,12 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public static IComponent<IBinding> GetTarget(ushort delay)
         {
-            return new TargetDelay(delay);
+            return new Target(delay);
         }
 
         public static IComponent<IBinding> GetSource(ushort delay)
         {
-            return new SourceDelay(delay);
+            return new Source(delay);
         }
 
         protected abstract void Update(IBinding binding);
@@ -130,11 +130,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Nested types
 
-        private sealed class TargetDelay : DelayBindingComponent, ITargetValueInterceptorBindingComponent
+        internal sealed class Target : DelayBindingComponent, ITargetValueInterceptorBindingComponent
         {
             #region Constructors
 
-            public TargetDelay(ushort delay) : base(delay)
+            public Target(ushort delay) : base(delay)
             {
             }
 
@@ -159,11 +159,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             #endregion
         }
 
-        private sealed class SourceDelay : DelayBindingComponent, ISourceValueInterceptorBindingComponent
+        internal sealed class Source : DelayBindingComponent, ISourceValueInterceptorBindingComponent
         {
             #region Constructors
 
-            public SourceDelay(ushort delay) : base(delay)
+            public Source(ushort delay) : base(delay)
             {
             }
 
