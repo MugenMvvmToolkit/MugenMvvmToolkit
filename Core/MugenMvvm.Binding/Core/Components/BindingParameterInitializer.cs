@@ -36,7 +36,6 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 IgnoreIndexMembers = true,
                 IgnoreMethodMembers = true,
-                Flags = BindingMemberExpressionFlags.Observable,
                 MemberFlags = MemberFlags.All & ~MemberFlags.NonPublic
             };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
@@ -64,6 +63,9 @@ namespace MugenMvvm.Binding.Core.Components
             if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.ParameterHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler))
                 return;
 
+            _memberExpressionVisitor.Flags = BindingMemberExpressionFlags.Observable;
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
             var metadata = context.GetMetadataOrDefault();
             var converter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.Converter, metadata);
             var converterParameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.ConverterParameter, metadata);

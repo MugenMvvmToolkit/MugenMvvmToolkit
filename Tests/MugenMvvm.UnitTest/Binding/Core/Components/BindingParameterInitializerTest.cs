@@ -1,0 +1,121 @@
+﻿using MugenMvvm.Binding.Compiling;
+using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Core.Components;
+using MugenMvvm.Binding.Core.Components.Binding;
+using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Core;
+using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Visitors;
+using MugenMvvm.Extensions;
+using MugenMvvm.UnitTest.Binding.Compiling.Internal;
+using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Parsing.Internal;
+using Should;
+using Xunit;
+
+namespace MugenMvvm.UnitTest.Binding.Core.Components
+{
+    public class BindingParameterInitializerTest : UnitTestBase
+    {
+        #region Methods
+
+        [Fact]
+        public void InitializeShouldIgnoreEmptyParameters()
+        {
+            var initializer = new BindingParameterInitializer();
+            var context = new BindingExpressionInitializerContext(this);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
+            initializer.Initialize(context);
+            context.BindingComponents.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void InitializeShouldAddParameterHandlerComponent()
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            var target = new object();
+            var src = new object();
+            var converter = new object();
+            var converterParameter = new TestMemberPathObserver();
+            var fallback = new TestMemberPathObserver();
+            var nullValue = new object();
+
+            var parameterVisitCount = 0;
+            var parameters = new[]
+            {
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Converter), ConstantExpressionNode.Get(converter)),
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.ConverterParameter), new TestBindingMemberExpressionNode
+                {
+                    GetBindingSource = (t, s, m) =>
+                    {
+                        t.ShouldEqual(target);
+                        src.ShouldEqual(s);
+                        m.ShouldEqual(context.GetMetadataOrDefault());
+                        return converterParameter;
+                    },
+                    Visit = (visitor, metadataContext) =>
+                    {
+                        ++parameterVisitCount;
+                        metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                        if (visitor is BindingMemberExpressionVisitor expressionVisitor)
+                        {
+                            expressionVisitor.Flags.ShouldEqual(BindingMemberExpressionFlags.Observable);
+                            expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
+                            expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
+                            expressionVisitor.MemberFlags.ShouldEqual(MemberFlags.All & ~MemberFlags.NonPublic);
+                        }
+
+                        return null;
+                    }
+                }),
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.Fallback), new UnaryExpressionNode(UnaryTokenType.Minus,
+                    new TestBindingMemberExpressionNode
+                    {
+                        GetBindingSource = (t, s, m) =>
+                        {
+                            t.ShouldEqual(target);
+                            src.ShouldEqual(s);
+                            m.ShouldEqual(context.GetMetadataOrDefault());
+                            return fallback;
+                        }
+                    })),
+                new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.TargetNullValue), ConstantExpressionNode.Get(nullValue))
+            };
+            var exp = new TestCompiledExpression();
+            var compiler = new ExpressionCompiler();
+            compiler.AddComponent(new TestExpressionCompilerComponent
+            {
+                TryCompile = (node, m) =>
+                {
+                    node.ShouldEqual(parameters[2].Right);
+                    m.ShouldEqual(context.GetMetadataOrDefault());
+                    return exp;
+                }
+            });
+
+            var initializer = new BindingParameterInitializer(compiler);
+            context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, parameters, DefaultMetadata);
+            initializer.Initialize(context);
+
+            parameterVisitCount.ShouldEqual(1);
+            context.BindingComponents.Count.ShouldEqual(1);
+            var bindingComponentProvider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.ParameterHandler]!;
+            var component = (ParameterHandlerBindingComponent) bindingComponentProvider.GetComponent(null!, target, src, DefaultMetadata)!;
+
+            component.Converter.Parameter.ShouldEqual(converter);
+            component.Converter.Expression.ShouldBeNull();
+
+            component.ConverterParameter.Parameter.ShouldEqual(converterParameter);
+            component.ConverterParameter.Expression.ShouldBeNull();
+
+            component.Fallback.Parameter.ShouldEqual(fallback);
+            component.Fallback.Expression.ShouldEqual(exp);
+
+            component.TargetNullValue.Parameter.ShouldEqual(nullValue);
+            component.TargetNullValue.Expression.ShouldBeNull();
+        }
+
+        #endregion
+    }
+}

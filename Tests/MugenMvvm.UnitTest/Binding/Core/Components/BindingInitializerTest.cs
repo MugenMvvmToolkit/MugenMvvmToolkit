@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
@@ -11,7 +12,9 @@ using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Extensions;
+using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
+using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Binding.Parsing.Internal;
 using Should;
 using Xunit;
@@ -90,7 +93,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
                     expressionVisitor.Flags.ShouldEqual(flags);
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
@@ -104,7 +107,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
                     expressionVisitor.Flags.ShouldEqual(flags);
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
@@ -120,11 +123,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void InitializeShouldRespectSettingsEvent(bool parametersSetting)
+        [InlineData(true, 1)]
+        [InlineData(true, 2)]
+        [InlineData(true, 3)]
+        [InlineData(false, 1)]
+        [InlineData(false, 2)]
+        [InlineData(false, 3)]
+        public void InitializeShouldRespectSettingsEvent(bool parametersSetting, int cmdParameterMode)
         {
-            var cmdParameter = new object();
             var targetSrc = "";
             var sourceSrc = new object();
             var targetPath = new MultiMemberPath("Member1.Member2");
@@ -141,7 +147,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 TryGetMembers = (o, type, arg3) =>
                 {
                     arg3.ShouldEqual(context.GetMetadataOrDefault());
-                    var request = (MemberManagerRequest) o;
+                    var request = (MemberManagerRequest)o;
                     if (request.Name == targetPath.Members[0])
                     {
                         request.Flags.ShouldEqual(MemberFlags.StaticPublic);
@@ -174,8 +180,62 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             });
 
+            var parameterVisitCount = 0;
+            IExpressionNode cmdParameterNode;
+            var exp = new TestCompiledExpression();
+            object cmdParameter;
+            var compiler = new ExpressionCompiler();
+            if (cmdParameterMode == 1)
+            {
+                cmdParameter = new object();
+                cmdParameterNode = ConstantExpressionNode.Get(cmdParameter);
+            }
+            else if (cmdParameterMode == 2 || cmdParameterMode == 3)
+            {
+                cmdParameter = new TestMemberPathObserver();
+                cmdParameterNode = new TestBindingMemberExpressionNode
+                {
+                    GetBindingSource = (t, s, m) =>
+                    {
+                        t.ShouldEqual(targetSrc);
+                        s.ShouldEqual(sourceSrc);
+                        m.ShouldEqual(context.GetMetadataOrDefault());
+                        return cmdParameter;
+                    },
+                    Visit = (visitor, metadataContext) =>
+                    {
+                        ++parameterVisitCount;
+                        metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                        if (visitor is BindingMemberExpressionVisitor expressionVisitor)
+                        {
+                            expressionVisitor.Flags.ShouldEqual(flags & ~BindingMemberExpressionFlags.ObservableMethod);
+                            expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
+                            expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
+                            expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
+                        }
+                        return null;
+                    }
+                };
+                if (cmdParameterMode == 3)
+                {
+                    cmdParameterNode = new UnaryExpressionNode(UnaryTokenType.Minus, cmdParameterNode);
+                    cmdParameter = new TestMemberPathObserver();
+                    compiler.AddComponent(new TestExpressionCompilerComponent
+                    {
+                        TryCompile = (node, m) =>
+                        {
+                            node.ShouldEqual(cmdParameterNode);
+                            m.ShouldEqual(context.GetMetadataOrDefault());
+                            return exp;
+                        }
+                    });
+                }
+            }
+            else
+                throw new NotSupportedException();
+
             var bindingManager = new BindingManager();
-            var component = new BindingInitializer(memberManager: memberManager);
+            var component = new BindingInitializer(compiler, memberManager);
             bindingManager.AddComponent(component);
             component.Flags.ShouldNotEqual(flags);
             component.IgnoreIndexMembers.ShouldNotEqual(ignoreIndexMembers);
@@ -196,12 +256,12 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Optional),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled),
-                    new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), ConstantExpressionNode.Get(cmdParameter))
+                    new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)
                 };
             }
             else
             {
-                parameters = new[] {new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), ConstantExpressionNode.Get(cmdParameter))};
+                parameters = new[] { new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode) };
                 component.Flags = flags;
                 component.IgnoreIndexMembers = ignoreIndexMembers;
                 component.IgnoreMethodMembers = ignoreMethodMembers;
@@ -223,7 +283,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
                     expressionVisitor.Flags.ShouldEqual(flags);
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
@@ -237,7 +297,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
-                    var expressionVisitor = (BindingMemberExpressionVisitor) visitor;
+                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
                     expressionVisitor.Flags.ShouldEqual(flags & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod));
                     expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
                     expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
@@ -251,12 +311,31 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
             context.BindingComponents[BindingParameterNameConstant.Mode].ShouldBeNull();
-            var bindingComponentProvider = (IBindingComponentProvider) context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
-            var bindingComponent = (EventHandlerBindingComponent) bindingComponentProvider.GetComponent(null!, targetSrc, sourceSrc, DefaultMetadata)!;
+            var bindingComponentProvider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
+            var bindingComponent = (EventHandlerBindingComponent)bindingComponentProvider.GetComponent(null!, targetSrc, sourceSrc, DefaultMetadata)!;
             bindingComponent.ToggleEnabledState.ShouldEqual(toggleEnabledState);
-            bindingComponent.CommandParameter.IsEmpty.ShouldBeFalse();
-            bindingComponent.CommandParameter.Parameter.ShouldEqual(cmdParameter);
-            bindingComponent.CommandParameter.Expression.ShouldBeNull();
+
+            if (cmdParameterMode == 1)
+            {
+                parameterVisitCount.ShouldEqual(0);
+                bindingComponent.CommandParameter.IsEmpty.ShouldBeFalse();
+                bindingComponent.CommandParameter.Parameter.ShouldEqual(cmdParameter);
+                bindingComponent.CommandParameter.Expression.ShouldBeNull();
+            }
+            else if (cmdParameterMode == 2)
+            {
+                parameterVisitCount.ShouldEqual(1);
+                bindingComponent.CommandParameter.IsEmpty.ShouldBeFalse();
+                bindingComponent.CommandParameter.Parameter.ShouldEqual(cmdParameter);
+                bindingComponent.CommandParameter.Expression.ShouldBeNull();
+            }
+            else
+            {
+                parameterVisitCount.ShouldEqual(2);
+                bindingComponent.CommandParameter.IsEmpty.ShouldBeFalse();
+                bindingComponent.CommandParameter.Parameter.ShouldEqual(cmdParameter);
+                bindingComponent.CommandParameter.Expression.ShouldEqual(exp);
+            }
         }
 
         #endregion
