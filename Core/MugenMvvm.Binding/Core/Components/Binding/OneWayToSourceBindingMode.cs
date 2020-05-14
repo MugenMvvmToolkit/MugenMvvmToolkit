@@ -66,7 +66,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Nested types
 
-        private sealed class OneTimeHandlerComponent : IBindingSourceObserverListener
+        internal sealed class OneTimeHandlerComponent : IBindingSourceObserverListener
         {
             #region Fields
 
