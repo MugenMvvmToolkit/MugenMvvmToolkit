@@ -40,6 +40,7 @@ namespace MugenMvvm.UnitTest
 
         public UnitTestBase()
         {
+            MugenService.Configuration.InitializeFallback(null);
             MugenService.Configuration.InitializeInstance<IComponentCollectionProvider>(new ComponentCollectionProvider());
 
             var attachedValueProvider = new AttachedValueProvider();

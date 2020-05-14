@@ -88,6 +88,11 @@ namespace MugenMvvm
         {
             #region Methods
 
+            public static IFallbackServiceConfiguration? GetFallbackConfiguration()
+            {
+                return _fallbackConfiguration;
+            }
+
             public static void InitializeFallback(IFallbackServiceConfiguration? fallbackConfiguration)
             {
                 _fallbackConfiguration = fallbackConfiguration;
@@ -159,7 +164,7 @@ namespace MugenMvvm
 
             public static void Initialize(IHasService<TService>? serviceConfiguration)
             {
-                InitializeInternal(null);
+                _service = null;
                 _serviceConfiguration = serviceConfiguration;
                 _serviceConfigurationOptional = serviceConfiguration as IHasServiceOptional<TService>;
             }
@@ -167,14 +172,18 @@ namespace MugenMvvm
             public static void Initialize(TService service)
             {
                 Should.NotBeNull(service, nameof(service));
-                InitializeInternal(service);
+                _serviceConfiguration = null;
+                _serviceConfigurationOptional = null;
+                _service = service;
             }
 
-            public static void Clear()
+            public static void Clear(bool clearFallback = false)
             {
                 _service = null;
                 _serviceConfiguration = null;
                 _serviceConfigurationOptional = null;
+                if (clearFallback)
+                    _fallbackConfiguration = null;
             }
 
             private static TService GetFallbackService()
@@ -183,13 +192,6 @@ namespace MugenMvvm
                     return _fallbackConfiguration.Instance<TService>();
                 ExceptionManager.ThrowObjectNotInitialized(typeof(Configuration<TService>), typeof(TService).Name);
                 return null;
-            }
-
-            private static void InitializeInternal(TService? service)
-            {
-                _serviceConfiguration = null;
-                _serviceConfigurationOptional = null;
-                _service = service;
             }
 
             #endregion

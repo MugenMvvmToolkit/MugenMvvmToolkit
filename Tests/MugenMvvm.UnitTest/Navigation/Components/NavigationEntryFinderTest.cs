@@ -17,12 +17,10 @@ namespace MugenMvvm.UnitTest.Navigation.Components
     {
         #region Fields
 
-#pragma warning disable CS8618
-        private NavigationEntryFinder _component;
-        private List<INavigationEntry> _entries;
-        private NavigationDispatcher _navigationDispatcher;
-        private List<INavigationProvider> _providers;
-#pragma warning restore CS8618
+        private NavigationEntryFinder _component = null!;
+        private List<INavigationEntry> _entries = null!;
+        private NavigationDispatcher _navigationDispatcher = null!;
+        private List<INavigationProvider> _providers = null!;
         private bool _returnNullEntries;
 
         #endregion
