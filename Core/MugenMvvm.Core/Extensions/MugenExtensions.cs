@@ -72,16 +72,6 @@ namespace MugenMvvm.Extensions
             return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static bool AddValidator(this IAggregatorValidator aggregatorValidator, IValidator validator, IReadOnlyMetadataContext? metadata = null)
-        {
-            return aggregatorValidator.AddComponent(validator, metadata);
-        }
-
-        public static bool RemoveValidator(this IAggregatorValidator aggregatorValidator, IValidator validator, IReadOnlyMetadataContext? metadata = null)
-        {
-            return aggregatorValidator.RemoveComponent(validator, metadata);
-        }
-
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasFlagEx(this BusyMessageHandlerType value, BusyMessageHandlerType flag)
         {

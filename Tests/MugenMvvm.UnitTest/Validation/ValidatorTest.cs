@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Validation.Internal;
@@ -14,7 +13,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Validation
 {
-    public class AggregatorValidatorTest : ComponentOwnerTestBase<AggregatorValidator>
+    public class ValidatorTest : ComponentOwnerTestBase<Validator>
     {
         #region Methods
 
@@ -24,7 +23,8 @@ namespace MugenMvvm.UnitTest.Validation
         public void DisposeShouldClearComponentsMetadataNotifyListeners(int count)
         {
             var invokeCount = 0;
-            var validator = new AggregatorValidator();
+            var invokeComponentCount = 0;
+            var validator = new Validator();
 
             for (var i = 0; i < count; i++)
             {
@@ -36,6 +36,10 @@ namespace MugenMvvm.UnitTest.Validation
                         v.ShouldEqual(validator);
                     }
                 });
+                validator.AddComponent(new TestValidatorComponent
+                {
+                    Dispose = () => ++invokeComponentCount
+                });
             }
 
             validator.IsDisposed.ShouldBeFalse();
@@ -43,6 +47,7 @@ namespace MugenMvvm.UnitTest.Validation
             validator.Dispose();
             validator.IsDisposed.ShouldBeTrue();
             invokeCount.ShouldEqual(count);
+            invokeCount.ShouldEqual(invokeComponentCount);
             validator.Components.Count.ShouldEqual(0);
             validator.Metadata.Count.ShouldEqual(0);
         }
@@ -58,7 +63,7 @@ namespace MugenMvvm.UnitTest.Validation
             validator.HasErrors.ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestValidator
+                var component = new TestValidatorComponent
                 {
                     HasErrors = () =>
                     {
@@ -91,7 +96,7 @@ namespace MugenMvvm.UnitTest.Validation
             for (var i = 0; i < componentCount; i++)
             {
                 var s = i.ToString();
-                var component = new TestValidator
+                var component = new TestValidatorComponent
                 {
                     GetErrors = (m, metadata) =>
                     {
@@ -122,7 +127,7 @@ namespace MugenMvvm.UnitTest.Validation
             for (var i = 0; i < componentCount; i++)
             {
                 var s = i.ToString();
-                var component = new TestValidator
+                var component = new TestValidatorComponent
                 {
                     GetAllErrors = metadata =>
                     {
@@ -158,7 +163,7 @@ namespace MugenMvvm.UnitTest.Validation
             {
                 var tcs = new TaskCompletionSource<object>();
                 tasks.Add(tcs);
-                var component = new TestValidator
+                var component = new TestValidatorComponent
                 {
                     ValidateAsync = (m, token, metadata) =>
                     {
@@ -194,7 +199,7 @@ namespace MugenMvvm.UnitTest.Validation
             for (var i = 0; i < componentCount; i++)
             {
                 var s = i.ToString();
-                var component = new TestValidator
+                var component = new TestValidatorComponent
                 {
                     ClearErrors = (m, metadata) =>
                     {
@@ -210,92 +215,9 @@ namespace MugenMvvm.UnitTest.Validation
             count.ShouldEqual(componentCount);
         }
 
-        [Fact]
-        public void AddValidatorShouldIgnoreSelf()
+        protected override Validator GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            var validator = GetComponentOwner();
-            validator.AddValidator(validator).ShouldBeFalse();
-            validator.Components.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void AddValidatorShouldNotAddDuplicates()
-        {
-            var validator = GetComponentOwner();
-            var testValidator = new TestValidator();
-            validator.AddValidator(testValidator).ShouldBeTrue();
-            validator.AddValidator(testValidator).ShouldBeFalse();
-            validator.Components.Count.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void AddRemoveValidatorShouldAddListener()
-        {
-            var validator = GetComponentOwner();
-            var testValidator = new TestValidator();
-            validator.AddValidator(testValidator);
-
-            testValidator.Components.Count.ShouldEqual(1);
-            testValidator.GetComponent<IValidatorListener>().ShouldEqual(validator);
-
-            validator.RemoveValidator(testValidator).ShouldBeTrue();
-            testValidator.Components.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void DisposeChildValidatorShouldRemoveIt()
-        {
-            var validator = GetComponentOwner();
-            var testValidator = new TestValidator();
-            validator.AddValidator(testValidator);
-
-            validator.Components.Count.ShouldEqual(1);
-            testValidator.GetComponent<IValidatorListener>().OnDisposed(testValidator);
-            validator.Components.Count.ShouldEqual(0);
-        }
-
-        [Fact]
-        public void ShouldResendChildEvents()
-        {
-            string member = "test";
-            int asyncCount = 0;
-            var errorsCount = 0;
-            var validator = GetComponentOwner();
-            var testValidator = new TestValidator();
-            validator.AddValidator(testValidator);
-            var testListener = new TestValidatorListener
-            {
-                OnAsyncValidation = (v, m, t, context) =>
-                {
-                    ++asyncCount;
-                    v.ShouldEqual(validator);
-                    m.ShouldEqual(member);
-                    t.ShouldEqual(Task.CompletedTask);
-                    context.ShouldEqual(DefaultMetadata);
-                },
-                OnErrorsChanged = (v, m, context) =>
-                {
-                    ++errorsCount;
-                    v.ShouldEqual(validator);
-                    m.ShouldEqual(member);
-                    context.ShouldEqual(DefaultMetadata);
-                }
-            };
-            validator.AddComponent(testListener);
-
-            var listener = testValidator.GetComponent<IValidatorListener>();
-            listener.OnErrorsChanged(testValidator, member, DefaultMetadata);
-            asyncCount.ShouldEqual(0);
-            errorsCount.ShouldEqual(1);
-
-            listener.OnAsyncValidation(testValidator, member, Task.CompletedTask, DefaultMetadata);
-            asyncCount.ShouldEqual(1);
-            errorsCount.ShouldEqual(1);
-        }
-
-        protected override AggregatorValidator GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
-        {
-            return new AggregatorValidator(null, collectionProvider);
+            return new Validator(null, collectionProvider);
         }
 
         #endregion

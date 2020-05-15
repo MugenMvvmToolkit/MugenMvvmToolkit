@@ -29,12 +29,23 @@ namespace MugenMvvm.UnitTest.Validation
         }
 
         [Fact]
-        public void SingleResultShouldReturnSingleMemberValue()
+        public void SingleResultShouldReturnSingleMemberValue1()
         {
             var memberName = "test";
             var result = new object[] { "1", "2" };
             var singleResult = ValidationResult.SingleResult("test", DefaultMetadata, result);
             singleResult.Metadata.ShouldEqual(DefaultMetadata);
+            singleResult.ErrorsRaw!.Count.ShouldEqual(1);
+            singleResult.ErrorsRaw![memberName].SequenceEqual(result).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void SingleResultShouldReturnSingleMemberValue2()
+        {
+            var memberName = "test";
+            var result = new object[] { "1", "2" };
+            var singleResult = ValidationResult.SingleResult("test", result);
+            singleResult.Metadata.ShouldEqual(Default.Metadata);
             singleResult.ErrorsRaw!.Count.ShouldEqual(1);
             singleResult.ErrorsRaw![memberName].SequenceEqual(result).ShouldBeTrue();
         }

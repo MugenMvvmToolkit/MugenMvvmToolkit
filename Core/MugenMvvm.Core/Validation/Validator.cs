@@ -1,0 +1,91 @@
+﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using MugenMvvm.Attributes;
+using MugenMvvm.Components;
+using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Interfaces.Validation.Components;
+
+namespace MugenMvvm.Validation
+{
+    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator
+    {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private IReadOnlyMetadataContext? _metadata;
+        private int _state;
+
+        private const int DisposedState = -1;
+
+        #endregion
+
+        #region Constructors
+
+        [Preserve(Conditional = true)]
+        public Validator(IReadOnlyMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+            : base(componentCollectionProvider)
+        {
+            _metadata = metadata;
+            _metadataContextProvider = metadataContextProvider;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
+
+        public IMetadataContext Metadata => _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
+
+        public bool HasErrors => !IsDisposed && GetComponents<IValidatorComponent>().HasErrors();
+
+        public bool IsDisposed => _state == DisposedState;
+
+        #endregion
+
+        #region Implementation of interfaces
+
+        public void Dispose()
+        {
+            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
+                return;
+            GetComponents<IValidatorListener>().OnDisposed(this);
+            this.ClearComponents();
+            this.ClearMetadata(true);
+        }
+
+        public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (IsDisposed)
+                return Default.EmptyArray<object>();
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(memberName, metadata) ?? Default.EmptyArray<object>();
+        }
+
+        public IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null)
+        {
+            if (IsDisposed)
+                return Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(metadata) ?? Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
+        }
+
+        public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (IsDisposed)
+                return Default.CompletedTask;
+            return GetComponents<IValidatorComponent>(metadata).ValidateAsync(memberName, cancellationToken, metadata);
+        }
+
+        public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            if (!IsDisposed)
+                GetComponents<IValidatorComponent>(metadata).ClearErrors(memberName, metadata);
+        }
+
+        #endregion
+    }
+}

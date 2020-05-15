@@ -4,13 +4,13 @@ using MugenMvvm.Validation;
 
 namespace MugenMvvm.UnitTest.Validation
 {
-    public class AggregatorValidatorMetadataTest : MetadataOwnerTestBase
+    public class ValidatorMetadataTest : MetadataOwnerTestBase
     {
         #region Methods
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new AggregatorValidator(metadata, null, metadataContextProvider);
+            return new Validator(metadata, null, metadataContextProvider);
         }
 
         #endregion

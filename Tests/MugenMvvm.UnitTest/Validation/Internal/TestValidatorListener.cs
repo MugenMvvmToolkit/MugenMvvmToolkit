@@ -13,9 +13,9 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         public int Priority { get; set; }
 
-        public Action<IValidator, string, IReadOnlyMetadataContext?>? OnErrorsChanged { get; set; }
+        public Action<IValidator, object?, string, IReadOnlyMetadataContext?>? OnErrorsChanged { get; set; }
 
-        public Action<IValidator, string, Task, IReadOnlyMetadataContext?>? OnAsyncValidation { get; set; }
+        public Action<IValidator, object?, string, Task, IReadOnlyMetadataContext?>? OnAsyncValidation { get; set; }
 
         public Action<IValidator>? OnDisposed { get; set; }
 
@@ -23,14 +23,14 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         #region Implementation of interfaces
 
-        void IValidatorListener.OnErrorsChanged(IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)
+        void IValidatorListener.OnErrorsChanged(IValidator validator, object? instance, string memberName, IReadOnlyMetadataContext? metadata)
         {
-            OnErrorsChanged?.Invoke(validator, memberName, metadata);
+            OnErrorsChanged?.Invoke(validator, instance, memberName, metadata);
         }
 
-        void IValidatorListener.OnAsyncValidation(IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+        void IValidatorListener.OnAsyncValidation(IValidator validator, object? instance, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
-            OnAsyncValidation?.Invoke(validator, memberName, validationTask, metadata);
+            OnAsyncValidation?.Invoke(validator, instance, memberName, validationTask, metadata);
         }
 
         void IValidatorListener.OnDisposed(IValidator validator)

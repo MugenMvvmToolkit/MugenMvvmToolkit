@@ -12,21 +12,12 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IReadOnlyList<IValidator>? TryGetValidators<TRequest>(this IValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            LazyList<IValidator> result = default;
-            for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetValidators(request, metadata));
-            return result.List;
-        }
-
-        public static IAggregatorValidator? TryGetAggregatorValidator<TRequest>(this IAggregatorValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IValidator? TryGetValidator<TRequest>(this IValidatorProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetAggregatorValidator(request, metadata);
+                var result = components[i].TryGetValidator(request, metadata);
                 if (result != null)
                     return result;
             }
@@ -44,33 +35,23 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnValidatorCreated(validatorProvider, validator, request, metadata);
         }
 
-        public static void OnAggregatorValidatorCreated<TRequest>(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IAggregatorValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
-            Should.NotBeNull(validator, nameof(validator));
-            Should.NotBeNull(metadata, nameof(metadata));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAggregatorValidatorCreated(validatorProvider, validator, request, metadata);
-        }
-
-        public static void OnErrorsChanged(this IValidatorListener[] listeners, IValidator validator, string memberName, IReadOnlyMetadataContext? metadata)
+        public static void OnErrorsChanged(this IValidatorListener[] listeners, IValidator validator, object? instance, string memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(memberName, nameof(memberName));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnErrorsChanged(validator, memberName, metadata);
+                listeners[i].OnErrorsChanged(validator, instance, memberName, metadata);
         }
 
-        public static void OnAsyncValidation(this IValidatorListener[] listeners, IValidator validator, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+        public static void OnAsyncValidation(this IValidatorListener[] listeners, IValidator validator, object? instance, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(memberName, nameof(memberName));
             Should.NotBeNull(validationTask, nameof(validationTask));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAsyncValidation(validator, memberName, validationTask, metadata);
+                listeners[i].OnAsyncValidation(validator, instance, memberName, validationTask, metadata);
         }
 
         public static void OnDisposed(this IValidatorListener[] listeners, IValidator validator)
@@ -81,7 +62,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnDisposed(validator);
         }
 
-        public static IReadOnlyList<object>? TryGetErrors(this IValidator[] components, string? memberName, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<object>? TryGetErrors(this IValidatorComponent[] components, string? memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             LazyList<object> result = default;
@@ -90,7 +71,7 @@ namespace MugenMvvm.Extensions.Components
             return result.List;
         }
 
-        public static IReadOnlyDictionary<string, IReadOnlyList<object>>? TryGetErrors(this IValidator[] components, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyDictionary<string, IReadOnlyList<object>>? TryGetErrors(this IValidatorComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Dictionary<string, IReadOnlyList<object>>? errors = null;
@@ -121,7 +102,7 @@ namespace MugenMvvm.Extensions.Components
             return errors;
         }
 
-        public static Task ValidateAsync(this IValidator[] components, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task ValidateAsync(this IValidatorComponent[] components, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 0)
@@ -135,14 +116,14 @@ namespace MugenMvvm.Extensions.Components
             return Task.WhenAll(tasks);
         }
 
-        public static void ClearErrors(this IValidator[] components, string? memberName, IReadOnlyMetadataContext? metadata)
+        public static void ClearErrors(this IValidatorComponent[] components, string? memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
                 components[i].ClearErrors(memberName, metadata);
         }
 
-        public static bool HasErrors(this IValidator[] components)
+        public static bool HasErrors(this IValidatorComponent[] components)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
