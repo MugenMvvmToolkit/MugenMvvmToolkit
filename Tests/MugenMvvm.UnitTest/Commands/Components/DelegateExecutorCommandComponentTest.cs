@@ -167,7 +167,8 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, value);
             compositeCommand.AddComponent(component);
 
-            executed.ShouldEqual(0);
+            executed.ShouldEqual(1);
+            executed = 0;
             compositeCommand.Execute(this);
             executed.ShouldEqual(value ? 0 : 1);
 

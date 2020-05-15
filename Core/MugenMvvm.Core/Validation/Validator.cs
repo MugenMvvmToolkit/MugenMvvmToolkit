@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation
 {
-    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator
+    public sealed class Validator : ComponentOwnerBase<IValidator>, IValidator, IHasAddedCallbackComponentOwner, IHasRemovedCallbackComponentOwner, IHasAddingCallbackComponentOwner
     {
         #region Fields
 
@@ -50,6 +50,23 @@ namespace MugenMvvm.Validation
         #endregion
 
         #region Implementation of interfaces
+
+        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IValidatorComponent)
+                GetComponents<IValidatorListener>().OnErrorsChanged(this, null, string.Empty, metadata);
+        }
+
+        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            return !IsDisposed;
+        }
+
+        void IHasRemovedCallbackComponentOwner.OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IValidatorComponent)
+                GetComponents<IValidatorListener>().OnErrorsChanged(this, null, string.Empty, metadata);
+        }
 
         public void Dispose()
         {

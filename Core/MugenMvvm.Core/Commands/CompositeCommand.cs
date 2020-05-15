@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Commands
 {
-    public sealed class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand
+    public sealed class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasAddedCallbackComponentOwner, IHasAddingCallbackComponentOwner
     {
         #region Fields
 
@@ -90,6 +90,17 @@ namespace MugenMvvm.Commands
         public void RaiseCanExecuteChanged()
         {
             GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged();
+        }
+
+        void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IConditionCommandComponent)
+                RaiseCanExecuteChanged();
+        }
+
+        bool IHasAddingCallbackComponentOwner.OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            return !IsDisposed;
         }
 
         #endregion
