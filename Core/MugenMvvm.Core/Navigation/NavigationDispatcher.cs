@@ -42,11 +42,6 @@ namespace MugenMvvm.Navigation
             return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(type, metadata) ?? Default.EmptyArray<INavigationEntry>();
         }
 
-        public INavigationEntry? TryGetPreviousNavigationEntry(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
-        {
-            return GetComponents<INavigationEntryFinderComponent>(metadata).TryGetPreviousNavigationEntry(navigationEntry, metadata);
-        }
-
         public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetCallbacks(navigationEntry, metadata) ?? Default.EmptyArray<INavigationCallback>();

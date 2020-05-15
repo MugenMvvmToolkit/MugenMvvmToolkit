@@ -69,20 +69,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static INavigationEntry? TryGetPreviousNavigationEntry(this INavigationEntryFinderComponent[] components, INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TryGetPreviousNavigationEntry(navigationEntry, metadata);
-                if (result != null)
-                    return result;
-            }
-
-            return null;
-        }
-
         public static IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, NavigationType? type, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

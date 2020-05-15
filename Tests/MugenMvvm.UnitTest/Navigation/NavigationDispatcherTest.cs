@@ -99,44 +99,6 @@ namespace MugenMvvm.UnitTest.Navigation
         }
 
         [Fact]
-        public void TryGetPreviousNavigationEntryShouldReturnNullNoComponents()
-        {
-            new NavigationDispatcher().TryGetPreviousNavigationEntry(new NavigationEntry(new TestNavigationProvider(), "", NavigationType.Page)).ShouldBeNull();
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryGetPreviousNavigationEntryShouldBeHandledByComponents(int count)
-        {
-            var entry = new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Alert);
-            var prevEntry = new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Alert);
-            var invokeCount = 0;
-            var dispatcher = new NavigationDispatcher();
-            for (var i = 0; i < count; i++)
-            {
-                var isLast = i == count - 1;
-                var component = new TestNavigationEntryFinderComponent
-                {
-                    Priority = -i,
-                    TryGetPreviousNavigationEntry = (e, m) =>
-                    {
-                        ++invokeCount;
-                        entry.ShouldEqual(e);
-                        m.ShouldEqual(DefaultMetadata);
-                        if (isLast)
-                            return prevEntry;
-                        return null;
-                    }
-                };
-                dispatcher.AddComponent(component);
-            }
-
-            dispatcher.TryGetPreviousNavigationEntry(entry, DefaultMetadata).ShouldEqual(prevEntry);
-            invokeCount.ShouldEqual(count);
-        }
-
-        [Fact]
         public void GetCallbacksShouldReturnEmptyListNoComponents()
         {
             new NavigationDispatcher().GetCallbacks(new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Page)).ShouldBeEmpty();
