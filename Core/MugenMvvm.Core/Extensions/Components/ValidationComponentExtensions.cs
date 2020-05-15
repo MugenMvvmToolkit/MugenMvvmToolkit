@@ -35,23 +35,23 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnValidatorCreated(validatorProvider, validator, request, metadata);
         }
 
-        public static void OnErrorsChanged(this IValidatorListener[] listeners, IValidator validator, object? instance, string memberName, IReadOnlyMetadataContext? metadata)
+        public static void OnErrorsChanged(this IValidatorListener[] listeners, IValidator validator, object? target, string memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(memberName, nameof(memberName));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnErrorsChanged(validator, instance, memberName, metadata);
+                listeners[i].OnErrorsChanged(validator, target, memberName, metadata);
         }
 
-        public static void OnAsyncValidation(this IValidatorListener[] listeners, IValidator validator, object? instance, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
+        public static void OnAsyncValidation(this IValidatorListener[] listeners, IValidator validator, object? target, string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(memberName, nameof(memberName));
             Should.NotBeNull(validationTask, nameof(validationTask));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAsyncValidation(validator, instance, memberName, validationTask, metadata);
+                listeners[i].OnAsyncValidation(validator, target, memberName, validationTask, metadata);
         }
 
         public static void OnDisposed(this IValidatorListener[] listeners, IValidator validator)

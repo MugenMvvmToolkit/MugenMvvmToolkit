@@ -15,12 +15,43 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static void SetErrors(this IValidator validator, object target, string memberName, params object[] errors)
+        {
+            validator.SetErrors(target, memberName, errors, null);
+        }
+
+        public static void SetErrors(this IValidator validator, object target, string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(validator, nameof(validator));
+            Should.NotBeNull(target, nameof(target));
+            Should.NotBeNull(memberName, nameof(memberName));
+            InlineValidatorComponent? component = null;
+            var components = validator.GetComponents<InlineValidatorComponent>();
+            for (int i = 0; i < components.Length; i++)
+            {
+                if (components[i].Target == target)
+                {
+                    component = components[i];
+                    break;
+                }
+            }
+
+            if (component == null)
+            {
+                component = new InlineValidatorComponent(target);
+                validator.AddComponent(component);
+            }
+
+            component.SetErrors(memberName, errors, metadata);
+        }
 
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null)
         {
@@ -206,13 +237,6 @@ namespace MugenMvvm.Extensions
             }
 
             return true;
-        }
-
-        [Preserve(Conditional = true)]
-        internal static void InitializeArray<T>(T[] target, object[] source)
-        {
-            for (var i = 0; i < target.Length; i++)
-                target[i] = (T)source[i];
         }
 
         private static ICompositeCommand GetCommandInternal<T>(ICommandProvider? mediatorProvider, Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
