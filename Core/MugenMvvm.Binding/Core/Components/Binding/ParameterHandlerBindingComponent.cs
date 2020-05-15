@@ -1,16 +1,16 @@
-﻿using MugenMvvm.Binding.Constants;
+﻿using System;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components.Binding
 {
-    public sealed class ParameterHandlerBindingComponent : ISourceValueInterceptorBindingComponent, ITargetValueInterceptorBindingComponent, IHasPriority, IDetachableComponent
+    public sealed class ParameterHandlerBindingComponent : ISourceValueInterceptorBindingComponent, ITargetValueInterceptorBindingComponent, IHasPriority, IDisposable
     {
         #region Fields
 
@@ -52,12 +52,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Implementation of interfaces
 
-        bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
-        {
-            return true;
-        }
-
-        void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
+        public void Dispose()
         {
             _converter.Dispose();
             _converterParameter.Dispose();

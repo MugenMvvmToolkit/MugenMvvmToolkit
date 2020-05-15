@@ -7,6 +7,17 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        public static void Dispose(object? components)
+        {
+            if (components is object[] c)
+            {
+                for (var i = 0; i < c.Length; i++)
+                    (c[i] as IDisposable)?.Dispose();
+            }
+            else
+                (components as IDisposable)?.Dispose();
+        }
+
         public static void Dispose(this IDisposable[] components)
         {
             Should.NotBeNull(components, nameof(components));
@@ -40,7 +51,7 @@ namespace MugenMvvm.Extensions.Components
 
             return new ActionToken((o, _) =>
             {
-                var list = (ActionToken[]) o!;
+                var list = (ActionToken[])o!;
                 for (var i = 0; i < list.Length; i++)
                     list[i].Dispose();
             }, tokens);

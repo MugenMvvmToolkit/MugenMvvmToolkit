@@ -2,7 +2,6 @@
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Converters.Internal;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
@@ -118,7 +117,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         }
 
         [Fact]
-        public void OnDetachedShouldDisposeValues()
+        public void DisposeShouldDisposeValues()
         {
             var expressionDisposed = false;
             var observer1Disposed = false;
@@ -145,7 +144,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             handler.TargetNullValue.Parameter.ShouldEqual(targetNullValue);
             handler.TargetNullValue.Expression.ShouldBeNull();
 
-            ((IDetachableComponent) handler).OnDetached(this, DefaultMetadata);
+            handler.Dispose();
 
             handler.Converter.IsEmpty.ShouldBeTrue();
             handler.ConverterParameter.IsEmpty.ShouldBeTrue();

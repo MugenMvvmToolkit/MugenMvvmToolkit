@@ -28,7 +28,6 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         private IReadOnlyMetadataContext? _currentMetadata;
         private object? _currentValue;
         private IMemberAccessorInfo? _enabledMember;
-        private bool _isDisposed;
         private IWeakReference? _targetRef;
         private ActionToken _unsubscriber;
 
@@ -55,7 +54,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public bool ToggleEnabledState { get; }
 
-        bool IWeakItem.IsAlive => !_isDisposed;
+        bool IWeakItem.IsAlive => true;
 
         bool IEventListener.IsWeak => false;
 
@@ -94,14 +93,10 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             _canExecuteHandler = null;
             CommandParameter.Dispose();
             CommandParameter = default;
-            _isDisposed = true;
         }
 
         bool IEventListener.TryHandle(object sender, object? message)
         {
-            if (_isDisposed)
-                return false;
-
             var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             try
             {

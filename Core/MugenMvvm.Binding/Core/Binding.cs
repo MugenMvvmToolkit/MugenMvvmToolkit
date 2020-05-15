@@ -119,6 +119,7 @@ namespace MugenMvvm.Binding.Core
                 Target.RemoveListener(this);
             if (CheckFlag(HasSourceObserverListener))
                 BindingComponentExtensions.RemoveListener(SourceRaw, this);
+            DefaultComponentExtensions.Dispose(_components);
             Components.Clear();
             Target.Dispose();
             Target = EmptyPathObserver.Empty;

@@ -17,6 +17,7 @@ using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Components.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
+using MugenMvvm.UnitTest.Models;
 using Should;
 using Xunit;
 
@@ -1245,8 +1246,10 @@ namespace MugenMvvm.UnitTest.Binding.Core
             ShouldThrow<InvalidOperationException>(() => binding.Initialize(components, DefaultMetadata));
         }
 
-        [Fact]
-        public virtual void DisposeShouldClearBinding()
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public virtual void DisposeShouldClearBinding(int count)
         {
             bool targetDisposed = false;
             bool sourceDisposed = false;
@@ -1281,7 +1284,14 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 }
             };
 
-            var components = new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() };
+            int disposeComponentCount = 0;
+            var components = Enumerable
+                .Range(0, count)
+                .Select(i => new TestComponent<IBinding>() { Dispose = () => ++disposeComponentCount })
+                .OfType<IComponent<IBinding>>()
+                .Concat(new IComponent<IBinding>[] { new TestBindingTargetObserverListener(), new TestBindingSourceObserverListener() })
+                .ToArray();
+
             var binding = GetBinding(target, source);
             binding.State.ShouldEqual(BindingState.Valid);
             binding.Initialize(components, DefaultMetadata);
@@ -1303,6 +1313,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             using var subscribe = TestComponentSubscriber.Subscribe(testLifecycleListener);
 
             binding.Dispose();
+            disposeComponentCount.ShouldEqual(count);
             binding.State.ShouldEqual(BindingState.Disposed);
             targetDisposed.ShouldBeTrue();
             sourceDisposed.ShouldBeTrue();
