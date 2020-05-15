@@ -5,6 +5,7 @@ using MugenMvvm.Commands;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Commands.Internal;
 using MugenMvvm.UnitTest.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
@@ -139,7 +140,7 @@ namespace MugenMvvm.UnitTest.Commands
             var compositeCommand = GetComponentOwner();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = () => ++count };
+                var component = new TestConditionEventCommandComponent {RaiseCanExecuteChanged = () => ++count};
                 compositeCommand.AddComponent(component);
             }
 
@@ -156,12 +157,17 @@ namespace MugenMvvm.UnitTest.Commands
             var compositeCommand = GetComponentOwner();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestDisposable { Dispose = () => ++count };
+                var component = new TestDisposable {Dispose = () => ++count};
                 compositeCommand.Components.Add(component);
             }
 
+            compositeCommand.IsDisposed.ShouldBeFalse();
+            compositeCommand.Metadata.Set(MetadataContextKey.FromKey<object?, object?>("t"), "");
             compositeCommand.Dispose();
+            compositeCommand.IsDisposed.ShouldBeTrue();
             count.ShouldEqual(componentCount);
+            compositeCommand.Components.Count.ShouldEqual(0);
+            compositeCommand.Metadata.Count.ShouldEqual(0);
         }
 
         [Theory]
@@ -199,7 +205,7 @@ namespace MugenMvvm.UnitTest.Commands
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
@@ -208,7 +214,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -234,14 +240,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -262,14 +268,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action execute = () => { };
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -293,7 +299,7 @@ namespace MugenMvvm.UnitTest.Commands
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
@@ -302,7 +308,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -328,14 +334,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -356,14 +362,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Action<object> execute = t => { };
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -387,7 +393,7 @@ namespace MugenMvvm.UnitTest.Commands
             Func<Task> execute = () => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
@@ -396,7 +402,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -422,14 +428,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<Task> execute = () => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -450,14 +456,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<Task> execute = () => Task.CompletedTask;
             var canExecute = GetCanExecuteNoObject(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -481,7 +487,7 @@ namespace MugenMvvm.UnitTest.Commands
             Func<object?, Task> execute = item => Task.CompletedTask;
             var canExecute = GetCanExecute(hasCanExecute);
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
@@ -490,7 +496,7 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
                     return new CompositeCommand();
@@ -516,14 +522,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<object?, Task> execute = item => Task.CompletedTask;
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -544,14 +550,14 @@ namespace MugenMvvm.UnitTest.Commands
         {
             Func<object?, Task> execute = item => Task.CompletedTask;
             var canExecute = GetCanExecute(true);
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
 
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
                 TryGetCommand = (o, type, arg3) =>
                 {
-                    request = (DelegateCommandRequest)o!;
+                    request = (DelegateCommandRequest) o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
                 }
@@ -589,7 +595,7 @@ namespace MugenMvvm.UnitTest.Commands
 
         protected override CompositeCommand GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new CompositeCommand(collectionProvider);
+            return new CompositeCommand(null, collectionProvider);
         }
 
         #endregion

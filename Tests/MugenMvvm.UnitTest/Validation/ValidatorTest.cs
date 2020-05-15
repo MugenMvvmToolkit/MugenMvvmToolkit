@@ -43,11 +43,11 @@ namespace MugenMvvm.UnitTest.Validation
             }
 
             validator.IsDisposed.ShouldBeFalse();
-            validator.Metadata.Set(ValidationMetadata.IgnoreMembers, new List<string>());
+            validator.Metadata.Set(MetadataContextKey.FromKey<object?, object?>("t"), "");
             validator.Dispose();
             validator.IsDisposed.ShouldBeTrue();
             invokeCount.ShouldEqual(count);
-            invokeCount.ShouldEqual(invokeComponentCount);
+            invokeComponentCount.ShouldEqual(count);
             validator.Components.Count.ShouldEqual(0);
             validator.Metadata.Count.ShouldEqual(0);
         }

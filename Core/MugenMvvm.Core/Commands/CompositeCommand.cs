@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -15,20 +16,38 @@ namespace MugenMvvm.Commands
 {
     public sealed class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private IReadOnlyMetadataContext? _metadata;
+        private int _state;
+
+        private const int DisposedState = -1;
+
+        #endregion
+
         #region Constructors
 
-        public CompositeCommand(IComponentCollectionProvider? componentCollectionProvider = null)
+        public CompositeCommand(IReadOnlyMetadataContext? metadata = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
+            _metadata = metadata;
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Properties
 
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
+
+        public IMetadataContext Metadata => _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
+
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 
         public bool HasCanExecute => GetComponents<IConditionCommandComponent>().HasCanExecute();
+
+        public bool IsDisposed => _state == DisposedState;
 
         #endregion
 
@@ -56,7 +75,11 @@ namespace MugenMvvm.Commands
 
         public void Dispose()
         {
-            GetComponents<IDisposable>().Dispose();
+            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
+                return;
+            base.GetComponents<IDisposable>().Dispose();
+            this.ClearComponents();
+            this.ClearMetadata(true);
         }
 
         public ActionToken Suspend()
@@ -72,6 +95,12 @@ namespace MugenMvvm.Commands
         #endregion
 
         #region Methods
+
+        private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
+            where TComponent : class
+        {
+            return IsDisposed ? Default.EmptyArray<TComponent>() : base.GetComponents<TComponent>(metadata);
+        }
 
         public static ICompositeCommand Create(Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
