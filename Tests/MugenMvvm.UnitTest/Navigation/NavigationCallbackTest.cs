@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var type = NavigationType.Parse(navigationType);
             var callback = new NavigationCallback(navigationCallbackType, operationId, type);
             callback.IsCompleted.ShouldBeFalse();
-            callback.NavigationOperationId.ShouldEqual(operationId);
+            callback.NavigationId.ShouldEqual(operationId);
             callback.CallbackType.ShouldEqual(navigationCallbackType);
             callback.NavigationType.ShouldEqual(type);
         }

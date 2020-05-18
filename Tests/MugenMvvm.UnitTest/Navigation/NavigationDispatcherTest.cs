@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     {
                         ++invokeCount;
                         provider.ShouldEqual(context.NavigationProvider);
-                        s.ShouldEqual(context.NavigationOperationId);
+                        s.ShouldEqual(context.NavigationId);
                         arg3.ShouldEqual(context.NavigationType);
                         arg4.ShouldEqual(context.NavigationMode);
                         arg5.ShouldEqual(DefaultMetadata);
@@ -56,14 +56,14 @@ namespace MugenMvvm.UnitTest.Navigation
                 dispatcher.AddComponent(component);
             }
 
-            dispatcher.GetNavigationContext(context.NavigationProvider, context.NavigationOperationId, context.NavigationType, context.NavigationMode, DefaultMetadata).ShouldEqual(context);
+            dispatcher.GetNavigationContext(context.NavigationProvider, context.NavigationId, context.NavigationType, context.NavigationMode, DefaultMetadata).ShouldEqual(context);
             invokeCount.ShouldEqual(count);
         }
 
         [Fact]
         public void GetNavigationEntriesShouldReturnEmptyListNoComponents()
         {
-            new NavigationDispatcher().GetNavigationEntries(NavigationType.Alert, DefaultMetadata).ShouldBeEmpty();
+            new NavigationDispatcher().GetNavigationEntries(DefaultMetadata).ShouldBeEmpty();
         }
 
         [Theory]
@@ -81,9 +81,8 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationEntryProviderComponent
                 {
                     Priority = -i,
-                    TryGetNavigationEntries = (arg3, ctx) =>
+                    TryGetNavigationEntries = (ctx) =>
                     {
-                        arg3.ShouldEqual(NavigationType.Page);
                         ctx.ShouldEqual(DefaultMetadata);
                         return new[] { info };
                     }
@@ -91,7 +90,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 dispatcher.AddComponent(component);
             }
 
-            var result = dispatcher.GetNavigationEntries(NavigationType.Page, DefaultMetadata);
+            var result = dispatcher.GetNavigationEntries(DefaultMetadata);
             result.Count.ShouldEqual(count);
             foreach (var navigationEntry in result)
                 entries.Remove(navigationEntry);
@@ -101,7 +100,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void GetCallbacksShouldReturnEmptyListNoComponents()
         {
-            new NavigationDispatcher().GetCallbacks(new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Page)).ShouldBeEmpty();
+            new NavigationDispatcher().GetNavigationCallbacks(new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Page)).ShouldBeEmpty();
         }
 
         [Theory]
@@ -120,9 +119,10 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationCallbackProviderComponent
                 {
                     Priority = -i,
-                    TryGetCallbacks = (entry, ctx) =>
+                    TryGetCallbacks = (entry, t, ctx) =>
                     {
                         entry.ShouldEqual(navEntry);
+                        t.ShouldEqual(navEntry.GetType());
                         ctx.ShouldEqual(DefaultMetadata);
                         return new[] { info };
                     }
@@ -130,7 +130,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 dispatcher.AddComponent(component);
             }
 
-            var result = dispatcher.GetCallbacks(navEntry, DefaultMetadata);
+            var result = dispatcher.GetNavigationCallbacks(navEntry, DefaultMetadata);
             result.Count.ShouldEqual(count);
             foreach (var callback in result)
                 callbacks.Remove(callback);

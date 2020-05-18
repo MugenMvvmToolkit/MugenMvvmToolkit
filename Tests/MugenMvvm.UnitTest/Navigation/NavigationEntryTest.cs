@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var navigationEntry = new NavigationEntry(provider, id, type);
             navigationEntry.NavigationProvider.ShouldEqual(provider);
             navigationEntry.NavigationType.ShouldEqual(type);
-            navigationEntry.NavigationOperationId.ShouldEqual(id);
+            navigationEntry.NavigationId.ShouldEqual(id);
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)

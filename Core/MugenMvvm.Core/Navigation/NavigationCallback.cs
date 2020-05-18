@@ -27,13 +27,13 @@ namespace MugenMvvm.Navigation
 
         #region Constructors
 
-        public NavigationCallback(NavigationCallbackType callbackType, string navigationOperationId, NavigationType navigationType)
+        public NavigationCallback(NavigationCallbackType callbackType, string navigationId, NavigationType navigationType)
         {
             Should.NotBeNull(callbackType, nameof(callbackType));
-            Should.NotBeNullOrEmpty(navigationOperationId, nameof(navigationOperationId));
+            Should.NotBeNullOrEmpty(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationType, nameof(navigationType));
             CallbackType = callbackType;
-            NavigationOperationId = navigationOperationId;
+            NavigationId = navigationId;
             NavigationType = navigationType;
         }
 
@@ -45,7 +45,7 @@ namespace MugenMvvm.Navigation
 
         public NavigationCallbackType CallbackType { get; }
 
-        public string NavigationOperationId { get; }
+        public string NavigationId { get; }
 
         public NavigationType NavigationType { get; }
 

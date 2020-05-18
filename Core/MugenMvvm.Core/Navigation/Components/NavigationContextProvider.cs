@@ -34,10 +34,10 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public INavigationContext? TryGetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId,
+        public INavigationContext? TryGetNavigationContext(INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
-            return new NavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata, _metadataContextProvider);
+            return new NavigationContext(navigationProvider, navigationId, navigationType, navigationMode, metadata, _metadataContextProvider);
         }
 
         #endregion

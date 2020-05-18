@@ -19,12 +19,14 @@ namespace MugenMvvm.UnitTest.Components
         {
             T? componentOwner = null;
             ComponentCollection? collection = null;
-            var testComponentCollectionProviderComponent = new TestComponentCollectionProviderComponent();
-            testComponentCollectionProviderComponent.TryGetComponentCollection = (o, context) =>
+            var testComponentCollectionProviderComponent = new TestComponentCollectionProviderComponent
             {
-                componentOwner.ShouldEqual(o);
-                collection = new ComponentCollection(componentOwner!);
-                return collection;
+                TryGetComponentCollection = (o, context) =>
+                {
+                    componentOwner.ShouldEqual(o);
+                    collection = new ComponentCollection(componentOwner!);
+                    return collection;
+                }
             };
             using var subscriber = globalValue ? TestComponentSubscriber.Subscribe(testComponentCollectionProviderComponent) : default;
             if (globalValue)

@@ -13,15 +13,15 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         public int Priority { get; set; }
 
-        public Func<INavigationEntry, IReadOnlyMetadataContext?, IReadOnlyList<INavigationCallback>?>? TryGetCallbacks { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, IReadOnlyList<INavigationCallback>?>? TryGetCallbacks { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        IReadOnlyList<INavigationCallback>? INavigationCallbackProviderComponent.TryGetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata)
+        IReadOnlyList<INavigationCallback>? INavigationCallbackProviderComponent.TryGetNavigationCallbacks<TTarget>(in TTarget target, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetCallbacks?.Invoke(navigationEntry, metadata);
+            return TryGetCallbacks?.Invoke(target!, typeof(TTarget), metadata);
         }
 
         #endregion

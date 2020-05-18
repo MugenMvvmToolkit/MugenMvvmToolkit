@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿#pragma warning disable CS1718
+using MugenMvvm.Binding.Enums;
 using Should;
 using Xunit;
 

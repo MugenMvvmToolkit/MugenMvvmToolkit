@@ -8,6 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
@@ -55,10 +56,10 @@ namespace MugenMvvm.Navigation.Components
                         _navigationEntries[navigationContext.NavigationType] = list;
                     }
 
-                    updatedEntry = FindEntry(list, navigationContext.NavigationOperationId);
+                    updatedEntry = FindEntry(list, navigationContext.NavigationId);
                     if (updatedEntry == null)
                     {
-                        addedEntry = new NavigationEntry(navigationContext.NavigationProvider, navigationContext.NavigationOperationId,
+                        addedEntry = new NavigationEntry(navigationContext.NavigationProvider, navigationContext.NavigationId,
                             navigationContext.NavigationType, _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, navigationContext.Metadata));
                         list.Add(addedEntry);
                     }
@@ -67,7 +68,7 @@ namespace MugenMvvm.Navigation.Components
                 {
                     if (_navigationEntries.TryGetValue(navigationContext.NavigationType, out var list))
                     {
-                        removedEntry = FindEntry(list, navigationContext.NavigationOperationId);
+                        removedEntry = FindEntry(list, navigationContext.NavigationId);
                         if (removedEntry != null)
                             list.Remove(removedEntry);
                     }
@@ -94,43 +95,28 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        public IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(NavigationType? type, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(IReadOnlyMetadataContext? metadata)
         {
-            List<INavigationEntry>? result = null;
+            LazyList<INavigationEntry> result = default;
             lock (_navigationEntries)
             {
-                if (type == null)
-                {
-                    foreach (var t in _navigationEntries)
-                        AddNavigationEntries(t.Key, ref result);
-                }
-                else
-                    AddNavigationEntries(type, ref result);
+
+                foreach (var t in _navigationEntries)
+                    result.AddRange(t.Value);
             }
 
-            return result;
+            return result.List;
         }
 
         #endregion
 
         #region Methods
 
-        private void AddNavigationEntries(NavigationType type, ref List<INavigationEntry>? result)
-        {
-            if (_navigationEntries.TryGetValue(type, out var list))
-            {
-                if (result == null)
-                    result = new List<INavigationEntry>(list);
-                else
-                    result.AddRange(list);
-            }
-        }
-
         private static INavigationEntry? FindEntry(List<INavigationEntry> entries, string id)
         {
             for (var i = 0; i < entries.Count; i++)
             {
-                if (entries[i].NavigationOperationId == id)
+                if (entries[i].NavigationId == id)
                     return entries[i];
             }
 

@@ -4,7 +4,7 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface IHasNavigationInfo
     {
-        string NavigationOperationId { get; }
+        string NavigationId { get; }
 
         NavigationType NavigationType { get; }
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
@@ -41,27 +42,26 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryRemoved(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        public static IReadOnlyList<INavigationCallback>? TryGetCallbacks(this INavigationCallbackProviderComponent[] components, INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
+        public static IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TTarget>(this INavigationCallbackProviderComponent[] components, [DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             LazyList<INavigationCallback> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetCallbacks(navigationEntry, metadata));
+                result.AddRange(components[i].TryGetNavigationCallbacks(target, metadata));
             return result.List;
         }
 
-        public static INavigationContext? TryGetNavigationContext(this INavigationContextProviderComponent[] components, INavigationProvider navigationProvider, string navigationOperationId,
+        public static INavigationContext? TryGetNavigationContext(this INavigationContextProviderComponent[] components, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
-            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
+            Should.NotBeNull(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(navigationMode, nameof(navigationMode));
             for (var i = 0; i < components.Length; i++)
             {
-                var context = components[i].TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+                var context = components[i].TryGetNavigationContext(navigationProvider, navigationId, navigationType, navigationMode, metadata);
                 if (context != null)
                     return context;
             }
@@ -69,12 +69,12 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, NavigationType? type, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             LazyList<INavigationEntry> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetNavigationEntries(type, metadata));
+                result.AddRange(components[i].TryGetNavigationEntries(metadata));
             return result.List;
         }
 

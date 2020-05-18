@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS0067
+using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers;

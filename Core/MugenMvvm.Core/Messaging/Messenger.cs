@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
@@ -39,12 +40,12 @@ namespace MugenMvvm.Messaging
             GetComponents<IMessagePublisherComponent>().TryPublish(messageContext);
         }
 
-        public bool Subscribe<TSubscriber>(in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public bool Subscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IMessengerSubscriberComponent>().TrySubscribe(subscriber, executionMode, metadata);
         }
 
-        public bool Unsubscribe<TSubscriber>(in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
+        public bool Unsubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IMessengerSubscriberComponent>().TryUnsubscribe(subscriber, metadata);
         }

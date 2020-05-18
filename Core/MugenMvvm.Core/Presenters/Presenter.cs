@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
@@ -22,7 +23,7 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public PresenterResult Show<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public PresenterResult Show<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
             var result = GetComponents<IPresenterComponent>(metadata).TryShow(request, metadata, cancellationToken);
             if (result.IsEmpty)
@@ -30,12 +31,12 @@ namespace MugenMvvm.Presenters
             return result;
         }
 
-        public IReadOnlyList<PresenterResult> TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public IReadOnlyList<PresenterResult> TryClose<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
             return GetComponents<IPresenterComponent>(metadata).TryClose(request, metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
         }
 
-        public IReadOnlyList<PresenterResult> TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public IReadOnlyList<PresenterResult> TryRestore<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
             return GetComponents<IPresenterComponent>(metadata).TryRestore(request, metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -28,7 +29,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>(this IExpressionParserComponent[] components, in TExpression expression,
+        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>(this IExpressionParserComponent[] components, [DisallowNull] in TExpression expression,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

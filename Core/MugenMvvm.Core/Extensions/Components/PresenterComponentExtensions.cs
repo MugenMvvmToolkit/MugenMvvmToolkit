@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters.Components;
@@ -11,7 +12,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanShow<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static bool CanShow<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
@@ -24,8 +25,8 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static bool CanClose<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, in TRequest request,
-            IReadOnlyMetadataContext? metadata)
+        public static bool CanClose<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results,
+            [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
@@ -38,8 +39,8 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static bool CanRestore<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, in TRequest request,
-            IReadOnlyMetadataContext? metadata)
+        public static bool CanRestore<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<PresenterResult> results,
+            [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
@@ -52,7 +53,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static PresenterResult TryShow<TRequest>(this IPresenterComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public static PresenterResult TryShow<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -65,7 +66,7 @@ namespace MugenMvvm.Extensions.Components
             return default;
         }
 
-        public static IReadOnlyList<PresenterResult>? TryClose<TRequest>(this IPresenterComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public static IReadOnlyList<PresenterResult>? TryClose<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
             LazyList<PresenterResult> result = default;
@@ -74,7 +75,7 @@ namespace MugenMvvm.Extensions.Components
             return result.List;
         }
 
-        public static IReadOnlyList<PresenterResult>? TryRestore<TRequest>(this IPresenterComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public static IReadOnlyList<PresenterResult>? TryRestore<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
             LazyList<PresenterResult> result = default;

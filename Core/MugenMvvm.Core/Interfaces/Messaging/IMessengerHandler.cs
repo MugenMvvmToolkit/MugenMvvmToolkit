@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Attributes;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Attributes;
 
 namespace MugenMvvm.Interfaces.Messaging
 {
@@ -9,6 +10,6 @@ namespace MugenMvvm.Interfaces.Messaging
     public interface IMessengerHandler<in TMessage> : IMessengerHandler
     {
         [Preserve(Conditional = true)]
-        void Handle(TMessage message, IMessageContext messageContext);
+        void Handle([DisallowNull]TMessage message, IMessageContext messageContext);
     }
 }

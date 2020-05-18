@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -53,7 +54,7 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache.Clear();
         }
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TRequest) == typeof(MemberManagerRequest))
             {

@@ -2,8 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationEntry : IMetadataOwner<IMetadataContext>, IHasNavigationInfo
+    public interface INavigationEntry : IMetadataOwner<IMetadataContext>, IHasNavigationInfo, IHasNavigationProvider
     {
-        INavigationProvider NavigationProvider { get; }
     }
 }

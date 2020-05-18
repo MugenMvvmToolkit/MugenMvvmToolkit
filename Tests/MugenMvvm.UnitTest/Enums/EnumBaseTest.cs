@@ -1,4 +1,5 @@
-﻿using System;
+﻿#pragma warning disable CS1718
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Enums;

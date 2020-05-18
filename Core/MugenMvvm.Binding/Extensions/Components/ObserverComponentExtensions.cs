@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Binding.Observers;
@@ -10,7 +11,7 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static MemberObserver TryGetMemberObserver<TMember>(this IMemberObserverProviderComponent[] components, Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        public static MemberObserver TryGetMemberObserver<TMember>(this IMemberObserverProviderComponent[] components, Type type, [DisallowNull] in TMember member, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static IMemberPath? TryGetMemberPath<TPath>(this IMemberPathProviderComponent[] components, in TPath path, IReadOnlyMetadataContext? metadata)
+        public static IMemberPath? TryGetMemberPath<TPath>(this IMemberPathProviderComponent[] components, [DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -37,7 +38,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static IMemberPathObserver? TryGetMemberPathObserver<TRequest>(this IMemberPathObserverProviderComponent[] components, object target, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IMemberPathObserver? TryGetMemberPathObserver<TRequest>(this IMemberPathObserverProviderComponent[] components, object target, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(target, nameof(target));

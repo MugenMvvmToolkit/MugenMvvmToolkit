@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -37,7 +38,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (_expressionBuilderComponents == null)
                 _componentTracker.Attach(this, metadata);

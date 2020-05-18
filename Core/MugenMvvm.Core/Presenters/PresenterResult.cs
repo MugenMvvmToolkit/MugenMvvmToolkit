@@ -12,7 +12,7 @@ namespace MugenMvvm.Presenters
         #region Fields
 
         public readonly IReadOnlyMetadataContext Metadata;
-        public readonly string NavigationOperationId;
+        public readonly string NavigationId;
         public readonly INavigationProvider NavigationProvider;
         public readonly NavigationType NavigationType;
 
@@ -20,12 +20,12 @@ namespace MugenMvvm.Presenters
 
         #region Constructors
 
-        public PresenterResult(string navigationOperationId, INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext? metadata)
+        public PresenterResult(string navigationId, INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext? metadata)
         {
-            Should.NotBeNullOrEmpty(navigationOperationId, nameof(navigationOperationId));
+            Should.NotBeNullOrEmpty(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationType, nameof(navigationType));
-            NavigationOperationId = navigationOperationId;
+            NavigationId = navigationId;
             NavigationProvider = navigationProvider;
             NavigationType = navigationType;
             Metadata = metadata.DefaultIfNull();
@@ -36,6 +36,17 @@ namespace MugenMvvm.Presenters
         #region Properties
 
         public bool IsEmpty => NavigationProvider == null;
+
+        #endregion
+
+        #region Methods
+
+        public PresenterResult UpdateMetadata(IReadOnlyMetadataContext? metadata)
+        {
+            if (IsEmpty)
+                return default;
+            return new PresenterResult(NavigationId, NavigationProvider, NavigationType, metadata);
+        }
 
         #endregion
     }

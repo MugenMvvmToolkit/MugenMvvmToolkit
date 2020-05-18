@@ -19,10 +19,10 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Implementation of interfaces
 
-        INavigationContext? INavigationContextProviderComponent.TryGetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType, NavigationMode navigationMode,
+        INavigationContext? INavigationContextProviderComponent.TryGetNavigationContext(INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
             IReadOnlyMetadataContext? metadata)
         {
-            return TryGetNavigationContext?.Invoke(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+            return TryGetNavigationContext?.Invoke(navigationProvider, navigationId, navigationType, navigationMode, metadata);
         }
 
         #endregion

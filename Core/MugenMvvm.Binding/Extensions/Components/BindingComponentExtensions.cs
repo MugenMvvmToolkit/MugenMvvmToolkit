@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -306,7 +307,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         }
 
         public static ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(this IBindingExpressionBuilderComponent[] components,
-            in TExpression expression, IReadOnlyMetadataContext? metadata)
+            [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)

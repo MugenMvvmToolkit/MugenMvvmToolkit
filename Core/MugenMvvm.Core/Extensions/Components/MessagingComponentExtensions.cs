@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
@@ -35,7 +36,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].TryPublish(messageContext);
         }
 
-        public static bool TrySubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+        public static bool TrySubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, [DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             var result = false;
@@ -48,7 +49,7 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        public static bool TryUnsubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
+        public static bool TryUnsubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, [DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             var result = false;

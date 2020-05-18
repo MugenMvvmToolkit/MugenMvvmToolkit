@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var context = new NavigationContext(provider, id, type, mode);
             context.NavigationProvider.ShouldEqual(provider);
             context.NavigationType.ShouldEqual(type);
-            context.NavigationOperationId.ShouldEqual(id);
+            context.NavigationId.ShouldEqual(id);
             context.NavigationMode.ShouldEqual(mode);
         }
 

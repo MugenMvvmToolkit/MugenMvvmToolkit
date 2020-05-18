@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
@@ -14,7 +13,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static string GetUniqueNavigationOperationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)
+        public static string GetUniqueNavigationId(this INavigationProvider navigationProvider, IMetadataOwner<IMetadataContext> target)
         {
             return null!; //todo review
         }
@@ -28,21 +27,19 @@ namespace MugenMvvm.Extensions
                 .ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback, cancellationToken), TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider,
-            string navigationOperationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var navigationContext = dispatcher.GetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
-            navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
-            return navigationContext;
-        }
-
-        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase viewModel, INavigationProvider navigationProvider,
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IMetadataOwner<IMetadataContext> target, INavigationProvider navigationProvider,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            var navigationContext = dispatcher.GetNavigationContext(navigationProvider, navigationProvider.GetUniqueNavigationOperationId(viewModel), navigationType, navigationMode, metadata);
-            navigationContext.Metadata.Set(NavigationMetadata.ViewModel, viewModel);
+            Should.NotBeNull(target, nameof(target));
+            return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetUniqueNavigationId(target), navigationType, navigationMode, metadata);
+        }
+
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object target, INavigationProvider navigationProvider,
+            string navigationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(target, nameof(target));
+            var navigationContext = dispatcher.GetNavigationContext(navigationProvider, navigationId, navigationType, navigationMode, metadata);
+            navigationContext.Metadata.Set(NavigationMetadata.Target, target);
             return navigationContext;
         }
 
@@ -50,11 +47,11 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            var entries = dispatcher.GetNavigationEntries(null, metadata);
+            var entries = dispatcher.GetNavigationEntries(metadata);
             LazyList<Task> tasks = default;
             for (var i = 0; i < entries.Count; i++)
             {
-                var callbacks = dispatcher.GetCallbacks(entries[i], metadata);
+                var callbacks = dispatcher.GetNavigationCallbacks(entries[i], metadata);
                 for (var j = 0; j < callbacks.Count; j++)
                 {
                     var callback = callbacks[j];

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -33,7 +34,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);

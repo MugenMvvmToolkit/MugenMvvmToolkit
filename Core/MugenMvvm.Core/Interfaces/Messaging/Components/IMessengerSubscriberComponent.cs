@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,9 +10,9 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 {
     public interface IMessengerSubscriberComponent : IComponent<IMessenger>
     {
-        bool TrySubscribe<TSubscriber>(in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata);
+        bool TrySubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata);
 
-        bool TryUnsubscribe<TSubscriber>(in TSubscriber subscriber, IReadOnlyMetadataContext? metadata);
+        bool TryUnsubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, IReadOnlyMetadataContext? metadata);
 
         void TryUnsubscribeAll(IReadOnlyMetadataContext? metadata);
 

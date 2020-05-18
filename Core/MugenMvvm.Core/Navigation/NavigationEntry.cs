@@ -9,15 +9,15 @@ namespace MugenMvvm.Navigation
     {
         #region Constructors
 
-        public NavigationEntry(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType,
+        public NavigationEntry(INavigationProvider navigationProvider, string navigationId, NavigationType navigationType,
             IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, metadataContextProvider)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
-            Should.NotBeNull(navigationOperationId, nameof(navigationOperationId));
+            Should.NotBeNull(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationType, nameof(navigationType));
             NavigationType = navigationType;
-            NavigationOperationId = navigationOperationId;
+            NavigationId = navigationId;
             NavigationProvider = navigationProvider;
         }
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Navigation
 
         #region Properties
 
-        public string NavigationOperationId { get; }
+        public string NavigationId { get; }
 
         public NavigationType NavigationType { get; }
 

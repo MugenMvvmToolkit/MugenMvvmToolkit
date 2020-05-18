@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
@@ -11,12 +12,12 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>, IComponent<IMugenApplication>
     {
-        INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId,
+        INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type = null, IReadOnlyMetadataContext? metadata = null);
+        IReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null);
+        IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null);
 
         Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default);
 
@@ -24,6 +25,6 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void OnNavigationFailed(INavigationContext navigationContext, Exception exception);
 
-        void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken);
+        void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken = default);
     }
 }

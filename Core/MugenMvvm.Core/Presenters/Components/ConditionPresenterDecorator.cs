@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -22,7 +23,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public PresenterResult TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public PresenterResult TryShow<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             for (var i = 0; i < components.Length; i++)
@@ -39,7 +40,7 @@ namespace MugenMvvm.Presenters.Components
             return default;
         }
 
-        public IReadOnlyList<PresenterResult>? TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<PresenterResult>? TryClose<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             LazyList<PresenterResult> result = default;
@@ -53,7 +54,7 @@ namespace MugenMvvm.Presenters.Components
             return result.List;
         }
 
-        public IReadOnlyList<PresenterResult>? TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<PresenterResult>? TryRestore<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             var components = Components;
             LazyList<PresenterResult> result = default;

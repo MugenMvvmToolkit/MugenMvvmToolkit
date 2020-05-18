@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -37,7 +38,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewModelBase? TryGetViewModel<TRequest>(this IViewModelProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IViewModelBase? TryGetViewModel<TRequest>(this IViewModelProviderComponent[] components,[DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)

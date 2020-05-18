@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿#pragma warning disable CS1718
+using MugenMvvm.Enums;
 using Should;
 using Xunit;
 

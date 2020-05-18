@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Interfaces.App;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -6,6 +7,6 @@ namespace MugenMvvm.Interfaces.Commands
 {
     public interface ICommandProvider : IComponentOwner<ICommandProvider>, IComponent<IMugenApplication>
     {
-        ICompositeCommand GetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        ICompositeCommand GetCommand<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }

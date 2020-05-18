@@ -97,7 +97,7 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized<T>(object obj, T[]? components)
+        public static void ThrowObjectNotInitialized<T>(object obj, T[]? _)
         {
             ThrowObjectNotInitialized(obj, typeof(T).Name);
         }

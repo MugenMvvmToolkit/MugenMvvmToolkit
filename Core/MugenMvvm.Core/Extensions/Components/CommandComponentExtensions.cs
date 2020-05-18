@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
@@ -10,7 +11,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static ICompositeCommand? TryGetCommand<TRequest>(this ICommandProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ICompositeCommand? TryGetCommand<TRequest>(this ICommandProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -23,7 +24,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandProvider provider, in TRequest request, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandProvider provider, [DisallowNull] in TRequest request, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(provider, nameof(provider));

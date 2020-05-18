@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
@@ -37,14 +38,14 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        public MemberObserver GetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata = null)
+        public MemberObserver GetMemberObserver<TMember>(Type type, [DisallowNull]in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _memberObserverComponents!.TryGetMemberObserver(type, member, metadata);
         }
 
-        public IMemberPath GetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPath GetMemberPath<TPath>([DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathComponents == null)
                 _componentTracker.Attach(this, metadata);
@@ -54,7 +55,7 @@ namespace MugenMvvm.Binding.Observers
             return result;
         }
 
-        public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathObserverComponents == null)
                 _componentTracker.Attach(this, metadata);

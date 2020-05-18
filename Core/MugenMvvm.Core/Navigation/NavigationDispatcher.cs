@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
@@ -28,23 +29,23 @@ namespace MugenMvvm.Navigation
 
         #region Implementation of interfaces
 
-        public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationOperationId, NavigationType navigationType, NavigationMode navigationMode,
+        public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
             IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(navigationProvider, navigationOperationId, navigationType, navigationMode, metadata);
+            var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(navigationProvider, navigationId, navigationType, navigationMode, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return result;
         }
 
-        public IReadOnlyList<INavigationEntry> GetNavigationEntries(NavigationType? type = null, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(type, metadata) ?? Default.EmptyArray<INavigationEntry>();
+            return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(metadata) ?? Default.EmptyArray<INavigationEntry>();
         }
 
-        public IReadOnlyList<INavigationCallback> GetCallbacks(INavigationEntry navigationEntry, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetCallbacks(navigationEntry, metadata) ?? Default.EmptyArray<INavigationCallback>();
+            return GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetNavigationCallbacks(target, metadata) ?? Default.EmptyArray<INavigationCallback>();
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
@@ -62,7 +63,7 @@ namespace MugenMvvm.Navigation
             GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationFailed(this, navigationContext, exception);
         }
 
-        public void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
+        public void OnNavigationCanceled(INavigationContext navigationContext, CancellationToken cancellationToken = default)
         {
             GetComponents<INavigationDispatcherErrorListener>(navigationContext.GetMetadataOrDefault()).OnNavigationCanceled(this, navigationContext, cancellationToken);
         }
