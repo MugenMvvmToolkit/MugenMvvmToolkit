@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Collections.Generic;
+using MugenMvvm.Enums;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
@@ -8,6 +10,10 @@ namespace MugenMvvm.Interfaces.Navigation
 
         NavigationCallbackType CallbackType { get; }
 
-        ActionToken RegisterCallback(INavigationCallbackListener callback);
+        void AddCallback(INavigationCallbackListener callback);
+
+        void RemoveCallback(INavigationCallbackListener callback);
+
+        ItemOrList<INavigationCallbackListener, IReadOnlyList<INavigationCallbackListener>> GetCallbacks();
     }
 }

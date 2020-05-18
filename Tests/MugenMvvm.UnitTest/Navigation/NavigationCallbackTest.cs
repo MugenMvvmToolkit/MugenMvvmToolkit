@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTest.Navigation.Internal;
@@ -36,20 +35,18 @@ namespace MugenMvvm.UnitTest.Navigation
         public void GetCallbacksRegisterCallbackShouldReturnCallbacks(int count)
         {
             var list = new List<INavigationCallbackListener>();
-            var actionTokens = new List<ActionToken>();
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
             for (var i = 0; i < count; i++)
             {
                 var listener = new TestNavigationCallbackListener();
                 list.Add(listener);
-                var actionToken = callback.RegisterCallback(listener);
-                actionTokens.Add(actionToken);
+                callback.AddCallback(listener);
                 callback.GetCallbacks().ToArray().SequenceEqual(list).ShouldBeTrue();
             }
 
             for (var i = 0; i < count; i++)
             {
-                actionTokens[i].Dispose();
+                callback.RemoveCallback(list[i]);
                 var array = callback.GetCallbacks().ToArray();
                 array.SequenceEqual(list.Skip(i + 1)).ShouldBeTrue();
             }
@@ -83,7 +80,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     OnError = (exception, context) => throw new NotSupportedException(),
                     OnCanceled = (context, cancellationToken) => throw new NotSupportedException()
                 };
-                callback.RegisterCallback(listener);
+                callback.AddCallback(listener);
             }
 
             if (!isCompletedCallback)
@@ -130,7 +127,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     },
                     OnCanceled = (context, cancellationToken) => throw new NotSupportedException()
                 };
-                callback.RegisterCallback(listener);
+                callback.AddCallback(listener);
             }
 
             if (!isCompletedCallback)
@@ -176,7 +173,7 @@ namespace MugenMvvm.UnitTest.Navigation
                         cancellationToken.ShouldEqual(cancellationToken);
                     }
                 };
-                callback.RegisterCallback(listener);
+                callback.AddCallback(listener);
             }
 
             if (!isCompletedCallback)

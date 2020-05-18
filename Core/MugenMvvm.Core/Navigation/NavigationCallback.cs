@@ -14,9 +14,9 @@ namespace MugenMvvm.Navigation
         #region Fields
 
         private object? _callbacks;
+        private CancellationToken _cancellationToken;
         private Exception? _exception;
         private IReadOnlyMetadataContext? _metadata;
-        private CancellationToken _cancellationToken;
         private int _state;
 
         private const int SuccessState = 1;
@@ -53,7 +53,15 @@ namespace MugenMvvm.Navigation
 
         #region Implementation of interfaces
 
-        public ActionToken RegisterCallback(INavigationCallbackListener callback)
+        public ItemOrList<INavigationCallbackListener, IReadOnlyList<INavigationCallbackListener>> GetCallbacks()
+        {
+            lock (this)
+            {
+                return ItemOrList<INavigationCallbackListener, IReadOnlyList<INavigationCallbackListener>>.FromRawValue(_callbacks);
+            }
+        }
+
+        public void AddCallback(INavigationCallbackListener callback)
         {
             Should.NotBeNull(callback, nameof(callback));
             if (!IsCompleted)
@@ -65,26 +73,27 @@ namespace MugenMvvm.Navigation
                         var list = GetCallbacksRaw();
                         list.Add(callback);
                         _callbacks = list.GetRawValue();
-                        return new ActionToken((c, listener) => ((NavigationCallback) c!).RemoveCallback((INavigationCallbackListener) listener!), this, callback);
+                        return;
                     }
                 }
             }
 
             InvokeCallback(callback);
-            return default;
+        }
+
+        public void RemoveCallback(INavigationCallbackListener callback)
+        {
+            lock (this)
+            {
+                var list = GetCallbacksRaw();
+                list.Remove(callback);
+                _callbacks = list.GetRawValue();
+            }
         }
 
         #endregion
 
         #region Methods
-
-        public ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacks()
-        {
-            lock (this)
-            {
-                return ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>>.FromRawValue(_callbacks);
-            }
-        }
 
         public bool TrySetResult(IReadOnlyMetadataContext metadata)
         {
@@ -166,16 +175,6 @@ namespace MugenMvvm.Navigation
                 case CanceledState:
                     callback.OnCanceled(_metadata, _cancellationToken);
                     break;
-            }
-        }
-
-        private void RemoveCallback(INavigationCallbackListener callback)
-        {
-            lock (this)
-            {
-                var list = GetCallbacksRaw();
-                list.Remove(callback);
-                _callbacks = list.GetRawValue();
             }
         }
 
