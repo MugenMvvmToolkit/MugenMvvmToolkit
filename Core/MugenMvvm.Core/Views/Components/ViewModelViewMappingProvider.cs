@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -48,9 +47,9 @@ namespace MugenMvvm.Views.Components
                 for (var i = 0; i < _mappings.Count; i++)
                 {
                     var mapping = _mappings[i];
-                    var viewModelType = mapping.GetViewModelType(view, metadata);
+                    var viewModelType = mapping.GetViewModelType(view, metadata, out var id);
                     if (viewModelType != null)
-                        mappings.Add(new ViewModelViewMapping(mapping.Id, view.GetType(), viewModelType, mapping.Metadata));
+                        mappings.Add(new ViewModelViewMapping(id, view.GetType(), viewModelType, mapping.Metadata));
                 }
             }
 
@@ -66,9 +65,9 @@ namespace MugenMvvm.Views.Components
                 for (var i = 0; i < _mappings.Count; i++)
                 {
                     var mapping = _mappings[i];
-                    var viewType = mapping.GetViewType(viewModel, metadata);
+                    var viewType = mapping.GetViewType(viewModel, metadata, out var id);
                     if (viewType != null)
-                        mappings.Add(new ViewModelViewMapping(mapping.Id, viewType, viewModel.GetType(), mapping.Metadata));
+                        mappings.Add(new ViewModelViewMapping(id, viewType, viewModel.GetType(), mapping.Metadata));
                 }
             }
 
@@ -79,22 +78,22 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual, string? name, IReadOnlyMetadataContext? metadata = null)
+        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual, string? name, string? id = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, nameof(viewModelType), typeof(IViewModelBase));
             Should.NotBeNull(viewType, nameof(viewType));
-            var mappingInfo = new MappingInfo(Default.NextCounter(), metadata, null, null, viewModelType, viewType, exactlyEqual, name);
+            var mappingInfo = new MappingInfo(id, metadata, null, null, viewModelType, viewType, exactlyEqual, name);
             lock (_mappings)
             {
                 _mappings.Add(mappingInfo);
             }
         }
 
-        public void AddMapping(Func<IViewModelBase, IReadOnlyMetadataContext?, Type?> getViewType, Func<object, IReadOnlyMetadataContext?, Type?> getViewModelType, IReadOnlyMetadataContext? metadata = null)
+        public void AddMapping(Func<IViewModelBase, IReadOnlyMetadataContext?, Type?> getViewType, Func<object, IReadOnlyMetadataContext?, Type?> getViewModelType, string? id = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(getViewType, nameof(getViewType));
             Should.NotBeNull(getViewModelType, nameof(getViewModelType));
-            var mappingInfo = new MappingInfo(Default.NextCounter(), metadata, getViewModelType, getViewType, null, null, false, null);
+            var mappingInfo = new MappingInfo(id, metadata, getViewModelType, getViewType, null, null, false, null);
             lock (_mappings)
             {
                 _mappings.Add(mappingInfo);
@@ -124,32 +123,58 @@ namespace MugenMvvm.Views.Components
             private readonly string? _name;
             private readonly Type? _viewModelType;
             private readonly Type? _viewType;
+            private readonly string? _id;
 
             public readonly IReadOnlyMetadataContext Metadata;
-            public readonly string Id;
 
             #endregion
 
             #region Constructors
 
-            public MappingInfo(int id, IReadOnlyMetadataContext? metadata, Func<object, IReadOnlyMetadataContext?, Type?>? getViewModelType,
+            public MappingInfo(string? id, IReadOnlyMetadataContext? metadata, Func<object, IReadOnlyMetadataContext?, Type?>? getViewModelType,
                 Func<IViewModelBase, IReadOnlyMetadataContext?, Type?>? getViewType, Type? viewModelType, Type? viewType, bool exactlyEqual, string? name)
             {
-                Id = "map-" + id.ToString(CultureInfo.InvariantCulture);
-                Metadata = metadata.DefaultIfNull();
+                _id = id;
                 _getViewModelType = getViewModelType;
                 _getViewType = getViewType;
                 _viewModelType = viewModelType;
                 _viewType = viewType;
                 _exactlyEqual = exactlyEqual;
                 _name = name;
+                Metadata = metadata.DefaultIfNull();
             }
 
             #endregion
 
             #region Methods
 
-            public Type? GetViewModelType(object view, IReadOnlyMetadataContext? metadata)
+            public Type? GetViewModelType(object view, IReadOnlyMetadataContext? metadata, out string id)
+            {
+                var viewModelType = GetViewModelType(view, metadata);
+                if (viewModelType == null)
+                {
+                    id = null!;
+                    return null;
+                }
+
+                id = _id ?? viewModelType.FullName + view.GetType().FullName;
+                return viewModelType;
+            }
+
+            public Type? GetViewType(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata, out string id)
+            {
+                var viewType = GetViewType(viewModel, metadata);
+                if (viewType == null)
+                {
+                    id = null!;
+                    return null;
+                }
+
+                id = _id ?? viewModel.GetType().FullName + viewType.FullName;
+                return viewType;
+            }
+
+            private Type? GetViewModelType(object view, IReadOnlyMetadataContext? metadata)
             {
                 if (_getViewModelType != null)
                     return _getViewModelType(view, metadata);
@@ -168,7 +193,7 @@ namespace MugenMvvm.Views.Components
                 return null;
             }
 
-            public Type? GetViewType(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+            private Type? GetViewType(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
             {
                 if (_getViewType != null)
                     return _getViewType(viewModel, metadata);
