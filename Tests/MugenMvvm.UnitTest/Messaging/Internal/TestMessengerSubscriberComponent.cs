@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         public Action<IReadOnlyMetadataContext?>? TryUnsubscribeAll { get; set; }
 
-        public Func<Type, IReadOnlyMetadataContext?, IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>?>? TryGetMessengerHandlers { get; set; }
+        public Func<Type, IReadOnlyMetadataContext?, IReadOnlyList<MessengerHandler>?>? TryGetMessengerHandlers { get; set; }
 
         public Func<IReadOnlyMetadataContext?, IReadOnlyList<MessengerSubscriberInfo>?>? TryGetSubscribers { get; set; }
 
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
             TryUnsubscribeAll?.Invoke(metadata);
         }
 
-        IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? IMessengerSubscriberComponent.TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
+        IReadOnlyList<MessengerHandler>? IMessengerSubscriberComponent.TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
         {
             return TryGetMessengerHandlers?.Invoke(messageType, metadata);
         }

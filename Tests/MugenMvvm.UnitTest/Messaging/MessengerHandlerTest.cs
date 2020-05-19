@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Messaging;
 using Should;
 using Xunit;
@@ -28,17 +30,23 @@ namespace MugenMvvm.UnitTest.Messaging
         {
             var messageContext = new MessageContext(new object(), new object(), DefaultMetadata);
             var subscriber = new object();
+            var executionMode = ThreadExecutionMode.MainAsync;
             var state = new object();
             int invokeCount = 0;
             var result = MessengerResult.Ignored;
-            var messengerHandler = new MessengerHandler((o, o1, arg3) =>
+            Func<object, object?, IMessageContext, MessengerResult> handler = (o, o1, arg3) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(subscriber);
                 o1.ShouldEqual(state);
                 arg3.ShouldEqual(messageContext);
                 return result;
-            }, subscriber, state);
+            };
+            var messengerHandler = new MessengerHandler(handler, subscriber, executionMode, state);
+            messengerHandler.Handler.ShouldEqual(handler);
+            messengerHandler.ExecutionMode.ShouldEqual(executionMode);
+            messengerHandler.Subscriber.ShouldEqual(subscriber);
+            messengerHandler.State.ShouldEqual(state);
 
             messengerHandler.Handle(messageContext).ShouldEqual(result);
             invokeCount.ShouldEqual(1);

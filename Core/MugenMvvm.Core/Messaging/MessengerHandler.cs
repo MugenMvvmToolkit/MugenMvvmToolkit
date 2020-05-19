@@ -11,6 +11,7 @@ namespace MugenMvvm.Messaging
         #region Fields
 
         public readonly Func<object, object?, IMessageContext, MessengerResult> Handler;
+        public readonly ThreadExecutionMode ExecutionMode;
         public readonly object Subscriber;
         public readonly object? State;
 
@@ -18,10 +19,12 @@ namespace MugenMvvm.Messaging
 
         #region Constructors
 
-        public MessengerHandler(Func<object, object?, IMessageContext, MessengerResult> handler, object subscriber, object? state = null)
+        public MessengerHandler(Func<object, object?, IMessageContext, MessengerResult> handler, object subscriber, ThreadExecutionMode executionMode, object? state = null)
         {
             Should.NotBeNull(handler, nameof(handler));
             Should.NotBeNull(subscriber, nameof(subscriber));
+            Should.NotBeNull(executionMode, nameof(executionMode));
+            ExecutionMode = executionMode;
             Subscriber = subscriber;
             Handler = handler;
             State = state;

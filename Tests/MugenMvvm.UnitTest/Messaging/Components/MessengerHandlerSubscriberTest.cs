@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var invokedCount = 0;
             var messenger = new Messenger();
             var component = new MessengerHandlerSubscriber();
-            var hasCache = new TestHasCache {Invalidate = (o, type, arg3) => { ++invokedCount; }};
+            var hasCache = new TestHasCache { Invalidate = (o, type, arg3) => { ++invokedCount; } };
             messenger.Components.Add(hasCache);
 
             messenger.AddComponent(component);
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var invokedCount = 0;
             var messenger = new Messenger();
             var component = new MessengerHandlerSubscriber();
-            var hasCache = new TestHasCache {Invalidate = (o, type, arg3) => { ++invokedCount; }};
+            var hasCache = new TestHasCache { Invalidate = (o, type, arg3) => { ++invokedCount; } };
             messenger.AddComponent(component);
             messenger.Components.Add(hasCache);
 
@@ -204,16 +204,16 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
             var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
-            handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
-            handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
+            handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
+            handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
             invokedStringCount.ShouldEqual(0);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
             handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
-            handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
-            handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
+            handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
+            handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
             invokedStringCount.ShouldEqual(1);
         }
@@ -249,15 +249,15 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             ctx = new MessageContext(this, intMessage, DefaultMetadata);
             var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
-            handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
-            handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
+            handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
+            handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
             handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata)!;
             handlers.Count.ShouldEqual(1);
-            handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
-            handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
+            handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
+            handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(2);
         }
 
@@ -299,16 +299,16 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var handlers = component.TryGetMessengerHandlers(typeof(int), DefaultMetadata)!;
             canHandleType.ShouldEqual(typeof(int));
             handlers.Count.ShouldEqual(1);
-            handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
-            handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
+            handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
+            handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(1);
 
             ctx = new MessageContext(this, stringMessage, DefaultMetadata);
             handlers = component.TryGetMessengerHandlers(typeof(string), DefaultMetadata)!;
             canHandleType.ShouldEqual(typeof(string));
             handlers.Count.ShouldEqual(1);
-            handlers[0].Item1.ShouldEqual(ThreadExecutionMode.Current);
-            handlers[0].Item2.Handle(ctx).ShouldEqual(MessengerResult.Handled);
+            handlers[0].ExecutionMode.ShouldEqual(ThreadExecutionMode.Current);
+            handlers[0].Handle(ctx).ShouldEqual(MessengerResult.Handled);
             invokedCount.ShouldEqual(2);
         }
 
@@ -343,7 +343,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
 
             var handlers = component.TryGetMessengerHandlers(typeof(string), null)!;
             weakRef.Release();
-            handlers[0].Item2.Handle(new MessageContext(this, "", null)).ShouldEqual(MessengerResult.Invalid);
+            handlers[0].Handle(new MessageContext(this, "", null)).ShouldEqual(MessengerResult.Invalid);
         }
 
         #endregion

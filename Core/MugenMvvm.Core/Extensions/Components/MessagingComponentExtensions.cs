@@ -78,11 +78,11 @@ namespace MugenMvvm.Extensions.Components
             return subscribers.List;
         }
 
-        public static IReadOnlyList<(ThreadExecutionMode, MessengerHandler)>? TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<MessengerHandler>? TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messageType, nameof(messageType));
-            LazyList<(ThreadExecutionMode, MessengerHandler)> handlers = default;
+            LazyList<MessengerHandler> handlers = default;
             for (var i = 0; i < components.Length; i++)
                 handlers.AddRange(components[i].TryGetMessengerHandlers(messageType, metadata));
             return handlers.List;

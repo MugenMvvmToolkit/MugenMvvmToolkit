@@ -116,13 +116,13 @@ namespace MugenMvvm.Messaging.Components
             for (var index = 0; index < handlers.Count; index++)
             {
                 var subscriber = handlers[index];
-                if (!dictionary.TryGetValue(subscriber.Item1, out var value))
+                if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
                 {
                     value = new MessageThreadExecutor(messenger);
-                    dictionary[subscriber.Item1] = value;
+                    dictionary[subscriber.ExecutionMode] = value;
                 }
 
-                value.Add(subscriber.Item2);
+                value.Add(subscriber);
             }
 
             return dictionary;
