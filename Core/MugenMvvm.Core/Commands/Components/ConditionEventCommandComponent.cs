@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 
@@ -108,7 +109,7 @@ namespace MugenMvvm.Commands.Components
             _subscriber = null;
         }
 
-        public ActionToken Suspend()
+        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             Interlocked.Increment(ref _suspendCount);
             return new ActionToken((o, _) => ((ConditionEventCommandComponent)o!).EndSuspendNotifications(), this);

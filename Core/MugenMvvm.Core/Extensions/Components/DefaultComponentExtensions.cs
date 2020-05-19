@@ -1,4 +1,6 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Extensions.Components
@@ -6,6 +8,13 @@ namespace MugenMvvm.Extensions.Components
     public static class DefaultComponentExtensions
     {
         #region Methods
+
+        public static void Invalidate<TState>(this IHasCache[] components, in TState state, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            for (var i = 0; i < components.Length; i++)
+                components[i].Invalidate(state, metadata);
+        }
 
         public static void Dispose(object? components)
         {
@@ -37,17 +46,17 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static ActionToken Suspend(this ISuspendable[] components)
+        public static ActionToken Suspend<TState>(this ISuspendable[] components, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 0)
                 return default;
             if (components.Length == 1)
-                return components[0].Suspend();
+                return components[0].Suspend(state, metadata);
 
             var tokens = new ActionToken[components.Length];
             for (var i = 0; i < components.Length; i++)
-                tokens[i] = components[i].Suspend();
+                tokens[i] = components[i].Suspend(state, metadata);
 
             return new ActionToken((o, _) =>
             {

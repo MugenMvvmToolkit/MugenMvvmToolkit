@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Interfaces.Busy;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Busy.Internal
 {
@@ -20,7 +21,7 @@ namespace MugenMvvm.UnitTest.Busy.Internal
         {
         }
 
-        public ActionToken Suspend()
+        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             return default;
         }

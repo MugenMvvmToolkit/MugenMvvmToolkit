@@ -127,8 +127,8 @@ namespace MugenMvvm.UnitTest.Commands.Components
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(1);
 
-            var actionToken1 = conditionEventCommandComponent.Suspend();
-            var actionToken2 = conditionEventCommandComponent.Suspend();
+            var actionToken1 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
+            var actionToken2 = conditionEventCommandComponent.Suspend(this, DefaultMetadata);
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(1);
 

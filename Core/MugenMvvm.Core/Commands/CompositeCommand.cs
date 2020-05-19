@@ -82,9 +82,9 @@ namespace MugenMvvm.Commands
             this.ClearMetadata(true);
         }
 
-        public ActionToken Suspend()
+        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
-            return GetComponents<ISuspendable>().Suspend();
+            return GetComponents<ISuspendable>().Suspend(state, metadata);
         }
 
         public void RaiseCanExecuteChanged()

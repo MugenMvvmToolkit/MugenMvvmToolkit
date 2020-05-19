@@ -29,9 +29,9 @@ namespace MugenMvvm.Busy
 
         #region Implementation of interfaces
 
-        public ActionToken Suspend()
+        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
-            return GetComponents<ISuspendable>().Suspend();
+            return GetComponents<ISuspendable>().Suspend(state, metadata);
         }
 
         public IBusyToken BeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)

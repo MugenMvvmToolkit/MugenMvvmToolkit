@@ -43,17 +43,23 @@ namespace MugenMvvm.UnitTest.Internal
         public virtual void SuspendedShouldUseComponentValues(int componentCount)
         {
             var componentOwner = GetComponentOwner();
-            componentOwner.Suspend().IsEmpty.ShouldBeTrue();
+            componentOwner.Suspend(this, DefaultMetadata).IsEmpty.ShouldBeTrue();
 
             var methodCallCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
                 var suspendableComponent = GetSuspendableComponent();
-                suspendableComponent.Suspend = () => new ActionToken((o, o1) => methodCallCount++);
+                suspendableComponent.Suspend = (s, t, m) =>
+                {
+                    s.ShouldEqual(this);
+                    t.ShouldEqual(typeof(SuspendableComponentOwnerTestBase<T>));
+                    m.ShouldEqual(DefaultMetadata);
+                    return new ActionToken((o, o1) => methodCallCount++);
+                };
                 componentOwner.Components.Add(suspendableComponent);
             }
 
-            var actionToken = componentOwner.Suspend();
+            var actionToken = componentOwner.Suspend(this, DefaultMetadata);
             methodCallCount.ShouldEqual(0);
 
             actionToken.Dispose();

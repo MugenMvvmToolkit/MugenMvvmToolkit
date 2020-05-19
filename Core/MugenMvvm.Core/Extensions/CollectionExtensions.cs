@@ -60,7 +60,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class
+            where TItem : class?
             where TList : class, IReadOnlyCollection<TItem>
         {
             if (itemOrList.List != null)
@@ -69,7 +69,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static int Count<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
-            where TItem : class
+            where TItem : class?
         {
             if (itemOrList.List != null)
                 return itemOrList.List.Count;
@@ -77,13 +77,13 @@ namespace MugenMvvm.Extensions
         }
 
         public static int Count<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
-            where TItem : class
+            where TItem : class?
         {
             if (itemOrList.List != null)
                 return itemOrList.List.Length;
             return itemOrList.Item == null ? 0 : 1;
         }
-        
+
         public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item)
             where TItem : class
         {
@@ -161,7 +161,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class
+            where TItem : class?
             where TList : class, IReadOnlyList<TItem>
         {
             if (itemOrList.List != null)
@@ -237,7 +237,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class
+            where TItem : class?
             where TList : class, IList<TItem>
         {
             if (itemOrList.List != null)
@@ -256,7 +256,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class
+            where TItem : class?
             where TList : class, IEnumerable<TItem>
         {
             var list = itemOrList.List;
@@ -271,14 +271,14 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class?, IEnumerable<TItem>
+            where TList : class, IEnumerable<TItem>
         {
             return (object?)itemOrList.Item ?? itemOrList.List;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class
+            where TItem : class?
             where TList : class, IEnumerable<TItem>
         {
             return itemOrList.Item == null && itemOrList.List == null;

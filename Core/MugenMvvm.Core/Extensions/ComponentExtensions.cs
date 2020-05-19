@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -27,9 +28,7 @@ namespace MugenMvvm.Extensions
             if (owner == null)
                 return;
             (owner as IHasCache)?.Invalidate(state, metadata);
-            var components = owner.GetComponents<IHasCache>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].Invalidate(state, metadata);
+            owner.GetComponents<IHasCache>(metadata).Invalidate(state, metadata);
         }
 
         public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
@@ -90,9 +89,9 @@ namespace MugenMvvm.Extensions
 
         public static int GetComponentPriority(object component, object? owner)
         {
-            var manager = MugenService.Optional<IComponentPriorityProvider>();
-            if (manager != null)
-                return manager.GetPriority(component, owner);
+            var provider = MugenService.Optional<IComponentPriorityProvider>();
+            if (provider != null)
+                return provider.GetPriority(component, owner);
             if (component is IHasPriority p)
                 return p.Priority;
             return 0;

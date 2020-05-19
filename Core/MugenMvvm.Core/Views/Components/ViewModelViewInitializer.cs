@@ -35,7 +35,7 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ViewComponentPriority.ViewModelViewProvider;
+        public int Priority { get; set; } = ComponentPriority.PreInitializer;
 
         #endregion
 

@@ -5,7 +5,6 @@
         #region Fields
 
         public const int Initializer = 0;
-        public const int ViewModelViewProvider = 100;
         public const int MappingProvider = 0;
 
         #endregion

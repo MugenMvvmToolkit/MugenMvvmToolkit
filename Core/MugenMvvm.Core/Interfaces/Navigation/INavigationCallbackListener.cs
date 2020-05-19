@@ -8,8 +8,8 @@ namespace MugenMvvm.Interfaces.Navigation
     {
         void OnCompleted(IReadOnlyMetadataContext metadata);
 
-        void OnError(Exception exception, IReadOnlyMetadataContext? metadata);
+        void OnError(Exception exception, IReadOnlyMetadataContext metadata);
 
-        void OnCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken);
+        void OnCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken);
     }
 }

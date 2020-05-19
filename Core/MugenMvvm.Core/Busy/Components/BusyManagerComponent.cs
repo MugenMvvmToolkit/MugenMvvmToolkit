@@ -48,7 +48,7 @@ namespace MugenMvvm.Busy.Components
                 OnBusyInfoChanged(metadata: metadata);
         }
 
-        public ActionToken Suspend()
+        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             bool? notify = null;
             lock (Locker)
@@ -233,7 +233,7 @@ namespace MugenMvvm.Busy.Components
                 return default;
             }
 
-            public ActionToken Suspend()
+            public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
             {
                 return SuspendExternal(true);
             }

@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
                 ++count;
             };
             count.ShouldEqual(0);
-            var actionToken = busyManagerComponent.Suspend();
+            var actionToken = busyManagerComponent.Suspend(this, DefaultMetadata);
             count.ShouldEqual(1);
             actionToken.Dispose();
             count.ShouldEqual(2);
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
                 ++count;
             };
             count.ShouldEqual(0);
-            var actionToken = busyToken.Suspend();
+            var actionToken = busyToken.Suspend(this, DefaultMetadata);
             count.ShouldEqual(1);
             actionToken.Dispose();
             count.ShouldEqual(2);
@@ -312,7 +312,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
             token.IsSuspended.ShouldBeFalse();
 
             suspendValue = true;
-            var actionToken = token.Suspend();
+            var actionToken = token.Suspend(this, DefaultMetadata);
             token.IsSuspended.ShouldBeTrue();
             count.ShouldEqual(1);
 
@@ -368,7 +368,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
             parentToken.IsSuspended.ShouldBeFalse();
 
             suspendValue = true;
-            var actionToken = token.Suspend();
+            var actionToken = token.Suspend(this, DefaultMetadata);
             parentToken.IsSuspended.ShouldBeFalse();
             token.IsSuspended.ShouldBeTrue();
             count.ShouldEqual(1);
@@ -426,7 +426,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
             parentToken.IsSuspended.ShouldBeFalse();
 
             suspendValue = true;
-            var actionToken = parentToken.Suspend();
+            var actionToken = parentToken.Suspend(this, DefaultMetadata);
             parentToken.IsSuspended.ShouldBeTrue();
             token.IsSuspended.ShouldBeTrue();
             count.ShouldEqual(1);
@@ -453,9 +453,11 @@ namespace MugenMvvm.UnitTest.Busy.Components
 
             for (int i = 0; i < callbackCount; i++)
             {
-                var callback = new TestBusyTokenCallback();
-                callback.OnCompleted = busyToken => { ++completedCount; };
-                callback.OnSuspendChanged = b => { ++suspendedCount; };
+                var callback = new TestBusyTokenCallback
+                {
+                    OnCompleted = busyToken => { ++completedCount; },
+                    OnSuspendChanged = b => { ++suspendedCount; }
+                };
                 callbacks[i] = token.RegisterCallback(callback);
             }
 
@@ -466,7 +468,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
                     callbacks[i].Dispose();
             }
             suspendedCount.ShouldEqual(0);
-            var actionToken = token.Suspend();
+            var actionToken = token.Suspend(this, DefaultMetadata);
             suspendedCount.ShouldEqual(callbackCount);
             actionToken.Dispose();
             suspendedCount.ShouldEqual(callbackCount * 2);
@@ -488,8 +490,10 @@ namespace MugenMvvm.UnitTest.Busy.Components
 
             for (int i = 0; i < callbackCount; i++)
             {
-                var callback = new TestBusyTokenCallback();
-                callback.OnCompleted = busyToken => { ++completedCount; };
+                var callback = new TestBusyTokenCallback
+                {
+                    OnCompleted = busyToken => { ++completedCount; }
+                };
                 token.RegisterCallback(callback);
             }
 
@@ -503,13 +507,15 @@ namespace MugenMvvm.UnitTest.Busy.Components
         {
             var busyManagerComponent = new BusyManagerComponent();
             var token = busyManagerComponent.TryBeginBusy("Test", null)!;
-            token.Suspend();
+            token.Suspend(this, DefaultMetadata);
             int suspendedCount = 0;
 
             for (int i = 0; i < callbackCount; i++)
             {
-                var callback = new TestBusyTokenCallback();
-                callback.OnSuspendChanged = b => { ++suspendedCount; };
+                var callback = new TestBusyTokenCallback
+                {
+                    OnSuspendChanged = b => { ++suspendedCount; }
+                };
                 token.RegisterCallback(callback);
             }
             suspendedCount.ShouldEqual(callbackCount);
@@ -525,7 +531,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
             token1.IsSuspended.ShouldBeFalse();
             token2.IsSuspended.ShouldBeFalse();
 
-            var actionToken = busyManagerComponent.Suspend();
+            var actionToken = busyManagerComponent.Suspend(this, DefaultMetadata);
             token1.IsSuspended.ShouldBeTrue();
             token2.IsSuspended.ShouldBeTrue();
 
@@ -544,12 +550,12 @@ namespace MugenMvvm.UnitTest.Busy.Components
             token1.IsSuspended.ShouldBeFalse();
             token2.IsSuspended.ShouldBeFalse();
 
-            var tokenSuspend1 = token1.Suspend();
-            var tokenSuspend2 = token2.Suspend();
+            var tokenSuspend1 = token1.Suspend(this, DefaultMetadata);
+            var tokenSuspend2 = token2.Suspend(this, DefaultMetadata);
             token1.IsSuspended.ShouldBeTrue();
             token2.IsSuspended.ShouldBeTrue();
 
-            var actionToken = busyManagerComponent.Suspend();
+            var actionToken = busyManagerComponent.Suspend(this, DefaultMetadata);
             token1.IsSuspended.ShouldBeTrue();
             token2.IsSuspended.ShouldBeTrue();
 
