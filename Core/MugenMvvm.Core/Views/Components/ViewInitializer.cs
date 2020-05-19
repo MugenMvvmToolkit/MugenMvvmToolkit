@@ -73,7 +73,7 @@ namespace MugenMvvm.Views.Components
                 return null;
 
             var removed = false;
-            var views = viewModel.Metadata.Get(ViewsMetadataKey);
+            var views = viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey);
             if (views != null)
             {
                 lock (views)
@@ -90,7 +90,7 @@ namespace MugenMvvm.Views.Components
         public IReadOnlyList<IView>? TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            var views = viewModel.Metadata.Get(ViewsMetadataKey);
+            var views = viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey);
             if (views == null)
                 return null;
             lock (views)

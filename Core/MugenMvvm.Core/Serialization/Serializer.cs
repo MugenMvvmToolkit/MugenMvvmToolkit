@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
@@ -22,12 +23,12 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public bool CanSerialize(Type targetType, IReadOnlyMetadataContext? metadata = null)
+        public bool CanSerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<ISerializerComponent>().CanSerialize(targetType, metadata);
+            return GetComponents<ISerializerComponent>().CanSerialize(target, metadata);
         }
 
-        public Stream Serialize(object target, IReadOnlyMetadataContext? metadata = null)
+        public Stream Serialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<ISerializerComponent>().TrySerialize(target, metadata);
             if (result == null)

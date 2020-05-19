@@ -60,7 +60,7 @@ namespace MugenMvvm.Navigation.Components
                     if (updatedEntry == null)
                     {
                         addedEntry = new NavigationEntry(navigationContext.NavigationProvider, navigationContext.NavigationId,
-                            navigationContext.NavigationType, _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, navigationContext.Metadata));
+                            navigationContext.NavigationType, _metadataContextProvider.DefaultIfNull().GetMetadataContext(this, navigationContext.GetMetadataOrDefault()));
                         list.Add(addedEntry);
                     }
                 }

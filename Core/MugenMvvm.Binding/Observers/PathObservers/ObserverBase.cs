@@ -245,7 +245,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         private static IReadOnlyMetadataContext? TryGetMetadata(object? value)
         {
             if (value is IMetadataOwner<IReadOnlyMetadataContext> metadataOwner && metadataOwner.HasMetadata)
-                return metadataOwner.Metadata;
+                return metadataOwner.GetMetadataOrDefault();
             return null;
         }
 

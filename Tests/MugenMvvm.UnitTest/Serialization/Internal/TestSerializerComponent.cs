@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -10,9 +11,9 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
     {
         #region Properties
 
-        public Func<Type, IReadOnlyMetadataContext?, bool>? CanSerialize { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, bool>? CanSerialize { get; set; }
 
-        public Func<object, IReadOnlyMetadataContext?, Stream?>? TrySerialize { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, Stream?>? TrySerialize { get; set; }
 
         public Func<Stream, IReadOnlyMetadataContext?, object?>? TryDeserialize { get; set; }
 
@@ -22,14 +23,14 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         #region Implementation of interfaces
 
-        bool ISerializerComponent.CanSerialize(Type targetType, IReadOnlyMetadataContext? metadata)
+        bool ISerializerComponent.CanSerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
         {
-            return CanSerialize?.Invoke(targetType, metadata) ?? false;
+            return CanSerialize?.Invoke(target, typeof(TTarget), metadata) ?? false;
         }
 
-        Stream? ISerializerComponent.TrySerialize(object target, IReadOnlyMetadataContext? metadata)
+        Stream? ISerializerComponent.TrySerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
         {
-            return TrySerialize?.Invoke(target, metadata);
+            return TrySerialize?.Invoke(target, typeof(TTarget), metadata);
         }
 
         object? ISerializerComponent.TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata)

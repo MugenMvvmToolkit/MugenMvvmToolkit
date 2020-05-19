@@ -31,9 +31,8 @@ namespace MugenMvvm.Binding.Parsing
             Metadata = metadata ?? Default.Metadata;
         }
 
-        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters,
-            IMetadataOwner<IReadOnlyMetadataContext> context)
-            : this(target, source, parameters, context.HasMetadata ? context.Metadata : Default.Metadata)
+        public ExpressionParserResult(IExpressionNode target, IExpressionNode source, ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>> parameters, IMetadataOwner<IReadOnlyMetadataContext> context)
+            : this(target, source, parameters, context.GetMetadataOrDefault())
         {
         }
 

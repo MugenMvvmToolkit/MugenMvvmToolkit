@@ -56,7 +56,7 @@ namespace MugenMvvm.Extensions
         public static bool IsDisposed(this IViewModelBase viewModel)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            return viewModel.Metadata.Get(ViewModelMetadata.LifecycleState, ViewModelLifecycleState.Created).IsDispose;
+            return viewModel.GetMetadataOrDefault().Get(ViewModelMetadata.LifecycleState, ViewModelLifecycleState.Created).IsDispose;
         }
 
         #endregion
