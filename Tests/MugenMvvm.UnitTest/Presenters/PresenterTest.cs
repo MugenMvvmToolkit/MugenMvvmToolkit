@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Presenters
         public void ShowShouldBeHandledByComponents(int componentCount)
         {
             var presenter = new Presenter();
-            var result = new PresenterResult("-", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+            var result = new PresenterResult(this, "-", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var cancellationToken = new CancellationTokenSource().Token;
             var request = new TestHasServiceModel<object>();
             var invokeCount = 0;
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Presenters
                         arg4.ShouldEqual(cancellationToken);
                         if (isLast)
                             return result;
-                        return default;
+                        return null;
                     },
                     Priority = -i
                 };
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var result = new PresenterResult(i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+                var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
                 results.Add(result);
                 var component = new TestPresenterComponent
                 {
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var result = new PresenterResult(i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+                var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
                 results.Add(result);
                 var component = new TestPresenterComponent
                 {

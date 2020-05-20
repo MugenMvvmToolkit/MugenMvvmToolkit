@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
-using MugenMvvm.Presenters;
 
 namespace MugenMvvm.UnitTest.Presenters.Internal
 {
@@ -12,9 +12,9 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         public Func<IPresenterComponent, object, Type, IReadOnlyMetadataContext?, bool>? CanShow { get; set; }
 
-        public Func<IPresenterComponent, IReadOnlyList<PresenterResult>, object, Type, IReadOnlyMetadataContext?, bool>? CanClose { get; set; }
+        public Func<IPresenterComponent, IReadOnlyList<IPresenterResult>, object, Type, IReadOnlyMetadataContext?, bool>? CanClose { get; set; }
 
-        public Func<IPresenterComponent, IReadOnlyList<PresenterResult>, object, Type, IReadOnlyMetadataContext?, bool>? CanRestore { get; set; }
+        public Func<IPresenterComponent, IReadOnlyList<IPresenterResult>, object, Type, IReadOnlyMetadataContext?, bool>? CanRestore { get; set; }
 
         public int Priority { get; set; }
 
@@ -27,12 +27,12 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
             return CanShow?.Invoke(presenter, request!, typeof(TRequest), metadata) ?? false;
         }
 
-        bool IConditionPresenterComponent.CanClose<TRequest>(IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, in TRequest request, IReadOnlyMetadataContext? metadata)
+        bool IConditionPresenterComponent.CanClose<TRequest>(IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             return CanClose?.Invoke(presenter, results, request!, typeof(TRequest), metadata) ?? false;
         }
 
-        bool IConditionPresenterComponent.CanRestore<TRequest>(IPresenterComponent presenter, IReadOnlyList<PresenterResult> results, in TRequest request, IReadOnlyMetadataContext? metadata)
+        bool IConditionPresenterComponent.CanRestore<TRequest>(IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             return CanRestore?.Invoke(presenter, results, request!, typeof(TRequest), metadata) ?? false;
         }

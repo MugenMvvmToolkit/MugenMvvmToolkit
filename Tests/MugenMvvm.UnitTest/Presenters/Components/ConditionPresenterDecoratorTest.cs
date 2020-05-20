@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             };
             presenter.AddComponent(component);
 
-            var result = new PresenterResult("2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+            var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var invoked = 0;
             var presenterComponent = new TestPresenterComponent
             {
@@ -61,14 +61,14 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             };
             presenter.AddComponent(component);
 
-            var result = new PresenterResult("2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+            var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var invoked = 0;
             var presenterComponent = new TestPresenterComponent
             {
                 TryClose = (o, type, arg3, arg4) =>
                 {
                     ++invoked;
-                    return new[] {result};
+                    return new[] { result };
                 }
             };
             presenter.AddComponent(presenterComponent);
@@ -94,14 +94,14 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             };
             presenter.AddComponent(component);
 
-            var result = new PresenterResult("2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+            var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var invoked = 0;
             var presenterComponent = new TestPresenterComponent
             {
                 TryRestore = (o, type, arg3, arg4) =>
                 {
                     ++invoked;
-                    return new[] {result};
+                    return new[] { result };
                 }
             };
             presenter.AddComponent(presenterComponent);

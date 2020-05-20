@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Presenters;
 
@@ -12,11 +13,11 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, PresenterResult>? TryShow { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IPresenterResult?>? TryShow { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<PresenterResult>>? TryClose { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<IPresenterResult>>? TryClose { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<PresenterResult>>? TryRestore { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<IPresenterResult>>? TryRestore { get; set; }
 
         public int Priority { get; set; }
 
@@ -24,17 +25,17 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Implementation of interfaces
 
-        PresenterResult IPresenterComponent.TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        IPresenterResult? IPresenterComponent.TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             return TryShow?.Invoke(request!, typeof(TRequest), metadata, cancellationToken) ?? default;
         }
 
-        IReadOnlyList<PresenterResult>? IPresenterComponent.TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             return TryClose?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }
 
-        IReadOnlyList<PresenterResult>? IPresenterComponent.TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
         {
             return TryRestore?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }

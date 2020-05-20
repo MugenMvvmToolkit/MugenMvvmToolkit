@@ -1,58 +1,35 @@
 ﻿using MugenMvvm.Enums;
-using MugenMvvm.Metadata;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Presenters;
+using MugenMvvm.UnitTest.Metadata;
 using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTest.Presenters
 {
-    public class PresenterResultTest : UnitTestBase
+    public class PresenterResultTest : MetadataOwnerTestBase
     {
         #region Methods
 
         [Fact]
-        public void IsEmptyShouldBeTrueForDefault()
-        {
-            PresenterResult result = default;
-            result.IsEmpty.ShouldBeTrue();
-            result.UpdateMetadata(DefaultMetadata).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
         public void ConstructorShouldInitializeValues()
         {
+            var target = new object();
             var id = "test";
             var provider = new TestNavigationProvider();
             var navigationType = NavigationType.Alert;
-            var presenterResult = new PresenterResult(id, provider, navigationType, DefaultMetadata);
-            presenterResult.IsEmpty.ShouldBeFalse();
+            var presenterResult = new PresenterResult(target, id, provider, navigationType, DefaultMetadata);
+            presenterResult.Target.ShouldEqual(target);
             presenterResult.NavigationType.ShouldEqual(navigationType);
             presenterResult.NavigationId.ShouldEqual(id);
             presenterResult.NavigationProvider.ShouldEqual(provider);
             presenterResult.Metadata.ShouldEqual(DefaultMetadata);
         }
 
-        [Fact]
-        public void UpdateMetadataShouldChangeMetadata()
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            var id = "test";
-            var provider = new TestNavigationProvider();
-            var navigationType = NavigationType.Alert;
-            var presenterResult = new PresenterResult(id, provider, navigationType, DefaultMetadata);
-            presenterResult.IsEmpty.ShouldBeFalse();
-            presenterResult.NavigationType.ShouldEqual(navigationType);
-            presenterResult.NavigationId.ShouldEqual(id);
-            presenterResult.NavigationProvider.ShouldEqual(provider);
-            presenterResult.Metadata.ShouldEqual(DefaultMetadata);
-
-            var updatedMetadata = new MetadataContext();
-            presenterResult = presenterResult.UpdateMetadata(updatedMetadata);
-            presenterResult.IsEmpty.ShouldBeFalse();
-            presenterResult.NavigationType.ShouldEqual(navigationType);
-            presenterResult.NavigationId.ShouldEqual(id);
-            presenterResult.NavigationProvider.ShouldEqual(provider);
-            presenterResult.Metadata.ShouldEqual(updatedMetadata);
+            return new PresenterResult(this, "1", new TestNavigationProvider(), NavigationType.Alert, metadata, metadataContextProvider);
         }
 
         #endregion
