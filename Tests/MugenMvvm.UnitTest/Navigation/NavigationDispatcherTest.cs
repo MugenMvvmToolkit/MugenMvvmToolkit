@@ -116,10 +116,10 @@ namespace MugenMvvm.UnitTest.Navigation
             for (var i = 0; i < count; i++)
             {
                 var info = callbacks.ElementAt(i);
-                var component = new TestNavigationCallbackProviderComponent
+                var component = new TestNavigationCallbackManagerComponent
                 {
                     Priority = -i,
-                    TryGetCallbacks = (entry, t, ctx) =>
+                    TryGetNavigationCallbacks = (entry, t, ctx) =>
                     {
                         entry.ShouldEqual(navEntry);
                         t.ShouldEqual(navEntry.GetType());
