@@ -9,9 +9,10 @@ namespace MugenMvvm.Serialization
     {
         #region Constructors
 
-        public SerializationContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+        public SerializationContext(object target, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, metadataContextProvider)
         {
+            Target = target;
         }
 
         #endregion
@@ -20,6 +21,8 @@ namespace MugenMvvm.Serialization
 
         [field: ThreadStatic]
         public static ISerializationContext? Current { get; private set; }
+
+        public object Target { get; }
 
         #endregion
 

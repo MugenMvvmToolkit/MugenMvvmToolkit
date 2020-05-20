@@ -15,7 +15,8 @@ namespace MugenMvvm.UnitTest.Serialization
         [Fact]
         public void BeginShouldThrowDoubleInitialization()
         {
-            var ctx = new SerializationContext();
+            var ctx = new SerializationContext(this);
+            ctx.Target.ShouldEqual(this);
             using var t = SerializationContext.Begin(ctx);
             ShouldThrow<InvalidOperationException>(() => SerializationContext.Begin(ctx));
         }
@@ -23,7 +24,8 @@ namespace MugenMvvm.UnitTest.Serialization
         [Fact]
         public void BeginShouldInitializeContextForThread()
         {
-            var ctx = new SerializationContext();
+            var ctx = new SerializationContext(this);
+            ctx.Target.ShouldEqual(this);
             SerializationContext.Current.ShouldBeNull();
             var actionToken = SerializationContext.Begin(ctx);
             SerializationContext.Current.ShouldEqual(ctx);
@@ -36,7 +38,7 @@ namespace MugenMvvm.UnitTest.Serialization
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new SerializationContext(metadata, metadataContextProvider);
+            return new SerializationContext(this, metadata, metadataContextProvider);
         }
 
         #endregion
