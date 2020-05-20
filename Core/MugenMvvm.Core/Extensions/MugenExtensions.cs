@@ -6,7 +6,6 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
-using MugenMvvm.Attributes;
 using MugenMvvm.Commands;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;

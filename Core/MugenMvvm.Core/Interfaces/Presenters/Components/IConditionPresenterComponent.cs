@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Presenters;
 
 namespace MugenMvvm.Interfaces.Presenters.Components
 {

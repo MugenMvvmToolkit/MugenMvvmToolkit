@@ -17,9 +17,9 @@ namespace MugenMvvm.Navigation.Components
     {
         #region Fields
 
-        internal static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> ShowingCallbacks = GetKey(nameof(ShowingCallbacks));
-        internal static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> ClosingCallbacks = GetKey(nameof(ClosingCallbacks));
-        internal static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> CloseCallbacks = GetKey(nameof(CloseCallbacks));
+        private static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> ShowingCallbacks = GetKey(nameof(ShowingCallbacks));
+        private static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> ClosingCallbacks = GetKey(nameof(ClosingCallbacks));
+        private static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> CloseCallbacks = GetKey(nameof(CloseCallbacks));
 
         #endregion
 

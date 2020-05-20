@@ -7,7 +7,6 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
-using MugenMvvm.Presenters;
 
 namespace MugenMvvm.Metadata
 {

@@ -1,5 +1,4 @@
 ﻿using System.Linq.Expressions;
-using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;

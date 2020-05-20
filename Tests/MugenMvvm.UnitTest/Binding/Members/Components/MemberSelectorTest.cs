@@ -7,7 +7,6 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using Should;
 using Xunit;

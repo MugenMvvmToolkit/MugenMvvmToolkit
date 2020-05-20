@@ -6,7 +6,6 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
@@ -61,19 +60,6 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 var callback = component.TryAddNavigationCallback(NavigationCallbackType.Showing, result, DefaultMetadata)!;
                 callback.ShouldNotBeNull();
                 addedCallbacks.Add(callback);
-
-                ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>>
-                    .FromRawValue(result.Metadata.Get(NavigationCallbackManager.ShowingCallbacks))
-                    .ToArray()
-                    .SequenceEqual(addedCallbacks)
-                    .ShouldBeTrue();
-
-                ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>>
-                    .FromRawValue(target.Metadata.Get(NavigationCallbackManager.ShowingCallbacks))
-                    .ToArray()
-                    .SequenceEqual(addedCallbacks)
-                    .ShouldBeTrue();
-
                 component.TryGetNavigationCallbacks(result, DefaultMetadata)!.SequenceEqual(addedCallbacks).ShouldBeTrue();
                 component.TryGetNavigationCallbacks(target, DefaultMetadata)!.SequenceEqual(addedCallbacks).ShouldBeTrue();
             }
@@ -120,7 +106,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             component.TryInvokeNavigationCallbacks(type, navigationContext, DefaultMetadata).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            target.Metadata.Get(NavigationCallbackManager.ClosingCallbacks)!.Count.ShouldEqual(0);
+            component.TryGetNavigationCallbacks(target, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -166,7 +152,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             component.TryInvokeNavigationCallbacks(type, navigationContext, exception, DefaultMetadata).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            target.Metadata.Get(NavigationCallbackManager.ClosingCallbacks)!.Count.ShouldEqual(0);
+            component.TryGetNavigationCallbacks(target, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -212,7 +198,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             component.TryInvokeNavigationCallbacks(type, navigationContext, cancellationToken, DefaultMetadata).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            target.Metadata.Get(NavigationCallbackManager.ClosingCallbacks)!.Count.ShouldEqual(0);
+            component.TryGetNavigationCallbacks(target, DefaultMetadata).ShouldBeNull();
         }
 
         #endregion
