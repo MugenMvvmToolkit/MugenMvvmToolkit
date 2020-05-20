@@ -5,10 +5,10 @@
         #region Fields
 
         public const int ContextProvider = 0;
-        public const int EntryFinder = 0;
         public const int EntryProvider = 0;
         public const int EntryUpdater = 0;
-        public const int CallbackProvider = 0;
+        public const int CallbackManager = 0;
+        public const int CallbackInvoker = 0;
 
         #endregion
     }

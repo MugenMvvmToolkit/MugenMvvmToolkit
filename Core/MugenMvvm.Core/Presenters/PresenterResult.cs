@@ -1,52 +1,39 @@
-﻿using System.Runtime.InteropServices;
-using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct PresenterResult
+    public sealed class PresenterResult : MetadataOwnerBase, IPresenterResult
     {
-        #region Fields
-
-        public readonly IReadOnlyMetadataContext Metadata;
-        public readonly string NavigationId;
-        public readonly INavigationProvider NavigationProvider;
-        public readonly NavigationType NavigationType;
-
-        #endregion
-
         #region Constructors
 
-        public PresenterResult(string navigationId, INavigationProvider navigationProvider, NavigationType navigationType, IReadOnlyMetadataContext? metadata)
+        public PresenterResult(object? target, string navigationId, INavigationProvider navigationProvider, NavigationType navigationType,
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+            : base(metadata, metadataContextProvider)
         {
             Should.NotBeNullOrEmpty(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationType, nameof(navigationType));
+            Target = target;
             NavigationId = navigationId;
             NavigationProvider = navigationProvider;
             NavigationType = navigationType;
-            Metadata = metadata.DefaultIfNull();
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsEmpty => NavigationProvider == null;
+        public string NavigationId { get; }
 
-        #endregion
+        public INavigationProvider NavigationProvider { get; }
 
-        #region Methods
+        public NavigationType NavigationType { get; }
 
-        public PresenterResult UpdateMetadata(IReadOnlyMetadataContext? metadata)
-        {
-            if (IsEmpty)
-                return default;
-            return new PresenterResult(NavigationId, NavigationProvider, NavigationType, metadata);
-        }
+        public object? Target { get; }
 
         #endregion
     }

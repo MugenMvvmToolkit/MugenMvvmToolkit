@@ -5,6 +5,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Presenters;
 
@@ -18,7 +19,7 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
         private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _parentViewModel;
         private static IMetadataContextKey<bool, bool>? _noState;
-        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>>? _closeHandler;
+        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>>? _closeHandler;
 
         #endregion
 
@@ -61,7 +62,7 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, PresenterResult>> CloseHandler
+        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>> CloseHandler
         {
             get => _closeHandler ??= GetBuilder(_closeHandler, nameof(CloseHandler))
                 .NotNull()

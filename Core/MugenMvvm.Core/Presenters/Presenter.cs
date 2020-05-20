@@ -23,22 +23,22 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public PresenterResult Show<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public IPresenterResult Show<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
             var result = GetComponents<IPresenterComponent>(metadata).TryShow(request, metadata, cancellationToken);
-            if (result.IsEmpty)
+            if (result == null)
                 ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
             return result;
         }
 
-        public IReadOnlyList<PresenterResult> TryClose<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public IReadOnlyList<IPresenterResult> TryClose<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryClose(request, metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryClose(request, metadata, cancellationToken) ?? Default.EmptyArray<IPresenterResult>();
         }
 
-        public IReadOnlyList<PresenterResult> TryRestore<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public IReadOnlyList<IPresenterResult> TryRestore<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryRestore(request, metadata, cancellationToken) ?? Default.EmptyArray<PresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryRestore(request, metadata, cancellationToken) ?? Default.EmptyArray<IPresenterResult>();
         }
 
         #endregion
