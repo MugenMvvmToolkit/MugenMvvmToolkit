@@ -24,7 +24,8 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        public static void OnNavigationEntryUpdated(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
+        public static void OnNavigationEntryUpdated(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+            INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -33,7 +34,8 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
+        public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
+            INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -42,13 +44,75 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryRemoved(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        public static IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TTarget>(this INavigationCallbackProviderComponent[] components, [DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
+        public static INavigationCallback? TryAddNavigationCallback<TRequest>(this INavigationCallbackManagerComponent[] components,
+            NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(callbackType, nameof(callbackType));
+            for (var i = 0; i < components.Length; i++)
+            {
+                var callback = components[i].TryAddNavigationCallback(callbackType, request, metadata);
+                if (callback != null)
+                    return callback;
+            }
+
+            return null;
+        }
+
+        public static IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TTarget>(this INavigationCallbackManagerComponent[] components, [DisallowNull] in TTarget target,
+            IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
             LazyList<INavigationCallback> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationCallbacks(target, metadata));
             return result.List;
+        }
+
+        public static bool TryInvokeNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components,
+            NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(callbackType, nameof(callbackType));
+            var result = false;
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryInvokeNavigationCallbacks(callbackType, request, metadata))
+                    result = true;
+            }
+
+            return result;
+        }
+
+        public static bool TryInvokeNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components,
+            NavigationCallbackType callbackType, [DisallowNull] in TRequest request, Exception exception, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(callbackType, nameof(callbackType));
+            Should.NotBeNull(exception, nameof(exception));
+            var result = false;
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryInvokeNavigationCallbacks(callbackType, request, exception, metadata))
+                    result = true;
+            }
+
+            return result;
+        }
+
+        public static bool TryInvokeNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components,
+            NavigationCallbackType callbackType, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(callbackType, nameof(callbackType));
+            var result = false;
+            for (var i = 0; i < components.Length; i++)
+            {
+                if (components[i].TryInvokeNavigationCallbacks(callbackType, request, cancellationToken, metadata))
+                    result = true;
+            }
+
+            return result;
         }
 
         public static INavigationContext? TryGetNavigationContext(this INavigationContextProviderComponent[] components, INavigationProvider navigationProvider, string navigationId,
@@ -200,7 +264,7 @@ namespace MugenMvvm.Extensions.Components
 
             private static void OnExecuted(Task<bool> task, object state)
             {
-                ((NavigatingResult)state).OnExecuted(task);
+                ((NavigatingResult) state).OnExecuted(task);
             }
 
             #endregion

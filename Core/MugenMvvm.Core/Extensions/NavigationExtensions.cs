@@ -6,6 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
+using MugenMvvm.Navigation;
 
 namespace MugenMvvm.Extensions
 {
@@ -69,7 +70,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(callback, nameof(callback));
             var result = new NavigationCallbackTaskListener();
-            callback.RegisterCallback(result);
+            callback.AddCallback(result);
             return result.Task;
         }
 
@@ -109,32 +110,6 @@ namespace MugenMvvm.Extensions
                 fallback?.Invoke(dispatcher, navigationContext, e);
                 dispatcher.OnNavigationFailed(navigationContext, e);
             }
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class NavigationCallbackTaskListener : TaskCompletionSource<IReadOnlyMetadataContext>, INavigationCallbackListener
-        {
-            #region Implementation of interfaces
-
-            public void OnCompleted(IReadOnlyMetadataContext metadata)
-            {
-                TrySetResult(metadata);
-            }
-
-            public void OnError(Exception exception, IReadOnlyMetadataContext? metadata)
-            {
-                TrySetException(exception);
-            }
-
-            public void OnCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
-            {
-                TrySetCanceled(cancellationToken);
-            }
-
-            #endregion
         }
 
         #endregion

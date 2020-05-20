@@ -97,40 +97,39 @@ namespace MugenMvvm.Navigation
 
         public bool TrySetResult(IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             return SetResult(SuccessState, null, metadata, default, false);
         }
 
         public void SetResult(IReadOnlyMetadataContext metadata)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
             SetResult(SuccessState, null, metadata, default, true);
         }
 
-        public bool TrySetException(Exception exception, IReadOnlyMetadataContext? metadata)
+        public bool TrySetException(Exception exception, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(exception, nameof(exception));
             return SetResult(ErrorState, exception, metadata, default, false);
         }
 
-        public void SetException(Exception exception, IReadOnlyMetadataContext? metadata)
+        public void SetException(Exception exception, IReadOnlyMetadataContext metadata)
         {
             Should.NotBeNull(exception, nameof(exception));
             SetResult(ErrorState, exception, metadata, default, true);
         }
 
-        public bool TrySetCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public bool TrySetCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             return SetResult(CanceledState, null, metadata, cancellationToken, false);
         }
 
-        public void SetCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public void SetCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
         {
             SetResult(CanceledState, null, metadata, cancellationToken, true);
         }
 
-        private bool SetResult(int state, Exception? exception, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken, bool throwOnError)
+        private bool SetResult(int state, Exception? exception, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken, bool throwOnError)
         {
+            Should.NotBeNull(metadata, nameof(metadata));
             var completed = false;
             ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> callbacks = default;
             if (!IsCompleted)
@@ -170,10 +169,10 @@ namespace MugenMvvm.Navigation
                     callback.OnCompleted(_metadata!);
                     break;
                 case ErrorState:
-                    callback.OnError(_exception!, _metadata);
+                    callback.OnError(_exception!, _metadata!);
                     break;
                 case CanceledState:
-                    callback.OnCanceled(_metadata, _cancellationToken);
+                    callback.OnCanceled(_metadata!, _cancellationToken);
                     break;
             }
         }

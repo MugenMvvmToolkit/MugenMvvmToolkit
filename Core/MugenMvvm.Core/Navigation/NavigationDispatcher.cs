@@ -45,7 +45,7 @@ namespace MugenMvvm.Navigation
 
         public IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationCallbackProviderComponent>(metadata).TryGetNavigationCallbacks(target, metadata) ?? Default.EmptyArray<INavigationCallback>();
+            return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(target, metadata) ?? Default.EmptyArray<INavigationCallback>();
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
