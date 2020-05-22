@@ -4,9 +4,11 @@ using System.Threading.Tasks;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
+using MugenMvvm.Presenters;
 
 namespace MugenMvvm.Extensions
 {
@@ -14,9 +16,16 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static string GetUniqueNavigationId(this INavigationProvider navigationProvider, IMetadataOwner<IMetadataContext> target)
+        public static PresenterResult GetPresenterResult(this INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase target, IReadOnlyMetadataContext? metadata)
         {
-            return null!; //todo review
+            return new PresenterResult(target, navigationProvider.GetNavigationId(target), navigationProvider, navigationType, metadata);
+        }
+
+        public static string GetNavigationId(this INavigationProvider navigationProvider, IViewModelBase target)
+        {
+            Should.NotBeNull(navigationProvider, nameof(navigationProvider));
+            Should.NotBeNull(target, nameof(target));
+            return $"{navigationProvider.Id}/{target.Metadata.Get(ViewModelMetadata.Id):N}";
         }
 
         public static void OnNavigating(this INavigationDispatcher dispatcher, INavigationContext context, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
@@ -24,15 +33,15 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(context, nameof(context));
-            dispatcher.OnNavigatingAsync(context, cancellationToken)
-                .ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback, cancellationToken), TaskContinuationOptions.ExecuteSynchronously);
+            dispatcher.OnNavigatingAsync(context, cancellationToken).ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback, cancellationToken),
+                TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IMetadataOwner<IMetadataContext> target, INavigationProvider navigationProvider,
+        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase target, INavigationProvider navigationProvider,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(target, nameof(target));
-            return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetUniqueNavigationId(target), navigationType, navigationMode, metadata);
+            return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetNavigationId(target), navigationType, navigationMode, metadata);
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object target, INavigationProvider navigationProvider,

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -11,6 +12,12 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IServiceProvider DefaultIfNull(this IServiceProvider? serviceProvider)
+        {
+            return serviceProvider ?? MugenService.Instance<IServiceProvider>();
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static T DefaultIfNull<T>(this T? component) where T : class, IComponent

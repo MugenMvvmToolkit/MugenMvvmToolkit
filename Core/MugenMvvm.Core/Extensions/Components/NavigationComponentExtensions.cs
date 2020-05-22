@@ -244,7 +244,7 @@ namespace MugenMvvm.Extensions.Components
                     }
 
                     var resultTask = _components[_index++].OnNavigatingAsync(_dispatcher, _navigationContext, _cancellationToken) ?? Default.TrueTask;
-                    resultTask.ContinueWith(OnExecuted, this, TaskContinuationOptions.ExecuteSynchronously);
+                    resultTask.ContinueWith((t, state) => ((NavigatingResult)state).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
                 }
                 catch (Exception e)
                 {
@@ -260,11 +260,6 @@ namespace MugenMvvm.Extensions.Components
                     TrySetCanceled();
                 else
                     TrySetResult(result);
-            }
-
-            private static void OnExecuted(Task<bool> task, object state)
-            {
-                ((NavigatingResult) state).OnExecuted(task);
             }
 
             #endregion

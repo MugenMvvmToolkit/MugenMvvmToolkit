@@ -21,7 +21,7 @@ namespace MugenMvvm.Metadata
         [AllowNull]
         public static IMetadataContextKey<object, object> Target
         {
-            get => _target ??= GetBuilder(_target, nameof(Target)).NotNull().Serializable().Build();
+            get => _target ??= GetBuilder(_target, nameof(Target)).NotNull().Build();
             set => _target = value;
         }
 
@@ -38,7 +38,6 @@ namespace MugenMvvm.Metadata
             get => _isModal ??= GetBuilder(_isModal, nameof(IsModal)).Serializable().Build();
             set => _isModal = value;
         }
-
 
         [AllowNull]
         public static IMetadataContextKey<DateTime, DateTime> NavigationDate

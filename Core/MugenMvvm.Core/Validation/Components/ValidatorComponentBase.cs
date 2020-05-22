@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Validation.Components;
 
 namespace MugenMvvm.Validation.Components
 {
-    public abstract class ValidatorComponentBase<TTarget> : AttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget, IHasPriority, IDisposable
+    public abstract class ValidatorComponentBase<TTarget> : AttachableComponentBase<IValidator>, IValidatorComponent, IHasTarget<TTarget>, IHasPriority, IDisposable
         where TTarget : class
     {
         #region Fields
@@ -53,8 +53,6 @@ namespace MugenMvvm.Validation.Components
         protected bool HasAsyncValidation { get; set; }
 
         protected bool IsValidating => _validatingTasks != null && _validatingTasks.Count != 0;
-
-        object? IHasTarget.Target => Target;
 
         public int Priority { get; set; }
 

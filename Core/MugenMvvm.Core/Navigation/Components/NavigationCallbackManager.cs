@@ -49,7 +49,7 @@ namespace MugenMvvm.Navigation.Components
         public IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TTarget>(in TTarget target, IReadOnlyMetadataContext? metadata)
         {
             if (!Default.IsValueType<TTarget>() && target is IMetadataOwner<IReadOnlyMetadataContext> owner)
-                return GetCallbacks(owner.GetMetadataOrDefault(), target as IHasTarget);
+                return GetCallbacks(owner.GetMetadataOrDefault(), target as IHasTarget<object?>);
             return null;
         }
 
@@ -85,7 +85,8 @@ namespace MugenMvvm.Navigation.Components
                 return false;
 
             var metadata = (context as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault();
-            var target = metadata?.Get(NavigationMetadata.Target) as IMetadataOwner<IMetadataContext>;
+            var target = (context as IHasTarget<object?>)?.Target as IMetadataOwner<IMetadataContext>
+                         ?? metadata?.Get(NavigationMetadata.Target) as IMetadataOwner<IMetadataContext>;
             var callbacks = target?.GetMetadataOrDefault().Get(key);
             if (callbacks == null)
                 return false;
@@ -142,7 +143,7 @@ namespace MugenMvvm.Navigation.Components
                 return null;
 
             contextMetadata = (request as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata as IMetadataContext;
-            if (request is IHasTarget hasTarget && hasTarget.Target is IMetadataOwner<IMetadataContext> targetOwner)
+            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IMetadataOwner<IMetadataContext> targetOwner)
             {
                 targetMetadata = targetOwner.Metadata;
                 return new NavigationCallback(callbackType, hasNavigationInfo.NavigationId, hasNavigationInfo.NavigationType);
@@ -164,7 +165,7 @@ namespace MugenMvvm.Navigation.Components
                 .Build();
         }
 
-        private static IReadOnlyList<NavigationCallback>? GetCallbacks(IReadOnlyMetadataContext metadata, IHasTarget? hasTarget)
+        private static IReadOnlyList<NavigationCallback>? GetCallbacks(IReadOnlyMetadataContext metadata, IHasTarget<object?>? hasTarget)
         {
             var canMoveNext = true;
             LazyList<NavigationCallback> list = default;

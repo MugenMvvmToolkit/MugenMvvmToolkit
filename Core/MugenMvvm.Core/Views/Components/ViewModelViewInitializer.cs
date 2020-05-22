@@ -46,7 +46,7 @@ namespace MugenMvvm.Views.Components
             if (viewModel == null)
                 viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(new ViewModelProviderRequest(mapping.ViewModelType), metadata);
             if (view == null)
-                view = (_serviceProvider ?? MugenService.Instance<IServiceProvider>()).GetService(mapping.ViewType);
+                view = _serviceProvider.DefaultIfNull().GetService(mapping.ViewType);
             return Components.TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
         }
 

@@ -1,7 +1,7 @@
 ﻿namespace MugenMvvm.Interfaces.Models
 {
-    public interface IHasTarget
+    public interface IHasTarget<out T> where T : class?
     {
-        object? Target { get; }
+        T Target { get; }
     }
 }

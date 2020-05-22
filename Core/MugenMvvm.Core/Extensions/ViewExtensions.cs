@@ -16,7 +16,7 @@ namespace MugenMvvm.Extensions
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
-            return (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
+            return (TView?)view.TryWrap(typeof(TView), metadata, wrapperManager);
         }
 
         public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
@@ -27,7 +27,7 @@ namespace MugenMvvm.Extensions
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
-            return (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
+            return (TView)view.Wrap(typeof(TView), metadata, wrapperManager);
         }
 
         public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)

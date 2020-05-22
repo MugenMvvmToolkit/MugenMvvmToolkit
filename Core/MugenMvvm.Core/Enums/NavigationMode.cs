@@ -18,6 +18,7 @@ namespace MugenMvvm.Enums
         public static readonly NavigationMode Undefined = new NavigationMode(nameof(Undefined));
         public static readonly NavigationMode New = new NavigationMode(nameof(New)) { IsNew = true };
         public static readonly NavigationMode Back = new NavigationMode(nameof(Back)) { IsClose = true, IsBack = true };
+        public static readonly NavigationMode Close = new NavigationMode(nameof(Close)) { IsClose = true };
         public static readonly NavigationMode Refresh = new NavigationMode(nameof(Refresh)) { IsRefresh = true };
         public static readonly NavigationMode Remove = new NavigationMode(nameof(Remove)) { IsClose = true };
         public static readonly NavigationMode Background = new NavigationMode(nameof(Background)) { IsBackground = true };
