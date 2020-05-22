@@ -27,7 +27,7 @@ namespace MugenMvvm.Metadata
         [AllowNull]
         public static IMetadataContextKey<Guid, Guid> Id
         {
-            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue(GetViewModelIdDefaultValue).Serializable().Build();
+            get => _id ??= GetBuilder(_id, nameof(Id)).DefaultValue((context, key, arg3) => GetViewModelIdDefaultValue(context, key, arg3)).Serializable().Build();
             set => _id = value;
         }
 

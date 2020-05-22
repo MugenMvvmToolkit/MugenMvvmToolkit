@@ -172,8 +172,13 @@ namespace MugenMvvm.Validation.Components
                 return Default.CompletedTask;
             }
 
-            return task.AsTask()
-                .ContinueWith(t => OnValidationCompleted(memberName, t.Result), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
+            return task
+                .AsTask()
+                .ContinueWith((t, state) =>
+                {
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state;
+                    tuple.Item1.OnValidationCompleted(tuple.Item2, t.Result);
+                }, Tuple.Create(this, memberName), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }
 
         protected virtual void ClearErrorsInternal(string memberName, IReadOnlyMetadataContext? metadata)
@@ -285,7 +290,11 @@ namespace MugenMvvm.Validation.Components
                 oldValue?.Cancel();
                 OnAsyncValidation(member, task, metadata);
                 // ReSharper disable once MethodSupportsCancellation
-                task.ContinueWith(t => OnAsyncValidationCompleted(member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
+                task.ContinueWith((t, state) =>
+                {
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string, CancellationTokenSource, IReadOnlyMetadataContext?>)state;
+                    tuple.Item1.OnAsyncValidationCompleted(tuple.Item2, tuple.Item3, tuple.Item4);
+                }, Tuple.Create(this, member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
             }
 
             return task;

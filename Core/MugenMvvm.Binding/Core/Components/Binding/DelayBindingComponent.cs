@@ -120,7 +120,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private static void Callback(object state)
         {
-            MugenService.ThreadDispatcher.Execute(ExecutionMode, (DelayBindingComponent)state);
+            MugenService.ThreadDispatcher.Execute<object?>(ExecutionMode, state, null);
         }
 
         #endregion

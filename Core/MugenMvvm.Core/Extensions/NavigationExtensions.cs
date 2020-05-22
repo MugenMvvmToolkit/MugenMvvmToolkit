@@ -28,13 +28,16 @@ namespace MugenMvvm.Extensions
             return $"{navigationProvider.Id}/{target.Metadata.Get(ViewModelMetadata.Id):N}";
         }
 
-        public static void OnNavigating(this INavigationDispatcher dispatcher, INavigationContext context, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
-            Action<INavigationDispatcher, INavigationContext, Exception?>? fallback = null, CancellationToken cancellationToken = default)
+        public static void OnNavigating<TState>(this INavigationDispatcher dispatcher, INavigationContext context, in TState state, Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
+            Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback = null, CancellationToken cancellationToken = default)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(context, nameof(context));
-            dispatcher.OnNavigatingAsync(context, cancellationToken).ContinueWith(task => InvokeCompletedCallback(task, context, dispatcher, completeNavigationCallback, fallback, cancellationToken),
-                TaskContinuationOptions.ExecuteSynchronously);
+            dispatcher.OnNavigatingAsync(context, cancellationToken).ContinueWith((task, st) =>
+            {
+                var tuple = (Tuple<INavigationContext, INavigationDispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool>, Action<INavigationDispatcher, INavigationContext, Exception?, TState>?, CancellationToken, TState>)st;
+                InvokeCompletedCallback(task, tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5, tuple.Item6);
+            }, Tuple.Create(context, dispatcher, completeNavigationCallback, fallback, cancellationToken, state), TaskContinuationOptions.ExecuteSynchronously);
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, IViewModelBase target, INavigationProvider navigationProvider,
@@ -83,40 +86,40 @@ namespace MugenMvvm.Extensions
             return result.Task;
         }
 
-        private static void InvokeCompletedCallback(Task<bool> task, INavigationContext navigationContext,
-            INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, bool> completeNavigationCallback,
-            Action<INavigationDispatcher, INavigationContext, Exception?>? fallback, CancellationToken cancellationToken)
+        private static void InvokeCompletedCallback<TState>(Task<bool> task, INavigationContext navigationContext,
+            INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
+            Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback, CancellationToken cancellationToken, in TState state)
         {
             try
             {
                 if (task.IsCanceled)
                 {
-                    fallback?.Invoke(dispatcher, navigationContext, null);
+                    fallback?.Invoke(dispatcher, navigationContext, null, state);
                     dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
                     return;
                 }
 
                 if (task.IsFaulted)
                 {
-                    fallback?.Invoke(dispatcher, navigationContext, task.Exception);
+                    fallback?.Invoke(dispatcher, navigationContext, task.Exception, state);
                     dispatcher.OnNavigationFailed(navigationContext, task.Exception);
                     return;
                 }
 
                 if (task.Result)
                 {
-                    if (completeNavigationCallback(dispatcher, navigationContext))
+                    if (completeNavigationCallback(dispatcher, navigationContext, state))
                         dispatcher.OnNavigated(navigationContext);
                 }
                 else
                 {
-                    fallback?.Invoke(dispatcher, navigationContext, null);
+                    fallback?.Invoke(dispatcher, navigationContext, null, state);
                     dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);
                 }
             }
             catch (Exception e)
             {
-                fallback?.Invoke(dispatcher, navigationContext, e);
+                fallback?.Invoke(dispatcher, navigationContext, e, state);
                 dispatcher.OnNavigationFailed(navigationContext, e);
             }
         }
