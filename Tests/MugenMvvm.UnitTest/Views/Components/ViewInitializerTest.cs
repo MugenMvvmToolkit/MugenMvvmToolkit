@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                         ++invokeCount;
                         viewManager.ShouldEqual(manager);
                         v.Mapping.ShouldEqual(mapping);
-                        v.View.ShouldEqual(view);
+                        v.Target.ShouldEqual(view);
                         viewModel.ShouldEqual(viewModel);
                         meta.ShouldEqual(DefaultMetadata);
                     },
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                     {
                         ++clearInvokeCount;
                         v.Mapping.ShouldEqual(mapping);
-                        v.View.ShouldEqual(clearView);
+                        v.Target.ShouldEqual(clearView);
                         viewModel.ShouldEqual(viewModel);
                         meta.ShouldEqual(DefaultMetadata);
                     }
@@ -141,7 +141,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             var result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
-            result.View.View.ShouldEqual(view);
+            result.View.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
             result.Metadata.ShouldEqual(DefaultMetadata);
             invokeCount.ShouldEqual(count);
@@ -151,7 +151,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             clearInvokeCount = 0;
             result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
-            result.View.View.ShouldEqual(view);
+            result.View.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
             result.Metadata.ShouldEqual(DefaultMetadata);
             invokeCount.ShouldEqual(0);
@@ -162,7 +162,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             view = new object();
             result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
-            result.View.View.ShouldEqual(view);
+            result.View.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
             result.Metadata.ShouldEqual(DefaultMetadata);
             invokeCount.ShouldEqual(count);

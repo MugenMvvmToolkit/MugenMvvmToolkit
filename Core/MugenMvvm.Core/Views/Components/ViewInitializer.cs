@@ -56,7 +56,7 @@ namespace MugenMvvm.Views.Components
             {
                 if (views.TryGetValue(mapping.Id, out var oldView))
                 {
-                    if (ReferenceEquals(oldView.View, view))
+                    if (ReferenceEquals(oldView.Target, view))
                         return Task.FromResult(new ViewInitializationResult(oldView, viewModel, metadata));
 
                     Owner.GetComponents<IViewManagerListener>().OnViewCleared(Owner, oldView, viewModel, metadata);

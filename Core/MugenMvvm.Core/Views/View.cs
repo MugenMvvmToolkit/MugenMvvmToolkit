@@ -11,7 +11,6 @@ namespace MugenMvvm.Views
         #region Fields
 
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private readonly object _view;
         private IComponentCollection? _components;
 
         #endregion
@@ -25,17 +24,13 @@ namespace MugenMvvm.Views
             Should.NotBeNull(mapping, nameof(mapping));
             Should.NotBeNull(view, nameof(view));
             Mapping = mapping;
-            _view = view;
+            Target = view;
             _componentCollectionProvider = componentCollectionProvider;
         }
 
         #endregion
 
         #region Properties
-
-        public IViewModelViewMapping Mapping { get; }
-
-        object IView.View => _view;
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
@@ -48,6 +43,10 @@ namespace MugenMvvm.Views
                 return _components;
             }
         }
+
+        public IViewModelViewMapping Mapping { get; }
+
+        public object Target { get; }
 
         #endregion
     }

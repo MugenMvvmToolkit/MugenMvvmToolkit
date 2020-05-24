@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Views
             var view = new object();
             IView v = new View(mapping, view);
             v.Mapping.ShouldEqual(mapping);
-            v.View.ShouldEqual(view);
+            v.Target.ShouldEqual(view);
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
