@@ -11,7 +11,7 @@ namespace MugenMvvm.Interfaces.ViewModels
     //todo cleanup manager, clear commands, initialize manager, provider manager
     public interface IViewModelManager : IComponentOwner<IViewModelManager>, IComponent<IMugenApplication>
     {
-        IReadOnlyMetadataContext OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, [AllowNull]in TState state, IReadOnlyMetadataContext? metadata = null);
+        void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, [AllowNull] in TState state, IReadOnlyMetadataContext? metadata = null);
 
         [Pure]
         object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null);

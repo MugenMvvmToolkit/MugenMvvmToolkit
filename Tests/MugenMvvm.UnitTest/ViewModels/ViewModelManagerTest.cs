@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.ViewModels;
@@ -22,33 +20,30 @@ namespace MugenMvvm.UnitTest.ViewModels
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
             var manager = new ViewModelManager();
-            var context = new MetadataContext();
+            int invokeCount = 0;
             var state = "state";
             var viewModel = new TestViewModel();
             var lifecycleState = ViewModelLifecycleState.Created;
             for (var i = 0; i < count; i++)
             {
-                var ctx = new MetadataContext();
-                ctx.Set(MetadataContextKey.FromKey<int, int>("i" + i), i);
-                context.Merge(ctx);
                 var component = new TestViewModelLifecycleDispatcherComponent
                 {
                     OnLifecycleChanged = (vm, viewModelLifecycleState, st, stateType, metadata) =>
                     {
+                        ++invokeCount;
                         vm.ShouldEqual(viewModel);
                         st.ShouldEqual(state);
                         stateType.ShouldEqual(state.GetType());
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
-                        return ctx;
                     },
                     Priority = i
                 };
                 manager.AddComponent(component);
             }
 
-            var changed = manager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
-            changed.SequenceEqual(context).ShouldBeTrue();
+            manager.OnLifecycleChanged(viewModel, lifecycleState, state, DefaultMetadata);
+            invokeCount.ShouldEqual(count);
         }
 
         [Fact]
