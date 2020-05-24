@@ -7,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingStateDispatcherComponent : IComponent<IBindingManager>
     {
-        IReadOnlyMetadataContext? OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, [AllowNull]in TState state, IReadOnlyMetadataContext? metadata);
+        void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, [AllowNull] in TState state, IReadOnlyMetadataContext? metadata);
     }
 }

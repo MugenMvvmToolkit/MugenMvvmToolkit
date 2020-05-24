@@ -14,6 +14,6 @@ namespace MugenMvvm.Binding.Interfaces.Core
 
         ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyMetadataContext OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, [AllowNull] in TState state, IReadOnlyMetadataContext? metadata = null);
+        void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, [AllowNull] in TState state, IReadOnlyMetadataContext? metadata = null);
     }
 }

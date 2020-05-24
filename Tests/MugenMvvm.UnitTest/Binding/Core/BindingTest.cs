@@ -1306,7 +1306,6 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     b.ShouldEqual(binding);
                     state.ShouldEqual(BindingLifecycleState.Disposed);
                     m.ShouldBeNull();
-                    return null;
                 }
             };
             using var subscribe = TestComponentSubscriber.Subscribe(testLifecycleListener);

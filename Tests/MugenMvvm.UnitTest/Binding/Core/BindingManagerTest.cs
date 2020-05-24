@@ -98,33 +98,30 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
             var manager = new BindingManager();
-            var context = new MetadataContext();
+            int invokeCount = 0;
             var state = "state";
             var binding = new TestBinding();
             var lifecycleState = BindingLifecycleState.Disposed;
             for (var i = 0; i < count; i++)
             {
-                var ctx = new MetadataContext();
-                ctx.Set(MetadataContextKey.FromKey<int, int>("i" + i), i);
-                context.Merge(ctx);
                 var component = new TestBindingStateDispatcherComponent
                 {
                     OnLifecycleChanged = (vm, viewModelLifecycleState, st, stateType, metadata) =>
                     {
+                        ++invokeCount;
                         vm.ShouldEqual(binding);
                         st.ShouldEqual(state);
                         stateType.ShouldEqual(state.GetType());
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
-                        return ctx;
                     },
                     Priority = i
                 };
                 manager.AddComponent(component);
             }
 
-            var changed = manager.OnLifecycleChanged(binding, lifecycleState, state, DefaultMetadata);
-            changed.SequenceEqual(context).ShouldBeTrue();
+            manager.OnLifecycleChanged(binding, lifecycleState, state, DefaultMetadata);
+            invokeCount.ShouldEqual(count);
         }
 
         #endregion

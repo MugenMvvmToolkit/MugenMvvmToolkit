@@ -39,17 +39,15 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v, false) && v)
-                return null;
+                return;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
                 _components.TryRegister(typeof(TState) == typeof(BindingTargetSourceState) ? MugenExtensions.CastGeneric<TState, BindingTargetSourceState>(state).Target : binding.Target.Target, binding, metadata);
             else if (lifecycleState == BindingLifecycleState.Disposed)
                 _components.TryUnregister(binding.Target.Target, binding, metadata);
-
-            return null;
         }
 
         #endregion
