@@ -41,10 +41,10 @@ namespace MugenMvvm.Extensions
             return viewModel.TryGetService<TService>();
         }
 
-        public static IReadOnlyMetadataContext NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState state, IReadOnlyMetadataContext? metadata = null,
-            IViewModelManager? manager = null)
+        public static void NotifyLifecycleChanged<TState>(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state,
+            IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null)
         {
-            return manager.DefaultIfNull().OnLifecycleChanged(viewModel, state, metadata);
+            manager.DefaultIfNull().OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
         }
 
         public static void InvalidateCommands<TViewModel>(this TViewModel viewModel) where TViewModel : class, IViewModelBase, IHasService<IMessagePublisher>

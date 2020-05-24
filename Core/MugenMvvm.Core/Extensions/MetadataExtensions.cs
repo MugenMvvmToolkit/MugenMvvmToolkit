@@ -31,25 +31,6 @@ namespace MugenMvvm.Extensions
             return defaultValue ?? Default.Metadata;
         }
 
-        public static void Aggregate(this IReadOnlyMetadataContext? metadata, ref IReadOnlyMetadataContext? currentMetadata)
-        {
-            if (metadata.IsNullOrEmpty())
-                return;
-
-            if (currentMetadata == null)
-                currentMetadata = metadata;
-            else
-            {
-                if (!(currentMetadata is AggregatedMetadataContext aggregatedMetadata))
-                {
-                    aggregatedMetadata = new AggregatedMetadataContext(currentMetadata);
-                    currentMetadata = aggregatedMetadata;
-                }
-
-                aggregatedMetadata.Aggregate(metadata!, false);
-            }
-        }
-
         public static IMetadataContext LazyInitializeNonReadonly(this IMetadataContextProvider? metadataContextProvider, [NotNull] ref IReadOnlyMetadataContext? metadataContext, object? target)
         {
             if (metadataContext is IMetadataContext m)

@@ -65,14 +65,12 @@ namespace MugenMvvm
         #region Methods
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Pure]
         public static TService Instance<TService>() where TService : class
         {
             return Configuration<TService>.Instance;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        [Pure]
         public static TService? Optional<TService>() where TService : class
         {
             return Configuration<TService>.Optional;
