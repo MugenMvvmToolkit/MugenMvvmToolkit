@@ -38,8 +38,6 @@ namespace MugenMvvm
 
         public static IReflectionDelegateProvider ReflectionDelegateProvider => Instance<IReflectionDelegateProvider>();
 
-        public static ITracer Tracer => Instance<ITracer>();
-
         public static IWeakReferenceProvider WeakReferenceProvider => Instance<IWeakReferenceProvider>();
 
         public static IMessenger Messenger => Instance<IMessenger>();

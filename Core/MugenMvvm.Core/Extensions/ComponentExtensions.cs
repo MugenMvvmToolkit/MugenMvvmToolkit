@@ -66,6 +66,17 @@ namespace MugenMvvm.Extensions
                 componentOwner.Components.Clear(metadata);
         }
 
+        public static void ClearComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
+        {
+            Should.NotBeNull(componentOwner, nameof(componentOwner));
+            if (componentOwner.HasComponents)
+            {
+                var components = componentOwner.Components.Get<T>();
+                for (int i = 0; i < components.Length; i++)
+                    componentOwner.Components.Remove(components[i]);
+            }
+        }
+
         public static T[] GetComponents<T>(this IComponentOwner componentOwner, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));

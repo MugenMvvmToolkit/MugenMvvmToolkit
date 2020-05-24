@@ -6,7 +6,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext>//todo add getter component
+    public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext>
     {
         TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory);
 
@@ -21,6 +21,8 @@ namespace MugenMvvm.Interfaces.Metadata
 
         void Merge(IEnumerable<MetadataContextValue> items);
 
-        bool Clear(IMetadataContextKey? contextKey = null);
+        bool Clear(IMetadataContextKey contextKey);
+
+        void Clear();
     }
 }

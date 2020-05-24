@@ -2,11 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Metadata.Internal;
 using Should;
 using Xunit;
@@ -52,7 +51,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((IReadOnlyCollection<MetadataContextValue>)values);
+            var context = GetMetadataContext(values);
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -74,7 +73,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>)values);
+            var context = new MetadataContext((ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>) values);
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -98,8 +97,8 @@ namespace MugenMvvm.UnitTest.Metadata
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var context = new MetadataContext(value);
-            EnumeratorCountTest(context, new List<MetadataContextValue> { value });
-            ContainsTest(context, new List<MetadataContextValue> { value });
+            EnumeratorCountTest(context, new List<MetadataContextValue> {value});
+            ContainsTest(context, new List<MetadataContextValue> {value});
             TryGetTest(context, contextKey, intValue);
         }
 
@@ -108,8 +107,8 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void AddOrUpdateShouldAddNewValue1(bool addListener)
         {
-            var context = new MetadataContext();
-            int listenerInvokedCount = 0;
+            var context = GetMetadataContext();
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -139,8 +138,8 @@ namespace MugenMvvm.UnitTest.Metadata
         public void AddOrUpdateShouldAddNewValue2(bool addListener)
         {
             var invokeCount = 0;
-            var context = new MetadataContext();
-            int listenerInvokedCount = 0;
+            var context = GetMetadataContext();
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -156,6 +155,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.AddOrUpdate(TestKey, this, (metadataContext, test) =>
             {
                 ++invokeCount;
@@ -177,9 +177,9 @@ namespace MugenMvvm.UnitTest.Metadata
             var invokeCount = 0;
             var oldValue = 100;
             var newValue = 1000;
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             context.Set(TestKey, oldValue);
-            int listenerInvokedCount = 0;
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -196,6 +196,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.AddOrUpdate(TestKey, newValue, this, (item, value, currentValue, state) =>
             {
                 ++invokeCount;
@@ -219,9 +220,9 @@ namespace MugenMvvm.UnitTest.Metadata
             var invokeCount = 0;
             var oldValue = 100;
             var newValue = 1000;
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             context.Set(TestKey, oldValue);
-            int listenerInvokedCount = 0;
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -238,6 +239,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.AddOrUpdate(TestKey, this, (metadataContext, test) =>
             {
                 metadataContext.ShouldEqual(context);
@@ -263,8 +265,8 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void GetOrAddShouldAddNewValue1(bool addListener)
         {
-            var context = new MetadataContext();
-            int listenerInvokedCount = 0;
+            var context = GetMetadataContext();
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -280,6 +282,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.GetOrAdd(TestKey, int.MaxValue).ShouldEqual(int.MaxValue);
             context.TryGet(TestKey, out var v).ShouldBeTrue();
             v.ShouldEqual(int.MaxValue);
@@ -292,9 +295,9 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void GetOrAddShouldAddNewValue2(bool addListener)
         {
-            int invokeCount = 0;
-            var context = new MetadataContext();
-            int listenerInvokedCount = 0;
+            var invokeCount = 0;
+            var context = GetMetadataContext();
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -310,6 +313,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.GetOrAdd(TestKey, this, (metadataContext, test) =>
             {
                 ++invokeCount;
@@ -329,7 +333,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void GetOrAddShouldGetOldValue1(bool addListener)
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             context.Set(TestKey, int.MinValue);
             if (addListener)
             {
@@ -340,6 +344,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.GetOrAdd(TestKey, int.MaxValue).ShouldEqual(int.MinValue);
             context.TryGet(TestKey, out var v).ShouldBeTrue();
             v.ShouldEqual(int.MinValue);
@@ -350,7 +355,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void GetOrAddShouldGetOldValue2(bool addListener)
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             context.Set(TestKey, int.MinValue);
             if (addListener)
             {
@@ -361,6 +366,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.GetOrAdd(TestKey, this, (metadataContext, test) => throw new NotSupportedException()).ShouldEqual(int.MinValue);
             context.TryGet(TestKey, out var v).ShouldBeTrue();
             v.ShouldEqual(int.MinValue);
@@ -371,8 +377,8 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void SetShouldAddUpdateValue(bool addListener)
         {
-            var context = new MetadataContext();
-            int listenerInvokedCount = 0;
+            var context = GetMetadataContext();
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -397,7 +403,7 @@ namespace MugenMvvm.UnitTest.Metadata
             {
                 listenerInvokedCount.ShouldEqual(1);
                 listenerInvokedCount = 0;
-                context.ClearComponents();
+                context.ClearComponents<IMetadataContextListener>();
                 context.AddComponent(new TestMetadataContextListener
                 {
                     OnChanged = (metadataContext, key, oldV, newV) =>
@@ -412,6 +418,7 @@ namespace MugenMvvm.UnitTest.Metadata
                     OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
                 });
             }
+
             context.Set(TestKey, int.MaxValue);
             context.TryGet(TestKey, out v).ShouldBeTrue();
             v.ShouldEqual(int.MaxValue);
@@ -424,11 +431,11 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10, false)]
         public void MergeShouldCorrectMergeValues(int count, bool addListener)
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             var values = new List<MetadataContextValue>();
             var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
 
-            int listenerInvokedCount = 0;
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -464,7 +471,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 var oldValues = keyValues.ToList();
                 listenerInvokedCount.ShouldEqual(count);
                 listenerInvokedCount = 0;
-                context.ClearComponents();
+                context.ClearComponents<IMetadataContextListener>();
                 context.AddComponent(new TestMetadataContextListener
                 {
                     OnChanged = (metadataContext, key, oldV, newV) =>
@@ -514,8 +521,8 @@ namespace MugenMvvm.UnitTest.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((IReadOnlyCollection<MetadataContextValue>?)values);
-            int listenerInvokedCount = 0;
+            var context = GetMetadataContext(values);
+            var listenerInvokedCount = 0;
             (IMetadataContextKey<int, int>, int) currentValue = default;
             if (addListener)
             {
@@ -532,7 +539,8 @@ namespace MugenMvvm.UnitTest.Metadata
                     }
                 });
             }
-            for (int i = 0; i < count; i++)
+
+            for (var i = 0; i < count; i++)
             {
                 currentValue = keyValues[0];
                 context.Clear(keyValues[0].Item1).ShouldBeTrue();
@@ -545,6 +553,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 foreach (var valueTuple in keyValues)
                     TryGetTest(context, valueTuple.Item1, valueTuple.Item2);
             }
+
             if (addListener)
                 listenerInvokedCount.ShouldEqual(count);
         }
@@ -566,8 +575,8 @@ namespace MugenMvvm.UnitTest.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((IReadOnlyCollection<MetadataContextValue>?)values);
-            int listenerInvokedCount = 0;
+            var context = GetMetadataContext(values);
+            var listenerInvokedCount = 0;
             if (addListener)
             {
                 context.AddComponent(new TestMetadataContextListener
@@ -599,7 +608,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void AddOrUpdateShouldUseSetter1()
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterCount = 0;
             SetterValue = int.MaxValue;
             context.AddOrUpdate(CustomSetterKey, 0, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(int.MaxValue);
@@ -613,7 +622,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void AddOrUpdateShouldUseSetter2()
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterCount = 0;
             SetterValue = int.MaxValue;
             context.AddOrUpdate(CustomSetterKey, this, (metadataContext, test) => 0, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(int.MaxValue);
@@ -629,7 +638,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var oldValue = 100;
             var newValue = 1000;
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterValue = oldValue;
             context.Set(CustomSetterKey, 0);
             SetterCount = 0;
@@ -647,7 +656,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var oldValue = 100;
             var newValue = 1000;
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterValue = oldValue;
             context.Set(CustomSetterKey, 0);
             SetterCount = 0;
@@ -663,7 +672,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void GetOrAddShouldUseSetter1()
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterCount = 0;
             SetterValue = int.MaxValue;
             context.GetOrAdd(CustomSetterKey, 0).ShouldEqual(int.MaxValue);
@@ -677,7 +686,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void GetOrAddShouldUseSetter2()
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterCount = 0;
             SetterValue = int.MaxValue;
             context.GetOrAdd(CustomSetterKey, this, (metadataContext, test) => 0).ShouldEqual(int.MaxValue);
@@ -691,7 +700,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void SetShouldUseSetter()
         {
-            var context = new MetadataContext();
+            var context = GetMetadataContext();
             SetterCount = 0;
             SetterValue = int.MinValue;
 
@@ -712,22 +721,9 @@ namespace MugenMvvm.UnitTest.Metadata
             CurrentSetterOldValue.ShouldEqual(int.MinValue);
         }
 
-        #endregion
-    }
-
-    public class MetadataContextOwnerTest : ComponentOwnerTestBase<MetadataContext>
-    {
-        #region Methods
-
-        public override void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
+        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null)
         {
-            if (globalValue)
-                base.ComponentOwnerShouldUseCollectionFactory(true);
-        }
-
-        protected override MetadataContext GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
-        {
-            return new MetadataContext();
+            return new MetadataContext(values);
         }
 
         #endregion

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
@@ -11,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
-    public sealed class MetadataContext : IMetadataContext//todo add new component support
+    public sealed class MetadataContext : IMetadataContext
     {
         #region Fields
 
@@ -55,12 +57,12 @@ namespace MugenMvvm.Metadata
             {
                 lock (_dictionary)
                 {
-                    return _dictionary.Count;
+                    return _dictionary.Count + GetComponents().GetCount();
                 }
             }
         }
 
-        public bool HasComponents => _components != null && _components.Count != 0;
+        bool IComponentOwner.HasComponents => _components != null && _components.Count != 0;
 
         public IComponentCollection Components
         {
@@ -83,13 +85,23 @@ namespace MugenMvvm.Metadata
 
         public IEnumerator<MetadataContextValue> GetEnumerator()
         {
-            IEnumerable<MetadataContextValue> list;
+            var components = GetComponents();
             lock (_dictionary)
             {
-                list = _dictionary.ToArray(MetadataContextValue.CreateDelegate);
-            }
+                if (components.Length == 0)
+                    return ((IEnumerable<MetadataContextValue>)_dictionary.ToArray(MetadataContextValue.CreateDelegate)).GetEnumerator();
 
-            return list.GetEnumerator();
+                LazyList<MetadataContextValue> contextValues = default;
+                foreach (var keyValuePair in _dictionary)
+                    contextValues.Add(MetadataContextValue.Create(keyValuePair));
+                for (int i = 0; i < components.Length; i++)
+                {
+                    foreach (var keyValuePair in components[i].GetValues())
+                        contextValues.Add(MetadataContextValue.Create(keyValuePair));
+                }
+
+                return contextValues.List?.GetEnumerator() ?? Enumerable.Empty<MetadataContextValue>().GetEnumerator();
+            }
         }
 
         public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
@@ -97,9 +109,10 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? obj;
             bool hasValue;
+            var components = GetComponents();
             lock (_dictionary)
             {
-                hasValue = _dictionary.TryGetValue(contextKey, out obj);
+                hasValue = TryGet(components, contextKey, out obj);
             }
 
             if (hasValue)
@@ -115,9 +128,10 @@ namespace MugenMvvm.Metadata
         public bool Contains(IMetadataContextKey contextKey)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
+            var components = GetComponents();
             lock (_dictionary)
             {
-                return _dictionary.ContainsKey(contextKey);
+                return _dictionary.ContainsKey(contextKey) || components.Contains(contextKey);
             }
         }
 
@@ -127,10 +141,12 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             object? newValue, oldValue;
             bool added;
+            var components = GetComponents();
+            var listeners = GetListeners();
             lock (_dictionary)
             {
                 TSet result;
-                if (_dictionary.TryGetValue(contextKey, out oldValue))
+                if (TryGet(components, contextKey, out oldValue))
                 {
                     result = updateValueFactory(this, addValue, contextKey.GetValue(this, oldValue), state);
                     added = false;
@@ -142,13 +158,13 @@ namespace MugenMvvm.Metadata
                 }
 
                 newValue = contextKey.SetValue(this, oldValue, result);
-                _dictionary[contextKey] = newValue;
+                Set(components, contextKey, newValue);
             }
 
             if (added)
-                OnAdded(contextKey, newValue);
+                listeners.OnAdded(this, contextKey, newValue);
             else
-                OnChanged(contextKey, oldValue, newValue);
+                listeners.OnChanged(this, contextKey, oldValue, newValue);
             return contextKey.GetValue(this, newValue);
         }
 
@@ -159,10 +175,12 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
             object? newValue, oldValue;
             bool added;
+            var components = GetComponents();
+            var listeners = GetListeners();
             lock (_dictionary)
             {
                 TSet result;
-                if (_dictionary.TryGetValue(contextKey, out oldValue))
+                if (TryGet(components, contextKey, out oldValue))
                 {
                     result = updateValueFactory(this, valueFactory, contextKey.GetValue(this, oldValue), state);
                     added = false;
@@ -174,36 +192,38 @@ namespace MugenMvvm.Metadata
                 }
 
                 newValue = contextKey.SetValue(this, oldValue, result);
-                _dictionary[contextKey] = newValue;
+                Set(components, contextKey, newValue);
             }
 
             if (added)
-                OnAdded(contextKey, newValue);
+                listeners.OnAdded(this, contextKey, newValue);
             else
-                OnChanged(contextKey, oldValue, newValue);
+                listeners.OnChanged(this, contextKey, oldValue, newValue);
             return contextKey.GetValue(this, newValue);
         }
 
         public TGet GetOrAdd<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            object? valueObj;
+            object? rawValue;
             bool added;
+            var components = GetComponents();
+            var listeners = GetListeners();
             lock (_dictionary)
             {
-                if (_dictionary.TryGetValue(contextKey, out valueObj))
+                if (TryGet(components, contextKey, out rawValue))
                     added = false;
                 else
                 {
-                    valueObj = contextKey.SetValue(this, null, value);
-                    _dictionary[contextKey] = valueObj;
+                    rawValue = contextKey.SetValue(this, null, value);
+                    Set(components, contextKey, rawValue);
                     added = true;
                 }
             }
 
             if (added)
-                OnAdded(contextKey, valueObj);
-            return contextKey.GetValue(this, valueObj);
+                listeners.OnAdded(this, contextKey, rawValue);
+            return contextKey.GetValue(this, rawValue);
         }
 
         public TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory)
@@ -212,20 +232,22 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(valueFactory, nameof(valueFactory));
             object? value;
             bool added;
+            var components = GetComponents();
+            var listeners = GetListeners();
             lock (_dictionary)
             {
-                if (_dictionary.TryGetValue(contextKey, out value))
+                if (TryGet(components, contextKey, out value))
                     added = false;
                 else
                 {
                     value = contextKey.SetValue(this, null, valueFactory(this, state));
-                    _dictionary[contextKey] = value;
+                    Set(components, contextKey, value);
                     added = true;
                 }
             }
 
             if (added)
-                OnAdded(contextKey, value);
+                listeners.OnAdded(this, contextKey, value);
             return contextKey.GetValue(this, value);
         }
 
@@ -234,137 +256,153 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? oldValue, newValue;
             bool hasOldValue;
+            var components = GetComponents();
+            var listeners = GetListeners();
             lock (_dictionary)
             {
-                hasOldValue = _dictionary.TryGetValue(contextKey, out oldValue);
+                hasOldValue = TryGet(components, contextKey, out oldValue);
                 newValue = contextKey.SetValue(this, oldValue, value);
-                _dictionary[contextKey] = newValue;
+                Set(components, contextKey, newValue);
             }
 
             if (hasOldValue)
-                OnChanged(contextKey, oldValue, newValue);
+                listeners.OnChanged(this, contextKey, oldValue, newValue);
             else
-                OnAdded(contextKey, newValue);
+                listeners.OnAdded(this, contextKey, newValue);
         }
 
         public void Merge(IEnumerable<MetadataContextValue> items)
         {
             Should.NotBeNull(items, nameof(items));
-            if (HasComponents)
+            var components = GetComponents();
+            var listeners = GetListeners();
+            if (listeners.Length == 0)
             {
-                var values = new List<KeyValuePair<MetadataContextValue, object?>>();
                 lock (_dictionary)
                 {
                     foreach (var item in items)
-                    {
-                        var value = _dictionary.TryGetValue(item.ContextKey, out var oldValue)
-                            ? new KeyValuePair<MetadataContextValue, object?>(item, oldValue)
-                            : new KeyValuePair<MetadataContextValue, object?>(item, this);
-                        values.Add(value);
-                        _dictionary[item.ContextKey] = item.Value;
-                    }
+                        Set(components, item.ContextKey, item.Value);
                 }
+                return;
+            }
 
-                for (var index = 0; index < values.Count; index++)
+            var values = new List<KeyValuePair<MetadataContextValue, object?>>();
+            lock (_dictionary)
+            {
+                foreach (var item in items)
                 {
-                    var pair = values[index];
-                    if (ReferenceEquals(pair.Value, this))
-                        OnAdded(pair.Key.ContextKey, pair.Key.Value);
-                    else
-                        OnChanged(pair.Key.ContextKey, pair.Value, pair.Key.Value);
+                    var value = TryGet(components, item.ContextKey, out var oldValue)
+                        ? new KeyValuePair<MetadataContextValue, object?>(item, oldValue)
+                        : new KeyValuePair<MetadataContextValue, object?>(item, this);
+                    values.Add(value);
+                    Set(components, item.ContextKey, item.Value);
                 }
             }
-            else
+
+            for (var index = 0; index < values.Count; index++)
             {
-                lock (_dictionary)
-                {
-                    foreach (var item in items)
-                        _dictionary[item.ContextKey] = item.Value;
-                }
+                var pair = values[index];
+                if (ReferenceEquals(pair.Value, this))
+                    listeners.OnAdded(this, pair.Key.ContextKey, pair.Key.Value);
+                else
+                    listeners.OnChanged(this, pair.Key.ContextKey, pair.Value, pair.Key.Value);
             }
         }
 
-        public bool Clear(IMetadataContextKey? contextKey = null)
+        public bool Clear(IMetadataContextKey contextKey)
         {
-            if (contextKey != null)
-                return ClearInternal(contextKey);
-            if (HasComponents)
-            {
-                KeyValuePair<IMetadataContextKey, object?>[] oldValues;
-                lock (_dictionary)
-                {
-                    if (_dictionary.Count == 0)
-                        return false;
-                    oldValues = _dictionary.ToArray();
-                    _dictionary.Clear();
-                }
-
-                for (var i = 0; i < oldValues.Length; i++)
-                {
-                    var pair = oldValues[i];
-                    OnRemoved(pair.Key, pair.Value);
-                }
-            }
-            else
+            Should.NotBeNull(contextKey, nameof(contextKey));
+            var components = GetComponents();
+            var listeners = GetListeners();
+            if (listeners.Length == 0)
             {
                 lock (_dictionary)
                 {
-                    if (_dictionary.Count == 0)
-                        return false;
-                    _dictionary.Clear();
+                    return Remove(components, contextKey);
                 }
             }
 
-            return true;
+            bool changed;
+            object? oldValue;
+            lock (_dictionary)
+            {
+                changed = TryGet(components, contextKey, out oldValue) && Remove(components, contextKey);
+            }
+
+            if (changed)
+                listeners.OnRemoved(this, contextKey, oldValue);
+            return changed;
+        }
+
+        public void Clear()
+        {
+            var components = GetComponents();
+            var listeners = GetListeners();
+            if (listeners.Length == 0)
+            {
+                lock (_dictionary)
+                {
+                    _dictionary.Clear();
+                    components.Clear();
+                }
+                return;
+            }
+
+            LazyList<KeyValuePair<IMetadataContextKey, object?>> oldValues = default;
+            lock (_dictionary)
+            {
+                foreach (var pair in _dictionary)
+                    oldValues.Add(pair);
+                for (int i = 0; i < components.Length; i++)
+                {
+                    foreach (var keyValuePair in components[i].GetValues())
+                        oldValues.Add(keyValuePair);
+                }
+
+                _dictionary.Clear();
+                components.Clear();
+            }
+
+            var list = oldValues.List;
+            if (list != null)
+            {
+                for (var i = 0; i < list.Count; i++)
+                {
+                    var pair = list[i];
+                    listeners.OnRemoved(this, pair.Key, pair.Value);
+                }
+            }
         }
 
         #endregion
 
         #region Methods
 
-        private bool ClearInternal(IMetadataContextKey contextKey)
+        private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue)
         {
-            if (HasComponents)
-            {
-                bool changed;
-                object? oldValue;
-                lock (_dictionary)
-                {
-                    if (Count == 0)
-                        return false;
-                    changed = _dictionary.TryGetValue(contextKey, out oldValue) && _dictionary.Remove(contextKey);
-                }
-
-                if (changed)
-                    OnRemoved(contextKey, oldValue);
-                return changed;
-            }
-
-            lock (_dictionary)
-            {
-                return Count != 0 && _dictionary.Remove(contextKey);
-            }
+            return components.TryGetValue(contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
         }
 
-        private void OnAdded(IMetadataContextKey key, object? newValue)
+        private void Set(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, object? rawValue)
         {
-            var items = _components.GetOrDefault<IMetadataContextListener>(null);
-            for (var i = 0; i < items.Length; i++)
-                items[i].OnAdded(this, key, newValue);
+            if (!components.TrySetValue(contextKey, rawValue))
+                _dictionary[contextKey] = rawValue;
         }
 
-        private void OnChanged(IMetadataContextKey key, object? oldValue, object? newValue)
+        private bool Remove(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey)
         {
-            var items = _components.GetOrDefault<IMetadataContextListener>(null);
-            for (var i = 0; i < items.Length; i++)
-                items[i].OnChanged(this, key, oldValue, newValue);
+            var remove = _dictionary.Remove(contextKey);
+            return components.TryClear(contextKey) || remove;
         }
 
-        private void OnRemoved(IMetadataContextKey key, object? oldValue)
+        private IMetadataContextValueManagerComponent[] GetComponents()
         {
-            var items = _components.GetOrDefault<IMetadataContextListener>(null);
-            for (var i = 0; i < items.Length; i++)
-                items[i].OnRemoved(this, key, oldValue);
+            return _components.GetOrDefault<IMetadataContextValueManagerComponent>();
+        }
+
+        private IMetadataContextListener[] GetListeners()
+        {
+            return _components.GetOrDefault<IMetadataContextListener>();
         }
 
         #endregion
