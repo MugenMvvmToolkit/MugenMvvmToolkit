@@ -36,7 +36,7 @@ namespace MugenMvvm.Extensions
             dispatcher.OnNavigatingAsync(context, cancellationToken).ContinueWith((task, st) =>
             {
                 var tuple = (Tuple<INavigationContext, INavigationDispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool>, Action<INavigationDispatcher, INavigationContext, Exception?, TState>?, CancellationToken, TState>)st;
-                InvokeCompletedCallback(task, tuple.Item1, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5, tuple.Item6);
+                InvokeCompletedCallback(task, tuple.Item1, tuple.Item6, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5);
             }, Tuple.Create(context, dispatcher, completeNavigationCallback, fallback, cancellationToken, state), TaskContinuationOptions.ExecuteSynchronously);
         }
 
@@ -86,13 +86,13 @@ namespace MugenMvvm.Extensions
             return result.Task;
         }
 
-        private static void InvokeCompletedCallback<TState>(Task<bool> task, INavigationContext navigationContext,
+        private static void InvokeCompletedCallback<TState>(Task<bool> task, INavigationContext navigationContext, in TState state,
             INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
-            Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback, CancellationToken cancellationToken, in TState state)
+            Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback, CancellationToken cancellationToken)
         {
             try
             {
-                if (task.IsCanceled)
+                if (task.IsCanceled || cancellationToken.IsCancellationRequested)
                 {
                     fallback?.Invoke(dispatcher, navigationContext, null, state);
                     dispatcher.OnNavigationCanceled(navigationContext, cancellationToken);

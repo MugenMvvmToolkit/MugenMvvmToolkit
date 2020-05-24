@@ -24,13 +24,13 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        Task<ViewInitializationResult>? IViewInitializerComponent.TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata,
-            CancellationToken cancellationToken)
+        Task<ViewInitializationResult>? IViewInitializerComponent.TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
+            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryInitializeAsync?.Invoke(mapping, view, viewModel, metadata, cancellationToken);
         }
 
-        Task? IViewInitializerComponent.TryCleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        Task? IViewInitializerComponent.TryCleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryCleanupAsync?.Invoke(view, viewModel, metadata, cancellationToken);
         }

@@ -24,17 +24,17 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Implementation of interfaces
 
-        IPresenterResult? IPresenterComponent.TryShow<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        IPresenterResult? IPresenterComponent.TryShow<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryShow?.Invoke(request!, typeof(TRequest), metadata, cancellationToken) ?? default;
         }
 
-        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryClose<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryClose<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryClose?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }
 
-        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryRestore<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryRestore<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryRestore?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }

@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 }
             });
 
-            presenter.Show(this, DefaultMetadata);
+            presenter.Show(this, default, DefaultMetadata);
             suspended.ShouldBeFalse();
             addedCallbacks.Count.ShouldEqual(2);
             addedCallbacks.ShouldContain(NavigationCallbackType.Showing);
@@ -74,14 +74,14 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryClose = (o, type, arg3, arg4) => new[] {presenterResult1, presenterResult2}
+                TryClose = (o, type, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
                 TryAddNavigationCallback = (callbackType, target, type, m) =>
                 {
                     suspended.ShouldBeTrue();
-                    addedCallbacks.Add(((IPresenterResult) target, callbackType));
+                    addedCallbacks.Add(((IPresenterResult)target, callbackType));
                     type.ShouldEqual(typeof(IPresenterResult));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 }
             });
 
-            presenter.TryClose(this, DefaultMetadata);
+            presenter.TryClose(this, default, DefaultMetadata);
             suspended.ShouldBeFalse();
             addedCallbacks.Count.ShouldEqual(2);
             addedCallbacks.ShouldContain((presenterResult1, NavigationCallbackType.Closing));

@@ -54,13 +54,13 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static Task<ViewInitializationResult>? TryInitializeAsync(this IViewInitializerComponent[] components, IViewModelViewMapping mapping, object? view,
-            IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+            IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(mapping, nameof(mapping));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
+                var result = components[i].TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
                 if (result != null)
                     return result;
             }
@@ -68,13 +68,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Task? TryCleanupAsync(this IViewInitializerComponent[] components, IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public static Task? TryCleanupAsync(this IViewInitializerComponent[] components, IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(view, nameof(view));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryCleanupAsync(view, viewModel, metadata, cancellationToken);
+                var result = components[i].TryCleanupAsync(view, viewModel, cancellationToken, metadata);
                 if (result != null)
                     return result;
             }

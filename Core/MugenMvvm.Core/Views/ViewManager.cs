@@ -42,17 +42,17 @@ namespace MugenMvvm.Views
         }
 
         public Task<ViewInitializationResult> InitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
-            IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            var task = GetComponents<IViewInitializerComponent>(metadata).TryInitializeAsync(mapping, view, viewModel, metadata, cancellationToken);
+            var task = GetComponents<IViewInitializerComponent>(metadata).TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
             if (task == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return task;
         }
 
-        public Task CleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default)
+        public Task CleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            var task = GetComponents<IViewInitializerComponent>(metadata).TryCleanupAsync(view, viewModel, metadata, cancellationToken);
+            var task = GetComponents<IViewInitializerComponent>(metadata).TryCleanupAsync(view, viewModel, cancellationToken, metadata);
             if (task == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return task;

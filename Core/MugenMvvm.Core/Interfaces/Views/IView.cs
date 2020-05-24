@@ -1,8 +1,9 @@
-﻿using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    public interface IView : IMetadataOwner<IMetadataContext>
+    public interface IView : IComponentOwner<IView>, IMetadataOwner<IMetadataContext>
     {
         IViewModelViewMapping Mapping { get; }
 

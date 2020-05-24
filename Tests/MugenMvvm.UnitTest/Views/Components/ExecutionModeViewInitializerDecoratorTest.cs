@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 }
             });
 
-            manager.InitializeAsync(mapping, view, viewModel, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            manager.InitializeAsync(mapping, view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
             action.ShouldBeNull();
         }
 
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             if (state == 1)
                 cancellationTokenSource.Cancel();
-            var task = manager.InitializeAsync(mapping, view, viewModel, DefaultMetadata, cancellationToken);
+            var task = manager.InitializeAsync(mapping, view, viewModel, cancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             action!();
             switch (state)
@@ -166,7 +166,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 }
             });
 
-            manager.CleanupAsync(view, viewModel, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            manager.CleanupAsync(view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
             action.ShouldBeNull();
         }
 
@@ -218,7 +218,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             if (state == 1)
                 cancellationTokenSource.Cancel();
-            var task = manager.CleanupAsync(view, viewModel, DefaultMetadata, cancellationToken);
+            var task = manager.CleanupAsync(view, viewModel, cancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             action!();
             switch (state)

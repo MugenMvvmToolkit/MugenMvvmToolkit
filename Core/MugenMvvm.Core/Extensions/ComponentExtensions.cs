@@ -38,6 +38,13 @@ namespace MugenMvvm.Extensions
             owner.GetComponents<IHasCache>(metadata).Invalidate(state, metadata);
         }
 
+        public static ActionToken TrySuspend<TState>(this IComponentOwner? owner, in TState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (owner == null)
+                return default;
+            return owner.GetComponents<ISuspendable>().Suspend(state, metadata);
+        }
+
         public static bool AddComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             Should.NotBeNull(componentOwner, nameof(componentOwner));

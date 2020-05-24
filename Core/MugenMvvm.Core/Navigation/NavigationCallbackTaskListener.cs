@@ -20,7 +20,7 @@ namespace MugenMvvm.Navigation
             TrySetException(exception);
         }
 
-        public void OnCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public void OnCanceled(CancellationToken cancellationToken, IReadOnlyMetadataContext metadata)
         {
             TrySetCanceled(cancellationToken);
         }

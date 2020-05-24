@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Metadata
@@ -18,7 +16,6 @@ namespace MugenMvvm.Metadata
         private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
         private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _parentViewModel;
         private static IMetadataContextKey<bool, bool>? _noState;
-        private static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>>? _closeHandler;
 
         #endregion
 
@@ -47,7 +44,7 @@ namespace MugenMvvm.Metadata
         {
             get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
                 .Serializable()
-                .Getter((context, k, o) => (IViewModelBase?)(o as IWeakReference)?.Target)
+                .Getter((context, k, o) => (IViewModelBase?) (o as IWeakReference)?.Target)
                 .Setter((context, k, oldValue, newValue) => newValue?.ToWeakReference())
                 .Build();
             set => _parentViewModel = value;
@@ -58,15 +55,6 @@ namespace MugenMvvm.Metadata
         {
             get => _noState ??= GetBuilder(_noState, nameof(NoState)).Serializable().Build();
             set => _noState = value;
-        }
-
-        [AllowNull]
-        public static IMetadataContextKey<Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>, Func<IViewModelBase, IReadOnlyMetadataContext, CancellationToken, IPresenterResult>> CloseHandler
-        {
-            get => _closeHandler ??= GetBuilder(_closeHandler, nameof(CloseHandler))
-                .NotNull()
-                .Build();
-            set => _closeHandler = value;
         }
 
         #endregion

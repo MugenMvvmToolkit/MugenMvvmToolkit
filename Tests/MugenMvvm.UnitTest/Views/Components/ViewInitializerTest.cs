@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var component = new ViewInitializer();
-            component.TryInitializeAsync(mapping, null, null, DefaultMetadata, CancellationToken.None).ShouldBeNull();
+            component.TryInitializeAsync(mapping, null, null, CancellationToken.None, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -40,13 +40,13 @@ namespace MugenMvvm.UnitTest.Views.Components
             {
                 var view = new object();
                 var mapping = new ViewModelViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result);
+                results.Add(component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result);
             }
 
             for (int i = 0; i < count; i++)
             {
                 component.TryGetViews(viewModel, DefaultMetadata).SequenceEqual(results.Select(result => result.View)).ShouldBeTrue();
-                component.TryCleanupAsync(results[0].View, viewModel, DefaultMetadata, CancellationToken.None)!.IsCompleted.ShouldBeTrue();
+                component.TryCleanupAsync(results[0].View, viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
                 results.RemoveAt(0);
             }
             component.TryGetViews(viewModel, DefaultMetadata).ShouldBeNull();
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             {
                 var view = new object();
                 var mapping = new ViewModelViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result);
+                results.Add(component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result);
             }
 
             int invokeCount = 0;
@@ -92,11 +92,11 @@ namespace MugenMvvm.UnitTest.Views.Components
             for (int i = 0; i < viewCount; i++)
             {
                 expectedView = results[0].View;
-                component.TryCleanupAsync(results[0].View, viewModel, DefaultMetadata, CancellationToken.None)!.IsCompleted.ShouldBeTrue();
+                component.TryCleanupAsync(results[0].View, viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
                 results.RemoveAt(0);
             }
 
-            invokeCount.ShouldEqual(count*viewCount);
+            invokeCount.ShouldEqual(count * viewCount);
         }
 
         [Theory]
@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 manager.AddComponent(listener);
             }
 
-            var result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result;
+            var result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
             result.View.View.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
@@ -149,7 +149,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             invokeCount = 0;
             clearInvokeCount = 0;
-            result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result;
+            result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
             result.View.View.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
@@ -160,7 +160,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             invokeCount = 0;
             clearInvokeCount = 0;
             view = new object();
-            result = component.TryInitializeAsync(mapping, view, viewModel, DefaultMetadata, CancellationToken.None)!.Result;
+            result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
             result.View.Mapping.ShouldEqual(mapping);
             result.View.View.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);

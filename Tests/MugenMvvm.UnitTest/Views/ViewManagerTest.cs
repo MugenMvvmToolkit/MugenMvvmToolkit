@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTest.Views
                 manager.AddComponent(component);
             }
 
-            manager.InitializeAsync(mapping, view, viewModel, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            manager.InitializeAsync(mapping, view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -181,7 +181,7 @@ namespace MugenMvvm.UnitTest.Views
                 manager.AddComponent(component);
             }
 
-            manager.CleanupAsync(view, viewModel, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            manager.CleanupAsync(view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 

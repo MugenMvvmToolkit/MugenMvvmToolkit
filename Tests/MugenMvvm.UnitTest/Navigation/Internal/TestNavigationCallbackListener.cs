@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
             OnError?.Invoke(exception, metadata);
         }
 
-        void INavigationCallbackListener.OnCanceled(IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        void INavigationCallbackListener.OnCanceled(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             OnCanceled?.Invoke(metadata, cancellationToken);
         }

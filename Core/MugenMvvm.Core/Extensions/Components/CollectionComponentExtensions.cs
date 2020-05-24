@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Collections.Components;
 
 namespace MugenMvvm.Extensions.Components
 {
-    public static class ObservableCollectionComponentExtensions
+    public static class CollectionComponentExtensions
     {
         #region Methods
 

@@ -23,7 +23,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public IPresenterResult? TryShow<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IPresenterResult? TryShow<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
             for (var i = 0; i < components.Length; i++)
@@ -32,7 +32,7 @@ namespace MugenMvvm.Presenters.Components
                 if (!Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, request, metadata))
                     continue;
 
-                var result = presenter.TryShow(request, metadata, cancellationToken);
+                var result = presenter.TryShow(request, cancellationToken, metadata);
                 if (result != null)
                     return result;
             }
@@ -40,7 +40,7 @@ namespace MugenMvvm.Presenters.Components
             return null;
         }
 
-        public IReadOnlyList<IPresenterResult>? TryClose<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<IPresenterResult>? TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
             LazyList<IPresenterResult> result = default;
@@ -48,13 +48,13 @@ namespace MugenMvvm.Presenters.Components
             {
                 var presenter = components[i];
                 if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.EmptyArray<IPresenterResult>(), request, metadata))
-                    result.AddRange(presenter.TryClose(request, metadata, cancellationToken));
+                    result.AddRange(presenter.TryClose(request, cancellationToken, metadata));
             }
 
             return result.List;
         }
 
-        public IReadOnlyList<IPresenterResult>? TryRestore<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<IPresenterResult>? TryRestore<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
             LazyList<IPresenterResult> result = default;
@@ -62,7 +62,7 @@ namespace MugenMvvm.Presenters.Components
             {
                 var presenter = components[i];
                 if (Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.EmptyArray<IPresenterResult>(), request, metadata))
-                    result.AddRange(presenter.TryRestore(request, metadata, cancellationToken));
+                    result.AddRange(presenter.TryRestore(request, cancellationToken, metadata));
             }
 
             return result.List;

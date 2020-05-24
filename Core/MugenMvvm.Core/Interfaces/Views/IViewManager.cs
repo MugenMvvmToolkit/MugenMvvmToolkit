@@ -18,8 +18,8 @@ namespace MugenMvvm.Interfaces.Views
         IReadOnlyList<IViewModelViewMapping> GetMappingByViewModel(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null);
 
         Task<ViewInitializationResult> InitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
-            IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default);
+            CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        Task CleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default);
+        Task CleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
     }
 }

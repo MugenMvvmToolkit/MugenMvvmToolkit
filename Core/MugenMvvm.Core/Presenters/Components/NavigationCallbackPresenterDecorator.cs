@@ -40,12 +40,12 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public IPresenterResult? TryShow<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IPresenterResult? TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _navigationDispatcher.DefaultIfNull();
             using (SuspendNavigation(dispatcher, metadata))
             {
-                var result = Components.TryShow(request, metadata, cancellationToken);
+                var result = Components.TryShow(request, cancellationToken, metadata);
                 if (result != null)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
@@ -57,12 +57,12 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
-        public IReadOnlyList<IPresenterResult>? TryClose<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<IPresenterResult>? TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _navigationDispatcher.DefaultIfNull();
             using (SuspendNavigation(dispatcher, metadata))
             {
-                var results = Components.TryClose(request, metadata, cancellationToken);
+                var results = Components.TryClose(request, cancellationToken, metadata);
                 if (results != null && results.Count != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
@@ -74,9 +74,9 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
-        public IReadOnlyList<IPresenterResult>? TryRestore<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public IReadOnlyList<IPresenterResult>? TryRestore<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return Components.TryRestore(request, metadata, cancellationToken);
+            return Components.TryRestore(request, cancellationToken, metadata);
         }
 
         #endregion

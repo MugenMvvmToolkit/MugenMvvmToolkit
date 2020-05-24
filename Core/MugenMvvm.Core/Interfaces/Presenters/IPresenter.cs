@@ -9,10 +9,10 @@ namespace MugenMvvm.Interfaces.Presenters
 {
     public interface IPresenter : IComponentOwner<IPresenter>, IComponent<IMugenApplication>
     {
-        IPresenterResult Show<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default);
+        IPresenterResult Show<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<IPresenterResult> TryClose<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default);
+        IReadOnlyList<IPresenterResult> TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<IPresenterResult> TryRestore<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null, CancellationToken cancellationToken = default);
+        IReadOnlyList<IPresenterResult> TryRestore<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
     }
 }

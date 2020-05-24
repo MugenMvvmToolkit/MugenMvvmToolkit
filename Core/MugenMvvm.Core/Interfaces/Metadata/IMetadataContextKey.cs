@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContextKey : IEquatable<IMetadataContextKey>
+    public interface IMetadataContextKey : IEquatable<IMetadataContextKey>//todo add metadata dictionary
     {
     }
 

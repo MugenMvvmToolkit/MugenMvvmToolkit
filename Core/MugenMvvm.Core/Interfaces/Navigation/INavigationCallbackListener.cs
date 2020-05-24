@@ -10,6 +10,6 @@ namespace MugenMvvm.Interfaces.Navigation
 
         void OnError(Exception exception, IReadOnlyMetadataContext metadata);
 
-        void OnCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken);
+        void OnCanceled(CancellationToken cancellationToken, IReadOnlyMetadataContext metadata);
     }
 }

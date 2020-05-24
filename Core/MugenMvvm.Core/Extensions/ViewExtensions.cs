@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Extensions
 {
@@ -16,7 +13,7 @@ namespace MugenMvvm.Extensions
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
-            return (TView?)view.TryWrap(typeof(TView), metadata, wrapperManager);
+            return (TView?) view.TryWrap(typeof(TView), metadata, wrapperManager);
         }
 
         public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
@@ -27,7 +24,7 @@ namespace MugenMvvm.Extensions
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
             where TView : class
         {
-            return (TView)view.Wrap(typeof(TView), metadata, wrapperManager);
+            return (TView) view.Wrap(typeof(TView), metadata, wrapperManager);
         }
 
         public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
@@ -47,14 +44,6 @@ namespace MugenMvvm.Extensions
             return wrapperType.IsInstanceOfType(view.View) || wrapperManager.DefaultIfNull().CanWrap(view.View.GetType(), wrapperType, metadata);
         }
 
-        public static IComponentCollection GetOrAddWrappersCollection(this IView view, IComponentCollectionProvider? componentCollectionProvider = null)
-        {
-            var pair = new KeyValuePair<IComponentCollectionProvider?, IView>(componentCollectionProvider, view);
-            return view
-                .Metadata
-                .GetOrAdd(ViewMetadata.Wrappers, pair, (context, s) => s.Key.DefaultIfNull().GetComponentCollection(s.Value, context));
-        }
-
         private static object? WrapInternal(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
         {
             Should.NotBeNull(view, nameof(view));
@@ -62,7 +51,7 @@ namespace MugenMvvm.Extensions
             if (wrapperType.IsInstanceOfType(view.View))
                 return view.View;
 
-            var collection = view.GetOrAddWrappersCollection();
+            var collection = view.Components;
             lock (collection)
             {
                 var item = collection.Get<object>(metadata).FirstOrDefault(wrapperType.IsInstanceOfType);

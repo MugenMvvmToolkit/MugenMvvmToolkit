@@ -27,7 +27,7 @@ namespace MugenMvvm.Extensions
             return service != null && service.Unsubscribe(subscriber, metadata);
         }
 
-        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
+        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class//todo add components support?
         {
             if (viewModel is IHasService<TService> hasService)
                 return hasService.Service;

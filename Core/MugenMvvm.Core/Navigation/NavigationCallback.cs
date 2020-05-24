@@ -172,7 +172,7 @@ namespace MugenMvvm.Navigation
                     callback.OnError(_exception!, _metadata!);
                     break;
                 case CanceledState:
-                    callback.OnCanceled(_metadata!, _cancellationToken);
+                    callback.OnCanceled(_cancellationToken, _metadata!);
                     break;
             }
         }

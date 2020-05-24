@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 presenter.AddComponent(component);
             }
 
-            presenter.Show(request, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            presenter.Show(request, cancellationToken, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 presenter.AddComponent(component);
             }
 
-            presenter.TryClose(request, DefaultMetadata, cancellationToken).SequenceEqual(results).ShouldBeTrue();
+            presenter.TryClose(request, cancellationToken, DefaultMetadata).SequenceEqual(results).ShouldBeTrue();
             invokeCount.ShouldEqual(componentCount);
         }
 
@@ -117,7 +117,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 presenter.AddComponent(component);
             }
 
-            presenter.TryRestore(request, DefaultMetadata, cancellationToken).SequenceEqual(results).ShouldBeTrue();
+            presenter.TryRestore(request, cancellationToken, DefaultMetadata).SequenceEqual(results).ShouldBeTrue();
             invokeCount.ShouldEqual(componentCount);
         }
 

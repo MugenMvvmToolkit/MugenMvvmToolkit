@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Views
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, metadata, metadataContextProvider);
+            return new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, null, metadata, metadataContextProvider);
         }
 
         #endregion

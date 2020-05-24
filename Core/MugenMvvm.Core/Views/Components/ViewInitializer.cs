@@ -6,6 +6,7 @@ using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
@@ -19,6 +20,7 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
+        private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
         private static readonly IMetadataContextKey<StringOrdinalLightDictionary<IView>, StringOrdinalLightDictionary<IView>> ViewsMetadataKey =
@@ -28,8 +30,9 @@ namespace MugenMvvm.Views.Components
 
         #region Constructors
 
-        public ViewInitializer(IMetadataContextProvider? metadataContextProvider = null)
+        public ViewInitializer(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
+            _componentCollectionProvider = componentCollectionProvider;
             _metadataContextProvider = metadataContextProvider;
         }
 
@@ -43,7 +46,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public Task<ViewInitializationResult>? TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (viewModel == null || view == null)
                 return null;
@@ -59,7 +62,7 @@ namespace MugenMvvm.Views.Components
                     Owner.GetComponents<IViewManagerListener>().OnViewCleared(Owner, oldView, viewModel, metadata);
                 }
 
-                resultView = new View(mapping, view, metadata, _metadataContextProvider);
+                resultView = new View(mapping, view, _componentCollectionProvider, metadata, _metadataContextProvider);
                 views[mapping.Id] = resultView;
             }
 
@@ -67,7 +70,7 @@ namespace MugenMvvm.Views.Components
             return Task.FromResult(new ViewInitializationResult(resultView, viewModel, metadata));
         }
 
-        public Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, IReadOnlyMetadataContext? metadata, CancellationToken cancellationToken)
+        public Task? TryCleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (viewModel == null)
                 return null;

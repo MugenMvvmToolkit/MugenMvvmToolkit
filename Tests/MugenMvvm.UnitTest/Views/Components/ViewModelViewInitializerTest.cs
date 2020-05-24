@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             {
                 TryGetViewModel = (o, type, arg3) =>
                 {
-                    var request = (ViewModelProviderRequest) o;
+                    var request = (ViewModelProviderRequest)o;
                     request.Type.ShouldEqual(viewModelType);
                     return viewModel;
                 }
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var component = new ViewModelViewInitializer(viewModelManager, testServiceProvider);
             viewManager.AddComponent(component);
 
-            viewManager.InitializeAsync(mapping, null, null, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            viewManager.InitializeAsync(mapping, null, null, cancellationToken, DefaultMetadata).ShouldEqual(result);
             initializeCount.ShouldEqual(1);
         }
 
@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var component = new ViewModelViewInitializer();
             viewManager.AddComponent(component);
 
-            viewManager.CleanupAsync(view, viewModel, DefaultMetadata, cancellationToken).ShouldEqual(result);
+            viewManager.CleanupAsync(view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
