@@ -9,7 +9,7 @@ using MugenMvvm.Views;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    public interface IViewManager : IComponentOwner<IViewManager>, IComponent<IMugenApplication>
+    public interface IViewManager : IComponentOwner<IViewManager>, IComponent<IMugenApplication>//todo add getViewsByViewModel, getViewsByView, lifecycle, closing, close, activate, deactivate?
     {
         IReadOnlyList<IView> GetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null);
 

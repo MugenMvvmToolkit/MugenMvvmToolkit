@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -8,12 +10,30 @@ namespace MugenMvvm.Extensions
         #region Fields
 
         public const int CacheSize = 50;
-
-        private static readonly BoxingDelegate<bool> BoxBoolDelegate = Box;
-        private static readonly BoxingDelegate<int> BoxIntDelegate = Box;
-
         public static readonly object TrueObject = true;
         public static readonly object FalseObject = false;
+
+        private static readonly TypeLightDictionary<Delegate> BoxingDelegates = new TypeLightDictionary<Delegate>(9)
+        {
+            {typeof(bool), new BoxingDelegate<bool>(Box)},
+            {typeof(byte), new BoxingDelegate<byte>(Box)},
+            {typeof(sbyte), new BoxingDelegate<sbyte>(Box)},
+            {typeof(ushort), new BoxingDelegate<ushort>(Box)},
+            {typeof(short), new BoxingDelegate<short>(Box)},
+            {typeof(uint), new BoxingDelegate<uint>(Box)},
+            {typeof(int), new BoxingDelegate<int>(Box)},
+            {typeof(ulong), new BoxingDelegate<ulong>(Box)},
+            {typeof(long), new BoxingDelegate<long>(Box)},
+            {typeof(bool?), new BoxingDelegate<bool?>(Box)},
+            {typeof(byte?), new BoxingDelegate<byte?>(Box)},
+            {typeof(sbyte?), new BoxingDelegate<sbyte?>(Box)},
+            {typeof(ushort?), new BoxingDelegate<ushort?>(Box)},
+            {typeof(short?), new BoxingDelegate<short?>(Box)},
+            {typeof(uint?), new BoxingDelegate<uint?>(Box)},
+            {typeof(int?), new BoxingDelegate<int?>(Box)},
+            {typeof(ulong?), new BoxingDelegate<ulong?>(Box)},
+            {typeof(long?), new BoxingDelegate<long?>(Box)}
+        };
 
         #endregion
 
@@ -103,12 +123,88 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
-        public static object? Box<T>(T value)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(bool? value)
         {
-            if (BoxBoolDelegate is BoxingDelegate<T> d1)
-                return d1(value);
-            if (BoxIntDelegate is BoxingDelegate<T> d2)
-                return d2(value);
+            if (value == null)
+                return null;
+            if (value.Value)
+                return TrueObject;
+            return FalseObject;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(byte? value)
+        {
+            if (value == null)
+                return null;
+            return Cache<byte>.Items[value.Value];
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(sbyte? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(ushort? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(short? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(uint? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(int? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(ulong? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box(long? value)
+        {
+            if (value == null)
+                return null;
+            return Box(value.Value);
+        }
+
+        [return: NotNullIfNotNull("value")]
+        public static object? Box<T>([AllowNull] T value)
+        {
+            if (BoxingTypeChecker<T>.IsBoxRequired)
+                return ((BoxingDelegate<T>) BoxingDelegates[typeof(T)]).Invoke(value!);
             return value;
         }
 
@@ -116,16 +212,23 @@ namespace MugenMvvm.Extensions
 
         #region Nested types
 
-        private delegate object BoxingDelegate<T>(T value);
+        private delegate object? BoxingDelegate<T>(T value);
+
+        private static class BoxingTypeChecker<T>
+        {
+            #region Fields
+
+            public static readonly bool IsBoxRequired = BoxingDelegates.ContainsKey(typeof(T));
+
+            #endregion
+        }
 
         internal static class Cache<T>
         {
             #region Fields
 
-            // ReSharper disable StaticMemberInGenericType
             public static readonly object[] Items = GenerateItems(false);
             public static readonly object[] NegativeItems = GenerateItems(true);
-            // ReSharper restore StaticMemberInGenericType
 
             #endregion
 
@@ -148,6 +251,7 @@ namespace MugenMvvm.Extensions
                     for (var i = 0; i < items.Length; i++)
                         items[i] = Convert.ChangeType(i, typeof(T));
                 }
+
                 return items;
             }
 

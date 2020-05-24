@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Metadata;
@@ -23,7 +24,9 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void FromKeyShouldCreateMetadataKeyFromString()
         {
-            var key = MetadataContextKey.FromKey<int, int>("test");
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromKey<int, int>("test", meta);
+            key.Metadata.ShouldEqual(meta);
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
@@ -35,7 +38,9 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void FromMemberShouldCreateMetadataKeyFromField(bool serializable)
         {
-            var key = MetadataContextKey.FromMember<int, int>(GetType(), nameof(ContextKeyField), serializable);
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromMember<int, int>(GetType(), nameof(ContextKeyField), serializable, meta);
+            key.Metadata.ShouldEqual(meta);
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
@@ -65,7 +70,9 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public void FromMemberShouldCreateMetadataKeyFromProperty(bool serializable)
         {
-            var key = MetadataContextKey.FromMember<int, int>(GetType(), nameof(ContextKeyProperty), serializable);
+            var meta = new Dictionary<string, object?>();
+            var key = MetadataContextKey.FromMember<int, int>(GetType(), nameof(ContextKeyProperty), serializable, meta);
+            key.Metadata.ShouldEqual(meta);
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
@@ -91,9 +98,34 @@ namespace MugenMvvm.UnitTest.Metadata
         }
 
         [Fact]
-        public void FromBuilderTest1()
+        public void FromBuilderTest0()
         {
             var key = MetadataContextKey.Create<int, int>("test").Build();
+            key.Metadata.ShouldBeEmpty();
+            key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
+            key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
+            key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);
+            (key is ISerializableMetadataContextKey).ShouldBeFalse();
+        }
+
+        [Fact]
+        public void FromBuilderTest1()
+        {
+            var metaKey1 = "k1";
+            var metaKey2 = "k2";
+            var metaKey3 = metaKey1;
+            object? metaValue1 = null;
+            var metaValue2 = new object();
+            var metaValue3 = new object();
+            var key = MetadataContextKey
+                .Create<int, int>("test")
+                .WithMetadata(metaKey1, metaValue1)
+                .WithMetadata(metaKey2, metaValue2)
+                .WithMetadata(metaKey3, metaValue3)
+                .Build();
+            key.Metadata.Count.ShouldEqual(2);
+            key.Metadata[metaKey1].ShouldEqual(metaValue3);
+            key.Metadata[metaKey2].ShouldEqual(metaValue2);
             key.GetValue(DefaultMetadata, 1).ShouldEqual(1);
             key.SetValue(DefaultMetadata, null, 2).ShouldEqual(2);
             key.GetDefaultValue(DefaultMetadata, 3).ShouldEqual(3);

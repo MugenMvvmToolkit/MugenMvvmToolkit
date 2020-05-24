@@ -13,6 +13,30 @@ namespace MugenMvvm
         #region Methods
 
         [DoesNotReturn]
+        public static void ThrowNullArgument(string paramName)
+        {
+            throw new ArgumentNullException(paramName);
+        }
+
+        [DoesNotReturn]
+        public static void ThrowNullOrEmptyArgument(string paramName)
+        {
+            throw new ArgumentException(ArgumentCannotBeNull.Format(paramName), paramName);
+        }
+
+        [DoesNotReturn]
+        public static void ThrowNotValidArgument(string paramName)
+        {
+            throw new ArgumentException(ArgumentNotValid.Format(paramName));
+        }
+
+        [DoesNotReturn]
+        public static void ThrowArgumentShouldBeOfType(string paramName, Type type, Type requiredType)
+        {
+            throw new ArgumentException(ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
+        }
+
+        [DoesNotReturn]
         public static void ThrowEnumIsNotValid<T>(T value)
         {
             throw new ArgumentException(EnumIsNotValidFormat2.Format(value!.ToString(), value!.GetType()), nameof(value));

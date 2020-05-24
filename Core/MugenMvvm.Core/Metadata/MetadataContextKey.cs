@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
@@ -13,9 +14,10 @@ namespace MugenMvvm.Metadata
     {
         #region Constructors
 
-        protected MetadataContextKey(string key)
+        protected MetadataContextKey(string key, IReadOnlyDictionary<string, object?>? metadata)
         {
             Id = key;
+            Metadata = metadata ?? Default.ReadOnlyDictionary<string, object?>();
         }
 
         #endregion
@@ -23,6 +25,8 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         public string Id { get; }
+
+        public IReadOnlyDictionary<string, object?> Metadata { get; }
 
         #endregion
 
@@ -37,33 +41,34 @@ namespace MugenMvvm.Metadata
 
         #region Methods
 
-        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key)
+        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, IReadOnlyDictionary<string, object?>? metadata = null)
         {
-            return FromKey<TGet, TSet>(key);
+            return FromKey<TGet, TSet>(key, metadata);
         }
 
-        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(string key)
+        public static IMetadataContextKey<TGet, TSet> FromKey<TGet, TSet>(string key, IReadOnlyDictionary<string, object?>? metadata = null)
         {
             Should.NotBeNullOrEmpty(key, nameof(key));
-            return new MetadataContextKeyInternal<TGet, TSet>(key);
+            return new MetadataContextKeyInternal<TGet, TSet>(key, metadata);
         }
 
-        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false)
+        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
         {
-            return FromMember<TGet, TSet>(declaredType, fieldOrPropertyName, serializable);
+            return FromMember<TGet, TSet>(declaredType, fieldOrPropertyName, serializable, metadata);
         }
 
-        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(Type declaredType, string fieldOrPropertyName, bool serializable = false)
+        public static IMetadataContextKey<TGet, TSet> FromMember<TGet, TSet>(Type declaredType, string fieldOrPropertyName, bool serializable = false, IReadOnlyDictionary<string, object?>? metadata = null)
         {
             var key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
             if (serializable)
             {
-                return new SerializableMetadataContextKey<TGet, TSet>(key, declaredType, fieldOrPropertyName)
+                return new SerializableMetadataContextKey<TGet, TSet>(key, declaredType, fieldOrPropertyName, metadata)
                 {
                     CanSerializeFunc = (_, __, ___) => true
                 };
             }
-            return new MetadataContextKeyInternal<TGet, TSet>(key);
+
+            return new MetadataContextKeyInternal<TGet, TSet>(key, metadata);
         }
 
         public static Builder<TGet, TSet> Create<TGet, TSet>(IMetadataContextKey<TGet, TSet>? _, string key, Type? declaredType = null, string? fieldOrPropertyName = null)
@@ -130,6 +135,7 @@ namespace MugenMvvm.Metadata
             private Type? _type;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
+            private Dictionary<string, object?>? _metadata;
             private Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet>? _validateAction;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet>? _getDefaultValueFunc;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet>? _getValueFunc;
@@ -148,6 +154,7 @@ namespace MugenMvvm.Metadata
                 _key = key;
                 _type = type;
                 _fieldOrPropertyName = fieldOrPropertyName;
+                _metadata = null;
                 _validateAction = null;
                 _getDefaultValueFunc = null;
                 _getValueFunc = null;
@@ -160,6 +167,13 @@ namespace MugenMvvm.Metadata
             #endregion
 
             #region Methods
+
+            public Builder<TGet, TSet> WithMetadata(string key, object? value)
+            {
+                _metadata ??= new Dictionary<string, object?>();
+                _metadata[key] = value;
+                return this;
+            }
 
             public Builder<TGet, TSet> WithValidation(Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet> validateAction)
             {
@@ -226,7 +240,7 @@ namespace MugenMvvm.Metadata
             {
                 if (_serializeFunc == null && _deserializeFunc == null && _canSerializeFunc == null)
                 {
-                    return new MetadataContextKeyInternal<TGet, TSet>(_key)
+                    return new MetadataContextKeyInternal<TGet, TSet>(_key, _metadata)
                     {
                         SetValueFunc = _setValueFunc,
                         ValidateAction = _validateAction,
@@ -237,7 +251,7 @@ namespace MugenMvvm.Metadata
 
                 if (_canSerializeFunc == null)
                     Serializable();
-                return new SerializableMetadataContextKey<TGet, TSet>(_key, _type, _fieldOrPropertyName)
+                return new SerializableMetadataContextKey<TGet, TSet>(_key, _type, _fieldOrPropertyName, _metadata)
                 {
                     SetValueFunc = _setValueFunc,
                     ValidateAction = _validateAction,
@@ -256,8 +270,6 @@ namespace MugenMvvm.Metadata
         {
             #region Fields
 
-            private static readonly bool IsBoxRequired = !Default.IsNullable<TSet>();
-
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet>? GetDefaultValueFunc;
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet>? GetValueFunc;
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TSet, object?>? SetValueFunc;
@@ -267,8 +279,8 @@ namespace MugenMvvm.Metadata
 
             #region Constructors
 
-            public MetadataContextKeyInternal(string key)
-                : base(key)
+            public MetadataContextKeyInternal(string key, IReadOnlyDictionary<string, object?>? metadata)
+                : base(key, metadata)
             {
             }
 
@@ -284,6 +296,7 @@ namespace MugenMvvm.Metadata
                         return default!;
                     return (TGet)value!;
                 }
+
                 return GetValueFunc(metadataContext, this, value);
             }
 
@@ -291,7 +304,7 @@ namespace MugenMvvm.Metadata
             {
                 ValidateAction?.Invoke(metadataContext, this, newValue);
                 if (SetValueFunc == null)
-                    return IsBoxRequired ? BoxingExtensions.Box(newValue) : newValue;
+                    return BoxingExtensions.Box(newValue);
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 
@@ -321,8 +334,8 @@ namespace MugenMvvm.Metadata
 
             #region Constructors
 
-            public SerializableMetadataContextKey(string key, Type? type, string? fieldOrPropertyName)
-                : base(key)
+            public SerializableMetadataContextKey(string key, Type? type, string? fieldOrPropertyName, IReadOnlyDictionary<string, object?>? metadata)
+                : base(key, metadata)
             {
                 _type = type;
                 _fieldOrPropertyName = fieldOrPropertyName;

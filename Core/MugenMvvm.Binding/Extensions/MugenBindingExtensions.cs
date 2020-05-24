@@ -455,7 +455,7 @@ namespace MugenMvvm.Binding.Extensions
             if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
                 p.SetValue(target, value, metadata);
             else
-                propertyInfo.SetValue(target, value, metadata);
+                propertyInfo.SetValue(target, BoxingExtensions.Box(value), metadata);
         }
 
         public static ActionToken TryObserveBindableMember<TTarget, TValue>(this TTarget target,

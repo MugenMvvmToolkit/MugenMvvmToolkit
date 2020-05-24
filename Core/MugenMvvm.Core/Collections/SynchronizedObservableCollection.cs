@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
@@ -65,7 +66,7 @@ namespace MugenMvvm.Collections
 
         object IList.this[int index]
         {
-            get => this[index]!;
+            get => BoxingExtensions.Box(this[index])!;
             set => this[index] = (T) value;
         }
 

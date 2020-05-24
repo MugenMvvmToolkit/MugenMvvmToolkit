@@ -267,7 +267,7 @@ namespace MugenMvvm.Collections
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
-                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, BoxingExtensions.Box(item), index));
         }
 
         protected virtual void OnReplacedInternal(T oldItem, T newItem, int index, bool batch)
@@ -275,7 +275,7 @@ namespace MugenMvvm.Collections
             this[index] = newItem;
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
-                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, newItem, oldItem, index));
+                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, BoxingExtensions.Box(newItem), BoxingExtensions.Box(oldItem), index));
         }
 
         protected virtual void OnMovedInternal(T item, int oldIndex, int newIndex, bool batch)
@@ -284,7 +284,7 @@ namespace MugenMvvm.Collections
             Insert(newIndex, item);
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
-                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, item, newIndex, oldIndex));
+                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, BoxingExtensions.Box(item), newIndex, oldIndex));
         }
 
         protected virtual void OnRemovedInternal(T item, int index, bool batch)
@@ -293,7 +293,7 @@ namespace MugenMvvm.Collections
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
             if (HasCollectionChangedListeners)
-                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+                RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, BoxingExtensions.Box(item), index));
         }
 
         protected virtual void OnResetInternal(IEnumerable<T> items, bool batch)

@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -192,7 +193,7 @@ namespace MugenMvvm
         {
             #region Fields
 
-            public static readonly bool IsNullableType = default(T)! == null;
+            public static readonly bool IsNullableType = BoxingExtensions.Box(default(T)) == null;
             public static readonly bool IsValueType = typeof(T).IsValueType;
 
             #endregion

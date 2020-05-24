@@ -280,7 +280,7 @@ namespace MugenMvvm.Collections.Components
         {
             var num = Array.BinarySearch(_keys, 0, _size, key);
             if (num >= 0)
-                throw new InvalidOperationException();
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(key));
             return Insert(~num, key, value);
         }
 

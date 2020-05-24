@@ -5,7 +5,6 @@ using System.Runtime.CompilerServices;
 using JetBrains.Annotations;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm
 {
@@ -16,21 +15,25 @@ namespace MugenMvvm
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] object? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]
+            object? argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
-                throw new ArgumentNullException(paramName);
+                ExceptionManager.ThrowNullArgument(paramName);
         }
 
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)] string? argumentValue, [InvokerParameterName] string paramName)
+        public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]
+            string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
-                throw new ArgumentException(MessageConstant.ArgumentCannotBeNull.Format(paramName), paramName);
+                ExceptionManager.ThrowNullOrEmptyArgument(paramName);
         }
 
+        [DebuggerStepThrough]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
             bool isSupported, string error)
         {
@@ -40,10 +43,11 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool validation)
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
+            bool validation)
         {
             if (!validation)
-                throw new ArgumentException(MessageConstant.ArgumentNotValid.Format(paramName));
+                ExceptionManager.ThrowNotValidArgument(paramName);
         }
 
         [DebuggerStepThrough]
@@ -65,7 +69,7 @@ namespace MugenMvvm
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));
             if (!requiredType.IsAssignableFrom(type))
-                throw new ArgumentException(MessageConstant.ArgumentShouldBeOfType.Format(type.Name, requiredType.Name), paramName);
+                ExceptionManager.ThrowArgumentShouldBeOfType(paramName, type, requiredType);
         }
 
         [DebuggerStepThrough]
@@ -74,13 +78,6 @@ namespace MugenMvvm
             bool isSupported, string methodName)
         {
             BeSupported(isSupported, MessageConstant.ShouldMethodBeSupportedFormat1.Format(methodName));
-        }
-
-        [DebuggerStepThrough]
-        public static void NotBeDisposed(this IViewModelBase viewModel)
-        {
-            if (viewModel.IsDisposed())
-                ExceptionManager.ThrowObjectDisposed(viewModel.GetType());
         }
 
         #endregion
