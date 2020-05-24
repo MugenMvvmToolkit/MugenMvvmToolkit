@@ -11,7 +11,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingHolderStateDispatcher : AttachableComponentBase<IBindingManager>, IBindingStateDispatcherComponent, IHasPriority
+    public sealed class BindingHolderLifecycleDispatcher : AttachableComponentBase<IBindingManager>, IBindingLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -22,11 +22,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingHolderStateDispatcher()
+        public BindingHolderLifecycleDispatcher()
         {
             _components = Default.EmptyArray<IBindingHolderComponent>();
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IBindingHolderComponent, BindingHolderStateDispatcher>((components, state, _) => state._components = components, this);
+            _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleDispatcher>((components, state, _) => state._components = components, this);
         }
 
         #endregion

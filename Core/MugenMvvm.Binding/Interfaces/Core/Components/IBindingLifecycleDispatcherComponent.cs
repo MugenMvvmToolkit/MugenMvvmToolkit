@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
-    public interface IBindingStateDispatcherComponent : IComponent<IBindingManager>
+    public interface IBindingLifecycleDispatcherComponent : IComponent<IBindingManager>
     {
         void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, [AllowNull] in TState state, IReadOnlyMetadataContext? metadata);
     }

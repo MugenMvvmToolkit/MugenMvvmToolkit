@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Internal
 {
-    public class TestBindingStateDispatcherComponent : IBindingStateDispatcherComponent, IHasPriority
+    public class TestBindingStateDispatcherComponent : IBindingLifecycleDispatcherComponent, IHasPriority
     {
         #region Properties
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        void IBindingStateDispatcherComponent.OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IBindingLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             OnLifecycleChanged?.Invoke(binding, lifecycleState, state!, typeof(TState), metadata);
         }
