@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Internal;
 using MugenMvvm.Serialization;
 
 namespace MugenMvvm.Metadata

@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Busy;
 namespace MugenMvvm.Busy
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BeginBusyRequest
+    public readonly struct DelayBusyRequest
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Busy
 
         #region Constructors
 
-        public BeginBusyRequest(object? message, int millisecondsDelay)
+        public DelayBusyRequest(object? message, int millisecondsDelay)
         {
             Message = message;
             MillisecondsDelay = millisecondsDelay;

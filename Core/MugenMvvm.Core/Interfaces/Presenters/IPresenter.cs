@@ -14,5 +14,6 @@ namespace MugenMvvm.Interfaces.Presenters
         IReadOnlyList<IPresenterResult> TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 
         IReadOnlyList<IPresenterResult> TryRestore<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
+        //todo merge with Show?
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Commands.Internal
 {

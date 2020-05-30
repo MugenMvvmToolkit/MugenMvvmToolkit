@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Metadata.Internal
 {
@@ -37,7 +38,7 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
 
         IEnumerable<KeyValuePair<IMetadataContextKey, object?>> IMetadataContextValueManagerComponent.GetValues()
         {
-            return GetValues?.Invoke() ?? Default.EmptyArray<KeyValuePair<IMetadataContextKey, object?>>();
+            return GetValues?.Invoke() ?? Default.Array<KeyValuePair<IMetadataContextKey, object?>>();
         }
 
         bool IMetadataContextValueManagerComponent.Contains(IMetadataContextKey contextKey)

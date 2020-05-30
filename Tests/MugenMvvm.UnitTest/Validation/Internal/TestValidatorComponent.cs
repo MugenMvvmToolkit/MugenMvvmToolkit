@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Validation.Internal
 {
@@ -39,7 +40,7 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         IReadOnlyList<object> IValidatorComponent.GetErrors(string? memberName, IReadOnlyMetadataContext? metadata)
         {
-            return GetErrors?.Invoke(memberName, metadata) ?? Default.EmptyArray<object>();
+            return GetErrors?.Invoke(memberName, metadata) ?? Default.Array<object>();
         }
 
         IReadOnlyDictionary<string, IReadOnlyList<object>> IValidatorComponent.GetErrors(IReadOnlyMetadataContext? metadata)

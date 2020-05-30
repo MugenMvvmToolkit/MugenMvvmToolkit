@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
@@ -46,7 +47,7 @@ namespace MugenMvvm.Components
             where TComponent : class
         {
             if (_components == null)
-                return Default.EmptyArray<TComponent>();
+                return Default.Array<TComponent>();
             return _components.Get<TComponent>(metadata);
         }
 

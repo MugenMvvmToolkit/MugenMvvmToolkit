@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters.Components
 {

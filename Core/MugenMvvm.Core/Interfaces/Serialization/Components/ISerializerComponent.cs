@@ -7,9 +7,9 @@ namespace MugenMvvm.Interfaces.Serialization.Components
 {
     public interface ISerializerComponent : IComponent<ISerializer>
     {
-        bool CanSerialize<TTarget>([DisallowNull] in TTarget target, IReadOnlyMetadataContext? metadata);
+        bool CanSerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        Stream? TrySerialize<TTarget>([DisallowNull] in TTarget target, IReadOnlyMetadataContext? metadata);
+        Stream? TrySerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
         object? TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata);
     }

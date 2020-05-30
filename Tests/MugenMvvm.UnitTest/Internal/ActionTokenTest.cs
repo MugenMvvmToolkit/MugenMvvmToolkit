@@ -1,7 +1,8 @@
-﻿using Should;
+﻿using MugenMvvm.Internal;
+using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTest
+namespace MugenMvvm.UnitTest.Internal
 {
     public class ActionTokenTest : UnitTestBase
     {

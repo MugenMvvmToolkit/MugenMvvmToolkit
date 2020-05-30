@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
@@ -136,7 +137,7 @@ namespace MugenMvvm.Validation.Components
             lock (Errors)
             {
                 if (Errors.Count == 0)
-                    return Default.EmptyArray<object>();
+                    return Default.Array<object>();
 
                 if (string.IsNullOrEmpty(memberName))
                 {
@@ -150,7 +151,7 @@ namespace MugenMvvm.Validation.Components
                     return list.ToArray();
             }
 
-            return Default.EmptyArray<object>();
+            return Default.Array<object>();
         }
 
         protected virtual IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrorsInternal(IReadOnlyMetadataContext? metadata)

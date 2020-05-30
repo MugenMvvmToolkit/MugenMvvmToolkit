@@ -4,6 +4,7 @@ using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Busy.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -169,7 +170,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
 
             var beginBusy = delay == 0
                 ? busyManagerComponent.TryBeginBusy(message, meta)!
-                : busyManagerComponent.TryBeginBusy(new BeginBusyRequest(message, delay), meta)!;
+                : busyManagerComponent.TryBeginBusy(new DelayBusyRequest(message, delay), meta)!;
             beginBusy.Message.ShouldEqual(message);
 
             if (delay == 0)
@@ -213,7 +214,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
 
             var beginBusy = delay == 0
                 ? busyManagerComponent.TryBeginBusy(parentToken, meta)!
-                : busyManagerComponent.TryBeginBusy(new BeginBusyRequest(parentToken, delay), meta)!;
+                : busyManagerComponent.TryBeginBusy(new DelayBusyRequest(parentToken, delay), meta)!;
             beginBusy.Message.ShouldEqual(message);
 
             if (delay == 0)
@@ -241,7 +242,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
                 ++count;
             };
 
-            var beginBusy = busyManagerComponent.TryBeginBusy(new BeginBusyRequest(message, delay), null)!;
+            var beginBusy = busyManagerComponent.TryBeginBusy(new DelayBusyRequest(message, delay), null)!;
             beginBusy.Dispose();
 
             count.ShouldEqual(0);
@@ -263,7 +264,7 @@ namespace MugenMvvm.UnitTest.Busy.Components
                 ++count;
             };
 
-            var beginBusy = busyManagerComponent.TryBeginBusy(new BeginBusyRequest(parentToken, delay), null)!;
+            var beginBusy = busyManagerComponent.TryBeginBusy(new DelayBusyRequest(parentToken, delay), null)!;
             beginBusy.Dispose();
 
             count.ShouldEqual(0);

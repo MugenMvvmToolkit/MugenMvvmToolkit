@@ -5,16 +5,16 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Enums
 {
-    public class ApplicationStateTest
+    public class ApplicationLifecycleStateTest
     {
         #region Methods
 
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
-            var enum1 = ApplicationState.Active;
-            var enum2 = ApplicationState.Background;
-            var enum3 = new ApplicationState(enum1.Value);
+            var enum1 = ApplicationLifecycleState.Active;
+            var enum2 = ApplicationLifecycleState.Background;
+            var enum3 = new ApplicationLifecycleState(enum1.Value);
             var v1 = enum1.Value;
             var v2 = enum2.Value;
             enum1.CompareTo(null).ShouldEqual(1);

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
@@ -40,7 +41,7 @@ namespace MugenMvvm.Components
             var l = new Listener(listener, state, o => o is T || o is IComponentCollectionDecorator<T>, (b, l, s, collection, metadata) =>
             {
                 var action = (Action<T[], TState, IReadOnlyMetadataContext?>) l;
-                action.Invoke(b ? collection.Get<T>() : Default.EmptyArray<T>(), (TState) s!, metadata);
+                action.Invoke(b ? collection.Get<T>() : Default.Array<T>(), (TState) s!, metadata);
             });
             if (_listeners != null)
             {

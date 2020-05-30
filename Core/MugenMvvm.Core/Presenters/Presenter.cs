@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Presenters
 {
@@ -33,12 +34,12 @@ namespace MugenMvvm.Presenters
 
         public IReadOnlyList<IPresenterResult> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryClose(request, cancellationToken, metadata) ?? Default.EmptyArray<IPresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryClose(request, cancellationToken, metadata) ?? Default.Array<IPresenterResult>();
         }
 
         public IReadOnlyList<IPresenterResult> TryRestore<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryRestore(request, cancellationToken, metadata) ?? Default.EmptyArray<IPresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryRestore(request, cancellationToken, metadata) ?? Default.Array<IPresenterResult>();
         }
 
         #endregion

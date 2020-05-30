@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Busy
 {
@@ -49,7 +50,7 @@ namespace MugenMvvm.Busy
 
         public IReadOnlyList<IBusyToken> GetTokens(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryGetTokens(metadata) ?? Default.EmptyArray<IBusyToken>();
+            return GetComponents<IBusyManagerComponent>().TryGetTokens(metadata) ?? Default.Array<IBusyToken>();
         }
 
         #endregion

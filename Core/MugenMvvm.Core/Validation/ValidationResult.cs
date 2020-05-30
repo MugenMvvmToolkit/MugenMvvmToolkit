@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation
 {

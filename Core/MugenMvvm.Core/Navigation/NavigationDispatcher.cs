@@ -12,6 +12,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation
 {
@@ -40,12 +41,12 @@ namespace MugenMvvm.Navigation
 
         public IReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(metadata) ?? Default.EmptyArray<INavigationEntry>();
+            return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(metadata) ?? Default.Array<INavigationEntry>();
         }
 
-        public IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(target, metadata) ?? Default.EmptyArray<INavigationCallback>();
+            return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(request, metadata) ?? Default.Array<INavigationCallback>();
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)

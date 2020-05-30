@@ -10,14 +10,14 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationCallbackManagerComponent : IComponent<INavigationDispatcher>
     {
-        INavigationCallback? TryAddNavigationCallback<TTarget>(NavigationCallbackType callbackType, [DisallowNull] in TTarget target, IReadOnlyMetadataContext? metadata);
+        INavigationCallback? TryAddNavigationCallback<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TTarget>([DisallowNull] in TTarget target, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        bool TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, [DisallowNull] in TTarget target, IReadOnlyMetadataContext? metadata);
+        bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        bool TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, [DisallowNull] in TTarget target, Exception exception, IReadOnlyMetadataContext? metadata);
+        bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, Exception exception, IReadOnlyMetadataContext? metadata);
 
-        bool TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, [DisallowNull] in TTarget target, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
     }
 }

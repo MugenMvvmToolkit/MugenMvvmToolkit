@@ -9,6 +9,7 @@ using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
@@ -28,8 +29,8 @@ namespace MugenMvvm.Collections.Components
 
         public FilterObservableCollectionDecorator()
         {
-            _keys = Default.EmptyArray<int>();
-            _values = Default.EmptyArray<T>();
+            _keys = Default.Array<int>();
+            _values = Default.Array<T>();
             _size = 0;
         }
 
@@ -377,8 +378,8 @@ namespace MugenMvvm.Collections.Components
             }
             else
             {
-                _keys = Default.EmptyArray<int>();
-                _values = Default.EmptyArray<T>();
+                _keys = Default.Array<int>();
+                _values = Default.Array<T>();
             }
         }
 

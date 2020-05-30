@@ -13,6 +13,7 @@ using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
@@ -326,7 +327,7 @@ namespace MugenMvvm.Collections
 
         protected IEnumerable<T> GetCollectionItems()
         {
-            return (WrappedCollection as IObservableCollection<T>)?.DecorateItems() ?? WrappedCollection ?? Default.EmptyArray<T>();
+            return (WrappedCollection as IObservableCollection<T>)?.DecorateItems() ?? WrappedCollection ?? Default.Array<T>();
         }
 
         private void AddEventRaw(ref CollectionChangedEvent collectionChangedEvent)

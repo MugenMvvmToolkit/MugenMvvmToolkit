@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Components.Internal;
 using Should;
 using Xunit;
@@ -42,7 +43,7 @@ namespace MugenMvvm.UnitTest.Components
             executed.ShouldEqual(listenersCount);
 
             executed = 0;
-            expectedComponents = Default.EmptyArray<IComponent>();
+            expectedComponents = Default.Array<IComponent>();
             componentTracker.Detach(componentCollection, DefaultMetadata);
             executed.ShouldEqual(listenersCount);
         }

@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using MugenMvvm.Interfaces.Internal.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using Should;
 using Xunit;
@@ -16,8 +17,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
         public void TryGetActivatorShouldGenerateCorrectDelegate1()
         {
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var activator = component.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.EmptyArray<Type>()))!;
-            var o = (TestConstructorReflectionClass)activator(Default.EmptyArray<object>());
+            var activator = component.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>()))!;
+            var o = (TestConstructorReflectionClass)activator(Default.Array<object>());
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldBeNull();
         }
@@ -50,7 +51,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var activator = (Func<TestConstructorReflectionClass>)component
-                .TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.EmptyArray<Type>()), typeof(Func<TestConstructorReflectionClass>))!;
+                .TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>()), typeof(Func<TestConstructorReflectionClass>))!;
             var o = activator();
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldBeNull();
@@ -184,7 +185,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invoker = component.TryGetMethodInvoker(method)!;
 
             target.IsNoArgsInvoked.ShouldBeFalse();
-            invoker.Invoke(target, Default.EmptyArray<object>()).ShouldBeNull();
+            invoker.Invoke(target, Default.Array<object>()).ShouldBeNull();
             target.IsNoArgsInvoked.ShouldBeTrue();
         }
 
@@ -196,7 +197,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invoker = component.TryGetMethodInvoker(method)!;
 
             TestMethodClass.IsNoArgsStaticInvoked = false;
-            invoker.Invoke(null, Default.EmptyArray<object>()).ShouldBeNull();
+            invoker.Invoke(null, Default.Array<object>()).ShouldBeNull();
             TestMethodClass.IsNoArgsStaticInvoked.ShouldBeTrue();
         }
 

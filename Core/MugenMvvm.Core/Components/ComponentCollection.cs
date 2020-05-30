@@ -4,6 +4,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
@@ -25,8 +26,8 @@ namespace MugenMvvm.Components
         {
             Owner = owner;
             _items = new List<object>();
-            _componentTrackers = Default.EmptyArray<IComponentTracker>();
-            _decorators = Default.EmptyArray<IComponentCollectionDecorator>();
+            _componentTrackers = Default.Array<IComponentTracker>();
+            _decorators = Default.Array<IComponentCollectionDecorator>();
         }
 
         #endregion
@@ -121,7 +122,7 @@ namespace MugenMvvm.Components
                 _items.Clear();
             }
 
-            _componentTrackers = Default.EmptyArray<IComponentTracker>();
+            _componentTrackers = Default.Array<IComponentTracker>();
             var changedListeners = _components.GetOrDefault<IComponentCollectionChangedListener>(metadata);
             for (var i = 0; i < oldItems.Length; i++)
             {
@@ -188,7 +189,7 @@ namespace MugenMvvm.Components
             }
 
             if (newSize == 0)
-                _componentTrackers = Default.EmptyArray<IComponentTracker>();
+                _componentTrackers = Default.Array<IComponentTracker>();
             else if (newSize != componentTrackers.Length)
                 Array.Resize(ref _componentTrackers, newSize);
         }
@@ -211,7 +212,7 @@ namespace MugenMvvm.Components
 
             public readonly TComponent[] Components;
 
-            private static readonly ComponentTracker<TComponent> Empty = new ComponentTracker<TComponent>(Default.EmptyArray<TComponent>());
+            private static readonly ComponentTracker<TComponent> Empty = new ComponentTracker<TComponent>(Default.Array<TComponent>());
 
             #endregion
 

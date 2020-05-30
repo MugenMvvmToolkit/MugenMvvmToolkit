@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MugenMvvm.Internal;
 using MugenMvvm.Validation;
 using Should;
 using Xunit;

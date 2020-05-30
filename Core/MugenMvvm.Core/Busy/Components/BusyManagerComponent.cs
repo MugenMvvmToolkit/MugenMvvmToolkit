@@ -66,7 +66,10 @@ namespace MugenMvvm.Busy.Components
         {
             if (Default.IsValueType<TRequest>())
             {
-                var busyRequest = MugenExtensions.CastGeneric<TRequest, BeginBusyRequest>(request);
+                if (typeof(TRequest) != typeof(DelayBusyRequest))
+                    return null;
+
+                var busyRequest = MugenExtensions.CastGeneric<TRequest, DelayBusyRequest>(request);
                 if (busyRequest.ParentToken != null)
                     return Begin(busyRequest.ParentToken, busyRequest.MillisecondsDelay, metadata);
                 return Begin(busyRequest.Message, busyRequest.MillisecondsDelay, metadata);

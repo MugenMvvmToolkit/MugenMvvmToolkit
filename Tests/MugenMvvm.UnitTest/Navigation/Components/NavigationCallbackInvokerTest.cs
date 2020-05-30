@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.UnitTest.Navigation.Internal;

@@ -221,7 +221,7 @@ namespace MugenMvvm.Collections
         public KeyValuePair<TKey, TValue>[] ToArray()
         {
             if (_count == 0)
-                return Default.EmptyArray<KeyValuePair<TKey, TValue>>();
+                return Default.Array<KeyValuePair<TKey, TValue>>();
             var result = new KeyValuePair<TKey, TValue>[Count];
             var index = 0;
             for (var i = 0; i < _count; i++)
@@ -238,7 +238,7 @@ namespace MugenMvvm.Collections
         {
             var count = Count;
             if (count == 0)
-                return Default.EmptyArray<TKey>();
+                return Default.Array<TKey>();
             var result = new TKey[count];
             var index = 0;
             for (var i = 0; i < _count; i++)
@@ -255,7 +255,7 @@ namespace MugenMvvm.Collections
         {
             var count = Count;
             if (count == 0)
-                return Default.EmptyArray<TValue>();
+                return Default.Array<TValue>();
             var result = new TValue[count];
             var index = 0;
             for (var i = 0; i < _count; i++)
@@ -346,8 +346,8 @@ namespace MugenMvvm.Collections
         {
             if (capacity == -1)
             {
-                _buckets = Default.EmptyArray<int>();
-                _entries = Default.EmptyArray<Entry>();
+                _buckets = Default.Array<int>();
+                _entries = Default.Array<Entry>();
                 return;
             }
 

@@ -22,14 +22,14 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public bool CanSerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
+        public bool CanSerialize<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<ISerializerComponent>().CanSerialize(target, metadata);
+            return GetComponents<ISerializerComponent>().CanSerialize(request, metadata);
         }
 
-        public Stream Serialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null)
+        public Stream Serialize<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<ISerializerComponent>().TrySerialize(target, metadata);
+            var result = GetComponents<ISerializerComponent>().TrySerialize(request, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return result;

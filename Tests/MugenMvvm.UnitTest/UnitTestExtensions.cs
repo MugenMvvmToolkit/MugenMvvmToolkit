@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTest
             if (itemOrList.List != null)
                 return itemOrList.List.ToArray();
             if (itemOrList.Item == null)
-                return Default.EmptyArray<TItem>();
+                return Default.Array<TItem>();
             return new[] { itemOrList.Item! };
         }
 

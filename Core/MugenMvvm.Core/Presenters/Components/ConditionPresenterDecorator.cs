@@ -47,7 +47,7 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.EmptyArray<IPresenterResult>(), request, metadata))
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.Array<IPresenterResult>(), request, metadata))
                     result.AddRange(presenter.TryClose(request, cancellationToken, metadata));
             }
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.EmptyArray<IPresenterResult>(), request, metadata))
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.Array<IPresenterResult>(), request, metadata))
                     result.AddRange(presenter.TryRestore(request, cancellationToken, metadata));
             }
 

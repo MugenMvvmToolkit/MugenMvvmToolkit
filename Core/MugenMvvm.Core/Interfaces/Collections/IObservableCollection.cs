@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Collections
 {

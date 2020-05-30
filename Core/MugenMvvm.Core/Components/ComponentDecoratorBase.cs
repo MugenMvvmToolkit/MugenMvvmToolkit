@@ -3,6 +3,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Components
 {
@@ -20,7 +21,7 @@ namespace MugenMvvm.Components
 
         protected ComponentDecoratorBase()
         {
-            Components = Default.EmptyArray<TComponent>();
+            Components = Default.Array<TComponent>();
         }
 
         #endregion
@@ -44,7 +45,7 @@ namespace MugenMvvm.Components
         protected override void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
         {
             owner.Components.RemoveComponent(this, metadata);
-            Components = Default.EmptyArray<TComponent>();
+            Components = Default.Array<TComponent>();
         }
 
         protected virtual void DecorateInternal(IList<TComponent> components, IReadOnlyMetadataContext? metadata)

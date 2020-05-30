@@ -10,6 +10,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation
 {
@@ -80,7 +81,7 @@ namespace MugenMvvm.Validation
 
         public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(memberName, metadata) ?? Default.EmptyArray<object>();
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(memberName, metadata) ?? Default.Array<object>();
         }
 
         public IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null)
@@ -105,7 +106,7 @@ namespace MugenMvvm.Validation
         private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class
         {
-            return IsDisposed ? Default.EmptyArray<TComponent>() : base.GetComponents<TComponent>(metadata);
+            return IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
         }
 
         #endregion

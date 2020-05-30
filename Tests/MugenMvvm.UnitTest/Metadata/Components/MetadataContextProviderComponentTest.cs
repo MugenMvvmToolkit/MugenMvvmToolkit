@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using Should;
 using Xunit;

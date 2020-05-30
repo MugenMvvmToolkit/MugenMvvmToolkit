@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Busy
 {

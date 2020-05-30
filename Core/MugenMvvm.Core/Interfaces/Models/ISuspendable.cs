@@ -1,5 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Interfaces.Metadata;
+﻿using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Models
 {
@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Models
     {
         bool IsSuspended { get; }
 
-        ActionToken Suspend<TState>([AllowNull]in TState state, IReadOnlyMetadataContext? metadata);
+        ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -6,6 +6,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;

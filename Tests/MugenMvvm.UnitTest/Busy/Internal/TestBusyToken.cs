@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Busy.Internal
 {

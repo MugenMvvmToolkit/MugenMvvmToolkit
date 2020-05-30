@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Serialization;
+﻿using MugenMvvm.Internal;
+using MugenMvvm.Serialization;
 using Should;
 using Xunit;
 

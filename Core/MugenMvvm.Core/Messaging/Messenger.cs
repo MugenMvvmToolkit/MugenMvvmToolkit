@@ -7,6 +7,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Messaging
 {
@@ -57,7 +58,7 @@ namespace MugenMvvm.Messaging
 
         public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(metadata) ?? Default.EmptyArray<MessengerSubscriberInfo>();
+            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(metadata) ?? Default.Array<MessengerSubscriberInfo>();
         }
 
         #endregion

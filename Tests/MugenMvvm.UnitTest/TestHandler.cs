@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest
 {

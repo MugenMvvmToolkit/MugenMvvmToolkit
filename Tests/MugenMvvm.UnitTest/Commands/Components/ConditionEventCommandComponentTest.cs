@@ -6,6 +6,7 @@ using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
+using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTest.Internal.Internal;
@@ -41,7 +42,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             };
 
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new ConditionEventCommandComponent(threadDispatcher, executionMode, Default.EmptyArray<object>(), null);
+            var conditionEventCommandComponent = new ConditionEventCommandComponent(threadDispatcher, executionMode, Default.Array<object>(), null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
@@ -75,7 +76,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             };
 
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, executionMode, Default.EmptyArray<object>(), null);
+            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, executionMode, Default.Array<object>(), null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
@@ -94,7 +95,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         public void ShouldSubscribeUnsubscribeRaiseEventHandler()
         {
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.EmptyArray<object>(), null);
+            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) =>
@@ -117,7 +118,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         public void ShouldSuspendNotifications()
         {
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.EmptyArray<object>(), null);
+            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
@@ -276,7 +277,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         public void DisposeShouldClearEventHandler()
         {
             var compositeCommand = new CompositeCommand();
-            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.EmptyArray<object>(), null);
+            var conditionEventCommandComponent = new ConditionEventCommandComponent(null, ThreadExecutionMode.Current, Default.Array<object>(), null);
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) =>

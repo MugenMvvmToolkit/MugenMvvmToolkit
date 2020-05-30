@@ -17,7 +17,7 @@ namespace MugenMvvm.Interfaces.Navigation
 
         IReadOnlyList<INavigationEntry> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata = null);
+        IReadOnlyList<INavigationCallback> GetNavigationCallbacks<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
         Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default);
 

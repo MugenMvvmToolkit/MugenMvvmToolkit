@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands
 {
@@ -110,7 +111,7 @@ namespace MugenMvvm.Commands
         private new TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class
         {
-            return IsDisposed ? Default.EmptyArray<TComponent>() : base.GetComponents<TComponent>(metadata);
+            return IsDisposed ? Default.Array<TComponent>() : base.GetComponents<TComponent>(metadata);
         }
 
         public static ICompositeCommand Create(Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,

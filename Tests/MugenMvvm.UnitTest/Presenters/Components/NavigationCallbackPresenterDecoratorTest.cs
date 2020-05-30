@@ -2,6 +2,7 @@
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.Presenters;
 using MugenMvvm.Presenters.Components;

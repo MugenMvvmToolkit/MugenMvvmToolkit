@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Enums
         [Fact]
         public void ParseTryParseShouldUseCachedValues()
         {
-            ApplicationState.TryParse(null, out var v).ShouldBeFalse();
+            ViewLifecycleState.TryParse(null, out var v).ShouldBeFalse();
             TestEnum.SetEnumerations(new Dictionary<int, TestEnum>());
             var v1 = -1;
             var v2 = -2;

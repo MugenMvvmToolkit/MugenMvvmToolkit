@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Linq;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTest
+namespace MugenMvvm.UnitTest.Internal
 {
     public class DefaultTest : UnitTestBase
     {
@@ -15,9 +16,8 @@ namespace MugenMvvm.UnitTest
         [Fact]
         public void ValuesShouldBeValid()
         {
-            Default.EmptyArray<string>().ShouldBeEmpty();
+            Default.Array<string>().ShouldBeEmpty();
             new TestEnumerable().SequenceEqual(new[] {1}).ShouldBeTrue();
-            Default.CanceledTask<object>().IsCanceled.ShouldBeTrue();
             Default.ReadOnlyDictionary<object, object>().ShouldBeEmpty();
             Default.IsNullable<object>().ShouldBeTrue();
             Default.IsNullable<bool>().ShouldBeFalse();

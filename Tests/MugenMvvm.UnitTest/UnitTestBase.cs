@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest
     {
         #region Fields
 
-        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.EmptyArray<MetadataContextValue>());
+        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<MetadataContextValue>());
 
         #endregion
 
