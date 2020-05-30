@@ -15,9 +15,9 @@ namespace MugenMvvm.UnitTest.Wrapping.Internal
 
         #region Implementation of interfaces
 
-        void IWrapperManagerListener.OnWrapped(IWrapperManager wrapperManager, object wrapper, object item, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        void IWrapperManagerListener.OnWrapped<TRequest>(IWrapperManager wrapperManager, object wrapper, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            OnWrapped?.Invoke(wrapperManager, wrapper, item, wrapperType, metadata);
+            OnWrapped?.Invoke(wrapperManager, wrapper, request!, typeof(TRequest), metadata);
         }
 
         #endregion

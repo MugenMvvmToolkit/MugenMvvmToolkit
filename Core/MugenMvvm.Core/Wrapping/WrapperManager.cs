@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
@@ -23,18 +24,18 @@ namespace MugenMvvm.Wrapping
 
         #region Implementation of interfaces
 
-        public bool CanWrap(Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
+        public bool CanWrap<TRequest>(Type wrapperType, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(targetType, wrapperType, metadata);
+            return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(wrapperType, request, metadata);
         }
 
-        public object Wrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata = null)
+        public object Wrap<TRequest>(Type wrapperType, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(target, wrapperType, metadata);
+            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(wrapperType, request, metadata);
             if (wrapper == null)
                 ExceptionManager.ThrowWrapperTypeNotSupported(wrapperType);
 
-            GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper!, target, wrapperType, metadata);
+            GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper, request, metadata);
             return wrapper;
         }
 

@@ -1,25 +1,28 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Wrapping.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Wrapping.Components
 {
-    public sealed class DelegateWrapperManager<TState> : IWrapperManagerComponent, IHasPriority
+    public sealed class DelegateWrapperManager<TConditionRequest, TWrapRequest, TState> : IWrapperManagerComponent, IHasPriority
     {
         #region Fields
 
-        private readonly Func<Type, Type, TState, IReadOnlyMetadataContext?, bool> _condition;
+        private readonly Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> _condition;
         private readonly TState _state;
-        private readonly Func<object, Type, TState, IReadOnlyMetadataContext?, object?> _wrapperFactory;
+        private readonly Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> _wrapperFactory;
 
         #endregion
 
         #region Constructors
 
-        public DelegateWrapperManager(Func<Type, Type, TState, IReadOnlyMetadataContext?, bool> condition,
-            Func<object, Type, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, TState state)
+        public DelegateWrapperManager(Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> condition,
+            Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, TState state)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(wrapperFactory, nameof(wrapperFactory));
@@ -38,15 +41,17 @@ namespace MugenMvvm.Wrapping.Components
 
         #region Implementation of interfaces
 
-        public bool CanWrap(Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public bool CanWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return _condition(targetType, wrapperType, _state, metadata);
+            if (typeof(TRequest) == typeof(TConditionRequest) || !Default.IsValueType<TRequest>() && request is TConditionRequest)
+                return _condition.Invoke(wrapperType, MugenExtensions.CastGeneric<TRequest, TConditionRequest>(request), _state, metadata);
+            return false;
         }
 
-        public object? TryWrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata)
+        public object? TryWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (CanWrap(target.GetType(), wrapperType, metadata))
-                return _wrapperFactory(target, wrapperType, _state, metadata);
+            if (typeof(TRequest) == typeof(TWrapRequest) || !Default.IsValueType<TRequest>() && request is TWrapRequest)
+                return _wrapperFactory.Invoke(wrapperType, MugenExtensions.CastGeneric<TRequest, TWrapRequest>(request), _state, metadata);
             return null;
         }
 

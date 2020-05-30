@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -6,8 +7,8 @@ namespace MugenMvvm.Interfaces.Wrapping.Components
 {
     public interface IWrapperManagerComponent : IComponent<IWrapperManager>
     {
-        bool CanWrap(Type targetType, Type wrapperType, IReadOnlyMetadataContext? metadata);
+        bool CanWrap<TRequest>(Type wrapperType, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        object? TryWrap(object target, Type wrapperType, IReadOnlyMetadataContext? metadata);
+        object? TryWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

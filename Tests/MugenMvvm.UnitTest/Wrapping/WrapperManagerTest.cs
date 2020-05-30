@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Wrapping
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new DelegateWrapperManager<object>((targetType, wrapperType, state, metadata) =>
+                var component = new DelegateWrapperManager<object, object, object>((wrapperType, targetType, state, metadata) =>
                 {
                     ++executeCount;
                     targetType.ShouldEqual(expectedTargetType);
@@ -41,12 +41,12 @@ namespace MugenMvvm.UnitTest.Wrapping
                 manager.AddComponent(component);
             }
 
-            manager.CanWrap(expectedTargetType, expectedWrapperType, DefaultMetadata).ShouldEqual(result);
+            manager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             result = true;
-            manager.CanWrap(expectedTargetType, expectedWrapperType, DefaultMetadata).ShouldEqual(result);
+            manager.CanWrap(expectedWrapperType, expectedTargetType, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(1);
         }
 
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Wrapping
         public void WrapShouldThrowNoComponents()
         {
             var manager = new WrapperManager();
-            ShouldThrow<ArgumentException>(() => manager.Wrap(this, typeof(IComponent), DefaultMetadata));
+            ShouldThrow<ArgumentException>(() => manager.Wrap(typeof(IComponent), this, DefaultMetadata));
         }
 
         [Theory]
@@ -70,8 +70,8 @@ namespace MugenMvvm.UnitTest.Wrapping
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new DelegateWrapperManager<object>((targetType, wrapperType, state, metadata) => true,
-                    (t, wrapperType, state, metadata) =>
+                var component = new DelegateWrapperManager<object, object, object>((wrapperType, targetType, state, metadata) => true,
+                    (wrapperType, t, state, metadata) =>
                     {
                         ++executeCount;
                         t.ShouldEqual(manager);
@@ -94,13 +94,13 @@ namespace MugenMvvm.UnitTest.Wrapping
                         wrapperManager.ShouldEqual(manager);
                         wrapper.ShouldEqual(result);
                         item.ShouldEqual(manager);
-                        wrapperType.ShouldEqual(expectedWrapperType);
+                        wrapperType.ShouldEqual(manager.GetType());
                         metadata.ShouldEqual(DefaultMetadata);
                     }
                 });
             }
 
-            manager.Wrap(manager, expectedWrapperType, DefaultMetadata).ShouldEqual(result);
+            manager.Wrap(expectedWrapperType, manager, DefaultMetadata).ShouldEqual(result);
             executeCount.ShouldEqual(count);
             listenerExecuteCount.ShouldEqual(count);
         }
