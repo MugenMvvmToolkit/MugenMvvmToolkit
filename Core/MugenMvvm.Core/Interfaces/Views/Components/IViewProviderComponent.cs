@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewProviderComponent : IComponent<IViewManager>
     {
-        IReadOnlyList<IView>? TryGetViews(IViewModelBase viewModel, IReadOnlyMetadataContext? metadata);
+        IReadOnlyList<IView>? TryGetViews<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }
