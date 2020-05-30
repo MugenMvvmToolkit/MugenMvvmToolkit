@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Requests;
 using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.UnitTest.Views.Internal;
 using MugenMvvm.Views;
@@ -22,151 +24,169 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var component = new ViewInitializer();
-            component.TryInitializeAsync(mapping, null, null, CancellationToken.None, DefaultMetadata).ShouldBeNull();
+            component.TryInitializeAsync(mapping, new ViewModelViewRequest(), CancellationToken.None, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void ShouldInitializeCleanupGetViews(int count)
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void ShouldInitializeCleanupGetViews(int count, bool owner)
         {
-            var viewModel = new TestViewModel();
+            var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
             var component = new ViewInitializer();
             manager.AddComponent(component);
-            var results = new List<ViewInitializationResult>();
+            var results = new List<IView>();
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
                 var view = new object();
                 var mapping = new ViewModelViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result);
+                var result = component.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+                results.Add(result);
+
+                result.Mapping.ShouldEqual(mapping);
+                result.ViewModel.ShouldEqual(viewModel);
+
+                component.TryGetViews(viewModel, DefaultMetadata)!.ShouldContain(results);
+                component.TryGetViews(view, DefaultMetadata).Single().ShouldEqual(results.Last());
             }
 
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
-                component.TryGetViews(viewModel, DefaultMetadata).SequenceEqual(results.Select(result => result.View)).ShouldBeTrue();
-                component.TryCleanupAsync(results[0].View, viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
+                var view = results[0];
+                component.TryGetViews(viewModel, DefaultMetadata)!.ShouldContain(results);
+                component.TryGetViews(view.Target, DefaultMetadata).Single().ShouldEqual(view);
+                component.TryCleanupAsync(view, viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
+                component.TryGetViews(view.Target, DefaultMetadata).ShouldBeEmpty();
                 results.RemoveAt(0);
             }
-            component.TryGetViews(viewModel, DefaultMetadata).ShouldBeNull();
+
+            component.TryGetViews(viewModel, DefaultMetadata).ShouldBeEmpty();
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryCleanupAsyncShouldNotifyListeners(int count)
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void TryCleanupAsyncShouldNotifyViewLifecycle(int count, bool owner)
         {
             const int viewCount = 10;
-            var viewModel = new TestViewModel();
+            var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
             var component = new ViewInitializer();
             manager.AddComponent(component);
-            var results = new List<ViewInitializationResult>();
+            var results = new List<IView>();
 
-            for (int i = 0; i < viewCount; i++)
+            for (var i = 0; i < viewCount; i++)
             {
                 var view = new object();
                 var mapping = new ViewModelViewMapping("id" + i, typeof(object), typeof(TestViewModel), DefaultMetadata);
-                results.Add(component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result);
+                results.Add(component.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result);
             }
 
-            int invokeCount = 0;
+            var states = new Dictionary<ViewLifecycleState, List<ViewLifecycleState>>();
             IView? expectedView = null;
-            for (int i = 0; i < count; i++)
+            for (var i = 0; i < count; i++)
             {
-                var listener = new TestViewManagerListener
+                var listener = new TestViewLifecycleDispatcherComponent
                 {
-                    OnViewInitialized = (viewManager, v, vm, meta) => throw new NotSupportedException(),
-                    OnViewCleared = (viewManager, v, vm, meta) =>
+                    OnLifecycleChanged = (v, s, st, t, m) =>
                     {
-                        ++invokeCount;
+                        if (!states.TryGetValue(s, out var list))
+                        {
+                            list = new List<ViewLifecycleState>();
+                            states[s] = list;
+                        }
+                        list.Add(s);
                         v.ShouldEqual(expectedView);
-                        viewModel.ShouldEqual(viewModel);
-                        meta.ShouldEqual(DefaultMetadata);
+                        st.ShouldEqual(viewModel);
+                        t.ShouldEqual(typeof(TestViewModel));
+                        m.ShouldEqual(DefaultMetadata);
                     }
                 };
                 manager.AddComponent(listener);
             }
 
-            for (int i = 0; i < viewCount; i++)
+            for (var i = 0; i < viewCount; i++)
             {
-                expectedView = results[0].View;
-                component.TryCleanupAsync(results[0].View, viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
+                expectedView = results[0];
+                component.TryCleanupAsync(results[0], viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
                 results.RemoveAt(0);
             }
 
-            invokeCount.ShouldEqual(count * viewCount);
+            states.Count.ShouldEqual(2);
+            states[ViewLifecycleState.Clearing].Count.ShouldEqual(count * viewCount);
+            states[ViewLifecycleState.Cleared].Count.ShouldEqual(count * viewCount);
         }
 
         [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void TryInitializeAsyncShouldInitializeViewAndNotifyListeners(int count)
+        [InlineData(1, true)]
+        [InlineData(1, false)]
+        [InlineData(10, true)]
+        [InlineData(10, false)]
+        public void TryInitializeAsyncShouldInitializeViewAndNotifyListeners(int count, bool owner)
         {
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new object();
             var clearView = view;
-            var viewModel = new TestViewModel();
+            var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
             var component = new ViewInitializer();
             manager.AddComponent(component);
 
-            int invokeCount = 0;
-            int clearInvokeCount = 0;
-            for (int i = 0; i < count; i++)
+            var states = new Dictionary<ViewLifecycleState, List<ViewLifecycleState>>();
+            for (var i = 0; i < count; i++)
             {
-                var listener = new TestViewManagerListener
+                var listener = new TestViewLifecycleDispatcherComponent
                 {
-                    OnViewInitialized = (viewManager, v, vm, meta) =>
+                    OnLifecycleChanged = (v, s, st, t, m) =>
                     {
-                        ++invokeCount;
-                        viewManager.ShouldEqual(manager);
+                        if (!states.TryGetValue(s, out var list))
+                        {
+                            list = new List<ViewLifecycleState>();
+                            states[s] = list;
+                        }
+                        list.Add(s);
                         v.Mapping.ShouldEqual(mapping);
-                        v.Target.ShouldEqual(view);
-                        viewModel.ShouldEqual(viewModel);
-                        meta.ShouldEqual(DefaultMetadata);
+                        if (s == ViewLifecycleState.Clearing || s == ViewLifecycleState.Cleared)
+                            v.Target.ShouldEqual(clearView);
+                        else
+                            v.Target.ShouldEqual(view);
+                        m.ShouldEqual(DefaultMetadata);
                     },
-                    OnViewCleared = (viewManager, v, vm, meta) =>
-                    {
-                        ++clearInvokeCount;
-                        v.Mapping.ShouldEqual(mapping);
-                        v.Target.ShouldEqual(clearView);
-                        viewModel.ShouldEqual(viewModel);
-                        meta.ShouldEqual(DefaultMetadata);
-                    }
+                    Priority = i
                 };
                 manager.AddComponent(listener);
             }
 
-            var result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
-            result.View.Mapping.ShouldEqual(mapping);
-            result.View.Target.ShouldEqual(view);
+            var result = component.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+            result.Mapping.ShouldEqual(mapping);
+            result.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
-            result.Metadata.ShouldEqual(DefaultMetadata);
-            invokeCount.ShouldEqual(count);
-            clearInvokeCount.ShouldEqual(0);
+            states.Count.ShouldEqual(2);
+            states[ViewLifecycleState.Initializing].Count.ShouldEqual(count);
+            states[ViewLifecycleState.Initialized].Count.ShouldEqual(count);
 
-            invokeCount = 0;
-            clearInvokeCount = 0;
-            result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
-            result.View.Mapping.ShouldEqual(mapping);
-            result.View.Target.ShouldEqual(view);
+            states.Clear();
+            result = component.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+            result.Mapping.ShouldEqual(mapping);
+            result.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
-            result.Metadata.ShouldEqual(DefaultMetadata);
-            invokeCount.ShouldEqual(0);
-            clearInvokeCount.ShouldEqual(0);
+            states.Count.ShouldEqual(0);
 
-            invokeCount = 0;
-            clearInvokeCount = 0;
             view = new object();
-            result = component.TryInitializeAsync(mapping, view, viewModel, CancellationToken.None, DefaultMetadata)!.Result;
-            result.View.Mapping.ShouldEqual(mapping);
-            result.View.Target.ShouldEqual(view);
+            result = component.TryInitializeAsync(mapping, new ViewModelViewRequest(viewModel, view), CancellationToken.None, DefaultMetadata)!.Result;
+            result.Mapping.ShouldEqual(mapping);
+            result.Target.ShouldEqual(view);
             result.ViewModel.ShouldEqual(viewModel);
-            result.Metadata.ShouldEqual(DefaultMetadata);
-            invokeCount.ShouldEqual(count);
-            clearInvokeCount.ShouldEqual(count);
+            states[ViewLifecycleState.Initializing].Count.ShouldEqual(count);
+            states[ViewLifecycleState.Initialized].Count.ShouldEqual(count);
+            states[ViewLifecycleState.Clearing].Count.ShouldEqual(count);
+            states[ViewLifecycleState.Cleared].Count.ShouldEqual(count);
         }
 
         #endregion

@@ -3,10 +3,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Views;
 
 namespace MugenMvvm.UnitTest.Views.Internal
 {
@@ -14,9 +12,9 @@ namespace MugenMvvm.UnitTest.Views.Internal
     {
         #region Properties
 
-        public Func<IViewModelViewMapping, object?, IViewModelBase?, IReadOnlyMetadataContext?, CancellationToken, Task<ViewInitializationResult>?>? TryInitializeAsync { get; set; }
+        public Func<IViewModelViewMapping, object, Type, IReadOnlyMetadataContext?, CancellationToken, Task<IView>?>? TryInitializeAsync { get; set; }
 
-        public Func<IView, IViewModelBase?, IReadOnlyMetadataContext?, CancellationToken, Task?>? TryCleanupAsync { get; set; }
+        public Func<IView, object?, Type, IReadOnlyMetadataContext?, CancellationToken, Task?>? TryCleanupAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -24,15 +22,14 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        Task<ViewInitializationResult>? IViewInitializerComponent.TryInitializeAsync(IViewModelViewMapping mapping, object? view, IViewModelBase? viewModel,
-            CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task<IView>? IViewInitializerComponent.TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return TryInitializeAsync?.Invoke(mapping, view, viewModel, metadata, cancellationToken);
+            return TryInitializeAsync?.Invoke(mapping, request!, typeof(TRequest), metadata, cancellationToken);
         }
 
-        Task? IViewInitializerComponent.TryCleanupAsync(IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task? IViewInitializerComponent.TryCleanupAsync<TRequest>(IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return TryCleanupAsync?.Invoke(view, viewModel, metadata, cancellationToken);
+            return TryCleanupAsync?.Invoke(view, request, typeof(TRequest), metadata, cancellationToken);
         }
 
         #endregion

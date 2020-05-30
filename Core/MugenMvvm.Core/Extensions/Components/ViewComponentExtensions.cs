@@ -1,12 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
-using MugenMvvm.Views;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -14,53 +14,47 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IReadOnlyList<IView>? TryGetViews(this IViewProviderComponent[] components, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            if (components.Length == 1)
-                return components[0].TryGetViews(viewModel, metadata);
-
-            LazyList<IView> result = default;
-            for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetViews(viewModel, metadata));
-            return result.List;
-        }
-
-        public static IReadOnlyList<IViewModelViewMapping>? TryGetMappingByView(this IViewModelViewMappingProviderComponent[] components, object view, IReadOnlyMetadataContext? metadata)
+        public static void OnLifecycleChanged<TState>(this IViewLifecycleDispatcherComponent[] components, IView view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(view, nameof(view));
-            if (components.Length == 1)
-                return components[0].TryGetMappingByView(view, metadata);
-
-            LazyList<IViewModelViewMapping> result = default;
-            for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetMappingByView(view, metadata));
-            return result.List;
+            Should.NotBeNull(lifecycleState, nameof(lifecycleState));
+            for (int i = 0; i < components.Length; i++)
+                components[i].OnLifecycleChanged(view, lifecycleState, state, metadata);
         }
 
-        public static IReadOnlyList<IViewModelViewMapping>? TryGetMappingByViewModel(this IViewModelViewMappingProviderComponent[] components, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<IView>? TryGetViews<TRequest>(this IViewProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(viewModel, nameof(viewModel));
             if (components.Length == 1)
-                return components[0].TryGetMappingByViewModel(viewModel, metadata);
+                return components[0].TryGetViews(request, metadata);
 
-            LazyList<IViewModelViewMapping> result = default;
+            LazyList<IView> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetMappingByViewModel(viewModel, metadata));
+                result.AddRange(components[i].TryGetViews(request, metadata));
             return result.List;
         }
 
-        public static Task<ViewInitializationResult>? TryInitializeAsync(this IViewInitializerComponent[] components, IViewModelViewMapping mapping, object? view,
-            IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyList<IViewModelViewMapping>? TryGetMappings<TRequest>(this IViewModelViewMappingProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            if (components.Length == 1)
+                return components[0].TryGetMappings(request, metadata);
+
+            LazyList<IViewModelViewMapping> result = default;
+            for (var i = 0; i < components.Length; i++)
+                result.AddRange(components[i].TryGetMappings(request, metadata));
+            return result.List;
+        }
+
+        public static Task<IView>? TryInitializeAsync<TRequest>(this IViewInitializerComponent[] components, IViewModelViewMapping mapping,
+            [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(mapping, nameof(mapping));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryInitializeAsync(mapping, view, viewModel, cancellationToken, metadata);
+                var result = components[i].TryInitializeAsync(mapping, request, cancellationToken, metadata);
                 if (result != null)
                     return result;
             }
@@ -68,38 +62,26 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Task? TryCleanupAsync(this IViewInitializerComponent[] components, IView view, IViewModelBase? viewModel, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task? TryCleanupAsync<TRequest>(this IViewInitializerComponent[] components, IView view, TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(view, nameof(view));
+            if (components.Length == 0)
+                return components[0].TryCleanupAsync(view, request, cancellationToken, metadata);
+
+            LazyList<Task> result = default;
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryCleanupAsync(view, viewModel, cancellationToken, metadata);
-                if (result != null)
-                    return result;
+                var task = components[i].TryCleanupAsync(view, request, cancellationToken, metadata);
+                if (task != null)
+                    result.Add(task);
             }
 
-            return null;
-        }
-
-        public static void OnViewInitialized(this IViewManagerListener[] listeners, IViewManager viewManager, IView view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            Should.NotBeNull(view, nameof(view));
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnViewInitialized(viewManager, view, viewModel, metadata);
-        }
-
-        public static void OnViewCleared(this IViewManagerListener[] listeners, IViewManager viewManager, IView view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(viewManager, nameof(viewManager));
-            Should.NotBeNull(view, nameof(view));
-            Should.NotBeNull(viewModel, nameof(viewModel));
-            for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnViewCleared(viewManager, view, viewModel, metadata);
+            if (result.List == null)
+                return null;
+            if (result.Count == 1)
+                return result.List[0];
+            return Task.WhenAll(result.List);
         }
 
         #endregion

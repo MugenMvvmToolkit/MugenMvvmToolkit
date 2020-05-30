@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Metadata;
 
@@ -17,13 +18,15 @@ namespace MugenMvvm.Views
 
         #region Constructors
 
-        public View(IViewModelViewMapping mapping, object view, IComponentCollectionProvider? componentCollectionProvider = null, IReadOnlyMetadataContext? metadata = null,
-            IMetadataContextProvider? metadataContextProvider = null)
+        public View(IViewModelViewMapping mapping, object view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null,
+            IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(metadata, metadataContextProvider)
         {
             Should.NotBeNull(mapping, nameof(mapping));
             Should.NotBeNull(view, nameof(view));
+            Should.NotBeNull(viewModel, nameof(viewModel));
             Mapping = mapping;
+            ViewModel = viewModel;
             Target = view;
             _componentCollectionProvider = componentCollectionProvider;
         }
@@ -45,6 +48,8 @@ namespace MugenMvvm.Views
         }
 
         public IViewModelViewMapping Mapping { get; }
+
+        public IViewModelBase ViewModel { get; }
 
         public object Target { get; }
 

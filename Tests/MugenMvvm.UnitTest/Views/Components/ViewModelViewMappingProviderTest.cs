@@ -28,22 +28,36 @@ namespace MugenMvvm.UnitTest.Views.Components
             try
             {
                 var vm = new TestViewModel();
-                var mapping = component.TryGetMappingByViewModel(vm, metadata).Single();
+                var mapping = component.TryGetMappings(vm, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vm.GetType());
                 mapping.Metadata.ShouldEqual(DefaultMetadata);
                 mapping.Id.ShouldEqual(name ?? vmType.FullName + vType.FullName);
 
-                component.TryGetMappingByViewModel(new ViewModelImpl(), metadata).ShouldBeNull();
+                mapping = component.TryGetMappings(vm.GetType(), metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vm.GetType());
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Id.ShouldEqual(name ?? vmType.FullName + vType.FullName);
+
+                component.TryGetMappings(new ViewModelImpl(), metadata).ShouldBeNull();
+                component.TryGetMappings(typeof(ViewModelImpl), metadata).ShouldBeNull();
 
                 var view = new BaseView();
-                mapping = component.TryGetMappingByView(view, metadata).Single();
+                mapping = component.TryGetMappings(view, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
                 mapping.Metadata.ShouldEqual(DefaultMetadata);
                 mapping.Id.ShouldEqual(name ?? vmType.FullName + vType.FullName);
 
-                component.TryGetMappingByView(new ViewImpl(), metadata).ShouldBeNull();
+                mapping = component.TryGetMappings(view.GetType(), metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+                mapping.Id.ShouldEqual(name ?? vmType.FullName + vType.FullName);
+
+                component.TryGetMappings(new ViewImpl(), metadata).ShouldBeNull();
+                component.TryGetMappings(typeof(ViewImpl), metadata).ShouldBeNull();
             }
             catch
             {
@@ -61,39 +75,70 @@ namespace MugenMvvm.UnitTest.Views.Components
             var component = new ViewModelViewMappingProvider();
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
+            var id = $"{vmType.FullName}{vType.FullName}{name}";
             var metadata = new MetadataContext();
             if (name != null && !shouldFail)
                 metadata.Set(NavigationMetadata.ViewName, name);
-            component.AddMapping(vmType, vType, false, name, name, DefaultMetadata);
+            component.AddMapping(vmType, vType, false, name, null, DefaultMetadata);
 
             try
             {
                 var vm = new TestViewModel();
-                var mapping = component.TryGetMappingByViewModel(vm, metadata).Single();
+                var mapping = component.TryGetMappings(vm, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
-                mapping.ViewModelType.ShouldEqual(vm.GetType());
-                mapping.Id.ShouldEqual(name ?? vm.GetType().FullName + vType.FullName);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+
+                mapping = component.TryGetMappings(vm.GetType(), metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
                 mapping.Metadata.ShouldEqual(DefaultMetadata);
 
                 vm = new ViewModelImpl();
-                mapping = component.TryGetMappingByViewModel(vm, metadata).Single();
+                mapping = component.TryGetMappings(vm, metadata).Single();
                 mapping.ViewType.ShouldEqual(vType);
-                mapping.ViewModelType.ShouldEqual(vm.GetType());
-                mapping.Id.ShouldEqual(name ?? vm.GetType().FullName + vType.FullName);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+
+                mapping = component.TryGetMappings(vm.GetType(), metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
                 mapping.Metadata.ShouldEqual(DefaultMetadata);
 
                 var view = new BaseView();
-                mapping = component.TryGetMappingByView(view, metadata).Single();
-                mapping.ViewType.ShouldEqual(view.GetType());
+                mapping = component.TryGetMappings(view, metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
-                mapping.Id.ShouldEqual(name ?? vmType.FullName + view.GetType().FullName);
+                mapping.Id.ShouldEqual(id);
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+
+                mapping = component.TryGetMappings(view.GetType(), metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
                 mapping.Metadata.ShouldEqual(DefaultMetadata);
 
                 view = new ViewImpl();
-                mapping = component.TryGetMappingByView(view, metadata).Single();
-                mapping.ViewType.ShouldEqual(view.GetType());
+                mapping = component.TryGetMappings(view, metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
                 mapping.ViewModelType.ShouldEqual(vmType);
-                mapping.Id.ShouldEqual(name ?? vmType.FullName + view.GetType().FullName);
+                mapping.Id.ShouldEqual(id);
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+
+                mapping = component.TryGetMappings(view.GetType(), metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
+                mapping.Metadata.ShouldEqual(DefaultMetadata);
+
+                mapping = component.TryGetMappings(id, metadata).Single();
+                mapping.ViewType.ShouldEqual(vType);
+                mapping.ViewModelType.ShouldEqual(vmType);
+                mapping.Id.ShouldEqual(id);
                 mapping.Metadata.ShouldEqual(DefaultMetadata);
             }
             catch
@@ -101,39 +146,6 @@ namespace MugenMvvm.UnitTest.Views.Components
                 if (!shouldFail)
                     throw;
             }
-        }
-
-        [Fact]
-        public void AddMappingShouldAddMapping3()
-        {
-            var component = new ViewModelViewMappingProvider();
-            var vm = new TestViewModel();
-            var view = new BaseView();
-            var vmType = typeof(TestViewModel);
-            var vType = typeof(BaseView);
-            int getViewCount = 0;
-            int getViewModelCount = 0;
-            component.AddMapping((viewModel, context) =>
-            {
-                ++getViewCount;
-                viewModel.ShouldEqual(vm);
-                context.ShouldEqual(DefaultMetadata);
-                return vType;
-            }, (v, context) =>
-            {
-                ++getViewModelCount;
-                view.ShouldEqual(v);
-                context.ShouldEqual(DefaultMetadata);
-                return vmType;
-            }, null, DefaultMetadata);
-
-            component.TryGetMappingByView(view, DefaultMetadata).Single().ViewType.ShouldEqual(vType);
-            getViewCount.ShouldEqual(0);
-            getViewModelCount.ShouldEqual(1);
-
-            component.TryGetMappingByViewModel(vm, DefaultMetadata).Single().ViewModelType.ShouldEqual(vmType);
-            getViewCount.ShouldEqual(1);
-            getViewModelCount.ShouldEqual(1);
         }
 
         [Fact]
@@ -145,10 +157,10 @@ namespace MugenMvvm.UnitTest.Views.Components
             component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);
 
             var vm = new TestViewModel();
-            component.TryGetMappingByViewModel(vm, DefaultMetadata).Single().ShouldNotBeNull();
+            component.TryGetMappings(vm, DefaultMetadata).Single().ShouldNotBeNull();
 
             component.ClearMappings();
-            component.TryGetMappingByViewModel(vm, DefaultMetadata).ShouldBeNull();
+            component.TryGetMappings(vm, DefaultMetadata).ShouldBeNull();
         }
 
         #endregion

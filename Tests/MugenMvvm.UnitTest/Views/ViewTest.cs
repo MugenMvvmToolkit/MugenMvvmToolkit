@@ -17,14 +17,16 @@ namespace MugenMvvm.UnitTest.Views
         {
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new object();
-            IView v = new View(mapping, view);
+            var testViewModel = new TestViewModel();
+            IView v = new View(mapping, view, testViewModel);
             v.Mapping.ShouldEqual(mapping);
             v.Target.ShouldEqual(view);
+            v.ViewModel.ShouldEqual(testViewModel);
         }
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, null, metadata, metadataContextProvider);
+            return new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel(), metadata, null, metadataContextProvider);
         }
 
         #endregion

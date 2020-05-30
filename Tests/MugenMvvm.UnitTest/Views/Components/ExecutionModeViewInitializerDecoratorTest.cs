@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Threading;
 using MugenMvvm.UnitTest.Threading.Internal;
 using MugenMvvm.UnitTest.ViewModels.Internal;
@@ -23,9 +24,8 @@ namespace MugenMvvm.UnitTest.Views.Components
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewInitializerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
-            var view = new object();
             var viewModel = new TestViewModel();
-            var result = Task.FromResult(new ViewInitializationResult());
+            var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var cancellationToken = new CancellationTokenSource().Token;
             Action? action = null;
             dispatcher.AddComponent(new TestThreadDispatcherComponent
@@ -45,33 +45,32 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewInitializerComponent
             {
-                TryInitializeAsync = (viewMapping, v, vm, meta, token) =>
+                TryInitializeAsync = (viewMapping, r, t, meta, token) =>
                 {
                     viewMapping.ShouldEqual(mapping);
-                    v.ShouldEqual(view);
-                    vm.ShouldEqual(viewModel);
+                    r.ShouldEqual(viewModel);
+                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;
                 }
             });
 
-            manager.InitializeAsync(mapping, view, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata).ShouldEqual(result);
             action.ShouldBeNull();
         }
 
         [Theory]
-        [InlineData(0)]//success
-        [InlineData(1)]//canceled
-        [InlineData(2)]//error
+        [InlineData(0)] //success
+        [InlineData(1)] //canceled
+        [InlineData(2)] //error
         public void TryInitializeAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewInitializerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
-            var view = new object();
             var viewModel = new TestViewModel();
-            var result = Task.FromResult(new ViewInitializationResult(new View(mapping, view), viewModel, DefaultMetadata));
+            var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             var ex = new Exception();
@@ -94,11 +93,11 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewInitializerComponent
             {
-                TryInitializeAsync = (viewMapping, v, vm, meta, token) =>
+                TryInitializeAsync = (viewMapping, r, t, meta, token) =>
                 {
                     viewMapping.ShouldEqual(mapping);
-                    v.ShouldEqual(view);
-                    vm.ShouldEqual(viewModel);
+                    r.ShouldEqual(viewModel);
+                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)
@@ -109,7 +108,7 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             if (state == 1)
                 cancellationTokenSource.Cancel();
-            var task = manager.InitializeAsync(mapping, view, viewModel, cancellationToken, DefaultMetadata);
+            var task = manager.InitializeAsync(mapping, viewModel, cancellationToken, DefaultMetadata);
             task.IsCompleted.ShouldBeFalse();
             action!();
             switch (state)
@@ -133,10 +132,9 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewInitializerDecorator(dispatcher);
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
-            var view = new View(mapping, new object());
+            var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
-            var result = Task.FromResult(new ViewInitializationResult());
+            var result = Task.FromResult(this);
             var cancellationToken = new CancellationTokenSource().Token;
             Action? action = null;
             dispatcher.AddComponent(new TestThreadDispatcherComponent
@@ -156,10 +154,11 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewInitializerComponent
             {
-                TryCleanupAsync = (v, vm, meta, token) =>
+                TryCleanupAsync = (v, r, t, meta, token) =>
                 {
                     v.ShouldEqual(view);
-                    vm.ShouldEqual(viewModel);
+                    r.ShouldEqual(viewModel);
+                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;
@@ -171,17 +170,16 @@ namespace MugenMvvm.UnitTest.Views.Components
         }
 
         [Theory]
-        [InlineData(0)]//success
-        [InlineData(1)]//canceled
-        [InlineData(2)]//error
+        [InlineData(0)] //success
+        [InlineData(1)] //canceled
+        [InlineData(2)] //error
         public void TryCleanupAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewInitializerDecorator(dispatcher);
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
-            var view = new View(mapping, new object());
+            var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
-            var result = Task.FromResult(new ViewInitializationResult(new View(mapping, view), viewModel, DefaultMetadata));
+            var result = Task.FromResult(this);
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             var ex = new Exception();
@@ -204,10 +202,11 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewInitializerComponent
             {
-                TryCleanupAsync = (v, vm, meta, token) =>
+                TryCleanupAsync = (v, r, t, meta, token) =>
                 {
                     v.ShouldEqual(view);
-                    vm.ShouldEqual(viewModel);
+                    r.ShouldEqual(viewModel);
+                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)
