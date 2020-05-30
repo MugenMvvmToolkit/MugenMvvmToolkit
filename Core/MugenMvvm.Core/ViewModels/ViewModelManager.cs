@@ -31,11 +31,11 @@ namespace MugenMvvm.ViewModels
             GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
         }
 
-        public object GetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata = null)
+        public object GetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, service, metadata);
+            var result = GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, request, metadata);
             if (result == null)
-                ExceptionManager.ThrowCannotResolveService(service);
+                ExceptionManager.ThrowCannotResolveService(request);
             return result;
         }
 

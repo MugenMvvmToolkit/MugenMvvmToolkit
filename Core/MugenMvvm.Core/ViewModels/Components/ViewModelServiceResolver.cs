@@ -13,6 +13,7 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
 
@@ -51,8 +52,11 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        public object? TryGetService(IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
+        public object? TryGetService<TRequest>(IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
+            if (Default.IsValueType<TRequest>() || !(request is Type service))
+                return null;
+
             if (service == typeof(IMetadataContext))
                 return _metadataContextProvider.DefaultIfNull().GetMetadataContext(viewModel);
             if (service == typeof(IMessenger))

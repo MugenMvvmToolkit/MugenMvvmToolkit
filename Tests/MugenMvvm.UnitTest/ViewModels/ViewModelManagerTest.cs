@@ -68,11 +68,12 @@ namespace MugenMvvm.UnitTest.ViewModels
                 var isLast = i == count - 1;
                 var component = new TestViewModelServiceResolverComponent
                 {
-                    TryGetService = (vm, t, ctx) =>
+                    TryGetService = (vm, r, t, ctx) =>
                     {
                         ++executeCount;
                         vm.ShouldEqual(viewModel);
-                        t.ShouldEqual(serviceType);
+                        r.ShouldEqual(serviceType);
+                        t.ShouldEqual(typeof(Type));
                         ctx.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return service;

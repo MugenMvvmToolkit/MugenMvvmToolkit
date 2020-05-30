@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -21,14 +20,13 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
         }
 
-        public static object? TryGetService(this IViewModelServiceResolverComponent[] components, IViewModelBase viewModel, Type service, IReadOnlyMetadataContext? metadata)
+        public static object? TryGetService<TRequest>(this IViewModelServiceResolverComponent[] components, IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(service, nameof(service));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetService(viewModel, service, metadata);
+                var result = components[i].TryGetService(viewModel, request, metadata);
                 if (result != null)
                     return result;
             }
