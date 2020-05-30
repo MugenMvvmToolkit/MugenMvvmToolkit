@@ -3,6 +3,7 @@ using System.ComponentModel;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -20,7 +21,7 @@ namespace MugenMvvm.Binding.Observers
 
         public WeakPropertyChangedListener()
         {
-            _listeners = Default.EmptyArray<WeakEventListener<string>>();
+            _listeners = Default.Array<WeakEventListener<string>>();
         }
 
         #endregion
@@ -108,7 +109,7 @@ namespace MugenMvvm.Binding.Observers
             {
                 _size = 0;
                 _removedSize = 0;
-                _listeners = Default.EmptyArray<WeakEventListener<string>>();
+                _listeners = Default.Array<WeakEventListener<string>>();
                 return;
             }
 
@@ -128,7 +129,7 @@ namespace MugenMvvm.Binding.Observers
 
             if (_size == 0)
             {
-                _listeners = Default.EmptyArray<WeakEventListener<string>>();
+                _listeners = Default.Array<WeakEventListener<string>>();
                 return;
             }
 

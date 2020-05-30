@@ -10,8 +10,6 @@
         public const int Dynamic = -20;
 
         public const int Selector = 0;
-        public const int Provider = 0;
-        public const int Manager = 0;
 
         #endregion
     }

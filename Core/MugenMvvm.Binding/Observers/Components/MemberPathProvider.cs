@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.Components
 {

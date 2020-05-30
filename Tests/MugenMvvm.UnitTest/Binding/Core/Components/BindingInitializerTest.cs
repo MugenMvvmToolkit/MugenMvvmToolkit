@@ -13,6 +13,7 @@ using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
@@ -82,7 +83,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             }
             else
             {
-                parameters = Default.EmptyArray<IExpressionNode>();
+                parameters = Default.Array<IExpressionNode>();
                 component.Flags = flags;
                 component.IgnoreIndexMembers = ignoreIndexMembers;
                 component.IgnoreMethodMembers = ignoreMethodMembers;
@@ -148,15 +149,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (o, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    arg3.ShouldEqual(context.GetMetadataOrDefault());
-                    var request = (MemberManagerRequest)o;
-                    if (request.Name == targetPath.Members[0])
+                    meta.ShouldEqual(context.GetMetadataOrDefault());
+                    if (r.Equals(targetPath.Members[0]))
                     {
-                        request.Flags.ShouldEqual(MemberFlags.StaticPublic);
-                        request.Type.ShouldEqual(typeof(string));
-                        request.MemberTypes.ShouldEqual(MemberType.Accessor);
+                        f.ShouldEqual(MemberFlags.StaticPublic);
+                        t.ShouldEqual(typeof(string));
+                        m.ShouldEqual(MemberType.Accessor);
                         return new TestMemberAccessorInfo
                         {
                             CanRead = true,
@@ -169,11 +169,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         };
                     }
 
-                    if (request.Name == targetPath.Members[1])
+                    if (r.Equals(targetPath.Members[1]))
                     {
-                        request.Flags.ShouldEqual(MemberFlags.InstancePublic);
-                        request.Type.ShouldEqual(GetType());
-                        request.MemberTypes.ShouldEqual(MemberType.Event);
+                        f.ShouldEqual(MemberFlags.InstancePublic);
+                        t.ShouldEqual(GetType());
+                        m.ShouldEqual(MemberType.Event);
                         return new TestEventInfo
                         {
                             MemberType = MemberType.Event

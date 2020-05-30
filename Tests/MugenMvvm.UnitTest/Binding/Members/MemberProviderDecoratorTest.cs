@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Interfaces.Members;
+﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -9,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Members
 {
-    public class MemberManagerTest : ComponentOwnerTestBase<IMemberManager>
+    public class MemberProviderDecoratorTest : ComponentOwnerTestBase<IMemberManager>
     {
         #region Methods
 
@@ -18,7 +19,10 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(10)]
         public void GetMembersShouldBeHandledByComponents(int count)
         {
-            var request = "t";
+            var type = typeof(string);
+            var memberType = MemberType.Accessor;
+            var memberFlags = MemberFlags.All;
+            var request = "test";
             var memberManager = new MemberManager();
             var member = new TestMemberAccessorInfo();
             var invokeCount = 0;
@@ -28,12 +32,15 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 var component = new TestMemberManagerComponent
                 {
                     Priority = -i,
-                    TryGetMembers = (o, type, arg3) =>
+                    TryGetMembers = (t, m, f, r, tt, meta) =>
                     {
                         ++invokeCount;
-                        o.ShouldEqual(request);
-                        type.ShouldEqual(request.GetType());
-                        arg3.ShouldEqual(DefaultMetadata);
+                        t.ShouldEqual(type);
+                        m.ShouldEqual(memberType);
+                        f.ShouldEqual(memberFlags);
+                        r.ShouldEqual(request);
+                        tt.ShouldEqual(request.GetType());
+                        meta.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return member;
                         return default;
@@ -42,7 +49,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 memberManager.AddComponent(component);
             }
 
-            var result = memberManager.GetMembers(request, DefaultMetadata);
+            var result = memberManager.GetMembers(type, memberType, memberFlags, request, DefaultMetadata);
             result.Count().ShouldEqual(1);
             result.Item.ShouldEqual(member);
             invokeCount.ShouldEqual(count);

@@ -16,6 +16,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components.Binding
 {
@@ -168,7 +169,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
                 return false;
 
             _enabledMember = GetMemberManager()
-                .GetMember(target.GetType(), BindableMembers.Object.Enabled, MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), _currentMetadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IMemberAccessorInfo;
             if (_enabledMember == null || !_enabledMember.CanWrite)
                 return false;
 

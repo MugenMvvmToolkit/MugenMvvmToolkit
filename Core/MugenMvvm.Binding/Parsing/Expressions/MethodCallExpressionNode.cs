@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -18,7 +19,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             Target = target;
             Method = method;
             Arguments = arguments;
-            TypeArgs = typeArgs ?? Default.EmptyArray<string>();
+            TypeArgs = typeArgs ?? Default.Array<string>();
         }
 
         #endregion

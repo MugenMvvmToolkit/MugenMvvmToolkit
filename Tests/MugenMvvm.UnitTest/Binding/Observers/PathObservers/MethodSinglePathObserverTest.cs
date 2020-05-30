@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -42,14 +43,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)r;
-                    if (request.Name == MethodName)
+                    if (r.Equals(MethodName))
                     {
-                        request.Type.ShouldEqual(lastMemberTarget.GetType());
-                        request.MemberTypes.ShouldEqual(MemberType.Method);
-                        request.Flags.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
+                        t.ShouldEqual(lastMemberTarget.GetType());
+                        m.ShouldEqual(MemberType.Method);
+                        f.ShouldEqual(MemberFlags.All.ClearInstanceOrStaticFlags(false));
                         return methodMember;
                     }
                     return accessorInfo;

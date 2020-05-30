@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.PathObservers
 {
@@ -143,7 +144,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 var targetType = MemberFlags.GetTargetType(ref target);
                 var lastMember = MugenBindingService
                     .MemberManager
-                    .GetMember(targetType, Path.Path, MemberType.Event | MemberType.Accessor, MemberFlags, metadata);
+                    .GetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)

@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members
 {
@@ -65,14 +66,14 @@ namespace MugenMvvm.Binding.Members
             DeclaringType = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? parameterInfos![0].ParameterType : method.DeclaringType;
             if (parameterInfos.Length == 0)
             {
-                _parameters = Default.EmptyArray<IParameterInfo>();
+                _parameters = Default.Array<IParameterInfo>();
                 return;
             }
 
             var startIndex = AccessModifiers.HasFlagEx(MemberFlags.Extension) ? 1 : 0;
             var length = parameterInfos.Length - startIndex;
             if (length == 0)
-                _parameters = Default.EmptyArray<IParameterInfo>();
+                _parameters = Default.Array<IParameterInfo>();
             else
             {
                 _parameters = new IParameterInfo[length];

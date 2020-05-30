@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using Should;
 using Xunit;
@@ -29,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         {
             var component = new LambdaExpressionBuilder();
             var ctx = new TestExpressionBuilderContext();
-            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.EmptyArray<IParameterExpressionNode>())).ShouldBeNull();
+            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
         }
 
         [Fact]
@@ -39,7 +40,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var component = new LambdaExpressionBuilder();
             var ctx = new TestExpressionBuilderContext();
             ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfoImpl);
-            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.EmptyArray<IParameterExpressionNode>())).ShouldBeNull();
+            component.TryBuild(ctx, new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>())).ShouldBeNull();
         }
 
         [Fact]
@@ -102,7 +103,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var ctx = new TestExpressionBuilderContext();
 
             ctx.Metadata.Set(CompilingMetadata.LambdaParameter, parameterInfo);
-            var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Default.EmptyArray<IParameterExpressionNode>());
+            var lambdaExpressionNode = new LambdaExpressionNode(ConstantExpressionNode.False, Default.Array<IParameterExpressionNode>());
             var expression = (Expression<Func<bool>>)component.TryBuild(ctx, lambdaExpressionNode)!;
             dictionary.Count.ShouldEqual(0);
             expression.ShouldNotBeNull();

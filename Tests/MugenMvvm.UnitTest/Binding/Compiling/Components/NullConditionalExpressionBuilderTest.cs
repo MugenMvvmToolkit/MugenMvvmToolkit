@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using Should;
 using Xunit;
@@ -56,7 +57,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
         public void TryBuildShouldBuildNullConditionalExpression2(int? value, string? result)
         {
             var node = new MethodCallExpressionNode(new NullConditionalMemberExpressionNode(ConstantExpressionNode.Get(value, value.HasValue ? typeof(int) : typeof(int?))), nameof(ToString),
-                Default.EmptyArray<IExpressionNode>());
+                Default.Array<IExpressionNode>());
             var component = new NullConditionalExpressionBuilder();
             TestExpressionBuilderContext ctx = null!;
             ctx = new TestExpressionBuilderContext

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.MemberPaths
 {

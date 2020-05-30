@@ -1,5 +1,7 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Extensions;
@@ -16,48 +18,54 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         [Fact]
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
-            var component = new MemberManagerComponent();
-            component.TryGetMembers("", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            var manager = new MemberManager();
+            var component = new MemberProviderDecorator();
+            manager.AddComponent(component);
+            component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         [Fact]
         public void TryGetMembersShouldUseSelector()
         {
-            var request = new MemberManagerRequest(GetType(), nameof(TryGetMembersShouldIgnoreNotSupportedRequest), MemberType.All, MemberFlags.All);
+            var type = GetType();
+            var memberType = MemberType.All;
+            var memberFlags = MemberFlags.Instance;
+            var request = "";
             var selectorCount = 0;
             var providerCount = 0;
             var members = new[] {new TestMemberAccessorInfo(), new TestMemberAccessorInfo()};
 
             var manager = new MemberManager();
-            var selector = new TestMemberSelectorComponent
+            var selector = new TestMemberManagerComponent
             {
-                TrySelectMembers = (list, type, arg3, arg4, arg5) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
                     ++selectorCount;
-                    list.SequenceEqual(members).ShouldBeTrue();
-                    type.ShouldEqual(request.Type);
-                    arg3.ShouldEqual(request.MemberTypes);
-                    arg4.ShouldEqual(request.Flags);
-                    arg5.ShouldEqual(DefaultMetadata);
+                    ((IEnumerable<IMemberInfo>) r).SequenceEqual(members).ShouldBeTrue();
+                    type.ShouldEqual(t);
+                    memberType.ShouldEqual(m);
+                    memberFlags.ShouldEqual(f);
+                    meta.ShouldEqual(DefaultMetadata);
                     return members;
                 }
             };
             var provider = new TestMemberProviderComponent
             {
-                TryGetMembers = (type, s, arg3) =>
+                TryGetMembers = (t, s, arg3) =>
                 {
                     ++providerCount;
-                    type.ShouldEqual(request.Type);
+                    type.ShouldEqual(t);
+                    s.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
                     return members;
                 }
             };
-            var component = new MemberManagerComponent();
+            var component = new MemberProviderDecorator();
             manager.AddComponent(selector);
             manager.AddComponent(provider);
             manager.AddComponent(component);
 
-            manager.GetMembers(request, DefaultMetadata).ToArray().SequenceEqual(members).ShouldBeTrue();
+            manager.GetMembers(type, memberType, memberFlags, request, DefaultMetadata).ToArray().SequenceEqual(members).ShouldBeTrue();
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }

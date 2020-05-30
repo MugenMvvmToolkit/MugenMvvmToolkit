@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -20,7 +22,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly TempCacheDictionary<object?> _cache;
+        private readonly TempCacheDictionary _cache;
 
         #endregion
 
@@ -29,7 +31,7 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public CacheMemberManagerDecorator()
         {
-            _cache = new TempCacheDictionary<object?>();
+            _cache = new TempCacheDictionary();
         }
 
         #endregion
@@ -46,7 +48,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             if (!Default.IsValueType<TState>() && state is Type type)
             {
-                LazyList<MemberManagerRequest> keys = default;
+                LazyList<CacheKey> keys = default;
                 Invalidate(_cache, type, ref keys);
                 keys.List?.Clear();
             }
@@ -54,21 +56,19 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache.Clear();
         }
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) == typeof(MemberManagerRequest))
-            {
-                var cacheKey = MugenExtensions.CastGeneric<TRequest, MemberManagerRequest>(request);
-                if (!_cache.TryGetValue(cacheKey, out var rawValue))
-                {
-                    rawValue = Components.TryGetMembers(request, metadata).GetRawValue();
-                    _cache[cacheKey] = rawValue;
-                }
+            if (Default.IsValueType<TRequest>() || !(request is string name))
+                return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
 
-                return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(rawValue);
+            var cacheKey = new CacheKey(type, name, memberTypes, flags);
+            if (!_cache.TryGetValue(cacheKey, out var members))
+            {
+                members = Components.TryGetMembers(type, memberTypes, flags, name, metadata).GetRawValue();
+                _cache[cacheKey] = members;
             }
 
-            return default;
+            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(members);
         }
 
         #endregion
@@ -93,7 +93,7 @@ namespace MugenMvvm.Binding.Members.Components
             Invalidate<object?>(null, metadata);
         }
 
-        private static void Invalidate<TItem>(LightDictionary<MemberManagerRequest, TItem> dictionary, Type type, ref LazyList<MemberManagerRequest> keys)
+        private static void Invalidate(TempCacheDictionary dictionary, Type type, ref LazyList<CacheKey> keys)
         {
             foreach (var pair in dictionary)
             {
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Nested types
 
-        private sealed class TempCacheDictionary<TItem> : LightDictionary<MemberManagerRequest, TItem> where TItem : class?
+        private sealed class TempCacheDictionary : LightDictionary<CacheKey, object?>
         {
             #region Constructors
 
@@ -125,14 +125,39 @@ namespace MugenMvvm.Binding.Members.Components
 
             #region Methods
 
-            protected override bool Equals(MemberManagerRequest x, MemberManagerRequest y)
+            protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.MemberTypes == y.MemberTypes && x.Flags == y.Flags && x.Name.Equals(y.Name) && x.Type == y.Type;
+                return x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type;
             }
 
-            protected override int GetHashCode(MemberManagerRequest key)
+            protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Name, key.Type, (int) key.MemberTypes, (int) key.Flags);
+                return HashCode.Combine(key.Key, key.Type, (int)key.MemberType, (int)key.MemberFlags);
+            }
+
+            #endregion
+        }
+
+        [StructLayout(LayoutKind.Auto)]
+        private readonly struct CacheKey
+        {
+            #region Fields
+
+            public readonly string Key;
+            public readonly Type Type;
+            public readonly MemberType MemberType;
+            public readonly MemberFlags MemberFlags;
+
+            #endregion
+
+            #region Constructors
+
+            public CacheKey(Type type, string key, MemberType memberType, MemberFlags memberFlags)
+            {
+                Type = type;
+                Key = key;
+                MemberType = memberType;
+                MemberFlags = memberFlags;
             }
 
             #endregion

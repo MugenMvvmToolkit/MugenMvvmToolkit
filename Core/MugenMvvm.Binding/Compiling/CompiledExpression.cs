@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Compiling
             _expressionsDict = new ExpressionDictionary();
             _expression = expression.Accept(this, metadata);
             _values = new object[_expressionsDict.Count + 1];
-            _expressionBuilders = Default.EmptyArray<IExpressionBuilderComponent>();
+            _expressionBuilders = Default.Array<IExpressionBuilderComponent>();
             MetadataExpression = MugenExtensions.GetIndexExpression(_expressionsDict.Count).ConvertIfNeed(typeof(IReadOnlyMetadataContext), false);
         }
 
@@ -86,7 +86,7 @@ namespace MugenMvvm.Binding.Compiling
             if (ReferenceEquals(_values, DisposedValues))
                 ExceptionManager.ThrowObjectDisposed(this);
             var list = values.List;
-            var key = list ?? values.Item.Type ?? (object)Default.EmptyArray<ParameterValue>();
+            var key = list ?? values.Item.Type ?? (object)Default.Array<ParameterValue>();
             if (!TryGetValue(key, out var invoker))
             {
                 invoker = CompileExpression(values);

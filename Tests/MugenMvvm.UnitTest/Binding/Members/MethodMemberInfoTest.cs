@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             memberInfo.IsGenericMethod.ShouldBeTrue();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
 
-            memberInfo.Invoke("st", Default.EmptyArray<object?>(), DefaultMetadata).ShouldEqual('s');
+            memberInfo.Invoke("st", Default.Array<object?>(), DefaultMetadata).ShouldEqual('s');
         }
 
         #endregion

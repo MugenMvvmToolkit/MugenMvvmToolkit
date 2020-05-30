@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Parsing
         public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
         {
             _expressions = new ExpressionDictionary();
-            _converters = Default.EmptyArray<IExpressionConverterComponent<TExpression>>();
+            _converters = Default.Array<IExpressionConverterComponent<TExpression>>();
         }
 
         #endregion

@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -14,7 +15,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         {
             Should.NotBeNull(body, nameof(body));
             Body = body;
-            Parameters = parameters ?? Default.EmptyArray<IParameterExpressionNode>();
+            Parameters = parameters ?? Default.Array<IParameterExpressionNode>();
         }
 
         #endregion

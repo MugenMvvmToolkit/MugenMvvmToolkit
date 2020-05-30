@@ -13,6 +13,7 @@ using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Binding.Resources.Internal;
@@ -38,7 +39,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
         [Fact]
         public void VisitShouldHandleMethodCall1()
         {
-            var expression = new MethodCallExpressionNode(null, MethodName, Default.EmptyArray<IExpressionNode>());
+            var expression = new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>());
             var visitor = new BindingMemberExpressionVisitor { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
             visitor.Visit(expression, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, $"{expression.Method}()")
             {
@@ -338,21 +339,20 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (o, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)o;
-                    request.MemberTypes.ShouldEqual(MemberType.Accessor);
-                    if (request.Name == MemberName)
+                    m.ShouldEqual(MemberType.Accessor);
+                    if (r.Equals(MemberName))
                     {
-                        request.Type.ShouldEqual(returnType);
-                        request.Flags.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(true));
+                        t.ShouldEqual(returnType);
+                        f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(true));
                         return member1;
                     }
 
-                    if (request.Name == MemberName2)
+                    if (r.Equals(MemberName2))
                     {
-                        request.Type.ShouldEqual(member1Result.GetType());
-                        request.Flags.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
+                        t.ShouldEqual(member1Result.GetType());
+                        f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
                         return member2;
                     }
 
@@ -443,14 +443,13 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (o, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)o;
-                    request.MemberTypes.ShouldEqual(MemberType.Accessor);
-                    if (request.Name == MemberName)
+                    m.ShouldEqual(MemberType.Accessor);
+                    if (r.Equals(MemberName))
                     {
-                        request.Type.ShouldEqual(resource.Value.GetType());
-                        request.Flags.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
+                        t.ShouldEqual(resource.Value.GetType());
+                        f.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(false));
                         return member;
                     }
 
@@ -486,8 +485,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
         [Fact]
         public void VisitShouldCacheMethodCallMember()
         {
-            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.EmptyArray<IExpressionNode>()),
-                new MethodCallExpressionNode(null, MethodName, Default.EmptyArray<IExpressionNode>()));
+            var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()),
+                new MethodCallExpressionNode(null, MethodName, Default.Array<IExpressionNode>()));
             var visitor = new BindingMemberExpressionVisitor();
             var expressionNode = (BinaryExpressionNode)visitor.Visit(expression, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();

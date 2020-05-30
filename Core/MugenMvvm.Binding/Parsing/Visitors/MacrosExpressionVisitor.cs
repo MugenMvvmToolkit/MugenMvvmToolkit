@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
@@ -27,8 +28,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         {
             _memberBuilder = new StringBuilder();
             var target = ConstantExpressionNode.Get(typeof(MugenBindingExtensions), typeof(Type));
-            var bindingImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetBinding), Default.EmptyArray<IExpressionNode>());
-            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetEventArgs), Default.EmptyArray<IExpressionNode>());
+            var bindingImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetBinding), Default.Array<IExpressionNode>());
+            var eventArgsImpl = new MethodCallExpressionNode(target, nameof(MugenBindingExtensions.GetEventArgs), Default.Array<IExpressionNode>());
             Macros = new Dictionary<string, Func<IReadOnlyMetadataContext?, IExpressionNode>>
             {
                 {MacrosConstant.Binding, context => bindingImpl},
@@ -37,9 +38,9 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             };
             MethodAliases = new Dictionary<string, IMethodCallExpressionNode>
             {
-                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), Default.EmptyArray<IExpressionNode>())},
-                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), Default.EmptyArray<IExpressionNode>())},
-                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), Default.EmptyArray<IExpressionNode>())}
+                {nameof(string.Format), new MethodCallExpressionNode(ConstantExpressionNode.Get<string>(), nameof(string.Format), Default.Array<IExpressionNode>())},
+                {nameof(Equals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(Equals), Default.Array<IExpressionNode>())},
+                {nameof(ReferenceEquals), new MethodCallExpressionNode(ConstantExpressionNode.Get<object>(), nameof(ReferenceEquals), Default.Array<IExpressionNode>())}
             };
             ConstantParametersMethods = new Dictionary<string, string>
             {
@@ -89,7 +90,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 {
                     if (method.Method == methodName)
                         return method;
-                    return new MethodCallExpressionNode(method.Target, methodName, Default.EmptyArray<IExpressionNode>(), method.TypeArgs);
+                    return new MethodCallExpressionNode(method.Target, methodName, Default.Array<IExpressionNode>(), method.TypeArgs);
                 }
 
                 if (method.Method == methodName && arguments.All(n => n is IConstantExpressionNode))

@@ -20,6 +20,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
@@ -103,7 +104,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             if (type.IsArray)
                 return Expression.ArrayIndex(target, ToExpressions(context, indexExpression.Arguments, null, typeof(int)));
-            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), Default.EmptyArray<Type>());
+            return TryBuildExpression(context, BindingInternalConstant.IndexerGetterName, new TargetData(type, target), GetArguments(indexExpression, context), Default.Array<Type>());
         }
 
         private Expression? TryBuildExpression(IExpressionBuilderContext context, string methodName, in TargetData targetData, ArgumentData[] args, Type[] typeArgs)
@@ -425,7 +426,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                     {
                         var parameter = parameters[j];
                         if (j == parameters.Count - 1 && hasParams)
-                            result[j] = Expression.NewArrayInit(parameter.ParameterType.GetElementType(), Default.EmptyArray<Expression>());
+                            result[j] = Expression.NewArrayInit(parameter.ParameterType.GetElementType(), Default.Array<Expression>());
                         else
                         {
                             if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
@@ -457,7 +458,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var arguments = hasArguments.Arguments;
             if (arguments.Count == 0)
-                return Default.EmptyArray<ArgumentData>();
+                return Default.Array<ArgumentData>();
             var args = new ArgumentData[arguments.Count];
             for (var i = 0; i < args.Length; i++)
             {
@@ -542,7 +543,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var members = _memberManager
                 .DefaultIfNull()
-                .GetMembers(type, methodName, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), metadata);
+                .GetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
 
             var methods = new MethodData[members.Count()];
             var count = 0;
@@ -608,7 +609,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             private static Type[] GetArgTypes(object?[]? args)
             {
                 if (args == null || args.Length == 0)
-                    return Default.EmptyArray<Type>();
+                    return Default.Array<Type>();
                 var result = new Type[args.Length];
                 for (var i = 0; i < args.Length; i++)
                 {
@@ -775,7 +776,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 if (instanceArgs == null)
                 {
                     if (args.Length == 0)
-                        instanceArgs = Default.EmptyArray<Type>();
+                        instanceArgs = Default.Array<Type>();
                     else
                     {
                         instanceArgs = new Type[args.Length];

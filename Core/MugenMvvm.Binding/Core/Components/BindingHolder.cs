@@ -18,9 +18,6 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         private readonly IAttachedValueProvider? _attachedValueProvider;
-
-        private const string BindPrefix = "@#b";
-
         private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?, IBinding> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
@@ -46,8 +43,8 @@ namespace MugenMvvm.Binding.Core.Components
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? _attachedValueProvider.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal))
-                : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
+                ? _attachedValueProvider.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
             if (values.Count == 0)
                 return default;
@@ -89,11 +86,11 @@ namespace MugenMvvm.Binding.Core.Components
             if (memberPath is IValueHolder<string> valueHolder)
             {
                 if (valueHolder.Value == null)
-                    valueHolder.Value = BindPrefix + memberPath.Path;
+                    valueHolder.Value = BindingInternalConstant.BindPrefix + memberPath.Path;
                 return valueHolder.Value;
             }
 
-            return BindPrefix + memberPath.Path;
+            return BindingInternalConstant.BindPrefix + memberPath.Path;
         }
 
         private static IBinding UpdateBinding(object item, IBinding addValue, IBinding currentValue, object? _)

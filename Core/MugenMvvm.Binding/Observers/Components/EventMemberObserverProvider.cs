@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
@@ -59,7 +60,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
+            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
         }
 
         private MemberObserver TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
@@ -83,8 +84,8 @@ namespace MugenMvvm.Binding.Observers.Components
                     return default;
 
                 var manager = _memberManager.DefaultIfNull();
-                eventInfo = manager.GetMember(type, memberName + BindingInternalConstant.ChangedEventPostfix, MemberType.Event, flags, metadata) as IEventInfo
-                            ?? manager.GetMember(type, memberName + BindingInternalConstant.ChangeEventPostfix, MemberType.Event, flags, metadata) as IEventInfo;
+                eventInfo = manager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IEventInfo
+                            ?? manager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IEventInfo;
             }
             else
                 eventInfo = EventFinder(type, member, metadata);

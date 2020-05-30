@@ -8,6 +8,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingHolderLifecycleDispatcher()
         {
-            _components = Default.EmptyArray<IBindingHolderComponent>();
+            _components = Default.Array<IBindingHolderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IBindingHolderComponent, BindingHolderLifecycleDispatcher>((components, state, _) => state._components = components, this);
         }

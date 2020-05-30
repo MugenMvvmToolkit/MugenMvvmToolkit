@@ -13,7 +13,6 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -135,14 +134,13 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             _members.Clear();
-            var selectors = Owner.GetComponents<IMemberSelectorComponent>();
             foreach (var item in _membersDictionary)
             {
                 IMethodInfo? getter = null, setter = null;
                 if (item.Value.getters != null)
-                    getter = selectors.TrySelectMembers(item.Value.getters, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
+                    getter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.getters, metadata) as IMethodInfo;
                 if (item.Value.setters != null)
-                    setter = selectors.TrySelectMembers(item.Value.setters, type, MemberType.Method, MemberFlags.All, metadata).FirstOrDefault() as IMethodInfo;
+                    setter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodInfo;
 
                 if (getter != null || setter != null)
                     _members.Add(new MethodMemberAccessorInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));

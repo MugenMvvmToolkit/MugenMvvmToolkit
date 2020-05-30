@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -33,13 +34,12 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)r;
-                    request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
-                    request.Type.ShouldEqual(GetType());
-                    request.Flags.ShouldEqual(memberFlags);
-                    request.Name.ShouldEqual(path.Path);
+                    m.ShouldEqual(MemberType.Accessor | MemberType.Event);
+                    t.ShouldEqual(GetType());
+                    f.ShouldEqual(memberFlags);
+                    r.ShouldEqual(path.Path);
                     return accessorInfo;
                 }
             };
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => throw error
+                TryGetMembers = (t, m, f, r, tt, meta) => throw error
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -83,13 +83,12 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)r;
-                    request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
-                    request.Type.ShouldEqual(GetType());
-                    request.Flags.ShouldEqual(memberFlags);
-                    request.Name.ShouldEqual(path.Path);
+                    m.ShouldEqual(MemberType.Accessor | MemberType.Event);
+                    t.ShouldEqual(GetType());
+                    f.ShouldEqual(memberFlags);
+                    r.ShouldEqual(path.Path);
                     return accessorInfo;
                 }
             };
@@ -112,7 +111,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => throw error
+                TryGetMembers = (t, m, f, r, tt, meta) => throw error
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -130,7 +129,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => default
+                TryGetMembers = (t, m, f, r, tt, meta) => default
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -154,7 +153,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => default
+                TryGetMembers = (t, m, f, r, tt, meta) => default
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -188,7 +187,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => accessorInfo
+                TryGetMembers = (t, m, f, r, tt, meta) => accessorInfo
             };
             using var _ = TestComponentSubscriber.Subscribe(component);
 
@@ -204,7 +203,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             IEventListener? currentListener = null;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => default
+                TryGetMembers = (t, m, f, r, tt, meta) => default
             };
             using var _ = TestComponentSubscriber.Subscribe(component);
 

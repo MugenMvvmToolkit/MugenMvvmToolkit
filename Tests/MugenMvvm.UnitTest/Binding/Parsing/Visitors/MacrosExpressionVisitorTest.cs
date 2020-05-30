@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
+using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -28,7 +29,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             visitor.ConstantParametersMethods.ShouldNotBeEmpty();
 
             foreach (var method in visitor.ConstantParametersMethods)
-                new MethodCallExpressionNode(null, method.Key, Default.EmptyArray<IExpressionNode>()).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, Default.EmptyArray<IExpressionNode>()));
+                new MethodCallExpressionNode(null, method.Key, Default.Array<IExpressionNode>()).Accept(visitor).ShouldEqual(new MethodCallExpressionNode(null, method.Value, Default.Array<IExpressionNode>()));
 
             var args = new IExpressionNode[] { new MemberExpressionNode(null, MemberName1), new MemberExpressionNode(new MemberExpressionNode(null, MemberName2), MemberName3), ConstantExpressionNode.Get(1) };
             var expectedArgs = new IExpressionNode[] { ConstantExpressionNode.Get(MemberName1), ConstantExpressionNode.Get($"{MemberName2}.{MemberName3}"), ConstantExpressionNode.Get(1) };

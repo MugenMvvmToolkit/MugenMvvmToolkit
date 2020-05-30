@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components.Parsers
 {
@@ -68,7 +69,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             if (context.MoveNext().SkipWhitespaces().IsToken(')'))
             {
                 context.MoveNext();
-                return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), Default.EmptyArray<IExpressionNode>(), typeArgs);
+                return new MethodCallExpressionNode(expression, context.GetValue(nameStart, nameEndPos), Default.Array<IExpressionNode>(), typeArgs);
             }
 
             var args = context.ParseArguments(")");

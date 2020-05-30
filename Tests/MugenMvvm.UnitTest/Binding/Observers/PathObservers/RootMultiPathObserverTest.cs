@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -39,14 +40,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest) r;
-                    if (request.Type == target2.GetType())
+                    if (t == target2.GetType())
                         return accessorInfo3;
-                    if (request.Type == root.GetType())
+                    if (t == root.GetType())
                         return accessorInfo1;
-                    if (request.Type == target1.GetType())
+                    if (t == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }

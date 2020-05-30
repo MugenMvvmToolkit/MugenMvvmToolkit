@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -86,28 +87,27 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
                     ++getMembersCount;
-                    var request = (MemberManagerRequest)r;
-                    if (request.Type == target2.GetType())
+                    if (t == target2.GetType())
                     {
-                        request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
-                        request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
+                        f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
+                        m.ShouldEqual(MemberType.Accessor | MemberType.Event);
                         return accessorInfo3;
                     }
 
-                    request.MemberTypes.ShouldEqual(MemberType.Accessor);
-                    if (request.Type == root.GetType())
+                    m.ShouldEqual(MemberType.Accessor);
+                    if (t == root.GetType())
                     {
-                        request.Flags.ShouldEqual(memberFlags);
+                        f.ShouldEqual(memberFlags);
                         return accessorInfo1;
                     }
 
                     if (!canReturn)
                         return default;
-                    request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
-                    if (request.Type == target1.GetType())
+                    f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
+                    if (t == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
@@ -204,28 +204,27 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
                     ++getMembersCount;
-                    var request = (MemberManagerRequest)r;
-                    if (request.Type == target2.GetType())
+                    if (t == target2.GetType())
                     {
-                        request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
-                        request.MemberTypes.ShouldEqual(MemberType.Accessor | MemberType.Event);
+                        f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
+                        m.ShouldEqual(MemberType.Accessor | MemberType.Event);
                         return accessorInfo3;
                     }
 
-                    request.MemberTypes.ShouldEqual(MemberType.Accessor);
-                    if (request.Type == root.GetType())
+                    m.ShouldEqual(MemberType.Accessor);
+                    if (t == root.GetType())
                     {
-                        request.Flags.ShouldEqual(memberFlags);
+                        f.ShouldEqual(memberFlags);
                         return accessorInfo1;
                     }
 
                     if (!canReturn)
                         return default;
-                    request.Flags.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
-                    if (request.Type == target1.GetType())
+                    f.ShouldEqual(memberFlags.SetInstanceOrStaticFlags(false));
+                    if (t == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
@@ -276,7 +275,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => throw error
+                TryGetMembers = (t, m, f, r, tt, meta) => throw error
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -299,7 +298,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => throw error
+                TryGetMembers = (t, m, f, r, tt, meta) => throw error
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -337,14 +336,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var accessorInfo3 = new TestMemberAccessorInfo();
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)r;
-                    if (request.Type == target2.GetType())
+                    if (t == target2.GetType())
                         return accessorInfo3;
-                    if (request.Type == root.GetType())
+                    if (t == root.GetType())
                         return accessorInfo1;
-                    if (request.Type == target1.GetType())
+                    if (t == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
@@ -389,14 +387,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var request = (MemberManagerRequest)r;
-                    if (request.Type == target2.GetType())
+                    if (t == target2.GetType())
                         return accessorInfo3;
-                    if (request.Type == root.GetType())
+                    if (t == root.GetType())
                         return accessorInfo1;
-                    if (request.Type == target1.GetType())
+                    if (t == target1.GetType())
                         return accessorInfo2;
                     throw new NotSupportedException();
                 }
@@ -415,7 +412,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             IEventListener? currentListener = null;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (r, type, arg3) => default
+                TryGetMembers = (t, m, f, r, tt, meta) => default
             };
             using var _ = TestComponentSubscriber.Subscribe(component);
 

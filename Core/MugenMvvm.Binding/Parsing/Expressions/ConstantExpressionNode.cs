@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Expressions
 {
@@ -180,7 +181,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             {
                 var cache = negative ? MugenExtensions.ExpressionCache<T>.NegativeItems : MugenExtensions.ExpressionCache<T>.Items;
                 if (cache.Length == 0)
-                    return Default.EmptyArray<ConstantExpressionNode>();
+                    return Default.Array<ConstantExpressionNode>();
 
                 var items = new ConstantExpressionNode[cache.Length];
                 for (var i = 0; i < items.Length; i++)

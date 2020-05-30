@@ -3,6 +3,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {

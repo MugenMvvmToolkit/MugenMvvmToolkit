@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
             expression.Accept(this, metadata);
             if (_members.Count == 0)
-                return Default.EmptyArray<IBindingMemberExpressionNode>();
+                return Default.Array<IBindingMemberExpressionNode>();
 
             if (_members.Count == 1)
             {

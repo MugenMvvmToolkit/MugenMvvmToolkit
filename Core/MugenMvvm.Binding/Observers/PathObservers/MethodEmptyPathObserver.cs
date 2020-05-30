@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.PathObservers
 {
@@ -87,7 +88,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 _unsubscriber = ActionToken.NoDoToken;
             else
             {
-                var member = MugenBindingService.MemberManager.GetMember(_memberFlags.GetTargetType(ref target), _method, MemberType.Method, _memberFlags, TryGetMetadata());
+                var member = MugenBindingService.MemberManager.GetMember(_memberFlags.GetTargetType(ref target), MemberType.Method, _memberFlags, _method, TryGetMetadata());
                 if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this, TryGetMetadata());
                 if (_unsubscriber.IsEmpty)

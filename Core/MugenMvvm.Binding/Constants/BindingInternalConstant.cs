@@ -13,6 +13,7 @@
         public const string IndexerStringGetterName = "get_Chars";
         public const string ArrayGetterName = "Get";
         public const string ArraySetterName = "Set";
+        public const string BindPrefix = "@#b";
 
         #endregion
     }

@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
@@ -25,7 +26,7 @@ namespace MugenMvvm.Binding.Parsing
         public TokenParserContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
         {
             Source = string.Empty;
-            _parsers = Default.EmptyArray<ITokenParserComponent>();
+            _parsers = Default.Array<ITokenParserComponent>();
         }
 
         #endregion

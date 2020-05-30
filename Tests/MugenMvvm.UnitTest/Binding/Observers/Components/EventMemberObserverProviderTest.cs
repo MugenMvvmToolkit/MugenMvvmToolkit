@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
@@ -137,11 +138,10 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (o, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var managerRequest = (MemberManagerRequest)o;
-                    set.Add(managerRequest.Name);
-                    if (managerRequest.Name == memberName + BindingInternalConstant.ChangeEventPostfix)
+                    set.Add((string)r);
+                    if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
                         return result;
                     return default;
                 }
@@ -188,12 +188,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (o, type, arg3) =>
+                TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
-                    var managerRequest = (MemberManagerRequest)o;
-                    managerRequest.Flags.ShouldEqual(flags);
-                    set.Add(managerRequest.Name);
-                    if (managerRequest.Name == memberName + BindingInternalConstant.ChangeEventPostfix)
+                    f.ShouldEqual(flags);
+                    set.Add((string)r);
+                    if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
                         return result;
                     return default;
                 }

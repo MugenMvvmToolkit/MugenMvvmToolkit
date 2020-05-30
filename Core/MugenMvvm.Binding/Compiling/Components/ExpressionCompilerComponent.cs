@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Compiling.Components
 {
@@ -23,7 +24,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         public ExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _metadataContextProvider = metadataContextProvider;
-            _components = Default.EmptyArray<IExpressionBuilderComponent>();
+            _components = Default.Array<IExpressionBuilderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionBuilderComponent, ExpressionCompilerComponent>((components, state, _) => state._components = components, this);
         }

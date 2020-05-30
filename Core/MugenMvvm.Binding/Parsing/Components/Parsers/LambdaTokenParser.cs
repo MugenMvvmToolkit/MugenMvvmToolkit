@@ -7,6 +7,7 @@ using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components.Parsers
 {
@@ -67,7 +68,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             IParameterExpressionNode[] args;
             if (context.IsToken("()"))
             {
-                args = Default.EmptyArray<IParameterExpressionNode>();
+                args = Default.Array<IParameterExpressionNode>();
                 context.MoveNext(2);
             }
             else if (context.IsToken('('))

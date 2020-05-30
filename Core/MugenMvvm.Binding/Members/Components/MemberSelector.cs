@@ -11,7 +11,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public class MemberSelector : IMemberSelectorComponent
+    public sealed class MemberSelector : IMemberManagerComponent
     {
         #region Fields
 
@@ -42,8 +42,11 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TrySelectMembers(IReadOnlyList<IMemberInfo> members, Type type, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
+            if (Default.IsValueType<TRequest>() || !(request is IReadOnlyList<IMemberInfo> members))
+                return default;
+
             _selectorDictionary.Clear();
             for (var i = 0; i < members.Count; i++)
             {
@@ -93,6 +96,7 @@ namespace MugenMvvm.Binding.Members.Components
                     }
                 }
             }
+
             priority += GetArgsPriority(member);
 
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Attached))
@@ -142,8 +146,8 @@ namespace MugenMvvm.Binding.Members.Components
             protected override int GetHashCode(IMemberInfo key)
             {
                 if (key is IMethodInfo method)
-                    return HashCode.Combine((byte)key.MemberType, method.GetParameters().Count);
-                return HashCode.Combine((byte)key.MemberType);
+                    return HashCode.Combine((byte) key.MemberType, method.GetParameters().Count);
+                return HashCode.Combine((byte) key.MemberType);
             }
 
             protected override bool Equals(IMemberInfo x, IMemberInfo y)
@@ -154,8 +158,8 @@ namespace MugenMvvm.Binding.Members.Components
                 if (x.MemberType != MemberType.Method)
                     return true;
 
-                var xM = ((IMethodInfo)x).GetParameters();
-                var yM = ((IMethodInfo)y).GetParameters();
+                var xM = ((IMethodInfo) x).GetParameters();
+                var yM = ((IMethodInfo) y).GetParameters();
                 if (xM.Count != yM.Count)
                     return false;
 

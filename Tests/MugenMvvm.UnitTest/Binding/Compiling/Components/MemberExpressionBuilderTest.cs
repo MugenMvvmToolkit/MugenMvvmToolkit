@@ -66,14 +66,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 },
                 Type = typeof(string)
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
@@ -95,14 +94,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
@@ -121,14 +119,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             TestMemberAccessorInfo? result = null;
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result!;
             };
 
@@ -161,14 +158,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             TestMemberAccessorInfo? result = null;
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result!;
             };
 
@@ -194,14 +190,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 },
                 Type = typeof(string)
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
@@ -223,14 +218,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
@@ -248,14 +242,13 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.HasFlagEx(MemberType.Accessor).ShouldBeTrue();
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return default;
             };
 

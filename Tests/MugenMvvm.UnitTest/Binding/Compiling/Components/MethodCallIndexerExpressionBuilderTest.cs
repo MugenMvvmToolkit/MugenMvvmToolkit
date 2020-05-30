@@ -15,6 +15,7 @@ using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Resources.Internal;
@@ -87,18 +88,17 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                     return this;
                 }
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.EmptyArray<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
@@ -115,18 +115,17 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 UnderlyingMember = GetType().GetMethod(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.EmptyArray<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             var invokeCount = 0;
@@ -160,19 +159,18 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 }
             };
 
-            var members = Default.EmptyArray<IMemberInfo>();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            var members = Default.Array<IMemberInfo>();
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return members;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.EmptyArray<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             members = new[] { result };
@@ -187,19 +185,18 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
 
-            var members = Default.EmptyArray<IMemberInfo>();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            var members = Default.Array<IMemberInfo>();
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return members;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.EmptyArray<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(this), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             ShouldThrow(() => build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata));
@@ -224,18 +221,17 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                     return this;
                 }
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.EmptyArray<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             build.Invoke(new[] { ctx.MetadataExpression }, DefaultMetadata).ShouldEqual(this);
@@ -252,18 +248,17 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 UnderlyingMember = GetType().GetMethod(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Instance).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
-            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.EmptyArray<IExpressionNode>());
+            var expressionNode = new MethodCallExpressionNode(ConstantExpressionNode.Get(GetType()), memberName, Default.Array<IExpressionNode>());
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             var invokeCount = 0;
@@ -289,11 +284,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -347,11 +341,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -372,11 +365,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -397,11 +389,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var members = GetMethods(typeof(MethodInvokerInstance), memberName, underlying);
             var instance = new MethodInvokerInstance();
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -424,11 +415,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var instance = new MethodInvokerInstance();
             var ctx = new TestExpressionBuilderContext();
             var metadata = ctx.Metadata;
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -458,7 +448,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(MethodInvokerStatic.Method);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (_, __, ___) => members;
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) => members;
 
             var type = typeof(MethodInvokerStatic);
             var call = GetMethodCall(ctx, memberName, underlying, type, state, 2M, 3M);
@@ -508,11 +498,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(MethodInvokerStatic.Method1);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -531,11 +520,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(MethodInvokerStatic.Method2);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -554,11 +542,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(MethodInvokerStatic.Method3);
             var members = GetMethods(typeof(MethodInvokerStatic), memberName, underlying);
             var ctx = new TestExpressionBuilderContext();
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -579,11 +566,10 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             };
             var ctx = new TestExpressionBuilderContext();
             var metadata = ctx.Metadata;
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
-                if (request.Type == typeof(object))
-                    return Default.EmptyArray<IMemberInfo>();
+                if (t == typeof(object))
+                    return Default.Array<IMemberInfo>();
                 return members;
             };
 
@@ -633,15 +619,14 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 }
 
             };
-            _memberManagerComponent.TryGetMembers = (r, t, context) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
-                var request = (MemberManagerRequest)r;
                 ++invokeCount;
-                request.Type.ShouldEqual(GetType());
-                request.Name.ShouldEqual(memberName);
-                request.MemberTypes.ShouldEqual(MemberType.Method);
-                request.Flags.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
-                context.ShouldEqual(metadataContext);
+                t.ShouldEqual(GetType());
+                r.ShouldEqual(memberName);
+                m.ShouldEqual(MemberType.Method);
+                f.HasFlagEx(_component.MemberFlags & ~MemberFlags.Static).ShouldBeTrue();
+                meta.ShouldEqual(metadataContext);
                 return result;
             };
 
@@ -703,7 +688,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             object? instance, int state, IReadOnlyList<string>? typeArgs, params object[] args)
         {
             var parameters = new List<Expression>();
-            var compilingArgs = state == 2 ? args : Default.EmptyArray<object?>();
+            var compilingArgs = state == 2 ? args : Default.Array<object?>();
 
             if (state == 2)
             {

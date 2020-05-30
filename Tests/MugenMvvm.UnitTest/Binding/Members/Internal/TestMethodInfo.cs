@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Binding.Members.Internal
 {
@@ -29,12 +30,12 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         IReadOnlyList<IParameterInfo> IMethodInfo.GetParameters()
         {
-            return GetParameters?.Invoke() ?? Default.EmptyArray<IParameterInfo>();
+            return GetParameters?.Invoke() ?? Default.Array<IParameterInfo>();
         }
 
         IReadOnlyList<Type> IMethodInfo.GetGenericArguments()
         {
-            return GetGenericArguments?.Invoke() ?? Default.EmptyArray<Type>();
+            return GetGenericArguments?.Invoke() ?? Default.Array<Type>();
         }
 
         IMethodInfo IMethodInfo.GetGenericMethodDefinition()
