@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -176,16 +177,16 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(decorator, nameof(decorator));
             Should.NotBeNull(components, nameof(components));
             if (!(decorator is TComponent decoratorComponent))
-                return Default.EmptyArray<TComponent>();
+                return Default.Array<TComponent>();
 
             var index = components.IndexOf(decoratorComponent);
             if (index < 0)
-                return Default.EmptyArray<TComponent>();
+                return Default.Array<TComponent>();
 
             ++index;
             var length = components.Count - index;
             if (length == 0)
-                return Default.EmptyArray<TComponent>();
+                return Default.Array<TComponent>();
 
             var result = new TComponent[length];
             int position = 0;

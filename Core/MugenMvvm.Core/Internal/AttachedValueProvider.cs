@@ -32,7 +32,7 @@ namespace MugenMvvm.Internal
 
         public IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null) where TItem : class
         {
-            return GetComponentOptional(item)?.TryGetValues(item, state, predicate) ?? Default.EmptyArray<KeyValuePair<string, object?>>();
+            return GetComponentOptional(item)?.TryGetValues(item, state, predicate) ?? Default.Array<KeyValuePair<string, object?>>();
         }
 
         public bool TryGet<TValue>(object item, string path, out TValue value)

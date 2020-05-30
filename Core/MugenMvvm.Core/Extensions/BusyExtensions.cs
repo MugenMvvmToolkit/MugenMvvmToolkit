@@ -28,7 +28,7 @@ namespace MugenMvvm.Extensions
                 return task;
             if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
-            var token = busyManager.BeginBusy(new BeginBusyRequest(message, millisecondsDelay), metadata);
+            var token = busyManager.BeginBusy(new DelayBusyRequest(message, millisecondsDelay), metadata);
             task.ContinueWith((t, o) => ((IDisposable) o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }

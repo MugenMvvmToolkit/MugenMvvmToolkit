@@ -6,6 +6,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -82,7 +83,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(componentOwner, nameof(componentOwner));
             if (componentOwner.HasComponents)
                 return componentOwner.Components.Get<T>(metadata);
-            return Default.EmptyArray<T>();
+            return Default.Array<T>();
         }
 
         public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
@@ -98,7 +99,7 @@ namespace MugenMvvm.Extensions
         public static T[] GetOrDefault<T>(this IComponentCollection? collection, IReadOnlyMetadataContext? metadata = null) where T : class
         {
             if (collection == null)
-                return Default.EmptyArray<T>();
+                return Default.Array<T>();
             return collection.Get<T>(metadata);
         }
 

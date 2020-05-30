@@ -59,13 +59,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TTarget>(this INavigationCallbackManagerComponent[] components, [DisallowNull] in TTarget target,
+        public static IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components, [DisallowNull] in TRequest request,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
             LazyList<INavigationCallback> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetNavigationCallbacks(target, metadata));
+                result.AddRange(components[i].TryGetNavigationCallbacks(request, metadata));
             return result.List;
         }
 

@@ -98,16 +98,10 @@ namespace MugenMvvm.Binding.Extensions
                 memberExpressionVisitor.Flags |= flag;
         }
 
-        public static IMemberInfo? GetMember(this IMemberManager memberManager, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberInfo? GetMember<TRequest>(this IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberManager, nameof(memberManager));
-            return memberManager.GetMembers(new MemberManagerRequest(type, name, memberTypes, flags), metadata).FirstOrDefault();
-        }
-
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers(this IMemberManager memberManager, Type type, string name, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(memberManager, nameof(memberManager));
-            return memberManager.GetMembers(new MemberManagerRequest(type, name, memberTypes, flags), metadata);
+            return memberManager.GetMembers(type, memberTypes, flags, request, metadata).FirstOrDefault();
         }
 
         [DoesNotReturn]
@@ -241,7 +235,7 @@ namespace MugenMvvm.Binding.Extensions
         public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
         {
             if (types == null || types.Count == 0)
-                return Default.EmptyArray<Type>();
+                return Default.Array<Type>();
             resourceResolver = resourceResolver.DefaultIfNull();
             var typeArgs = new Type[types.Count];
             for (var i = 0; i < types.Count; i++)
@@ -301,7 +295,7 @@ namespace MugenMvvm.Binding.Extensions
                 {
                     if (i == 1)
                         flags = flags.SetInstanceOrStaticFlags(false);
-                    var member = memberManager.GetMember(type, path.Members[i], MemberType.Accessor, flags, metadata);
+                    var member = memberManager.GetMember(type, MemberType.Accessor, flags, path.Members[i], metadata);
                     if (!(member is IMemberAccessorInfo accessor) || !accessor.CanRead)
                         return null;
 
@@ -315,7 +309,7 @@ namespace MugenMvvm.Binding.Extensions
                 lastMemberName = path.Members[path.Members.Count - 1];
             }
 
-            return memberManager.GetMember(type, lastMemberName, lastMemberType, flags, metadata);
+            return memberManager.GetMember(type, lastMemberType, flags, lastMemberName, metadata);
         }
 
         public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
@@ -430,7 +424,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var propertyInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
                 return defaultValue;
             if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
@@ -444,7 +438,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var propertyInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
             {
                 if (throwOnError)
@@ -464,7 +458,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var propertyInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), bindableMember.Name, MemberType.Accessor, flags, metadata) as IObservableMemberInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IObservableMemberInfo;
             if (propertyInfo == null)
                 return default;
             return propertyInfo.TryObserve(target, listener, metadata);
@@ -476,7 +470,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var eventInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), eventMember.Name, MemberType.Event, flags, metadata) as IEventInfo;
+                .GetMember(target.GetType(), MemberType.Event, flags, eventMember.Name, metadata) as IEventInfo;
             if (eventInfo == null)
                 return default;
             return eventInfo.TrySubscribe(target, listener, metadata);
@@ -488,8 +482,8 @@ namespace MugenMvvm.Binding.Extensions
         {
             var methodInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), methodMember.Name, MemberType.Method, flags, metadata) as IMethodInfo;
-            return methodInfo?.Invoke(target, args ?? Default.EmptyArray<object>());
+                .GetMember(target.GetType(), MemberType.Method, flags, methodMember.Name, metadata) as IMethodInfo;
+            return methodInfo?.Invoke(target, args ?? Default.Array<object>());
         }
 
         public static WeakEventListener ToWeak(this IEventListener listener)
@@ -747,7 +741,7 @@ namespace MugenMvvm.Binding.Extensions
             }
 
             lastValueRef = value.ToWeakReference();
-            var member = MugenBindingService.MemberManager.GetMember(type, observer.Method, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false), metadata);
+            var member = MugenBindingService.MemberManager.GetMember(type, MemberType.Method, observer.MemberFlags.SetInstanceOrStaticFlags(false), observer.Method, metadata);
             if (member is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(value, observer.GetMethodListener(), metadata);
             if (unsubscriber.IsEmpty)
@@ -772,7 +766,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var member = memberManager.GetMember(type, path, MemberType.Accessor, flags, metadata) as IMemberAccessorInfo;
+            var member = memberManager.GetMember(type, MemberType.Accessor, flags, path, metadata) as IMemberAccessorInfo;
             if (member == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);

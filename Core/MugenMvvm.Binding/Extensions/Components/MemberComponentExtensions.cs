@@ -14,12 +14,12 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(this IMemberManagerComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(this IMemberManagerComponent[] components, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var members = components[i].TryGetMembers(request, metadata);
+                var members = components[i].TryGetMembers(type, memberTypes, flags, request, metadata);
                 if (!members.IsNullOrEmpty())
                     return members;
             }
@@ -50,22 +50,6 @@ namespace MugenMvvm.Binding.Extensions.Components
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMembers(type, name, metadata));
             return result.Cast<IReadOnlyList<IMemberInfo>>();
-        }
-
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TrySelectMembers(this IMemberSelectorComponent[] components, IReadOnlyList<IMemberInfo> members,
-            Type type, MemberType memberTypes, MemberFlags flags, IReadOnlyMetadataContext? metadata)
-        {
-            Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(members, nameof(members));
-            Should.NotBeNull(type, nameof(type));
-            for (var i = 0; i < components.Length; i++)
-            {
-                var result = components[i].TrySelectMembers(members, type, memberTypes, flags, metadata);
-                if (!result.IsNullOrEmpty())
-                    return result;
-            }
-
-            return default;
         }
 
         #endregion

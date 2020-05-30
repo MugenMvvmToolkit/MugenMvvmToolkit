@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections.Internal;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -201,10 +202,10 @@ namespace MugenMvvm.Extensions
         }
 
         [return: NotNullIfNotNull("value")]
-        public static object? Box<T>([AllowNull] T value)
+        public static object? Box<T>([AllowNull]T value)
         {
             if (BoxingTypeChecker<T>.IsBoxRequired)
-                return ((BoxingDelegate<T>) BoxingDelegates[typeof(T)]).Invoke(value!);
+                return ((BoxingDelegate<T>)BoxingDelegates[typeof(T)]).Invoke(value!);
             return value;
         }
 
@@ -238,7 +239,7 @@ namespace MugenMvvm.Extensions
             {
                 var cacheSize = GetCacheSize(negative);
                 if (cacheSize == 0)
-                    return Default.EmptyArray<object>();
+                    return Default.Array<object>();
 
                 var items = new object[cacheSize];
                 if (negative)

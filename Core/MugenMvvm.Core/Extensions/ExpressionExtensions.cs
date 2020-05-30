@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -137,7 +138,7 @@ namespace MugenMvvm.Extensions
             {
                 var cache = negative ? BoxingExtensions.Cache<T>.NegativeItems : BoxingExtensions.Cache<T>.Items;
                 if (cache.Length == 0)
-                    return Default.EmptyArray<ConstantExpression>();
+                    return Default.Array<ConstantExpression>();
 
                 var items = new ConstantExpression[cache.Length];
                 for (var i = 0; i < items.Length; i++)

@@ -16,7 +16,7 @@ namespace MugenMvvm
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotBeNull([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]
-            object? argumentValue, [InvokerParameterName] string paramName)
+            [NotNull]object? argumentValue, [InvokerParameterName] string paramName)
         {
             if (argumentValue == null)
                 ExceptionManager.ThrowNullArgument(paramName);
@@ -26,7 +26,7 @@ namespace MugenMvvm
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void NotBeNullOrEmpty([AssertionCondition(AssertionConditionType.IS_NOT_NULL)]
-            string? argumentValue, [InvokerParameterName] string paramName)
+            [NotNull]string? argumentValue, [InvokerParameterName] string paramName)
         {
             if (string.IsNullOrEmpty(argumentValue))
                 ExceptionManager.ThrowNullOrEmptyArgument(paramName);
@@ -34,8 +34,7 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-            bool isSupported, string error)
+        public static void BeSupported([AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool isSupported, string error)
         {
             if (!isSupported)
                 ExceptionManager.ThrowNotSupported(error);
@@ -43,28 +42,27 @@ namespace MugenMvvm
 
         [DebuggerStepThrough]
         [AssertionMethod]
-        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)]
-            bool validation)
+        public static void BeValid(string paramName, [AssertionCondition(AssertionConditionType.IS_TRUE)] [DoesNotReturnIf(false)] bool validation)
         {
             if (!validation)
                 ExceptionManager.ThrowNotValidArgument(paramName);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType(object instance, string paramName, Type requiredType)
+        public static void BeOfType([NotNull]object? instance, string paramName, [NotNull]Type? requiredType)
         {
             NotBeNull(instance, paramName);
             BeOfType(instance.GetType(), paramName, requiredType);
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType<T>(object instance, string paramName)
+        public static void BeOfType<T>([NotNull]object? instance, string paramName)
         {
             BeOfType(instance, paramName, typeof(T));
         }
 
         [DebuggerStepThrough]
-        public static void BeOfType(Type type, string paramName, Type requiredType)
+        public static void BeOfType([NotNull]Type? type, string paramName, [NotNull]Type? requiredType)
         {
             NotBeNull(type, nameof(type));
             NotBeNull(requiredType, nameof(requiredType));

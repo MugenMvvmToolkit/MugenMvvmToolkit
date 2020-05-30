@@ -37,8 +37,8 @@ namespace MugenMvvm.Internal.Components
 
         public CacheReflectionDelegateProviderDecorator()
         {
-            _memberComponents = Default.EmptyArray<IMemberReflectionDelegateProviderComponent>();
-            _methodComponents = Default.EmptyArray<IMethodReflectionDelegateProviderComponent>();
+            _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
+            _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();
             _activatorCache = new MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>?>(59);
             _activatorCacheDelegate = new MemberInfoDelegateCache<Delegate?>();
             _invokeMethodCache = new MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>?>(59);

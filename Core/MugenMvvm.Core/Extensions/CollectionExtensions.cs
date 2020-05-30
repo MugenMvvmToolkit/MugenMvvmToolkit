@@ -264,7 +264,7 @@ namespace MugenMvvm.Extensions
                 return list.ToArray();
 
             if (itemOrList.Item == null)
-                return Default.EmptyArray<TItem>();
+                return Default.Array<TItem>();
             return new[] { itemOrList.Item };
         }
 
@@ -297,7 +297,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(list, nameof(list));
             var count = list.Count;
             if (count == 0)
-                return Default.EmptyArray<TResult>();
+                return Default.Array<TResult>();
             var array = new TResult[count];
             for (var index = 0; index < list.Count; index++)
                 array[index] = selector(list[index]);
@@ -309,7 +309,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(collection, nameof(collection));
             var count = collection.Count;
             if (count == 0)
-                return Default.EmptyArray<TResult>();
+                return Default.Array<TResult>();
             var array = new TResult[count];
             count = 0;
             foreach (var item in collection)
@@ -352,7 +352,7 @@ namespace MugenMvvm.Extensions
             {
                 if (ReferenceEquals(items[0], item))
                 {
-                    items = Default.EmptyArray<T>();
+                    items = Default.Array<T>();
                     return true;
                 }
 

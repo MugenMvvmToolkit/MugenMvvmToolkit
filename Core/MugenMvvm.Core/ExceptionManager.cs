@@ -97,7 +97,7 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowCannotResolveService(Type service)
+        public static void ThrowCannotResolveService(object service)
         {
             throw new InvalidOperationException(CannotResolveService.Format(service));
         }

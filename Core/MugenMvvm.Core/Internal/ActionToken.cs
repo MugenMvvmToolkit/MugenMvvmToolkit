@@ -2,7 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace MugenMvvm
+namespace MugenMvvm.Internal
 {
     [StructLayout(LayoutKind.Auto)]
     public struct ActionToken : IDisposable

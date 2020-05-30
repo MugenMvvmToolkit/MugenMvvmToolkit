@@ -14,6 +14,7 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Internal;
 using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.Extensions

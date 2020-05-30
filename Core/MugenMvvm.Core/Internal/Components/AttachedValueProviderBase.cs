@@ -19,7 +19,7 @@ namespace MugenMvvm.Internal.Components
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
             if (dictionary == null)
-                return Default.EmptyArray<KeyValuePair<string, object?>>();
+                return Default.Array<KeyValuePair<string, object?>>();
             lock (dictionary)
             {
                 if (predicate == null)

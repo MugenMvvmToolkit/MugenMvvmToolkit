@@ -111,24 +111,24 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool CanSerialize<TTarget>(this ISerializerComponent[] components, [DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
+        public static bool CanSerialize<TRequest>(this ISerializerComponent[] components, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].CanSerialize(target, metadata))
+                if (components[i].CanSerialize(request, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static Stream? TrySerialize<TTarget>(this ISerializerComponent[] components, [DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
+        public static Stream? TrySerialize<TRequest>(this ISerializerComponent[] components, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TrySerialize(target, metadata);
+                var result = components[i].TrySerialize(request, metadata);
                 if (result != null)
                     return result;
             }

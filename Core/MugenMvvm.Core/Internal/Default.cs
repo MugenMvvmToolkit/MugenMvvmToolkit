@@ -14,7 +14,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Metadata;
 
-namespace MugenMvvm
+namespace MugenMvvm.Internal
 {
     public static class Default
     {
@@ -46,14 +46,9 @@ namespace MugenMvvm
             yield return value;
         }
 
-        public static T[] EmptyArray<T>()
+        public static T[] Array<T>()
         {
             return EmptyArrayImpl<T>.Instance;
-        }
-
-        public static Task<T> CanceledTask<T>()
-        {
-            return CanceledTaskImpl<T>.Instance;
         }
 
         public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>()
@@ -165,26 +160,6 @@ namespace MugenMvvm
             #region Fields
 
             public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new ReadOnlyDictionary<TKey, TValue>(new Dictionary<TKey, TValue>());
-
-            #endregion
-        }
-
-        private static class CanceledTaskImpl<T>
-        {
-            #region Fields
-
-            public static readonly Task<T> Instance = GetTask();
-
-            #endregion
-
-            #region Methods
-
-            private static Task<T> GetTask()
-            {
-                var tcs = new TaskCompletionSource<T>();
-                tcs.SetCanceled();
-                return tcs.Task;
-            }
 
             #endregion
         }
