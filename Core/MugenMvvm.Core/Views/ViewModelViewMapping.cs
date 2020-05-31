@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Views;
 
 namespace MugenMvvm.Views
 {
-    public sealed class ViewModelViewMapping : IViewModelViewMapping
+    public class ViewModelViewMapping : IViewModelViewMapping
     {
         #region Constructors
 

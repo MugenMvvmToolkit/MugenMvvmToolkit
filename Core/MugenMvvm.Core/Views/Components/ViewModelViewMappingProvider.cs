@@ -82,11 +82,18 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual, string? name, string? id = null, IReadOnlyMetadataContext? metadata = null)
+        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = false, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, nameof(viewModelType), typeof(IViewModelBase));
             Should.NotBeNull(viewType, nameof(viewType));
-            var mappingInfo = new MappingInfo(id ?? $"{viewModelType.FullName}{viewType.FullName}{name}", viewModelType, viewType, exactlyEqual, name, metadata);
+            var mapping = new ViewModelViewMapping(id ?? $"{viewModelType.FullName}{viewType.FullName}{name}", viewType, viewModelType, metadata);
+            AddMapping(mapping, exactlyEqual, name);
+        }
+
+        public void AddMapping(IViewModelViewMapping mapping, bool exactlyEqual = false, string? name = null)
+        {
+            Should.NotBeNull(mapping, nameof(mapping));
+            var mappingInfo = new MappingInfo(mapping, exactlyEqual, name);
             lock (_mappings)
             {
                 _mappings.Add(mappingInfo);
@@ -112,17 +119,17 @@ namespace MugenMvvm.Views.Components
 
             private readonly bool _exactlyEqual;
             private readonly string? _name;
-            public readonly ViewModelViewMapping Mapping;
+            public readonly IViewModelViewMapping Mapping;
 
             #endregion
 
             #region Constructors
 
-            public MappingInfo(string id, Type viewModelType, Type viewType, bool exactlyEqual, string? name, IReadOnlyMetadataContext? metadata)
+            public MappingInfo(IViewModelViewMapping mapping, bool exactlyEqual, string? name)
             {
                 _exactlyEqual = exactlyEqual;
                 _name = name;
-                Mapping = new ViewModelViewMapping(id, viewType, viewModelType, metadata);
+                Mapping = mapping;
             }
 
             #endregion
