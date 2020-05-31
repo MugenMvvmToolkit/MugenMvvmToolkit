@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -36,14 +37,21 @@ namespace MugenMvvm.Navigation.Components
             var key = GetKeyByCallback(callbackType);
             if (key == null)
                 return null;
-            var callback = TryGetNavigationCallback(callbackType, request, out var targetMetadata, out var contextMetadata);
-            if (callback != null)
+            if (TryGetCallbackTarget(request, out var target, out var contextMetadata, out var navigationId, out var navigationType)
+                && target.Metadata is IMetadataContext targetMetadata)
             {
-                AddCallback(key, callback, targetMetadata);
-                AddCallback(key, callback, contextMetadata);
+                var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
+                if (callback == null)
+                {
+                    callback = new NavigationCallback(callbackType, navigationId, navigationType);
+                    AddCallback(key, callback, targetMetadata);
+                }
+
+                AddCallback(key, callback, contextMetadata as IMetadataContext);
+                return callback;
             }
 
-            return callback;
+            return null;
         }
 
         public IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
@@ -81,13 +89,10 @@ namespace MugenMvvm.Navigation.Components
             if (key == null)
                 return false;
 
-            if (!(context is IHasNavigationInfo hasNavigationInfo))
+            if (!TryGetCallbackTarget(context, out var target, out var metadata, out var navigationId, out var navigationType))
                 return false;
 
-            var metadata = (context as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault();
-            var target = (context as IHasTarget<object?>)?.Target as IMetadataOwner<IMetadataContext>
-                         ?? metadata?.Get(NavigationMetadata.Target) as IMetadataOwner<IMetadataContext>;
-            var callbacks = target?.GetMetadataOrDefault().Get(key);
+            var callbacks = target.GetMetadataOrDefault().Get(key);
             if (callbacks == null)
                 return false;
 
@@ -97,7 +102,7 @@ namespace MugenMvvm.Navigation.Components
                 for (var i = 0; i < callbacks.Count; i++)
                 {
                     var callback = callbacks[i];
-                    if (callback == null || callback.NavigationId == hasNavigationInfo.NavigationId)
+                    if (callback == null || callback.NavigationId == navigationId && callback.NavigationType == navigationType)
                     {
                         if (callback != null)
                             toInvoke.Add(callback);
@@ -129,33 +134,56 @@ namespace MugenMvvm.Navigation.Components
             var callbacks = metadata?.GetOrAdd(key, key, (context, _) => new List<NavigationCallback>());
             if (callbacks == null)
                 return;
-            lock (callback)
+            lock (callbacks)
             {
                 callbacks.Add(callback);
             }
         }
 
-        private static NavigationCallback? TryGetNavigationCallback<TRequest>(NavigationCallbackType callbackType, in TRequest request, out IMetadataContext? targetMetadata, out IMetadataContext? contextMetadata)
+        private static NavigationCallback? TryFindCallback(NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, IReadOnlyMetadataContextKey<List<NavigationCallback>> key, IReadOnlyMetadataContext metadata)
         {
-            targetMetadata = null;
-            contextMetadata = null;
-            if (Default.IsValueType<TRequest>() || !(request is IHasNavigationInfo hasNavigationInfo))
+            var callbacks = metadata?.Get(key);
+            if (callbacks == null)
                 return null;
-
-            contextMetadata = (request as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata as IMetadataContext;
-            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IMetadataOwner<IMetadataContext> targetOwner)
+            lock (callbacks)
             {
-                targetMetadata = targetOwner.Metadata;
-                return new NavigationCallback(callbackType, hasNavigationInfo.NavigationId, hasNavigationInfo.NavigationType);
-            }
-
-            if (contextMetadata?.Get(NavigationMetadata.Target) is IMetadataOwner<IMetadataContext> owner)
-            {
-                targetMetadata = owner.Metadata;
-                return new NavigationCallback(callbackType, hasNavigationInfo.NavigationId, hasNavigationInfo.NavigationType);
+                for (int i = 0; i < callbacks.Count; i++)
+                {
+                    var callback = callbacks[i];
+                    if (callback != null && callback.NavigationId == navigationId && callback.CallbackType == callbackType && callback.NavigationType == navigationType)
+                        return callback;
+                }
             }
 
             return null;
+        }
+
+        private static bool TryGetCallbackTarget<TRequest>(in TRequest request, [NotNullWhen(true)] out IMetadataOwner<IReadOnlyMetadataContext>? target, out IReadOnlyMetadataContext? contextMetadata,
+            [NotNullWhen(true)] out string? navigationId, [NotNullWhen(true)]out NavigationType? navigationType)
+        {
+            target = null;
+            contextMetadata = null;
+            navigationId = null;
+            navigationType = null;
+            if (Default.IsValueType<TRequest>() || !(request is IHasNavigationInfo hasNavigationInfo))
+                return false;
+
+            navigationId = hasNavigationInfo.NavigationId;
+            navigationType = hasNavigationInfo.NavigationType;
+            contextMetadata = (request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault();
+            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner)
+            {
+                target = targetOwner;
+                return true;
+            }
+
+            if (contextMetadata?.Get(NavigationMetadata.Target) is IMetadataOwner<IReadOnlyMetadataContext> owner)
+            {
+                target = owner;
+                return true;
+            }
+
+            return false;
         }
 
         private static IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> GetKey(string name)

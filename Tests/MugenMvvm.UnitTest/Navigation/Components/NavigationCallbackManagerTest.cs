@@ -11,6 +11,7 @@ using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presenters;
+using MugenMvvm.UnitTest.Internal.Internal;
 using MugenMvvm.UnitTest.Metadata.Internal;
 using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
@@ -55,7 +56,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
             var component = new NavigationCallbackManager();
-            var addedCallbacks = new List<INavigationCallback>();
+            var addedCallbacks = new HashSet<INavigationCallback>(ReferenceEqualityComparer.Instance);
             for (var i = 0; i < count; i++)
             {
                 var callback = component.TryAddNavigationCallback(NavigationCallbackType.Showing, result, DefaultMetadata)!;
@@ -64,6 +65,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 component.TryGetNavigationCallbacks(result, DefaultMetadata)!.SequenceEqual(addedCallbacks).ShouldBeTrue();
                 component.TryGetNavigationCallbacks(target, DefaultMetadata)!.SequenceEqual(addedCallbacks).ShouldBeTrue();
             }
+            addedCallbacks.Count.ShouldEqual(1);
         }
 
         [Theory]
