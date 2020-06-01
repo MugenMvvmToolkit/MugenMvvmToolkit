@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Parsing.Internal;
 using Should;
@@ -188,11 +189,12 @@ namespace MugenMvvm.UnitTest
 
         public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
         {
-            if (itemOrList.List != null)
-                return itemOrList.List.ToArray();
-            if (itemOrList.Item == null)
-                return Default.Array<TItem>();
-            return new[] { itemOrList.Item! };
+            return itemOrList.ToArray(item => EqualityComparer<TItem>.Default.Equals(item, default!));
+        }
+
+        public static List<TItem> ToList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
+        {
+            return itemOrList.ToList(item => EqualityComparer<TItem>.Default.Equals(item, default!));
         }
 
         #endregion

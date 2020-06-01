@@ -56,9 +56,9 @@ namespace MugenMvvm.Messaging
             GetComponents<IMessengerSubscriberComponent>().TryUnsubscribeAll(metadata);
         }
 
-        public IReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(metadata) ?? Default.Array<MessengerSubscriberInfo>();
+            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(metadata);
         }
 
         #endregion

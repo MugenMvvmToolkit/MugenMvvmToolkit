@@ -2,7 +2,7 @@
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Collections;
+using MugenMvvm.Extensions.Internal;
 using Should;
 using Xunit;
 

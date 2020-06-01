@@ -4,6 +4,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -109,13 +110,14 @@ namespace MugenMvvm.Messaging.Components
         private static ThreadExecutionModeDictionary? GetHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             var handlers = messenger.GetComponents<IMessengerSubscriberComponent>().TryGetMessengerHandlers(messageType, metadata);
-            if (handlers == null || handlers.Count == 0)
+            var count = handlers.Count(h => h.IsEmpty);
+            if (count == 0)
                 return null;
 
             var dictionary = new ThreadExecutionModeDictionary();
-            for (var index = 0; index < handlers.Count; index++)
+            for (var index = 0; index < count; index++)
             {
-                var subscriber = handlers[index];
+                var subscriber = handlers.Get(index);
                 if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
                 {
                     value = new MessageThreadExecutor(messenger);

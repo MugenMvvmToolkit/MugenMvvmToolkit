@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
@@ -122,10 +123,10 @@ namespace MugenMvvm.Messaging.Components
                 _messenger.TryInvalidateCache(metadata);
         }
 
-        public IReadOnlyList<MessengerHandler>? TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
         {
-            LazyList<MessengerHandler> result = default;
-            LazyList<HandlerSubscriber> toRemove = default;
+            ItemOrList<MessengerHandler, List<MessengerHandler>> result = default;
+            ItemOrList<HandlerSubscriber, List<HandlerSubscriber>> toRemove = default;
             lock (this)
             {
                 if (Count == 0)
@@ -136,35 +137,40 @@ namespace MugenMvvm.Messaging.Components
                     var subscriber = handler.GetSubscriber();
                     if (subscriber == null)
                     {
-                        toRemove.Add(handler);
+                        toRemove.Add(handler, h => h.Subscriber == null);
                         continue;
                     }
 
                     var action = GetHandler(_reflectionDelegateProvider, subscriber.GetType(), messageType);
                     if (action != null)
-                        result.Add(new MessengerHandler(HandlerDelegate, handler.Subscriber, handler.ExecutionMode, action));
+                        result.Add(new MessengerHandler(HandlerDelegate, handler.Subscriber, handler.ExecutionMode, action), h => h.IsEmpty);
                     if (subscriber is IMessengerHandlerRaw handlerRaw && handlerRaw.CanHandle(messageType))
-                        result.Add(new MessengerHandler(HandlerRawDelegate, handler.Subscriber, handler.ExecutionMode));
+                        result.Add(new MessengerHandler(HandlerRawDelegate, handler.Subscriber, handler.ExecutionMode), h => h.IsEmpty);
                 }
             }
 
-            var toRemoveList = toRemove.List;
             var messenger = _messenger;
-            if (toRemoveList != null && messenger != null)
+            if (messenger != null)
             {
-                for (var i = 0; i < toRemoveList.Count; i++)
-                    messenger.Unsubscribe(toRemoveList[i], metadata);
+                for (var i = 0; i < toRemove.Count(h => h.Subscriber == null); i++)
+                    messenger.Unsubscribe(toRemove.Get(i), metadata);
             }
 
-            return result.List;
+            return result.Cast<IReadOnlyList<MessengerHandler>>();
         }
 
-        public IReadOnlyList<MessengerSubscriberInfo>? TryGetSubscribers(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IReadOnlyMetadataContext? metadata)
         {
             lock (this)
             {
                 if (Count == 0)
                     return null;
+                if (Count == 1)
+                {
+                    var subscriber = this.FirstOrDefault();
+                    return new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode);
+                }
+
                 return this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode));
             }
         }
@@ -181,7 +187,7 @@ namespace MugenMvvm.Messaging.Components
             if (subscriber == null || handler == null)
                 return MessengerResult.Invalid;
 
-            ((Action<object?, object?, IMessageContext>) handler).Invoke(subscriber, context.Message, context);
+            ((Action<object?, object?, IMessageContext>)handler).Invoke(subscriber, context.Message, context);
             return MessengerResult.Handled;
         }
 
@@ -192,7 +198,7 @@ namespace MugenMvvm.Messaging.Components
                 subscriber = weakReference.Target!;
             if (subscriber == null)
                 return MessengerResult.Invalid;
-            return ((IMessengerHandlerRaw) subscriber).Handle(context);
+            return ((IMessengerHandlerRaw)subscriber).Handle(context);
         }
 
         private bool Add(HandlerSubscriber subscriber, IReadOnlyMetadataContext? metadata)

@@ -23,7 +23,7 @@ using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Collections;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;

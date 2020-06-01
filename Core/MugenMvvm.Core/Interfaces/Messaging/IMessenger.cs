@@ -4,6 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging
@@ -16,6 +17,6 @@ namespace MugenMvvm.Interfaces.Messaging
 
         void UnsubscribeAll(IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<MessengerSubscriberInfo> GetSubscribers(IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null);
     }
 }

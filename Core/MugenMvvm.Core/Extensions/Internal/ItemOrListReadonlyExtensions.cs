@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Internal;
 
-namespace MugenMvvm.Extensions.Collections
+namespace MugenMvvm.Extensions.Internal
 {
-    public static class ItemOrListExtensions
+    public static class ItemOrListReadonlyExtensions
     {
         #region Methods
 
@@ -12,35 +12,30 @@ namespace MugenMvvm.Extensions.Collections
             where TItem : class?
             where TList : class, IReadOnlyCollection<TItem>
         {
-            if (itemOrList.Item != null)
-                return 1;
             if (itemOrList.List != null)
                 return itemOrList.List.Count;
             return itemOrList.Item == null ? 0 : 1;
         }
 
+        public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TItem, bool> isNullOrEmpty)
+            where TList : class, IReadOnlyCollection<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List.Count;
+            return isNullOrEmpty(itemOrList.Item!) ? 0 : 1;
+        }
+
         public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class?
             where TList : class, IReadOnlyList<TItem>
         {
             if (itemOrList.List != null)
                 return itemOrList.List[index];
 
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
+            if (index == 0)
+                return itemOrList.Item!;
 
             ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        [return: MaybeNull]
-        public static TItem FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IReadOnlyList<TItem>
-        {
-            if (itemOrList.Item != null)
-                return itemOrList.Item;
-            return itemOrList.List?[0];
+            return default;
         }
 
         #endregion

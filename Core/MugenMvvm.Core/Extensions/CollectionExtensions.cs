@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Collections;
@@ -59,219 +58,20 @@ namespace MugenMvvm.Extensions
             return component.DecorateItems();
         }
 
-        public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, ICollection<TItem>
+        public static void AddRange<T>(this ICollection<T> items, IReadOnlyList<T> value)
         {
-            if (itemOrList.Item != null)
-                return 1;
-            if (itemOrList.List != null)
-                return itemOrList.List.Count;
-            return itemOrList.Item == null ? 0 : 1;
+            Should.NotBeNull(items, nameof(items));
+            Should.NotBeNull(value, nameof(value));
+            for (int i = 0; i < value.Count; i++)
+                items.Add(value[i]);
         }
 
-        public static int Count<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
-            where TItem : class?
+        public static void AddRange<T>(this ICollection<T> items, IList<T> value)
         {
-            if (itemOrList.List != null)
-                return itemOrList.List.Length;
-            return itemOrList.Item == null ? 0 : 1;
-        }
-
-        public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class?
-            where TList : class, IList<TItem>
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static TItem Get<TItem>(this ItemOrList<TItem, TItem[]> itemOrList, int index)
-            where TItem : class?
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static void Set<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item, int index)
-            where TItem : class
-            where TList : class, IList<TItem>
-        {
-            Should.NotBeNull(item, nameof(item));
-            if (itemOrList.List != null)
-            {
-                itemOrList.List[index] = item;
-                return;
-            }
-
-            if (index == 0 && itemOrList.Item != null)
-            {
-                itemOrList = item;
-                return;
-            }
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-        }
-
-        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item)
-            where TItem : class?
-        {
-            Should.NotBeNull(item, nameof(item));
-            if (itemOrList.List != null)
-            {
-                itemOrList.List.Add(item);
-                return;
-            }
-
-            if (itemOrList.Item == null)
-            {
-                itemOrList = item;
-                return;
-            }
-
-            itemOrList = new ItemOrList<TItem, IList<TItem>>(new List<TItem> { itemOrList.Item, item });
-        }
-
-        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item)
-            where TItem : class?
-        {
-            Should.NotBeNull(item, nameof(item));
-            if (itemOrList.List != null)
-            {
-                itemOrList.List.Add(item);
-                return;
-            }
-
-            if (itemOrList.Item == null)
-            {
-                itemOrList = item;
-                return;
-            }
-
-            itemOrList = new ItemOrList<TItem, List<TItem>>(new List<TItem> { itemOrList.Item, item });
-        }
-
-        public static void AddRange<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value)
-            where TItem : class?
-        {
-            if (value.Item == null && value.List == null)
-                return;
-
-            var items = itemOrList.List;
-            if (items == null)
-            {
-                if (itemOrList.Item == null)
-                {
-                    if (value.Item == null)
-                        itemOrList = value.List.ToList();
-                    else
-                        itemOrList = value.Item;
-                    return;
-                }
-
-                items = new List<TItem> { itemOrList.Item };
-            }
-
-            if (value.Item == null)
-                items.AddRange(value.List);
-            else
-                items.Add(value.Item);
-
-            itemOrList = items;
-        }
-
-        public static bool Remove<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item)
-            where TItem : class
-            where TList : class, ICollection<TItem>
-        {
-            if (itemOrList.List != null)
-            {
-                itemOrList.List.Remove(item);
-                itemOrList = itemOrList.List;
-                return true;
-            }
-
-            if (Equals(itemOrList.Item, item))
-            {
-                itemOrList = default;
-                return true;
-            }
-
-            return false;
-        }
-
-        public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class?
-            where TList : class, IList<TItem>
-        {
-            if (itemOrList.List != null)
-            {
-                itemOrList.List.RemoveAt(index);
-                itemOrList = itemOrList.List;
-                return;
-            }
-
-            if (index == 0 && itemOrList.Item != null)
-            {
-                itemOrList = default;
-                return;
-            }
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-        }
-
-        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            var list = itemOrList.List;
-            if (list != null)
-                return list.ToArray();
-
-            if (itemOrList.Item == null)
-                return Default.Array<TItem>();
-            return new[] { itemOrList.Item };
-        }
-
-        public static List<TItem> ToList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            var list = itemOrList.List;
-            if (list != null)
-                return list.ToList();
-
-            if (itemOrList.Item == null)
-                return new List<TItem>();
-            return new List<TItem> { itemOrList.Item };
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return (object?)itemOrList.Item ?? itemOrList.List;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return itemOrList.Item == null && itemOrList.List == null;
+            Should.NotBeNull(items, nameof(items));
+            Should.NotBeNull(value, nameof(value));
+            for (int i = 0; i < value.Count; i++)
+                items.Add(value[i]);
         }
 
         public static T[] ToArray<T>(this T[] array)

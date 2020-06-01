@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
-using MugenMvvm.Extensions.Collections;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;

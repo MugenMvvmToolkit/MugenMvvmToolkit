@@ -4,6 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 
 namespace MugenMvvm.UnitTest.Messaging.Internal
@@ -18,9 +19,9 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         public Action<IReadOnlyMetadataContext?>? TryUnsubscribeAll { get; set; }
 
-        public Func<Type, IReadOnlyMetadataContext?, IReadOnlyList<MessengerHandler>?>? TryGetMessengerHandlers { get; set; }
+        public Func<Type, IReadOnlyMetadataContext?, ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>>>? TryGetMessengerHandlers { get; set; }
 
-        public Func<IReadOnlyMetadataContext?, IReadOnlyList<MessengerSubscriberInfo>?>? TryGetSubscribers { get; set; }
+        public Func<IReadOnlyMetadataContext?, ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>>>? TryGetSubscribers { get; set; }
 
         public int Priority { get; set; }
 
@@ -43,14 +44,14 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
             TryUnsubscribeAll?.Invoke(metadata);
         }
 
-        IReadOnlyList<MessengerHandler>? IMessengerSubscriberComponent.TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
+        ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> IMessengerSubscriberComponent.TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetMessengerHandlers?.Invoke(messageType, metadata);
+            return TryGetMessengerHandlers?.Invoke(messageType, metadata) ?? default;
         }
 
-        IReadOnlyList<MessengerSubscriberInfo>? IMessengerSubscriberComponent.TryGetSubscribers(IReadOnlyMetadataContext? metadata)
+        ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> IMessengerSubscriberComponent.TryGetSubscribers(IReadOnlyMetadataContext? metadata)
         {
-            return TryGetSubscribers?.Invoke(metadata);
+            return TryGetSubscribers?.Invoke(metadata) ?? default;
         }
 
         #endregion

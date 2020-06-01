@@ -69,23 +69,27 @@ namespace MugenMvvm.Extensions.Components
                 components[i].TryUnsubscribeAll(metadata);
         }
 
-        public static IReadOnlyList<MessengerSubscriberInfo>? TryGetSubscribers(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<MessengerSubscriberInfo> subscribers = default;
+            if (components.Length == 1)
+                return components[0].TryGetSubscribers(metadata);
+            ItemOrList<MessengerSubscriberInfo, List<MessengerSubscriberInfo>> subscribers = default;
             for (var i = 0; i < components.Length; i++)
-                subscribers.AddRange(components[i].TryGetSubscribers(metadata));
-            return subscribers.List;
+                subscribers.AddRange(components[i].TryGetSubscribers(metadata), info => info.IsEmpty);
+            return subscribers.Cast<IReadOnlyList<MessengerSubscriberInfo>>();
         }
 
-        public static IReadOnlyList<MessengerHandler>? TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messageType, nameof(messageType));
-            LazyList<MessengerHandler> handlers = default;
+            if (components.Length == 1)
+                return components[0].TryGetMessengerHandlers(messageType, metadata);
+            ItemOrList<MessengerHandler, List<MessengerHandler>> handlers = default;
             for (var i = 0; i < components.Length; i++)
-                handlers.AddRange(components[i].TryGetMessengerHandlers(messageType, metadata));
-            return handlers.List;
+                handlers.AddRange(components[i].TryGetMessengerHandlers(messageType, metadata), handler => handler.IsEmpty);
+            return handlers.Cast<IReadOnlyList<MessengerHandler>>();
         }
 
         #endregion
