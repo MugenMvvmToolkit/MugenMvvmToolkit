@@ -7,10 +7,8 @@ namespace MugenMvvm.Interfaces.Presenters.Components
 {
     public interface IConditionPresenterComponent : IComponent<IPresenter>
     {
-        bool CanShow<TRequest>(IPresenterComponent presenter, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
+        bool CanShow<TRequest>(IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
         bool CanClose<TRequest>(IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
-
-        bool CanRestore<TRequest>(IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

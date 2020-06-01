@@ -41,20 +41,24 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public IPresenterResult? TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IPresenterResult>? TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _navigationDispatcher.DefaultIfNull();
             using (SuspendNavigation(dispatcher, metadata))
             {
-                var result = Components.TryShow(request, cancellationToken, metadata);
-                if (result != null)
+                var results = Components.TryShow(request, cancellationToken, metadata);
+                if (results != null && results.Count != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    components.TryAddNavigationCallback(NavigationCallbackType.Showing, result, metadata);
-                    components.TryAddNavigationCallback(NavigationCallbackType.Close, result, metadata);
+                    for (var i = 0; i < results.Count; i++)
+                    {
+                        var result = results[i];
+                        components.TryAddNavigationCallback(NavigationCallbackType.Showing, result, metadata);
+                        components.TryAddNavigationCallback(NavigationCallbackType.Close, result, metadata);
+                    }
                 }
 
-                return result;
+                return results;
             }
         }
 
@@ -73,11 +77,6 @@ namespace MugenMvvm.Presenters.Components
 
                 return results;
             }
-        }
-
-        public IReadOnlyList<IPresenterResult>? TryRestore<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return Components.TryRestore(request, cancellationToken, metadata);
         }
 
         #endregion

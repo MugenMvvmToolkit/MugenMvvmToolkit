@@ -12,11 +12,9 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IPresenterResult?>? TryShow { get; set; }
-
         public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<IPresenterResult>>? TryClose { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<IPresenterResult>>? TryRestore { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, CancellationToken, IReadOnlyList<IPresenterResult>>? TryShow { get; set; }
 
         public int Priority { get; set; }
 
@@ -24,19 +22,14 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Implementation of interfaces
 
-        IPresenterResult? IPresenterComponent.TryShow<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryShow<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return TryShow?.Invoke(request!, typeof(TRequest), metadata, cancellationToken) ?? default;
+            return TryShow?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }
 
         IReadOnlyList<IPresenterResult>? IPresenterComponent.TryClose<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryClose?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
-        }
-
-        IReadOnlyList<IPresenterResult>? IPresenterComponent.TryRestore<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            return TryRestore?.Invoke(request!, typeof(TRequest), metadata, cancellationToken);
         }
 
         #endregion

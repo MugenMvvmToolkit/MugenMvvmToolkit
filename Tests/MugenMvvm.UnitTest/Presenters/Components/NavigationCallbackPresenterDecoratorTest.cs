@@ -22,22 +22,22 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         public void ShowShouldAddCallbacks()
         {
             var suspended = false;
-            var addedCallbacks = new List<NavigationCallbackType>();
-            var presenterResult = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
+            var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
+            var presenterResult1 = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
+            var presenterResult2 = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
             var presenter = new Presenter();
             var navigationDispatcher = new NavigationDispatcher();
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, type, arg3, arg4) => presenterResult
+                TryShow = (o, type, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
                 TryAddNavigationCallback = (callbackType, target, type, m) =>
                 {
                     suspended.ShouldBeTrue();
-                    addedCallbacks.Add(callbackType);
-                    target.ShouldEqual(presenterResult);
+                    addedCallbacks.Add(((IPresenterResult)target, callbackType));
                     type.ShouldEqual(typeof(IPresenterResult));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
@@ -58,9 +58,11 @@ namespace MugenMvvm.UnitTest.Presenters.Components
 
             presenter.Show(this, default, DefaultMetadata);
             suspended.ShouldBeFalse();
-            addedCallbacks.Count.ShouldEqual(2);
-            addedCallbacks.ShouldContain(NavigationCallbackType.Showing);
-            addedCallbacks.ShouldContain(NavigationCallbackType.Close);
+            addedCallbacks.Count.ShouldEqual(4);
+            addedCallbacks.ShouldContain((presenterResult1, NavigationCallbackType.Showing));
+            addedCallbacks.ShouldContain((presenterResult1, NavigationCallbackType.Close));
+            addedCallbacks.ShouldContain((presenterResult2, NavigationCallbackType.Showing));
+            addedCallbacks.ShouldContain((presenterResult2, NavigationCallbackType.Close));
         }
 
         [Fact]

@@ -18,33 +18,40 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         [Fact]
         public void TryShowShouldBeHandledByComponents()
         {
+            var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var presenter = new Presenter();
             presenter.AddComponent(new ConditionPresenterDecorator());
 
-            var canExecute = false;
-            var component = new TestConditionPresenterComponent
-            {
-                CanShow = (component1, o, arg3, arg4) => canExecute
-            };
-            presenter.AddComponent(component);
-
-            var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var invoked = 0;
             var presenterComponent = new TestPresenterComponent
             {
                 TryShow = (o, type, arg3, arg4) =>
                 {
                     ++invoked;
-                    return result;
+                    return new[] { result };
                 }
             };
             presenter.AddComponent(presenterComponent);
 
-            ShouldThrow<InvalidOperationException>(() => presenter.Show(presenter));
+            var canExecute = false;
+            var component = new TestConditionPresenterComponent
+            {
+                CanShow = (c, results, r, t, m) =>
+                {
+                    c.ShouldEqual(presenterComponent);
+                    results.ShouldBeEmpty();
+                    r.ShouldEqual(presenter);
+                    m.ShouldEqual(DefaultMetadata);
+                    return canExecute;
+                }
+            };
+            presenter.AddComponent(component);
+
+            ShouldThrow<InvalidOperationException>(() => presenter.Show(presenter, default, DefaultMetadata));
             invoked.ShouldEqual(0);
 
             canExecute = true;
-            presenter.Show(presenter).ShouldEqual(result);
+            presenter.Show(presenter, default, DefaultMetadata).Single().ShouldEqual(result);
             invoked.ShouldEqual(1);
         }
 
@@ -53,13 +60,6 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         {
             var presenter = new Presenter();
             presenter.AddComponent(new ConditionPresenterDecorator());
-
-            var canExecute = false;
-            var component = new TestConditionPresenterComponent
-            {
-                CanClose = (component1, list, arg3, arg4, arg5) => canExecute
-            };
-            presenter.AddComponent(component);
 
             var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var invoked = 0;
@@ -73,44 +73,25 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             };
             presenter.AddComponent(presenterComponent);
 
-            presenter.TryClose(presenter).ShouldBeEmpty();
-            invoked.ShouldEqual(0);
-
-            canExecute = true;
-            presenter.TryClose(presenter).Single().ShouldEqual(result);
-            invoked.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void TryRestoreShouldBeHandledByComponents()
-        {
-            var presenter = new Presenter();
-            presenter.AddComponent(new ConditionPresenterDecorator());
-
             var canExecute = false;
             var component = new TestConditionPresenterComponent
             {
-                CanRestore = (component1, list, arg3, arg4, arg5) => canExecute
+                CanClose = (c, results, r, t, m) =>
+                {
+                    c.ShouldEqual(presenterComponent);
+                    results.ShouldBeEmpty();
+                    r.ShouldEqual(presenter);
+                    m.ShouldEqual(DefaultMetadata);
+                    return canExecute;
+                }
             };
             presenter.AddComponent(component);
 
-            var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
-            var invoked = 0;
-            var presenterComponent = new TestPresenterComponent
-            {
-                TryRestore = (o, type, arg3, arg4) =>
-                {
-                    ++invoked;
-                    return new[] { result };
-                }
-            };
-            presenter.AddComponent(presenterComponent);
-
-            presenter.TryRestore(presenter).ShouldBeEmpty();
+            presenter.TryClose(presenter, default, DefaultMetadata).ShouldBeEmpty();
             invoked.ShouldEqual(0);
 
             canExecute = true;
-            presenter.TryRestore(presenter).Single().ShouldEqual(result);
+            presenter.TryClose(presenter, default, DefaultMetadata).Single().ShouldEqual(result);
             invoked.ShouldEqual(1);
         }
 

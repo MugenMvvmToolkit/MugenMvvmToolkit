@@ -23,21 +23,18 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public IPresenterResult? TryShow<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public IReadOnlyList<IPresenterResult>? TryShow<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
+            LazyList<IPresenterResult> result = default;
             for (var i = 0; i < components.Length; i++)
             {
                 var presenter = components[i];
-                if (!Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, request, metadata))
-                    continue;
-
-                var result = presenter.TryShow(request, cancellationToken, metadata);
-                if (result != null)
-                    return result;
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.Array<IPresenterResult>(), request, metadata))
+                    result.AddRange(presenter.TryShow(request, cancellationToken, metadata));
             }
 
-            return null;
+            return result.List;
         }
 
         public IReadOnlyList<IPresenterResult>? TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
@@ -49,20 +46,6 @@ namespace MugenMvvm.Presenters.Components
                 var presenter = components[i];
                 if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.Array<IPresenterResult>(), request, metadata))
                     result.AddRange(presenter.TryClose(request, cancellationToken, metadata));
-            }
-
-            return result.List;
-        }
-
-        public IReadOnlyList<IPresenterResult>? TryRestore<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
-        {
-            var components = Components;
-            LazyList<IPresenterResult> result = default;
-            for (var i = 0; i < components.Length; i++)
-            {
-                var presenter = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanRestore(presenter, (IReadOnlyList<IPresenterResult>?)result.List ?? Default.Array<IPresenterResult>(), request, metadata))
-                    result.AddRange(presenter.TryRestore(request, cancellationToken, metadata));
             }
 
             return result.List;

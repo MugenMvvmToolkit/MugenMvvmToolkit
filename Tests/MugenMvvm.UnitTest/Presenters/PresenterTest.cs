@@ -24,13 +24,14 @@ namespace MugenMvvm.UnitTest.Presenters
         public void ShowShouldBeHandledByComponents(int componentCount)
         {
             var presenter = new Presenter();
-            var result = new PresenterResult(this, "-", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+            var results = new List<PresenterResult>();
             var cancellationToken = new CancellationTokenSource().Token;
             var request = new TestHasServiceModel<object>();
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var isLast = i == componentCount - 1;
+                var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
+                results.Add(result);
                 var component = new TestPresenterComponent
                 {
                     TryShow = (o, type, arg3, arg4) =>
@@ -40,23 +41,21 @@ namespace MugenMvvm.UnitTest.Presenters
                         type.ShouldEqual(request.GetType());
                         arg3.ShouldEqual(DefaultMetadata);
                         arg4.ShouldEqual(cancellationToken);
-                        if (isLast)
-                            return result;
-                        return null;
+                        return new[] { result };
                     },
                     Priority = -i
                 };
                 presenter.AddComponent(component);
             }
 
-            presenter.Show(request, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            presenter.Show(request, cancellationToken, DefaultMetadata).SequenceEqual(results).ShouldBeTrue();
             invokeCount.ShouldEqual(componentCount);
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void CloseShouldBeHandledByComponents(int componentCount)
+        public void TryCloseShouldBeHandledByComponents(int componentCount)
         {
             var presenter = new Presenter();
             var results = new List<PresenterResult>();
@@ -84,40 +83,6 @@ namespace MugenMvvm.UnitTest.Presenters
             }
 
             presenter.TryClose(request, cancellationToken, DefaultMetadata).SequenceEqual(results).ShouldBeTrue();
-            invokeCount.ShouldEqual(componentCount);
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void RestoreShouldBeHandledByComponents(int componentCount)
-        {
-            var presenter = new Presenter();
-            var results = new List<PresenterResult>();
-            var cancellationToken = new CancellationTokenSource().Token;
-            var request = new TestHasServiceModel<object>();
-            var invokeCount = 0;
-            for (var i = 0; i < componentCount; i++)
-            {
-                var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
-                results.Add(result);
-                var component = new TestPresenterComponent
-                {
-                    TryRestore = (o, type, arg3, arg4) =>
-                    {
-                        ++invokeCount;
-                        o.ShouldEqual(request);
-                        type.ShouldEqual(request.GetType());
-                        arg3.ShouldEqual(DefaultMetadata);
-                        arg4.ShouldEqual(cancellationToken);
-                        return new[] { result };
-                    },
-                    Priority = -i
-                };
-                presenter.AddComponent(component);
-            }
-
-            presenter.TryRestore(request, cancellationToken, DefaultMetadata).SequenceEqual(results).ShouldBeTrue();
             invokeCount.ShouldEqual(componentCount);
         }
 
