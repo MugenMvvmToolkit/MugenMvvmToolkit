@@ -123,6 +123,12 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
+        public void Deconstruct([MaybeNull]out TItem item, [MaybeNull]out TList list)
+        {
+            item = Item;
+            list = List;
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromRawValue(object? value)
         {

@@ -61,16 +61,10 @@ namespace MugenMvvm.Extensions
 
         public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
-            where TList : class, IReadOnlyCollection<TItem>
+            where TList : class, ICollection<TItem>
         {
-            if (itemOrList.List != null)
-                return itemOrList.List.Count;
-            return itemOrList.Item == null ? 0 : 1;
-        }
-
-        public static int Count<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
-            where TItem : class?
-        {
+            if (itemOrList.Item != null)
+                return 1;
             if (itemOrList.List != null)
                 return itemOrList.List.Count;
             return itemOrList.Item == null ? 0 : 1;
@@ -82,6 +76,53 @@ namespace MugenMvvm.Extensions
             if (itemOrList.List != null)
                 return itemOrList.List.Length;
             return itemOrList.Item == null ? 0 : 1;
+        }
+
+        public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
+            where TItem : class?
+            where TList : class, IList<TItem>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static TItem Get<TItem>(this ItemOrList<TItem, TItem[]> itemOrList, int index)
+            where TItem : class?
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List[index];
+
+            if (index == 0 && itemOrList.Item != null)
+                return itemOrList.Item;
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
+            return null;
+        }
+
+        public static void Set<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item, int index)
+            where TItem : class
+            where TList : class, IList<TItem>
+        {
+            Should.NotBeNull(item, nameof(item));
+            if (itemOrList.List != null)
+            {
+                itemOrList.List[index] = item;
+                return;
+            }
+
+            if (index == 0 && itemOrList.Item != null)
+            {
+                itemOrList = item;
+                return;
+            }
+
+            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
         }
 
         public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item)
@@ -151,75 +192,6 @@ namespace MugenMvvm.Extensions
             itemOrList = items;
         }
 
-        public static TItem? FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class
-            where TList : class, IReadOnlyList<TItem>
-        {
-            if (itemOrList.Item != null)
-                return itemOrList.Item;
-            return itemOrList.List?[0];
-        }
-
-        public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
-            where TItem : class?
-            where TList : class, IReadOnlyList<TItem>
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static TItem Get<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, int index)
-            where TItem : class
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static TItem Get<TItem>(this ItemOrList<TItem, TItem[]> itemOrList, int index)
-            where TItem : class
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0 && itemOrList.Item != null)
-                return itemOrList.Item;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return null;
-        }
-
-        public static void Set<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item, int index)
-            where TItem : class
-            where TList : class, IList<TItem>
-        {
-            Should.NotBeNull(item, nameof(item));
-            if (itemOrList.List != null)
-            {
-                itemOrList.List[index] = item;
-                return;
-            }
-
-            if (index == 0 && itemOrList.Item != null)
-            {
-                itemOrList = item;
-                return;
-            }
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-        }
-
         public static bool Remove<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item)
             where TItem : class
             where TList : class, ICollection<TItem>
@@ -268,6 +240,19 @@ namespace MugenMvvm.Extensions
             return new[] { itemOrList.Item };
         }
 
+        public static List<TItem> ToList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class, IEnumerable<TItem>
+        {
+            var list = itemOrList.List;
+            if (list != null)
+                return list.ToList();
+
+            if (itemOrList.Item == null)
+                return new List<TItem>();
+            return new List<TItem> { itemOrList.Item };
+        }
+
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
@@ -290,18 +275,6 @@ namespace MugenMvvm.Extensions
             var result = new T[array.Length];
             Array.Copy(array, 0, result, 0, array.Length);
             return result;
-        }
-
-        public static TResult[] ToArray<T, TResult>(this IReadOnlyList<T> list, Func<T, TResult> selector)
-        {
-            Should.NotBeNull(list, nameof(list));
-            var count = list.Count;
-            if (count == 0)
-                return Default.Array<TResult>();
-            var array = new TResult[count];
-            for (var index = 0; index < list.Count; index++)
-                array[index] = selector(list[index]);
-            return array;
         }
 
         public static TResult[] ToArray<T, TResult>(this IReadOnlyCollection<T> collection, Func<T, TResult> selector)

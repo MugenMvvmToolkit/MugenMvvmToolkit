@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Collections;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Components;

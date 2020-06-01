@@ -3,6 +3,7 @@ using System.Linq;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Collections;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
