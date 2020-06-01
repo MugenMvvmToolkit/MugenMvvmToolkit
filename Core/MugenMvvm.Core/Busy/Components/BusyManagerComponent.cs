@@ -85,9 +85,12 @@ namespace MugenMvvm.Busy.Components
             return _busyTail?.TryGetToken(filter, state, metadata);
         }
 
-        public IReadOnlyList<IBusyToken>? TryGetTokens(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(IReadOnlyMetadataContext? metadata)
         {
-            return _busyTail?.GetTokens();
+            var busyToken = _busyTail;
+            if (busyToken == null)
+                return default;
+            return busyToken.GetTokens();
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -295,20 +298,20 @@ namespace MugenMvvm.Busy.Components
                 return null;
             }
 
-            public IReadOnlyList<IBusyToken>? GetTokens()
+            public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens()
             {
-                LazyList<IBusyToken> tokens = default;
+                ItemOrList<IBusyToken, List<IBusyToken>> tokens = default;
                 lock (Locker)
                 {
                     var token = Owner._busyTail;
                     while (token != null)
                     {
-                        tokens.Get().Insert(0, token);
+                        tokens.Add(token);
                         token = token._prev;
                     }
                 }
 
-                return tokens.List;
+                return tokens.Cast<IReadOnlyList<IBusyToken>>();
             }
 
             public bool SetSuspended(bool suspended)

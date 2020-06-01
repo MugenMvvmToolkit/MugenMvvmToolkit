@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Busy
         public void GetTokensShouldReturnEmptyNoComponents()
         {
             var componentOwner = GetComponentOwner();
-            componentOwner.GetTokens().ShouldBeEmpty();
+            componentOwner.GetTokens().ToArray().ShouldBeEmpty();
         }
 
         [Theory]
@@ -125,7 +125,7 @@ namespace MugenMvvm.UnitTest.Busy
                 componentOwner.AddComponent(component);
             }
 
-            new HashSet<IBusyToken>(componentOwner.GetTokens(DefaultMetadata)).Count.ShouldEqual(componentCount * 2);
+            new HashSet<IBusyToken>(componentOwner.GetTokens(DefaultMetadata).ToArray()).Count.ShouldEqual(componentCount * 2);
             methodCallCount.ShouldEqual(componentCount);
         }
 

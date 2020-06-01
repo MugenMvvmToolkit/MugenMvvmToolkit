@@ -576,18 +576,18 @@ namespace MugenMvvm.UnitTest.Busy.Components
             var token1 = busyManagerComponent.TryBeginBusy("Test1", null)!;
             var token2 = busyManagerComponent.TryBeginBusy("Test2", null)!;
 
-            var tokens = busyManagerComponent.TryGetTokens(DefaultMetadata)!;
+            var tokens = busyManagerComponent.TryGetTokens(DefaultMetadata)!.ToList();
             tokens.Count.ShouldEqual(2);
             tokens.ShouldContain(token1);
             tokens.ShouldContain(token2);
 
             token1.Dispose();
-            tokens = busyManagerComponent.TryGetTokens(DefaultMetadata)!;
+            tokens = busyManagerComponent.TryGetTokens(DefaultMetadata)!.ToList();
             tokens.Count.ShouldEqual(1);
             tokens.ShouldContain(token2);
 
             token2.Dispose();
-            tokens = busyManagerComponent.TryGetTokens(DefaultMetadata)!;
+            tokens = busyManagerComponent.TryGetTokens(DefaultMetadata)!.ToList();
             (tokens == null || tokens.Count == 0).ShouldBeTrue();
         }
 

@@ -126,7 +126,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item)
-            where TItem : class
+            where TItem : class?
         {
             Should.NotBeNull(item, nameof(item));
             if (itemOrList.List != null)
@@ -145,7 +145,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item)
-            where TItem : class
+            where TItem : class?
         {
             Should.NotBeNull(item, nameof(item));
             if (itemOrList.List != null)
@@ -164,7 +164,7 @@ namespace MugenMvvm.Extensions
         }
 
         public static void AddRange<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value)
-            where TItem : class
+            where TItem : class?
         {
             if (value.Item == null && value.List == null)
                 return;
@@ -197,7 +197,11 @@ namespace MugenMvvm.Extensions
             where TList : class, ICollection<TItem>
         {
             if (itemOrList.List != null)
-                return itemOrList.List.Remove(item);
+            {
+                itemOrList.List.Remove(item);
+                itemOrList = itemOrList.List;
+                return true;
+            }
 
             if (Equals(itemOrList.Item, item))
             {
@@ -215,6 +219,7 @@ namespace MugenMvvm.Extensions
             if (itemOrList.List != null)
             {
                 itemOrList.List.RemoveAt(index);
+                itemOrList = itemOrList.List;
                 return;
             }
 

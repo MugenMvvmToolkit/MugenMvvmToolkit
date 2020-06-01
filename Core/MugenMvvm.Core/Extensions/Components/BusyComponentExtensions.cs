@@ -38,13 +38,15 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IReadOnlyList<IBusyToken>? TryGetTokens(this IBusyManagerComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(this IBusyManagerComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<IBusyToken> result = default;
+            if (components.Length == 1)
+                return components[0].TryGetTokens(metadata);
+            ItemOrList<IBusyToken, List<IBusyToken>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetTokens(metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<IBusyToken>>();
         }
 
         public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager provider, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)

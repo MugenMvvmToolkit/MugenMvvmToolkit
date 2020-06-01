@@ -48,9 +48,9 @@ namespace MugenMvvm.Busy
             return GetComponents<IBusyManagerComponent>().TryGetToken(state, filter, metadata);
         }
 
-        public IReadOnlyList<IBusyToken> GetTokens(IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryGetTokens(metadata) ?? Default.Array<IBusyToken>();
+            return GetComponents<IBusyManagerComponent>().TryGetTokens(metadata);
         }
 
         #endregion

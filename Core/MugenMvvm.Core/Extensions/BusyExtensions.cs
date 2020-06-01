@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
+using MugenMvvm.Extensions.Collections;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -37,8 +38,8 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(provider, nameof(provider));
             var tokens = provider.GetTokens();
-            for (var i = 0; i < tokens.Count; i++)
-                tokens[i].Dispose();
+            for (var i = 0; i < tokens.Count(); i++)
+                tokens.Get(i).Dispose();
         }
 
         #endregion

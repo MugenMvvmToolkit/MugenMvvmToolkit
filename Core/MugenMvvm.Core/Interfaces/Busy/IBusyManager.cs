@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Busy
 {
@@ -12,6 +13,6 @@ namespace MugenMvvm.Interfaces.Busy
 
         IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyList<IBusyToken> GetTokens(IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null);
     }
 }
