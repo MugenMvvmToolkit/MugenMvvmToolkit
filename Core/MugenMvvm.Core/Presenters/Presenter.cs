@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -24,17 +25,18 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IPresenterResult> Show<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<IPresenterComponent>(metadata).TryShow(request, cancellationToken, metadata);
-            if (result == null || result.Count == 0)
+            if (result.IsNullOrEmpty())
                 ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
             return result;
         }
 
-        public IReadOnlyList<IPresenterResult> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryClose(request, cancellationToken, metadata) ?? Default.Array<IPresenterResult>();
+            return GetComponents<IPresenterComponent>(metadata).TryClose(request, cancellationToken, metadata);
         }
 
         #endregion

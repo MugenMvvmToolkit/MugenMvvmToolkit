@@ -12,7 +12,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanShow<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results,
+        public static bool CanShow<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
             [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -26,7 +26,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static bool CanClose<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, IReadOnlyList<IPresenterResult> results,
+        public static bool CanClose<TRequest>(this IConditionPresenterComponent[] components, IPresenterComponent presenter, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
             [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -40,22 +40,28 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static IReadOnlyList<IPresenterResult>? TryShow<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<IPresenterResult> result = default;
+            if (components.Length == 1)
+                return components[0].TryShow(request, cancellationToken, metadata);
+            ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryShow(request, cancellationToken, metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<IPresenterResult>>();
         }
 
-        public static IReadOnlyList<IPresenterResult>? TryClose<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(this IPresenterComponent[] components, [DisallowNull] in TRequest request, CancellationToken cancellationToken,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<IPresenterResult> result = default;
+            if (components.Length == 1)
+                return components[0].TryClose(request, cancellationToken, metadata);
+            ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryClose(request, cancellationToken, metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<IPresenterResult>>();
         }
 
         #endregion

@@ -6,6 +6,7 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -41,18 +42,18 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IPresenterResult>? TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _navigationDispatcher.DefaultIfNull();
             using (SuspendNavigation(dispatcher, metadata))
             {
                 var results = Components.TryShow(request, cancellationToken, metadata);
-                if (results != null && results.Count != 0)
+                if (results.Count() != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    for (var i = 0; i < results.Count; i++)
+                    for (var i = 0; i < results.Count(); i++)
                     {
-                        var result = results[i];
+                        var result = results.Get(i);
                         components.TryAddNavigationCallback(NavigationCallbackType.Showing, result, metadata);
                         components.TryAddNavigationCallback(NavigationCallbackType.Close, result, metadata);
                     }
@@ -62,17 +63,17 @@ namespace MugenMvvm.Presenters.Components
             }
         }
 
-        public IReadOnlyList<IPresenterResult>? TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _navigationDispatcher.DefaultIfNull();
             using (SuspendNavigation(dispatcher, metadata))
             {
                 var results = Components.TryClose(request, cancellationToken, metadata);
-                if (results != null && results.Count != 0)
+                if (results.Count() != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    for (var i = 0; i < results.Count; i++)
-                        components.TryAddNavigationCallback(NavigationCallbackType.Closing, results[i], metadata);
+                    for (var i = 0; i < results.Count(); i++)
+                        components.TryAddNavigationCallback(NavigationCallbackType.Closing, results.Get(i), metadata);
                 }
 
                 return results;

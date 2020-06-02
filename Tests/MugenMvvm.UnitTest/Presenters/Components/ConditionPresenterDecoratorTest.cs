@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 CanShow = (c, results, r, t, m) =>
                 {
                     c.ShouldEqual(presenterComponent);
-                    results.ShouldBeEmpty();
+                    results.AsList().ShouldBeEmpty();
                     r.ShouldEqual(presenter);
                     m.ShouldEqual(DefaultMetadata);
                     return canExecute;
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             invoked.ShouldEqual(0);
 
             canExecute = true;
-            presenter.Show(presenter, default, DefaultMetadata).Single().ShouldEqual(result);
+            presenter.Show(presenter, default, DefaultMetadata).AsList().Single().ShouldEqual(result);
             invoked.ShouldEqual(1);
         }
 
@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                 CanClose = (c, results, r, t, m) =>
                 {
                     c.ShouldEqual(presenterComponent);
-                    results.ShouldBeEmpty();
+                    results.AsList().ShouldBeEmpty();
                     r.ShouldEqual(presenter);
                     m.ShouldEqual(DefaultMetadata);
                     return canExecute;
@@ -87,11 +87,11 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             };
             presenter.AddComponent(component);
 
-            presenter.TryClose(presenter, default, DefaultMetadata).ShouldBeEmpty();
+            presenter.TryClose(presenter, default, DefaultMetadata).AsList().ShouldBeEmpty();
             invoked.ShouldEqual(0);
 
             canExecute = true;
-            presenter.TryClose(presenter, default, DefaultMetadata).Single().ShouldEqual(result);
+            presenter.TryClose(presenter, default, DefaultMetadata).AsList().Single().ShouldEqual(result);
             invoked.ShouldEqual(1);
         }
 
