@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Validation;
 using Should;
@@ -20,35 +21,28 @@ namespace MugenMvvm.UnitTest.Validation
         }
 
         [Fact]
-        public void ConstructorShouldInitializeValues()
+        public void FromErrorsShouldInitializeValues()
         {
-            var dictionary = new Dictionary<string, IReadOnlyList<object>?>();
-            var result = new ValidationResult(dictionary, DefaultMetadata);
+            var dictionary = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+            var result = ValidationResult.FromErrors(dictionary, DefaultMetadata);
             result.Metadata.ShouldEqual(DefaultMetadata);
-            result.ErrorsRaw.ShouldEqual(dictionary);
+            result.Errors.ShouldEqual(dictionary);
+            result.SingleMemberErrors.IsNullOrEmpty().ShouldBeTrue();
+            result.SingleMemberName.ShouldBeNull();
             result.HasResult.ShouldBeTrue();
         }
 
         [Fact]
-        public void SingleResultShouldReturnSingleMemberValue1()
+        public void FromMemberErrorsShouldReturnSingleMemberValue1()
         {
             var memberName = "test";
-            var result = new object[] { "1", "2" };
-            var singleResult = ValidationResult.SingleResult("test", DefaultMetadata, result);
+            var result = new object[] {"1", "2"};
+            var singleResult = ValidationResult.FromMemberErrors("test", result, DefaultMetadata);
             singleResult.Metadata.ShouldEqual(DefaultMetadata);
-            singleResult.ErrorsRaw!.Count.ShouldEqual(1);
-            singleResult.ErrorsRaw![memberName].SequenceEqual(result).ShouldBeTrue();
-        }
-
-        [Fact]
-        public void SingleResultShouldReturnSingleMemberValue2()
-        {
-            var memberName = "test";
-            var result = new object[] { "1", "2" };
-            var singleResult = ValidationResult.SingleResult("test", result);
-            singleResult.Metadata.ShouldEqual(Default.Metadata);
-            singleResult.ErrorsRaw!.Count.ShouldEqual(1);
-            singleResult.ErrorsRaw![memberName].SequenceEqual(result).ShouldBeTrue();
+            singleResult.Errors.ShouldBeNull();
+            singleResult.SingleMemberName.ShouldEqual(memberName);
+            singleResult.SingleMemberErrors.AsList().SequenceEqual(result).ShouldBeTrue();
+            singleResult.HasResult.ShouldBeTrue();
         }
 
         [Fact]
@@ -59,15 +53,14 @@ namespace MugenMvvm.UnitTest.Validation
             errors.Count.ShouldEqual(0);
             errors.IsReadOnly.ShouldBeFalse();
 
-            v = new ValidationResult(new Dictionary<string, IReadOnlyList<object>?>());
-            v.GetErrorsNonReadOnly().ShouldEqual((object)v.ErrorsRaw!);
+            v = ValidationResult.FromErrors(new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>());
+            v.GetErrorsNonReadOnly().ShouldEqual((object) v.Errors!);
 
-
-            var readonlyDict = new ReadOnlyDictionary<string, IReadOnlyList<object>?>(new Dictionary<string, IReadOnlyList<object>?>
+            var readonlyDict = new ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>(new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
             {
                 {"1", new[] {"1"}}
             });
-            v = new ValidationResult(readonlyDict);
+            v = ValidationResult.FromErrors(readonlyDict);
             errors = v.GetErrorsNonReadOnly();
             errors.SequenceEqual(readonlyDict).ShouldBeTrue();
             errors.IsReadOnly.ShouldBeFalse();

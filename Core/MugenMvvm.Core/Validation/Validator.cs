@@ -79,19 +79,19 @@ namespace MugenMvvm.Validation
             this.ClearMetadata(true);
         }
 
-        public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(memberName, metadata) ?? Default.Array<object>();
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(memberName, metadata);
         }
 
-        public IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(metadata) ?? Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
         }
 
         public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).ValidateAsync(memberName, cancellationToken, metadata);
+            return GetComponents<IValidatorComponent>(metadata).TryValidateAsync(memberName, cancellationToken, metadata) ?? Task.CompletedTask;
         }
 
         public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)

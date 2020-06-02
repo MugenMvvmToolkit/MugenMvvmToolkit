@@ -62,58 +62,60 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnDisposed(validator);
         }
 
-        public static IReadOnlyList<object>? TryGetErrors(this IValidatorComponent[] components, string? memberName, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<object, IReadOnlyList<object>> TryGetErrors(this IValidatorComponent[] components, string? memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<object> result = default;
+            if (components.Length == 1)
+                return components[0].TryGetErrors(memberName, metadata);
+
+            ItemOrList<object, List<object>> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].GetErrors(memberName, metadata));
-            return result.List;
+                result.AddRange(components[i].TryGetErrors(memberName, metadata));
+            return result.Cast<IReadOnlyList<object>>();
         }
 
-        public static IReadOnlyDictionary<string, IReadOnlyList<object>>? TryGetErrors(this IValidatorComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>? TryGetErrors(this IValidatorComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            Dictionary<string, IReadOnlyList<object>>? errors = null;
+            if (components.Length == 1)
+                return components[0].TryGetErrors(metadata);
+
+            Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>? errors = null;
             for (var i = 0; i < components.Length; i++)
             {
-                var dictionary = components[i].GetErrors(metadata);
+                var dictionary = components[i].TryGetErrors(metadata);
                 if (dictionary == null || dictionary.Count == 0)
                     continue;
 
                 foreach (var keyValuePair in dictionary)
                 {
-                    if (keyValuePair.Value.Count == 0)
+                    if (keyValuePair.Value.IsNullOrEmpty())
                         continue;
 
                     if (errors == null)
-                        errors = new Dictionary<string, IReadOnlyList<object>>();
+                        errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
 
-                    if (!errors.TryGetValue(keyValuePair.Key, out var list))
-                    {
-                        list = new List<object>();
-                        errors[keyValuePair.Key] = list;
-                    }
-
-                    ((List<object>)list).AddRange(keyValuePair.Value);
+                    errors.TryGetValue(keyValuePair.Key, out var list);
+                    var editableList = list.Cast<List<object>>();
+                    editableList.AddRange(keyValuePair.Value);
+                    errors[keyValuePair.Key] = editableList.Cast<IReadOnlyList<object>>();
                 }
             }
 
             return errors;
         }
 
-        public static Task ValidateAsync(this IValidatorComponent[] components, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task? TryValidateAsync(this IValidatorComponent[] components, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 0)
-                return Default.CompletedTask;
+                return null;
             if (components.Length == 1)
-                return components[0].ValidateAsync(memberName, cancellationToken, metadata);
-
-            var tasks = new Task[components.Length];
+                return components[0].TryValidateAsync(memberName, cancellationToken, metadata);
+            ItemOrList<Task, List<Task>> tasks = default;
             for (var i = 0; i < components.Length; i++)
-                tasks[i] = components[i].ValidateAsync(memberName, cancellationToken, metadata);
-            return Task.WhenAll(tasks);
+                tasks.Add(components[i].TryValidateAsync(memberName, cancellationToken, metadata));
+            return tasks.WhenAll();
         }
 
         public static void ClearErrors(this IValidatorComponent[] components, string? memberName, IReadOnlyMetadataContext? metadata)

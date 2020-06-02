@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Validation.Internal;
@@ -91,7 +92,7 @@ namespace MugenMvvm.UnitTest.Validation
             var memberName = "test";
             var count = 0;
             var validator = GetComponentOwner();
-            validator.GetErrors(memberName, DefaultMetadata).ShouldBeEmpty();
+            validator.GetErrors(memberName, DefaultMetadata).AsList().ShouldBeEmpty();
 
             for (var i = 0; i < componentCount; i++)
             {
@@ -109,7 +110,7 @@ namespace MugenMvvm.UnitTest.Validation
                 validator.AddComponent(component);
             }
 
-            var errors = validator.GetErrors(memberName, DefaultMetadata);
+            var errors = validator.GetErrors(memberName, DefaultMetadata).AsList();
             errors.Count.ShouldEqual(componentCount);
             for (var i = 0; i < componentCount; i++)
                 errors.ShouldContain(i.ToString());
@@ -133,7 +134,7 @@ namespace MugenMvvm.UnitTest.Validation
                     {
                         ++count;
                         metadata.ShouldEqual(DefaultMetadata);
-                        return new Dictionary<string, IReadOnlyList<object>>
+                        return new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
                         {
                             {s, new[] {s}}
                         };
@@ -145,7 +146,7 @@ namespace MugenMvvm.UnitTest.Validation
             var errors = validator.GetErrors(DefaultMetadata);
             errors.Count.ShouldEqual(componentCount);
             for (var i = 0; i < componentCount; i++)
-                errors[i.ToString()].Single().ShouldEqual(i.ToString());
+                errors[i.ToString()].AsList().Single().ShouldEqual(i.ToString());
         }
 
         [Theory]

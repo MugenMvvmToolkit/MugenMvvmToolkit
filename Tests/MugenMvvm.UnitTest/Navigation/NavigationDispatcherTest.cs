@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Navigation
         public void GetNavigationContextShouldThrowNoComponents()
         {
             var navigationDispatcher = new NavigationDispatcher();
-            ShouldThrow<InvalidOperationException>(() => navigationDispatcher.GetNavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove));
+            ShouldThrow<InvalidOperationException>(() => navigationDispatcher.GetNavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close));
         }
 
         [Theory]
@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [InlineData(10)]
         public void GetNavigationContextShouldBeHandledByComponents(int count)
         {
-            var context = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove);
+            var context = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var invokeCount = 0;
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void OnNavigatingAsyncShouldReturnTrueNoComponents()
         {
-            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove);
+            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             dispatcher.OnNavigatingAsync(navigationContext).Result.ShouldBeTrue();
         }
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTest.Navigation
         {
             var cts = new CancellationTokenSource();
             var token = cts.Token;
-            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove);
+            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             var callbacks = new List<TaskCompletionSource<bool>>();
             for (var i = 0; i < count; i++)
@@ -221,7 +221,7 @@ namespace MugenMvvm.UnitTest.Navigation
         public void OnNavigatedShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
-            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove);
+            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
@@ -249,7 +249,7 @@ namespace MugenMvvm.UnitTest.Navigation
         {
             var invokeCount = 0;
             var exception = new Exception();
-            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove);
+            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
@@ -277,7 +277,7 @@ namespace MugenMvvm.UnitTest.Navigation
         {
             var invokeCount = 0;
             var cancellationToken = new CancellationToken(true);
-            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Remove);
+            var navigationContext = new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {

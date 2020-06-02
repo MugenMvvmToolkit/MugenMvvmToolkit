@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Components;
@@ -20,7 +19,7 @@ namespace MugenMvvm.Validation.Components
         #region Fields
 
         private readonly HashSet<string> _validatingMembers;
-        protected readonly Dictionary<string, IReadOnlyList<object>> Errors;
+        protected readonly Dictionary<string, object> Errors;
 
         private CancellationTokenSource? _disposeCancellationTokenSource;
         private int _state;
@@ -35,7 +34,7 @@ namespace MugenMvvm.Validation.Components
         protected ValidatorComponentBase(TTarget target, bool hasAsyncValidation)
         {
             HasAsyncValidation = hasAsyncValidation;
-            Errors = new Dictionary<string, IReadOnlyList<object>>(StringComparer.Ordinal);
+            Errors = new Dictionary<string, object>(StringComparer.Ordinal);
             _validatingMembers = new HashSet<string>(StringComparer.Ordinal);
             _disposeCancellationTokenSource = new CancellationTokenSource();
             Target = target;
@@ -69,25 +68,26 @@ namespace MugenMvvm.Validation.Components
             _disposeCancellationTokenSource?.Cancel();
         }
 
-        public IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<object, IReadOnlyList<object>> TryGetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
             return GetErrorsInternal(memberName ?? "", metadata);
         }
 
-        public IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> TryGetErrors(IReadOnlyMetadataContext? metadata = null)
         {
             return GetErrorsInternal(metadata);
         }
 
-        public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public Task? TryValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             if (IsDisposed)
-                return Default.CompletedTask;
+                return null;
+
             var member = memberName ?? "";
             lock (_validatingMembers)
             {
                 if (!_validatingMembers.Add(member))
-                    return Default.CompletedTask;
+                    return null;
             }
 
             try
@@ -132,35 +132,38 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        protected virtual IReadOnlyList<object> GetErrorsInternal(string memberName, IReadOnlyMetadataContext? metadata)
+        protected virtual ItemOrList<object, IReadOnlyList<object>> GetErrorsInternal(string memberName, IReadOnlyMetadataContext? metadata)
         {
             lock (Errors)
             {
                 if (Errors.Count == 0)
-                    return Default.Array<object>();
+                    return default;
 
                 if (string.IsNullOrEmpty(memberName))
                 {
-                    var objects = new List<object>();
+                    ItemOrList<object, List<object>> errors = default;
                     foreach (var error in Errors)
-                        objects.AddRange(error.Value);
-                    return objects;
+                        errors.AddRange(ItemOrList<object, IReadOnlyList<object>>.FromRawValue(error.Value));
+                    return errors.Cast<IReadOnlyList<object>>();
                 }
 
-                if (Errors.TryGetValue(memberName, out var list))
-                    return list.ToArray();
+                if (Errors.TryGetValue(memberName, out var value))
+                    return ItemOrList<object, IReadOnlyList<object>>.FromRawValue(value);
             }
 
-            return Default.Array<object>();
+            return default;
         }
 
-        protected virtual IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrorsInternal(IReadOnlyMetadataContext? metadata)
+        protected virtual IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrorsInternal(IReadOnlyMetadataContext? metadata)
         {
             lock (Errors)
             {
                 if (Errors.Count == 0)
-                    return Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
-                return new Dictionary<string, IReadOnlyList<object>>(Errors);
+                    return Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+                var errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+                foreach (var error in Errors)
+                    errors[error.Key] = ItemOrList<object, IReadOnlyList<object>>.FromRawValue(error.Value);
+                return errors;
             }
         }
 
@@ -186,17 +189,19 @@ namespace MugenMvvm.Validation.Components
         {
             if (string.IsNullOrEmpty(memberName))
             {
-                string[] keys;
+                ItemOrList<string, List<string>> keys = default;
                 lock (Errors)
                 {
-                    keys = Errors.Keys.ToArray();
+                    foreach (var error in Errors)
+                        keys.Add(error.Key);
                 }
 
-                for (var index = 0; index < keys.Length; index++)
-                    UpdateErrors(keys[index], null, true, metadata);
+                var count = keys.Count();
+                for (var index = 0; index < count; index++)
+                    UpdateErrors(keys.Get(index), default, true, metadata);
             }
             else
-                UpdateErrors(memberName, null, true, metadata);
+                UpdateErrors(memberName, default, true, metadata);
         }
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
@@ -213,16 +218,16 @@ namespace MugenMvvm.Validation.Components
         {
         }
 
-        protected void UpdateErrors(string memberName, IReadOnlyList<object>? errors, bool raiseNotifications, IReadOnlyMetadataContext? metadata)
+        protected void UpdateErrors(string memberName, ItemOrList<object, IReadOnlyList<object>> errors, bool raiseNotifications, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(memberName, nameof(memberName));
-            var hasErrors = errors != null && errors.Count != 0;
+            var rawValue = errors.GetRawValue();
             lock (Errors)
             {
-                if (hasErrors)
-                    Errors[memberName] = errors!;
-                else
+                if (rawValue == null)
                     Errors.Remove(memberName);
+                else
+                    Errors[memberName] = rawValue;
             }
 
             if (raiseNotifications)
@@ -234,9 +239,18 @@ namespace MugenMvvm.Validation.Components
             if (!result.HasResult)
                 return;
 
-            var errors = result.GetErrorsNonReadOnly();
+            IDictionary<string, ItemOrList<object, IReadOnlyList<object>>> errors;
             if (string.IsNullOrEmpty(memberName))
             {
+                if (result.SingleMemberName != null || result.Errors!.Count == 0)
+                {
+                    ClearErrorsInternal(memberName, result.Metadata);
+                    if (result.SingleMemberName != null && !result.SingleMemberErrors.IsNullOrEmpty())
+                        UpdateErrors(result.SingleMemberName, result.SingleMemberErrors, true, result.Metadata);
+                    return;
+                }
+
+                errors = result.GetErrorsNonReadOnly();
                 lock (Errors)
                 {
                     foreach (var pair in Errors)
@@ -248,6 +262,14 @@ namespace MugenMvvm.Validation.Components
             }
             else
             {
+                if (result.SingleMemberName != null)
+                {
+                    UpdateErrors(result.SingleMemberName, result.SingleMemberErrors, true, result.Metadata);
+                    if (result.SingleMemberName != memberName)
+                        UpdateErrors(memberName, default, true, result.Metadata);
+                    return;
+                }
+                errors = result.GetErrorsNonReadOnly();
                 if (!errors.ContainsKey(memberName))
                     errors[memberName] = null;
             }

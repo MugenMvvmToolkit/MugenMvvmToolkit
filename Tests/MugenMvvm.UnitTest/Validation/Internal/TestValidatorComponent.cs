@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         public Action? Dispose { get; set; }
 
-        public Func<string?, IReadOnlyMetadataContext?, IReadOnlyList<object>>? GetErrors { get; set; }
+        public Func<string?, IReadOnlyMetadataContext?, ItemOrList<object, IReadOnlyList<object>>>? GetErrors { get; set; }
 
-        public Func<IReadOnlyMetadataContext?, IReadOnlyDictionary<string, IReadOnlyList<object>>>? GetAllErrors { get; set; }
+        public Func<IReadOnlyMetadataContext?, IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>>? GetAllErrors { get; set; }
 
         public Func<string?, CancellationToken, IReadOnlyMetadataContext?, Task>? ValidateAsync { get; set; }
 
@@ -38,17 +38,17 @@ namespace MugenMvvm.UnitTest.Validation.Internal
             Dispose?.Invoke();
         }
 
-        IReadOnlyList<object> IValidatorComponent.GetErrors(string? memberName, IReadOnlyMetadataContext? metadata)
+        ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(string? memberName, IReadOnlyMetadataContext? metadata)
         {
-            return GetErrors?.Invoke(memberName, metadata) ?? Default.Array<object>();
+            return GetErrors?.Invoke(memberName, metadata) ?? default;
         }
 
-        IReadOnlyDictionary<string, IReadOnlyList<object>> IValidatorComponent.GetErrors(IReadOnlyMetadataContext? metadata)
+        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> IValidatorComponent.TryGetErrors(IReadOnlyMetadataContext? metadata)
         {
-            return GetAllErrors?.Invoke(metadata) ?? Default.ReadOnlyDictionary<string, IReadOnlyList<object>>();
+            return GetAllErrors?.Invoke(metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
         }
 
-        Task IValidatorComponent.ValidateAsync(string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task? IValidatorComponent.TryValidateAsync(string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return ValidateAsync?.Invoke(memberName, cancellationToken, metadata) ?? Task.CompletedTask;
         }

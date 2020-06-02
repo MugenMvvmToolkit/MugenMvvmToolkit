@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Validation
 {
@@ -11,9 +12,9 @@ namespace MugenMvvm.Interfaces.Validation
     {
         bool HasErrors { get; }
 
-        IReadOnlyList<object> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null);
 
-        IReadOnlyDictionary<string, IReadOnlyList<object>> GetErrors(IReadOnlyMetadataContext? metadata = null);
+        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null);
 
         Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null);
 

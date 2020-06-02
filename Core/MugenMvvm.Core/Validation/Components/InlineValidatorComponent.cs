@@ -2,6 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Validation.Components
 {
@@ -17,7 +18,7 @@ namespace MugenMvvm.Validation.Components
 
         #region Methods
 
-        public void SetErrors(string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
+        public void SetErrors(string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(memberName, nameof(memberName));
             UpdateErrors(memberName, errors, false, metadata);

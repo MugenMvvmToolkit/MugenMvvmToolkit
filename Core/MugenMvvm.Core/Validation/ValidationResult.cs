@@ -11,19 +11,19 @@ namespace MugenMvvm.Validation
     {
         #region Fields
 
-        public static readonly ValidationResult NoErrors = new ValidationResult(Default.ReadOnlyDictionary<string, IReadOnlyList<object>?>());
+        public static readonly ValidationResult NoErrors = new ValidationResult(null, Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>());
 
-        public readonly IReadOnlyDictionary<string, IReadOnlyList<object>?>? ErrorsRaw;
+        private readonly object? _errors;
         public readonly IReadOnlyMetadataContext Metadata;
 
         #endregion
 
         #region Constructors
 
-        public ValidationResult(IReadOnlyDictionary<string, IReadOnlyList<object>?> errors, IReadOnlyMetadataContext? metadata = null)
+        private ValidationResult(string? member, object? errors, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(errors, nameof(errors));
-            ErrorsRaw = errors;
+            SingleMemberName = member;
+            _errors = errors;
             Metadata = metadata.DefaultIfNull();
         }
 
@@ -31,33 +31,46 @@ namespace MugenMvvm.Validation
 
         #region Properties
 
-        public bool HasResult => ErrorsRaw != null;
+        public bool HasResult => _errors != null;
+
+        public string? SingleMemberName { get; }
+
+        public ItemOrList<object, IReadOnlyList<object>> SingleMemberErrors
+        {
+            get
+            {
+                if (SingleMemberName == null)
+                    return default;
+                return ItemOrList<object, IReadOnlyList<object>>.FromRawValue(_errors);
+            }
+        }
+
+        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>? Errors => _errors as IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>;
 
         #endregion
 
         #region Methods
 
-        public static ValidationResult SingleResult(string member, params object[] errors)
+        public static ValidationResult FromErrors(IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> errors, IReadOnlyMetadataContext? metadata = null)
         {
-            return SingleResult(member, null, errors);
+            Should.NotBeNull(errors, nameof(errors));
+            return new ValidationResult(null, errors, metadata);
         }
 
-        public static ValidationResult SingleResult(string member, IReadOnlyMetadataContext? metadata, params object[] errors)
+        public static ValidationResult FromMemberErrors(string member, ItemOrList<object, object[]> errors, IReadOnlyMetadataContext? metadata = null)
         {
-            return new ValidationResult(new Dictionary<string, IReadOnlyList<object>?>
-            {
-                {member, errors}
-            }, metadata);
+            Should.NotBeNull(member, nameof(member));
+            return new ValidationResult(member, errors.GetRawValue(), metadata);
         }
 
-        public IDictionary<string, IReadOnlyList<object>?> GetErrorsNonReadOnly()
+        public IDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrorsNonReadOnly()
         {
-            if (ErrorsRaw == null)
-                return new Dictionary<string, IReadOnlyList<object>?>();
-            if (ErrorsRaw is IDictionary<string, IReadOnlyList<object>?> errors && !errors.IsReadOnly)
+            if (Errors == null)
+                return new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+            if (Errors is IDictionary<string, ItemOrList<object, IReadOnlyList<object>>> errors && !errors.IsReadOnly)
                 return errors;
-            var result = new Dictionary<string, IReadOnlyList<object>?>(ErrorsRaw.Count);
-            foreach (var pair in ErrorsRaw)
+            var result = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>(Errors.Count);
+            foreach (var pair in Errors)
                 result[pair.Key] = pair.Value;
             return result;
         }

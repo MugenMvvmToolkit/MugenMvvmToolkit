@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             var provider = new TestNavigationProvider();
             var type = NavigationType.Alert;
             var id = "t";
-            var mode = NavigationMode.Remove;
+            var mode = NavigationMode.Close;
             var metadata = new MetadataContext();
 
             var context = component.TryGetNavigationContext(provider, id, type, mode, metadata)!;

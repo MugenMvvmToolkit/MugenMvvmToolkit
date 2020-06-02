@@ -23,12 +23,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static void SetErrors(this IValidator validator, object target, string memberName, params object[] errors)
-        {
-            validator.SetErrors(target, memberName, errors, null);
-        }
-
-        public static void SetErrors(this IValidator validator, object target, string memberName, IReadOnlyList<object>? errors, IReadOnlyMetadataContext? metadata = null)
+        public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(validator, nameof(validator));
             Should.NotBeNull(target, nameof(target));
