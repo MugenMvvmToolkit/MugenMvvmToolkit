@@ -18,9 +18,9 @@ namespace MugenMvvm.Navigation.Components
     {
         #region Fields
 
-        private static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> ShowingCallbacks = GetKey(nameof(ShowingCallbacks));
-        private static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> ClosingCallbacks = GetKey(nameof(ClosingCallbacks));
-        private static readonly IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> CloseCallbacks = GetKey(nameof(CloseCallbacks));
+        private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> ShowingCallbacks = GetKey(nameof(ShowingCallbacks));
+        private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> ClosingCallbacks = GetKey(nameof(ClosingCallbacks));
+        private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> CloseCallbacks = GetKey(nameof(CloseCallbacks));
 
         #endregion
 
@@ -128,9 +128,9 @@ namespace MugenMvvm.Navigation.Components
             return true;
         }
 
-        private static void AddCallback(IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> key, NavigationCallback callback, IMetadataContext? metadata)
+        private static void AddCallback(IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> key, NavigationCallback callback, IMetadataContext? metadata)
         {
-            var callbacks = metadata?.GetOrAdd(key, key, (context, _) => new List<NavigationCallback>());
+            var callbacks = metadata?.GetOrAdd(key, key, (context, _) => new List<NavigationCallback?>());
             if (callbacks == null)
                 return;
             lock (callbacks)
@@ -139,7 +139,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        private static NavigationCallback? TryFindCallback(NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, IReadOnlyMetadataContextKey<List<NavigationCallback>> key, IReadOnlyMetadataContext metadata)
+        private static NavigationCallback? TryFindCallback(NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext metadata)
         {
             var callbacks = metadata?.Get(key);
             if (callbacks == null)
@@ -185,9 +185,9 @@ namespace MugenMvvm.Navigation.Components
             return false;
         }
 
-        private static IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>> GetKey(string name)
+        private static IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> GetKey(string name)
         {
-            return MetadataContextKey.Create<List<NavigationCallback>, List<NavigationCallback>>(typeof(NavigationCallbackManager), name)
+            return MetadataContextKey.Create<List<NavigationCallback?>, List<NavigationCallback?>>(typeof(NavigationCallbackManager), name)
                 .Serializable()
                 .Build();
         }
@@ -213,8 +213,8 @@ namespace MugenMvvm.Navigation.Components
 
             return list.Cast<IReadOnlyList<INavigationCallback>>();
         }
-        //todo update key
-        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback>> key, IReadOnlyMetadataContext metadata, ref ItemOrList<INavigationCallback, List<INavigationCallback>> list)
+        
+        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext metadata, ref ItemOrList<INavigationCallback, List<INavigationCallback>> list)
         {
             var callbacks = metadata.Get(key);
             if (callbacks == null)
@@ -227,7 +227,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        private static IMetadataContextKey<List<NavigationCallback>, List<NavigationCallback>>? GetKeyByCallback(NavigationCallbackType callbackType)
+        private static IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>>? GetKeyByCallback(NavigationCallbackType callbackType)
         {
             if (callbackType == NavigationCallbackType.Showing)
                 return ShowingCallbacks;
