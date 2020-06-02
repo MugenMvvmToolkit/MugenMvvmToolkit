@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
@@ -11,7 +12,7 @@ namespace MugenMvvm.Interfaces.Internal.Components
     {
         bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
 
-        IReadOnlyList<KeyValuePair<string, object?>>? TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
             where TItem : class;
 
         bool TryGet<TValue>(object item, string path, [MaybeNullWhen(false)] out TValue value);

@@ -4,6 +4,7 @@ using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Internal.Internal
 {
@@ -13,7 +14,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         public Func<object, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
-        public Func<object?, Type, object?, Type, Func<object, KeyValuePair<string, object?>, object, bool>?, IReadOnlyList<KeyValuePair<string, object?>>?>? TryGetValues { get; set; }
+        public Func<object?, Type, object?, Type, Func<object, KeyValuePair<string, object?>, object, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues { get; set; }
 
         public Func<object, string, Type, object?>? TryGet { get; set; }
 
@@ -42,7 +43,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return IsSupported?.Invoke(item, metadata) ?? false;
         }
 
-        IReadOnlyList<KeyValuePair<string, object?>>? IAttachedValueProviderComponent.TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
         {
             return TryGetValues!.Invoke(item, typeof(TItem), state, typeof(TState),
                 predicate == null ? (Func<object, KeyValuePair<string, object?>, object, bool>?)null : (o, pair, arg3) => predicate!((TItem)o, pair, (TState)arg3));

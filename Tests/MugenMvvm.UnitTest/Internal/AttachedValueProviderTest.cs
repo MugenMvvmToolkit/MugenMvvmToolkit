@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void GetValuesShouldReturnEmptyNoComponents()
         {
-            new AttachedValueProvider().GetValues(this, this, (test, pair, arg3) => true).ShouldBeEmpty();
+            new AttachedValueProvider().GetValues(this, this, (test, pair, arg3) => true).AsList().ShouldBeEmpty();
         }
 
         [Fact]

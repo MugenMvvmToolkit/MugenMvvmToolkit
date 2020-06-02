@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -46,14 +47,15 @@ namespace MugenMvvm.Binding.Core.Components
                 ? _attachedValueProvider.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
                 : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
-            if (values.Count == 0)
+            var count = values.Count(pair => pair.Key == null);
+            if (count == 0)
                 return default;
-            if (values.Count == 1)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding)values[0].Value!);
+            if (count == 1)
+                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding)values.Item.Value!);
 
-            var bindings = new IBinding[values.Count];
+            var bindings = new IBinding[count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding)values[i].Value!;
+                bindings[i] = (IBinding)values.Get(i).Value!;
             return bindings;
         }
 

@@ -14,7 +14,7 @@ namespace MugenMvvm.Internal.Components
 
         public abstract bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
 
-        public virtual IReadOnlyList<KeyValuePair<string, object?>>? TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate) where TItem : class
+        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
@@ -23,15 +23,22 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (predicate == null)
+                {
+                    if (dictionary.Count == 0)
+                        return default;
+                    if (dictionary.Count == 1)
+                        return dictionary.FirstOrDefault;
                     return new List<KeyValuePair<string, object?>>(dictionary);
-                var list = new List<KeyValuePair<string, object?>>();
+                }
+
+                ItemOrList<KeyValuePair<string, object?>, List<KeyValuePair<string, object?>>> result = default;
                 foreach (var keyValue in dictionary)
                 {
                     if (predicate(item, keyValue, state))
-                        list.Add(keyValue);
+                        result.Add(keyValue, pair => pair.Key == null);
                 }
 
-                return list;
+                return result.Cast<IReadOnlyList<KeyValuePair<string, object?>>>();
             }
         }
 
@@ -50,7 +57,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue) result!;
+                    value = (TValue)result!;
                     return true;
                 }
 
@@ -81,9 +88,9 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValue, (TValue) value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, addValue, (TValue)value!, state));
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 dictionary.Add(path, BoxingExtensions.Box(addValue));
@@ -91,7 +98,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory, 
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
             UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
@@ -103,14 +110,14 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValueFactory, (TValue) value!, state));
+                    value = BoxingExtensions.Box(updateValueFactory(item, addValueFactory, (TValue)value!, state));
                     dictionary[path] = value;
-                    return (TValue) value!;
+                    return (TValue)value!;
                 }
 
                 value = BoxingExtensions.Box(addValueFactory(item, state));
                 dictionary.Add(path, value);
-                return (TValue) value!;
+                return (TValue)value!;
             }
         }
 
@@ -122,7 +129,7 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 dictionary.Add(path, BoxingExtensions.Box(value));
                 return value;
             }
@@ -137,10 +144,10 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue) oldValue!;
+                    return (TValue)oldValue!;
                 oldValue = BoxingExtensions.Box(valueFactory(item, state));
                 dictionary.Add(path, oldValue);
-                return (TValue) oldValue!;
+                return (TValue)oldValue!;
             }
         }
 

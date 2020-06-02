@@ -4,12 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal
 {
     public interface IAttachedValueProvider : IComponentOwner<IAttachedValueProvider>, IComponent<IMugenApplication>
     {
-        IReadOnlyList<KeyValuePair<string, object?>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class;
 
         bool TryGet<TValue>(object item, string path, [MaybeNullWhen(false)] out TValue value);

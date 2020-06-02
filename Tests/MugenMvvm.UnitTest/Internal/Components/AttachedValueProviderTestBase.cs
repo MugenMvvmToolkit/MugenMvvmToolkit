@@ -55,9 +55,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 arg3.ShouldEqual(this);
                 hashSet.Remove(pair);
                 return false;
-            }).ShouldBeEmpty();
+            }).AsList().ShouldBeEmpty();
             hashSet.Count.ShouldEqual(0);
-            component.TryGetValues(item, this, (o, pair, arg3) => true).SequenceEqual(values).ShouldBeTrue();
+            component.TryGetValues(item, this, (o, pair, arg3) => true).AsList().SequenceEqual(values).ShouldBeTrue();
         }
 
         [Fact]
