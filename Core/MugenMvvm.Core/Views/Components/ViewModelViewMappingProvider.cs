@@ -11,6 +11,7 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
+using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
 {
@@ -41,11 +42,33 @@ namespace MugenMvvm.Views.Components
 
         public ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
+            IViewModelBase? vm;
+            object? view;
+            Type? type;
+            string? id;
             if (Default.IsValueType<TRequest>())
-                return default;
-            var vm = request as IViewModelBase;
-            var type = request as Type;
-            var id = request as string;
+            {
+                if (typeof(TRequest) != typeof(ViewModelViewRequest))
+                    return default;
+                var r = MugenExtensions.CastGeneric<TRequest, ViewModelViewRequest>(request);
+                if (r.IsEmpty)
+                    return default;
+
+                vm = r.ViewModel;
+                view = r.View;
+                type = null;
+                id = null;
+            }
+            else
+            {
+                vm = request as IViewModelBase;
+                if (vm == null)
+                    view = request;
+                else
+                    view = null;
+                type = request as Type;
+                id = request as string;
+            }
             ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> mappings = default;
             lock (_mappings)
             {
@@ -55,6 +78,11 @@ namespace MugenMvvm.Views.Components
                     if (id != null)
                     {
                         if (mapping.Mapping.Id == id)
+                            mappings.Add(mapping.Mapping);
+                    }
+                    else if (vm != null && view != null)
+                    {
+                        if (mapping.IsValidViewModelType(vm.GetType(), metadata) && mapping.IsValidViewType(view.GetType(), metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (vm != null)
@@ -69,7 +97,7 @@ namespace MugenMvvm.Views.Components
                     }
                     else
                     {
-                        if (mapping.IsValidViewType(request.GetType(), metadata))
+                        if (mapping.IsValidViewType(view!.GetType(), metadata))
                             mappings.Add(mapping.Mapping);
                     }
                 }

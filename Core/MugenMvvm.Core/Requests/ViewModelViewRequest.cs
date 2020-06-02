@@ -22,5 +22,11 @@ namespace MugenMvvm.Requests
         }
 
         #endregion
+
+        #region Properties
+
+        public bool IsEmpty => ViewModel == null && View == null;
+
+        #endregion
     }
 }
