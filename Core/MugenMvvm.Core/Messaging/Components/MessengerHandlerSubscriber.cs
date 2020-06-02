@@ -152,7 +152,8 @@ namespace MugenMvvm.Messaging.Components
             var messenger = _messenger;
             if (messenger != null)
             {
-                for (var i = 0; i < toRemove.Count(h => h.Subscriber == null); i++)
+                var count = toRemove.Count(h => h.Subscriber == null);
+                for (var i = 0; i < count; i++)
                     messenger.Unsubscribe(toRemove.Get(i), metadata);
             }
 

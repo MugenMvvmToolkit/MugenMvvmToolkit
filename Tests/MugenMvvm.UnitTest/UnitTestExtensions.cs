@@ -187,14 +187,9 @@ namespace MugenMvvm.UnitTest
             return true;
         }
 
-        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
+        public static TList AsList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
         {
-            return itemOrList.ToArray(item => EqualityComparer<TItem>.Default.Equals(item, default!));
-        }
-
-        public static List<TItem> ToList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
-        {
-            return itemOrList.ToList(item => EqualityComparer<TItem>.Default.Equals(item, default!));
+            return itemOrList.AsList(item => EqualityComparer<TItem>.Default.Equals(item, default!), () => (TList)(object)Default.Array<TItem>(), item => (TList)(object)new[] { item });
         }
 
         #endregion

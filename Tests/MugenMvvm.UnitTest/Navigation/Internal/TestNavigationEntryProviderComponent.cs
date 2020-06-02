@@ -4,6 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Navigation.Internal
 {
@@ -11,7 +12,7 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
     {
         #region Properties
 
-        public Func<IReadOnlyMetadataContext?, IReadOnlyList<INavigationEntry>?>? TryGetNavigationEntries { get; set; }
+        public Func<IReadOnlyMetadataContext?, ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>>>? TryGetNavigationEntries { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,9 +20,9 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Implementation of interfaces
 
-        IReadOnlyList<INavigationEntry>? INavigationEntryProviderComponent.TryGetNavigationEntries(IReadOnlyMetadataContext? metadata)
+        ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> INavigationEntryProviderComponent.TryGetNavigationEntries(IReadOnlyMetadataContext? metadata)
         {
-            return TryGetNavigationEntries?.Invoke(metadata);
+            return TryGetNavigationEntries?.Invoke(metadata) ?? default;
         }
 
         #endregion

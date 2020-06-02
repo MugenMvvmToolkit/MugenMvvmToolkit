@@ -59,14 +59,16 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components, [DisallowNull] in TRequest request,
+        public static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components, [DisallowNull] in TRequest request,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<INavigationCallback> result = default;
+            if (components.Length == 1)
+                return components[0].TryGetNavigationCallbacks(request, metadata);
+            ItemOrList<INavigationCallback, List<INavigationCallback>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationCallbacks(request, metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<INavigationCallback>>();
         }
 
         public static bool TryInvokeNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components,
@@ -133,13 +135,15 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
-            LazyList<INavigationEntry> result = default;
+            if (components.Length == 1)
+                return components[0].TryGetNavigationEntries(metadata);
+            ItemOrList<INavigationEntry, List<INavigationEntry>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationEntries(metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<INavigationEntry>>();
         }
 
         public static Task<bool> OnNavigatingAsync(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext,

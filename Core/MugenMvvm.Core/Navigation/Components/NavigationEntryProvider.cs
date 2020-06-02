@@ -95,9 +95,9 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        public IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(IReadOnlyMetadataContext? metadata)
         {
-            LazyList<INavigationEntry> result = default;
+            ItemOrList<INavigationEntry, List<INavigationEntry>> result = default;
             lock (_navigationEntries)
             {
 
@@ -105,7 +105,7 @@ namespace MugenMvvm.Navigation.Components
                     result.AddRange(t.Value);
             }
 
-            return result.List;
+            return result.Cast<IReadOnlyList<INavigationEntry>>();
         }
 
         #endregion

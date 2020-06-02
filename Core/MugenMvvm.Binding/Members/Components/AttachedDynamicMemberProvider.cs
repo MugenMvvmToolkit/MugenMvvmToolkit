@@ -50,11 +50,7 @@ namespace MugenMvvm.Binding.Members.Components
                 {
                     ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
                     for (var i = 0; i < _dynamicMembers.Count; i++)
-                    {
-                        var value = _dynamicMembers[i].Invoke(type, name, metadata);
-                        if (value != null)
-                            members.Add(value);
-                    }
+                        members.Add(_dynamicMembers[i].Invoke(type, name, metadata));
                     result = members.GetRawValue();
                 }
 

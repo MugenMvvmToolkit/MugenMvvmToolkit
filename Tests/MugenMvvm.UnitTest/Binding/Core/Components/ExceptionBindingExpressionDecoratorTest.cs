@@ -70,10 +70,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
 
-            var result = decorator.TryBuildBindingExpression("", DefaultMetadata).ToArray();
-            result.Length.ShouldEqual(count);
+            var result = decorator.TryBuildBindingExpression("", DefaultMetadata).AsList();
+            result.Count.ShouldEqual(count);
 
-            for (var i = 0; i < result.Length; i++)
+            for (var i = 0; i < result.Count; i++)
             {
                 var binding = (InvalidBinding) result[i].Build(target, source, DefaultMetadata);
                 binding.Exception.ShouldEqual(exception);

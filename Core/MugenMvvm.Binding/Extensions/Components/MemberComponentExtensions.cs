@@ -47,6 +47,8 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
+            if (components.Length == 1)
+                return components[0].TryGetMembers(type, name, metadata);
             ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMembers(type, name, metadata));

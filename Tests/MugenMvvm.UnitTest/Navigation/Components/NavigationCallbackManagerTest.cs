@@ -62,8 +62,8 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 var callback = component.TryAddNavigationCallback(NavigationCallbackType.Showing, result, DefaultMetadata)!;
                 callback.ShouldNotBeNull();
                 addedCallbacks.Add(callback);
-                component.TryGetNavigationCallbacks(result, DefaultMetadata)!.SequenceEqual(addedCallbacks).ShouldBeTrue();
-                component.TryGetNavigationCallbacks(target, DefaultMetadata)!.SequenceEqual(addedCallbacks).ShouldBeTrue();
+                component.TryGetNavigationCallbacks(result, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
+                component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
             }
             addedCallbacks.Count.ShouldEqual(1);
         }
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             component.TryInvokeNavigationCallbacks(type, navigationContext, DefaultMetadata).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            component.TryGetNavigationCallbacks(target, DefaultMetadata).ShouldBeNull();
+            component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -155,7 +155,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             component.TryInvokeNavigationCallbacks(type, navigationContext, exception, DefaultMetadata).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            component.TryGetNavigationCallbacks(target, DefaultMetadata).ShouldBeNull();
+            component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -201,7 +201,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             component.TryInvokeNavigationCallbacks(type, navigationContext, cancellationToken, DefaultMetadata).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            component.TryGetNavigationCallbacks(target, DefaultMetadata).ShouldBeNull();
+            component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         #endregion

@@ -29,18 +29,18 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 bindings.Add(testBinding);
 
                 bindingHolder.TryRegister(this, testBinding, DefaultMetadata).ShouldBeTrue();
-                bindingHolder.TryGetBindings(this, defaultPath + i, DefaultMetadata).ToArray().Single().ShouldEqual(testBinding);
-                var array = bindingHolder.TryGetBindings(this, null, DefaultMetadata).ToArray();
-                array.Length.ShouldEqual(bindings.Count);
+                bindingHolder.TryGetBindings(this, defaultPath + i, DefaultMetadata).AsList().Single().ShouldEqual(testBinding);
+                var array = bindingHolder.TryGetBindings(this, null, DefaultMetadata).AsList();
+                array.Count.ShouldEqual(bindings.Count);
                 array.ShouldContain(bindings);
             }
 
             for (var i = 0; i < count; i++)
             {
                 bindingHolder.TryUnregister(this, bindings[i], DefaultMetadata).ShouldBeTrue();
-                bindingHolder.TryGetBindings(this, defaultPath + i, DefaultMetadata).ToArray().ShouldBeEmpty();
-                var array = bindingHolder.TryGetBindings(this, null, DefaultMetadata).ToArray();
-                array.Length.ShouldEqual(bindings.Count - i - 1);
+                bindingHolder.TryGetBindings(this, defaultPath + i, DefaultMetadata).AsList().ShouldBeEmpty();
+                var array = bindingHolder.TryGetBindings(this, null, DefaultMetadata).AsList();
+                array.Count.ShouldEqual(bindings.Count - i - 1);
                 array.ShouldContain(bindings.Skip(i + 1));
             }
         }

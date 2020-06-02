@@ -173,10 +173,7 @@ namespace MugenMvvm.Binding.Core.Components
 
                 ItemOrList<object, List<object>> components = default;
                 foreach (var componentPair in _context.BindingComponents)
-                {
-                    if (componentPair.Value != null)
-                        components.Add(componentPair.Value);
-                }
+                    components.Add(componentPair.Value);
 
                 _parametersRaw = components.Item ?? components.List?.ToArray();
                 _context.Clear();

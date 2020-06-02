@@ -6,6 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Navigation.Internal
 {
@@ -17,7 +18,7 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         public Func<NavigationCallbackType, object, Type, IReadOnlyMetadataContext?, INavigationCallback?>? TryAddNavigationCallback { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, IReadOnlyList<INavigationCallback>?>? TryGetNavigationCallbacks { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>>>? TryGetNavigationCallbacks { get; set; }
 
         public Func<NavigationCallbackType, object, Type, IReadOnlyMetadataContext?, bool>? TryInvokeNavigationCallbacks { get; set; }
 
@@ -34,9 +35,9 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
             return TryAddNavigationCallback?.Invoke(callbackType, request!, typeof(TRequest), metadata);
         }
 
-        IReadOnlyList<INavigationCallback>? INavigationCallbackManagerComponent.TryGetNavigationCallbacks<TTarget>(in TTarget target, IReadOnlyMetadataContext? metadata)
+        ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> INavigationCallbackManagerComponent.TryGetNavigationCallbacks<TTarget>(in TTarget target, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetNavigationCallbacks?.Invoke(target!, typeof(TTarget), metadata);
+            return TryGetNavigationCallbacks?.Invoke(target!, typeof(TTarget), metadata) ?? default;
         }
 
         bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, in TTarget target, IReadOnlyMetadataContext? metadata)

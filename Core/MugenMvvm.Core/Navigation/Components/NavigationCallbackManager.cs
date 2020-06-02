@@ -54,11 +54,11 @@ namespace MugenMvvm.Navigation.Components
             return null;
         }
 
-        public IReadOnlyList<INavigationCallback>? TryGetNavigationCallbacks<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (!Default.IsValueType<TRequest>() && request is IMetadataOwner<IReadOnlyMetadataContext> owner)
                 return GetCallbacks(owner.GetMetadataOrDefault(), request as IHasTarget<object?>);
-            return null;
+            return default;
         }
 
         public bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, in TRequest request, IReadOnlyMetadataContext? metadata)
@@ -104,8 +104,7 @@ namespace MugenMvvm.Navigation.Components
                     var callback = callbacks[i];
                     if (callback == null || callback.NavigationId == navigationId && callback.NavigationType == navigationType)
                     {
-                        if (callback != null)
-                            toInvoke.Add(callback);
+                        toInvoke.Add(callback);
                         callbacks.RemoveAt(i);
                         --i;
                     }
@@ -193,29 +192,29 @@ namespace MugenMvvm.Navigation.Components
                 .Build();
         }
 
-        private static IReadOnlyList<NavigationCallback>? GetCallbacks(IReadOnlyMetadataContext metadata, IHasTarget<object?>? hasTarget)
+        private static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext metadata, IHasTarget<object?>? hasTarget)
         {
             var canMoveNext = true;
-            LazyList<NavigationCallback> list = default;
+            ItemOrList<INavigationCallback, List<INavigationCallback>> list = default;
             while (true)
             {
                 AddCallbacks(ShowingCallbacks, metadata, ref list);
                 AddCallbacks(ClosingCallbacks, metadata, ref list);
                 AddCallbacks(CloseCallbacks, metadata, ref list);
 
-                if (list.List != null || !canMoveNext)
+                if (!list.IsNullOrEmpty() || !canMoveNext)
                     break;
-                if (list.List == null && hasTarget != null && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner)
+                if (list.IsNullOrEmpty() && hasTarget != null && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner)
                     metadata = targetOwner.GetMetadataOrDefault();
-                else if (list.List == null && metadata.Get(NavigationMetadata.Target) is IMetadataOwner<IReadOnlyMetadataContext> owner)
+                else if (list.IsNullOrEmpty() && metadata.Get(NavigationMetadata.Target) is IMetadataOwner<IReadOnlyMetadataContext> owner)
                     metadata = owner.GetMetadataOrDefault();
                 canMoveNext = false;
             }
 
-            return list.List;
+            return list.Cast<IReadOnlyList<INavigationCallback>>();
         }
-
-        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback>> key, IReadOnlyMetadataContext metadata, ref LazyList<NavigationCallback> list)
+        //todo update key
+        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback>> key, IReadOnlyMetadataContext metadata, ref ItemOrList<INavigationCallback, List<INavigationCallback>> list)
         {
             var callbacks = metadata.Get(key);
             if (callbacks == null)
@@ -224,11 +223,7 @@ namespace MugenMvvm.Navigation.Components
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
-                {
-                    var callback = callbacks[i];
-                    if (callback != null)
-                        list.Add(callback);
-                }
+                    list.Add(callbacks[i]);
             }
         }
 

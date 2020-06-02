@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 }
             }
 
-            ValidateEntries(component.TryGetNavigationEntries(null), contexts);
+            ValidateEntries(component.TryGetNavigationEntries(null).AsList(), contexts);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
 
@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 component.OnNavigated(dispatcher, navigationContext);
             }
 
-            ValidateEntries(component.TryGetNavigationEntries(null), contexts);
+            ValidateEntries(component.TryGetNavigationEntries(null).AsList(), contexts);
             invokedCount.ShouldEqual(contexts.Count * count);
         }
 
@@ -187,7 +187,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
                 invokedCount.ShouldEqual(contexts.Count * count);
                 contexts.Clear();
-                ValidateEntries(component.TryGetNavigationEntries(null), contexts);
+                ValidateEntries(component.TryGetNavigationEntries(null).AsList(), contexts);
             }
         }
 

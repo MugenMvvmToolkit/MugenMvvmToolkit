@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationEntryProviderComponent : IComponent<INavigationDispatcher>
     {
-        IReadOnlyList<INavigationEntry>? TryGetNavigationEntries(IReadOnlyMetadataContext? metadata);
+        ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(IReadOnlyMetadataContext? metadata);
     }
 }

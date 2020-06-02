@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             manager.AddComponent(provider);
             manager.AddComponent(component);
 
-            manager.GetMembers(type, memberType, memberFlags, request, DefaultMetadata).ToArray().SequenceEqual(members).ShouldBeTrue();
+            manager.GetMembers(type, memberType, memberFlags, request, DefaultMetadata).AsList().SequenceEqual(members).ShouldBeTrue();
             selectorCount.ShouldEqual(1);
             providerCount.ShouldEqual(1);
         }

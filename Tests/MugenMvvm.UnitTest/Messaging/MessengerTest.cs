@@ -211,7 +211,7 @@ namespace MugenMvvm.UnitTest.Messaging
         public void GetSubscribersShouldReturnEmptyListNoComponents()
         {
             var messenger = new Messenger();
-            messenger.GetSubscribers(DefaultMetadata).ToList().ShouldBeEmpty();
+            messenger.GetSubscribers(DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -238,7 +238,7 @@ namespace MugenMvvm.UnitTest.Messaging
                 messenger.AddComponent(component);
             }
 
-            var result = messenger.GetSubscribers(DefaultMetadata).ToList();
+            var result = messenger.GetSubscribers(DefaultMetadata).AsList();
             result.Count.ShouldEqual(count);
             foreach (var messengerSubscriberInfo in result)
                 subscribers.Remove(messengerSubscriberInfo);

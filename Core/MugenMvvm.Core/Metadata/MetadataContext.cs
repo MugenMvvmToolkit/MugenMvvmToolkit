@@ -91,15 +91,17 @@ namespace MugenMvvm.Metadata
                 if (components.Length == 0)
                     return ((IEnumerable<MetadataContextValue>)_dictionary.ToArray(MetadataContextValue.CreateDelegate)).GetEnumerator();
 
-                LazyList<MetadataContextValue> contextValues = default;
+                ItemOrList<MetadataContextValue, List<MetadataContextValue>> contextValues = default;
                 foreach (var keyValuePair in _dictionary)
-                    contextValues.Add(MetadataContextValue.Create(keyValuePair));
+                    contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
                 for (int i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues())
-                        contextValues.Add(MetadataContextValue.Create(keyValuePair));
+                        contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
                 }
 
+                if (!contextValues.Item.IsEmpty)
+                    return Default.SingleValueEnumerator(contextValues.Item);
                 return contextValues.List?.GetEnumerator() ?? Enumerable.Empty<MetadataContextValue>().GetEnumerator();
             }
         }
@@ -348,27 +350,27 @@ namespace MugenMvvm.Metadata
                 return;
             }
 
-            LazyList<KeyValuePair<IMetadataContextKey, object?>> oldValues = default;
+            ItemOrList<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> oldValues = default;
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)
-                    oldValues.Add(pair);
+                    oldValues.Add(pair, p => p.Key == null);
                 for (int i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues())
-                        oldValues.Add(keyValuePair);
+                        oldValues.Add(keyValuePair, p => p.Key == null);
                 }
 
                 _dictionary.Clear();
                 components.Clear();
             }
 
-            var list = oldValues.List;
-            if (list != null)
+            var count = oldValues.Count(p => p.Key == null);
+            if (count != 0)
             {
-                for (var i = 0; i < list.Count; i++)
+                for (var i = 0; i < count; i++)
                 {
-                    var pair = list[i];
+                    var pair = oldValues.Get(i);
                     listeners.OnRemoved(this, pair.Key, pair.Value);
                 }
             }

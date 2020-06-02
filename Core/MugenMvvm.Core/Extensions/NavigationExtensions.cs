@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.ViewModels;
@@ -61,21 +63,18 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
             var entries = dispatcher.GetNavigationEntries(metadata);
-            LazyList<Task> tasks = default;
-            for (var i = 0; i < entries.Count; i++)
+            ItemOrList<Task, List<Task>> tasks = default;
+            for (var i = 0; i < entries.Count(); i++)
             {
-                var callbacks = dispatcher.GetNavigationCallbacks(entries[i], metadata);
-                for (var j = 0; j < callbacks.Count; j++)
+                var callbacks = dispatcher.GetNavigationCallbacks(entries.Get(i), metadata);
+                for (var j = 0; j < callbacks.Count(); j++)
                 {
-                    var callback = callbacks[j];
+                    var callback = callbacks.Get(j);
                     if (filter(callback))
                         tasks.Add(callback.AsTask());
                 }
             }
-
-            if (tasks.List == null)
-                return Default.CompletedTask;
-            return Task.WhenAll(tasks.List);
+            return tasks.WhenAll();
         }
 
         public static Task<IReadOnlyMetadataContext> AsTask(this INavigationCallback callback)

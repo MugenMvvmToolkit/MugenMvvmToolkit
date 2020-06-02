@@ -3,13 +3,23 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
-    public static class ItemOrListExtensions
+    public static partial class MugenExtensions
     {
         #region Methods
+
+        public static Task WhenAll<TList>(this ItemOrList<Task, TList> itemOrList) where TList : class, IEnumerable<Task>
+        {
+            if (itemOrList.Item != null)
+                return itemOrList.Item;
+            if (itemOrList.List != null)
+                return Task.WhenAll(itemOrList.List);
+            return Default.CompletedTask;
+        }
 
         [return: MaybeNull]
         public static TItem FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
@@ -73,40 +83,42 @@ namespace MugenMvvm.Extensions
                 ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
         }
 
-        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item)
-            where TItem : class?
+        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem? item)
+            where TItem : class
         {
-            itemOrList.Add(item, i => i == null, () => new List<TItem>());
+            itemOrList!.Add(item, i => i == null);
         }
 
-        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem item, Func<TItem, bool> isNullOrEmpty)
-        {
-            itemOrList.Add(item, isNullOrEmpty, () => new List<TItem>());
-        }
-
-        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item)
-            where TItem : class?
-        {
-            itemOrList.Add(item, i => i == null, () => new List<TItem>());
-        }
-
-        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem item, Func<TItem, bool> isNullOrEmpty)
+        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, [AllowNull] TItem item, Func<TItem, bool> isNullOrEmpty)
         {
             itemOrList.Add(item, isNullOrEmpty, () => new List<TItem>());
         }
 
-        public static void Add<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item, Func<TItem, bool> isNullOrEmpty, Func<TList> getNewList)
+        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem? item)
+            where TItem : class
+        {
+            itemOrList!.Add(item, i => i == null);
+        }
+
+        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, [AllowNull] TItem item, Func<TItem, bool> isNullOrEmpty)
+        {
+            itemOrList.Add(item, isNullOrEmpty, () => new List<TItem>());
+        }
+
+        public static void Add<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, [AllowNull] TItem item, Func<TItem, bool> isNullOrEmpty, Func<TList> getNewList)
             where TList : class, ICollection<TItem>
         {
+            if (isNullOrEmpty(item!))
+                return;
             if (itemOrList.List != null)
-                itemOrList.List.Add(item);
+                itemOrList.List.Add(item!);
             else if (isNullOrEmpty(itemOrList.Item!))
                 itemOrList = item!;
             else
             {
                 var list = getNewList();
                 list.Add(itemOrList.Item!);
-                list.Add(item);
+                list.Add(item!);
                 itemOrList = list;
             }
         }
@@ -255,6 +267,46 @@ namespace MugenMvvm.Extensions
             where TList : class, IEnumerable<TItem>
         {
             return itemOrList.Item == null && itemOrList.List == null;
+        }
+
+        public static IList<T> AsList<T>(this ItemOrList<T, IList<T>> itemOrList) where T : class?
+        {
+            return itemOrList.AsList(arg => arg == null);
+        }
+
+        public static IList<T> AsList<T>(this ItemOrList<T, IList<T>> itemOrList, Func<T, bool> isNullOrEmpty)
+        {
+            return itemOrList.AsList(isNullOrEmpty, () => Default.Array<T>(), arg => new[] { arg });
+        }
+
+        public static IReadOnlyList<T> AsList<T>(this ItemOrList<T, IReadOnlyList<T>> itemOrList) where T : class?
+        {
+            return itemOrList.AsList(arg => arg == null);
+        }
+
+        public static IReadOnlyList<T> AsList<T>(this ItemOrList<T, IReadOnlyList<T>> itemOrList, Func<T, bool> isNullOrEmpty)
+        {
+            return itemOrList.AsList(isNullOrEmpty, () => Default.Array<T>(), arg => new[] { arg });
+        }
+
+        public static T[] AsList<T>(this ItemOrList<T, T[]> itemOrList, Func<T, bool> isNullOrEmpty)
+        {
+            return itemOrList.AsList(isNullOrEmpty, () => Default.Array<T>(), arg => new[] { arg });
+        }
+
+        public static T[] AsList<T>(this ItemOrList<T, T[]> itemOrList) where T : class?
+        {
+            return itemOrList.AsList(arg => arg == null);
+        }
+
+        public static TList AsList<T, TList>(this ItemOrList<T, TList> itemOrList, Func<T, bool> isNullOrEmpty, Func<TList> getDefaultList, Func<T, TList> getItemList)
+            where TList : class, IEnumerable<T>
+        {
+            if (itemOrList.List != null)
+                return itemOrList.List;
+            if (isNullOrEmpty(itemOrList.Item!))
+                return getDefaultList();
+            return getItemList(itemOrList.Item!);
         }
 
         #endregion

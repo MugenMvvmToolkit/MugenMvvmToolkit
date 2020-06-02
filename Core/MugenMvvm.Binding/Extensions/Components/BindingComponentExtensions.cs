@@ -332,8 +332,6 @@ namespace MugenMvvm.Binding.Extensions.Components
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(target, nameof(target));
-            if (components.Length == 0)
-                return default;
             if (components.Length == 1)
                 return components[0].TryGetBindings(target, path, metadata);
 
@@ -408,7 +406,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IComponent<IBinding>? TryGetBindingComponent(object? item, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return (item as IComponent<IBinding>) ?? (item as IBindingComponentProvider)?.GetComponent(binding, target, source, metadata);
+            return item as IComponent<IBinding> ?? (item as IBindingComponentProvider)?.GetComponent(binding, target, source, metadata);
         }
 
         #endregion

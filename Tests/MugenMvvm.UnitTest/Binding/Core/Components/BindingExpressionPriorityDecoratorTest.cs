@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
 
-            decorator.TryBuildBindingExpression(request, DefaultMetadata).ToArray().Single().ShouldEqual(exp);
+            decorator.TryBuildBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
         }
 
         [Theory]
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
 
-            var bindingExpressions = decorator.TryBuildBindingExpression("", DefaultMetadata).ToArray();
+            var bindingExpressions = decorator.TryBuildBindingExpression("", DefaultMetadata).AsList();
             bindingExpressions.ShouldEqual(expected);
         }
 

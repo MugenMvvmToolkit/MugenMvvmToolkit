@@ -89,14 +89,14 @@ namespace MugenMvvm.UnitTest.Binding.Core
             binding.State.ShouldEqual(BindingState.Disposed);
             targetDisposed.ShouldBeTrue();
             sourceDisposed.ShouldBeTrue();
-            binding.GetComponents().ToArray().ShouldBeEmpty();
+            binding.GetComponents().AsList().ShouldBeEmpty();
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
             expressionDisposed.ShouldBeTrue();
 
             binding.AddComponent(components[0]).ShouldBeFalse();
-            binding.GetComponents().ToArray().ShouldBeEmpty();
+            binding.GetComponents().AsList().ShouldBeEmpty();
             ShouldThrow<ObjectDisposedException>(() =>
             {
                 var compiledExpression = binding.Expression;
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 Invoke = (list, context) =>
                 {
                     ++expressionInvoke;
-                    list.ToArray().SequenceEqual(new[] { new ParameterValue(sourceValue.GetType(), sourceValue) }).ShouldBeTrue();
+                    list.AsList().SequenceEqual(new[] { new ParameterValue(sourceValue.GetType(), sourceValue) }).ShouldBeTrue();
                     context.ShouldEqual(binding);
                     return expressionValue;
                 }

@@ -74,20 +74,20 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             for (var i = 0; i < count; i++)
             {
                 observer.AddListener(listeners[i]);
-                observer.GetListeners().ToArray().SequenceEqual(listeners.Take(i + 1)).ShouldBeTrue();
+                observer.GetListeners().AsList().SequenceEqual(listeners.Take(i + 1)).ShouldBeTrue();
             }
 
             var removeCount = Math.Min(count, 100);
             for (var index = 0; index < removeCount; index++)
             {
                 observer.RemoveListener(listeners[index]);
-                observer.GetListeners().ToArray().SequenceEqual(listeners.Skip(index + 1)).ShouldBeTrue();
+                observer.GetListeners().AsList().SequenceEqual(listeners.Skip(index + 1)).ShouldBeTrue();
             }
 
             for (var i = 0; i < removeCount; i++)
             {
                 observer.AddListener(listeners[i]);
-                observer.GetListeners().ToArray().SequenceEqual(listeners.Skip(removeCount).Concat(listeners.Take(i + 1))).ShouldBeTrue();
+                observer.GetListeners().AsList().SequenceEqual(listeners.Skip(removeCount).Concat(listeners.Take(i + 1))).ShouldBeTrue();
             }
 
             observer.Dispose();

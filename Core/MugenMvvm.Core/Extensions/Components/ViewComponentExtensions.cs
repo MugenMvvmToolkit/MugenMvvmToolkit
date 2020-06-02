@@ -69,19 +69,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 0)
                 return components[0].TryCleanupAsync(view, request, cancellationToken, metadata);
 
-            LazyList<Task> result = default;
+            ItemOrList<Task, List<Task>> result = default;
             for (var i = 0; i < components.Length; i++)
-            {
-                var task = components[i].TryCleanupAsync(view, request, cancellationToken, metadata);
-                if (task != null)
-                    result.Add(task);
-            }
-
-            if (result.List == null)
-                return null;
-            if (result.Count == 1)
-                return result.List[0];
-            return Task.WhenAll(result.List);
+                result.Add(components[i].TryCleanupAsync(view, request, cancellationToken, metadata));
+            return result.WhenAll();
         }
 
         #endregion

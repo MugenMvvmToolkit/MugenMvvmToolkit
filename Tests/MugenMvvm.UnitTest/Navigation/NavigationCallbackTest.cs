@@ -41,13 +41,13 @@ namespace MugenMvvm.UnitTest.Navigation
                 var listener = new TestNavigationCallbackListener();
                 list.Add(listener);
                 callback.AddCallback(listener);
-                callback.GetCallbacks().ToArray().SequenceEqual(list).ShouldBeTrue();
+                callback.GetCallbacks().AsList().SequenceEqual(list).ShouldBeTrue();
             }
 
             for (var i = 0; i < count; i++)
             {
                 callback.RemoveCallback(list[i]);
-                var array = callback.GetCallbacks().ToArray();
+                var array = callback.GetCallbacks().AsList();
                 array.SequenceEqual(list.Skip(i + 1)).ShouldBeTrue();
             }
         }
