@@ -48,9 +48,16 @@ namespace MugenMvvm.Binding.Members.Components
         {
             if (!Default.IsValueType<TState>() && state is Type type)
             {
-                LazyList<CacheKey> keys = default;
-                Invalidate(_cache, type, ref keys);
-                keys.List?.Clear();
+                ItemOrList<CacheKey, List<CacheKey>> keys = default;
+                foreach (var pair in _cache)
+                {
+                    if (pair.Key.Type == type)
+                        keys.Add(pair.Key, key => key.Type == null);
+                }
+
+                var count = keys.Count(key => key.Type == null);
+                for (int i = 0; i < count; i++)
+                    _cache.Remove(keys.Get(i));
             }
             else
                 _cache.Clear();
@@ -91,22 +98,6 @@ namespace MugenMvvm.Binding.Members.Components
         {
             base.OnDetachedInternal(owner, metadata);
             Invalidate<object?>(null, metadata);
-        }
-
-        private static void Invalidate(TempCacheDictionary dictionary, Type type, ref LazyList<CacheKey> keys)
-        {
-            foreach (var pair in dictionary)
-            {
-                if (pair.Key.Type == type)
-                    keys.Add(pair.Key);
-            }
-
-            var list = keys.List;
-            if (list != null)
-            {
-                for (var i = 0; i < list.Count; i++)
-                    dictionary.Remove(list[i]);
-            }
         }
 
         #endregion

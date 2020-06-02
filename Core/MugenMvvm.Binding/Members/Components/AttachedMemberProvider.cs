@@ -107,22 +107,20 @@ namespace MugenMvvm.Binding.Members.Components
             if (!removed)
                 return;
 
-            LazyList<KeyValuePair<TypeStringKey, object?>> valuesToUpdate = default;
+            ItemOrList<KeyValuePair<TypeStringKey, object?>, List<KeyValuePair<TypeStringKey, object?>>> valuesToUpdate = default;
             foreach (var cachePair in _cache)
             {
                 var members = ItemOrList<IMemberInfo, List<IMemberInfo>>.FromRawValue(cachePair.Value);
                 if (!members.Remove(member))
                     continue;
                 Owner?.TryInvalidateCache(cachePair.Key.Type);
-                valuesToUpdate.Add(new KeyValuePair<TypeStringKey, object?>(cachePair.Key, members.GetRawValue()));
+                valuesToUpdate.Add(new KeyValuePair<TypeStringKey, object?>(cachePair.Key, members.GetRawValue()), pair => pair.Key.Type == null);
             }
 
-            var list = valuesToUpdate.List;
-            if (list == null)
-                return;
-            for (var i = 0; i < list.Count; i++)
+            var count = valuesToUpdate.Count(pair => pair.Key.Type == null);
+            for (var i = 0; i < count; i++)
             {
-                var keyValuePair = list[i];
+                var keyValuePair = valuesToUpdate.Get(i);
                 if (keyValuePair.Value == null)
                     _cache.Remove(keyValuePair.Key);
                 else
