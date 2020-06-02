@@ -33,14 +33,14 @@ namespace MugenMvvm.Views
             GetComponents<IViewLifecycleDispatcherComponent>().OnLifecycleChanged(view, lifecycleState, state, metadata);
         }
 
-        public IReadOnlyList<IView> GetViews<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IView, IReadOnlyList<IView>> GetViews<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewProviderComponent>(metadata).TryGetViews(request, metadata) ?? Default.Array<IView>();
+            return GetComponents<IViewProviderComponent>(metadata).TryGetViews(request, metadata);
         }
 
-        public IReadOnlyList<IViewModelViewMapping> GetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> GetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappings(request, metadata) ?? Default.Array<IViewModelViewMapping>();
+            return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappings(request, metadata);
         }
 
         public Task<IView> InitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,

@@ -2,11 +2,12 @@
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewModelViewMappingProviderComponent : IComponent<IViewManager>
     {
-        IReadOnlyList<IViewModelViewMapping>? TryGetMappings<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
+        ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

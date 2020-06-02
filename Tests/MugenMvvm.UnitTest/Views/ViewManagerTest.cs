@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Views
                 viewManager.AddComponent(component);
             }
 
-            viewManager.GetViews(viewModel, DefaultMetadata).SequenceEqual(views).ShouldBeTrue();
+            viewManager.GetViews(viewModel, DefaultMetadata).AsList().SequenceEqual(views).ShouldBeTrue();
         }
 
         [Theory]
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTest.Views
                 viewManager.AddComponent(component);
             }
 
-            viewManager.GetMappings(view, DefaultMetadata).SequenceEqual(mappings).ShouldBeTrue();
+            viewManager.GetMappings(view, DefaultMetadata).AsList().SequenceEqual(mappings).ShouldBeTrue();
         }
 
         [Fact]

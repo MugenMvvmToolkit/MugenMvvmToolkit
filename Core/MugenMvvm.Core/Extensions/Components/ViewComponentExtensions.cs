@@ -23,28 +23,28 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(view, lifecycleState, state, metadata);
         }
 
-        public static IReadOnlyList<IView>? TryGetViews<TRequest>(this IViewProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IView, IReadOnlyList<IView>> TryGetViews<TRequest>(this IViewProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 1)
                 return components[0].TryGetViews(request, metadata);
 
-            LazyList<IView> result = default;
+            ItemOrList<IView, List<IView>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetViews(request, metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<IView>>();
         }
 
-        public static IReadOnlyList<IViewModelViewMapping>? TryGetMappings<TRequest>(this IViewModelViewMappingProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>(this IViewModelViewMappingProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 1)
                 return components[0].TryGetMappings(request, metadata);
 
-            LazyList<IViewModelViewMapping> result = default;
+            ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMappings(request, metadata));
-            return result.List;
+            return result.Cast<IReadOnlyList<IViewModelViewMapping>>();
         }
 
         public static Task<IView>? TryInitializeAsync<TRequest>(this IViewInitializerComponent[] components, IViewModelViewMapping mapping,

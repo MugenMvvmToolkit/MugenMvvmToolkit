@@ -39,14 +39,14 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<IViewModelViewMapping>? TryGetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TRequest>())
-                return null;
+                return default;
             var vm = request as IViewModelBase;
             var type = request as Type;
             var id = request as string;
-            LazyList<IViewModelViewMapping> mappings = default;
+            ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> mappings = default;
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
@@ -75,7 +75,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            return mappings.List;
+            return mappings.Cast<IReadOnlyList<IViewModelViewMapping>>();
         }
 
         #endregion

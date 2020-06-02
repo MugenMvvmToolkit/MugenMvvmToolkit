@@ -100,26 +100,36 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        public IReadOnlyList<IView>? TryGetViews<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TRequest>())
-                return null;
+                return default;
             if (request is IViewModelBase viewModel)
             {
                 if (viewModel is IComponentOwner componentOwner)
                     return componentOwner.GetComponents<IView>();
 
-                return viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey)?.ToArray();
+                return GetViews(viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey));
             }
 
             if (_attachedValueProvider.DefaultIfNull().TryGet<List<IView>>(request, InternalConstant.ViewsValueKey, out var value))
-                return value.ToArray();
-            return null;
+                return GetViews(value);
+            return default;
         }
 
         #endregion
 
         #region Methods
+
+        private static ItemOrList<IView, IReadOnlyList<IView>> GetViews(List<IView>? views)
+        {
+            if (views == null)
+                return default;
+            ItemOrList<IView, List<IView>> result = default;
+            for (var i = 0; i < views.Count; i++)
+                result.Add(views[i]);
+            return result.Cast<IReadOnlyList<IView>>();
+        }
 
         private IView InitializeView<TList>(IViewModelViewMapping mapping, IViewModelBase viewModel, object rawView,
             IList<IView> views, TList collection, Action<TList, IView, IReadOnlyMetadataContext?> addAction,

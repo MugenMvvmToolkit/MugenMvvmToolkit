@@ -50,21 +50,21 @@ namespace MugenMvvm.UnitTest.Views.Components
                 result.Mapping.ShouldEqual(mapping);
                 result.ViewModel.ShouldEqual(viewModel);
 
-                component.TryGetViews(viewModel, DefaultMetadata)!.ShouldContain(results);
-                component.TryGetViews(view, DefaultMetadata).Single().ShouldEqual(results.Last());
+                component.TryGetViews(viewModel, DefaultMetadata).AsList().ShouldContain(results);
+                component.TryGetViews(view, DefaultMetadata).AsList().Single().ShouldEqual(results.Last());
             }
 
             for (var i = 0; i < count; i++)
             {
                 var view = results[0];
-                component.TryGetViews(viewModel, DefaultMetadata)!.ShouldContain(results);
-                component.TryGetViews(view.Target, DefaultMetadata).Single().ShouldEqual(view);
+                component.TryGetViews(viewModel, DefaultMetadata).AsList().ShouldContain(results);
+                component.TryGetViews(view.Target, DefaultMetadata).AsList().Single().ShouldEqual(view);
                 component.TryCleanupAsync(view, viewModel, CancellationToken.None, DefaultMetadata)!.IsCompleted.ShouldBeTrue();
-                component.TryGetViews(view.Target, DefaultMetadata).ShouldBeEmpty();
+                component.TryGetViews(view.Target, DefaultMetadata).AsList().ShouldBeEmpty();
                 results.RemoveAt(0);
             }
 
-            component.TryGetViews(viewModel, DefaultMetadata).ShouldBeEmpty();
+            component.TryGetViews(viewModel, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
