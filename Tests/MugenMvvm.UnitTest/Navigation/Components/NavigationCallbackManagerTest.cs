@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Internal;
@@ -54,16 +53,16 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 HasMetadata = true,
                 Metadata = new MetadataContext()
             };
-            var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
             var component = new NavigationCallbackManager();
             var addedCallbacks = new HashSet<INavigationCallback>(ReferenceEqualityComparer.Instance);
             for (var i = 0; i < count; i++)
             {
+                var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
                 var callback = component.TryAddNavigationCallback(NavigationCallbackType.Showing, result, DefaultMetadata)!;
                 callback.ShouldNotBeNull();
                 addedCallbacks.Add(callback);
-                component.TryGetNavigationCallbacks(result, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
                 component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
+                component.TryGetNavigationCallbacks(result, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
             }
             addedCallbacks.Count.ShouldEqual(1);
         }
@@ -80,8 +79,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
-            navigationContext.Metadata.Set(NavigationMetadata.Target, target);
+            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -94,7 +92,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 {
                     OnCompleted = context =>
                     {
-                        context.ShouldEqual(navigationContext.GetMetadataOrDefault());
+                        context.ShouldEqual(navigationContext);
                         callbacks.Remove(callback);
                     },
                     OnCanceled = (context, token) => throw new NotSupportedException(),
@@ -102,12 +100,11 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
-            wrongIdCtx.Metadata.Set(NavigationMetadata.Target, target);
-            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, DefaultMetadata).ShouldBeFalse();
+            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
+            component.TryInvokeNavigationCallbacks(type, wrongIdCtx).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            component.TryInvokeNavigationCallbacks(type, navigationContext, DefaultMetadata).ShouldBeTrue();
+            component.TryInvokeNavigationCallbacks(type, navigationContext).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
             component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
@@ -125,8 +122,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
-            navigationContext.Metadata.Set(NavigationMetadata.Target, target);
+            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -139,21 +135,20 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 {
                     OnCompleted = context => throw new NotSupportedException(),
                     OnCanceled = (context, token) => throw new NotSupportedException(),
-                    OnError = (ex, context) =>
+                    OnError = (context, ex) =>
                     {
                         ex.ShouldEqual(exception);
-                        context.ShouldEqual(navigationContext.GetMetadataOrDefault());
+                        context.ShouldEqual(navigationContext);
                         callbacks.Remove(callback);
                     }
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
-            wrongIdCtx.Metadata.Set(NavigationMetadata.Target, target);
-            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, exception, DefaultMetadata).ShouldBeFalse();
+            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
+            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, exception).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            component.TryInvokeNavigationCallbacks(type, navigationContext, exception, DefaultMetadata).ShouldBeTrue();
+            component.TryInvokeNavigationCallbacks(type, navigationContext, exception).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
             component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
@@ -171,8 +166,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
-            navigationContext.Metadata.Set(NavigationMetadata.Target, target);
+            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -187,19 +181,18 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                     OnCanceled = (context, token) =>
                     {
                         token.ShouldEqual(cancellationToken);
-                        context.ShouldEqual(navigationContext.GetMetadataOrDefault());
+                        context.ShouldEqual(navigationContext);
                         callbacks.Remove(callback);
                     },
                     OnError = (ex, context) => throw new NotSupportedException()
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
-            wrongIdCtx.Metadata.Set(NavigationMetadata.Target, target);
-            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, cancellationToken, DefaultMetadata).ShouldBeFalse();
+            var wrongIdCtx = new NavigationContext(target, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
+            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, cancellationToken).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            component.TryInvokeNavigationCallbacks(type, navigationContext, cancellationToken, DefaultMetadata).ShouldBeTrue();
+            component.TryInvokeNavigationCallbacks(type, navigationContext, cancellationToken).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
             component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
         }

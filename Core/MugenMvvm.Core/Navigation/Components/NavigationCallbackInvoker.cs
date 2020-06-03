@@ -56,14 +56,13 @@ namespace MugenMvvm.Navigation.Components
 
         private void InvokeCallbacks(INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled, CancellationToken cancellationToken)
         {
-            var metadata = navigationContext.GetMetadataOrDefault();
-            var components = Owner.GetComponents<INavigationCallbackManagerComponent>(metadata);
+            var components = Owner.GetComponents<INavigationCallbackManagerComponent>(navigationContext.GetMetadataOrDefault());
             if (exception != null)
-                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, exception, metadata);
+                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, exception);
             else if (canceled)
-                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, cancellationToken, metadata);
+                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, cancellationToken);
             else
-                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, metadata);
+                components.TryInvokeNavigationCallbacks(callbackType, navigationContext);
         }
 
         #endregion

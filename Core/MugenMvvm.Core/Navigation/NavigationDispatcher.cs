@@ -30,10 +30,10 @@ namespace MugenMvvm.Navigation
 
         #region Implementation of interfaces
 
-        public INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
+        public INavigationContext GetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
             IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(navigationProvider, navigationId, navigationType, navigationMode, metadata);
+            var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized(this);
             return result;

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Internal;
 
@@ -16,7 +15,7 @@ namespace MugenMvvm.Navigation
         private object? _callbacks;
         private CancellationToken _cancellationToken;
         private Exception? _exception;
-        private IReadOnlyMetadataContext? _metadata;
+        private INavigationContext? _navigationContext;
         private int _state;
 
         private const int SuccessState = 1;
@@ -95,41 +94,41 @@ namespace MugenMvvm.Navigation
 
         #region Methods
 
-        public bool TrySetResult(IReadOnlyMetadataContext metadata)
+        public bool TrySetResult(INavigationContext navigationContext)
         {
-            return SetResult(SuccessState, null, metadata, default, false);
+            return SetResult(SuccessState, navigationContext, null, default, false);
         }
 
-        public void SetResult(IReadOnlyMetadataContext metadata)
+        public void SetResult(INavigationContext navigationContext)
         {
-            SetResult(SuccessState, null, metadata, default, true);
+            SetResult(SuccessState, navigationContext, null, default, true);
         }
 
-        public bool TrySetException(Exception exception, IReadOnlyMetadataContext metadata)
+        public bool TrySetException(INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(exception, nameof(exception));
-            return SetResult(ErrorState, exception, metadata, default, false);
+            return SetResult(ErrorState, navigationContext, exception, default, false);
         }
 
-        public void SetException(Exception exception, IReadOnlyMetadataContext metadata)
+        public void SetException(INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(exception, nameof(exception));
-            SetResult(ErrorState, exception, metadata, default, true);
+            SetResult(ErrorState, navigationContext, exception, default, true);
         }
 
-        public bool TrySetCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public bool TrySetCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            return SetResult(CanceledState, null, metadata, cancellationToken, false);
+            return SetResult(CanceledState, navigationContext, null, cancellationToken, false);
         }
 
-        public void SetCanceled(IReadOnlyMetadataContext metadata, CancellationToken cancellationToken)
+        public void SetCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            SetResult(CanceledState, null, metadata, cancellationToken, true);
+            SetResult(CanceledState, navigationContext, null, cancellationToken, true);
         }
 
-        private bool SetResult(int state, Exception? exception, IReadOnlyMetadataContext metadata, CancellationToken cancellationToken, bool throwOnError)
+        private bool SetResult(int state, INavigationContext navigationContext, Exception? exception, CancellationToken cancellationToken, bool throwOnError)
         {
-            Should.NotBeNull(metadata, nameof(metadata));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
             var completed = false;
             ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> callbacks = default;
             if (!IsCompleted)
@@ -143,7 +142,7 @@ namespace MugenMvvm.Navigation
                         _cancellationToken = cancellationToken;
                         _state = state;
                         _exception = exception;
-                        _metadata = metadata;
+                        _navigationContext = navigationContext;
                         completed = true;
                     }
                 }
@@ -166,13 +165,13 @@ namespace MugenMvvm.Navigation
             switch (_state)
             {
                 case SuccessState:
-                    callback.OnCompleted(_metadata!);
+                    callback.OnCompleted(_navigationContext!);
                     break;
                 case ErrorState:
-                    callback.OnError(_exception!, _metadata!);
+                    callback.OnError(_navigationContext!, _exception!);
                     break;
                 case CanceledState:
-                    callback.OnCanceled(_cancellationToken, _metadata!);
+                    callback.OnCanceled(_navigationContext!, _cancellationToken);
                     break;
             }
         }

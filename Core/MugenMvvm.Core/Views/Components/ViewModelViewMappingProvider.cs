@@ -69,6 +69,7 @@ namespace MugenMvvm.Views.Components
                 type = request as Type;
                 id = request as string;
             }
+
             ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> mappings = default;
             lock (_mappings)
             {
@@ -82,22 +83,22 @@ namespace MugenMvvm.Views.Components
                     }
                     else if (vm != null && view != null)
                     {
-                        if (mapping.IsValidViewModelType(vm.GetType(), metadata) && mapping.IsValidViewType(view.GetType(), metadata))
+                        if (mapping.IsValidViewModelType(vm.GetType(), vm, metadata) && mapping.IsValidViewType(view.GetType(), view, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (vm != null)
                     {
-                        if (mapping.IsValidViewModelType(vm.GetType(), metadata))
+                        if (mapping.IsValidViewModelType(vm.GetType(), vm, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (type != null)
                     {
-                        if (mapping.IsValidViewModelType(type, metadata) || mapping.IsValidViewType(type, metadata))
+                        if (mapping.IsValidViewModelType(type, null, metadata) || mapping.IsValidViewType(type, null, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else
                     {
-                        if (mapping.IsValidViewType(view!.GetType(), metadata))
+                        if (mapping.IsValidViewType(view!.GetType(), view, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                 }
@@ -164,9 +165,9 @@ namespace MugenMvvm.Views.Components
 
             #region Methods
 
-            public bool IsValidViewType(Type viewType, IReadOnlyMetadataContext? metadata)
+            public bool IsValidViewType(Type viewType, object? target, IReadOnlyMetadataContext? metadata)
             {
-                if (_name != GetViewNameFromContext(metadata))
+                if (_name != GetViewNameFromContext(target, metadata))
                     return false;
 
                 if (_exactlyEqual)
@@ -180,9 +181,9 @@ namespace MugenMvvm.Views.Components
                 return false;
             }
 
-            public bool IsValidViewModelType(Type viewModelType, IReadOnlyMetadataContext? metadata)
+            public bool IsValidViewModelType(Type viewModelType, object? target, IReadOnlyMetadataContext? metadata)
             {
-                if (_name != GetViewNameFromContext(metadata))
+                if (_name != GetViewNameFromContext(target, metadata))
                     return false;
 
                 if (_exactlyEqual)
@@ -196,9 +197,9 @@ namespace MugenMvvm.Views.Components
                 return false;
             }
 
-            private static string? GetViewNameFromContext(IReadOnlyMetadataContext? metadata)
+            private static string? GetViewNameFromContext(object? target, IReadOnlyMetadataContext? metadata)
             {
-                return metadata?.Get(NavigationMetadata.ViewName) ?? (metadata?.Get(NavigationMetadata.Target) as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata.Get(NavigationMetadata.ViewName);
+                return metadata?.Get(NavigationMetadata.ViewName) ?? (target as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata.Get(NavigationMetadata.ViewName);
             }
 
             #endregion

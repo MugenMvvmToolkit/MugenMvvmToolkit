@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Threading;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationCallbackListener
     {
-        void OnCompleted(IReadOnlyMetadataContext metadata);
+        void OnCompleted(INavigationContext navigationContext);
 
-        void OnError(Exception exception, IReadOnlyMetadataContext metadata);
+        void OnError(INavigationContext navigationContext, Exception exception);
 
-        void OnCanceled(CancellationToken cancellationToken, IReadOnlyMetadataContext metadata);
+        void OnCanceled(INavigationContext navigationContext, CancellationToken cancellationToken);
     }
 }

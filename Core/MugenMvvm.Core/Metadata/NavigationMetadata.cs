@@ -9,7 +9,6 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<object, object>? _target;
         private static IMetadataContextKey<string, string>? _viewName;
         private static IMetadataContextKey<bool, bool>? _isModal;
         private static IMetadataContextKey<DateTime, DateTime>? _navigationDate;
@@ -19,13 +18,6 @@ namespace MugenMvvm.Metadata
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<object, object> Target
-        {
-            get => _target ??= GetBuilder(_target, nameof(Target)).NotNull().Build();
-            set => _target = value;
-        }
-
-        [AllowNull]
         public static IMetadataContextKey<string, string> ViewName
         {
             get => _viewName ??= GetBuilder(_viewName, nameof(ViewName)).Serializable().NotNull().Build();
@@ -33,7 +25,7 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool, bool> IsModal
+        public static IMetadataContextKey<bool, bool> IsModal//todo review
         {
             get => _isModal ??= GetBuilder(_isModal, nameof(IsModal)).Serializable().Build();
             set => _isModal = value;

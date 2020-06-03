@@ -20,11 +20,11 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>>>? TryGetNavigationCallbacks { get; set; }
 
-        public Func<NavigationCallbackType, object, Type, IReadOnlyMetadataContext?, bool>? TryInvokeNavigationCallbacks { get; set; }
+        public Func<NavigationCallbackType, INavigationContext, bool>? TryInvokeNavigationCallbacks { get; set; }
 
-        public Func<NavigationCallbackType, object, Type, Exception, IReadOnlyMetadataContext?, bool>? TryInvokeExceptionNavigationCallbacks { get; set; }
+        public Func<NavigationCallbackType, INavigationContext, Exception, bool>? TryInvokeExceptionNavigationCallbacks { get; set; }
 
-        public Func<NavigationCallbackType, object, Type, CancellationToken, IReadOnlyMetadataContext?, bool>? TryInvokeCanceledNavigationCallbacks { get; set; }
+        public Func<NavigationCallbackType, INavigationContext, CancellationToken, bool>? TryInvokeCanceledNavigationCallbacks { get; set; }
 
         #endregion
 
@@ -40,19 +40,19 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
             return TryGetNavigationCallbacks?.Invoke(target!, typeof(TTarget), metadata) ?? default;
         }
 
-        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, in TTarget target, IReadOnlyMetadataContext? metadata)
+        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext)
         {
-            return TryInvokeNavigationCallbacks?.Invoke(callbackType, target!, typeof(TTarget), metadata) ?? false;
+            return TryInvokeNavigationCallbacks?.Invoke(callbackType, navigationContext) ?? false;
         }
 
-        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, in TTarget target, Exception exception, IReadOnlyMetadataContext? metadata)
+        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
         {
-            return TryInvokeExceptionNavigationCallbacks?.Invoke(callbackType, target!, typeof(TTarget), exception, metadata) ?? false;
+            return TryInvokeExceptionNavigationCallbacks?.Invoke(callbackType, navigationContext, exception) ?? false;
         }
 
-        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks<TTarget>(NavigationCallbackType callbackType, in TTarget target, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        bool INavigationCallbackManagerComponent.TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            return TryInvokeCanceledNavigationCallbacks?.Invoke(callbackType, target!, typeof(TTarget), cancellationToken, metadata) ?? false;
+            return TryInvokeCanceledNavigationCallbacks?.Invoke(callbackType, navigationContext, cancellationToken) ?? false;
         }
 
         #endregion

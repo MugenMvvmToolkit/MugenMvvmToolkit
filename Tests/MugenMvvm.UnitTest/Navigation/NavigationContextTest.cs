@@ -19,7 +19,9 @@ namespace MugenMvvm.UnitTest.Navigation
             var type = NavigationType.Alert;
             var id = "t";
             var mode = NavigationMode.Close;
-            var context = new NavigationContext(provider, id, type, mode);
+            var target = new object();
+            var context = new NavigationContext(target, provider, id, type, mode);
+            context.Target.ShouldEqual(target);
             context.NavigationProvider.ShouldEqual(provider);
             context.NavigationType.ShouldEqual(type);
             context.NavigationId.ShouldEqual(id);
@@ -28,7 +30,7 @@ namespace MugenMvvm.UnitTest.Navigation
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new NavigationContext(new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close, metadata, metadataContextProvider);
+            return new NavigationContext(null, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close, metadata, metadataContextProvider);
         }
 
         #endregion

@@ -49,15 +49,6 @@ namespace MugenMvvm.Extensions
             return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetNavigationId(target), navigationType, navigationMode, metadata);
         }
 
-        public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object target, INavigationProvider navigationProvider,
-            string navigationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(target, nameof(target));
-            var navigationContext = dispatcher.GetNavigationContext(navigationProvider, navigationId, navigationType, navigationMode, metadata);
-            navigationContext.Metadata.Set(NavigationMetadata.Target, target);
-            return navigationContext;
-        }
-
         public static Task WaitNavigationAsync(this INavigationDispatcher dispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
@@ -77,7 +68,7 @@ namespace MugenMvvm.Extensions
             return tasks.WhenAll();
         }
 
-        public static Task<IReadOnlyMetadataContext> AsTask(this INavigationCallback callback)
+        public static Task<INavigationContext> AsTask(this INavigationCallback callback)
         {
             Should.NotBeNull(callback, nameof(callback));
             var result = new NavigationCallbackTaskListener();

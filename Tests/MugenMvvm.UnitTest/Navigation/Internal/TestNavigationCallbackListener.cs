@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 
 namespace MugenMvvm.UnitTest.Navigation.Internal
@@ -9,29 +8,29 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
     {
         #region Properties
 
-        public Action<IReadOnlyMetadataContext>? OnCompleted { get; set; }
+        public Action<INavigationContext>? OnCompleted { get; set; }
 
-        public Action<Exception, IReadOnlyMetadataContext?>? OnError { get; set; }
+        public Action<INavigationContext, Exception>? OnError { get; set; }
 
-        public Action<IReadOnlyMetadataContext?, CancellationToken>? OnCanceled { get; set; }
+        public Action<INavigationContext, CancellationToken>? OnCanceled { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void INavigationCallbackListener.OnCompleted(IReadOnlyMetadataContext metadata)
+        void INavigationCallbackListener.OnCompleted(INavigationContext navigationContext)
         {
-            OnCompleted?.Invoke(metadata);
+            OnCompleted?.Invoke(navigationContext);
         }
 
-        void INavigationCallbackListener.OnError(Exception exception, IReadOnlyMetadataContext? metadata)
+        void INavigationCallbackListener.OnError(INavigationContext navigationContext, Exception exception)
         {
-            OnError?.Invoke(exception, metadata);
+            OnError?.Invoke(navigationContext, exception);
         }
 
-        void INavigationCallbackListener.OnCanceled(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        void INavigationCallbackListener.OnCanceled(INavigationContext navigationContext, CancellationToken cancellationToken)
         {
-            OnCanceled?.Invoke(metadata, cancellationToken);
+            OnCanceled?.Invoke(navigationContext, cancellationToken);
         }
 
         #endregion

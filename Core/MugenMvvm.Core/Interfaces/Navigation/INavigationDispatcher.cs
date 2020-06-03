@@ -13,7 +13,7 @@ namespace MugenMvvm.Interfaces.Navigation
 {
     public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>, IComponent<IMugenApplication>
     {
-        INavigationContext GetNavigationContext(INavigationProvider navigationProvider, string navigationId,
+        INavigationContext GetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null);

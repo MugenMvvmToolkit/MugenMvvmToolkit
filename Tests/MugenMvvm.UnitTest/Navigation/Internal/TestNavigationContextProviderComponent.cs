@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
     {
         #region Properties
 
-        public Func<INavigationProvider, string, NavigationType, NavigationMode, IReadOnlyMetadataContext?, INavigationContext?>? TryGetNavigationContext { get; set; }
+        public Func<object?, INavigationProvider, string, NavigationType, NavigationMode, IReadOnlyMetadataContext?, INavigationContext?>? TryGetNavigationContext { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,10 +19,10 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Implementation of interfaces
 
-        INavigationContext? INavigationContextProviderComponent.TryGetNavigationContext(INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
+        INavigationContext? INavigationContextProviderComponent.TryGetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
             IReadOnlyMetadataContext? metadata)
         {
-            return TryGetNavigationContext?.Invoke(navigationProvider, navigationId, navigationType, navigationMode, metadata);
+            return TryGetNavigationContext?.Invoke(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
         }
 
         #endregion

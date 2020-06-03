@@ -15,10 +15,10 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 
         ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
+        bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext);
 
-        bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, Exception exception, IReadOnlyMetadataContext? metadata);
+        bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception);
 
-        bool TryInvokeNavigationCallbacks<TRequest>(NavigationCallbackType callbackType, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
+        bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext, CancellationToken cancellationToken);
     }
 }

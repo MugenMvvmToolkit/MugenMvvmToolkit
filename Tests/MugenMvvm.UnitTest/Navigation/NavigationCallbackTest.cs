@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Internal;
 using MugenMvvm.Navigation;
 using MugenMvvm.UnitTest.Navigation.Internal;
 using Should;
@@ -13,6 +14,12 @@ namespace MugenMvvm.UnitTest.Navigation
 {
     public class NavigationCallbackTest : UnitTestBase
     {
+        #region Fields
+
+        private static readonly NavigationContext DefaultContext = new NavigationContext(null, Default.NavigationProvider, "f", NavigationType.Popup, NavigationMode.Close);
+
+        #endregion
+
         #region Methods
 
         [Theory]
@@ -66,7 +73,7 @@ namespace MugenMvvm.UnitTest.Navigation
             callback.IsCompleted.ShouldBeFalse();
 
             if (isCompletedCallback)
-                callback.SetResult(DefaultMetadata);
+                callback.SetResult(DefaultContext);
 
             for (var i = 0; i < count; i++)
             {
@@ -75,7 +82,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     OnCompleted = context =>
                     {
                         ++invokeCount;
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(DefaultContext);
                     },
                     OnError = (exception, context) => throw new NotSupportedException(),
                     OnCanceled = (context, cancellationToken) => throw new NotSupportedException()
@@ -87,11 +94,11 @@ namespace MugenMvvm.UnitTest.Navigation
             {
                 if (trySetResult)
                 {
-                    callback.TrySetResult(DefaultMetadata).ShouldBeTrue();
-                    callback.TrySetResult(DefaultMetadata).ShouldBeFalse();
+                    callback.TrySetResult(DefaultContext).ShouldBeTrue();
+                    callback.TrySetResult(DefaultContext).ShouldBeFalse();
                 }
                 else
-                    callback.SetResult(DefaultMetadata);
+                    callback.SetResult(DefaultContext);
             }
 
             invokeCount.ShouldEqual(count);
@@ -113,17 +120,17 @@ namespace MugenMvvm.UnitTest.Navigation
             callback.IsCompleted.ShouldBeFalse();
 
             if (isCompletedCallback)
-                callback.SetException(ex, DefaultMetadata);
+                callback.SetException(DefaultContext, ex);
             for (var i = 0; i < count; i++)
             {
                 var listener = new TestNavigationCallbackListener
                 {
                     OnCompleted = context => throw new NotSupportedException(),
-                    OnError = (exception, context) =>
+                    OnError = (context, exception) =>
                     {
                         exception.ShouldEqual(ex);
                         ++invokeCount;
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(DefaultContext);
                     },
                     OnCanceled = (context, cancellationToken) => throw new NotSupportedException()
                 };
@@ -134,11 +141,11 @@ namespace MugenMvvm.UnitTest.Navigation
             {
                 if (trySetResult)
                 {
-                    callback.TrySetException(ex, DefaultMetadata).ShouldBeTrue();
-                    callback.TrySetException(ex, DefaultMetadata).ShouldBeFalse();
+                    callback.TrySetException(DefaultContext, ex).ShouldBeTrue();
+                    callback.TrySetException(DefaultContext, ex).ShouldBeFalse();
                 }
                 else
-                    callback.SetException(ex, DefaultMetadata);
+                    callback.SetException(DefaultContext, ex);
             }
 
             invokeCount.ShouldEqual(count);
@@ -159,7 +166,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
             callback.IsCompleted.ShouldBeFalse();
             if (isCompletedCallback)
-                callback.SetCanceled(DefaultMetadata, token);
+                callback.SetCanceled(DefaultContext, token);
             for (var i = 0; i < count; i++)
             {
                 var listener = new TestNavigationCallbackListener
@@ -169,7 +176,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     OnCanceled = (context, cancellationToken) =>
                     {
                         ++invokeCount;
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(DefaultContext);
                         cancellationToken.ShouldEqual(cancellationToken);
                     }
                 };
@@ -180,11 +187,11 @@ namespace MugenMvvm.UnitTest.Navigation
             {
                 if (trySetResult)
                 {
-                    callback.TrySetCanceled(DefaultMetadata, token).ShouldBeTrue();
-                    callback.TrySetCanceled(DefaultMetadata, token).ShouldBeFalse();
+                    callback.TrySetCanceled(DefaultContext, token).ShouldBeTrue();
+                    callback.TrySetCanceled(DefaultContext, token).ShouldBeFalse();
                 }
                 else
-                    callback.SetCanceled(DefaultMetadata, token);
+                    callback.SetCanceled(DefaultContext, token);
             }
 
             invokeCount.ShouldEqual(count);
@@ -195,22 +202,22 @@ namespace MugenMvvm.UnitTest.Navigation
         public void SetResultShouldThrow()
         {
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
-            callback.SetResult(DefaultMetadata);
+            callback.SetResult(DefaultContext);
 
-            ShouldThrow<InvalidOperationException>(() => callback.SetResult(DefaultMetadata));
-            ShouldThrow<InvalidOperationException>(() => callback.SetException(new Exception(), DefaultMetadata));
-            ShouldThrow<InvalidOperationException>(() => callback.SetCanceled(DefaultMetadata, CancellationToken.None));
+            ShouldThrow<InvalidOperationException>(() => callback.SetResult(DefaultContext));
+            ShouldThrow<InvalidOperationException>(() => callback.SetException(DefaultContext, new Exception()));
+            ShouldThrow<InvalidOperationException>(() => callback.SetCanceled(DefaultContext, CancellationToken.None));
         }
 
         [Fact]
         public void TrySetResultShouldReturnFalse()
         {
             var callback = new NavigationCallback(NavigationCallbackType.Close, "test", NavigationType.Alert);
-            callback.SetResult(DefaultMetadata);
+            callback.SetResult(DefaultContext);
 
-            callback.TrySetResult(DefaultMetadata).ShouldBeFalse();
-            callback.TrySetException(new Exception(), DefaultMetadata).ShouldBeFalse();
-            callback.TrySetCanceled(DefaultMetadata, CancellationToken.None).ShouldBeFalse();
+            callback.TrySetResult(DefaultContext).ShouldBeFalse();
+            callback.TrySetException(DefaultContext, new Exception()).ShouldBeFalse();
+            callback.TrySetCanceled(DefaultContext, CancellationToken.None).ShouldBeFalse();
         }
 
         #endregion

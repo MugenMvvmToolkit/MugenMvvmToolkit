@@ -16,12 +16,14 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         {
             var component = new NavigationContextProvider();
             var provider = new TestNavigationProvider();
+            var target = new object();
             var type = NavigationType.Alert;
             var id = "t";
             var mode = NavigationMode.Close;
             var metadata = new MetadataContext();
 
-            var context = component.TryGetNavigationContext(provider, id, type, mode, metadata)!;
+            var context = component.TryGetNavigationContext(target, provider, id, type, mode, metadata)!;
+            context.Target.ShouldEqual(target);
             context.NavigationProvider.ShouldEqual(provider);
             context.NavigationType.ShouldEqual(type);
             context.NavigationId.ShouldEqual(id);
