@@ -28,7 +28,7 @@ namespace MugenMvvm.Views
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IView view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
             GetComponents<IViewLifecycleDispatcherComponent>().OnLifecycleChanged(view, lifecycleState, state, metadata);
         }

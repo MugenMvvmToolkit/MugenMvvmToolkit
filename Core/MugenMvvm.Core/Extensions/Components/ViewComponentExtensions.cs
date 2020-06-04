@@ -14,7 +14,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged<TState>(this IViewLifecycleDispatcherComponent[] components, IView view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public static void OnLifecycleChanged<TState>(this IViewLifecycleDispatcherComponent[] components, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(view, nameof(view));

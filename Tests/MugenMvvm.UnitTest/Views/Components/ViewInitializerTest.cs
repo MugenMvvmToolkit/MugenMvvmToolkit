@@ -143,8 +143,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             {
                 var listener = new TestViewLifecycleDispatcherComponent
                 {
-                    OnLifecycleChanged = (v, s, st, t, m) =>
+                    OnLifecycleChanged = (vRaw, s, st, t, m) =>
                     {
+                        var v = (IView)vRaw;
                         if (!states.TryGetValue(s, out var list))
                         {
                             list = new List<ViewLifecycleState>();

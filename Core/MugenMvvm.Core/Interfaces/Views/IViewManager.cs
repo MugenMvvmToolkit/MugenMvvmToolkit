@@ -12,7 +12,7 @@ namespace MugenMvvm.Interfaces.Views
 {
     public interface IViewManager : IComponentOwner<IViewManager>, IComponent<IMugenApplication>
     {
-        void OnLifecycleChanged<TState>(IView view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
+        void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<IView, IReadOnlyList<IView>> GetViews<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
