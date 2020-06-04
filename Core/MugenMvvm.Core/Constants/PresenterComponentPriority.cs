@@ -4,8 +4,7 @@
     {
         #region Fields
 
-        public const int Default = 0;
-        public const int Modal = 1;
+        public const int Presenter = 0;
 
         #endregion
     }

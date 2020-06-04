@@ -62,6 +62,12 @@ namespace MugenMvvm
         }
 
         [DebuggerStepThrough]
+        public static void BeOfType<T>([NotNull]Type? type, string paramName)
+        {
+            BeOfType(type, paramName, typeof(T));
+        }
+
+        [DebuggerStepThrough]
         public static void BeOfType([NotNull]Type? type, string paramName, [NotNull]Type? requiredType)
         {
             NotBeNull(type, nameof(type));
