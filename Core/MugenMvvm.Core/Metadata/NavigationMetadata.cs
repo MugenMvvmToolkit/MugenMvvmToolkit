@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,8 +10,12 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
+        internal static readonly IMetadataContextKey<HashSet<string>, HashSet<string>> OpenedNavigationProviders = GetBuilder(OpenedNavigationProviders!, nameof(OpenedNavigationProviders))
+            .Serializable()
+            .Build();
+
         private static IMetadataContextKey<string, string>? _viewName;
-        private static IMetadataContextKey<bool, bool>? _isModal;
+        private static IMetadataContextKey<bool, bool>? _nonModal;
         private static IMetadataContextKey<DateTime, DateTime>? _navigationDate;
 
         #endregion
@@ -25,10 +30,10 @@ namespace MugenMvvm.Metadata
         }
 
         [AllowNull]
-        public static IMetadataContextKey<bool, bool> IsModal//todo review
+        public static IMetadataContextKey<bool, bool> NonModal
         {
-            get => _isModal ??= GetBuilder(_isModal, nameof(IsModal)).Serializable().Build();
-            set => _isModal = value;
+            get => _nonModal ??= GetBuilder(_nonModal, nameof(NonModal)).Serializable().Build();
+            set => _nonModal = value;
         }
 
         [AllowNull]

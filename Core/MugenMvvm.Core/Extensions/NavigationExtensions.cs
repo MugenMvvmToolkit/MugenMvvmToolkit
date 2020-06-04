@@ -6,6 +6,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
@@ -18,16 +19,21 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static PresenterResult GetPresenterResult(this INavigationProvider navigationProvider, NavigationType navigationType, IViewModelBase target, IReadOnlyMetadataContext? metadata)
+        public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, IViewModelBase viewModel, NavigationType navigationType, IReadOnlyMetadataContext? metadata = null)
         {
-            return new PresenterResult(target, navigationProvider.GetNavigationId(target), navigationProvider, navigationType, metadata);
+            return navigationProvider.GetPresenterResult(viewModel, navigationProvider.GetNavigationId(viewModel), navigationType, metadata);
         }
 
-        public static string GetNavigationId(this INavigationProvider navigationProvider, IViewModelBase target)
+        public static IPresenterResult GetPresenterResult(this INavigationProvider navigationProvider, object? target, string navigationId, NavigationType navigationType, IReadOnlyMetadataContext? metadata = null)
+        {
+            return new PresenterResult(target, navigationId, navigationProvider, navigationType, metadata);
+        }
+
+        public static string GetNavigationId(this INavigationProvider navigationProvider, IViewModelBase viewModel)
         {
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
-            Should.NotBeNull(target, nameof(target));
-            return $"{navigationProvider.Id}/{target.Metadata.Get(ViewModelMetadata.Id):N}";
+            Should.NotBeNull(viewModel, nameof(viewModel));
+            return $"{navigationProvider.Id}/{viewModel.Metadata.Get(ViewModelMetadata.Id):N}";
         }
 
         public static void OnNavigating<TState>(this INavigationDispatcher dispatcher, INavigationContext context, in TState state, Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
@@ -49,7 +55,7 @@ namespace MugenMvvm.Extensions
             return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetNavigationId(target), navigationType, navigationMode, metadata);
         }
 
-        public static Task WaitNavigationAsync(this INavigationDispatcher dispatcher, Func<INavigationCallback, bool> filter, IReadOnlyMetadataContext? metadata = null)
+        public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, in TState state, Func<INavigationCallback, TState, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
@@ -61,7 +67,7 @@ namespace MugenMvvm.Extensions
                 for (var j = 0; j < callbacks.Count(); j++)
                 {
                     var callback = callbacks.Get(j);
-                    if (filter(callback))
+                    if (filter(callback, state))
                         tasks.Add(callback.AsTask());
                 }
             }

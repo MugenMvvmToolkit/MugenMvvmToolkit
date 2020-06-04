@@ -17,12 +17,11 @@ namespace MugenMvvm.Enums
 
         public static readonly NavigationMode Undefined = new NavigationMode(nameof(Undefined));
         public static readonly NavigationMode New = new NavigationMode(nameof(New)) { IsNew = true };
-        public static readonly NavigationMode Back = new NavigationMode(nameof(Back)) { IsClose = true, IsBack = true };
-        public static readonly NavigationMode Close = new NavigationMode(nameof(Close)) { IsClose = true };
         public static readonly NavigationMode Refresh = new NavigationMode(nameof(Refresh)) { IsRefresh = true };
+        public static readonly NavigationMode Restore = new NavigationMode(nameof(Restore)) { IsRefresh = true, IsRestore = true };
+        public static readonly NavigationMode Close = new NavigationMode(nameof(Close)) { IsClose = true };
         public static readonly NavigationMode Background = new NavigationMode(nameof(Background)) { IsBackground = true };
         public static readonly NavigationMode Foreground = new NavigationMode(nameof(Foreground)) { IsForeground = true };
-        public static readonly NavigationMode Restore = new NavigationMode(nameof(Restore)) { IsRefresh = true, IsRestore = true };
 
         #endregion
 
@@ -48,9 +47,6 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "n")]
         public bool IsNew { get; protected set; }
-
-        [DataMember(Name = "b")]
-        public bool IsBack { get; protected set; }
 
         [DataMember(Name = "r")]
         public bool IsRefresh { get; protected set; }

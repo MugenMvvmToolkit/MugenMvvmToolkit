@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         [InlineData(false)]
         public void OnNavigatedShouldInvokeCallbacks(bool close)
         {
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, close ? NavigationMode.Back : NavigationMode.New);
+            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, close ? NavigationMode.Close : NavigationMode.New);
             var callbackTypes = new List<NavigationCallbackType>();
             var dispatcher = new NavigationDispatcher();
             dispatcher.AddComponent(new TestNavigationCallbackManagerComponent
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         public void OnNavigationFailedShouldInvokeCallbacks(bool close)
         {
             var exception = new Exception();
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, close ? NavigationMode.Back : NavigationMode.New);
+            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, close ? NavigationMode.Close : NavigationMode.New);
             var callbackTypes = new List<NavigationCallbackType>();
             var dispatcher = new NavigationDispatcher();
             dispatcher.AddComponent(new TestNavigationCallbackManagerComponent
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         public void OnNavigationCanceledShouldInvokeCallbacks(bool close)
         {
             var token = new CancellationTokenSource().Token;
-            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, close ? NavigationMode.Back : NavigationMode.New);
+            var navigationContext = new NavigationContext(this, Default.NavigationProvider, "t", NavigationType.Popup, close ? NavigationMode.Close : NavigationMode.New);
             var callbackTypes = new List<NavigationCallbackType>();
             var dispatcher = new NavigationDispatcher();
             dispatcher.AddComponent(new TestNavigationCallbackManagerComponent
