@@ -118,7 +118,7 @@ namespace MugenMvvm
 
             private static TService? _service;
             private static IHasService<TService>? _serviceConfiguration;
-            private static IHasServiceOptional<TService>? _serviceConfigurationOptional;
+            private static IHasOptionalService<TService>? _serviceConfigurationOptional;
 
             #endregion
 
@@ -145,7 +145,7 @@ namespace MugenMvvm
                         return _service;
 
                     if (_serviceConfigurationOptional != null)
-                        return _serviceConfigurationOptional.ServiceOptional;
+                        return _serviceConfigurationOptional.Service;
 
                     if (_serviceConfiguration != null)
                         return _serviceConfiguration.Service;
@@ -162,7 +162,7 @@ namespace MugenMvvm
             {
                 _service = null;
                 _serviceConfiguration = serviceConfiguration;
-                _serviceConfigurationOptional = serviceConfiguration as IHasServiceOptional<TService>;
+                _serviceConfigurationOptional = serviceConfiguration as IHasOptionalService<TService>;
             }
 
             public static void Initialize(TService service)

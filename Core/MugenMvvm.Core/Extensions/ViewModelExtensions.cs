@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Linq;
+using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -28,17 +30,19 @@ namespace MugenMvvm.Extensions
             return service != null && service.Unsubscribe(subscriber, metadata);
         }
 
-        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class//todo add components support?
+        public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class
         {
             if (viewModel is IHasService<TService> hasService)
                 return hasService.Service;
+            if (viewModel is IComponentOwner owner && owner.HasComponents)
+                return owner.Components.Get<TService>().FirstOrDefault();
             return null;
         }
 
-        public static TService? TryGetServiceOptional<TService>(this IViewModelBase viewModel) where TService : class
+        public static TService? TryGetOptionalService<TService>(this IViewModelBase viewModel) where TService : class
         {
-            if (viewModel is IHasServiceOptional<TService> hasServiceOptional)
-                return hasServiceOptional.ServiceOptional;
+            if (viewModel is IHasOptionalService<TService> hasOptionalService)
+                return hasOptionalService.Service;
             return viewModel.TryGetService<TService>();
         }
 
