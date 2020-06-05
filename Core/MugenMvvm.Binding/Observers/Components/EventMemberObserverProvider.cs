@@ -58,38 +58,38 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
+        public static IEventInfo? TryFindEventByMember(IMemberManager? memberManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(type, nameof(type));
+            Should.NotBeNull(member, nameof(member));
+            string memberName;
+            MemberFlags flags;
+            if (member is MemberInfo m)
+            {
+                flags = m.GetAccessModifiers();
+                memberName = m.Name;
+            }
+            else if (member is IMemberInfo memberInfo)
+            {
+                flags = memberInfo.AccessModifiers;
+                memberName = memberInfo.Name;
+            }
+            else
+                return null;
+
+            memberManager = memberManager.DefaultIfNull();
+            return memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IEventInfo
+                   ?? memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IEventInfo;
+        }
+
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
+            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
         }
 
         private MemberObserver TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
         {
-            IEventInfo? eventInfo;
-            if (EventFinder == null)
-            {
-                string memberName;
-                MemberFlags flags;
-                if (member is MemberInfo m)
-                {
-                    flags = m.GetAccessModifiers();
-                    memberName = m.Name;
-                }
-                else if (member is IMemberInfo memberInfo)
-                {
-                    flags = memberInfo.AccessModifiers;
-                    memberName = memberInfo.Name;
-                }
-                else
-                    return default;
-
-                var manager = _memberManager.DefaultIfNull();
-                eventInfo = manager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IEventInfo
-                            ?? manager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IEventInfo;
-            }
-            else
-                eventInfo = EventFinder(type, member, metadata);
-
+            var eventInfo = EventFinder?.Invoke(type, member, metadata) ?? TryFindEventByMember(_memberManager, type, member, metadata);
             if (eventInfo == null)
                 return default;
             return new MemberObserver(MemberObserverHandler, eventInfo);
