@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -55,7 +56,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             object? view;
             IViewModelBase? viewModel;
@@ -88,7 +89,7 @@ namespace MugenMvvm.Presenters.Components
             return result.Cast<IReadOnlyList<IPresenterResult>>();
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TRequest>() || !(request is IViewModelBase viewModel))
                 return default;
@@ -131,7 +132,7 @@ namespace MugenMvvm.Presenters.Components
             return new ActionToken(_removeHandlerFalse, mediatorType, viewType);
         }
 
-        private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators<TRequest>(IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
+        private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (viewModel == null)
                 return default;

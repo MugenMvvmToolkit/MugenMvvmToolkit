@@ -31,11 +31,7 @@ namespace MugenMvvm.Metadata
         [AllowNull]
         public static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState> LifecycleState
         {
-            get => _lifecycleState ??= GetBuilder(_lifecycleState, nameof(LifecycleState))
-                .NotNull()
-                .Serializable()
-                .DefaultValue(ViewModelLifecycleState.Disposed)
-                .Build();
+            get => _lifecycleState ??= GetBuilder(_lifecycleState, nameof(LifecycleState)).NotNull().Build();
             set => _lifecycleState = value;
         }
 
@@ -44,7 +40,7 @@ namespace MugenMvvm.Metadata
         {
             get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
                 .Serializable()
-                .Getter((context, k, o) => (IViewModelBase?) (o as IWeakReference)?.Target)
+                .Getter((context, k, o) => (IViewModelBase?)(o as IWeakReference)?.Target)
                 .Setter((context, k, oldValue, newValue) => newValue?.ToWeakReference())
                 .Build();
             set => _parentViewModel = value;
