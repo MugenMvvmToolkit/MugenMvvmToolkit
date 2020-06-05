@@ -46,6 +46,9 @@ namespace MugenMvvm.Extensions
                 return method != null && method.IsStatic;
             }
 
+            if (member is Type type)
+                return type.IsAbstract && type.IsSealed;
+
             if (member is EventInfo eventInfo)
             {
                 var method = (eventInfo.AddMethod ?? eventInfo.RemoveMethod);

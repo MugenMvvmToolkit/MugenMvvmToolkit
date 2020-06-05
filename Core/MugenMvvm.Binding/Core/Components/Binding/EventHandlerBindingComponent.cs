@@ -96,7 +96,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             CommandParameter = default;
         }
 
-        bool IEventListener.TryHandle(object sender, object? message)
+        bool IEventListener.TryHandle(object? sender, object? message)
         {
             var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             try

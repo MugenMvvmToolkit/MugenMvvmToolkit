@@ -281,7 +281,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             }
         }
 
-        public static void OnBeginEvent(this IBindingEventHandlerComponent[] components, object sender, object? message, IReadOnlyMetadataContext? metadata)
+        public static void OnBeginEvent(this IBindingEventHandlerComponent[] components, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(sender, nameof(sender));
@@ -289,7 +289,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnBeginEvent(sender, message, metadata);
         }
 
-        public static void OnEndEvent(this IBindingEventHandlerComponent[] components, object sender, object? message, IReadOnlyMetadataContext? metadata)
+        public static void OnEndEvent(this IBindingEventHandlerComponent[] components, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(sender, nameof(sender));
@@ -297,7 +297,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnEndEvent(sender, message, metadata);
         }
 
-        public static void OnEventError(this IBindingEventHandlerComponent[] components, Exception exception, object sender, object? message, IReadOnlyMetadataContext? metadata)
+        public static void OnEventError(this IBindingEventHandlerComponent[] components, Exception exception, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(exception, nameof(exception));

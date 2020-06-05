@@ -13,13 +13,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Internal
 
         public int InvokeCount { get; set; }
 
-        public Func<object, object?, bool>? TryHandle { get; set; }
+        public Func<object?, object?, bool>? TryHandle { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        bool IEventListener.TryHandle(object sender, object? message)
+        bool IEventListener.TryHandle(object? sender, object? message)
         {
             ++InvokeCount;
             return TryHandle?.Invoke(sender, message) ?? true;
