@@ -52,11 +52,7 @@ namespace MugenMvvm.Binding.Observers.Components
                 return default;
             if (member is IMemberInfo memberInfo && memberInfo.MemberType == MemberType.Event)
                 return default;
-
-            var eventInfo = EventFinder == null ? TryFindEventByMember(_memberManager, type, member, metadata) : EventFinder.Invoke(type, member, metadata);
-            if (eventInfo == null)
-                return default;
-            return new MemberObserver(MemberObserverHandler, eventInfo);
+            return TryGetMemberObserverInternal(type, member, metadata);
         }
 
         #endregion
@@ -67,6 +63,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
+            memberManager = memberManager.DefaultIfNull();
             string memberName;
             MemberFlags flags;
             if (member is MemberInfo m)
@@ -80,18 +77,25 @@ namespace MugenMvvm.Binding.Observers.Components
                 memberName = memberInfo.Name;
             }
             else if (member is string st)
-                return memberManager.DefaultIfNull().GetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IEventInfo;
+                return memberManager.GetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IEventInfo;
             else
                 return null;
 
-            memberManager = memberManager.DefaultIfNull();
             return memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IEventInfo
                    ?? memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IEventInfo;
         }
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
+            return ((IEventInfo)member).TrySubscribe(target, listener, metadata);
+        }
+
+        private MemberObserver TryGetMemberObserverInternal(Type type, object member, IReadOnlyMetadataContext? metadata)
+        {
+            var eventInfo = EventFinder?.Invoke(type, member, metadata) ?? TryFindEventByMember(_memberManager, type, member, metadata);
+            if (eventInfo == null)
+                return default;
+            return new MemberObserver(MemberObserverHandler, eventInfo);
         }
 
         #endregion
