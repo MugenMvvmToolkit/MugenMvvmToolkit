@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Internal;
@@ -13,6 +14,7 @@ namespace MugenMvvm.Extensions
         public const int CacheSize = 50;
         public static readonly object TrueObject = true;
         public static readonly object FalseObject = false;
+        public static readonly MethodInfo GenericBoxMethodInfo = GetBoxMethodInfo();
 
         private static readonly TypeLightDictionary<Delegate> BoxingDelegates = new TypeLightDictionary<Delegate>(9)
         {
@@ -207,6 +209,31 @@ namespace MugenMvvm.Extensions
             if (BoxingTypeChecker<T>.IsBoxRequired)
                 return ((BoxingDelegate<T>)BoxingDelegates[typeof(T)]).Invoke(value!);
             return value;
+        }
+
+        public static bool CanBox<T>()
+        {
+            return BoxingTypeChecker<T>.IsBoxRequired;
+        }
+
+        public static bool CanBox(Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            return BoxingDelegates.ContainsKey(type);
+        }
+
+        private static MethodInfo GetBoxMethodInfo()
+        {
+            var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public);
+            for (int i = 0; i < methods.Length; i++)
+            {
+                var method = methods[i];
+                if (method.Name == nameof(Box) && method.IsGenericMethod)
+                    return method;
+            }
+
+            Should.BeSupported(false, typeof(BoxingExtensions).Name + "." + nameof(Box));
+            return null!;
         }
 
         #endregion

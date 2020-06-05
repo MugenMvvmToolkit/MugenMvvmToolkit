@@ -175,6 +175,8 @@ namespace MugenMvvm.Extensions
                 return expression;
             if (type.IsByRef && expression is ParameterExpression parameterExpression && parameterExpression.IsByRef && parameterExpression.Type == type.GetElementType())
                 return expression;
+            if (type == typeof(object) && BoxingExtensions.CanBox(expression.Type))
+                return Expression.Call(null, BoxingExtensions.GenericBoxMethodInfo.MakeGenericMethod(expression.Type), expression);
             return Expression.Convert(expression, type);
         }
 
