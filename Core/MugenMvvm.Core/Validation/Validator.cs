@@ -44,8 +44,6 @@ namespace MugenMvvm.Validation
 
         public IMetadataContext Metadata => _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
 
-        public bool HasErrors => GetComponents<IValidatorComponent>().HasErrors();
-
         public bool IsDisposed => _state == DisposedState;
 
         #endregion
@@ -77,6 +75,11 @@ namespace MugenMvvm.Validation
             base.GetComponents<IDisposable>().Dispose();
             this.ClearComponents();
             this.ClearMetadata(true);
+        }
+
+        public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            return GetComponents<IValidatorComponent>(metadata).HasErrors(memberName, metadata);
         }
 
         public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)

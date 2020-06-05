@@ -58,29 +58,38 @@ namespace MugenMvvm.UnitTest.Validation
         [InlineData(10)]
         public void HasErrorsShouldBeHandledByComponents(int componentCount)
         {
+            string? expectedMember = null;
             var count = 0;
             var hasErrors = false;
             var validator = GetComponentOwner();
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors().ShouldBeFalse();
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestValidatorComponent
                 {
-                    HasErrors = () =>
+                    HasErrors = (s, m) =>
                     {
                         ++count;
+                        s.ShouldEqual(expectedMember);
+                        m.ShouldEqual(DefaultMetadata);
                         return hasErrors;
-                    }
+                    },
+                    Priority = -i
                 };
                 validator.AddComponent(component);
             }
 
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors(expectedMember, DefaultMetadata).ShouldBeFalse();
+            count.ShouldEqual(componentCount);
+
+            count = 0;
+            expectedMember = "t";
+            validator.HasErrors(expectedMember, DefaultMetadata).ShouldBeFalse();
             count.ShouldEqual(componentCount);
 
             count = 0;
             hasErrors = true;
-            validator.HasErrors.ShouldBeTrue();
+            validator.HasErrors(expectedMember, DefaultMetadata).ShouldBeTrue();
             count.ShouldEqual(1);
         }
 

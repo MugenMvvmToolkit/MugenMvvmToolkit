@@ -9,7 +9,7 @@ namespace MugenMvvm.Interfaces.Validation.Components
 {
     public interface IValidatorComponent : IComponent<IValidator>
     {
-        bool HasErrors { get; }
+        bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<object, IReadOnlyList<object>> TryGetErrors(string? memberName, IReadOnlyMetadataContext? metadata);
 

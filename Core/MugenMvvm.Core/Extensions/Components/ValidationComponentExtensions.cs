@@ -125,12 +125,12 @@ namespace MugenMvvm.Extensions.Components
                 components[i].ClearErrors(memberName, metadata);
         }
 
-        public static bool HasErrors(this IValidatorComponent[] components)
+        public static bool HasErrors(this IValidatorComponent[] components, string? memberName, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].HasErrors)
+                if (components[i].HasErrors(memberName, metadata))
                     return true;
             }
 

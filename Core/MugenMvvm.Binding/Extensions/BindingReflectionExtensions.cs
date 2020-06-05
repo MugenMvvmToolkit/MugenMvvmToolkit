@@ -13,7 +13,11 @@ namespace MugenMvvm.Binding.Extensions
 {
     public static partial class MugenBindingExtensions
     {
+        #region Fields
+
         private static readonly TypeLightDictionary<object?> DefaultValueCache = new TypeLightDictionary<object?>(23);
+
+        #endregion
 
         #region Methods
 
@@ -246,7 +250,7 @@ namespace MugenMvvm.Binding.Extensions
             return st == tt;
         }
 
-        public static Type GetTargetType([MaybeNull]ref Expression target)
+        public static Type GetTargetType([MaybeNull] ref Expression target)
         {
             var type = target.Type;
             if (target is ConstantExpression constant && constant.Value is Type value)
@@ -309,7 +313,8 @@ namespace MugenMvvm.Binding.Extensions
             return method.GetAccessModifiers(false, ref parameters);
         }
 
-        public static MemberFlags GetAccessModifiers(this MethodBase? method, bool checkExtension, [NotNullIfNotNull("extensionParameters")]ref ParameterInfo[]? extensionParameters)
+        public static MemberFlags GetAccessModifiers(this MethodBase? method, bool checkExtension, [NotNullIfNotNull("extensionParameters")]
+            ref ParameterInfo[]? extensionParameters)
         {
             if (method == null)
                 return MemberFlags.Instance;
@@ -323,6 +328,7 @@ namespace MugenMvvm.Binding.Extensions
                 if (extensionParameters.Length != 0)
                     return method.IsPublic ? MemberFlags.Extension | MemberFlags.Public : MemberFlags.Extension | MemberFlags.NonPublic;
             }
+
             return method.IsPublic ? MemberFlags.StaticPublic : MemberFlags.StaticNonPublic;
         }
 

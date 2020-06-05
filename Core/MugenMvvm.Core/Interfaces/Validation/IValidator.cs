@@ -10,7 +10,7 @@ namespace MugenMvvm.Interfaces.Validation
 {
     public interface IValidator : IComponentOwner<IValidator>, IMetadataOwner<IMetadataContext>, IDisposable
     {
-        bool HasErrors { get; }
+        bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null);
 

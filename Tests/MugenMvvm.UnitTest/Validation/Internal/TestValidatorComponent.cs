@@ -13,9 +13,7 @@ namespace MugenMvvm.UnitTest.Validation.Internal
     {
         #region Properties
 
-        bool IValidatorComponent.HasErrors => HasErrors?.Invoke() ?? false;
-
-        public Func<bool>? HasErrors { get; set; }
+        public Func<string?, IReadOnlyMetadataContext?, bool>? HasErrors { get; set; }
 
         public Action? Dispose { get; set; }
 
@@ -36,6 +34,11 @@ namespace MugenMvvm.UnitTest.Validation.Internal
         void IDisposable.Dispose()
         {
             Dispose?.Invoke();
+        }
+
+        bool IValidatorComponent.HasErrors(string? memberName, IReadOnlyMetadataContext? metadata)
+        {
+            return HasErrors?.Invoke(memberName, metadata) ?? false;
         }
 
         ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(string? memberName, IReadOnlyMetadataContext? metadata)

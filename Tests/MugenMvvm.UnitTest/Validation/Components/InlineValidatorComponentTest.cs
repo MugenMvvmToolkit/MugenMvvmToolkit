@@ -16,15 +16,17 @@ namespace MugenMvvm.UnitTest.Validation.Components
             var memberName = "test";
             var errors = new object[] { "test" };
             var validator = new InlineValidatorComponent(this);
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors().ShouldBeFalse();
 
             validator.SetErrors(memberName, errors);
-            validator.HasErrors.ShouldBeTrue();
+            validator.HasErrors(memberName).ShouldBeTrue();
+            validator.HasErrors().ShouldBeTrue();
 
             validator.TryGetErrors(memberName).AsList().ShouldContain(errors);
 
             validator.SetErrors(memberName, null, DefaultMetadata);
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors(memberName).ShouldBeFalse();
+            validator.HasErrors().ShouldBeFalse();
             validator.TryGetErrors().ShouldBeEmpty();
         }
 
@@ -37,24 +39,28 @@ namespace MugenMvvm.UnitTest.Validation.Components
 
             var memberName = "test";
             var errors = new object[] { "test" };
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors().ShouldBeFalse();
 
             validator.SetErrors(this, memberName, errors);
-            validator.HasErrors.ShouldBeTrue();
+            validator.HasErrors(memberName).ShouldBeTrue();
+            validator.HasErrors().ShouldBeTrue();
             validator.GetErrors(memberName).AsList().ShouldContain(errors);
 
             validator.SetErrors(this, memberName, null, DefaultMetadata);
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors(memberName).ShouldBeFalse();
+            validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
             validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(1);
 
             validator.SetErrors(validator, memberName, errors);
-            validator.HasErrors.ShouldBeTrue();
+            validator.HasErrors(memberName).ShouldBeTrue();
+            validator.HasErrors().ShouldBeTrue();
             validator.GetErrors(memberName).AsList().ShouldContain(errors);
             validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(2);
 
             validator.SetErrors(validator, memberName, null, DefaultMetadata);
-            validator.HasErrors.ShouldBeFalse();
+            validator.HasErrors(memberName).ShouldBeFalse();
+            validator.HasErrors().ShouldBeFalse();
             validator.GetErrors().ShouldBeEmpty();
             validator.GetComponents<InlineValidatorComponent>().Length.ShouldEqual(2);
         }
