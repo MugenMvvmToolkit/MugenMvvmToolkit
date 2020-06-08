@@ -428,7 +428,7 @@ namespace MugenMvvm.UnitTest.Components
                 throw new NotSupportedException();
             }
 
-            public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
+            public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
             {
                 throw new NotSupportedException();
             }

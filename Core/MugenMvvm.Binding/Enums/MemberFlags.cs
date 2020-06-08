@@ -11,7 +11,7 @@ namespace MugenMvvm.Binding.Enums
         Static = 1 << 2,
         Instance = 1 << 3,
         Attached = 1 << 4,
-        Dynamic = Instance | 1 << 5,
+        Dynamic = 1 << 5,
         Extension = Instance | 1 << 6,
 
         InstancePublic = Instance | Public,

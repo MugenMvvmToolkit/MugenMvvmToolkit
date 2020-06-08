@@ -21,7 +21,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool TryExecute<TState>(this IThreadDispatcherComponent[] components, ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
+        public static bool TryExecute<TState>(this IThreadDispatcherComponent[] components, ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(executionMode, nameof(executionMode));

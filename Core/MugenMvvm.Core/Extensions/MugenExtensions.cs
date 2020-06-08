@@ -53,7 +53,7 @@ namespace MugenMvvm.Extensions
             threadDispatcher.DefaultIfNull().Execute<object?>(executionMode, action, null, metadata);
         }
 
-        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, TState state, Action<TState> action, IReadOnlyMetadataContext? metadata = null)
+        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, in TState state, Action<TState> action, IReadOnlyMetadataContext? metadata = null)
         {
             threadDispatcher.DefaultIfNull().Execute(executionMode, action, state, metadata);
         }

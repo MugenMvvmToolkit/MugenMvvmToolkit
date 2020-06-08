@@ -2,8 +2,8 @@
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface INotifiableMemberInfo : IMemberInfo
+    public interface INotifiableMemberInfo : IObservableMemberInfo
     {
-        void Raise(object? target, object? message, IReadOnlyMetadataContext? metadata = null);
+        void Raise(object? target, object? message, IReadOnlyMetadataContext? metadata = null);//todo message generic?
     }
 }

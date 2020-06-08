@@ -14,7 +14,7 @@ namespace MugenMvvm.Internal.Components
 
         public abstract bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
 
-        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate) where TItem : class
+        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> TryGetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
@@ -78,7 +78,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -98,7 +98,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
+        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory,
             UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
@@ -135,7 +135,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
+        public virtual TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));

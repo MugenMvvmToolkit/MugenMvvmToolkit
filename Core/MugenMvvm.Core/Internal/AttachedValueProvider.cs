@@ -30,7 +30,7 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null) where TItem : class
+        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null) where TItem : class
         {
             return GetComponentOptional(item)?.TryGetValues(item, state, predicate) ?? default;
         }
@@ -53,12 +53,12 @@ namespace MugenMvvm.Internal
             return component != null && component.Contains(item, path);
         }
 
-        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             return GetComponent(item).AddOrUpdate(item, path, addValue, state, updateValueFactory);
         }
 
-        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
         {
             return GetComponent(item).AddOrUpdate(item, path, state, addValueFactory, updateValueFactory);
         }
@@ -68,7 +68,7 @@ namespace MugenMvvm.Internal
             return GetComponent(item).GetOrAdd(item, path, value);
         }
 
-        public TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
+        public TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
         {
             return GetComponent(item).GetOrAdd(item, path, state, valueFactory);
         }

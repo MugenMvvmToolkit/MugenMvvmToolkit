@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         protected override void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             ActionToken unsubscriber = default;
-            if (lastMember is IObservableMemberInfo observable)
+            if (lastMember != null && lastMember.MemberType != MemberType.Event && lastMember is IObservableMemberInfo observable)
                 unsubscriber = observable.TryObserve(target, GetLastMemberListener(), metadata);
             if (unsubscriber.IsEmpty)
                 _listeners[_listeners.Length - 1] = ActionToken.NoDoToken;

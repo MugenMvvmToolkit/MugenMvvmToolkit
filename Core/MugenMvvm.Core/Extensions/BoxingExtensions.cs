@@ -211,6 +211,13 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
+        public static void AddBoxHandler<T>(BoxingDelegate<T> handler) where T : struct
+        {
+            Should.NotBeNull(handler, nameof(handler));
+            BoxingDelegates[typeof(T)] = handler;
+            BoxingTypeChecker<T>.IsBoxRequired = true;
+        }
+
         public static bool CanBox<T>()
         {
             return BoxingTypeChecker<T>.IsBoxRequired;
@@ -240,13 +247,13 @@ namespace MugenMvvm.Extensions
 
         #region Nested types
 
-        private delegate object? BoxingDelegate<T>(T value);
+        public delegate object? BoxingDelegate<T>(T value);
 
         private static class BoxingTypeChecker<T>
         {
             #region Fields
 
-            public static readonly bool IsBoxRequired = BoxingDelegates.ContainsKey(typeof(T));
+            public static bool IsBoxRequired = BoxingDelegates.ContainsKey(typeof(T));
 
             #endregion
         }

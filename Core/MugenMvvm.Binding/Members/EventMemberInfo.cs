@@ -10,7 +10,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class EventMemberInfo : IEventInfo
+    public sealed class EventMemberInfo : IObservableMemberInfo
     {
         #region Fields
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public ActionToken TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+        public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             return _observer.TryObserve(target, listener!, metadata);
         }

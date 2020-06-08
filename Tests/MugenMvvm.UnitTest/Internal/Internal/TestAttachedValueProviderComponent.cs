@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return IsSupported?.Invoke(item, metadata) ?? false;
         }
 
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.TryGetValues<TItem, TState>(TItem item, TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.TryGetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
         {
             return TryGetValues!.Invoke(item, typeof(TItem), state, typeof(TState),
                 predicate == null ? (Func<object, KeyValuePair<string, object?>, object, bool>?)null : (o, pair, arg3) => predicate!((TItem)o, pair, (TState)arg3));
@@ -67,13 +67,13 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return Contains!.Invoke(item, path);
         }
 
-        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
+        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
         {
             return (TValue)AddOrUpdate!.Invoke(item, typeof(TItem), path, addValue, typeof(TValue), state, typeof(TState),
                 (o, value, currentValue, state1) => updateValueFactory((TItem)o!, (TValue)value!, (TValue)currentValue!, (TState)state1!))!;
         }
 
-        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> addValueFactory,
+        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory,
             UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
         {
             Func<object?, object?, object?> func = (o, o1) => addValueFactory((TItem)o!, (TState)o1!);
@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return (TValue)GetOrAdd!.Invoke(item, path, value, typeof(TValue))!;
         }
 
-        TValue IAttachedValueProviderComponent.GetOrAdd<TItem, TValue, TState>(TItem item, string path, TState state, Func<TItem, TState, TValue> valueFactory)
+        TValue IAttachedValueProviderComponent.GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)
         {
             return (TValue)GetOrAdd1!.Invoke(item, typeof(TItem), path, state, typeof(TState), typeof(TValue), (o, o1) => valueFactory((TItem)o!, (TState)o1!))!;
         }

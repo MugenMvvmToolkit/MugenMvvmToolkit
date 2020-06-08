@@ -10,10 +10,10 @@ namespace MugenMvvm.Binding
         {
             #region Fields
 
-            public static readonly BindableAccessorDescriptor<object, object?> Root = "R";
-            public static readonly BindableAccessorDescriptor<object, object?> Parent = nameof(Parent);
-            public static readonly BindableAccessorDescriptor<object, object?> DataContext = nameof(DataContext);
-            public static readonly BindableAccessorDescriptor<object, object?> Enabled = nameof(Enabled);
+            public static readonly BindablePropertyDescriptor<object, object?> Root = "R";
+            public static readonly BindablePropertyDescriptor<object, object?> Parent = nameof(Parent);
+            public static readonly BindablePropertyDescriptor<object, object?> DataContext = nameof(DataContext);
+            public static readonly BindablePropertyDescriptor<object, object?> Enabled = nameof(Enabled);
             public static readonly BindableMethodDescriptor<object> ElementSource = "ElementSource";
             public static readonly BindableMethodDescriptor<object> RelativeSource = "RelativeSource";
             public static readonly BindableMethodDescriptor<object> FindByName = "#FindByName";

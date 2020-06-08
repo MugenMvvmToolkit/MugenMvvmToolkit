@@ -1,17 +1,14 @@
-﻿using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
+﻿using MugenMvvm.Binding.Enums;
 
 namespace MugenMvvm.UnitTest.Binding.Members.Internal
 {
-    public class TestEventInfo : TestMemberInfoBase, IEventInfo
+    public class TestEventInfo : TestMemberInfoBase
     {
-        #region Implementation of interfaces
+        #region Constructors
 
-        ActionToken IEventInfo.TrySubscribe(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)
+        public TestEventInfo()
         {
-            return TryObserve?.Invoke(target, listener, metadata) ?? default;
+            MemberType = MemberType.Event;
         }
 
         #endregion

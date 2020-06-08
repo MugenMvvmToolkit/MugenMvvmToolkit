@@ -11,7 +11,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest, TState>(this IWrapperManager wrapperManager, TState state,
+        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest, TState>(this IWrapperManager wrapperManager, in TState state,
             Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> condition,
             Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
         {

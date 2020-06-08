@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.Threading
     {
         bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null);
 
-        void Execute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata = null);
+        void Execute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata = null);
     }
 }

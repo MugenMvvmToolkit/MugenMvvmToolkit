@@ -46,7 +46,7 @@ namespace MugenMvvm.Threading.Components
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
+        public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (CanExecuteInline(executionMode, metadata))
                 return ExecuteInline(handler, state);
@@ -61,7 +61,7 @@ namespace MugenMvvm.Threading.Components
 
         #region Methods
 
-        private static bool ExecuteBackground<TState>(object handler, TState state)
+        private static bool ExecuteBackground<TState>(object handler, in TState state)
         {
             if (handler is WaitCallback waitCallback)
             {
@@ -96,7 +96,7 @@ namespace MugenMvvm.Threading.Components
             return false;
         }
 
-        private bool ExecuteMainThread<TState>(object handler, TState state)
+        private bool ExecuteMainThread<TState>(object handler, in TState state)
         {
             if (handler is SendOrPostCallback callback)
             {
@@ -131,7 +131,7 @@ namespace MugenMvvm.Threading.Components
             return false;
         }
 
-        private static bool ExecuteInline<TState>(object handler, TState state)
+        private static bool ExecuteInline<TState>(object handler, in TState state)
         {
             if (handler is Action action)
             {

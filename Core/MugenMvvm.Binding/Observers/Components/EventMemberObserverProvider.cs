@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public int Priority { get; set; } = ObserverComponentPriority.Event;
 
-        public Func<Type, object, IReadOnlyMetadataContext?, IEventInfo?>? EventFinder { get; set; }
+        public Func<Type, object, IReadOnlyMetadataContext?, IObservableMemberInfo?>? EventFinder { get; set; }
 
         #endregion
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Methods
 
-        public static IEventInfo? TryFindEventByMember(IMemberManager? memberManager, Type type, object member, IReadOnlyMetadataContext? metadata)
+        public static IObservableMemberInfo? TryFindEventByMember(IMemberManager? memberManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(member, nameof(member));
@@ -80,18 +80,18 @@ namespace MugenMvvm.Binding.Observers.Components
                 memberName = memberInfo.Name;
             }
             else if (member is string st)
-                return memberManager.DefaultIfNull().GetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IEventInfo;
+                return memberManager.DefaultIfNull().GetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IObservableMemberInfo;
             else
                 return null;
 
             memberManager = memberManager.DefaultIfNull();
-            return memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IEventInfo
-                   ?? memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IEventInfo;
+            return memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IObservableMemberInfo
+                   ?? memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IObservableMemberInfo;
         }
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            return ((IEventInfo) member).TrySubscribe(target, listener, metadata);
+            return ((IObservableMemberInfo) member).TryObserve(target, listener, metadata);
         }
 
         #endregion

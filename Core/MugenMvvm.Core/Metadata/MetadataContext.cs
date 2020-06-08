@@ -137,7 +137,7 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory)
+        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, in TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(updateValueFactory, nameof(updateValueFactory));
@@ -170,7 +170,7 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, newValue);
         }
 
-        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory,
+        public TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, in TState state, Func<IMetadataContext, TState, TSet> valueFactory,
             UpdateValueDelegate<IMetadataContext, TGet, TState, TSet> updateValueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
@@ -228,7 +228,7 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, rawValue);
         }
 
-        public TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TState state, Func<IMetadataContext, TState, TSet> valueFactory)
+        public TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, in TState state, Func<IMetadataContext, TState, TSet> valueFactory)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             Should.NotBeNull(valueFactory, nameof(valueFactory));

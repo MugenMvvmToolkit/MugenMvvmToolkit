@@ -23,7 +23,7 @@ namespace MugenMvvm.Wrapping.Components
         #region Constructors
 
         public DelegateWrapperManager(Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> condition,
-            Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, [AllowNull] TState state)
+            Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, [AllowNull]in TState state)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(wrapperFactory, nameof(wrapperFactory));

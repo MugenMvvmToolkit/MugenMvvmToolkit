@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Threading.Internal
             return CanExecuteInline?.Invoke(executionMode, metadata) ?? true;
         }
 
-        bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata)
+        bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (TryExecute != null)
                 return TryExecute(executionMode, handler, state, typeof(TState), metadata);

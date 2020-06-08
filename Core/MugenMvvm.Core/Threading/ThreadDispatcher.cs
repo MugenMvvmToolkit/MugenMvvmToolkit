@@ -25,7 +25,7 @@ namespace MugenMvvm.Threading
             return GetComponents<IThreadDispatcherComponent>().CanExecuteInline(executionMode, metadata);
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata = null)
+        public void Execute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
             if (!GetComponents<IThreadDispatcherComponent>().TryExecute(executionMode, handler, state, metadata))
                 ExceptionManager.ThrowObjectNotInitialized(this);

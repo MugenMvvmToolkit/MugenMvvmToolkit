@@ -180,7 +180,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         protected virtual void SubscribeLastMember(object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata)
         {
             _lastMemberUnsubscriber.Dispose();
-            if (lastMember is IObservableMemberInfo observable)
+            if (lastMember != null && lastMember.MemberType != MemberType.Event && lastMember is IObservableMemberInfo observable)
                 _lastMemberUnsubscriber = observable.TryObserve(target, this, metadata);
             if (_lastMemberUnsubscriber.IsEmpty)
                 _lastMemberUnsubscriber = ActionToken.NoDoToken;

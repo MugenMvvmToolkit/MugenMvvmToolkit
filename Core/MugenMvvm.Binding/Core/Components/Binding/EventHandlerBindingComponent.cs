@@ -68,10 +68,10 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             var targetMember = ((IBinding)owner).Target.GetLastMember(metadata);
-            if (!(targetMember.Member is IEventInfo eventInfo))
+            if (!(targetMember.Member is IObservableMemberInfo eventInfo) || eventInfo.MemberType != MemberType.Event)
                 return false;
 
-            _unsubscriber = eventInfo.TrySubscribe(targetMember.Target, this, metadata);
+            _unsubscriber = eventInfo.TryObserve(targetMember.Target, this, metadata);
             if (_unsubscriber.IsEmpty)
                 return false;
             return true;

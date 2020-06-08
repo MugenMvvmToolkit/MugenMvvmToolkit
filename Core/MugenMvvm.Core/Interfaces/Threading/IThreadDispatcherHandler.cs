@@ -7,6 +7,6 @@
 
     public interface IThreadDispatcherHandler<TState>
     {
-        void Execute(TState state);
+        void Execute(in TState state);
     }
 }

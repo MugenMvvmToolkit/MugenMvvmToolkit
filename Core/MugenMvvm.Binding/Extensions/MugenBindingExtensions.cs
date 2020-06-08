@@ -420,7 +420,7 @@ namespace MugenMvvm.Binding.Extensions
 
         [return: MaybeNull]
         public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindableAccessorDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -428,13 +428,11 @@ namespace MugenMvvm.Binding.Extensions
                 .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IMemberAccessorInfo;
             if (propertyInfo == null)
                 return defaultValue;
-            if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
-                return p.GetValue(target, metadata);
             return (TValue)propertyInfo.GetValue(target, metadata)!;
         }
 
         public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindableAccessorDescriptor<TTarget, TValue> bindableMember, [MaybeNull] TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, [MaybeNull] TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? provider = null) where TTarget : class
         {
             var propertyInfo = provider
@@ -444,25 +442,21 @@ namespace MugenMvvm.Binding.Extensions
             {
                 if (throwOnError)
                     BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), bindableMember.Name);
-                return;
             }
-
-            if (propertyInfo is IMemberAccessorInfo<TTarget, TValue> p)
-                p.SetValue(target, value, metadata);
             else
                 propertyInfo.SetValue(target, BoxingExtensions.Box(value), metadata);
         }
 
         public static ActionToken TryObserveBindableMember<TTarget, TValue>(this TTarget target,
-            BindableAccessorDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
+            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? provider = null) where TTarget : class
         {
-            var propertyInfo = provider
+            var member = provider
                 .DefaultIfNull()
                 .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IObservableMemberInfo;
-            if (propertyInfo == null)
+            if (member == null)
                 return default;
-            return propertyInfo.TryObserve(target, listener, metadata);
+            return member.TryObserve(target, listener, metadata);
         }
 
         public static ActionToken TrySubscribeBindableEvent<TTarget>(this TTarget target,
@@ -471,10 +465,10 @@ namespace MugenMvvm.Binding.Extensions
         {
             var eventInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), MemberType.Event, flags, eventMember.Name, metadata) as IEventInfo;
+                .GetMember(target.GetType(), MemberType.Event, flags, eventMember.Name, metadata) as IObservableMemberInfo;
             if (eventInfo == null)
                 return default;
-            return eventInfo.TrySubscribe(target, listener, metadata);
+            return eventInfo.TryObserve(target, listener, metadata);
         }
 
         public static object? TryInvokeBindableMethod<TTarget>(this TTarget target,

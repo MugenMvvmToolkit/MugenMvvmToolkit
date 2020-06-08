@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Threading.Internal
 
         #region Implementation of interfaces
 
-        void IThreadDispatcherHandler<T>.Execute(T state)
+        void IThreadDispatcherHandler<T>.Execute(in T state)
         {
             Execute?.Invoke(state!, typeof(T));
         }

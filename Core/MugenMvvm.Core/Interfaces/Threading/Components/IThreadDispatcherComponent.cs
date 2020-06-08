@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Threading.Components
     {
         bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata);
 
-        bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, TState state, IReadOnlyMetadataContext? metadata);
+        bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata);
     }
 }

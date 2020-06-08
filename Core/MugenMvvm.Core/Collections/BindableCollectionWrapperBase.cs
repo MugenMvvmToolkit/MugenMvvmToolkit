@@ -85,9 +85,9 @@ namespace MugenMvvm.Collections
             OnEndBatchUpdate();
         }
 
-        void IThreadDispatcherHandler<CollectionChangedEvent>.Execute(CollectionChangedEvent state)
+        void IThreadDispatcherHandler<CollectionChangedEvent>.Execute(in CollectionChangedEvent state)
         {
-            AddEventInternal(ref state);
+            AddEventInternal(state);
         }
 
         #endregion
@@ -153,45 +153,38 @@ namespace MugenMvvm.Collections
 
         protected void OnItemChanged(T item, int index, object? args)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Changed, item, item, index, index, args);
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Changed, item, item, index, index, args));
         }
 
         protected void OnAdded(T item, int index)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Add, item, item, index, index, null);
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Add, item, item, index, index, null));
         }
 
         protected void OnReplaced(T oldItem, T newItem, int index)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Replace, oldItem, newItem, index, index, null);
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Replace, oldItem, newItem, index, index, null));
         }
 
         protected void OnMoved(T item, int oldIndex, int newIndex)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Move, item, item, oldIndex, newIndex, null);
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Move, item, item, oldIndex, newIndex, null));
         }
 
         protected void OnRemoved(T item, int index)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Remove, item, item, index, index, null);
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Remove, item, item, index, index, null));
         }
 
         protected void OnReset(IEnumerable<T> items)
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Reset, default!, default!, -1, -1,
-                ThreadDispatcher.CanExecuteInline(ExecutionMode) && !IsSuspended ? items : items.ToArray());
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Reset, default!, default!, -1, -1,
+                ThreadDispatcher.CanExecuteInline(ExecutionMode) && !IsSuspended ? items : items.ToArray()));
         }
 
         protected void OnCleared()
         {
-            var e = new CollectionChangedEvent(CollectionChangedAction.Clear, default!, default!, -1, -1, null);
-            AddEvent(ref e);
+            AddEvent(new CollectionChangedEvent(CollectionChangedAction.Clear, default!, default!, -1, -1, null));
         }
 
         protected virtual void OnAttach(ICollection<T> wrappedCollection)
@@ -245,14 +238,14 @@ namespace MugenMvvm.Collections
             Events.Clear();
         }
 
-        protected virtual void AddEventInternal(ref CollectionChangedEvent collectionChangedEvent)
+        protected virtual void AddEventInternal(in CollectionChangedEvent collectionChangedEvent)
         {
             if (IsSuspended)
             {
                 if (IsLockRequired)
-                    AddEventWithLock(ref collectionChangedEvent);
+                    AddEventWithLock(collectionChangedEvent);
                 else
-                    AddEventRaw(ref collectionChangedEvent);
+                    AddEventRaw(collectionChangedEvent);
             }
             else
                 collectionChangedEvent.Raise(this, false);
@@ -330,17 +323,17 @@ namespace MugenMvvm.Collections
             return (WrappedCollection as IObservableCollection<T>)?.DecorateItems() ?? WrappedCollection ?? Default.Array<T>();
         }
 
-        private void AddEventRaw(ref CollectionChangedEvent collectionChangedEvent)
+        private void AddEventRaw(in CollectionChangedEvent collectionChangedEvent)
         {
             if (collectionChangedEvent.Action == CollectionChangedAction.Reset || collectionChangedEvent.Action == CollectionChangedAction.Clear)
                 Events.Clear();
             Events.Add(collectionChangedEvent);
         }
 
-        private void AddEvent(ref CollectionChangedEvent collectionChangedEvent)
+        private void AddEvent(in CollectionChangedEvent collectionChangedEvent)
         {
             if (ThreadDispatcher.CanExecuteInline(ExecutionMode))
-                AddEventInternal(ref collectionChangedEvent);
+                AddEventInternal(collectionChangedEvent);
             else
                 ThreadDispatcher.Execute(ExecutionMode, this, collectionChangedEvent);
         }
@@ -413,11 +406,11 @@ namespace MugenMvvm.Collections
             }
         }
 
-        private void AddEventWithLock(ref CollectionChangedEvent collectionChangedEvent)
+        private void AddEventWithLock(in CollectionChangedEvent collectionChangedEvent)
         {
             lock (Events)
             {
-                AddEventRaw(ref collectionChangedEvent);
+                AddEventRaw(collectionChangedEvent);
             }
         }
 

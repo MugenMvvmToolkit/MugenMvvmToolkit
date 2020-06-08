@@ -194,7 +194,7 @@ namespace MugenMvvm.Messaging.Components
 
             #region Implementation of interfaces
 
-            public void Execute(IMessageContext messageContext)
+            public void Execute(in IMessageContext messageContext)
             {
                 for (var i = 0; i < Count; i++)
                 {
