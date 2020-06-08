@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Internal
 
         #region Implementation of interfaces
 
-        bool IEventListener.TryHandle(object? sender, object? message)
+        bool IEventListener.TryHandle<T>(object? sender, in T message)
         {
             ++InvokeCount;
             return TryHandle?.Invoke(sender, message) ?? true;

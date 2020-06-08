@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Implementation of interfaces
 
-        bool IEventListener.TryHandle(object? sender, object? message)
+        bool IEventListener.TryHandle<T>(object? sender, in T message)
         {
             OnLastMemberChanged();
             return true;

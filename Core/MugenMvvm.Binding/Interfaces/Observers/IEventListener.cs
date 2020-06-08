@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers
     {
         bool IsWeak { get; }
 
-        bool TryHandle(object? sender, object? message);//todo message generic EventsCollection?
+        bool TryHandle<T>(object? sender, in T message);
     }
 }

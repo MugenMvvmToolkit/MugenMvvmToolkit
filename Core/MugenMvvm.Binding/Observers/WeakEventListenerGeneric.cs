@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public bool TryHandle(object sender, object? message)
+        public bool TryHandle<T>(object sender, in T message)
         {
             return WeakEventListener.TryHandle(Target, sender, message);
         }

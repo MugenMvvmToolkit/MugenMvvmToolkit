@@ -21,17 +21,17 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        void IBindingEventHandlerComponent.OnBeginEvent(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        void IBindingEventHandlerComponent.OnBeginEvent<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             OnBeginEvent?.Invoke(sender, message, metadata);
         }
 
-        void IBindingEventHandlerComponent.OnEndEvent(object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        void IBindingEventHandlerComponent.OnEndEvent<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             OnEndEvent?.Invoke(sender, message, metadata);
         }
 
-        void IBindingEventHandlerComponent.OnEventError(Exception exception, object? sender, object? message, IReadOnlyMetadataContext? metadata)
+        void IBindingEventHandlerComponent.OnEventError<T>(Exception exception, object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             OnEventError?.Invoke(exception, sender, message, metadata);
         }

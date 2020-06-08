@@ -37,6 +37,12 @@ namespace MugenMvvm.Binding.Observers
         [Preserve(Conditional = true)]
         public void Raise<TArg>(object? sender, TArg args)
         {
+            Raise(sender, in args);
+        }
+
+        [Preserve(Conditional = true)]
+        public void Raise<TArg>(object? sender, in TArg args)//todo review
+        {
             if (_listeners is object?[] listeners)
             {
                 var hasDeadRef = false;

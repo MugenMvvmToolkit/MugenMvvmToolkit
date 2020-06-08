@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public bool TryHandle(object? sender, object? message)
+        public bool TryHandle<T>(object? sender, in T message)
         {
             return TryHandle(Target, sender, message);
         }
@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Observers
             return (IEventListener?)((IWeakReference)target).Target;
         }
 
-        public static bool TryHandle(object? target, object? sender, object? message)
+        public static bool TryHandle<T>(object? target, object? sender, in T message)
         {
             if (target == null)
                 return false;

@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
             #region Implementation of interfaces
 
-            public bool TryHandle(object? sender, object? message)
+            public bool TryHandle<T>(object? sender, in T message)
             {
                 var observer = (MultiPathObserver?)_observer.Target;
                 if (observer == null)
