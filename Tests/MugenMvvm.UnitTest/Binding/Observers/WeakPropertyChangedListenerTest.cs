@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 {
                     IsAlive = true,
                     IsWeak = i % 2 == 0,
-                    TryHandle = (o, o1) =>
+                    TryHandle = (o, o1, m) =>
                     {
                         o.ShouldEqual(sender);
                         o1.ShouldEqual(args);

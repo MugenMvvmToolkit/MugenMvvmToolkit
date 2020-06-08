@@ -3,6 +3,7 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
@@ -26,22 +27,22 @@ namespace MugenMvvm.Binding.Observers
             return attachedValueProvider.DefaultIfNull().GetOrAdd(target, path, (object?)null, (_, __) => new EventListenerCollection());
         }
 
-        public static void Raise(object target, string path, object? message, IAttachedValueProvider? attachedValueProvider = null)
+        public static void Raise<T>(object target, string path, in T message, IReadOnlyMetadataContext? metadata, IAttachedValueProvider? attachedValueProvider = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
             attachedValueProvider.DefaultIfNull().TryGet(target, path, out EventListenerCollection? collection);
-            collection?.Raise(target, message);
+            collection?.Raise(target, message, metadata);
         }
 
         [Preserve(Conditional = true)]
-        public void Raise<TArg>(object? sender, TArg args)
+        public void RaiseNonRef<TArg>(object? sender, TArg args)
         {
-            Raise(sender, in args);
+            Raise(sender, in args, null);
         }
 
         [Preserve(Conditional = true)]
-        public void Raise<TArg>(object? sender, in TArg args)//todo review
+        public void Raise<TArg>(object? sender, in TArg args, IReadOnlyMetadataContext? metadata)
         {
             if (_listeners is object?[] listeners)
             {
@@ -49,14 +50,14 @@ namespace MugenMvvm.Binding.Observers
                 var size = _size;
                 for (var i = 0; i < size; i++)
                 {
-                    if (!WeakEventListener.TryHandle(listeners[i], sender, args) && RemoveAt(listeners, i))
+                    if (!WeakEventListener.TryHandle(listeners[i], sender, args, metadata) && RemoveAt(listeners, i))
                         hasDeadRef = true;
                 }
 
                 if (hasDeadRef && ReferenceEquals(_listeners, listeners))
                     TrimIfNeed(listeners);
             }
-            else if (_listeners != null && !WeakEventListener.TryHandle(_listeners, sender, args))
+            else if (_listeners != null && !WeakEventListener.TryHandle(_listeners, sender, args, metadata))
             {
                 _listeners = null;
                 _size = 0;

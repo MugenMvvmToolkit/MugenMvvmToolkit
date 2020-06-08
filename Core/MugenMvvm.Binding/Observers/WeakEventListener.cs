@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Observers
 {
@@ -35,9 +36,9 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public bool TryHandle<T>(object? sender, in T message)
+        public bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
-            return TryHandle(Target, sender, message);
+            return TryHandle(Target, sender, message, metadata);
         }
 
         public static object GetTarget(IEventListener listener)
@@ -67,16 +68,16 @@ namespace MugenMvvm.Binding.Observers
             return (IEventListener?)((IWeakReference)target).Target;
         }
 
-        public static bool TryHandle<T>(object? target, object? sender, in T message)
+        public static bool TryHandle<T>(object? target, object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             if (target == null)
                 return false;
 
             if (target is IEventListener listener)
-                return listener.TryHandle(sender, message);
+                return listener.TryHandle(sender, message, metadata);
 
             listener = (IEventListener)((IWeakReference)target).Target!;
-            return listener != null && listener.TryHandle(sender, message);
+            return listener != null && listener.TryHandle(sender, message, metadata);
         }
 
         #endregion

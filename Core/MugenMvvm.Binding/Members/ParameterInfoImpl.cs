@@ -26,9 +26,9 @@ namespace MugenMvvm.Binding.Members
 
         public object? UnderlyingParameter => _parameterInfo;
 
-        public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
-
         public Type ParameterType => _parameterInfo.ParameterType;
+
+        public bool HasDefaultValue => _parameterInfo.HasDefaultValue;
 
         public object? DefaultValue => _parameterInfo.DefaultValue;
 

@@ -20,9 +20,9 @@ namespace MugenMvvm.Binding.Members
         public static readonly ConstantMemberInfo Null = new ConstantMemberInfo("", null, false);
         public static readonly ConstantMemberInfo Unset = new ConstantMemberInfo("", BindingMetadata.UnsetValue, false);
 
-        public static readonly IMemberInfo[] NullArray = { Null };
-        public static readonly IMemberInfo[] TargetArray = { Target };
-        public static readonly IMemberInfo[] UnsetArray = { Unset };
+        public static readonly IMemberInfo[] NullArray = {Null};
+        public static readonly IMemberInfo[] TargetArray = {Target};
+        public static readonly IMemberInfo[] UnsetArray = {Unset};
 
         #endregion
 

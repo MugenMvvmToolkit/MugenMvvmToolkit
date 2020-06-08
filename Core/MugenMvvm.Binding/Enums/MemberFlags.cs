@@ -23,6 +23,9 @@ namespace MugenMvvm.Binding.Enums
         StaticOnly = StaticPublic | StaticNonPublic,
         InstanceOnly = InstancePublic | InstanceNonPublic,
 
-        All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension
+        InstanceAll = All & ~Static,
+        StaticAll = All & ~Instance,
+
+        All = Static | Instance | Public | NonPublic | Attached | Dynamic | Extension,
     }
 }

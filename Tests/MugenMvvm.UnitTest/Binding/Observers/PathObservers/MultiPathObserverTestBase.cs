@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             canReturn = true;
             getMembersCount = 0;
             rootListener.ShouldNotBeNull();
-            rootListener!.TryHandle(this, null);
+            rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
             members.Members.SequenceEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 }).ShouldBeTrue();
             members.IsAvailable.ShouldBeTrue();
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             getMembersCount.ShouldEqual(3);
 
             getMembersCount = 0;
-            rootListener.TryHandle(this, null);
+            rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetMembers(DefaultMetadata);
             members.Members.SequenceEqual(new[] { accessorInfo1, accessorInfo2, accessorInfo3 }).ShouldBeTrue();
             members.IsAvailable.ShouldBeTrue();
@@ -244,7 +244,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             canReturn = true;
             getMembersCount = 0;
             rootListener.ShouldNotBeNull();
-            rootListener!.TryHandle(this, null);
+            rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetLastMember(DefaultMetadata);
             members.Member.ShouldEqual(accessorInfo3);
             members.IsAvailable.ShouldBeTrue();
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             getMembersCount.ShouldEqual(3);
 
             getMembersCount = 0;
-            rootListener.TryHandle(this, null);
+            rootListener!.TryHandle(this, this, DefaultMetadata);
             members = observer.GetLastMember(DefaultMetadata);
             members.Member.ShouldEqual(accessorInfo3);
             members.IsAvailable.ShouldBeTrue();
@@ -350,7 +350,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
             using var _ = TestComponentSubscriber.Subscribe(component);
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, null), disposed =>
+            ObserverShouldManageListenerEvents(observer, ListenerMode.Members, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed =>
             {
 
                 if (disposed)
@@ -401,7 +401,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
 
             using var _ = TestComponentSubscriber.Subscribe(component);
             var observer = GetObserver(root, DefaultPath, MemberFlags.All, false, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, null), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 
         [Theory]

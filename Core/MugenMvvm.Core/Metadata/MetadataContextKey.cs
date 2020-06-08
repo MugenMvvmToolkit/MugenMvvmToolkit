@@ -98,7 +98,7 @@ namespace MugenMvvm.Metadata
             Should.NotBeNullOrEmpty(key, nameof(key));
             var builder = new Builder<TGet, TSet>(key);
             if (declaredType != null && !string.IsNullOrEmpty(fieldOrPropertyName))
-                return builder.WithKeyMemento(contextKey => StaticMemberMemento.Create(contextKey, declaredType, fieldOrPropertyName!));
+                return builder.WithMemento(contextKey => StaticMemberMemento.Create(contextKey, declaredType, fieldOrPropertyName!));
             return builder;
         }
 
@@ -139,9 +139,6 @@ namespace MugenMvvm.Metadata
             private string _key;
             // ReSharper restore FieldCanBeMadeReadOnly.Local
 
-            // private string? _fieldOrPropertyName;
-            // private Type? _type;
-
             private Dictionary<string, object?>? _metadata;
             private Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet>? _validateAction;
             private Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet>? _getDefaultValueFunc;
@@ -151,6 +148,8 @@ namespace MugenMvvm.Metadata
             private Func<IMetadataContextKey<TGet, TSet>, object?, ISerializationContext, object?>? _serializeFunc;
             private Func<IMetadataContextKey<TGet, TSet>, object?, ISerializationContext, object?>? _deserializeFunc;
             private Func<IMetadataContextKey<TGet, TSet>, IMemento?>? _getMementoFunc;
+            private bool _hasDefaultValue;
+            private TGet _defaultValue;
 
             #endregion
 
@@ -169,6 +168,8 @@ namespace MugenMvvm.Metadata
                 _serializeFunc = null;
                 _deserializeFunc = null;
                 _getMementoFunc = null;
+                _hasDefaultValue = false;
+                _defaultValue = default!;
             }
 
             #endregion
@@ -207,7 +208,10 @@ namespace MugenMvvm.Metadata
 
             public Builder<TGet, TSet> DefaultValue(TGet defaultValue)
             {
-                return DefaultValue((context, key, arg2) => defaultValue);
+                Should.BeValid(nameof(defaultValue), !_hasDefaultValue);
+                _hasDefaultValue = true;
+                _defaultValue = defaultValue;
+                return this;
             }
 
             public Builder<TGet, TSet> DefaultValue(Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TGet, TGet> getDefaultValue)
@@ -243,7 +247,7 @@ namespace MugenMvvm.Metadata
                 return this;
             }
 
-            public Builder<TGet, TSet> WithKeyMemento(Func<IMetadataContextKey<TGet, TSet>, IMemento?> getMemento)
+            public Builder<TGet, TSet> WithMemento(Func<IMetadataContextKey<TGet, TSet>, IMemento?> getMemento)
             {
                 Should.NotBeNull(getMemento, nameof(getMemento));
                 _getMementoFunc = getMemento;
@@ -259,7 +263,9 @@ namespace MugenMvvm.Metadata
                         SetValueFunc = _setValueFunc,
                         ValidateAction = _validateAction,
                         GetValueFunc = _getValueFunc,
-                        GetDefaultValueFunc = _getDefaultValueFunc
+                        GetDefaultValueFunc = _getDefaultValueFunc,
+                        DefaultValue = _defaultValue,
+                        HasDefaultValue = _hasDefaultValue
                     };
                 }
 
@@ -273,7 +279,9 @@ namespace MugenMvvm.Metadata
                     GetDefaultValueFunc = _getDefaultValueFunc,
                     CanSerializeFunc = _canSerializeFunc,
                     DeserializeFunc = _deserializeFunc,
-                    SerializeFunc = _serializeFunc
+                    SerializeFunc = _serializeFunc,
+                    HasDefaultValue = _hasDefaultValue,
+                    DefaultValue = _defaultValue
                 };
             }
 
@@ -288,6 +296,8 @@ namespace MugenMvvm.Metadata
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TGet>? GetValueFunc;
             public Func<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, object?, TSet, object?>? SetValueFunc;
             public Action<IReadOnlyMetadataContext, IMetadataContextKey<TGet, TSet>, TSet>? ValidateAction;
+            public bool HasDefaultValue;
+            public TGet DefaultValue;
 
             #endregion
 
@@ -296,6 +306,7 @@ namespace MugenMvvm.Metadata
             public MetadataContextKeyInternal(string key, IReadOnlyDictionary<string, object?>? metadata)
                 : base(key, metadata)
             {
+                DefaultValue = default!;
             }
 
             #endregion
@@ -325,7 +336,7 @@ namespace MugenMvvm.Metadata
             public TGet GetDefaultValue(IReadOnlyMetadataContext metadataContext, TGet defaultValue)
             {
                 if (GetDefaultValueFunc == null)
-                    return defaultValue;
+                    return HasDefaultValue ? DefaultValue : defaultValue;
                 return GetDefaultValueFunc(metadataContext, this, defaultValue);
             }
 

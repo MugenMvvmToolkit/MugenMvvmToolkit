@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var listener = new TestEventListener
             {
                 IsAlive = true,
-                TryHandle = (o, o1) =>
+                TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(msg);
@@ -72,10 +72,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var listener = new TestEventListener
             {
                 IsAlive = true,
-                TryHandle = (o, o1) =>
+                TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
                     o1.ShouldEqual(msg);
+                    m.ShouldEqual(DefaultMetadata);
                     return true;
                 }
             };
@@ -97,7 +98,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             testDelegateProvider.TryCreateDelegate = (type, o, arg3) =>
             {
                 var collection = (EventListenerCollection) o!;
-                return new Action(() => collection.Raise(target, msg));
+                return new Action(() => collection.Raise(target, msg, DefaultMetadata));
             };
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);

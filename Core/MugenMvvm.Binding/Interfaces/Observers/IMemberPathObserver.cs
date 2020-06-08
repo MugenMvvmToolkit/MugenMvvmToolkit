@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Interfaces.Observers
 {
-    public interface IMemberPathObserver : IDisposable, IWeakItem
+    public interface IMemberPathObserver : IWeakItem, IDisposable
     {
         object? Target { get; }
 

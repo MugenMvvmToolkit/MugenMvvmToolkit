@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
-            .GetMethodOrThrow(nameof(EventListenerCollection.Raise), BindingFlagsEx.InstancePublic);
+            .GetMethodOrThrow(nameof(EventListenerCollection.RaiseNonRef), BindingFlagsEx.InstancePublic);
 
         #endregion
 
@@ -86,7 +86,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
-                ? new EventHandler(listenerInternal.Raise)
+                ? new EventHandler(listenerInternal.RaiseNonRef)
                 : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionDelegateProvider);
 
             if (handler == null)

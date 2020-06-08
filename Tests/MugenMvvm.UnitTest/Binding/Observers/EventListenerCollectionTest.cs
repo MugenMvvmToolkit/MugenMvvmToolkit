@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         public void ShouldManagerSubscribers(int count)
         {
             var sender = this;
-            var msg = DefaultMetadata;
+            var msg = new object();
             var listeners = new TestEventListener[count];
 
             for (var i = 0; i < listeners.Length; i++)
@@ -30,10 +30,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 {
                     IsAlive = true,
                     IsWeak = i % 2 == 0,
-                    TryHandle = (o, o1) =>
+                    TryHandle = (o, o1, m) =>
                     {
                         o.ShouldEqual(sender);
-                        o1.ShouldEqual(DefaultMetadata);
+                        o1.ShouldEqual(msg);
+                        m.ShouldEqual(DefaultMetadata);
                         return listeners[index].IsAlive;
                     }
                 };
@@ -43,7 +44,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             for (var i = 0; i < count; i++)
             {
                 collection.Add(listeners[i]);
-                collection.Raise(sender, msg);
+                collection.Raise(sender, msg, DefaultMetadata);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
             }
 
@@ -51,10 +52,10 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             for (var i = 0; i < removeCount; i++)
                 listeners[i].IsAlive = false;
 
-            collection.Raise(sender, msg);
+            collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 1);
 
-            collection.Raise(sender, msg);
+            collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
             var tokens = new List<ActionToken>();
@@ -64,38 +65,38 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 tokens.Add(collection.Add(listeners[i]));
             }
 
-            collection.Raise(sender, msg);
+            collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 1);
 
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
-                collection.Raise(sender, msg);
+                collection.Raise(sender, msg, DefaultMetadata);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
             for (var i = 0; i < removeCount; i++)
                 collection.Add(listeners[i]);
 
-            collection.Raise(sender, msg);
+            collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 1);
 
 
             for (var index = 0; index < removeCount; index++)
             {
                 collection.Remove(listeners[index]);
-                collection.Raise(sender, msg);
+                collection.Raise(sender, msg, DefaultMetadata);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
             for (var i = 0; i < removeCount; i++)
                 collection.Add(listeners[i]);
 
-            collection.Raise(sender, msg);
+            collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 1);
 
             collection.Clear();
-            collection.Raise(sender, msg);
+            collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 0);
         }
 

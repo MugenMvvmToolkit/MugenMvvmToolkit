@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 IsAlive = true
             };
             var listener = new WeakEventListener(target);
-            ((IWeakReference) listener.Target).Target.ShouldEqual(target);
+            ((IWeakReference)listener.Target).Target.ShouldEqual(target);
             listener.IsAlive.ShouldEqual(true);
             listener.Listener.ShouldEqual(target);
             listener.IsEmpty.ShouldBeFalse();
@@ -62,21 +62,22 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             {
                 IsWeak = isWeak,
                 IsAlive = true,
-                TryHandle = (o, o1) =>
+                TryHandle = (o, o1, m) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(sender);
                     o1.ShouldEqual(msg);
+                    m.ShouldEqual(DefaultMetadata);
                     return result;
                 }
             };
             var listener = new WeakEventListener(target);
-            listener.TryHandle(sender, msg).ShouldEqual(result);
+            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
             invokeCount = 0;
             result = false;
-            listener.TryHandle(sender, msg).ShouldEqual(result);
+            listener.TryHandle(sender, msg, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 

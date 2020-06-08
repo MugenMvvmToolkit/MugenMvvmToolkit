@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
 
             component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata);
-            eventListener!.TryHandle(sender, message).ShouldBeTrue();
+            eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             if (isError)
                 errorEventCount.ShouldEqual(count);
             else
@@ -199,7 +199,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
 
             ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
             component.TrySetTargetValue(binding, default, value, DefaultMetadata);
-            eventListener!.TryHandle(sender, message).ShouldBeTrue();
+            eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
         }
 
@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
 
             ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
             component.TrySetTargetValue(binding, default, value, DefaultMetadata);
-            eventListener!.TryHandle(sender, message).ShouldBeTrue();
+            eventListener!.TryHandle(sender, message, DefaultMetadata).ShouldBeTrue();
             executeCount.ShouldEqual(1);
         }
 

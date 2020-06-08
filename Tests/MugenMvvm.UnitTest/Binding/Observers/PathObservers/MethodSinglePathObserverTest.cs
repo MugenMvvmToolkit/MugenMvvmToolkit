@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             using var _ = TestComponentSubscriber.Subscribe(component);
 
             var observer = GetObserver(this, DefaultPath, MemberFlags.All, false);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, null), disposed => currentListener.ShouldBeNull());
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull());
         }
 
         protected override SinglePathObserver GetObserver(object target)

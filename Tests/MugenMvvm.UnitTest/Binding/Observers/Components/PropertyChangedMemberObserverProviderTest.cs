@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var listener = new TestEventListener
             {
                 IsAlive = true,
-                TryHandle = (o, o1) =>
+                TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
                     ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var listener = new TestEventListener
             {
                 IsAlive = true,
-                TryHandle = (o, o1) =>
+                TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
                     ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);

@@ -266,7 +266,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public void FromBuilderShouldSetCustomMemento()
         {
             var memento = new TestMemento();
-            var key = MetadataContextKey.Create<int, int>("k").WithKeyMemento(contextKey => memento).Serializable().Build();
+            var key = MetadataContextKey.Create<int, int>("k").WithMemento(contextKey => memento).Serializable().Build();
             ((IHasMemento) key).GetMemento().ShouldEqual(memento);
         }
 

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
@@ -16,11 +15,6 @@ namespace MugenMvvm.UnitTest
     public static class UnitTestExtensions
     {
         #region Methods
-
-        public static bool TryHandle(this IEventListener listener, object? sender, object? message)
-        {
-            return listener.TryHandle(sender, message);
-        }
 
         public static object? Invoke(this Expression expression, params object?[] args)
         {

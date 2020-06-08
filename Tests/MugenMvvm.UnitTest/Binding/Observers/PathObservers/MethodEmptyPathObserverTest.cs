@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             using var _ = TestComponentSubscriber.Subscribe(component);
 
             var observer = new MethodEmptyPathObserver(MethodName, this, flags);
-            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, null), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
+            ObserverShouldManageListenerEvents(observer, ListenerMode.LastMember, count, () => lastListener?.TryHandle(this, this, DefaultMetadata), disposed => currentListener.ShouldBeNull(), ignoreFirstMember: false);
         }
 
         protected override MethodEmptyPathObserver GetObserver(object target)

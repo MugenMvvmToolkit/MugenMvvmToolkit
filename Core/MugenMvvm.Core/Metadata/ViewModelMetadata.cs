@@ -2,9 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Metadata
 {
@@ -14,7 +12,6 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<Guid, Guid>? _id;
         private static IMetadataContextKey<ViewModelLifecycleState, ViewModelLifecycleState>? _lifecycleState;
-        private static IMetadataContextKey<IViewModelBase?, IViewModelBase?>? _parentViewModel;
         private static IMetadataContextKey<bool, bool>? _noState;
 
         #endregion
@@ -33,17 +30,6 @@ namespace MugenMvvm.Metadata
         {
             get => _lifecycleState ??= GetBuilder(_lifecycleState, nameof(LifecycleState)).NotNull().Build();
             set => _lifecycleState = value;
-        }
-
-        [AllowNull]
-        public static IMetadataContextKey<IViewModelBase?, IViewModelBase?> ParentViewModel
-        {
-            get => _parentViewModel ??= GetBuilder(_parentViewModel, nameof(ParentViewModel))
-                .Serializable()
-                .Getter((context, k, o) => (IViewModelBase?)(o as IWeakReference)?.Target)
-                .Setter((context, k, oldValue, newValue) => newValue?.ToWeakReference())
-                .Build();
-            set => _parentViewModel = value;
         }
 
         [AllowNull]

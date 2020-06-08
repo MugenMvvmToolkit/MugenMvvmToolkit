@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Observers
 {
@@ -6,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Observers
     {
         bool IsWeak { get; }
 
-        bool TryHandle<T>(object? sender, in T message);
+        bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata);
     }
 }
