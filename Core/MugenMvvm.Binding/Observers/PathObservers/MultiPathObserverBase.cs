@@ -40,8 +40,6 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         public override IMemberPath Path { get; }
 
-        public bool IsWeak => false;
-
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         protected bool HasStablePath => CheckFlag(HasStablePathFlag);

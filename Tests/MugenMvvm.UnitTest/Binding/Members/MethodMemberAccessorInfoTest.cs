@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
             MethodMemberAccessorInfo? memberInfo = null;
             var reflectedType = typeof(string);
-            var testEventListener = new TestEventListener();
+            var testEventListener = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
             var memberObserver = new MemberObserver((target, member, listener, meta) =>

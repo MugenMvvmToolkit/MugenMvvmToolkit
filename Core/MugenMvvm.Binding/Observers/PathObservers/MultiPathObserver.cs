@@ -80,7 +80,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         #region Nested types
 
-        private sealed class LastMemberListener : IEventListener
+        private sealed class LastMemberListener : IWeakEventListener
         {
             #region Fields
 
@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
             #region Properties
 
-            public bool IsAlive => _observer.Target != null;
+            public bool IsAlive => _observer.IsAlive;
 
             public bool IsWeak => true;
 

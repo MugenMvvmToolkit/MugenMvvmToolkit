@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         [Fact]
         public void ConstructorShouldInitializeValues1()
         {
-            var target = new TestEventListener
+            var target = new TestWeakEventListener
             {
                 IsWeak = true,
                 IsAlive = true
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var target = new TestEventListener
+            var target = new TestWeakEventListener
             {
                 IsWeak = false,
                 IsAlive = true
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var msg = new object();
             var result = true;
             var invokeCount = 0;
-            var target = new TestEventListener
+            var target = new TestWeakEventListener
             {
                 IsWeak = isWeak,
                 IsAlive = true,

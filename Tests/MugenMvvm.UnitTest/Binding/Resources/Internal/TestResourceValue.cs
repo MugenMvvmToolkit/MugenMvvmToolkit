@@ -6,8 +6,6 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Internal
     {
         #region Properties
 
-        public bool IsAlive { get; set; } = true;
-
         public bool IsStatic { get; set; }
 
         public object? Value { get; set; }

@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method1));
             MethodMemberInfo? memberInfo = null;
 
-            var testEventListener = new TestEventListener();
+            var testEventListener = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
             var memberObserver = new MemberObserver((target, member, listener, meta) =>

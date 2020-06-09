@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
         {
             var msg = new EventArgs();
             var target = new TestEventClass();
-            var listener = new TestEventListener
+            var listener = new TestWeakEventListener
             {
                 IsAlive = true,
                 TryHandle = (o, o1, m) =>
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
 
             var msg = new EventArgs();
             var target = new TestEventClass();
-            var listener = new TestEventListener
+            var listener = new TestWeakEventListener
             {
                 IsAlive = true,
                 TryHandle = (o, o1, m) =>

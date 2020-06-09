@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             fieldInfo.ShouldNotBeNull();
             var reflectedType = typeof(object);
             var name = fieldName + "t";
-            var testEventListener = new TestEventListener();
+            var testEventListener = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
             FieldMemberAccessorInfo? memberInfo = null;

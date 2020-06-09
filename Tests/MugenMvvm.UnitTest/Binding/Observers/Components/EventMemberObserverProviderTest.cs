@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
         public void TryGetMemberObserverShouldUseEventFinder1()
         {
             var target = new object();
-            var listener = new TestEventListener();
+            var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
             var tryObserveCount = 0;
 
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
         public void TryGetMemberObserverShouldUseEventFinder2()
         {
             var target = new object();
-            var listener = new TestEventListener();
+            var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
             var tryObserveCount = 0;
 
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var set = new HashSet<string>();
             var flags = MemberFlags.Attached | MemberFlags.Public;
             var target = new object();
-            var listener = new TestEventListener();
+            var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
             var tryObserveCount = 0;
 
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var set = new HashSet<string>();
             var flags = member.GetAccessModifiers();
             var target = new object();
-            var listener = new TestEventListener();
+            var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
             var tryObserveCount = 0;
 
@@ -220,7 +220,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var set = new HashSet<string>();
             var flags = isStatic ? MemberFlags.StaticPublic : MemberFlags.InstancePublic;
             var target = new object();
-            var listener = new TestEventListener();
+            var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
             var tryObserveCount = 0;
 

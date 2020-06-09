@@ -55,10 +55,6 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public bool ToggleEnabledState { get; }
 
-        bool IWeakItem.IsAlive => true;
-
-        bool IEventListener.IsWeak => false;
-
         public object? EventArgs { get; private set; }
 
         #endregion

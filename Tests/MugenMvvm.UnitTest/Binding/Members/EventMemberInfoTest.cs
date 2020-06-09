@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var eventInfo = GetType().GetEvent(eventName);
             eventInfo.ShouldNotBeNull();
             var name = eventName + "t";
-            var testEventListener = new TestEventListener();
+            var testEventListener = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
 

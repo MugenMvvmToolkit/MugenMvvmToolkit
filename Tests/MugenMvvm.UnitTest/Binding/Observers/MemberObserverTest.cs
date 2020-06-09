@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         public void DefaultShouldBeEmpty()
         {
             default(MemberObserver).IsEmpty.ShouldBeTrue();
-            default(MemberObserver).TryObserve(this, new TestEventListener(), DefaultMetadata).IsEmpty.ShouldBeTrue();
+            default(MemberObserver).TryObserve(this, new TestWeakEventListener(), DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         {
             var count = 0;
             var target = new object();
-            var listener = new TestEventListener();
+            var listener = new TestWeakEventListener();
             var member = new object();
             var result = ActionToken.NoDoToken;
             var observer = new MemberObserver((t, m, l, meta) =>

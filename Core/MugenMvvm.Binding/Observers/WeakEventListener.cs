@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Observers
         public static object GetTarget(IEventListener listener)
         {
             Should.NotBeNull(listener, nameof(listener));
-            if (listener.IsWeak)
+            if (listener is IWeakEventListener weakEventListener && weakEventListener.IsWeak)
                 return listener;
             return listener.ToWeakReference();
         }
@@ -53,10 +53,14 @@ namespace MugenMvvm.Binding.Observers
         {
             if (target == null)
                 return false;
-            if (target is IEventListener listener)
-                return listener.IsAlive;
-            listener = (IEventListener)((IWeakReference)target).Target!;
-            return listener != null && listener.IsAlive;
+            if (target is IWeakReference reference)
+            {
+                target = reference.Target;
+                return target != null && (!(target is IWeakItem item) || item.IsAlive);
+            }
+            if (target is IWeakItem weakItem)
+                return weakItem.IsAlive;
+            return true;
         }
 
         public static IEventListener? GetListener(object? target)

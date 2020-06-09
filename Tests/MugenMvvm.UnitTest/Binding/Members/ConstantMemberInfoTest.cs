@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             memberInfo.CanRead.ShouldBeTrue();
             memberInfo.CanWrite.ShouldEqual(canWrite);
 
-            memberInfo.TryObserve(this, new TestEventListener(), DefaultMetadata).IsEmpty.ShouldBeTrue();
+            memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata).IsEmpty.ShouldBeTrue();
             memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(result);
             if (canWrite)
                 memberInfo.SetValue(this, result, DefaultMetadata);

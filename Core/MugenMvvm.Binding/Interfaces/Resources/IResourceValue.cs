@@ -1,8 +1,6 @@
-﻿using MugenMvvm.Interfaces.Internal;
-
-namespace MugenMvvm.Binding.Interfaces.Resources
+﻿namespace MugenMvvm.Binding.Interfaces.Resources
 {
-    public interface IResourceValue : IWeakItem
+    public interface IResourceValue
     {
         bool IsStatic { get; }
 

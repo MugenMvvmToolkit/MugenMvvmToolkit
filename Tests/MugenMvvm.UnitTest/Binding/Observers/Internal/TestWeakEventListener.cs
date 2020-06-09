@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Binding.Observers.Internal
 {
-    public class TestEventListener : IEventListener
+    public class TestWeakEventListener : IWeakEventListener
     {
         #region Properties
 

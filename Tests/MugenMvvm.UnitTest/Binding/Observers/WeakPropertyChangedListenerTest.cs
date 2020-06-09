@@ -20,11 +20,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         [InlineData(500)]
         public void RaiseShouldHandleDifferentNames(int count)
         {
-            var listeners = new TestEventListener[count];
+            var listeners = new TestWeakEventListener[count];
             for (var i = 0; i < listeners.Length; i++)
             {
                 var index = i;
-                listeners[index] = new TestEventListener
+                listeners[index] = new TestWeakEventListener
                 {
                     IsAlive = true,
                     IsWeak = i % 2 == 0
@@ -54,11 +54,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         [InlineData(500)]
         public void RaiseShouldHandleIndexerNames(int count)
         {
-            var listeners = new TestEventListener[count];
+            var listeners = new TestWeakEventListener[count];
             for (var i = 0; i < listeners.Length; i++)
             {
                 var index = i;
-                listeners[index] = new TestEventListener
+                listeners[index] = new TestWeakEventListener
                 {
                     IsAlive = true,
                     IsWeak = i % 2 == 0
@@ -102,12 +102,12 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         {
             var sender = this;
             var args = new PropertyChangedEventArgs("Test");
-            var listeners = new TestEventListener[count];
+            var listeners = new TestWeakEventListener[count];
 
             for (var i = 0; i < listeners.Length; i++)
             {
                 var index = i;
-                listeners[index] = new TestEventListener
+                listeners[index] = new TestWeakEventListener
                 {
                     IsAlive = true,
                     IsWeak = i % 2 == 0,
@@ -174,7 +174,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             ValidateInvokeCount(listeners, 0);
         }
 
-        private static void ValidateInvokeCount(TestEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
+        private static void ValidateInvokeCount(TestWeakEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
         {
             for (var i = start.GetValueOrDefault(); i < end.GetValueOrDefault(listeners.Length); i++)
             {

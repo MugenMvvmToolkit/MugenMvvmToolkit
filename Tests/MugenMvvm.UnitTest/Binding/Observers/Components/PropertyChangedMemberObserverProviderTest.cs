@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             const string propertyName = nameof(TestNotifyPropertyChangedModel.Property);
             var target = new TestNotifyPropertyChangedModel();
             var component = new PropertyChangedMemberObserverProvider();
-            var listener = new TestEventListener
+            var listener = new TestWeakEventListener
             {
                 IsAlive = true,
                 TryHandle = (o, o1, m) =>
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             const string propertyName = "Test";
             var target = new TestNotifyPropertyChangedModel();
             var component = new PropertyChangedMemberObserverProvider();
-            var listener = new TestEventListener
+            var listener = new TestWeakEventListener
             {
                 IsAlive = true,
                 TryHandle = (o, o1, m) =>

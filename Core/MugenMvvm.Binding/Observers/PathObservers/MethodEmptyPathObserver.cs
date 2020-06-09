@@ -37,8 +37,6 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         public override IMemberPath Path => EmptyMemberPath.Instance;
 
-        public bool IsWeak => false;
-
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         #endregion
