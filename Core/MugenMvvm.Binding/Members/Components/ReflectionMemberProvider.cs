@@ -121,7 +121,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (field == null)
                 return false;
 
-            result.Add(new FieldMemberAccessorInfo(name, field, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+            result.Add(new FieldAccessorMemberInfo(name, field, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
             return true;
         }
 
@@ -131,7 +131,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (property == null)
                 return false;
 
-            result.Add(new PropertyMemberAccessorInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+            result.Add(new PropertyAccessorMemberInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
             return true;
         }
 

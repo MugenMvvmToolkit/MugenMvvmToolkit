@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var setCount = 0;
             var target = new object();
             var value = new object();
-            var memberInfo = new TestMemberAccessorInfo
+            var memberInfo = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>

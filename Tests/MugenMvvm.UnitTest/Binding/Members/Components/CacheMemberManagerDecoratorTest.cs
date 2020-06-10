@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberType = MemberType.Accessor;
             var memberFlags = MemberFlags.All;
             var request = "test";
-            var result = new TestMemberAccessorInfo();
+            var result = new TestAccessorMemberInfo();
             var providerComponent = new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberFlags = MemberFlags.All;
             var request1 = "test1";
             var request2 = "test2";
-            var result = new TestMemberAccessorInfo();
+            var result = new TestAccessorMemberInfo();
             var providerComponent = new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberFlags = MemberFlags.All;
             var request1 = "test1";
             var request2 = "test2";
-            var result = new TestMemberAccessorInfo();
+            var result = new TestAccessorMemberInfo();
             var providerComponent = new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>

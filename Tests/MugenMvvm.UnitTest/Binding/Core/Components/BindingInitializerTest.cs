@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         f.ShouldEqual(MemberFlags.StaticPublic);
                         t.ShouldEqual(typeof(string));
                         m.ShouldEqual(MemberType.Accessor);
-                        return new TestMemberAccessorInfo
+                        return new TestAccessorMemberInfo
                         {
                             CanRead = true,
                             GetValue = (o1, metadataContext) =>

@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MethodMemberAccessorInfo : IMemberAccessorInfo, IHasArgsMemberInfo
+    public sealed class MethodAccessorMemberInfo : IAccessorMemberInfo, IHasArgsMemberInfo
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberAccessorInfo(string name, IMethodInfo? getMethod, IMethodInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObserverProvider? observerProvider)
+        public MethodAccessorMemberInfo(string name, IMethodInfo? getMethod, IMethodInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObserverProvider? observerProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));

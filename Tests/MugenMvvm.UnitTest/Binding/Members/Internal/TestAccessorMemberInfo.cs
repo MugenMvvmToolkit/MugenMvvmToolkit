@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Binding.Members.Internal
 {
-    public class TestMemberAccessorInfo : TestMemberInfoBase, IMemberAccessorInfo
+    public class TestAccessorMemberInfo : TestMemberInfoBase, IAccessorMemberInfo
     {
         #region Properties
 
@@ -20,12 +20,12 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         #region Implementation of interfaces
 
-        object? IMemberAccessorInfo.GetValue(object? target, IReadOnlyMetadataContext? metadata)
+        object? IAccessorMemberInfo.GetValue(object? target, IReadOnlyMetadataContext? metadata)
         {
             return GetValue?.Invoke(target, metadata);
         }
 
-        void IMemberAccessorInfo.SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata)
+        void IAccessorMemberInfo.SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata)
         {
             SetValue?.Invoke(target, value, metadata);
         }

@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             manager.AddComponent(selector);
             ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
-            var member = (MethodMemberAccessorInfo)decorator.TryGetMembers(typeof(int[]), "[1]", DefaultMetadata).Item!;
+            var member = (MethodAccessorMemberInfo)decorator.TryGetMembers(typeof(int[]), "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();
 
             var array = new[] { 1, 2 };
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             manager.AddComponent(selector);
             ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
 
-            var member = (MethodMemberAccessorInfo)decorator.TryGetMembers(typeof(string), "[1]", DefaultMetadata).Item!;
+            var member = (MethodAccessorMemberInfo)decorator.TryGetMembers(typeof(string), "[1]", DefaultMetadata).Item!;
             member.ShouldNotBeNull();
 
             var value = "12";
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"[{index.ToString(CultureInfo.InvariantCulture)}]", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags == 0);
 
             var indexValue = 2;
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"['{index1}']", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.Optional));
 
             var indexValue = 2;
@@ -187,7 +187,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"[{index1}]", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.EmptyParamArray));
 
             var indexValue = 2;
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"[{index1}, {string.Join(",", args)}]", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.ParamArray));
 
             var indexValue = 2;
@@ -282,7 +282,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestIndexer), $"['{index1}']", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata));
 
             var indexValue = 2;

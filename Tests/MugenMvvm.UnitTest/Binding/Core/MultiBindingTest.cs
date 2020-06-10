@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     return expressionValue;
                 }
             };
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) => throw new NotSupportedException()
@@ -135,7 +135,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 v.ShouldEqual(targetMember.MemberType == MemberType.Event ? binding : expressionValue);
                 context.ShouldEqual(binding);
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>

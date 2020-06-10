@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var request = "";
             var selectorCount = 0;
             var providerCount = 0;
-            var members = new[] {new TestMemberAccessorInfo(), new TestMemberAccessorInfo()};
+            var members = new[] {new TestAccessorMemberInfo(), new TestAccessorMemberInfo()};
 
             var manager = new MemberManager();
             var selector = new TestMemberManagerComponent

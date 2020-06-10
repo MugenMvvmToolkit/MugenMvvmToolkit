@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         [Fact]
         public void InterceptTargetValueShouldReturnFallbackValue()
         {
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(int)
             };
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         [Fact]
         public void InterceptTargetValueShouldReturnTargetNullValue()
         {
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(int)
             };
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         [Fact]
         public void InterceptTargetValueShouldUseConverter()
         {
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(string)
             };
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         [Fact]
         public void InterceptSourceValueShouldUseConverter()
         {
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(string)
             };
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         [Fact]
         public void InterceptSourceValueShouldReturnTargetNullValue()
         {
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(int)
             };

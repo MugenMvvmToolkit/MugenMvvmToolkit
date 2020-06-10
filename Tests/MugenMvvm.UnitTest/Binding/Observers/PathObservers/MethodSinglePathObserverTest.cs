@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var lastMemberTarget = "";
             IEventListener? currentListener = null;
             IEventListener? lastListener = null;
-            var accessorInfo = new TestMemberAccessorInfo
+            var accessorInfo = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {

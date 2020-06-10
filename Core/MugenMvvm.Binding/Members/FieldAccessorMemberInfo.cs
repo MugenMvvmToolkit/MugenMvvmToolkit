@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class FieldMemberAccessorInfo : IMemberAccessorInfo
+    public sealed class FieldAccessorMemberInfo : IAccessorMemberInfo
     {
         #region Fields
 
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public FieldMemberAccessorInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider,
+        public FieldAccessorMemberInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObserverProvider? observerProvider,
             IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));

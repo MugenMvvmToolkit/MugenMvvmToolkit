@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private readonly Expression _thisExpression;
 
         private static readonly MethodInfo GetValuePropertyMethod =
-            typeof(IMemberAccessorInfo).GetMethodOrThrow(nameof(IMemberAccessorInfo.GetValue), BindingFlagsEx.InstancePublic);
+            typeof(IAccessorMemberInfo).GetMethodOrThrow(nameof(IAccessorMemberInfo.GetValue), BindingFlagsEx.InstancePublic);
 
         private static readonly MethodInfo GetValueDynamicMethod = typeof(MemberExpressionBuilder).GetMethodOrThrow(nameof(GetValueDynamic), BindingFlagsEx.InstancePublic);
 
@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             var member = _memberManager
                 .DefaultIfNull()
-                .GetMember(type, MemberType.Accessor, flags, memberExpression.Member, context.GetMetadataOrDefault()) as IMemberAccessorInfo;
+                .GetMember(type, MemberType.Accessor, flags, memberExpression.Member, context.GetMetadataOrDefault()) as IAccessorMemberInfo;
 
             if (member == null)
             {
@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             var property = _memberManager
                 .DefaultIfNull()
-                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property.GetValue(target, metadata);

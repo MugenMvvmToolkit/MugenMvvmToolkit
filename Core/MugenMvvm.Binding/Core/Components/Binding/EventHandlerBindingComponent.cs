@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
         private object? _currentValue;
-        private IMemberAccessorInfo? _enabledMember;
+        private IAccessorMemberInfo? _enabledMember;
         private IWeakReference? _targetRef;
         private ActionToken _unsubscriber;
 
@@ -165,7 +165,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
                 return false;
 
             _enabledMember = GetMemberManager()
-                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IAccessorMemberInfo;
             if (_enabledMember == null || !_enabledMember.CanWrite)
                 return false;
 

@@ -177,7 +177,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                     if (member is IObservableMemberInfo observable)
                         SubscribeMember(i, target, observable, metadata);
 
-                    target = (member as IMemberAccessorInfo)?.GetValue(target, metadata);
+                    target = (member as IAccessorMemberInfo)?.GetValue(target, metadata);
                     if (target.IsNullOrUnsetValue())
                     {
                         SetMembers(null, null, null);
@@ -213,7 +213,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 if (member is IObservableMemberInfo observable)
                     SubscribeMember(index, target, observable, metadata);
 
-                target = (member as IMemberAccessorInfo)?.GetValue(target, metadata)!;
+                target = (member as IAccessorMemberInfo)?.GetValue(target, metadata)!;
                 if (target.IsNullOrUnsetValue())
                 {
                     SetMembers(null, members, null);

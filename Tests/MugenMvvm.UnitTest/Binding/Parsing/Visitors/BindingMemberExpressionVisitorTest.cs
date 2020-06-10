@@ -305,7 +305,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var returnType = typeof(string);
             var member1Result = 1;
             var member2Result = "";
-            var member1 = new TestMemberAccessorInfo
+            var member1 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -314,7 +314,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                     return member1Result;
                 }
             };
-            var member2 = new TestMemberAccessorInfo
+            var member2 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -430,7 +430,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
             var memberResult = "w";
-            var member = new TestMemberAccessorInfo
+            var member = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {

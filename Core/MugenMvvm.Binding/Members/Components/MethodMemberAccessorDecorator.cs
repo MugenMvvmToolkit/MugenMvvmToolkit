@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Members.Components
                     var values = _globalValueConverter.TryGetInvokeArgs(methodInfo.GetParameters(), methodArgsRaw, metadata, out var flags);
                     if (values != null)
                     {
-                        _members[i] = new MethodMemberAccessorInfo(methodName, methodInfo, null, values, flags, type, _observerProvider);
+                        _members[i] = new MethodAccessorMemberInfo(methodName, methodInfo, null, values, flags, type, _observerProvider);
                         continue;
                     }
                 }

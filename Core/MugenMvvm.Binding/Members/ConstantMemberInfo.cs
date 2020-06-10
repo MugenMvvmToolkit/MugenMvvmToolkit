@@ -8,7 +8,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class ConstantMemberInfo : IMemberAccessorInfo
+    public sealed class ConstantMemberInfo : IAccessorMemberInfo
     {
         #region Fields
 

@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var dispose = false;
             var target = new object();
             var result = this;
-            var member = new TestMemberAccessorInfo
+            var member = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var disposeObserver = false;
             var target = new object();
             var memberResult = BindingMetadata.UnsetValue;
-            var member = new TestMemberAccessorInfo
+            var member = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {

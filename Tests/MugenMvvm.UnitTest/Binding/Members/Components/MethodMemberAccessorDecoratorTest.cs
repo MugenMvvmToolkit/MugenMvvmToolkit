@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestMethodInvoker), $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags == 0);
 
             var getter = 0;
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestMethodInvoker), $"{nameof(TestMethodInvoker.GetValue)}('{index1}')", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.Optional));
 
             var getter = 0;
@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestMethodInvoker), $"{nameof(TestMethodInvoker.GetValue)}({index1})", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.EmptyParamArray));
 
             var getter = 0;
@@ -136,7 +136,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestMethodInvoker), $"{nameof(TestMethodInvoker.GetValue)}({index1}, {string.Join(",", args)})", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.ParamArray));
 
             var getter = 0;
@@ -170,7 +170,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             var member = decorator.TryGetMembers(typeof(TestMethodInvoker), $"{nameof(TestMethodInvoker.GetValue)}('{index1}')", DefaultMetadata)
                 .AsList()
-                .OfType<MethodMemberAccessorInfo>()
+                .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.Metadata));
 
             var getter = 0;

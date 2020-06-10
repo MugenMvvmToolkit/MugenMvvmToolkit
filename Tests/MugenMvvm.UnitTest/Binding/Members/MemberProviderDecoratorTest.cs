@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var memberFlags = MemberFlags.All;
             var request = "test";
             var memberManager = new MemberManager();
-            var member = new TestMemberAccessorInfo();
+            var member = new TestAccessorMemberInfo();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {

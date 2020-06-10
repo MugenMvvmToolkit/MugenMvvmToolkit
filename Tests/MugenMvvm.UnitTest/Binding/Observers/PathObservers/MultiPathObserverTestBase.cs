@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var target3 = 1;
             var path = DefaultPath;
             IEventListener? rootListener = null;
-            var accessorInfo1 = new TestMemberAccessorInfo
+            var accessorInfo1 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return new ActionToken((o1, o2) => rootListener = null);
                 }
             };
-            var accessorInfo2 = new TestMemberAccessorInfo
+            var accessorInfo2 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return target2;
                 }
             };
-            var accessorInfo3 = new TestMemberAccessorInfo
+            var accessorInfo3 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var target3 = 1;
             var path = DefaultPath;
             IEventListener? rootListener = null;
-            var accessorInfo1 = new TestMemberAccessorInfo
+            var accessorInfo1 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -185,7 +185,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return new ActionToken((o1, o2) => rootListener = null);
                 }
             };
-            var accessorInfo2 = new TestMemberAccessorInfo
+            var accessorInfo2 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -193,7 +193,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return target2;
                 }
             };
-            var accessorInfo3 = new TestMemberAccessorInfo
+            var accessorInfo3 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -319,7 +319,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var root = this;
             var target1 = new object();
             var target2 = "";
-            var accessorInfo1 = new TestMemberAccessorInfo
+            var accessorInfo1 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) => target1,
                 TryObserve = (o, listener, arg3) =>
@@ -329,11 +329,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return new ActionToken((o1, o2) => currentListener = null);
                 }
             };
-            var accessorInfo2 = new TestMemberAccessorInfo
+            var accessorInfo2 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) => target2
             };
-            var accessorInfo3 = new TestMemberAccessorInfo();
+            var accessorInfo3 = new TestAccessorMemberInfo();
             var component = new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
@@ -368,15 +368,15 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var root = this;
             var target1 = new object();
             var target2 = "";
-            var accessorInfo1 = new TestMemberAccessorInfo
+            var accessorInfo1 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) => target1
             };
-            var accessorInfo2 = new TestMemberAccessorInfo
+            var accessorInfo2 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) => target2
             };
-            var accessorInfo3 = new TestMemberAccessorInfo
+            var accessorInfo3 = new TestAccessorMemberInfo
             {
                 TryObserve = (o, listener, arg3) =>
                 {

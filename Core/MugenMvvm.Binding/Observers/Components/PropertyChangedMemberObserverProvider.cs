@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
             if (member is PropertyInfo p && !p.IsStatic())
                 return TryGetMemberObserver(p.Name, type);
-            if (member is IMemberAccessorInfo accessor && !accessor.AccessModifiers.HasFlagEx(MemberFlags.Static))
+            if (member is IAccessorMemberInfo accessor && !accessor.AccessModifiers.HasFlagEx(MemberFlags.Static))
                 return TryGetMemberObserver(accessor.Name, type);
             return default;
         }

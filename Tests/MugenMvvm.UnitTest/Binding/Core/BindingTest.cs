@@ -382,7 +382,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             bool targetHasMember = true;
             bool sourceHasMember = true;
             int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -400,7 +400,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     context.ShouldEqual(binding);
                 }
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -498,7 +498,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             object sourceValue = "2";
             object? sourceObj = null;
             Exception? exception = null;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) => targetValue,
@@ -506,7 +506,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 {
                 }
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) => sourceValue
@@ -595,12 +595,12 @@ namespace MugenMvvm.UnitTest.Binding.Core
             object sourceValue = "2";
             object? targetObj = null;
             Exception? exception = null;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) => targetValue,
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) => sourceValue,
@@ -694,7 +694,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             object targetValue = 0;
             object sourceValue = 0;
             int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0, interceptCount = 0;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -712,7 +712,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     context.ShouldEqual(binding);
                 }
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -777,7 +777,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             object targetValue = 0;
             object sourceValue = 0;
             int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0, interceptCount = 0;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -795,7 +795,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     context.ShouldEqual(binding);
                 }
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -860,7 +860,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             object targetValue = 0;
             object sourceValue = 0;
             int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0, interceptCount = 0;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -878,7 +878,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     context.ShouldEqual(binding);
                 }
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -942,7 +942,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             object targetValue = 0;
             object sourceValue = 0;
             int targetGet = 0, targetSet = 0, sourceGet = 0, sourceSet = 0, interceptCount = 0;
-            var targetMember = new TestMemberAccessorInfo
+            var targetMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>
@@ -960,7 +960,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                     context.ShouldEqual(binding);
                 }
             };
-            var sourceMember = new TestMemberAccessorInfo
+            var sourceMember = new TestAccessorMemberInfo
             {
                 Type = typeof(object),
                 GetValue = (o, context) =>

@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     type.ShouldEqual(requestType);
                     name.ShouldEqual(s);
                     arg3.ShouldEqual(DefaultMetadata);
-                    var info = new TestMemberAccessorInfo();
+                    var info = new TestAccessorMemberInfo();
                     list.Add(info);
                     return info;
                 };

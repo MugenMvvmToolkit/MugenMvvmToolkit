@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
         [InlineData(false)]
         public void GetMembersShouldReturnActualMembers(bool optional)
         {
-            var accessorInfo = new TestMemberAccessorInfo();
+            var accessorInfo = new TestAccessorMemberInfo();
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
         [InlineData(false)]
         public void GetLastMemberShouldReturnActualMembers(bool optional)
         {
-            var accessorInfo = new TestMemberAccessorInfo();
+            var accessorInfo = new TestAccessorMemberInfo();
             var memberFlags = MemberFlags.All;
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
@@ -176,7 +176,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
         {
             IEventListener? currentListener = null;
             IEventListener? lastListener = null;
-            var accessorInfo = new TestMemberAccessorInfo
+            var accessorInfo = new TestAccessorMemberInfo
             {
                 TryObserve = (o, listener, arg3) =>
                 {

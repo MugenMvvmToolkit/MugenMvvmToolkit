@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
                 }
             };
 
-            var member = new TestMemberAccessorInfo {Name = propertyName};
+            var member = new TestAccessorMemberInfo {Name = propertyName};
             var observer = component.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 

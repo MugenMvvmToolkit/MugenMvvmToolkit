@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestMemberAccessorInfo result = new TestMemberAccessorInfo
+            TestAccessorMemberInfo result = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestMemberAccessorInfo result = new TestMemberAccessorInfo
+            TestAccessorMemberInfo result = new TestAccessorMemberInfo
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
@@ -118,7 +118,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestMemberAccessorInfo? result = null;
+            TestAccessorMemberInfo? result = null;
             _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
                 t.ShouldEqual(GetType());
@@ -133,7 +133,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var build = _component.TryBuild(ctx, expressionNode)!;
 
             var invokeCount = 0;
-            result = new TestMemberAccessorInfo
+            result = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -157,7 +157,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestMemberAccessorInfo? result = null;
+            TestAccessorMemberInfo? result = null;
             _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
             {
                 t.ShouldEqual(GetType());
@@ -180,7 +180,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestMemberAccessorInfo result = new TestMemberAccessorInfo
+            TestAccessorMemberInfo result = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {
@@ -214,7 +214,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            TestMemberAccessorInfo result = new TestMemberAccessorInfo
+            TestAccessorMemberInfo result = new TestAccessorMemberInfo
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };

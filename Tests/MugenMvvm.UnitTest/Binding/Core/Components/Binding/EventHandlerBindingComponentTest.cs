@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         public void OnAttachingShouldSubscribeToTargetEvent()
         {
             var target = new object();
-            IMemberInfo member = new TestMemberAccessorInfo();
+            IMemberInfo member = new TestAccessorMemberInfo();
             var binding = new TestBinding
             {
                 Target = new TestMemberPathObserver
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
 
             var enabledValue = false;
             var canExecute = true;
-            var enabledMember = new TestMemberAccessorInfo
+            var enabledMember = new TestAccessorMemberInfo
             {
                 CanWrite = true,
                 SetValue = (o, o1, arg3) =>
@@ -302,7 +302,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             };
 
             enabledValue.ShouldNotEqual(canExecute);
-            component.TrySetTargetValue(binding, new MemberPathLastMember(target, new TestMemberAccessorInfo()), value, DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(binding, new MemberPathLastMember(target, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
             enabledValue.ShouldEqual(canExecute);
             canExecuteHandler.ShouldNotBeNull();
 
@@ -336,7 +336,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
         public void OnDetachedShouldClearValues()
         {
             var cmdParameter = new object();
-            var enabledMember = new TestMemberAccessorInfo
+            var enabledMember = new TestAccessorMemberInfo
             {
                 CanWrite = true,
                 SetValue = (o, o1, arg3) => { }
@@ -377,7 +377,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             };
 
             ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
-            component.TrySetTargetValue(binding, new MemberPathLastMember(this, new TestMemberAccessorInfo()), value, DefaultMetadata).ShouldBeTrue();
+            component.TrySetTargetValue(binding, new MemberPathLastMember(this, new TestAccessorMemberInfo()), value, DefaultMetadata).ShouldBeTrue();
             listener.ShouldNotBeNull();
             canExecuteHandler.ShouldNotBeNull();
             component.CommandParameter.IsEmpty.ShouldBeFalse();

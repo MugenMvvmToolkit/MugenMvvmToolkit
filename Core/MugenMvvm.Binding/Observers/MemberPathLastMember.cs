@@ -95,17 +95,17 @@ namespace MugenMvvm.Binding.Observers
                 ThrowIfError();
                 return BindingMetadata.UnsetValue;
             }
-            return ((IMemberAccessorInfo)_member).GetValue(_target, metadata);
+            return ((IAccessorMemberInfo)_member).GetValue(_target, metadata);
         }
 
         public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
-            return ((IMemberAccessorInfo)_member!).GetValue(_target, metadata);
+            return ((IAccessorMemberInfo)_member!).GetValue(_target, metadata);
         }
 
         public void SetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)
         {
-            if (_member is IMemberAccessorInfo member)
+            if (_member is IAccessorMemberInfo member)
                 member.SetValue(_target, MugenBindingService.GlobalValueConverter.Convert(value, member.Type, member, metadata), metadata);
         }
 

@@ -183,11 +183,11 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public static IEnumerable<object?[]> GetArgumentFlagsData()
         {
             var getter = new TestMethodInfo { AccessModifiers = MemberFlags.InstancePublic, DeclaringType = typeof(object), Type = typeof(object) };
-            var defaultMethod = new MethodMemberAccessorInfo("", getter, null, new object?[0], 0, typeof(object), null);
-            var optionalMethod = new MethodMemberAccessorInfo("", getter, null, new object?[0], ArgumentFlags.Optional, typeof(object), null);
-            var metadataMethod = new MethodMemberAccessorInfo("", getter, null, new object?[0], ArgumentFlags.Metadata, typeof(object), null);
-            var paramMethod = new MethodMemberAccessorInfo("", getter, null, new object?[0], ArgumentFlags.ParamArray, typeof(object), null);
-            var emptyParamMethod = new MethodMemberAccessorInfo("", getter, null, new object?[0], ArgumentFlags.EmptyParamArray, typeof(object), null);
+            var defaultMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], 0, typeof(object), null);
+            var optionalMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Optional, typeof(object), null);
+            var metadataMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Metadata, typeof(object), null);
+            var paramMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.ParamArray, typeof(object), null);
+            var emptyParamMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.EmptyParamArray, typeof(object), null);
 
 
             var list = new List<object?[]>();
@@ -214,9 +214,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             return new[] { memberInfo };
         }
 
-        private static TestMemberAccessorInfo GetAccessorInfo(Type declaringType, MemberType type, MemberFlags flags)
+        private static TestAccessorMemberInfo GetAccessorInfo(Type declaringType, MemberType type, MemberFlags flags)
         {
-            return new TestMemberAccessorInfo
+            return new TestAccessorMemberInfo
             {
                 DeclaringType = declaringType,
                 AccessModifiers = flags,

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Members
 {
-    public class PropertyMemberAccessorInfoTest : UnitTestBase
+    public class PropertyAccessorMemberInfoTest : UnitTestBase
     {
         #region Properties
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var testEventListener = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
             var count = 0;
-            PropertyMemberAccessorInfo? memberInfo = null;
+            PropertyAccessorMemberInfo? memberInfo = null;
 
             var memberObserver = new MemberObserver((target, member, listener, meta) =>
             {
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(typeof(PropertyMemberAccessorInfo));
+                    arg3.ShouldEqual(typeof(PropertyAccessorMemberInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var delegateProvider = new ReflectionDelegateProvider();
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
 
-            memberInfo = new PropertyMemberAccessorInfo(name, propertyInfo, reflectedType, observerProvider, delegateProvider);
+            memberInfo = new PropertyAccessorMemberInfo(name, propertyInfo, reflectedType, observerProvider, delegateProvider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(propertyInfo.PropertyType);
             memberInfo.DeclaringType.ShouldEqual(propertyInfo.DeclaringType);

@@ -29,15 +29,15 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var target1 = new object();
             var target2 = "";
             var target3 = isValueType ? 1 : new object();
-            var accessorInfo1 = new TestMemberAccessorInfo
+            var accessorInfo1 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) => target1
             };
-            var accessorInfo2 = new TestMemberAccessorInfo
+            var accessorInfo2 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) => target2
             };
-            var accessorInfo3 = new TestMemberAccessorInfo
+            var accessorInfo3 = new TestAccessorMemberInfo
             {
                 GetValue = (o, context) =>
                 {

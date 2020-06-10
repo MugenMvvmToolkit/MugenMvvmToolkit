@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var target = new object();
             var memberInfos = new[]
             {
-                new TestMemberAccessorInfo
+                new TestAccessorMemberInfo
                 {
                     Type = typeof(object)
                 }

@@ -297,7 +297,7 @@ namespace MugenMvvm.Binding.Extensions
                     if (i == 1)
                         flags = flags.SetInstanceOrStaticFlags(false);
                     var member = memberManager.GetMember(type, MemberType.Accessor, flags, path.Members[i], metadata);
-                    if (!(member is IMemberAccessorInfo accessor) || !accessor.CanRead)
+                    if (!(member is IAccessorMemberInfo accessor) || !accessor.CanRead)
                         return null;
 
                     target = accessor.GetValue(target, metadata);
@@ -425,7 +425,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var propertyInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IAccessorMemberInfo;
             if (propertyInfo == null)
                 return defaultValue;
             return (TValue)propertyInfo.GetValue(target, metadata)!;
@@ -437,7 +437,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var propertyInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IMemberAccessorInfo;
+                .GetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IAccessorMemberInfo;
             if (propertyInfo == null)
             {
                 if (throwOnError)
@@ -712,7 +712,7 @@ namespace MugenMvvm.Binding.Extensions
         internal static void AddMethodObserver(this ObserverBase.IMethodPathObserver observer, object? target, IMemberInfo? lastMember, IReadOnlyMetadataContext? metadata, ref ActionToken unsubscriber, ref IWeakReference? lastValueRef)
         {
             unsubscriber.Dispose();
-            if (target == null || !(lastMember is IMemberAccessorInfo propertyInfo))
+            if (target == null || !(lastMember is IAccessorMemberInfo propertyInfo))
             {
                 unsubscriber = ActionToken.NoDoToken;
                 return;
@@ -761,7 +761,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var member = memberManager.GetMember(type, MemberType.Accessor, flags, path, metadata) as IMemberAccessorInfo;
+            var member = memberManager.GetMember(type, MemberType.Accessor, flags, path, metadata) as IAccessorMemberInfo;
             if (member == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);

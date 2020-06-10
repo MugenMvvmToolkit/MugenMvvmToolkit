@@ -143,7 +143,7 @@ namespace MugenMvvm.Binding.Members.Components
                     setter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodInfo;
 
                 if (getter != null || setter != null)
-                    _members.Add(new MethodMemberAccessorInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));
+                    _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));
             }
 
             _membersDictionary.Clear();

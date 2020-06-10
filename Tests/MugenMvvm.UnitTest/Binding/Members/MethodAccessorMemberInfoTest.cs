@@ -13,7 +13,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Members
 {
-    public class MethodMemberAccessorInfoTest : UnitTestBase
+    public class MethodAccessorMemberInfoTest : UnitTestBase
     {
         #region Methods
 
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 };
             }
 
-            MethodMemberAccessorInfo? memberInfo = null;
+            MethodAccessorMemberInfo? memberInfo = null;
             var reflectedType = typeof(string);
             var testEventListener = new TestWeakEventListener();
             var result = new ActionToken((o, o1) => { });
@@ -102,14 +102,14 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(typeof(MethodMemberAccessorInfo));
+                    arg3.ShouldEqual(typeof(MethodAccessorMemberInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
                 }
             });
 
-            memberInfo = new MethodMemberAccessorInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : 0, reflectedType, observerProvider);
+            memberInfo = new MethodAccessorMemberInfo(name, getMethod, setMethod, inputArgs, isLastParameterMetadata ? ArgumentFlags.Metadata : 0, reflectedType, observerProvider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.DeclaringType.ShouldEqual(declaringType);
             memberInfo.Type.ShouldEqual(type);
