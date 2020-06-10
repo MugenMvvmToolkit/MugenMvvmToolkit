@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             var lastMemberTarget = this;
             IEventListener? currentListener = null;
             IEventListener? lastListener = null;
-            var methodMember = new TestMethodInfo
+            var methodMember = new TestMethodMemberInfo
             {
                 TryObserve = (o, listener, arg3) =>
                 {

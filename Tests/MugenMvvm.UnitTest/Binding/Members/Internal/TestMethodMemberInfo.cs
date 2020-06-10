@@ -6,7 +6,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Binding.Members.Internal
 {
-    public class TestMethodInfo : TestMemberInfoBase, IMethodInfo
+    public class TestMethodMemberInfo : TestMemberInfoBase, IMethodMemberInfo
     {
         #region Properties
 
@@ -18,9 +18,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         public Func<IReadOnlyList<Type>>? GetGenericArguments { get; set; }
 
-        public Func<Type[], IMethodInfo>? MakeGenericMethod { get; set; }
+        public Func<Type[], IMethodMemberInfo>? MakeGenericMethod { get; set; }
 
-        public Func<IMethodInfo>? GetGenericMethodDefinition { get; set; }
+        public Func<IMethodMemberInfo>? GetGenericMethodDefinition { get; set; }
 
         public Func<object?, object?[], IReadOnlyMetadataContext?, object?>? Invoke { get; set; }
 
@@ -28,27 +28,27 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         #region Implementation of interfaces
 
-        IReadOnlyList<IParameterInfo> IMethodInfo.GetParameters()
+        IReadOnlyList<IParameterInfo> IMethodMemberInfo.GetParameters()
         {
             return GetParameters?.Invoke() ?? Default.Array<IParameterInfo>();
         }
 
-        IReadOnlyList<Type> IMethodInfo.GetGenericArguments()
+        IReadOnlyList<Type> IMethodMemberInfo.GetGenericArguments()
         {
             return GetGenericArguments?.Invoke() ?? Default.Array<Type>();
         }
 
-        IMethodInfo IMethodInfo.GetGenericMethodDefinition()
+        IMethodMemberInfo IMethodMemberInfo.GetGenericMethodDefinition()
         {
             return GetGenericMethodDefinition?.Invoke()!;
         }
 
-        IMethodInfo IMethodInfo.MakeGenericMethod(Type[] types)
+        IMethodMemberInfo IMethodMemberInfo.MakeGenericMethod(Type[] types)
         {
             return MakeGenericMethod?.Invoke(types) ?? this;
         }
 
-        object? IMethodInfo.Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata)
+        object? IMethodMemberInfo.Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata)
         {
             return Invoke?.Invoke(target, args, metadata);
         }

@@ -17,17 +17,17 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly object?[] _args;
-        private readonly IMethodInfo? _getMethod;
+        private readonly IMethodMemberInfo? _getMethod;
         private readonly IObserverProvider? _observerProvider;
         private readonly Type _reflectedType;
-        private readonly IMethodInfo? _setMethod;
+        private readonly IMethodMemberInfo? _setMethod;
         private MemberObserver? _observer;
 
         #endregion
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodInfo? getMethod, IMethodInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObserverProvider? observerProvider)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObserverProvider? observerProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));

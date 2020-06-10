@@ -53,7 +53,7 @@ namespace MugenMvvm.Binding.Members.Components
             Components.TryAddMembers(_members, type, methodName, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
-                if (_members[i] is IMethodInfo methodInfo)
+                if (_members[i] is IMethodMemberInfo methodInfo)
                 {
                     var values = _globalValueConverter.TryGetInvokeArgs(methodInfo.GetParameters(), methodArgsRaw, metadata, out var flags);
                     if (values != null)

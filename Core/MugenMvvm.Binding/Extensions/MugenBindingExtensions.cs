@@ -477,7 +477,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             var methodInfo = provider
                 .DefaultIfNull()
-                .GetMember(target.GetType(), MemberType.Method, flags, methodMember.Name, metadata) as IMethodInfo;
+                .GetMember(target.GetType(), MemberType.Method, flags, methodMember.Name, metadata) as IMethodMemberInfo;
             return methodInfo?.Invoke(target, args ?? Default.Array<object>());
         }
 

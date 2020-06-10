@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
 {
-    public interface IMethodInfo : IObservableMemberInfo
+    public interface IMethodMemberInfo : IObservableMemberInfo
     {
         bool IsGenericMethod { get; }
 
@@ -14,9 +14,9 @@ namespace MugenMvvm.Binding.Interfaces.Members
 
         IReadOnlyList<Type> GetGenericArguments();
 
-        IMethodInfo GetGenericMethodDefinition();
+        IMethodMemberInfo GetGenericMethodDefinition();
 
-        IMethodInfo MakeGenericMethod(Type[] types);
+        IMethodMemberInfo MakeGenericMethod(Type[] types);
 
         object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
     }

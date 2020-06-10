@@ -161,14 +161,14 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             {
                 new TestParameterInfo {ParameterType = typeof(object)}
             };
-            var m1 = new TestMethodInfo
+            var m1 = new TestMethodMemberInfo
             {
                 GetParameters = () => parameters1,
                 DeclaringType = typeof(object),
                 AccessModifiers = MemberFlags.InstancePublic,
                 MemberType = MemberType.Method
             };
-            var m2 = new TestMethodInfo
+            var m2 = new TestMethodMemberInfo
             {
                 GetParameters = () => parameters2,
                 DeclaringType = typeof(object),
@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
         public static IEnumerable<object?[]> GetArgumentFlagsData()
         {
-            var getter = new TestMethodInfo { AccessModifiers = MemberFlags.InstancePublic, DeclaringType = typeof(object), Type = typeof(object) };
+            var getter = new TestMethodMemberInfo { AccessModifiers = MemberFlags.InstancePublic, DeclaringType = typeof(object), Type = typeof(object) };
             var defaultMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], 0, typeof(object), null);
             var optionalMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Optional, typeof(object), null);
             var metadataMethod = new MethodAccessorMemberInfo("", getter, null, new object?[0], ArgumentFlags.Metadata, typeof(object), null);

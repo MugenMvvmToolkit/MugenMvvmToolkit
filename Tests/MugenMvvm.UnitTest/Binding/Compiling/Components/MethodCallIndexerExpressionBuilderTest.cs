@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceMethod1);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            var result = new TestMethodInfo
+            var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
                 Invoke = (o, objects, arg3) =>
@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceMethod1);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            var result = new TestMethodInfo
+            var result = new TestMethodMemberInfo
             {
                 UnderlyingMember = GetType().GetMethod(memberName)
             };
@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(InstanceMethod1);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            var result = new TestMethodInfo
+            var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
                 Invoke = (o, objects, arg3) =>
@@ -209,7 +209,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(StaticMethod1);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            var result = new TestMethodInfo
+            var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
                 Invoke = (o, objects, arg3) =>
@@ -244,7 +244,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(StaticMethod1);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            var result = new TestMethodInfo
+            var result = new TestMethodMemberInfo
             {
                 UnderlyingMember = GetType().GetMethod(memberName)
             };
@@ -606,7 +606,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = BindingInternalConstant.IndexerGetterName;
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            var result = new TestMethodInfo
+            var result = new TestMethodMemberInfo
             {
                 Type = typeof(object),
                 GetParameters = () => new[] { new TestParameterInfo { ParameterType = typeof(bool) }, },
@@ -656,7 +656,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 if (member.Name != memberName)
                     continue;
 
-                var methodInfo = new TestMethodInfo
+                var methodInfo = new TestMethodMemberInfo
                 {
                     Type = member.ReturnType,
                     GetParameters = () => { return member.GetParameters().Select(info => new ParameterInfoImpl(info)).ToArray(); }

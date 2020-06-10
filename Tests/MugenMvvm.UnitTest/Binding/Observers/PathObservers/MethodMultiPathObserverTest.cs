@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
                     return target3;
                 }
             };
-            var methodMember = new TestMethodInfo
+            var methodMember = new TestMethodMemberInfo
             {
                 TryObserve = (o, listener, arg3) =>
                 {

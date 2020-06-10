@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members
 {
-    public sealed class MethodMemberInfo : IMethodInfo
+    public sealed class MethodMemberInfo : IMethodMemberInfo
     {
         #region Fields
 
@@ -123,12 +123,12 @@ namespace MugenMvvm.Binding.Members
             return _genericArguments ?? _method.GetGenericArguments();
         }
 
-        public IMethodInfo GetGenericMethodDefinition()
+        public IMethodMemberInfo GetGenericMethodDefinition()
         {
             return new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionDelegateProvider);
         }
 
-        public IMethodInfo MakeGenericMethod(Type[] types)
+        public IMethodMemberInfo MakeGenericMethod(Type[] types)
         {
             var method = _method;
             if (IsGenericMethodDefinition)

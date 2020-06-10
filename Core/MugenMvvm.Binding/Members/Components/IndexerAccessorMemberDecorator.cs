@@ -79,7 +79,7 @@ namespace MugenMvvm.Binding.Members.Components
             Components.TryAddMembers(_members, type, getterName, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
-                if (!(_members[i] is IMethodInfo method) || method.Type == typeof(void))
+                if (!(_members[i] is IMethodMemberInfo method) || method.Type == typeof(void))
                     continue;
 
                 var parameters = method.GetParameters();
@@ -90,7 +90,7 @@ namespace MugenMvvm.Binding.Members.Components
                 var key = new MemberKey(method.DeclaringType, method.Type, parameters, false);
                 if (!_membersDictionary.TryGetValue(key, out var value))
                 {
-                    value = (new List<IMethodInfo>(), null, args, flags);
+                    value = (new List<IMethodMemberInfo>(), null, args, flags);
                     _membersDictionary[key] = value;
                 }
 
@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                 for (var i = 0; i < _members.Count; i++)
                 {
-                    if (!(_members[i] is IMethodInfo method) || method.Type != typeof(void))
+                    if (!(_members[i] is IMethodMemberInfo method) || method.Type != typeof(void))
                         continue;
 
                     var parameters = method.GetParameters();
@@ -119,13 +119,13 @@ namespace MugenMvvm.Binding.Members.Components
                         if (args == null || args.Length == 0)
                             continue;
 
-                        value = (null, new List<IMethodInfo>(), args, flags);
+                        value = (null, new List<IMethodMemberInfo>(), args, flags);
                         _membersDictionary[key] = value;
                     }
 
                     if (value.setters == null)
                     {
-                        value = (value.getters, new List<IMethodInfo>(), value.args, value.flags);
+                        value = (value.getters, new List<IMethodMemberInfo>(), value.args, value.flags);
                         _membersDictionary[key] = value;
                     }
 
@@ -136,11 +136,11 @@ namespace MugenMvvm.Binding.Members.Components
             _members.Clear();
             foreach (var item in _membersDictionary)
             {
-                IMethodInfo? getter = null, setter = null;
+                IMethodMemberInfo? getter = null, setter = null;
                 if (item.Value.getters != null)
-                    getter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.getters, metadata) as IMethodInfo;
+                    getter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.getters, metadata) as IMethodMemberInfo;
                 if (item.Value.setters != null)
-                    setter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodInfo;
+                    setter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodMemberInfo;
 
                 if (getter != null || setter != null)
                     _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));
@@ -196,7 +196,7 @@ namespace MugenMvvm.Binding.Members.Components
             #endregion
         }
 
-        private sealed class MemberDictionary : LightDictionary<MemberKey, (List<IMethodInfo>? getters, List<IMethodInfo>? setters, object?[] args, ArgumentFlags flags)>
+        private sealed class MemberDictionary : LightDictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)>
         {
             #region Constructors
 

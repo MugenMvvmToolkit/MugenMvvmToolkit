@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private const float NotExactlyEqualUnsafeCastWeight = 1000f;
 
         private static readonly Expression[] ExpressionCallBuffer = new Expression[5];
-        private static readonly MethodInfo InvokeMethod = typeof(IMethodInfo).GetMethodOrThrow(nameof(IMethodInfo.Invoke), BindingFlagsEx.InstancePublic);
+        private static readonly MethodInfo InvokeMethod = typeof(IMethodMemberInfo).GetMethodOrThrow(nameof(IMethodMemberInfo.Invoke), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo MethodInvokerInvokeMethod = typeof(MethodInvoker).GetMethodOrThrow(nameof(MethodInvoker.Invoke), BindingFlagsEx.InstancePublic);
 
         #endregion
@@ -469,7 +469,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return args;
         }
 
-        private static MethodData TryInferMethod(IMethodInfo method, ArgumentData[] args)
+        private static MethodData TryInferMethod(IMethodMemberInfo method, ArgumentData[] args)
         {
             if (!method.IsGenericMethodDefinition)
                 return new MethodData(method);
@@ -481,7 +481,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return new MethodData(genericMethod);
         }
 
-        private static IMethodInfo? TryInferGenericMethod(IMethodInfo method, ArgumentData[] args, out bool hasUnresolved)
+        private static IMethodMemberInfo? TryInferGenericMethod(IMethodMemberInfo method, ArgumentData[] args, out bool hasUnresolved)
         {
             var parameters = method.GetParameters();
             var inferredTypes = MugenBindingExtensions.TryInferGenericParameters(method.GetGenericArguments(), parameters, info => info.ParameterType, args, (data, i) => data[i].Type, args.Length, out hasUnresolved);
@@ -490,7 +490,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return method.MakeGenericMethod(inferredTypes);
         }
 
-        private static IMethodInfo? ApplyTypeArgs(IMethodInfo m, Type[] typeArgs)
+        private static IMethodMemberInfo? ApplyTypeArgs(IMethodMemberInfo m, Type[] typeArgs)
         {
             if (typeArgs.Length == 0)
             {
@@ -524,7 +524,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             return true;
         }
 
-        private static Expression[] ToExpressions(IExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IMethodInfo? method, Type? convertType)
+        private static Expression[] ToExpressions(IExpressionBuilderContext context, IReadOnlyList<IExpressionNode> args, IMethodMemberInfo? method, Type? convertType)
         {
             var parameters = method?.GetParameters();
             var expressions = new Expression[args.Count];
@@ -550,7 +550,7 @@ namespace MugenMvvm.Binding.Compiling.Components
             var count = 0;
             for (int i = 0; i < methods.Length; i++)
             {
-                if (members.Get(i) is IMethodInfo method)
+                if (members.Get(i) is IMethodMemberInfo method)
                 {
                     var m = typeArgs == null || typeArgs.Length == 0 ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)
@@ -718,8 +718,8 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             #region Fields
 
-            private readonly IMethodInfo? _unresolvedMethod;
-            public readonly IMethodInfo Method;
+            private readonly IMethodMemberInfo? _unresolvedMethod;
+            public readonly IMethodMemberInfo Method;
             public readonly IReadOnlyList<IParameterInfo> Parameters;
             public readonly object? Args;
 
@@ -727,13 +727,13 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Constructors
 
-            public MethodData(IMethodInfo method)
+            public MethodData(IMethodMemberInfo method)
                 : this(method, null)
             {
                 Method = method;
             }
 
-            public MethodData(IMethodInfo method, IMethodInfo? unresolvedMethod, object? args = null)
+            public MethodData(IMethodMemberInfo method, IMethodMemberInfo? unresolvedMethod, object? args = null)
             {
                 Method = method;
                 Parameters = method.GetParameters();

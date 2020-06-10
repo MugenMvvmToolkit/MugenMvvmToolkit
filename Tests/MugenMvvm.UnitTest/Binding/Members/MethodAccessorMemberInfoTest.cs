@@ -42,11 +42,11 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
 
             var memberFlags = MemberFlags.All;
-            IMethodInfo? getMethod = null;
-            IMethodInfo? setMethod = null;
+            IMethodMemberInfo? getMethod = null;
+            IMethodMemberInfo? setMethod = null;
             if (canRead)
             {
-                getMethod = new TestMethodInfo
+                getMethod = new TestMethodMemberInfo
                 {
                     DeclaringType = declaringType,
                     AccessModifiers = memberFlags,
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
             if (canWrite)
             {
-                setMethod = new TestMethodInfo
+                setMethod = new TestMethodMemberInfo
                 {
                     DeclaringType = declaringType,
                     AccessModifiers = memberFlags,
