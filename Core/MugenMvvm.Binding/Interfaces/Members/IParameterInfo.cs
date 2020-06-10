@@ -6,6 +6,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
     {
         object? UnderlyingParameter { get; }
 
+        string Name { get; }
+
         Type ParameterType { get; }
 
         bool HasDefaultValue { get; }

@@ -471,14 +471,17 @@ namespace MugenMvvm.Binding.Extensions
             return eventInfo.TryObserve(target, listener, metadata);
         }
 
-        public static object? TryInvokeBindableMethod<TTarget>(this TTarget target,
-            BindableMethodDescriptor<TTarget> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
+        public static TReturn TryInvokeBindableMethod<TTarget, TReturn>(this TTarget target,
+            BindableMethodDescriptor<TTarget, TReturn> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? provider = null) where TTarget : class
         {
             var methodInfo = provider
                 .DefaultIfNull()
                 .GetMember(target.GetType(), MemberType.Method, flags, methodMember.Name, metadata) as IMethodMemberInfo;
-            return methodInfo?.Invoke(target, args ?? Default.Array<object>());
+            var value = methodInfo?.Invoke(target, args ?? Default.Array<object>());
+            if (value == null)
+                return default!;
+            return (TReturn)value;
         }
 
         public static WeakEventListener ToWeak(this IEventListener listener)

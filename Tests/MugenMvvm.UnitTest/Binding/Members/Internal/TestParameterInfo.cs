@@ -9,6 +9,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         public object? UnderlyingParameter { get; set; }
 
+        public string Name { get; set; } = null!;
+
         public bool HasDefaultValue { get; set; }
 
         public Type ParameterType { get; set; } = default!;

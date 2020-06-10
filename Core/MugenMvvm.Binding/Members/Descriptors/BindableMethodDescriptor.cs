@@ -4,7 +4,7 @@ using JetBrains.Annotations;
 namespace MugenMvvm.Binding.Members.Descriptors
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindableMethodDescriptor<TTarget> where TTarget : class
+    public readonly struct BindableMethodDescriptor<TTarget, TReturn> where TTarget : class
     {
         #region Fields
 
@@ -25,18 +25,18 @@ namespace MugenMvvm.Binding.Members.Descriptors
         #region Methods
 
         [Pure]
-        public BindableMethodDescriptor<TNewSource> Override<TNewSource>()
+        public BindableMethodDescriptor<TNewSource, TReturn> Override<TNewSource>()
             where TNewSource : class
         {
-            return new BindableMethodDescriptor<TNewSource>(Name);
+            return new BindableMethodDescriptor<TNewSource, TReturn>(Name);
         }
 
-        public static implicit operator BindableMethodDescriptor<TTarget>(string name)
+        public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(string name)
         {
-            return new BindableMethodDescriptor<TTarget>(name);
+            return new BindableMethodDescriptor<TTarget, TReturn>(name);
         }
 
-        public static implicit operator string(BindableMethodDescriptor<TTarget> member)
+        public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member)
         {
             return member.Name;
         }

@@ -14,9 +14,13 @@
         public const string ArrayGetterName = "Get";
         public const string ArraySetterName = "Set";
         public const string BindPrefix = "@#b";
-        public const string AttachedEventPrefix = "$#e";
         public const string AttachedPropertyPrefix = "$#p";
-        public const string AttachedMemberHandlerPrefix = "$#3";
+        public const string AttachedEventPrefix = "$#e";
+        public const string AttachedMethodPrefix = "$#m";
+
+        public const string AttachedHandlerEventPrefix = "$#1";
+        public const string AttachedHandlerPropertyPrefix = "$#2";
+        public const string AttachedHandlerMethodPrefix = "$#3";
 
         #endregion
     }
