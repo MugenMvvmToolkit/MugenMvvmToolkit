@@ -28,12 +28,18 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void TryPublish(this IMessagePublisherComponent[] components, IMessageContext messageContext)
+        public static bool TryPublish(this IMessagePublisherComponent[] components, IMessageContext messageContext)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(messageContext, nameof(messageContext));
+            bool published = false;
             for (var i = 0; i < components.Length; i++)
-                components[i].TryPublish(messageContext);
+            {
+                if (components[i].TryPublish(messageContext))
+                    published = true;
+            }
+
+            return published;
         }
 
         public static bool TrySubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, [DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)

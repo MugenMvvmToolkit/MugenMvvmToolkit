@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Messaging
     {
         IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null);
 
-        void Publish(IMessageContext messageContext);
+        bool Publish(IMessageContext messageContext);
     }
 }

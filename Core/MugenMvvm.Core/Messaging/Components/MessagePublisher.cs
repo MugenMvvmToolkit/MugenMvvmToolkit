@@ -79,12 +79,12 @@ namespace MugenMvvm.Messaging.Components
             }
         }
 
-        public void TryPublish(IMessageContext messageContext)
+        public bool TryPublish(IMessageContext messageContext)
         {
             Should.NotBeNull(messageContext, nameof(messageContext));
             var messenger = _owner;
             if (messenger == null)
-                return;
+                return false;
 
             var threadDispatcher = _threadDispatcher.DefaultIfNull();
             ThreadExecutionModeDictionary? dictionary;
@@ -98,11 +98,11 @@ namespace MugenMvvm.Messaging.Components
                 }
             }
 
-            if (dictionary != null)
-            {
-                foreach (var dispatcherExecutor in dictionary)
-                    threadDispatcher.Execute(dispatcherExecutor.Key, dispatcherExecutor.Value, messageContext);
-            }
+            if (dictionary == null)
+                return false;
+            foreach (var dispatcherExecutor in dictionary)
+                threadDispatcher.Execute(dispatcherExecutor.Key, dispatcherExecutor.Value, messageContext);
+            return true;
         }
 
         #endregion

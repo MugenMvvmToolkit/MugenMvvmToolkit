@@ -91,6 +91,7 @@ namespace MugenMvvm.UnitTest.Messaging
         {
             var ctx = new MessageContext(new object(), new object(), DefaultMetadata);
             var invokeCount = 0;
+            bool result = false;
             var messenger = new Messenger();
             for (var i = 0; i < count; i++)
             {
@@ -101,12 +102,18 @@ namespace MugenMvvm.UnitTest.Messaging
                     {
                         ++invokeCount;
                         messageContext.ShouldEqual(ctx);
+                        return result;
                     }
                 };
                 messenger.AddComponent(component);
             }
 
-            messenger.Publish(ctx);
+            messenger.Publish(ctx).ShouldEqual(result);
+            invokeCount.ShouldEqual(count);
+
+            invokeCount = 0;
+            result = true;
+            messenger.Publish(ctx).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 

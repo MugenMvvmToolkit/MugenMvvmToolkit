@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Messaging;
 namespace MugenMvvm.Messaging
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct MessengerHandler
+    public readonly struct MessengerHandler//todo review state
     {
         #region Fields
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.Messaging
 
         #region Properties
 
-        public bool IsEmpty => Subscriber == null;
+        public bool IsEmpty => Handler == null;
 
         #endregion
 

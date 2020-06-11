@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 {
     public interface IMessagePublisherComponent : IComponent<IMessenger>
     {
-        void TryPublish(IMessageContext messageContext);
+        bool TryPublish(IMessageContext messageContext);
     }
 }

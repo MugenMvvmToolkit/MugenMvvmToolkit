@@ -9,7 +9,7 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
     {
         #region Properties
 
-        public Action<IMessageContext>? TryPublish { get; set; }
+        public Func<IMessageContext, bool>? TryPublish { get; set; }
 
         public int Priority { get; set; }
 
@@ -17,9 +17,9 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         #region Implementation of interfaces
 
-        void IMessagePublisherComponent.TryPublish(IMessageContext messageContext)
+        bool IMessagePublisherComponent.TryPublish(IMessageContext messageContext)
         {
-            TryPublish?.Invoke(messageContext);
+            return TryPublish?.Invoke(messageContext) ?? false;
         }
 
         #endregion

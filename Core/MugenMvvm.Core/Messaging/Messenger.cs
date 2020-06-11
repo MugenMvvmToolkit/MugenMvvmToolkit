@@ -36,9 +36,9 @@ namespace MugenMvvm.Messaging
             return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(sender, message, metadata) ?? new MessageContext(sender, message, metadata, _metadataContextProvider);
         }
 
-        public void Publish(IMessageContext messageContext)
+        public bool Publish(IMessageContext messageContext)
         {
-            GetComponents<IMessagePublisherComponent>().TryPublish(messageContext);
+            return GetComponents<IMessagePublisherComponent>().TryPublish(messageContext);
         }
 
         public bool Subscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
