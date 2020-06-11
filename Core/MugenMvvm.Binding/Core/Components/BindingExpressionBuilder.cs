@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
@@ -33,6 +34,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public BindingExpressionBuilder(IExpressionParser? parser = null, IExpressionCompiler? expressionCompiler = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _parser = parser;

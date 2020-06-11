@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -23,6 +24,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public FakeMemberProvider()
         {
             _cache = new StringOrdinalLightDictionary<ConstantMemberInfo>(7);

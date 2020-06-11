@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -23,6 +24,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public BindingHolderLifecycleDispatcher()
         {
             _components = Default.Array<IBindingHolderComponent>();

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
@@ -32,6 +33,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
         {
             _globalValueConverter = globalValueConverter;

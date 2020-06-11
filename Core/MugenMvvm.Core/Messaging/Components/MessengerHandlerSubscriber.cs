@@ -32,6 +32,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MessengerHandlerSubscriber(IReflectionDelegateProvider? reflectionDelegateProvider = null)
             : base(HandlerSubscriberEqualityComparer.Instance)
         {

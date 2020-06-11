@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Constants;
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -18,6 +19,7 @@ namespace MugenMvvm.Validation.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ValidatorProviderComponent(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _componentCollectionProvider = componentCollectionProvider;

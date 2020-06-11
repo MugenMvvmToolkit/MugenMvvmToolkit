@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -12,6 +13,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MacrosBindingInitializer()
         {
             TargetVisitors = new List<IExpressionVisitor>();

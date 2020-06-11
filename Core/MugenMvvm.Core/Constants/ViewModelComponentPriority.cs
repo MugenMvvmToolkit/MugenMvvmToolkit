@@ -4,7 +4,7 @@
     {
         #region Fields
 
-        public const int Cache = 0;
+        public const int Provider = 0;
         public const int ServiceResolver = 0;
         public const int Lifecycle = 0;
 

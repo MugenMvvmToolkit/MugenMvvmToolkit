@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -28,6 +29,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MessagePublisher(IThreadDispatcher? threadDispatcher = null) : base(3)
         {
             _threadDispatcher = threadDispatcher;

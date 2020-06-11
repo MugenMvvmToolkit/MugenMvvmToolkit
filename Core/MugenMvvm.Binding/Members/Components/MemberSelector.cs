@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
@@ -27,6 +28,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MemberSelector()
         {
             _selectorDictionary = new SelectorDictionary();

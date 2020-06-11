@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Resources.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -12,6 +13,7 @@ namespace MugenMvvm.Binding.Resources.Components
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public TypeResolverComponent()
         {
             Types = new Dictionary<string, Type>();

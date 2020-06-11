@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Constants;
+﻿using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
@@ -32,6 +33,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public BindingInitializer(IExpressionCompiler? compiler = null, IMemberManager? memberManager = null)
         {
             _memberExpressionVisitor = new BindingMemberExpressionVisitor

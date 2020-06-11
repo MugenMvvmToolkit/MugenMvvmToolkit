@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
@@ -35,6 +36,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public CacheReflectionDelegateProviderDecorator()
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();

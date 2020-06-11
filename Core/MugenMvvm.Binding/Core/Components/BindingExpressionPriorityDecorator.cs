@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
@@ -19,6 +20,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public BindingExpressionPriorityDecorator()
         {
             BindingMemberPriorities = new Dictionary<string, int>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -27,6 +28,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public NavigationCallbackPresenterDecorator(INavigationDispatcher? navigationDispatcher = null)
         {
             _navigationDispatcher = navigationDispatcher;

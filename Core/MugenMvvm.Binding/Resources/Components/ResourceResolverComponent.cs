@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Interfaces.Resources.Components;
@@ -11,6 +12,7 @@ namespace MugenMvvm.Binding.Resources.Components
     {
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ResourceResolverComponent()
         {
             Resources = new Dictionary<string, IResourceValue>();

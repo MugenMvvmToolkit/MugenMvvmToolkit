@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Collections;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
@@ -17,6 +18,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ConditionalWeakTableAttachedValueProvider()
         {
             _weakTable = new ConditionalWeakTable<object, StringOrdinalLightDictionary<object?>>();

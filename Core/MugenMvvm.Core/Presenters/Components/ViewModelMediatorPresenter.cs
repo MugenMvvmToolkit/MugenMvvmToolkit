@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
+using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Internal;
@@ -36,6 +37,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ViewModelMediatorPresenter(IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, IServiceProvider? serviceProvider = null)
         {
             _mediators = new List<(Type, Type, bool)>();

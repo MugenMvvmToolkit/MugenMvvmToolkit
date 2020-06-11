@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -27,6 +28,7 @@ namespace MugenMvvm.Views.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ViewModelViewInitializerDecorator(IViewModelManager? viewModelManager = null, IServiceProvider? serviceProvider = null)
         {
             _viewModelManager = viewModelManager;

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -24,6 +25,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MemberProviderDecorator()
         {
             _members = new List<IMemberInfo>();

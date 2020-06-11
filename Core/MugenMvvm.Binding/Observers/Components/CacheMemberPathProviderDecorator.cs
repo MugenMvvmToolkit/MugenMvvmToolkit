@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
@@ -22,6 +23,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public CacheMemberPathProviderDecorator()
         {
             _cache = new StringOrdinalLightDictionary<IMemberPath?>(59);

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -21,6 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ExpressionParserComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _parserContext = new TokenParserContext(metadataContextProvider);

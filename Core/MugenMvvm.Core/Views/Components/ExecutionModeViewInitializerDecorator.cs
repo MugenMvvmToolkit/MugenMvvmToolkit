@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -25,6 +26,7 @@ namespace MugenMvvm.Views.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public ExecutionModeViewInitializerDecorator(IThreadDispatcher? threadDispatcher = null)
         {
             _threadDispatcher = threadDispatcher;

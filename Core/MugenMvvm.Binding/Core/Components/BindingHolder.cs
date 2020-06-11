@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -25,6 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public BindingHolder(IAttachedValueProvider? attachedValueProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;

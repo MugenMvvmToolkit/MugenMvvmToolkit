@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Converters;
@@ -26,6 +27,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Constructors
 
+        [Preserve(Conditional = true)]
         public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
         {
             _globalValueConverter = globalValueConverter;
