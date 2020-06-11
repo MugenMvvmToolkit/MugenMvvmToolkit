@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTest.Views
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestViewInitializerComponent
+                var component = new TestViewManagerComponent
                 {
                     TryInitializeAsync = (viewMapping, r, t, meta, token) =>
                     {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTest.Views
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestViewInitializerComponent
+                var component = new TestViewManagerComponent
                 {
                     TryCleanupAsync = (v, r, t, meta, token) =>
                     {

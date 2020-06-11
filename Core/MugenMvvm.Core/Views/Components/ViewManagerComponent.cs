@@ -21,7 +21,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewInitializer : AttachableComponentBase<IViewManager>, IViewInitializerComponent, IViewProviderComponent, IHasPriority
+    public sealed class ViewManagerComponent : AttachableComponentBase<IViewManager>, IViewManagerComponent, IViewProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -29,14 +29,14 @@ namespace MugenMvvm.Views.Components
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
-        private static readonly IMetadataContextKey<List<IView>, List<IView>> ViewsMetadataKey = MetadataContextKey.FromMember(ViewsMetadataKey, typeof(ViewInitializer), nameof(ViewsMetadataKey));
+        private static readonly IMetadataContextKey<List<IView>, List<IView>> ViewsMetadataKey = MetadataContextKey.FromMember(ViewsMetadataKey, typeof(ViewManagerComponent), nameof(ViewsMetadataKey));
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewInitializer(IAttachedValueProvider? attachedValueProvider = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewManagerComponent(IAttachedValueProvider? attachedValueProvider = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;
             _componentCollectionProvider = componentCollectionProvider;

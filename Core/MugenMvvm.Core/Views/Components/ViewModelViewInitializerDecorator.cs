@@ -17,7 +17,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewModelViewInitializerDecorator : ComponentDecoratorBase<IViewManager, IViewInitializerComponent>, IViewInitializerComponent, IHasPriority
+    public sealed class ViewModelViewInitializerDecorator : ComponentDecoratorBase<IViewManager, IViewManagerComponent>, IViewManagerComponent, IHasPriority
     {
         #region Fields
 

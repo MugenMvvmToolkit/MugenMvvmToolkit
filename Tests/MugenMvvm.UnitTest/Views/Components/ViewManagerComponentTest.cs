@@ -15,7 +15,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Views.Components
 {
-    public class ViewInitializerTest : UnitTestBase
+    public class ViewManagerComponentTest : UnitTestBase
     {
         #region Methods
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void TryInitializeAsyncShouldIgnoreNull()
         {
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
-            var component = new ViewInitializer();
+            var component = new ViewManagerComponent();
             component.TryInitializeAsync(mapping, new ViewModelViewRequest(), CancellationToken.None, DefaultMetadata).ShouldBeNull();
         }
 
@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
-            var component = new ViewInitializer();
+            var component = new ViewManagerComponent();
             manager.AddComponent(component);
             var results = new List<IView>();
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             const int viewCount = 10;
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
-            var component = new ViewInitializer();
+            var component = new ViewManagerComponent();
             manager.AddComponent(component);
             var results = new List<IView>();
 
@@ -135,7 +135,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var clearView = view;
             var viewModel = owner ? new TestViewModelComponentOwner() : new TestViewModel();
             var manager = new ViewManager();
-            var component = new ViewInitializer();
+            var component = new ViewManagerComponent();
             manager.AddComponent(component);
 
             var states = new Dictionary<ViewLifecycleState, List<ViewLifecycleState>>();

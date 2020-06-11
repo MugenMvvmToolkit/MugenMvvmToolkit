@@ -6,8 +6,6 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    //todo cleanup manager, clear commands, initialize manager, provider manager
-    //todo add wrapper view model use as extension, todo add presenter
     public interface IViewModelManager : IComponentOwner<IViewModelManager>, IComponent<IMugenApplication>
     {
         void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);

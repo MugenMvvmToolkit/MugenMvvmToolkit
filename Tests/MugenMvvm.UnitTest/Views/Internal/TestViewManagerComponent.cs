@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.UnitTest.Views.Internal
 {
-    public class TestViewInitializerComponent : IViewInitializerComponent, IHasPriority
+    public class TestViewManagerComponent : IViewManagerComponent, IHasPriority
     {
         #region Properties
 
@@ -22,12 +22,12 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        Task<IView>? IViewInitializerComponent.TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task<IView>? IViewManagerComponent.TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryInitializeAsync?.Invoke(mapping, request!, typeof(TRequest), metadata, cancellationToken);
         }
 
-        Task? IViewInitializerComponent.TryCleanupAsync<TRequest>(IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task? IViewManagerComponent.TryCleanupAsync<TRequest>(IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryCleanupAsync?.Invoke(view, request, typeof(TRequest), metadata, cancellationToken);
         }

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -39,7 +37,7 @@ namespace MugenMvvm.ViewModels
             return result;
         }
 
-        public IViewModelBase? TryGetViewModel<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IViewModelBase? TryGetViewModel<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(request, metadata);
         }

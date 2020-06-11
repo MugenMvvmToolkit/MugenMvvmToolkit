@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Views.Components
 {
-    public interface IViewInitializerComponent : IComponent<IViewManager>
+    public interface IViewManagerComponent : IComponent<IViewManager>
     {
         Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata);
 

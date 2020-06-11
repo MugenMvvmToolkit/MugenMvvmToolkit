@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var cancellationToken = new CancellationTokenSource().Token;
 
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewInitializerComponent
+            viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (viewMapping, r, t, m, token) =>
                 {
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var cancellationToken = new CancellationTokenSource().Token;
 
             var viewManager = new ViewManager();
-            viewManager.AddComponent(new TestViewInitializerComponent
+            viewManager.AddComponent(new TestViewManagerComponent
             {
                 TryCleanupAsync = (v, r, t, meta, token) =>
                 {

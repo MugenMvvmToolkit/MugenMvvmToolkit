@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Metadata
@@ -9,17 +9,17 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private static IMetadataContextKey<IComponentCollection, IComponentCollection>? _wrappers;
+        private static IMetadataContextKey<ViewLifecycleState, ViewLifecycleState>? _lifecycleState;
 
         #endregion
 
         #region Properties
 
         [AllowNull]
-        public static IMetadataContextKey<IComponentCollection, IComponentCollection> Wrappers
+        public static IMetadataContextKey<ViewLifecycleState, ViewLifecycleState> LifecycleState
         {
-            get => _wrappers ??= GetBuilder(_wrappers, nameof(Wrappers)).NotNull().Build();
-            set => _wrappers = value;
+            get => _lifecycleState ??= GetBuilder(_lifecycleState, nameof(LifecycleState)).NotNull().Build();
+            set => _lifecycleState = value;
         }
 
         #endregion

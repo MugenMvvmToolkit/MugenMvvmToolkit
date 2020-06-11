@@ -47,7 +47,7 @@ namespace MugenMvvm.Extensions.Components
             return result.Cast<IReadOnlyList<IViewModelViewMapping>>();
         }
 
-        public static Task<IView>? TryInitializeAsync<TRequest>(this IViewInitializerComponent[] components, IViewModelViewMapping mapping,
+        public static Task<IView>? TryInitializeAsync<TRequest>(this IViewManagerComponent[] components, IViewModelViewMapping mapping,
             [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -62,7 +62,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Task? TryCleanupAsync<TRequest>(this IViewInitializerComponent[] components, IView view, TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public static Task? TryCleanupAsync<TRequest>(this IViewManagerComponent[] components, IView view, TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(view, nameof(view));

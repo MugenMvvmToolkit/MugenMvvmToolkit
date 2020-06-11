@@ -14,7 +14,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Views.Components
 {
-    public class ExecutionModeViewInitializerDecoratorTest : UnitTestBase
+    public class ExecutionModeViewManagerDecoratorTest : UnitTestBase
     {
         #region Methods
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void TryInitializeAsyncShouldBeExecutedInline()
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
+            var component = new ExecutionModeViewManagerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var viewModel = new TestViewModel();
             var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewInitializerComponent
+            manager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (viewMapping, r, t, meta, token) =>
                 {
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void TryInitializeAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
+            var component = new ExecutionModeViewManagerDecorator(dispatcher);
             var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var viewModel = new TestViewModel();
             var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewInitializerComponent
+            manager.AddComponent(new TestViewManagerComponent
             {
                 TryInitializeAsync = (viewMapping, r, t, meta, token) =>
                 {
@@ -131,7 +131,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void TryCleanupAsyncShouldBeExecutedInline()
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
+            var component = new ExecutionModeViewManagerDecorator(dispatcher);
             var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var result = Task.FromResult(this);
@@ -152,7 +152,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewInitializerComponent
+            manager.AddComponent(new TestViewManagerComponent
             {
                 TryCleanupAsync = (v, r, t, meta, token) =>
                 {
@@ -176,7 +176,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void TryCleanupAsyncShouldUseThreadDispatcher(int state)
         {
             var dispatcher = new ThreadDispatcher();
-            var component = new ExecutionModeViewInitializerDecorator(dispatcher);
+            var component = new ExecutionModeViewManagerDecorator(dispatcher);
             var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var result = Task.FromResult(this);
@@ -200,7 +200,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewInitializerComponent
+            manager.AddComponent(new TestViewManagerComponent
             {
                 TryCleanupAsync = (v, r, t, meta, token) =>
                 {

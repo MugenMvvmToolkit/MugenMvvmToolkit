@@ -199,9 +199,9 @@ namespace MugenMvvm.Extensions
             handler.Invoke((TState)state);
         }
 
-        internal static void ReleaseWeakReference(this IValueHolder<IWeakReference> valueHolder)
+        internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder)
         {
-            valueHolder.Value?.Release();
+            valueHolder?.Value?.Release();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
