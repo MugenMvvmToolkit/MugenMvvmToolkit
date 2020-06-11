@@ -62,7 +62,7 @@ namespace MugenMvvm.Metadata
         {
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNullOrEmpty(fieldOrPropertyName, nameof(fieldOrPropertyName));
-            var key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
+            var key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName + declaredType.AssemblyQualifiedName.Length.ToString(CultureInfo.InvariantCulture);
             if (serializable)
             {
                 return new SerializableMetadataContextKey<TGet, TSet>(key, contextKey => StaticMemberMemento.Create(contextKey, declaredType, fieldOrPropertyName), metadata)

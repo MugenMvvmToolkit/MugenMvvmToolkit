@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             object defaultValue = "";
             var requestType = typeof(int);
             var result = true;
-            IParameterInfo parameter = null;
+            IParameterInfo? parameter = null;
             var invokeCount = 0;
             parameter = new ParameterBuilder(name, type).DefaultValue(defaultValue).IsDefinedHandler((info, t) =>
             {

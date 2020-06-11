@@ -13,7 +13,7 @@ using MugenMvvm.Interfaces.Models;
 namespace MugenMvvm.Internal.Components
 {
     public sealed class ExpressionReflectionDelegateProvider : IReflectionDelegateProviderComponent, IActivatorReflectionDelegateProviderComponent,
-        IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent, IHasPriority //todo use buffers
+        IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent, IHasPriority
     {
         #region Fields
 

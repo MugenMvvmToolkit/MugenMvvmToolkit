@@ -7,11 +7,11 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderAttachedValueProvider : AttachedValueProviderBase, IHasPriority//todo metadataowner componentownere
+    public sealed class ValueHolderAttachedValueProvider : AttachedValueProviderBase, IHasPriority
     {
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.Cache;
+        public int Priority { get; set; } = InternalComponentPriority.ValueHolderAttachedValueProvider;
 
         #endregion
 
