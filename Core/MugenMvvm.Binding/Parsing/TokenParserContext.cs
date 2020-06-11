@@ -6,12 +6,13 @@ using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    public sealed class TokenParserContext : MetadataOwnerBase, ITokenParserContext
+    public sealed class TokenParserContext : MetadataOwnerBase, ITokenParserContext, IHasTarget<string>
     {
         #region Fields
 
@@ -50,7 +51,7 @@ namespace MugenMvvm.Binding.Parsing
             get => _limit;
             set
             {
-                Should.BeValid(nameof(value), value == null || (value.Value <= Source.Length && value >= 0));
+                Should.BeValid(nameof(value), value == null || value.Value <= Source.Length && value >= 0);
                 _limit = value;
             }
         }
@@ -66,6 +67,8 @@ namespace MugenMvvm.Binding.Parsing
                 _parsers = value;
             }
         }
+
+        string IHasTarget<string>.Target => Source;
 
         #endregion
 
