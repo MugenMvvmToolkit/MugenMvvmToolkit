@@ -256,7 +256,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
         {
             var memberManager = new MemberManager();
             memberManager.AddComponent(new MemberSelector());
-            memberManager.AddComponent(new MemberProviderDecorator());
+            memberManager.AddComponent(new NameMemberProviderDecorator());
             memberManager.AddComponent(new ReflectionMemberProvider());
             memberManager.AddComponent(new ExtensionMethodMemberProvider());
 

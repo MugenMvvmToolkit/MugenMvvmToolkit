@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
             var manager = new MemberManager();
-            var component = new MemberProviderDecorator();
+            var component = new NameMemberProviderDecorator();
             manager.AddComponent(component);
             component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     return members;
                 }
             };
-            var component = new MemberProviderDecorator();
+            var component = new NameMemberProviderDecorator();
             manager.AddComponent(selector);
             manager.AddComponent(provider);
             manager.AddComponent(component);

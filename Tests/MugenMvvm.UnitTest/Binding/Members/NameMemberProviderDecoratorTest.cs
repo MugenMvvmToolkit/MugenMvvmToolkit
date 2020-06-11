@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Members
 {
-    public class MemberProviderDecoratorTest : ComponentOwnerTestBase<IMemberManager>
+    public class NameMemberProviderDecoratorTest : ComponentOwnerTestBase<IMemberManager>
     {
         #region Methods
 
