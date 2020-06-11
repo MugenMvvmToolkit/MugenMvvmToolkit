@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Components
 {
-    public class ExceptionBindingExpressionDecoratorTest : UnitTestBase
+    public class ExceptionBindingExpressionBuilderDecoratorTest : UnitTestBase
     {
         #region Methods
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var request = "";
             var exception = new Exception();
-            var decorator = new ExceptionBindingExpressionDecorator();
+            var decorator = new ExceptionBindingExpressionBuilderDecorator();
             var component = new TestBindingExpressionBuilderComponent
             {
                 TryBuildBindingExpression = (o, type, arg3) =>
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 };
             }
 
-            var decorator = new ExceptionBindingExpressionDecorator();
+            var decorator = new ExceptionBindingExpressionBuilderDecorator();
             var component = new TestBindingExpressionBuilderComponent
             {
                 TryBuildBindingExpression = (o, type, arg3) => expressions
