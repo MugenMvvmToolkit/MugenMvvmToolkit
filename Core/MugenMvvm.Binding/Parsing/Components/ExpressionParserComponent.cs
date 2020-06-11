@@ -10,7 +10,6 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing.Components
 {
-    //todo use span/memory?
     public sealed class ExpressionParserComponent : AttachableComponentBase<IExpressionParser>, IExpressionParserComponent, IHasPriority
     {
         #region Fields

@@ -587,13 +587,6 @@ namespace MugenMvvm.Binding.Extensions
             }
         }
 
-        public static object? Convert(this IGlobalValueConverter? converter, string? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (!string.IsNullOrEmpty(value) && value![0] == '\"' && value.EndsWith("\""))
-                value = value.RemoveBounds();
-            return value == "null" ? null : converter.DefaultIfNull().Convert(value, targetType, member, metadata);
-        }
-
         public static string[]? GetIndexerArgsRaw(string path)
         {
             int start = 1;
@@ -770,7 +763,7 @@ namespace MugenMvvm.Binding.Extensions
             return member.GetValue(target, metadata);
         }
 
-        private static string RemoveBounds(this string st, int start = 1) //todo Span?
+        private static string RemoveBounds(this string st, int start = 1)
         {
             return st.Substring(start, st.Length - start - 1);
         }

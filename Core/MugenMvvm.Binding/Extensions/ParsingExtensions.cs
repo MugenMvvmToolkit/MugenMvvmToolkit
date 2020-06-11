@@ -130,7 +130,7 @@ namespace MugenMvvm.Binding.Extensions
             return context.TokenAt(position) == token;
         }
 
-        public static bool IsToken(this ITokenParserContext context, string token, int? position = null)
+        public static bool IsToken(this ITokenParserContext context, string token, int? position = null, bool isPartOfIdentifier = true)
         {
             if (token.Length == 1)
                 return context.IsToken(token[0], position);
@@ -139,13 +139,13 @@ namespace MugenMvvm.Binding.Extensions
             var i = 0;
             while (i != token.Length)
             {
-                var pos = p + i;
-                if (context.IsEof(pos) || TokenAt(context, pos) != token[i])
+                if (context.IsEof(p) || TokenAt(context, p) != token[i])
                     return false;
                 ++i;
+                ++p;
             }
 
-            return true;
+            return isPartOfIdentifier || context.IsEof(p) || !context.TokenAt(p).IsValidIdentifierSymbol(false);
         }
 
         public static bool IsAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)
@@ -181,13 +181,13 @@ namespace MugenMvvm.Binding.Extensions
         public static bool IsIdentifier(this ITokenParserContext context, out int endPosition, int? position = null)
         {
             endPosition = context.GetPosition(position);
-            if (context.IsEof(endPosition) || !IsValidIdentifierSymbol(true, TokenAt(context, endPosition)))
+            if (context.IsEof(endPosition) || !TokenAt(context, endPosition).IsValidIdentifierSymbol(true))
                 return false;
 
             do
             {
                 ++endPosition;
-            } while (!context.IsEof(endPosition) && IsValidIdentifierSymbol(false, TokenAt(context, endPosition)));
+            } while (!context.IsEof(endPosition) && TokenAt(context, endPosition).IsValidIdentifierSymbol(false));
 
             return true;
         }
@@ -422,9 +422,9 @@ namespace MugenMvvm.Binding.Extensions
             return default;
         }
 
-        private static bool IsValidIdentifierSymbol(bool firstSymbol, char symbol)
+        private static bool IsValidIdentifierSymbol(this char symbol, bool isFirstSymbol)
         {
-            if (firstSymbol)
+            if (isFirstSymbol)
                 return char.IsLetter(symbol) || symbol == '@' || symbol == '_';
             return char.IsLetterOrDigit(symbol) || symbol == '_';
         }

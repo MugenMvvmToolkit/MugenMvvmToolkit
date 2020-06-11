@@ -42,15 +42,16 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 return null;
 
             var start = context.SkipWhitespacesPosition();
+            foreach (var expressionNode in LiteralToExpression)
+            {
+                if (context.IsToken(expressionNode.Key, start, false))
+                {
+                    context.Position = start + expressionNode.Key.Length;
+                    return expressionNode.Value;
+                }
+            }
 
-            if (!context.IsIdentifier(out var end, start))
-                return null;
-
-            if (!LiteralToExpression.TryGetValue(context.GetValue(start, end), out expression))
-                return null;
-
-            context.Position = end;
-            return expression;
+            return null;
         }
 
         #endregion
