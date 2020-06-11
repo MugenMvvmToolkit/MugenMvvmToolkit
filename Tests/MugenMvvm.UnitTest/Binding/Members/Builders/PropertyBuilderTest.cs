@@ -158,7 +158,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
-        public void InstanceCustomShouldUseDelegates(bool withAttachedHandler, bool isStatic)
+        public void CustomShouldUseDelegates(bool withAttachedHandler, bool isStatic)
         {
             var message = "m";
             var target = new object();
