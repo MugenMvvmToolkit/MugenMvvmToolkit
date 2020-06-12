@@ -93,6 +93,33 @@ namespace MugenMvvm.UnitTest.Collections
             array.ShouldContain(new KeyValuePair<MyClass, MyClass>(m3, m3));
         }
 
+        [Theory]
+        [InlineData(10000)]
+        [InlineData(100)]
+        [InlineData(10)]
+        public void AddRemoveTest(int count)
+        {
+            for (int i = 0; i < count; i++)
+            {
+                _dictionary3.Add(i, i);
+                _dictionary3.TryGetValue(i, out var value).ShouldBeTrue();
+                value.ShouldEqual(i);
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                _dictionary3.Remove(i);
+                _dictionary3.TryGetValue(i, out var value).ShouldBeFalse();
+            }
+
+            for (int i = 0; i < count; i++)
+            {
+                _dictionary3.Add(i, i);
+                _dictionary3.TryGetValue(i, out var value).ShouldBeTrue();
+                value.ShouldEqual(i);
+            }
+        }
+
         [Fact]
         public void AddTest()
         {

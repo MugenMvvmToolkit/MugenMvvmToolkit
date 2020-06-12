@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Threading;
@@ -24,7 +26,7 @@ namespace MugenMvvm.UnitTest.Collections
         }
 
         [Fact]
-        public void ShouldTrackChanges()
+        public void ShouldTrackChanges1()
         {
             var dispatcherComponent = new TestThreadDispatcherComponent { CanExecuteInline = (_, __) => true };
             using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
@@ -67,10 +69,66 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Clear();
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            bindableCollectionWrapper.Detach();
+            bindableCollectionWrapper.ShouldBeEmpty();
+            observableCollection.Components.Count.ShouldEqual(0);
         }
 
         [Fact]
-        public void ShouldTrackChangesThreadDispatcher()
+        public void ShouldTrackChanges2()
+        {
+            var dispatcherComponent = new TestThreadDispatcherComponent { CanExecuteInline = (_, __) => true };
+            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+
+            var observableCollection = new ObservableCollection<int>();
+            var bindableCollectionWrapper = GetCollection<int>();
+            var tracker = new ObservableCollectionTracker<int>();
+            bindableCollectionWrapper.CollectionChanged += tracker.OnCollectionChanged;
+            bindableCollectionWrapper.PropertyChanged += tracker.CollectionOnPropertyChanged;
+            bindableCollectionWrapper.Attach(observableCollection);
+
+            observableCollection.Add(1);
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection.Insert(1, 2);
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection.Remove(2);
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection.RemoveAt(0);
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection.Clear();
+            observableCollection.AddRange((IReadOnlyList<int>)new[] { 1, 2, 3, 4, 5 });
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection[0] = 200;
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            observableCollection.Clear();
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+
+            bindableCollectionWrapper.Detach();
+            bindableCollectionWrapper.ShouldBeEmpty();
+            observableCollection.Add(1);
+            bindableCollectionWrapper.ShouldBeEmpty();
+        }
+
+        [Fact]
+        public void ShouldTrackChangesThreadDispatcher1()
         {
             Action? action = null;
             var dispatcherComponent = new TestThreadDispatcherComponent
@@ -96,6 +154,45 @@ namespace MugenMvvm.UnitTest.Collections
             observableCollection.Remove(2);
             observableCollection.RemoveAt(0);
             observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
+            observableCollection[0] = 200;
+            observableCollection.Move(1, 2);
+            tracker.ChangedItems.Count.ShouldEqual(0);
+            bindableCollectionWrapper.Count.ShouldEqual(0);
+
+            action.ShouldNotBeNull();
+            action!();
+            tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
+            bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
+        }
+
+        [Fact]
+        public void ShouldTrackChangesThreadDispatcher2()
+        {
+            Action? action = null;
+            var dispatcherComponent = new TestThreadDispatcherComponent
+            {
+                CanExecuteInline = (_, __) => false,
+                Execute = (action1, mode, arg3, _) =>
+                {
+                    action += () => action1(arg3);
+                    return true;
+                }
+            };
+            using var s = TestComponentSubscriber.Subscribe(dispatcherComponent);
+
+            var observableCollection = new ObservableCollection<int>();
+            var bindableCollectionWrapper = GetCollection<int>();
+            var tracker = new ObservableCollectionTracker<int>();
+            bindableCollectionWrapper.CollectionChanged += tracker.OnCollectionChanged;
+            bindableCollectionWrapper.PropertyChanged += tracker.CollectionOnPropertyChanged;
+            bindableCollectionWrapper.Attach(observableCollection);
+
+            observableCollection.Add(1);
+            observableCollection.Insert(1, 2);
+            observableCollection.Remove(2);
+            observableCollection.RemoveAt(0);
+            observableCollection.Clear();
+            observableCollection.AddRange((IReadOnlyList<int>)new[] { 1, 2, 3, 4, 5 });
             observableCollection[0] = 200;
             observableCollection.Move(1, 2);
             tracker.ChangedItems.Count.ShouldEqual(0);

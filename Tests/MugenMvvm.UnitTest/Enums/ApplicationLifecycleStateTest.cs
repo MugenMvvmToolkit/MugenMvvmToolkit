@@ -12,8 +12,8 @@ namespace MugenMvvm.UnitTest.Enums
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
-            var enum1 = ApplicationLifecycleState.Active;
-            var enum2 = ApplicationLifecycleState.Background;
+            var enum1 = ApplicationLifecycleState.Initialized;
+            var enum2 = ApplicationLifecycleState.Initializing;
             var enum3 = new ApplicationLifecycleState(enum1.Value);
             var v1 = enum1.Value;
             var v2 = enum2.Value;
