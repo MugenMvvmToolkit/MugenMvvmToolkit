@@ -52,13 +52,13 @@ namespace MugenMvvm.Commands.Components
         public ICompositeCommand? TryGetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TRequest) == typeof(DelegateCommandRequest))
-                return MugenExtensions.CastGeneric<TRequest, DelegateCommandRequest>(request).TryGetCommand(this, null);
+                return MugenExtensions.CastGeneric<TRequest, DelegateCommandRequest>(request).TryGetCommand(this, metadata);
             return null;
         }
 
         ICompositeCommand? DelegateCommandRequest.IProvider.TryGetCommand<T>(in DelegateCommandRequest request, IReadOnlyMetadataContext? metadata)
         {
-            var command = new CompositeCommand(null, _componentCollectionProvider, _metadataContextProvider);
+            var command = new CompositeCommand(metadata, _componentCollectionProvider, _metadataContextProvider);
             command.AddComponent(new DelegateExecutorCommandComponent<T>(request.Execute, request.CanExecute, request.ExecutionMode.GetValueOrDefault(CommandExecutionMode),
                 request.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
             if (request.CanExecute != null && request.Notifiers != null && request.Notifiers.Count > 0)

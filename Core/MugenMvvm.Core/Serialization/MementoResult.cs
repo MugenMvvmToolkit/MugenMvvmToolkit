@@ -23,10 +23,10 @@ namespace MugenMvvm.Serialization
             _metadata = metadata;
         }
 
-        public MementoResult(IReadOnlyMetadataContext? metadata)
+        public MementoResult(bool isRestored, IReadOnlyMetadataContext? metadata = null)
         {
             Target = null;
-            IsRestored = false;
+            IsRestored = isRestored;
             _metadata = metadata;
         }
 

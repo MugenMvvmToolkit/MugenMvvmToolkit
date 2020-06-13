@@ -28,11 +28,13 @@ namespace MugenMvvm.UnitTest.Serialization
             mementoResult.Target.ShouldEqual(target);
         }
 
-        [Fact]
-        public void ConstructorShouldInitializeValues2()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ConstructorShouldInitializeValues2(bool isRestored)
         {
-            var mementoResult = new MementoResult(DefaultMetadata);
-            mementoResult.IsRestored.ShouldBeFalse();
+            var mementoResult = new MementoResult(isRestored, DefaultMetadata);
+            mementoResult.IsRestored.ShouldEqual(isRestored);
             mementoResult.Metadata.ShouldEqual(DefaultMetadata);
             mementoResult.Target.ShouldBeNull();
         }

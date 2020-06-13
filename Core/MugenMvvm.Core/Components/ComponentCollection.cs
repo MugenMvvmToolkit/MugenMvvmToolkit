@@ -14,8 +14,7 @@ namespace MugenMvvm.Components
 
         private readonly List<object> _items;
         private IComponentCollection? _components;
-        private IComponentTracker[] _componentTrackers;
-
+        private ComponentTracker[] _componentTrackers;
         private IComponentCollectionDecorator[] _decorators;
 
         #endregion
@@ -26,7 +25,7 @@ namespace MugenMvvm.Components
         {
             Owner = owner;
             _items = new List<object>();
-            _componentTrackers = Default.Array<IComponentTracker>();
+            _componentTrackers = Default.Array<ComponentTracker>();
             _decorators = Default.Array<IComponentCollectionDecorator>();
         }
 
@@ -56,7 +55,7 @@ namespace MugenMvvm.Components
 
         int IComparer<IComponentCollectionDecorator>.Compare(IComponentCollectionDecorator x, IComponentCollectionDecorator y)
         {
-            int result = MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
+            var result = MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
             if (result == 0)
             {
                 lock (_items)
@@ -122,7 +121,7 @@ namespace MugenMvvm.Components
                 _items.Clear();
             }
 
-            _componentTrackers = Default.Array<IComponentTracker>();
+            _componentTrackers = Default.Array<ComponentTracker>();
             var changedListeners = _components.GetOrDefault<IComponentCollectionChangedListener>(metadata);
             for (var i = 0; i < oldItems.Length; i++)
             {
@@ -139,8 +138,8 @@ namespace MugenMvvm.Components
             var componentTrackers = _componentTrackers;
             for (var i = 0; i < componentTrackers.Length; i++)
             {
-                if (componentTrackers[i] is ComponentTracker<TComponent> tracker)
-                    return tracker.Components;
+                if (componentTrackers[i].ComponentType == typeof(TComponent))
+                    return (TComponent[])componentTrackers[i].Components;
             }
 
             return AddNewTracker<TComponent>(componentTrackers, metadata);
@@ -168,13 +167,13 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        private TComponent[] AddNewTracker<TComponent>(IComponentTracker[] componentTrackers, IReadOnlyMetadataContext? metadata) where TComponent : class
+        private TComponent[] AddNewTracker<TComponent>(ComponentTracker[] componentTrackers, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
-            var tracker = ComponentTracker<TComponent>.Get(this, metadata);
+            var tracker = GetComponentTracker<TComponent>(metadata);
             Array.Resize(ref componentTrackers, componentTrackers.Length + 1);
             componentTrackers[componentTrackers.Length - 1] = tracker;
             _componentTrackers = componentTrackers;
-            return tracker.Components;
+            return (TComponent[])tracker.Components;
         }
 
         private void UpdateTrackers(object? component, IComponentCollectionDecorator? decorator = null)
@@ -184,103 +183,89 @@ namespace MugenMvvm.Components
             for (var i = 0; i < componentTrackers.Length; i++)
             {
                 var componentTracker = componentTrackers[i];
-                if (!componentTracker.IsComponentSupported(component) && !componentTracker.IsDecoratorSupported(decorator))
+                if (!componentTracker.IsComponentSupported(component, decorator))
                     componentTrackers[newSize++] = componentTracker;
             }
 
             if (newSize == 0)
-                _componentTrackers = Default.Array<IComponentTracker>();
+                _componentTrackers = Default.Array<ComponentTracker>();
             else if (newSize != componentTrackers.Length)
                 Array.Resize(ref _componentTrackers, newSize);
+        }
+
+        private ComponentTracker GetComponentTracker<TComponent>(IReadOnlyMetadataContext? metadata) where TComponent : class
+        {
+            var items = _items;
+            lock (items)
+            {
+                var size = 0;
+                for (var i = 0; i < items.Count; i++)
+                {
+                    if (items[i] is TComponent)
+                        ++size;
+                }
+
+                if (size == 0)
+                    return ComponentTracker.Get(Default.Array<TComponent>());
+
+                if (_decorators.Length != 0 && _decorators.HasDecorators<TComponent>())
+                    return GetComponentTrackerWithDecorators<TComponent>(items, size, metadata);
+
+                var components = new TComponent[size];
+                size = 0;
+                for (var i = 0; i < items.Count; i++)
+                {
+                    if (items[i] is TComponent c)
+                        components[size++] = c;
+                }
+
+                return ComponentTracker.Get(components);
+            }
+        }
+
+        private ComponentTracker GetComponentTrackerWithDecorators<TComponent>(List<object> items, int size, IReadOnlyMetadataContext? metadata)
+            where TComponent : class
+        {
+            var components = new List<TComponent>(size);
+            for (var i = 0; i < items.Count; i++)
+            {
+                if (items[i] is TComponent c)
+                    components.Add(c);
+            }
+
+            return ComponentTracker.Get(_decorators.Decorate(components, metadata));
         }
 
         #endregion
 
         #region Nested types
 
-        public interface IComponentTracker
-        {
-            bool IsComponentSupported(object? component);
-
-            bool IsDecoratorSupported(IComponentCollectionDecorator? decorator);
-        }
-
-        private sealed class ComponentTracker<TComponent> : IComponentTracker
-            where TComponent : class
+        private readonly struct ComponentTracker
         {
             #region Fields
 
-            public readonly TComponent[] Components;
-
-            private static readonly ComponentTracker<TComponent> Empty = new ComponentTracker<TComponent>(Default.Array<TComponent>());
+            public readonly object[] Components;
+            public readonly Type ComponentType;
+            public readonly Func<object?, IComponentCollectionDecorator?, bool> IsComponentSupported;
 
             #endregion
 
             #region Constructors
 
-            private ComponentTracker(TComponent[] components)
+            private ComponentTracker(object[] components, Type componentType, Func<object?, IComponentCollectionDecorator?, bool> isComponentSupported)
             {
                 Components = components;
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public bool IsComponentSupported(object? component)
-            {
-                return component is TComponent;
-            }
-
-            public bool IsDecoratorSupported(IComponentCollectionDecorator? decorator)
-            {
-                return decorator is IComponentCollectionDecorator<TComponent>;
+                ComponentType = componentType;
+                IsComponentSupported = isComponentSupported;
             }
 
             #endregion
 
             #region Methods
 
-            public static ComponentTracker<TComponent> Get(ComponentCollection collection, IReadOnlyMetadataContext? metadata)
+            public static ComponentTracker Get<TComponent>(TComponent[] components) where TComponent : class
             {
-                var items = collection._items;
-                lock (items)
-                {
-                    var size = 0;
-                    for (var i = 0; i < items.Count; i++)
-                    {
-                        if (items[i] is TComponent)
-                            ++size;
-                    }
-
-                    if (size == 0)
-                        return Empty;
-
-                    if (collection._decorators.Length != 0 && collection._decorators.HasDecorators<TComponent>())
-                        return GetComponentTrackerWithDecorators(items, size, collection, metadata);
-
-                    var components = new TComponent[size];
-                    size = 0;
-                    for (var i = 0; i < items.Count; i++)
-                    {
-                        if (items[i] is TComponent c)
-                            components[size++] = c;
-                    }
-
-                    return new ComponentTracker<TComponent>(components);
-                }
-            }
-
-            private static ComponentTracker<TComponent> GetComponentTrackerWithDecorators(List<object> items, int size, ComponentCollection collection, IReadOnlyMetadataContext? metadata)
-            {
-                var components = new List<TComponent>(size);
-                for (var i = 0; i < items.Count; i++)
-                {
-                    if (items[i] is TComponent c)
-                        components.Add(c);
-                }
-
-                return new ComponentTracker<TComponent>(collection._decorators.Decorate(components, metadata));
+                return new ComponentTracker(components, typeof(TComponent), (o, decorator) => o is TComponent || decorator is IComponentCollectionDecorator<TComponent>);
             }
 
             #endregion
