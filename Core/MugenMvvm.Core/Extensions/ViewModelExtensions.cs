@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
@@ -14,14 +15,14 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static bool TrySubscribe<T>(this IViewModelBase viewModel, in T subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public static bool TrySubscribe<T>(this IViewModelBase viewModel, [DisallowNull] in T subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var service = viewModel.TryGetService<IMessenger>();
             return service != null && service.Subscribe(subscriber, executionMode, metadata);
         }
 
-        public static bool TryUnsubscribe<T>(this IViewModelBase viewModel, in T subscriber, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryUnsubscribe<T>(this IViewModelBase viewModel, [DisallowNull] in T subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var service = viewModel.TryGetService<IMessenger>();

@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var messengerHandlers = new MessengerHandler[count];
             for (var i = 0; i < messengerHandlers.Length; i++)
             {
-                messengerHandlers[i] = new MessengerHandler((o, o1, arg3) =>
+                messengerHandlers[i] = new MessengerHandler((o, arg3, o1) =>
                 {
                     ++invokedCount;
                     messageContext.ShouldEqual(arg3);

@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Messaging
             var state = new object();
             int invokeCount = 0;
             var result = MessengerResult.Ignored;
-            Func<object, object?, IMessageContext, MessengerResult> handler = (o, o1, arg3) =>
+            Func<object, IMessageContext, object?, MessengerResult> handler = (o, arg3, o1) =>
             {
                 ++invokeCount;
                 o.ShouldEqual(subscriber);

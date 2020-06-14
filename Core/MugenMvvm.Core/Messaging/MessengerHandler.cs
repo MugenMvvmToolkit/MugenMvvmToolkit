@@ -6,11 +6,11 @@ using MugenMvvm.Interfaces.Messaging;
 namespace MugenMvvm.Messaging
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct MessengerHandler//todo review state
+    public readonly struct MessengerHandler
     {
         #region Fields
 
-        public readonly Func<object, object?, IMessageContext, MessengerResult> Handler;
+        public readonly Func<object, IMessageContext, object?, MessengerResult> Handler;
         public readonly ThreadExecutionMode? ExecutionMode;
         public readonly object Subscriber;
         public readonly object? State;
@@ -19,7 +19,7 @@ namespace MugenMvvm.Messaging
 
         #region Constructors
 
-        public MessengerHandler(Func<object, object?, IMessageContext, MessengerResult> handler, object subscriber, ThreadExecutionMode? executionMode, object? state = null)
+        public MessengerHandler(Func<object, IMessageContext, object?, MessengerResult> handler, object subscriber, ThreadExecutionMode? executionMode, object? state = null)
         {
             Should.NotBeNull(handler, nameof(handler));
             Should.NotBeNull(subscriber, nameof(subscriber));
@@ -43,7 +43,7 @@ namespace MugenMvvm.Messaging
         {
             if (Handler == null)
                 return MessengerResult.Ignored;
-            return Handler(Subscriber, State, messageContext);
+            return Handler(Subscriber, messageContext, State);
         }
 
         #endregion

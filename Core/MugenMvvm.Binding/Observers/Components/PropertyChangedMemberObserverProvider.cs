@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class PropertyChangedMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority //todo add static property changed listener
+    public sealed class PropertyChangedMemberObserverProvider : IMemberObserverProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -68,8 +68,8 @@ namespace MugenMvvm.Binding.Observers.Components
                 return default;
             return _attachedValueProvider
                 .DefaultIfNull()
-                .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string) member);
+                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string)member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)

@@ -25,8 +25,8 @@ namespace MugenMvvm.Messaging.Components
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private IMessenger? _messenger;
         private static readonly CacheDictionary Cache = new CacheDictionary();
-        private static readonly Func<object, object?, IMessageContext, MessengerResult> HandlerDelegate = Handle;
-        private static readonly Func<object, object?, IMessageContext, MessengerResult> HandlerRawDelegate = HandleRaw;
+        private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerDelegate = Handle;
+        private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerRawDelegate = HandleRaw;
 
         #endregion
 
@@ -178,7 +178,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Methods
 
-        private static MessengerResult Handle(object subscriber, object? handler, IMessageContext context)
+        private static MessengerResult Handle(object subscriber, IMessageContext context, object? handler)
         {
             if (subscriber is IWeakReference weakReference)
                 subscriber = weakReference.Target!;
@@ -189,7 +189,7 @@ namespace MugenMvvm.Messaging.Components
             return MessengerResult.Handled;
         }
 
-        private static MessengerResult HandleRaw(object subscriber, object? _, IMessageContext context)
+        private static MessengerResult HandleRaw(object subscriber, IMessageContext context, object? _)
         {
             if (subscriber is IWeakReference weakReference)
                 subscriber = weakReference.Target!;
