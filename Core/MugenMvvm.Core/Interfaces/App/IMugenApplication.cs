@@ -4,13 +4,14 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.App
 {
-    //todo add applicationstatedispatcher
     public interface IMugenApplication : IComponentOwner<IMugenApplication>, IMetadataOwner<IMetadataContext>
     {
         IDeviceInfo DeviceInfo { get; }
 
-        ApplicationLifecycleState State { get; }
+        void OnLifecycleChanged<TState>(ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
 
-        public void OnLifecycleChanged<TState>(ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
+        void Initialize<TState>(IDeviceInfo device, in TState state, IReadOnlyMetadataContext? metadata = null);
+
+        void Start<TState>(in TState state, IReadOnlyMetadataContext? metadata = null);
     }
 }

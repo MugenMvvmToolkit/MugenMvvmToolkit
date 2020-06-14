@@ -14,8 +14,18 @@ namespace MugenMvvm.Enums
     {
         #region Fields
 
-        public static readonly ApplicationLifecycleState Active = new ApplicationLifecycleState(nameof(Active));
-        public static readonly ApplicationLifecycleState Background = new ApplicationLifecycleState(nameof(Background));
+        public static readonly ApplicationLifecycleState Initializing = new ApplicationLifecycleState(nameof(Initializing));
+        public static readonly ApplicationLifecycleState Initialized = new ApplicationLifecycleState(nameof(Initialized));
+        public static readonly ApplicationLifecycleState Preserving = new ApplicationLifecycleState(nameof(Preserving));
+        public static readonly ApplicationLifecycleState Preserved = new ApplicationLifecycleState(nameof(Preserved));
+        public static readonly ApplicationLifecycleState Restoring = new ApplicationLifecycleState(nameof(Restoring));
+        public static readonly ApplicationLifecycleState Restored = new ApplicationLifecycleState(nameof(Restored));
+        public static readonly ApplicationLifecycleState Starting = new ApplicationLifecycleState(nameof(Starting));
+        public static readonly ApplicationLifecycleState Started = new ApplicationLifecycleState(nameof(Started));
+        public static readonly ApplicationLifecycleState Activating = new ApplicationLifecycleState(nameof(Activating));
+        public static readonly ApplicationLifecycleState Activated = new ApplicationLifecycleState(nameof(Activated));
+        public static readonly ApplicationLifecycleState Deactivating = new ApplicationLifecycleState(nameof(Deactivating));
+        public static readonly ApplicationLifecycleState Deactivated = new ApplicationLifecycleState(nameof(Deactivated));
 
         #endregion
 
