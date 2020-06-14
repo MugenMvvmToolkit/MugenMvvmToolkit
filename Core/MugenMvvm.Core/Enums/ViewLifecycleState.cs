@@ -16,6 +16,10 @@ namespace MugenMvvm.Enums
 
         public static readonly ViewLifecycleState Initializing = new ViewLifecycleState(nameof(Initializing));
         public static readonly ViewLifecycleState Initialized = new ViewLifecycleState(nameof(Initialized));
+        public static readonly ViewLifecycleState Preserving = new ViewLifecycleState(nameof(Preserving));
+        public static readonly ViewLifecycleState Preserved = new ViewLifecycleState(nameof(Preserved));
+        public static readonly ViewLifecycleState Restoring = new ViewLifecycleState(nameof(Restoring));
+        public static readonly ViewLifecycleState Restored = new ViewLifecycleState(nameof(Restored));
         public static readonly ViewLifecycleState Clearing = new ViewLifecycleState(nameof(Clearing));
         public static readonly ViewLifecycleState Cleared = new ViewLifecycleState(nameof(Cleared));
 

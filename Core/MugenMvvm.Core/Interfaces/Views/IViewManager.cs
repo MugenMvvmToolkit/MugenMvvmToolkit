@@ -10,7 +10,6 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    //todo initializers
     public interface IViewManager : IComponentOwner<IViewManager>, IComponent<IMugenApplication>
     {
         void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);

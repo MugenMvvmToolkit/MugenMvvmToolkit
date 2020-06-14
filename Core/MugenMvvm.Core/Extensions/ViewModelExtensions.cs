@@ -14,18 +14,16 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public static bool TrySubscribe<T>(this IViewModelBase viewModel, in T subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(subscriber, nameof(subscriber));
             var service = viewModel.TryGetService<IMessenger>();
             return service != null && service.Subscribe(subscriber, executionMode, metadata);
         }
 
-        public static bool TryUnsubscribe(this IViewModelBase viewModel, object subscriber, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryUnsubscribe<T>(this IViewModelBase viewModel, in T subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
-            Should.NotBeNull(subscriber, nameof(subscriber));
             var service = viewModel.TryGetService<IMessenger>();
             return service != null && service.Unsubscribe(subscriber, metadata);
         }
@@ -34,6 +32,8 @@ namespace MugenMvvm.Extensions
         {
             if (viewModel is IHasService<TService> hasService)
                 return hasService.Service;
+            if (viewModel is IHasOptionalService<TService> hasOptionalService)
+                return hasOptionalService.Service;
             if (viewModel is IComponentOwner owner && owner.HasComponents)
                 return owner.Components.Get<TService>().FirstOrDefault();
             return null;
