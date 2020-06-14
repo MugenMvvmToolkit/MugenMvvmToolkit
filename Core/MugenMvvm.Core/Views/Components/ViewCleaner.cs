@@ -1,6 +1,7 @@
 ﻿using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
@@ -8,7 +9,7 @@ using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.Views.Components
 {
-    public class ViewCleaner : IViewLifecycleDispatcherComponent, IHasPriority
+    public class ViewCleaner : IViewLifecycleDispatcherComponent, IHasPriority, IComponentCollectionChangedListener
     {
         #region Properties
 
@@ -18,17 +19,36 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+        }
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            (component as ICleanableView)?.Cleanup<object?>(null, metadata);
+        }
+
         public void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            if (lifecycleState == ViewLifecycleState.Cleared && view is IView viewImp)
-                Cleanup(viewImp, lifecycleState, state, metadata);
+            if (!(view is IView viewImp))
+                return;
+
+            if (lifecycleState == ViewLifecycleState.Initializing)
+                Initialize(viewImp, state, metadata);
+            else if (lifecycleState == ViewLifecycleState.Cleared)
+                Cleanup(viewImp, state, metadata);
         }
 
         #endregion
 
         #region Methods
 
-        protected virtual void Cleanup<TState>(IView view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        protected virtual void Initialize<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
+        {
+            view.Components.AddComponent(this);
+        }
+
+        protected virtual void Cleanup<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
         {
             view.ViewModel.TryUnsubscribe(view.Target, metadata);
             (view.Target as ICleanableView)?.Cleanup(state, metadata);
@@ -36,11 +56,9 @@ namespace MugenMvvm.Views.Components
             for (var i = 0; i < cleanableViews.Length; i++)
                 cleanableViews[i].Cleanup(state, metadata);
             view.ClearMetadata(true);
-            if (view.HasComponents)
-            {
-                view.Components.Clear(metadata);
-                view.Components.ClearComponents(metadata);
-            }
+            view.Components.RemoveComponent(this);
+            view.Components.Clear(metadata);
+            view.Components.ClearComponents(metadata);
         }
 
         #endregion

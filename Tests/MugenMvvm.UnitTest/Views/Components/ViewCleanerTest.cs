@@ -55,7 +55,8 @@ namespace MugenMvvm.UnitTest.Views.Components
                 {
                     invokeCount++;
                     o.ShouldEqual(state);
-                    type.ShouldEqual(state.GetType());
+                    if (state != null)
+                        type.ShouldEqual(state.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
@@ -65,7 +66,8 @@ namespace MugenMvvm.UnitTest.Views.Components
                 {
                     componentInvokeCount++;
                     o.ShouldEqual(state);
-                    type.ShouldEqual(state.GetType());
+                    if (state != null)
+                        type.ShouldEqual(state.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
@@ -75,6 +77,16 @@ namespace MugenMvvm.UnitTest.Views.Components
             view.Components.Components.Add(this);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewCleaner());
+
+            state = null;
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, state, DefaultMetadata);
+            view.Components.Remove(componentView, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
+            componentInvokeCount.ShouldEqual(1);
+            view.Components.Add(componentView, DefaultMetadata);
+            componentInvokeCount = 0;
+            state = "t";
+
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, state, DefaultMetadata);
             invokeCount.ShouldEqual(1);
             componentInvokeCount.ShouldEqual(1);
