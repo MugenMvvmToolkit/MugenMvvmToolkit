@@ -33,6 +33,7 @@ namespace MugenMvvm.Messaging.Components
         public MessagePublisher(IThreadDispatcher? threadDispatcher = null) : base(3)
         {
             _threadDispatcher = threadDispatcher;
+            DefaultExecutionMode = ThreadExecutionMode.Current;
         }
 
         #endregion
@@ -40,6 +41,8 @@ namespace MugenMvvm.Messaging.Components
         #region Properties
 
         public int Priority { get; set; } = MessengerComponentPriority.Publisher;
+
+        public ThreadExecutionMode DefaultExecutionMode { get; set; }
 
         #endregion
 
@@ -93,7 +96,7 @@ namespace MugenMvvm.Messaging.Components
                 var key = messageContext.Message.GetType();
                 if (!TryGetValue(key, out dictionary))
                 {
-                    dictionary = GetHandlers(messenger, key, messageContext.GetMetadataOrDefault());
+                    dictionary = GetHandlers(messenger, key, DefaultExecutionMode, messageContext.GetMetadataOrDefault());
                     this[key] = dictionary;
                 }
             }
@@ -109,7 +112,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Methods
 
-        private static ThreadExecutionModeDictionary? GetHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
+        private static ThreadExecutionModeDictionary? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode, IReadOnlyMetadataContext? metadata)
         {
             var handlers = messenger.GetComponents<IMessengerSubscriberComponent>().TryGetMessengerHandlers(messageType, metadata);
             var count = handlers.Count(h => h.IsEmpty);
@@ -120,10 +123,11 @@ namespace MugenMvvm.Messaging.Components
             for (var index = 0; index < count; index++)
             {
                 var subscriber = handlers.Get(index);
-                if (!dictionary.TryGetValue(subscriber.ExecutionMode, out var value))
+                var mode = subscriber.ExecutionMode ?? defaultMode;
+                if (!dictionary.TryGetValue(mode, out var value))
                 {
                     value = new MessageThreadExecutor(messenger);
-                    dictionary[subscriber.ExecutionMode] = value;
+                    dictionary[mode] = value;
                 }
 
                 value.Add(subscriber);

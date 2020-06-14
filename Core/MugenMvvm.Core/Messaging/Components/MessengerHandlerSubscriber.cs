@@ -37,7 +37,6 @@ namespace MugenMvvm.Messaging.Components
             : base(HandlerSubscriberEqualityComparer.Instance)
         {
             _reflectionDelegateProvider = reflectionDelegateProvider;
-            ExecutionMode = ThreadExecutionMode.Current;
         }
 
         #endregion
@@ -45,8 +44,6 @@ namespace MugenMvvm.Messaging.Components
         #region Properties
 
         public int Priority { get; set; } = MessengerComponentPriority.Subscriber;
-
-        public ThreadExecutionMode ExecutionMode { get; set; }
 
         #endregion
 
@@ -83,9 +80,9 @@ namespace MugenMvvm.Messaging.Components
             if (Default.IsValueType<TSubscriber>())
                 return false;
             if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandler handler)
-                return Add(new HandlerSubscriber(weakReference, RuntimeHelpers.GetHashCode(handler), executionMode ?? ExecutionMode), metadata);
+                return Add(new HandlerSubscriber(weakReference, RuntimeHelpers.GetHashCode(handler), executionMode), metadata);
             if (subscriber is IMessengerHandler)
-                return Add(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), executionMode ?? ExecutionMode), metadata);
+                return Add(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), executionMode), metadata);
             return false;
         }
 
@@ -102,11 +99,11 @@ namespace MugenMvvm.Messaging.Components
                 var target = weakReference.Target;
                 if (target == null)
                     return Remove(weakReference, metadata);
-                return Remove(new HandlerSubscriber(target, RuntimeHelpers.GetHashCode(target), ExecutionMode), metadata);
+                return Remove(new HandlerSubscriber(target, RuntimeHelpers.GetHashCode(target), null), metadata);
             }
 
             if (subscriber is IMessengerHandler)
-                return Remove(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), ExecutionMode), metadata);
+                return Remove(new HandlerSubscriber(subscriber, RuntimeHelpers.GetHashCode(subscriber), null), metadata);
 
             return false;
         }
@@ -181,7 +178,6 @@ namespace MugenMvvm.Messaging.Components
 
         #region Methods
 
-        [Preserve(Conditional = true)]
         private static MessengerResult Handle(object subscriber, object? handler, IMessageContext context)
         {
             if (subscriber is IWeakReference weakReference)
@@ -193,7 +189,6 @@ namespace MugenMvvm.Messaging.Components
             return MessengerResult.Handled;
         }
 
-        [Preserve(Conditional = true)]
         private static MessengerResult HandleRaw(object subscriber, object? _, IMessageContext context)
         {
             if (subscriber is IWeakReference weakReference)
@@ -318,7 +313,7 @@ namespace MugenMvvm.Messaging.Components
         {
             #region Fields
 
-            public readonly ThreadExecutionMode ExecutionMode;
+            public readonly ThreadExecutionMode? ExecutionMode;
             public readonly int Hash;
             public readonly object Subscriber;
 
@@ -326,7 +321,7 @@ namespace MugenMvvm.Messaging.Components
 
             #region Constructors
 
-            public HandlerSubscriber(object subscriber, int hashCode, ThreadExecutionMode executionMode)
+            public HandlerSubscriber(object subscriber, int hashCode, ThreadExecutionMode? executionMode)
             {
                 Subscriber = subscriber;
                 Hash = hashCode;

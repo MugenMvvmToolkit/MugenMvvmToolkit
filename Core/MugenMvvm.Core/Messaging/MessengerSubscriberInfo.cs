@@ -8,17 +8,16 @@ namespace MugenMvvm.Messaging
     {
         #region Fields
 
-        public readonly ThreadExecutionMode ExecutionMode;
+        public readonly ThreadExecutionMode? ExecutionMode;
         public readonly object Subscriber;
 
         #endregion
 
         #region Constructors
 
-        public MessengerSubscriberInfo(object subscriber, ThreadExecutionMode executionMode)
+        public MessengerSubscriberInfo(object subscriber, ThreadExecutionMode? executionMode)
         {
             Should.NotBeNull(subscriber, nameof(subscriber));
-            Should.NotBeNull(executionMode, nameof(executionMode));
             Subscriber = subscriber;
             ExecutionMode = executionMode;
         }

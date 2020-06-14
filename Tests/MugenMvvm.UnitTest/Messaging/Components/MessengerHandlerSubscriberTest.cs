@@ -60,8 +60,6 @@ namespace MugenMvvm.UnitTest.Messaging.Components
                 ThreadExecutionMode.TryParse(i, out var mode);
                 component.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
 
-                if (mode == null)
-                    mode = component.ExecutionMode;
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
             }
@@ -97,9 +95,6 @@ namespace MugenMvvm.UnitTest.Messaging.Components
                     list.Add(handler.Target!);
                 ThreadExecutionMode.TryParse(i, out var mode);
                 component.TrySubscribe(handler, mode, DefaultMetadata).ShouldBeTrue();
-
-                if (mode == null)
-                    mode = component.ExecutionMode;
                 var info = new MessengerSubscriberInfo(handler, mode);
                 hashSet.Add(info);
             }

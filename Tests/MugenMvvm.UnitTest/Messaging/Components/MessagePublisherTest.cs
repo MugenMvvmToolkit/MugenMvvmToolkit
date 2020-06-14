@@ -58,9 +58,11 @@ namespace MugenMvvm.UnitTest.Messaging.Components
         [InlineData(true, 2)]
         [InlineData(false, 1)]
         [InlineData(false, 2)]
+        [InlineData(false, -1)]
+        [InlineData(true, -1)]
         public void TryPublishShouldUseThreadDispatcher(bool global, int threadMode)
         {
-            var threadExecutionMode = ThreadExecutionMode.Parse(threadMode);
+            ThreadExecutionMode.TryParse(threadMode, out var threadExecutionMode);
             var invokedCount = 0;
             var messengerHandlers = new[]
             {
@@ -83,6 +85,9 @@ namespace MugenMvvm.UnitTest.Messaging.Components
                 threadDispatcher = new ThreadDispatcher();
                 component = new MessagePublisher(threadDispatcher);
             }
+
+            if (threadExecutionMode == null)
+                threadExecutionMode = component.DefaultExecutionMode;
 
             Action? invokeAction = null;
             var testThreadDispatcherComponent = new TestThreadDispatcherComponent
