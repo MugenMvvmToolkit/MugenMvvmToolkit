@@ -9,7 +9,7 @@ namespace MugenMvvm.Views
     {
         #region Constructors
 
-        public ViewModelViewMapping(string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata)
+        public ViewModelViewMapping(string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(id, nameof(id));
             Should.NotBeNull(viewType, nameof(viewType));
