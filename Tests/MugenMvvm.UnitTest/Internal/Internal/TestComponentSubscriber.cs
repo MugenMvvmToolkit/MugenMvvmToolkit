@@ -1,8 +1,9 @@
-﻿using MugenMvvm.Interfaces.Components;
+﻿using System;
+using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.UnitTest.Internal.Internal
 {
-    public ref struct TestComponentSubscriber
+    public readonly struct TestComponentSubscriber : IDisposable
     {
         #region Fields
 

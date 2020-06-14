@@ -10,7 +10,6 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing.Visitors;
-using MugenMvvm.Components;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -19,7 +18,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingInitializer : AttachableComponentBase<IBindingManager>, IBindingExpressionInitializerComponent, IHasPriority
+    public sealed class BindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
         #region Fields
 
@@ -127,7 +126,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         private IComponent<IBinding> GetEventHandlerComponent(in (BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return EventHandlerBindingComponent.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle, state.isOneTime || binding.GetMetadataOrDefault().Get(BindingMetadata.IsMultiBinding), Owner);
+            return EventHandlerBindingComponent.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle, state.isOneTime || binding.GetMetadataOrDefault().Get(BindingMetadata.IsMultiBinding));
         }
 
         #endregion

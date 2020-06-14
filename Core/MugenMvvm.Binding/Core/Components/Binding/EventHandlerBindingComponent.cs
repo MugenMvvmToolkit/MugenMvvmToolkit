@@ -24,7 +24,6 @@ namespace MugenMvvm.Binding.Core.Components.Binding
     {
         #region Fields
 
-        private readonly IBindingManager? _bindingManager;
         private EventHandler? _canExecuteHandler;
         private IReadOnlyMetadataContext? _currentMetadata;
         private object? _currentValue;
@@ -36,9 +35,8 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Constructors
 
-        private EventHandlerBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
+        private EventHandlerBindingComponent(BindingParameterValue commandParameter, bool toggleEnabledState)
         {
-            _bindingManager = bindingManager;
             CommandParameter = commandParameter;
             ToggleEnabledState = toggleEnabledState;
         }
@@ -94,7 +92,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
-            var components = _bindingManager.DefaultIfNull().GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
+            var components = MugenBindingService.BindingManager.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             try
             {
                 EventArgs = message;
@@ -150,11 +148,11 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         #region Methods
 
-        public static EventHandlerBindingComponent Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime, IBindingManager? bindingManager = null)
+        public static EventHandlerBindingComponent Get(BindingParameterValue commandParameter, bool toggleEnabledState, bool isOneTime)
         {
             if (isOneTime)
-                return new EventHandlerBindingComponent(commandParameter, toggleEnabledState, bindingManager);
-            return new OneWay(commandParameter, toggleEnabledState, bindingManager);
+                return new EventHandlerBindingComponent(commandParameter, toggleEnabledState);
+            return new OneWay(commandParameter, toggleEnabledState);
         }
 
         private bool InitializeCanExecute(object? target, ICommand command)
@@ -164,7 +162,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             if (command is ICompositeCommand m && !m.HasCanExecute)
                 return false;
 
-            _enabledMember = GetMemberManager()
+            _enabledMember = MugenBindingService.MemberManager
                 .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IAccessorMemberInfo;
             if (_enabledMember == null || !_enabledMember.CanWrite)
                 return false;
@@ -218,11 +216,6 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             _currentValue = null;
         }
 
-        private IMemberManager GetMemberManager()
-        {
-            return _bindingManager.DefaultIfNull().GetComponentOptional<IMemberManager>(_currentMetadata).DefaultIfNull();
-        }
-
         #endregion
 
         #region Nested types
@@ -231,8 +224,8 @@ namespace MugenMvvm.Binding.Core.Components.Binding
         {
             #region Constructors
 
-            public OneWay(BindingParameterValue commandParameter, bool toggleEnabledState, IBindingManager? bindingManager = null)
-                : base(commandParameter, toggleEnabledState, bindingManager)
+            public OneWay(BindingParameterValue commandParameter, bool toggleEnabledState)
+                : base(commandParameter, toggleEnabledState)
             {
             }
 

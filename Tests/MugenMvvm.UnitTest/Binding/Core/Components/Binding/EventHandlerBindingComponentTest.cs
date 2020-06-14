@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Binding;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components.Binding;
@@ -14,6 +15,7 @@ using MugenMvvm.UnitTest.Binding.Core.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Commands.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -118,10 +120,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             var beginEventCount = 0;
             var errorEventCount = 0;
             var endEventCount = 0;
-            var manager = new BindingManager();
+
+            var components = new List<IDisposable>();
             for (var i = 0; i < count; i++)
             {
-                manager.AddComponent(new TestBindingEventHandlerComponent
+                var subscribe = TestComponentSubscriber.Subscribe(new TestBindingEventHandlerComponent
                 {
                     OnBeginEvent = (s, msg, metadata) =>
                     {
@@ -148,9 +151,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                         metadata.ShouldEqual(DefaultMetadata);
                     }
                 });
+                components.Add(subscribe);
             }
 
-            var component = EventHandlerBindingComponent.Get(default, false, true, manager);
+            var component = EventHandlerBindingComponent.Get(default, false, true);
             ((IAttachableComponent)component).OnAttaching(binding, DefaultMetadata).ShouldBeTrue();
 
             component.TrySetTargetValue(binding, default, new TestValueExpression(), DefaultMetadata);
@@ -160,6 +164,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             else
                 beginEventCount.ShouldEqual(count);
             endEventCount.ShouldEqual(count);
+            components.ForEach(disposable => disposable.Dispose());
         }
 
         [Fact]
@@ -262,10 +267,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                     enabledValue = (bool)o1!;
                 }
             };
-            var manager = new BindingManager();
-            var memberManager = new MemberManager();
-            manager.AddComponent(memberManager);
-            memberManager.AddComponent(new TestMemberManagerComponent
+            using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
@@ -278,7 +280,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 }
             });
 
-            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), true, true, manager);
+            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), true, true);
             var binding = new TestBinding();
 
             EventHandler? canExecuteHandler = null;
@@ -341,16 +343,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 CanWrite = true,
                 SetValue = (o, o1, arg3) => { }
             };
-            var manager = new BindingManager();
-            var memberManager = new MemberManager();
-            manager.AddComponent(memberManager);
-            memberManager.AddComponent(new TestMemberManagerComponent
+
+            using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
                 TryGetMembers = (t, m, f, r, tt, meta) => enabledMember
             });
 
             IEventListener? listener = null;
-            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), true, true, manager);
+            var component = EventHandlerBindingComponent.Get(new BindingParameterValue(cmdParameter, null), true, true);
             var binding = new TestBinding
             {
                 Target = new TestMemberPathObserver
