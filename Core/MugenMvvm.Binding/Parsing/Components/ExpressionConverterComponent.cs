@@ -116,7 +116,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 try
                 {
                     for (var i = 0; i < parameters.Count; i++)
-                        _context.SetExpression(parameters[i], ConstantExpressionNode.Null);
+                        _context.SetExpression(parameters[i], i == 0 ? MemberExpressionNode.Empty : (IExpressionNode)ConstantExpressionNode.Null);
                     return _context.Convert(lambdaExpression.Body);
                 }
                 finally

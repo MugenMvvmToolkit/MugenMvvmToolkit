@@ -83,7 +83,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
                 return _dataContextMemberPath;
 
             string path;
-            if (Path.StartsWith("[", StringComparison.Ordinal))
+            if (string.IsNullOrEmpty(Path))
+                path = BindableMembers.Object.DataContext;
+            else if (Path.StartsWith("[", StringComparison.Ordinal))
                 path = BindableMembers.Object.DataContext + Path;
             else
                 path = BindableMembers.Object.DataContext + "." + Path;

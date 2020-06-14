@@ -192,6 +192,19 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             });
         }
 
+        [Fact]
+        public void VisitShouldHandleMember3()
+        {
+            var expression = MemberExpressionNode.Empty;
+            var visitor = new BindingMemberExpressionVisitor { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
+            visitor.Visit(expression, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "")
+            {
+                Flags = visitor.Flags,
+                MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
+                ObservableMethodName = null
+            });
+        }
+
         [Theory]
         [InlineData(MacrosConstant.Target)]
         [InlineData(MacrosConstant.Self)]

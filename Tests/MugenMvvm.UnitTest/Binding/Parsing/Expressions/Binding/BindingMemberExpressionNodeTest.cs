@@ -83,6 +83,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         [Theory]
         [InlineData("Test", "DataContext.Test")]
         [InlineData("[test]", "DataContext[test]")]
+        [InlineData("", "DataContext")]
         public void GetSourceShouldRespectTargetType(string inputPath, string expectedInputPath)
         {
             var expectedPath = inputPath;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -358,7 +359,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         }
 
         [Fact]
-        public void ParserShouldConvertExpressions()
+        public void ParserShouldConvertExpressions1()
         {
             var parser = GetInitializedExpressionParser();
             var item = parser.TryParse(new ExpressionConverterRequest(nameof(Test), null, default), DefaultMetadata).Item;
@@ -410,6 +411,35 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             item.Target.ShouldEqual(MemberExpressionNode.Empty);
             item.Source.ShouldEqual(MemberExpressionNode.Empty);
             item.Parameters.Item.ShouldEqual(ConstantExpressionNode.Get(nameof(Test)));
+        }
+
+        [Fact]
+        public void ParserShouldConvertExpressions2()
+        {
+            var parser = GetInitializedExpressionParser();
+            var selfExpression = GetExpression(this, arg => arg);
+            var testExpression = GetExpression(this, arg => arg.Test);
+            var stPropertyExpression = GetExpression(this, arg => arg.StringProperty);
+            var item = parser.TryParse(new ExpressionConverterRequest(testExpression, null, default), DefaultMetadata).Item;
+            item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
+            item.Source.ShouldEqual(MemberExpressionNode.Empty);
+            item.Parameters.IsNullOrEmpty().ShouldBeTrue();
+
+            item = parser.TryParse(new ExpressionConverterRequest(nameof(Test), stPropertyExpression, default), DefaultMetadata).Item;
+            item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
+            item.Source.ShouldEqual(new MemberExpressionNode(null, nameof(StringProperty)));
+            item.Parameters.IsNullOrEmpty().ShouldBeTrue();
+
+            item = parser.TryParse(new ExpressionConverterRequest(testExpression, stPropertyExpression,
+                new KeyValuePair<string?, object>(nameof(StringProperty), stPropertyExpression)), DefaultMetadata).Item;
+            item.Target.ShouldEqual(new MemberExpressionNode(null, nameof(Test)));
+            item.Source.ShouldEqual(new MemberExpressionNode(null, nameof(StringProperty)));
+            item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), new MemberExpressionNode(null, nameof(StringProperty))));
+
+            item = parser.TryParse(new ExpressionConverterRequest(selfExpression, selfExpression, new KeyValuePair<string?, object>(nameof(StringProperty), selfExpression)), DefaultMetadata).Item;
+            item.Target.ShouldEqual(MemberExpressionNode.Empty);
+            item.Source.ShouldEqual(MemberExpressionNode.Empty);
+            item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), MemberExpressionNode.Empty));
         }
 
         protected override ExpressionParser GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
@@ -514,6 +544,11 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             expressionParser.AddComponent(new UnaryExpressionConverter());
 
             return expressionParser;
+        }
+
+        private static Expression<Func<T, TResult>> GetExpression<T, TResult>([AllowNull]T t, Expression<Func<T, TResult>> expression)
+        {
+            return expression;
         }
 
         #endregion
