@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Extensions
             if (expression == null)
                 return default;
 
-            expression = memberExpressionVisitor.Visit(expression, metadata);
+            expression = memberExpressionVisitor.Visit(expression, false, metadata);
             if (expression is IConstantExpressionNode constant)
                 return new BindingParameterExpression(constant.Value, null);
 
@@ -650,6 +650,11 @@ namespace MugenMvvm.Binding.Extensions
         public static bool HasFlagEx(this MemberType value, MemberType flag)
         {
             return (value & flag) == flag;
+        }
+
+        internal static BindingMemberExpressionFlags SetTargetFlags(this BindingMemberExpressionFlags flags, bool isTarget)
+        {
+            return isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
+using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Visitors;
@@ -21,7 +22,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionBuilder : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority
+    public sealed class BindingExpressionBuilder : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority//todo cache
     {
         #region Fields
 
@@ -122,11 +123,11 @@ namespace MugenMvvm.Binding.Core.Components
 
                 if (ReferenceEquals(_compiledExpression, InitializedState))
                 {
-                    return InitializeBinding(new Core.Binding(((IBindingMemberExpressionNode)TargetExpression).GetBindingTarget(target, source, metadata),
+                    return InitializeBinding(new Core.Binding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
                         ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);
                 }
 
-                return InitializeBinding(new MultiBinding(((IBindingMemberExpressionNode)TargetExpression).GetBindingTarget(target, source, metadata),
+                return InitializeBinding(new MultiBinding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
                     MugenBindingExtensions.ToBindingSource(_sourceExpression, target, source, metadata), (ICompiledExpression)_compiledExpression!), target, source, metadata);
             }
 

@@ -5,6 +5,7 @@ using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
@@ -98,7 +99,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
-                    expressionVisitor.Flags.ShouldEqual(flags);
+                    expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
@@ -112,7 +113,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
-                    expressionVisitor.Flags.ShouldEqual(flags);
+                    expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false));
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
@@ -212,7 +213,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                         if (visitor is BindingMemberExpressionVisitor expressionVisitor)
                         {
-                            expressionVisitor.Flags.ShouldEqual(flags & ~BindingMemberExpressionFlags.ObservableMethod);
+                            expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~BindingMemberExpressionFlags.ObservableMethod);
                             expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
                             expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
                             expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
@@ -278,7 +279,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var sourceVisitCount = 0;
             var target = new TestBindingMemberExpressionNode
             {
-                GetTarget = (t, s, m) =>
+                GetSource = (t, s, m) =>
                 {
                     t.ShouldEqual(targetSrc);
                     s.ShouldEqual(sourceSrc);
@@ -290,7 +291,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
-                    expressionVisitor.Flags.ShouldEqual(flags);
+                    expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(true));
                     expressionVisitor.IgnoreIndexMembers.ShouldEqual(ignoreIndexMembers);
                     expressionVisitor.IgnoreMethodMembers.ShouldEqual(ignoreMethodMembers);
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
@@ -304,7 +305,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
-                    expressionVisitor.Flags.ShouldEqual(flags & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod));
+                    expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod));
                     expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
                     expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);

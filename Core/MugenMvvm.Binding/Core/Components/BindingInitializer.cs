@@ -85,17 +85,17 @@ namespace MugenMvvm.Binding.Core.Components
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.ObservableMethod, BindingMemberExpressionFlags.ObservableMethod);
 
-            context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, metadata);
+            context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, true, metadata);
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
             {
-                context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, metadata);
+                context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
                 return;
             }
 
             _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod);
             _memberExpressionVisitor.IgnoreIndexMembers = true;
             _memberExpressionVisitor.IgnoreMethodMembers = true;
-            context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, metadata);
+            context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
             _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;
             var parameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.CommandParameter, metadata);
             var toggle = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
@@ -117,7 +117,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (targetExpression is IBindingMemberExpressionNode bindingMemberExpression)
             {
-                target = bindingMemberExpression.GetTarget(target, source, metadata, out var path, out var flags);
+                target = bindingMemberExpression.GetSource(target, source, metadata, out var path, out var flags);
                 return path.GetLastMemberFromPath(flags.GetTargetType(ref target!), target, flags, MemberType.Event, metadata, _memberManager) != null;
             }
 

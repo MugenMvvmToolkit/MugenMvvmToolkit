@@ -116,7 +116,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 try
                 {
                     for (var i = 0; i < parameters.Count; i++)
-                        _context.SetExpression(parameters[i], i == 0 ? MemberExpressionNode.Empty : (IExpressionNode)ConstantExpressionNode.Null);
+                        _context.SetExpression(parameters[i], i == 0 ? MemberExpressionNode.Empty : (IExpressionNode)ConstantExpressionNode.Null);//todo review
                     return _context.Convert(lambdaExpression.Body);
                 }
                 finally
@@ -138,14 +138,10 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result)
         {
-            if (parameter.Key == null)
-            {
-                if (parameter.Value != null)
-                    result.Add(Convert(parameter.Value, false, false));
-                return;
-            }
-
-            result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, true)));
+            if (parameter.Key != null)
+                result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, true)));
+            else if (parameter.Value != null)
+                result.Add(Convert(parameter.Value, false, false));
         }
 
         #endregion

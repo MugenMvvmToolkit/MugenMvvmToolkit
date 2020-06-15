@@ -130,7 +130,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
-                            GetBindingTarget = (t, s, arg3) =>
+                            GetBindingSource = (t, s, arg3) =>
                             {
                                 t.ShouldEqual(target);
                                 s.ShouldEqual(source);
@@ -281,7 +281,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
                         context.TargetExpression = new TestBindingMemberExpressionNode($"{index + 1}")
                         {
-                            GetBindingTarget = (t, s, arg3) =>
+                            GetBindingSource = (t, s, arg3) =>
                             {
                                 t.ShouldEqual(target);
                                 s.ShouldEqual(source);

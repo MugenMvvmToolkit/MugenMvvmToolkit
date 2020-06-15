@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 MemberFlags = MemberFlags.All
             };
 
-            var target = exp.GetTarget("", "", DefaultMetadata, out var p, out var flags);
+            var target = exp.GetSource("", "", DefaultMetadata, out var p, out var flags);
             target.ShouldEqual(this);
             flags.ShouldEqual(MemberFlags.All);
             p.ShouldEqual(path);
@@ -96,7 +96,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 }
             });
 
-            exp.GetBindingTarget("", "", DefaultMetadata).ShouldEqual(observer);
             exp.GetBindingSource("", "", DefaultMetadata).ShouldEqual(observer);
         }
 

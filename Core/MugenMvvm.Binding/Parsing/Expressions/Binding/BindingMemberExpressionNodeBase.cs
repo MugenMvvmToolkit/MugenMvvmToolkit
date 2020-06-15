@@ -49,11 +49,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Implementation of interfaces
 
-        public abstract object GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
-
         public abstract object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
-
-        public abstract IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata);
 
         public abstract object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
 

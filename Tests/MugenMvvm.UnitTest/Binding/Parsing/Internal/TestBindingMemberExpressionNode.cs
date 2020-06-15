@@ -29,11 +29,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public string Path { get; set; }
 
-        public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath, MemberFlags)>? GetTarget { get; set; }
-
         public Func<object, object?, IReadOnlyMetadataContext?, (object, IMemberPath, MemberFlags)>? GetSource { get; set; }
-
-        public Func<object, object?, IReadOnlyMetadataContext?, IMemberPathObserver>? GetBindingTarget { get; set; }
 
         public Func<object, object?, IReadOnlyMetadataContext?, object?>? GetBindingSource { get; set; }
 
@@ -43,25 +39,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Implementation of interfaces
 
-        object IBindingMemberExpressionNode.GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
-        {
-            var tuple = GetTarget?.Invoke(target, source, metadata);
-            path = tuple?.Item2!;
-            memberFlags = tuple?.Item3 ?? default;
-            return tuple?.Item1!;
-        }
-
         object IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             var tuple = GetSource?.Invoke(target, source, metadata);
             path = tuple?.Item2!;
             memberFlags = tuple?.Item3 ?? default;
             return tuple?.Item1!;
-        }
-
-        IMemberPathObserver IBindingMemberExpressionNode.GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return GetBindingTarget?.Invoke(target, source, metadata)!;
         }
 
         object? IBindingMemberExpressionNode.GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)

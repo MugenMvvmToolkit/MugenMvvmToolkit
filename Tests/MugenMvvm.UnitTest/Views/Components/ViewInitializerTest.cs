@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         [Fact]
         public void ShouldInitializeInitializableViews()
         {
-            var state = "t";
+            string? state = "t";
             var invokeCount = 0;
             var componentInvokeCount = 0;
             IView? view = null;

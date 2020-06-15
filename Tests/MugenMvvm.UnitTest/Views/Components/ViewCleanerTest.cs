@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         [Fact]
         public void ShouldCleanCleanableViews()
         {
-            var state = "t";
+            string? state = "t";
             int invokeCount = 0;
             int componentInvokeCount = 0;
             var rawView = new TestCleanableView

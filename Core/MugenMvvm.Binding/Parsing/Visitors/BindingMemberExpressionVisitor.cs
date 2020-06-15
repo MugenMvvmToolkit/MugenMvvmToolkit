@@ -84,10 +84,11 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         #region Methods
 
         [return: NotNullIfNotNull("expression")]
-        public IExpressionNode? Visit(IExpressionNode? expression, IReadOnlyMetadataContext? metadata = null)
+        public IExpressionNode? Visit(IExpressionNode? expression, bool isTargetExpression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
                 return null;
+            Flags = Flags.SetTargetFlags(isTargetExpression);
             _members.Clear();
             expression = expression.Accept(this, metadata);
             _members.Clear();
@@ -108,7 +109,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             if (expression.Target == null)
             {
                 _memberBuilder.Clear();
-                member = GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.Default, methodName);
+                member = GetOrAddBindingMember(null, methodName);
             }
             else
             {
@@ -123,7 +124,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         private IExpressionNode? GetOrAddBindingMember(IExpressionNode target, string? methodName, IReadOnlyMetadataContext? metadata)
         {
             if (target.TryBuildBindingMemberPath(_memberBuilder, _condition, out var firstExpression))
-                return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.Default, methodName);
+                return GetOrAddBindingMember(null, methodName);
 
             if (firstExpression is IUnaryExpressionNode unaryExpression && unaryExpression.IsMacros() &&
                 unaryExpression.Operand is IMemberExpressionNode memberExpression)
@@ -131,17 +132,17 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //$target, $self, $this
                 if (memberExpression.Member == MacrosConstant.Target || memberExpression.Member == MacrosConstant.Self ||
                     memberExpression.Member == MacrosConstant.This)
-                    return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.TargetOnly, methodName);
+                    return GetOrAddBindingMember(true, methodName);
 
                 //$source
                 if (memberExpression.Member == MacrosConstant.Source)
-                    return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.SourceOnly, methodName);
+                    return GetOrAddBindingMember(false, methodName);
 
                 //$context
                 if (memberExpression.Member == MacrosConstant.Context)
                 {
                     _memberBuilder.Insert(0, BindableMembers.Object.DataContext);
-                    return GetOrAddBindingMember(BindingMemberExpressionNode.TargetType.TargetOnly, methodName);
+                    return GetOrAddBindingMember(true, methodName);
                 }
 
                 //type -> $string, $int, etc
@@ -199,15 +200,31 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             return null;
         }
 
-        private IExpressionNode GetOrAddBindingMember(BindingMemberExpressionNode.TargetType targetType, string? methodName)
+        private IExpressionNode GetOrAddBindingMember(bool? isTarget, string? methodName)
         {
-            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType)targetType);
+            byte type = 0;
+            var flags = Flags;
+            if (isTarget != null)
+            {
+                if (isTarget.Value)
+                {
+                    flags = flags.SetTargetFlags(true);
+                    type = 2;
+                }
+                else
+                {
+                    flags = flags.SetTargetFlags(false);
+                    type = 1;
+                }
+            }
+
+            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType)type);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingMemberExpressionNode(targetType, key.Path, _observerProvider)
+                node = new BindingMemberExpressionNode(key.Path, _observerProvider)
                 {
                     ObservableMethodName = methodName,
-                    Flags = Flags,
+                    Flags = flags,
                     MemberFlags = key.MemberFlags
                 };
 

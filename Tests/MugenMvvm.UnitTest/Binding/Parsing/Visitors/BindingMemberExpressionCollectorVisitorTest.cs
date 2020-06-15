@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
         [Fact]
         public void CollectShouldCollectBindingMemberExpressions1()
         {
-            var expressionNode = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test");
+            var expressionNode = new BindingMemberExpressionNode("Test");
             var visitor = new BindingMemberExpressionCollectorVisitor();
             var array = visitor.Collect(expressionNode, DefaultMetadata).AsList();
             array.Length.ShouldEqual(1);
@@ -25,9 +25,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
         [Fact]
         public void CollectShouldCollectBindingMemberExpressions2()
         {
-            var ex1 = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test1");
-            var ex2 = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test2");
-            var ex3 = new BindingMemberExpressionNode(BindingMemberExpressionNode.TargetType.Default, "Test2");
+            var ex1 = new BindingMemberExpressionNode("Test1");
+            var ex2 = new BindingMemberExpressionNode("Test2");
+            var ex3 = new BindingMemberExpressionNode("Test2");
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, ex1, new BinaryExpressionNode(BinaryTokenType.Division, ex2, new BinaryExpressionNode(BinaryTokenType.Addition, ex1, ex3)));
             var visitor = new BindingMemberExpressionCollectorVisitor();
             var array = visitor.Collect(expression, DefaultMetadata).AsList();

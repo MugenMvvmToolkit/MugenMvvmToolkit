@@ -25,23 +25,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
-        {
-            path = GetMemberPath(metadata);
-            memberFlags = MemberFlags;
-            return Instance;
-        }
-
         public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             path = GetMemberPath(metadata);
             memberFlags = MemberFlags;
             return Instance;
-        }
-
-        public override IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return GetObserver(Instance, GetMemberPath(metadata), metadata);
         }
 
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)

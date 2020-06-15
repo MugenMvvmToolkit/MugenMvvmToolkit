@@ -36,13 +36,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object GetTarget(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
-        {
-            path = GetMemberPath(metadata);
-            memberFlags = MemberFlags;
-            return GetResource(target, source, metadata);
-        }
-
         public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             path = GetMemberPath(metadata);
@@ -50,16 +43,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return GetResource(target, source, metadata);
         }
 
-        public override IMemberPathObserver GetBindingTarget(object target, object? source, IReadOnlyMetadataContext? metadata)
-        {
-            return GetObserver(GetResource(target, source, metadata), GetMemberPath(metadata), metadata);
-        }
-
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var resourceValue = GetResource(target, source, metadata);
             var memberPath = GetMemberPath(metadata);
-            if (!resourceValue.IsStatic)
+            if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target) || !resourceValue.IsStatic)
                 return GetObserver(resourceValue, memberPath, metadata);
             if (resourceValue.Value == null)
                 return null;

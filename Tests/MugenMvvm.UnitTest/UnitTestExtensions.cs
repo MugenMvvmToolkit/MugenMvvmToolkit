@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest
             switch (x1)
             {
                 case BindingMemberExpressionNode bindingMemberExpressionNode:
-                    return bindingMemberExpressionNode.Type == ((BindingMemberExpressionNode)x2).Type;
+                    return true;
                 case BindingInstanceMemberExpressionNode bindingInstanceMemberExpressionNode:
                     return Equals(bindingInstanceMemberExpressionNode.Instance, ((BindingInstanceMemberExpressionNode)x2).Instance);
                 case BindingResourceMemberExpressionNode bindingResourceMemberExpressionNode:
