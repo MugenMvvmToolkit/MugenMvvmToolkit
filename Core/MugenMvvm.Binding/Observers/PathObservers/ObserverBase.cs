@@ -6,11 +6,12 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.PathObservers
 {
-    public abstract class ObserverBase : IMemberPathObserver
+    public abstract class ObserverBase : IMemberPathObserver, IHasDisposeCondition
     {
         #region Fields
 
@@ -21,6 +22,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         protected const byte OptionalFlag = 1 << 2;
         protected const byte HasStablePathFlag = 1 << 3;
         protected const byte InitializedFlag = 1 << 4;
+        protected const byte NoDisposeFlag = 1 << 5;
 
         private static readonly IMemberPathObserverListener[] DisposedItems = new IMemberPathObserverListener[0];
 
@@ -65,13 +67,15 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         protected bool IsDisposed => ReferenceEquals(_listeners, DisposedItems);
 
+        public abstract bool CanDispose { get; set; }
+
         #endregion
 
         #region Implementation of interfaces
 
         public void Dispose()
         {
-            if (ReferenceEquals(_listeners, DisposedItems))
+            if (ReferenceEquals(_listeners, DisposedItems) || !CanDispose)
                 return;
             _listeners = DisposedItems;
             _target = null;

@@ -29,6 +29,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
             Should.NotBeNull(method, nameof(method));
             _memberFlags = memberFlags;
             _method = method;
+            CanDispose = true;
         }
 
         #endregion
@@ -36,6 +37,8 @@ namespace MugenMvvm.Binding.Observers.PathObservers
         #region Properties
 
         public override IMemberPath Path => EmptyMemberPath.Instance;
+
+        public override bool CanDispose { get; set; }
 
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 

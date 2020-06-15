@@ -41,6 +41,18 @@ namespace MugenMvvm.Binding.Observers.PathObservers
 
         public override IMemberPath Path { get; }
 
+        public override bool CanDispose
+        {
+            get => !CheckFlag(NoDisposeFlag);
+            set
+            {
+                if (value)
+                    _state = (byte)(_state & ~NoDisposeFlag);
+                else
+                    _state |= NoDisposeFlag;
+            }
+        }
+
         IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
 
         protected bool Optional => CheckFlag(OptionalFlag);
