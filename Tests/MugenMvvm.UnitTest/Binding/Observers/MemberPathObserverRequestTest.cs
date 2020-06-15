@@ -26,9 +26,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var observableMethodName = "Fds";
             var optional = true;
             IMemberPath path = EmptyMemberPath.Instance;
-            var state = new object();
 
-            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional, state);
+            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional);
             request.IsEmpty.ShouldBeFalse();
             request.HasStablePath.ShouldEqual(hasStablePath);
             request.MemberFlags.ShouldEqual(memberFlags);
@@ -36,7 +35,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             request.ObservableMethodName.ShouldEqual(observableMethodName);
             request.Optional.ShouldEqual(optional);
             request.Path.ShouldEqual(path);
-            request.State.ShouldEqual(state);
         }
 
         [Fact]
@@ -48,9 +46,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             var observableMethodName = "Fds";
             var optional = true;
             IMemberPath path = EmptyMemberPath.Instance;
-            var state = new object();
 
-            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional, state);
+            var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional);
             request.IsEmpty.ShouldBeFalse();
             request.HasStablePath.ShouldEqual(hasStablePath);
             request.MemberFlags.ShouldEqual(memberFlags);
@@ -58,7 +55,6 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             request.ObservableMethodName.ShouldBeNull();
             request.Optional.ShouldEqual(optional);
             request.Path.ShouldEqual(path);
-            request.State.ShouldEqual(state);
         }
 
         #endregion
