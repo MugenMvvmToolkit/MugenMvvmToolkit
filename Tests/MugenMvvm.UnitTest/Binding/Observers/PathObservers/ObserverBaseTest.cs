@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -31,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
         [Fact]
         public void ConstructorShouldInitializeValues2()
         {
-            var o = new TestWeakReference {IsAlive = true, Target = new object()};
+            var o = new TestWeakReference { IsAlive = true, Target = new object() };
             var observer = GetObserver(o);
             observer.IsAlive.ShouldBeTrue();
             observer.Target.ShouldEqual(o.Target);
@@ -42,18 +43,29 @@ namespace MugenMvvm.UnitTest.Binding.Observers.PathObservers
             observer.Target.ShouldBeNull();
         }
 
-        [Fact]
-        public void DisposeShouldClearObserver()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void DisposeShouldClearObserver(bool canDispose)
         {
             var memberPathObserver = GetObserver(this);
             memberPathObserver.IsAlive.ShouldBeTrue();
             memberPathObserver.Target.ShouldEqual(this);
+            ((IHasDisposeCondition)memberPathObserver).CanDispose = canDispose;
 
             memberPathObserver.Dispose();
-            memberPathObserver.GetLastMember(DefaultMetadata).IsAvailable.ShouldBeFalse();
-            memberPathObserver.GetMembers(DefaultMetadata).IsAvailable.ShouldBeFalse();
-            memberPathObserver.IsAlive.ShouldBeFalse();
-            memberPathObserver.Target.ShouldBeNull();
+            if (canDispose)
+            {
+                memberPathObserver.GetLastMember(DefaultMetadata).IsAvailable.ShouldBeFalse();
+                memberPathObserver.GetMembers(DefaultMetadata).IsAvailable.ShouldBeFalse();
+                memberPathObserver.IsAlive.ShouldBeFalse();
+                memberPathObserver.Target.ShouldBeNull();
+            }
+            else
+            {
+                memberPathObserver.IsAlive.ShouldBeTrue();
+                memberPathObserver.Target.ShouldEqual(this);
+            }
         }
 
         [Theory]
