@@ -113,17 +113,13 @@ namespace MugenMvvm.Binding.Core
             if (CheckFlag(DisposedFlag))
                 return;
             SetFlag(DisposedFlag | SourceUpdatingFlag | TargetUpdatingFlag);
-            MugenBindingService.BindingManager.OnLifecycleChanged<object?>(this, BindingLifecycleState.Disposed, null);
-            OnDispose();
             if (CheckFlag(HasTargetObserverListener))
                 Target.RemoveListener(this);
             if (CheckFlag(HasSourceObserverListener))
                 BindingComponentExtensions.RemoveListener(SourceRaw, this);
-            DefaultComponentExtensions.Dispose(_components);
-            Components.Clear();
-            Target.Dispose();
+            MugenBindingService.BindingManager.OnLifecycleChanged<object?>(this, BindingLifecycleState.Disposed, null);
+            OnDispose();
             Target = EmptyPathObserver.Empty;
-            MugenBindingExtensions.DisposeBindingSource(SourceRaw);
             SourceRaw = null;
         }
 

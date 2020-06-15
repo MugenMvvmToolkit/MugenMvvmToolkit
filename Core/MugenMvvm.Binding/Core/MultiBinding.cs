@@ -45,9 +45,10 @@ namespace MugenMvvm.Binding.Core
         {
             get
             {
-                if (State == BindingState.Disposed)
+                var expression = _expression;
+                if (expression == null)
                     ExceptionManager.ThrowObjectDisposed(this);
-                return _expression!;
+                return expression;
             }
         }
 
@@ -92,7 +93,6 @@ namespace MugenMvvm.Binding.Core
 
         protected override void OnDispose()
         {
-            _expression?.Dispose();
             _expression = null;
         }
 

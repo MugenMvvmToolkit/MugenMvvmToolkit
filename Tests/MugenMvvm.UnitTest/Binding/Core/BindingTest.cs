@@ -1311,15 +1311,16 @@ namespace MugenMvvm.UnitTest.Binding.Core
             using var subscribe = TestComponentSubscriber.Subscribe(testLifecycleListener);
 
             binding.Dispose();
-            disposeComponentCount.ShouldEqual(count);
+            disposeComponentCount.ShouldEqual(0);
             binding.State.ShouldEqual(BindingState.Disposed);
-            targetDisposed.ShouldBeTrue();
-            sourceDisposed.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            targetDisposed.ShouldBeFalse();
+            sourceDisposed.ShouldBeFalse();
+            binding.GetComponents().AsList().ShouldContain(components);
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
 
+            binding.Components.Clear();
             binding.AddComponent(components[0]).ShouldBeFalse();
             binding.GetComponents().AsList().ShouldBeEmpty();
         }

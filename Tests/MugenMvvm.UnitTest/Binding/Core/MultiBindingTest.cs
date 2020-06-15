@@ -87,14 +87,15 @@ namespace MugenMvvm.UnitTest.Binding.Core
 
             binding.Dispose();
             binding.State.ShouldEqual(BindingState.Disposed);
-            targetDisposed.ShouldBeTrue();
-            sourceDisposed.ShouldBeTrue();
-            binding.GetComponents().AsList().ShouldBeEmpty();
+            targetDisposed.ShouldBeFalse();
+            sourceDisposed.ShouldBeFalse();
+            binding.GetComponents().AsList().ShouldContain(components);
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
-            expressionDisposed.ShouldBeTrue();
+            expressionDisposed.ShouldBeFalse();
 
+            binding.Components.Clear();
             binding.AddComponent(components[0]).ShouldBeFalse();
             binding.GetComponents().AsList().ShouldBeEmpty();
             ShouldThrow<ObjectDisposedException>(() =>
