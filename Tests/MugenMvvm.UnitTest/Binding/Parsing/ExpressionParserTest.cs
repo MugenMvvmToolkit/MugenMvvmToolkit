@@ -437,9 +437,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), new MemberExpressionNode(null, nameof(StringProperty))));
 
             item = parser.TryParse(new ExpressionConverterRequest(selfExpression, selfExpression, new KeyValuePair<string?, object>(nameof(StringProperty), selfExpression)), DefaultMetadata).Item;
-            item.Target.ShouldEqual(MemberExpressionNode.Empty);
-            item.Source.ShouldEqual(MemberExpressionNode.Empty);
-            item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), MemberExpressionNode.Empty));
+            item.Target.ShouldEqual(ConstantExpressionNode.Null);
+            item.Source.ShouldEqual(ConstantExpressionNode.Null);
+            item.Parameters.Item.ShouldEqual(new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, nameof(StringProperty)), ConstantExpressionNode.Null));
         }
 
         protected override ExpressionParser GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
