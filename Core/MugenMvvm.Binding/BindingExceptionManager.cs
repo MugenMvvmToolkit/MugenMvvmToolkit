@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq.Expressions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
@@ -87,6 +88,11 @@ namespace MugenMvvm.Binding
         public static void ThrowCannotConvertType(object? value, Type type)
         {
             throw new InvalidOperationException(string.Format(CannotConvertTypeFormat2, value, type));
+        }
+
+        public static void ThrowCannotUseExpressionClosure(object expression)
+        {
+            throw new InvalidOperationException(string.Format(CannotUseExpressionClosureFormat1, expression));
         }
 
         #endregion

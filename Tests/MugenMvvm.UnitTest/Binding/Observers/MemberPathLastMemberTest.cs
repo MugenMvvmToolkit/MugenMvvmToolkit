@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             member.GetValueOrThrow(DefaultMetadata).ShouldEqual(target);
             getCount.ShouldEqual(1);
 
-            member.SetValueWithConvert(value, DefaultMetadata);
+            member.TrySetValueWithConvert(value, DefaultMetadata);
             setCount.ShouldEqual(1);
         }
 

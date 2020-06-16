@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             var exp = new BindingMemberExpressionNode(Path, observerProvider)
             {
                 MemberFlags = MemberFlags.All,
-                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethod |
+                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods |
                         BindingMemberExpressionFlags.Target,
                 ObservableMethodName = "M"
             };
@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             exp = new BindingMemberExpressionNode(Path, observerProvider)
             {
                 MemberFlags = MemberFlags.All,
-                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethod,
+                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods,
                 ObservableMethodName = "M"
             };
             expectedTarget = src;

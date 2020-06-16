@@ -54,6 +54,28 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             MemberExpressionNode.Get(null, MacrosConstant.Action).ShouldEqual(MemberExpressionNode.Action);
             MemberExpressionNode.Get(null, "").ShouldEqual(MemberExpressionNode.Empty);
 
+            MemberExpressionNode.Get(null, BindingModeNameConstant.None).ShouldEqual(MemberExpressionNode.NoneMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.OneTime).ShouldEqual(MemberExpressionNode.OneTimeMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.OneWay).ShouldEqual(MemberExpressionNode.OneWayMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.OneWayToSource).ShouldEqual(MemberExpressionNode.OneWayToSourceMode);
+            MemberExpressionNode.Get(null, BindingModeNameConstant.TwoWay).ShouldEqual(MemberExpressionNode.TwoWayMode);
+
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Optional).ShouldEqual(MemberExpressionNode.OptionalParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.HasStablePath).ShouldEqual(MemberExpressionNode.HasStablePathParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Observable).ShouldEqual(MemberExpressionNode.ObservableParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.ToggleEnabled).ShouldEqual(MemberExpressionNode.ToggleEnabledParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.IgnoreMethodMembers).ShouldEqual(MemberExpressionNode.IgnoreMethodMembersParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.IgnoreIndexMembers).ShouldEqual(MemberExpressionNode.IgnoreIndexMembersParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.ObservableMethods).ShouldEqual(MemberExpressionNode.ObservableMethodsParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Converter).ShouldEqual(MemberExpressionNode.ConverterParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.ConverterParameter).ShouldEqual(MemberExpressionNode.ConverterParameterParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Fallback).ShouldEqual(MemberExpressionNode.FallbackParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.TargetNullValue).ShouldEqual(MemberExpressionNode.TargetNullValueParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.CommandParameter).ShouldEqual(MemberExpressionNode.CommandParameterParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.Delay).ShouldEqual(MemberExpressionNode.DelayParameter);
+            MemberExpressionNode.Get(null, BindingParameterNameConstant.TargetDelay).ShouldEqual(MemberExpressionNode.TargetDelayParameter);
+
+
             var node = MemberExpressionNode.Get(ConstantExpressionNode.False, MacrosConstant.Self);
             node.ShouldNotEqual(MemberExpressionNode.Self);
             node.Target.ShouldEqual(ConstantExpressionNode.False);

@@ -74,7 +74,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         protected IMemberPathObserver GetObserver(object target, IMemberPath memberPath, IReadOnlyMetadataContext? metadata)
         {
             var request = new MemberPathObserverRequest(memberPath, MemberFlags,
-                Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethod) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
+                Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
             return ObserverProvider.DefaultIfNull().GetMemberPathObserver(target, request, metadata);
         }

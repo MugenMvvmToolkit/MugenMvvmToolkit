@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [InlineData(false)]
         public void InitializeShouldRespectSettings(bool parametersSetting)
         {
-            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod | BindingMemberExpressionFlags.Optional;
+            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
             var ignoreMethodMembers = true;
             var ignoreIndexMembers = true;
             var memberFlags = MemberFlags.Static;
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreMethodMembers),
                     new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreIndexMembers),
                     new MemberExpressionNode(null, BindingParameterNameConstant.HasStablePath),
-                    new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethod),
+                    new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethods),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Optional)
                 };
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var targetSrc = "";
             var sourceSrc = new object();
             var targetPath = new MultiMemberPath("Member1.Member2");
-            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod | BindingMemberExpressionFlags.Optional;
+            var flags = BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods | BindingMemberExpressionFlags.Optional;
             var ignoreMethodMembers = true;
             var ignoreIndexMembers = true;
             var toggleEnabledState = true;
@@ -213,7 +213,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                         if (visitor is BindingMemberExpressionVisitor expressionVisitor)
                         {
-                            expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~BindingMemberExpressionFlags.ObservableMethod);
+                            expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~BindingMemberExpressionFlags.ObservableMethods);
                             expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
                             expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
                             expressionVisitor.MemberFlags.ShouldEqual(memberFlags);
@@ -257,7 +257,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreMethodMembers),
                     new MemberExpressionNode(null, BindingParameterNameConstant.IgnoreIndexMembers),
                     new MemberExpressionNode(null, BindingParameterNameConstant.HasStablePath),
-                    new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethod),
+                    new MemberExpressionNode(null, BindingParameterNameConstant.ObservableMethods),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Optional),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled),
@@ -305,7 +305,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
                     var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
-                    expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod));
+                    expressionVisitor.Flags.ShouldEqual(flags.SetTargetFlags(false) & ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods));
                     expressionVisitor.IgnoreIndexMembers.ShouldBeTrue();
                     expressionVisitor.IgnoreMethodMembers.ShouldBeTrue();
                     expressionVisitor.MemberFlags.ShouldEqual(memberFlags);

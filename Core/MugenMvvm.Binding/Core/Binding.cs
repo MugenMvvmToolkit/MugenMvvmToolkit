@@ -130,11 +130,10 @@ namespace MugenMvvm.Binding.Core
 
         public void UpdateTarget()
         {
+            if (CheckFlag(TargetUpdatingFlag))
+                return;
             try
             {
-                if (CheckFlag(TargetUpdatingFlag))
-                    return;
-
                 SetFlag(TargetUpdatingFlag);
                 var success = UpdateTargetInternal(out var newValue);
                 if (CheckFlag(HasTargetListenerFlag))
@@ -158,11 +157,10 @@ namespace MugenMvvm.Binding.Core
 
         public void UpdateSource()
         {
+            if (CheckFlag(SourceUpdatingFlag))
+                return;
             try
             {
-                if (CheckFlag(SourceUpdatingFlag))
-                    return;
-
                 SetFlag(SourceUpdatingFlag);
                 var success = UpdateSourceInternal(out var newValue);
                 if (CheckFlag(HasSourceListenerFlag))
@@ -379,7 +377,7 @@ namespace MugenMvvm.Binding.Core
             {
                 if (newValue.IsUnsetValue())
                     return false;
-                pathLastMember.SetValueWithConvert(newValue, this);
+                pathLastMember.TrySetValueWithConvert(newValue, this);
             }
             return true;
         }
@@ -404,7 +402,7 @@ namespace MugenMvvm.Binding.Core
             {
                 if (newValue.IsUnsetValue())
                     return false;
-                pathLastMember.SetValueWithConvert(newValue, this);
+                pathLastMember.TrySetValueWithConvert(newValue, this);
             }
             return true;
         }

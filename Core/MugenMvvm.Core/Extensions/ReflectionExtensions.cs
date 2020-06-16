@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Extensions
@@ -14,10 +15,24 @@ namespace MugenMvvm.Extensions
 
         private static Action<object, PropertyChangedEventHandler>? _unsubscribePropertyChangedDelegate;
         private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler>? _createPropertyChangedHandlerDelegate;
+        private static readonly TypeLightDictionary<bool> HasClosureDictionary = new TypeLightDictionary<bool>(47);
+
+        #endregion
+
+        #region Properties
+
+        public static Func<Delegate, bool> ClosureDetector { get; set; } = DefaultClosureDetector;
 
         #endregion
 
         #region Methods
+
+        public static bool HasClosure(this Delegate d)
+        {
+            if (d.Target == null)
+                return false;
+            return ClosureDetector(d);
+        }
 
         public static Delegate CompileEx(this LambdaExpression lambdaExpression)
         {
@@ -181,6 +196,22 @@ namespace MugenMvvm.Extensions
             if (type == typeof(object) && BoxingExtensions.CanBox(expression.Type))
                 return Expression.Call(null, BoxingExtensions.GenericBoxMethodInfo.MakeGenericMethod(expression.Type), expression);
             return Expression.Convert(expression, type);
+        }
+
+        private static bool DefaultClosureDetector(Delegate d)
+        {
+            var key = d.Target.GetType();
+            lock (HasClosureDictionary)
+            {
+                if (!HasClosureDictionary.TryGetValue(key, out var value))
+                {
+                    value = key.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Length != 0 ||
+                            key.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance).Length != 0;
+                    HasClosureDictionary[key] = value;
+                }
+
+                return value;
+            }
         }
 
         private static void UnsubscribePropertyChanged(object sender, PropertyChangedEventHandler handler)

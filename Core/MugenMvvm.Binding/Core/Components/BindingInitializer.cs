@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public static string OneTimeBindingMode { get; set; } = "OneTime";
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod;
+        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods;
 
         public MemberFlags MemberFlags
         {
@@ -83,7 +83,7 @@ namespace MugenMvvm.Binding.Core.Components
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Observable, BindingMemberExpressionFlags.Observable);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.Optional, BindingMemberExpressionFlags.Optional);
             context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.HasStablePath, BindingMemberExpressionFlags.StablePath);
-            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.ObservableMethod, BindingMemberExpressionFlags.ObservableMethod);
+            context.ApplyFlags(_memberExpressionVisitor, BindingParameterNameConstant.ObservableMethods, BindingMemberExpressionFlags.ObservableMethods);
 
             context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, true, metadata);
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
@@ -92,7 +92,7 @@ namespace MugenMvvm.Binding.Core.Components
                 return;
             }
 
-            _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethod);
+            _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods);
             _memberExpressionVisitor.IgnoreIndexMembers = true;
             _memberExpressionVisitor.IgnoreMethodMembers = true;
             context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);

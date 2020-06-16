@@ -22,20 +22,20 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>([DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             try
             {
                 var result = Components.TryBuildBindingExpression(expression, metadata);
                 if (result.Item != null)
-                    return new ExceptionWrapperBindingExpression(result.Item);
+                    return ExceptionWrapperBindingExpression.Wrap(result.Item);
 
                 var items = result.List;
                 if (items != null)
                 {
                     var expressions = new IBindingExpression[items.Count];
                     for (var i = 0; i < expressions.Length; i++)
-                        expressions[i] = new ExceptionWrapperBindingExpression(items[i]);
+                        expressions[i] = ExceptionWrapperBindingExpression.Wrap(items[i]);
                     return expressions;
                 }
 
@@ -63,7 +63,7 @@ namespace MugenMvvm.Binding.Core.Components
 
             #region Constructors
 
-            public ExceptionWrapperBindingExpression(IBindingExpression bindingExpression)
+            private ExceptionWrapperBindingExpression(IBindingExpression bindingExpression)
             {
                 _bindingExpression = bindingExpression;
             }
@@ -88,6 +88,17 @@ namespace MugenMvvm.Binding.Core.Components
                 {
                     return new InvalidBinding(e);
                 }
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static ExceptionWrapperBindingExpression Wrap(IBindingExpression expression)
+            {
+                if (expression is ExceptionWrapperBindingExpression wrapper)
+                    return wrapper;
+                return new ExceptionWrapperBindingExpression(expression);
             }
 
             #endregion

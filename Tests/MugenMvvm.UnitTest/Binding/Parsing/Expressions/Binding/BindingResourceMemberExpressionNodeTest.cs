@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observerProvider, resourceResolver)
             {
                 MemberFlags = MemberFlags.All,
-                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethod,
+                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods,
                 ObservableMethodName = "M"
             };
 

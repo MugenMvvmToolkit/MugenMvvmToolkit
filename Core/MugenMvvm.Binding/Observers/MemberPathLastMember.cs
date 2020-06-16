@@ -75,7 +75,6 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ThrowIfError()
         {
             if (_member == null)
@@ -88,6 +87,7 @@ namespace MugenMvvm.Binding.Observers
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? GetValueOrThrow(IReadOnlyMetadataContext? metadata = null)
         {
             if (_member == null)
@@ -98,12 +98,13 @@ namespace MugenMvvm.Binding.Observers
             return ((IAccessorMemberInfo)_member).GetValue(_target, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public object? GetValue(IReadOnlyMetadataContext? metadata = null)
         {
             return ((IAccessorMemberInfo)_member!).GetValue(_target, metadata);
         }
 
-        public void SetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)
+        public void TrySetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (_member is IAccessorMemberInfo member)
                 member.SetValue(_target, MugenBindingService.GlobalValueConverter.Convert(value, member.Type, member, metadata), metadata);
