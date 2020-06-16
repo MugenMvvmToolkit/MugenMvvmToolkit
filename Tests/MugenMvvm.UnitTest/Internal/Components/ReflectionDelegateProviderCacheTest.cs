@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal.Components
 {
-    public class CacheReflectionDelegateProviderDecoratorTest : UnitTestBase
+    public class ReflectionDelegateProviderCacheTest : UnitTestBase
     {
         #region Fields
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 info.ShouldEqual(TestConstructor);
                 return result;
             };
-            var cacheComponent = new CacheReflectionDelegateProviderDecorator();
+            var cacheComponent = new ReflectionDelegateProviderCache();
 
             ((IComponentCollectionDecorator<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IActivatorReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 info.ShouldEqual(TestConstructor);
                 return result;
             };
-            var cacheComponent = new CacheReflectionDelegateProviderDecorator();
+            var cacheComponent = new ReflectionDelegateProviderCache();
 
             ((IComponentCollectionDecorator<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IActivatorReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 info.ShouldEqual(TestMethod);
                 return result;
             };
-            var cacheComponent = new CacheReflectionDelegateProviderDecorator();
+            var cacheComponent = new ReflectionDelegateProviderCache();
 
             ((IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMemberReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 info.ShouldEqual(TestMethod);
                 return result;
             };
-            var cacheComponent = new CacheReflectionDelegateProviderDecorator();
+            var cacheComponent = new ReflectionDelegateProviderCache();
 
             ((IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMemberReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
@@ -148,7 +148,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 info.ShouldEqual(TestMethod);
                 return result;
             };
-            var cacheComponent = new CacheReflectionDelegateProviderDecorator();
+            var cacheComponent = new ReflectionDelegateProviderCache();
 
             ((IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMethodReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
@@ -177,7 +177,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 info.ShouldEqual(TestMethod);
                 return result;
             };
-            var cacheComponent = new CacheReflectionDelegateProviderDecorator();
+            var cacheComponent = new ReflectionDelegateProviderCache();
 
             ((IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>)cacheComponent)
                 .Decorate(new List<IMethodReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);

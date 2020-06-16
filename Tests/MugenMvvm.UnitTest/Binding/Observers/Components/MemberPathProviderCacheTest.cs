@@ -8,7 +8,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Observers.Components
 {
-    public class CacheMemberPathProviderDecoratorTest : UnitTestBase
+    public class MemberPathProviderCacheTest : UnitTestBase
     {
         #region Methods
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Components
             var invokeCount = 0;
             var path = new SingleMemberPath("test");
             var provider = new ObserverProvider();
-            var decorator = new CacheMemberPathProviderDecorator();
+            var decorator = new MemberPathProviderCache();
             var testPathProvider = new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>

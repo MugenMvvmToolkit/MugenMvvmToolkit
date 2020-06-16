@@ -16,7 +16,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class CacheReflectionDelegateProviderDecorator : ComponentDecoratorBase<IReflectionDelegateProvider, IActivatorReflectionDelegateProviderComponent>,
+    public sealed class ReflectionDelegateProviderCache : ComponentDecoratorBase<IReflectionDelegateProvider, IActivatorReflectionDelegateProviderComponent>,
         IActivatorReflectionDelegateProviderComponent, IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent,
         IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>, IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>, IHasPriority, IHasCache
     {
@@ -37,7 +37,7 @@ namespace MugenMvvm.Internal.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CacheReflectionDelegateProviderDecorator()
+        public ReflectionDelegateProviderCache()
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
             _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();

@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal.Components
 {
-    public class ValueHolderCacheWeakReferenceProviderDecoratorTest : UnitTestBase
+    public class ValueHolderWeakReferenceProviderCacheTest : UnitTestBase
     {
         #region Methods
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             var weak = new WeakReferenceImpl(this, true);
-            var cacheComponent = new ValueHolderCacheWeakReferenceProviderDecorator();
+            var cacheComponent = new ValueHolderWeakReferenceProviderCache();
             var providerComponent = new TestWeakReferenceProviderComponent
             {
                 TryGetWeakReference = (o, context) =>

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Members.Components
 {
-    public class CacheMemberManagerDecoratorTest : UnitTestBase
+    public class MemberManagerCacheTest : UnitTestBase
     {
         #region Methods
 
@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     return result;
                 }
             };
-            var cacheComponent = new CacheMemberManagerDecorator();
+            var cacheComponent = new MemberManagerCache();
             ((IComponentCollectionDecorator<IMemberManagerComponent>) cacheComponent).Decorate(new List<IMemberManagerComponent> {cacheComponent, providerComponent}, DefaultMetadata);
 
             cacheComponent.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata).ShouldEqual(result);
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     return result;
                 }
             };
-            var cacheComponent = new CacheMemberManagerDecorator();
+            var cacheComponent = new MemberManagerCache();
             ((IComponentCollectionDecorator<IMemberManagerComponent>) cacheComponent).Decorate(new List<IMemberManagerComponent> {cacheComponent, providerComponent}, DefaultMetadata);
 
             cacheComponent.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
@@ -110,7 +110,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     return result;
                 }
             };
-            var cacheComponent = new CacheMemberManagerDecorator();
+            var cacheComponent = new MemberManagerCache();
             var memberManager = new MemberManager();
             memberManager.AddComponent(providerComponent);
             memberManager.AddComponent(cacheComponent);

@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers.Components
 {
-    public sealed class CacheMemberPathProviderDecorator : ComponentDecoratorBase<IObserverProvider, IMemberPathProviderComponent>, IHasPriority, IMemberPathProviderComponent, IHasCache
+    public sealed class MemberPathProviderCache : ComponentDecoratorBase<IObserverProvider, IMemberPathProviderComponent>, IHasPriority, IMemberPathProviderComponent, IHasCache
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Observers.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CacheMemberPathProviderDecorator()
+        public MemberPathProviderCache()
         {
             _cache = new StringOrdinalLightDictionary<IMemberPath?>(59);
         }

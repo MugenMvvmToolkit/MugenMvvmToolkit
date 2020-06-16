@@ -18,7 +18,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class CacheMemberManagerDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority, IHasCache
+    public sealed class MemberManagerCache : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority, IHasCache
     {
         #region Fields
 
@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CacheMemberManagerDecorator()
+        public MemberManagerCache()
         {
             _cache = new TempCacheDictionary();
         }
