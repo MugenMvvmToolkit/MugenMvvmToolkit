@@ -8,8 +8,8 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
 {
-    [ResourceBindingSyntaxExtension(Name, true)]
-    public class ResourceBindingSyntaxExtensionAttributeTest : UnitTestBase
+    [BindingMacros(Name, true)]
+    public class BindingMacrosAttributeTest : UnitTestBase
     {
         #region Fields
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
         [Fact]
         public void TryConvertShouldReturnResourceExpression()
         {
-            var attribute = (ResourceBindingSyntaxExtensionAttribute)BindingSyntaxExtensionAttributeBase.TryGet(typeof(ResourceBindingSyntaxExtensionAttributeTest))!;
+            var attribute = (BindingMacrosAttribute)BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingMacrosAttributeTest))!;
             var ctx = new ExpressionConverterContext<Expression>();
             attribute.TryConvert(ctx, null, out var result).ShouldBeTrue();
             result.ShouldEqual(new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, Name)));

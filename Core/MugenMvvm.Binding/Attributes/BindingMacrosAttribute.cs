@@ -8,7 +8,7 @@ using MugenMvvm.Binding.Parsing.Expressions;
 namespace MugenMvvm.Binding.Attributes
 {
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Field | AttributeTargets.Property)]
-    public sealed class ResourceBindingSyntaxExtensionAttribute : BindingSyntaxExtensionAttributeBase
+    public sealed class BindingMacrosAttribute : BindingSyntaxExtensionAttributeBase
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Attributes
 
         #region Constructors
 
-        public ResourceBindingSyntaxExtensionAttribute(string resourceName, bool isStatic = false)
+        public BindingMacrosAttribute(string resourceName, bool isStatic = false)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));
             _expressionNode = UnaryExpressionNode.Get(isStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, resourceName));

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
 {
-    [ResourceBindingSyntaxExtension(Name, true)]
+    [BindingMacros(Name, true)]
     public class BindingSyntaxExtensionAttributeTest : UnitTestBase
     {
         #region Fields
@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Attributes
         [Fact]
         public void TryGetShouldReturnCorrectAttribute()
         {
-            var attribute = (ResourceBindingSyntaxExtensionAttribute) BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingSyntaxExtensionAttributeTest))!;
+            var attribute = (BindingMacrosAttribute) BindingSyntaxExtensionAttributeBase.TryGet(typeof(BindingSyntaxExtensionAttributeTest))!;
             attribute.ResourceName.ShouldEqual(Name);
             attribute.IsStatic.ShouldBeTrue();
 

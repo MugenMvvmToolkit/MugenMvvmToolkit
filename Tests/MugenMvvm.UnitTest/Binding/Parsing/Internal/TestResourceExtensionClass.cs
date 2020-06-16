@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 {
-    [ResourceBindingSyntaxExtension(ClassResource)]
+    [BindingMacros(ClassResource)]
     public class TestResourceExtensionClass
     {
         #region Fields
@@ -16,21 +16,21 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Properties
 
-        [ResourceBindingSyntaxExtension(IndexerResource)]
+        [BindingMacros(IndexerResource)]
         public object? this[int index] => null;
 
         public object? this[object index] => null;
 
         public object? Property { get; set; }
 
-        [ResourceBindingSyntaxExtension(PropertyResource)]
+        [BindingMacros(PropertyResource)]
         public object? PropertyResourceExt { get; set; }
 
         #endregion
 
         #region Methods
 
-        [ResourceBindingSyntaxExtension(MethodResource)]
+        [BindingMacros(MethodResource)]
         public object? MethodResourceExt(object? arg)
         {
             return null;
