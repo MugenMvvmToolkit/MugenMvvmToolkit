@@ -31,7 +31,7 @@ namespace MugenMvvm.Serialization
         {
             var result = GetComponents<ISerializerComponent>().TrySerialize(request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(this);
             return result;
         }
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Serialization
         {
             var result = GetComponents<ISerializerComponent>().TryDeserialize(stream, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(this);
             return result;
         }
 

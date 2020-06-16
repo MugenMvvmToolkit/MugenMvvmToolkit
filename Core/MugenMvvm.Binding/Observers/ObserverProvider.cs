@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Observers
                 _componentTracker.Attach(this, metadata);
             var result = _memberPathComponents!.TryGetMemberPath(path, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized(this, _memberPathComponents);
             return result;
         }
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Observers
                 _componentTracker.Attach(this, metadata);
             var result = _memberPathObserverComponents!.TryGetMemberPathObserver(target, request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized(this, _memberPathObserverComponents);
             return result;
         }
 

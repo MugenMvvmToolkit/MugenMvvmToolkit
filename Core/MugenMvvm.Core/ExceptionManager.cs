@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -115,25 +116,25 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized<T>(IComponentOwner<T> owner) where T : class
+        public static void ThrowObjectNotInitialized<T>(object obj, T[]? _)
         {
-            ThrowObjectNotInitialized(owner, typeof(T).Name);
+            ThrowObjectNotInitialized<T>(obj);
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized<T>(object obj, T[]? _)
+        public static void ThrowObjectNotInitialized<T>(object obj)
         {
             ThrowObjectNotInitialized(obj, typeof(T).Name);
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized(object obj, string? hint = null)
+        public static void ThrowObjectNotInitialized(object obj, [CallerMemberName]string? hint = null)
         {
             throw new InvalidOperationException(ObjectNotInitializedFormat2.Format((obj as Type ?? obj.GetType()).Name, hint));
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectInitialized(object obj, string? hint = null)
+        public static void ThrowObjectInitialized(object obj, [CallerMemberName] string? hint = null)
         {
             throw new InvalidOperationException(ObjectInitializedFormat2.Format(obj, hint));
         }

@@ -16,9 +16,9 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ReflectionDelegateProviderCache : ComponentDecoratorBase<IReflectionDelegateProvider, IActivatorReflectionDelegateProviderComponent>,
+    public sealed class ReflectionDelegateProviderCache : ComponentCacheBase<IReflectionDelegateProvider, IActivatorReflectionDelegateProviderComponent>,
         IActivatorReflectionDelegateProviderComponent, IMemberReflectionDelegateProviderComponent, IMethodReflectionDelegateProviderComponent,
-        IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>, IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>, IHasPriority, IHasCache
+        IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>, IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>, IHasPriority
     {
         #region Fields
 
@@ -91,16 +91,14 @@ namespace MugenMvvm.Internal.Components
         void IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>.Decorate(IList<IMemberReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
             _memberComponents = this.Decorate(components);
-            Invalidate(false, false, true);
         }
 
         void IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>.Decorate(IList<IMethodReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
         {
             _methodComponents = this.Decorate(components);
-            Invalidate(false, true, false);
         }
 
-        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public override void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
             Invalidate(true, true, true);
         }
@@ -168,10 +166,19 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected override void DecorateInternal(IList<IActivatorReflectionDelegateProviderComponent> components, IReadOnlyMetadataContext? metadata)
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            base.DecorateInternal(components, metadata);
-            Invalidate(true, false, false);
+            Invalidate(component);
+        }
+
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Invalidate(component);
+        }
+
+        private void Invalidate(object component)
+        {
+            Invalidate(component is IActivatorReflectionDelegateProviderComponent, component is IMethodReflectionDelegateProviderComponent, component is IMemberReflectionDelegateProviderComponent);
         }
 
         private void Invalidate(bool activator, bool method, bool member)

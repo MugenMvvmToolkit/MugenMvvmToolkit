@@ -39,7 +39,7 @@ namespace MugenMvvm.Busy
         {
             var token = GetComponents<IBusyManagerComponent>().TryBeginBusy(request, metadata);
             if (token == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IBusyManagerComponent>(this);
             return token;
         }
 

@@ -11,14 +11,13 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MemberManagerCache : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority, IHasCache
+    public sealed class MemberManagerCache : ComponentCacheBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -44,26 +43,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
-        {
-            if (!Default.IsValueType<TState>() && state is Type type)
-            {
-                ItemOrList<CacheKey, List<CacheKey>> keys = default;
-                foreach (var pair in _cache)
-                {
-                    if (pair.Key.Type == type)
-                        keys.Add(pair.Key, key => key.Type == null);
-                }
-
-                var count = keys.Count(key => key.Type == null);
-                for (int i = 0; i < count; i++)
-                    _cache.Remove(keys.Get(i));
-            }
-            else
-                _cache.Clear();
-        }
-
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TRequest>() || !(request is string name))
                 return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
@@ -82,22 +62,23 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        protected override void DecorateInternal(IList<IMemberManagerComponent> components, IReadOnlyMetadataContext? metadata)
+        public override void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
-            base.DecorateInternal(components, metadata);
-            Invalidate<object?>(null, metadata);
-        }
+            if (!Default.IsValueType<TState>() && state is Type type)
+            {
+                ItemOrList<CacheKey, List<CacheKey>> keys = default;
+                foreach (var pair in _cache)
+                {
+                    if (pair.Key.Type == type)
+                        keys.Add(pair.Key, key => key.Type == null);
+                }
 
-        protected override void OnAttachedInternal(IMemberManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnAttachedInternal(owner, metadata);
-            Invalidate<object?>(null, metadata);
-        }
-
-        protected override void OnDetachedInternal(IMemberManager owner, IReadOnlyMetadataContext? metadata)
-        {
-            base.OnDetachedInternal(owner, metadata);
-            Invalidate<object?>(null, metadata);
+                var count = keys.Count(key => key.Type == null);
+                for (var i = 0; i < count; i++)
+                    _cache.Remove(keys.Get(i));
+            }
+            else
+                _cache.Clear();
         }
 
         #endregion
@@ -123,7 +104,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Key, key.Type, (int)key.MemberType, (int)key.MemberFlags);
+                return HashCode.Combine(key.Key, key.Type, (int) key.MemberType, (int) key.MemberFlags);
             }
 
             #endregion

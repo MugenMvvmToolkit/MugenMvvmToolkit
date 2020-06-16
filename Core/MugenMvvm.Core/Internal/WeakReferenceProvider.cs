@@ -38,7 +38,7 @@ namespace MugenMvvm.Internal
                 _componentTracker.Attach(this, metadata);
             var result = _components!.TryGetWeakReference(item, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized(this, _components);
             return result;
         }
 

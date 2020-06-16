@@ -35,7 +35,7 @@ namespace MugenMvvm.Navigation
         {
             var result = GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<INavigationContextProviderComponent>(this);
             return result;
         }
 

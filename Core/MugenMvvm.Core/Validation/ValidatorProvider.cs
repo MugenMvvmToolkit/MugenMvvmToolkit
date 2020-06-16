@@ -26,7 +26,7 @@ namespace MugenMvvm.Validation
         {
             var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IValidatorProviderComponent>(this);
 
             GetComponents<IValidatorProviderListener>(metadata).OnValidatorCreated(this, result, request, metadata);
             return result;

@@ -46,8 +46,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 BinaryTokenType.GreaterThan,
                 BinaryTokenType.LogicalAnd,
                 BinaryTokenType.LogicalXor,
-                BinaryTokenType.LogicalOr,
-                BinaryTokenType.Assignment
+                BinaryTokenType.LogicalOr
             };
         }
 

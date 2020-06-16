@@ -26,7 +26,7 @@ namespace MugenMvvm.Metadata
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(target, values);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IMetadataContextProviderComponent>(this);
 
             GetComponents<IMetadataContextProviderListener>().OnReadOnlyContextCreated(this, result!, target);
             return result;
@@ -36,7 +36,7 @@ namespace MugenMvvm.Metadata
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(target, values);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IMetadataContextProviderComponent>(this);
 
             GetComponents<IMetadataContextProviderListener>().OnContextCreated(this, result!, target);
             return result;

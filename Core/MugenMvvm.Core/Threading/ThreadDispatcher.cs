@@ -28,7 +28,7 @@ namespace MugenMvvm.Threading
         public void Execute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
             if (!GetComponents<IThreadDispatcherComponent>().TryExecute(executionMode, handler, state, metadata))
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IThreadDispatcherComponent>(this);
         }
 
         #endregion

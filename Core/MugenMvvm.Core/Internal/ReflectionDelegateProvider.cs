@@ -36,7 +36,7 @@ namespace MugenMvvm.Internal
         {
             var result = GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(this);
             return result;
         }
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.Internal
         {
             var result = GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(this);
             return result;
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.Internal
         {
             var result = GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(this);
             return result;
         }
 
@@ -60,7 +60,7 @@ namespace MugenMvvm.Internal
         {
             var result = GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(this);
             return result;
         }
 
@@ -68,7 +68,7 @@ namespace MugenMvvm.Internal
         {
             var result = GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberGetter(member, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(this);
             return result;
         }
 
@@ -76,7 +76,7 @@ namespace MugenMvvm.Internal
         {
             var result = GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberSetter(member, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(this);
             return result;
         }
 

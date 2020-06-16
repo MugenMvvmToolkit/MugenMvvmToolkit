@@ -56,7 +56,12 @@ namespace MugenMvvm.Messaging.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _messenger = owner as IMessenger;
+            if (owner is IMessenger messenger)
+            {
+                if (_messenger != null)
+                    ExceptionManager.ThrowObjectInitialized(this);
+                _messenger = messenger;
+            }
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)

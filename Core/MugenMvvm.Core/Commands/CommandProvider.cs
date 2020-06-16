@@ -27,7 +27,7 @@ namespace MugenMvvm.Commands
         {
             var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(this);
             GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, request, result, metadata);
             return result;
         }

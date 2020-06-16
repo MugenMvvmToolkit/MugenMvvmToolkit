@@ -5,8 +5,8 @@ using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Extensions.Components;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
@@ -18,7 +18,7 @@ using MugenMvvm.Interfaces.Threading;
 namespace MugenMvvm.Messaging.Components
 {
     public sealed class MessagePublisher : LightDictionary<Type, MessagePublisher.ThreadExecutionModeDictionary?>, IMessagePublisherComponent, IHasPriority,
-        IAttachableComponent, IDetachableComponent, IHasCache
+        IAttachableComponent, IDetachableComponent, IComponentCollectionChangedListener, IHasCache
     {
         #region Fields
 
@@ -55,9 +55,16 @@ namespace MugenMvvm.Messaging.Components
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            _owner = owner as IMessenger;
+            if (!(owner is IMessenger messenger))
+                return;
             if (_owner != null)
+                ExceptionManager.ThrowObjectInitialized(this);
+            _owner = messenger;
+            if (_owner != null)
+            {
+                _owner.Components.AddComponent(this, metadata);
                 Invalidate<object?>(null, metadata);
+            }
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -69,9 +76,22 @@ namespace MugenMvvm.Messaging.Components
         {
             if (ReferenceEquals(owner, _owner))
             {
+                _owner?.Components.RemoveComponent(this, metadata);
                 _owner = null;
                 Invalidate<object?>(null, metadata);
             }
+        }
+
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IMessengerSubscriberComponent)
+                Invalidate<object?>(null, metadata);
+        }
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IMessengerSubscriberComponent)
+                Invalidate<object?>(null, metadata);
         }
 
         public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)

@@ -48,7 +48,7 @@ namespace MugenMvvm.Views
         {
             var task = GetComponents<IViewManagerComponent>(metadata).TryInitializeAsync(mapping, request, cancellationToken, metadata);
             if (task == null)
-                ExceptionManager.ThrowObjectNotInitialized(this);
+                ExceptionManager.ThrowObjectNotInitialized<IViewManagerComponent>(this);
             return task;
         }
 
