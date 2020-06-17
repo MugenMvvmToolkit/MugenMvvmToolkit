@@ -32,52 +32,34 @@ namespace MugenMvvm.Internal
             return GetComponents<IReflectionDelegateProviderComponent>().TryCreateDelegate(delegateType, target, method);
         }
 
-        public Func<object?[], object> GetActivator(ConstructorInfo constructor)
+        public Func<object?[], object>? TryGetActivator(ConstructorInfo constructor)
         {
-            var result = GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(this);
-            return result;
+            return GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor);
         }
 
-        public Delegate GetActivator(ConstructorInfo constructor, Type delegateType)
+        public Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
         {
-            var result = GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor, delegateType);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(this);
-            return result;
+            return GetComponents<IActivatorReflectionDelegateProviderComponent>().TryGetActivator(constructor, delegateType);
         }
 
-        public Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
+        public Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method)
         {
-            var result = GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(this);
-            return result;
+            return GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method);
         }
 
-        public Delegate GetMethodInvoker(MethodInfo method, Type delegateType)
+        public Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType)
         {
-            var result = GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method, delegateType);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(this);
-            return result;
+            return GetComponents<IMethodReflectionDelegateProviderComponent>().TryGetMethodInvoker(method, delegateType);
         }
 
-        public Delegate GetMemberGetter(MemberInfo member, Type delegateType)
+        public Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType)
         {
-            var result = GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberGetter(member, delegateType);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(this);
-            return result;
+            return GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberGetter(member, delegateType);
         }
 
-        public Delegate GetMemberSetter(MemberInfo member, Type delegateType)
+        public Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType)
         {
-            var result = GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberSetter(member, delegateType);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(this);
-            return result;
+            return GetComponents<IMemberReflectionDelegateProviderComponent>().TryGetMemberSetter(member, delegateType);
         }
 
         #endregion

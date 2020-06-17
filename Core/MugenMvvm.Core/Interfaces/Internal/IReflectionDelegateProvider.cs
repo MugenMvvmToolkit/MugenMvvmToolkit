@@ -11,16 +11,16 @@ namespace MugenMvvm.Interfaces.Internal
 
         Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method);
 
-        Func<object?[], object> GetActivator(ConstructorInfo constructor);
+        Func<object?[], object>? TryGetActivator(ConstructorInfo constructor);
 
-        Delegate GetActivator(ConstructorInfo constructor, Type delegateType);
+        Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType);
 
-        Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method);
+        Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method);
 
-        Delegate GetMethodInvoker(MethodInfo method, Type delegateType);
+        Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType);
 
-        Delegate GetMemberGetter(MemberInfo member, Type delegateType);
+        Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType);
 
-        Delegate GetMemberSetter(MemberInfo member, Type delegateType);
+        Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType);
     }
 }

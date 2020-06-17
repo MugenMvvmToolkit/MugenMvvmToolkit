@@ -5,7 +5,9 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections.Internal;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Internal.Components;
 
 namespace MugenMvvm.Extensions
 {
@@ -116,6 +118,60 @@ namespace MugenMvvm.Extensions
             if (_createPropertyChangedHandlerDelegate == null)
                 _createPropertyChangedHandlerDelegate = CreateHandler;
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
+        }
+
+        public static Func<object?[], object> GetActivator(this IReflectionDelegateProvider reflectionDelegateProvider, ConstructorInfo constructor)
+        {
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            var result = reflectionDelegateProvider.TryGetActivator(constructor);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+            return result;
+        }
+
+        public static Delegate GetActivator(this IReflectionDelegateProvider reflectionDelegateProvider, ConstructorInfo constructor, Type delegateType)
+        {
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            var result = reflectionDelegateProvider.TryGetActivator(constructor, delegateType);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+            return result;
+        }
+
+        public static Func<object?, object?[], object?> GetMethodInvoker(this IReflectionDelegateProvider reflectionDelegateProvider, MethodInfo method)
+        {
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            var result = reflectionDelegateProvider.TryGetMethodInvoker(method);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+            return result;
+        }
+
+        public static Delegate GetMethodInvoker(this IReflectionDelegateProvider reflectionDelegateProvider, MethodInfo method, Type delegateType)
+        {
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            var result = reflectionDelegateProvider.TryGetMethodInvoker(method, delegateType);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+            return result;
+        }
+
+        public static Delegate GetMemberGetter(this IReflectionDelegateProvider reflectionDelegateProvider, MemberInfo member, Type delegateType)
+        {
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            var result = reflectionDelegateProvider.TryGetMemberGetter(member, delegateType);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+            return result;
+        }
+
+        public static Delegate GetMemberSetter(this IReflectionDelegateProvider reflectionDelegateProvider, MemberInfo member, Type delegateType)
+        {
+            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
+            var result = reflectionDelegateProvider.TryGetMemberSetter(member, delegateType);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+            return result;
         }
 
         public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
