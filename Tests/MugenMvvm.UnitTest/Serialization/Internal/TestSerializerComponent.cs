@@ -33,9 +33,10 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
             return TrySerialize?.Invoke(target, typeof(TTarget), metadata);
         }
 
-        object? ISerializerComponent.TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata)
+        bool ISerializerComponent.TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
         {
-            return TryDeserialize?.Invoke(stream, metadata);
+            value = TryDeserialize?.Invoke(stream, metadata);
+            return value != null;
         }
 
         #endregion
