@@ -15,7 +15,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands
 {
-    public sealed class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasAddedCallbackComponentOwner, IHasAddingCallbackComponentOwner
+    public sealed class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasAddedCallbackComponentOwner, IHasAddingCallbackComponentOwner, IHasDisposeCondition
     {
         #region Fields
 
@@ -34,6 +34,7 @@ namespace MugenMvvm.Commands
         {
             _metadata = metadata;
             _metadataContextProvider = metadataContextProvider;
+            CanDispose = true;
         }
 
         #endregion
@@ -49,6 +50,8 @@ namespace MugenMvvm.Commands
         public bool HasCanExecute => GetComponents<IConditionCommandComponent>().HasCanExecute();
 
         public bool IsDisposed => _state == DisposedState;
+
+        public bool CanDispose { get; set; }
 
         #endregion
 
@@ -76,7 +79,7 @@ namespace MugenMvvm.Commands
 
         public void Dispose()
         {
-            if (Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
+            if (!CanDispose || Interlocked.Exchange(ref _state, DisposedState) == DisposedState)
                 return;
             base.GetComponents<IDisposable>().Dispose();
             this.ClearComponents();

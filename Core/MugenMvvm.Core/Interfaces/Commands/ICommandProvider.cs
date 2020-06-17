@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Commands
 {
     public interface ICommandProvider : IComponentOwner<ICommandProvider>, IComponent<IMugenApplication>
     {
-        ICompositeCommand GetCommand<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        ICompositeCommand? TryGetCommand<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }

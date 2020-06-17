@@ -10,6 +10,7 @@ using MugenMvvm.Commands;
 using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
+using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
@@ -96,6 +97,15 @@ namespace MugenMvvm.Extensions
             IReadOnlyMetadataContext? metadata = null)
         {
             return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
+        }
+
+        public static ICompositeCommand GetCommand<TRequest>(this ICommandProvider commandProvider, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(commandProvider, nameof(commandProvider));
+            var result = commandProvider.TryGetCommand(request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(commandProvider);
+            return result;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

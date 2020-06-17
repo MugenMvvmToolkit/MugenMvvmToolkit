@@ -23,12 +23,11 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public ICompositeCommand GetCommand<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ICompositeCommand? TryGetCommand<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(this);
-            GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, request, result, metadata);
+            if (result != null)
+                GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, request, result, metadata);
             return result;
         }
 
