@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 arg5.ShouldEqual(DefaultMetadata);
                 return result;
             }, state);
-            provider.GetComponent(binding, target, source, DefaultMetadata).ShouldEqual(result);
+            provider.TryGetComponent(binding, target, source, DefaultMetadata).ShouldEqual(result);
         }
 
         #endregion

@@ -319,7 +319,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             sourceVisitCount.ShouldEqual(1);
             context.BindingComponents[BindingParameterNameConstant.Mode].ShouldBeNull();
             var bindingComponentProvider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.EventHandler]!;
-            var bindingComponent = (EventHandlerBindingComponent)bindingComponentProvider.GetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
+            var bindingComponent = (EventHandlerBindingComponent)bindingComponentProvider.TryGetComponent(binding, targetSrc, sourceSrc, DefaultMetadata)!;
             if (parametersSetting)
                 bindingComponent.ShouldBeType<EventHandlerBindingComponent>();
             else

@@ -406,7 +406,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IComponent<IBinding>? TryGetBindingComponent(object? item, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return item as IComponent<IBinding> ?? (item as IBindingComponentProvider)?.GetComponent(binding, target, source, metadata);
+            return item as IComponent<IBinding> ?? (item as IBindingComponentProvider)?.TryGetComponent(binding, target, source, metadata);
         }
 
         #endregion

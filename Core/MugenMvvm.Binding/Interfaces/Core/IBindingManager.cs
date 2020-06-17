@@ -10,7 +10,7 @@ namespace MugenMvvm.Binding.Interfaces.Core
 {
     public interface IBindingManager : IComponentOwner<IBindingManager>, IComponent<IMugenApplication>
     {
-        ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null);
 

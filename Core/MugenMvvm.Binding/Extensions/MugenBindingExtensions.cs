@@ -43,6 +43,15 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
+        public static ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(this IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
+            var result = bindingManager.TryBuildBindingExpression(expression, metadata);
+            if (result.IsNullOrEmpty())
+                BindingExceptionManager.ThrowCannotParseExpression(expression);
+            return result;
+        }
+
         public static object? Convert(this IGlobalValueConverter converter, object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(converter, nameof(converter));

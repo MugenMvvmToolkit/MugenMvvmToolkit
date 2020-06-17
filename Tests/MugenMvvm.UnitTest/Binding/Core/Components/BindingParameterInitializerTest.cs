@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             parameterVisitCount.ShouldEqual(1);
             var bindingComponentProvider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.ParameterHandler]!;
-            var component = (ParameterHandlerBindingComponent)bindingComponentProvider.GetComponent(null!, target, src, DefaultMetadata)!;
+            var component = (ParameterHandlerBindingComponent)bindingComponentProvider.TryGetComponent(null!, target, src, DefaultMetadata)!;
 
             component.Converter.Parameter.ShouldEqual(converter);
             component.Converter.Expression.ShouldBeNull();

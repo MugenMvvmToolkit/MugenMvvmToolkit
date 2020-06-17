@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 return;
             }
             var provider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.Delay]!;
-            var component = (DelayBindingComponent.Source)provider.GetComponent(null!, null!, null, DefaultMetadata)!;
+            var component = (DelayBindingComponent.Source)provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort)delay);
         }
 
@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 return;
             }
             var provider = (IBindingComponentProvider)context.BindingComponents[BindingParameterNameConstant.TargetDelay]!;
-            var component = (DelayBindingComponent.Target)provider.GetComponent(null!, null!, null, DefaultMetadata)!;
+            var component = (DelayBindingComponent.Target)provider.TryGetComponent(null!, null!, null, DefaultMetadata)!;
             component.Delay.ShouldEqual((ushort)delay);
         }
 

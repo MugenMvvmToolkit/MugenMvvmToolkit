@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Internal;

@@ -5,6 +5,6 @@ namespace MugenMvvm.Binding.Interfaces.Core
 {
     public interface IBindingComponentProvider
     {
-        IComponent<IBinding>? GetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata);
+        IComponent<IBinding>? TryGetComponent(IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata);
     }
 }
