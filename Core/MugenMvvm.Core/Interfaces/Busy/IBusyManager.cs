@@ -9,7 +9,7 @@ namespace MugenMvvm.Interfaces.Busy
 {
     public interface IBusyManager : IComponentOwner<IBusyManager>, ISuspendable
     {
-        IBusyToken BeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
         IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null);
 

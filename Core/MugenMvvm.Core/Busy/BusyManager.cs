@@ -35,12 +35,9 @@ namespace MugenMvvm.Busy
             return GetComponents<ISuspendable>().Suspend(state, metadata);
         }
 
-        public IBusyToken BeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var token = GetComponents<IBusyManagerComponent>().TryBeginBusy(request, metadata);
-            if (token == null)
-                ExceptionManager.ThrowObjectNotInitialized<IBusyManagerComponent>(this);
-            return token;
+            return GetComponents<IBusyManagerComponent>().TryBeginBusy(request, metadata);
         }
 
         public IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null)
