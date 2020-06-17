@@ -10,7 +10,7 @@ namespace MugenMvvm.Interfaces.ViewModels
     {
         void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
 
-        object GetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        object? TryGetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
         IViewModelBase? TryGetViewModel<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }

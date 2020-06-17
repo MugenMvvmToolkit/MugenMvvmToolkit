@@ -29,12 +29,9 @@ namespace MugenMvvm.ViewModels
             GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
         }
 
-        public object GetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public object? TryGetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, request, metadata);
-            if (result == null)
-                ExceptionManager.ThrowCannotResolveService(request);
-            return result;
+            return GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, request, metadata);
         }
 
         public IViewModelBase? TryGetViewModel<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)

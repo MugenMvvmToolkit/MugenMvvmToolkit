@@ -15,6 +15,15 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        public static object GetService<TRequest>(this IViewModelManager viewModelManager, IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(viewModelManager, nameof(viewModelManager));
+            var result = viewModelManager.TryGetService(viewModel, request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowCannotResolveService(request);
+            return result;
+        }
+
         public static bool TrySubscribe<T>(this IViewModelBase viewModel, [DisallowNull] in T subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
