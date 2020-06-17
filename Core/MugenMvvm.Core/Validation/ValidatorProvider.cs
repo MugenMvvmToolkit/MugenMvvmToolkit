@@ -22,13 +22,11 @@ namespace MugenMvvm.Validation
 
         #region Implementation of interfaces
 
-        public IValidator GetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IValidator? TryGetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(request, metadata);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IValidatorProviderComponent>(this);
-
-            GetComponents<IValidatorProviderListener>(metadata).OnValidatorCreated(this, result, request, metadata);
+            if (result != null)
+                GetComponents<IValidatorProviderListener>(metadata).OnValidatorCreated(this, result, request, metadata);
             return result;
         }
 

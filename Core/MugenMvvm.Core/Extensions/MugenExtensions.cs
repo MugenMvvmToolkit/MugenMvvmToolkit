@@ -19,6 +19,7 @@ using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Validation;
+using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Validation.Components;
 
@@ -27,6 +28,15 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IValidator GetValidator<TRequest>(this IValidatorProvider validatorProvider, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(validatorProvider, nameof(validatorProvider));
+            var result = validatorProvider.TryGetValidator(request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IValidatorProviderComponent>(validatorProvider);
+            return result;
+        }
 
         public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show<TRequest>(this IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
