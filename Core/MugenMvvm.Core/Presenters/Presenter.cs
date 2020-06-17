@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Components;
-using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -25,12 +24,9 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IPresenterComponent>(metadata).TryShow(request, cancellationToken, metadata);
-            if (result.IsNullOrEmpty())
-                ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
-            return result;
+            return GetComponents<IPresenterComponent>(metadata).TryShow(request, cancellationToken, metadata);
         }
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default,

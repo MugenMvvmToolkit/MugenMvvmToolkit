@@ -15,6 +15,7 @@ using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Internal;
@@ -25,6 +26,16 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show<TRequest>(this IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+            IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(presenter, nameof(presenter));
+            var result = presenter.TryShow(request, cancellationToken, metadata);
+            if (result.IsNullOrEmpty())
+                ExceptionManager.ThrowPresenterCannotShowRequest(request, metadata);
+            return result;
+        }
 
         public static IWeakReference GetWeakReference(this IWeakReferenceProvider weakReferenceProvider, object? item, IReadOnlyMetadataContext? metadata = null)
         {
