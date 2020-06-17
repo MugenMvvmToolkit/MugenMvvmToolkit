@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,6 +10,6 @@ namespace MugenMvvm.Interfaces.Threading
     {
         bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null);
 
-        void Execute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata = null);
+        bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, [DisallowNull]in THandler handler, in TState state, IReadOnlyMetadataContext? metadata = null);
     }
 }

@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Components
                 throw new NotSupportedException();
             }
 
-            public bool TryExecute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
+            public bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
             {
                 throw new NotSupportedException();
             }

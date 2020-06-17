@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Components;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -10,10 +11,19 @@ namespace MugenMvvm.Threading
 {
     public sealed class ThreadDispatcher : ComponentOwnerBase<IThreadDispatcher>, IThreadDispatcher
     {
+        #region Fields
+
+        private readonly ComponentTracker _componentTracker;
+        private IThreadDispatcherComponent[]? _components;
+
+        #endregion
+
         #region Constructors
 
         public ThreadDispatcher(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
+            _componentTracker = new ComponentTracker();
+            _componentTracker.AddListener<IThreadDispatcherComponent, ThreadDispatcher>((components, state, _) => state._components = components, this);
         }
 
         #endregion
@@ -22,13 +32,16 @@ namespace MugenMvvm.Threading
 
         public bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IThreadDispatcherComponent>().CanExecuteInline(executionMode, metadata);
+            if (_components == null)
+                _componentTracker.Attach(this, metadata);
+            return _components!.CanExecuteInline(executionMode, metadata);
         }
 
-        public void Execute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
-            if (!GetComponents<IThreadDispatcherComponent>().TryExecute(executionMode, handler, state, metadata))
-                ExceptionManager.ThrowObjectNotInitialized<IThreadDispatcherComponent>(this);
+            if (_components == null)
+                _componentTracker.Attach(this, metadata);
+            return _components!.TryExecute(executionMode, handler, state, metadata);
         }
 
         #endregion

@@ -17,6 +17,7 @@ using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Internal;
 using MugenMvvm.Validation.Components;
@@ -81,19 +82,30 @@ namespace MugenMvvm.Extensions
             component.SetErrors(memberName, errors, metadata);
         }
 
+        public static void Execute<THandler, TState>(IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, [DisallowNull] in THandler genericHandler, in TState state, IReadOnlyMetadataContext? metadata)
+        {
+            if (!threadDispatcher.DefaultIfNull().TryExecute(executionMode, genericHandler, state, metadata))
+                ExceptionManager.ThrowObjectNotInitialized<IThreadDispatcherComponent>(threadDispatcher.DefaultIfNull());
+        }
+
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null)
         {
-            threadDispatcher.DefaultIfNull().Execute<object?>(executionMode, action, null, metadata);
+            Execute(threadDispatcher, executionMode, action, (object?)null, metadata);
         }
 
         public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, in TState state, Action<TState> action, IReadOnlyMetadataContext? metadata = null)
         {
-            threadDispatcher.DefaultIfNull().Execute(executionMode, action, state, metadata);
+            Execute(threadDispatcher, executionMode, action, state, metadata);
         }
 
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, IReadOnlyMetadataContext? metadata = null)
         {
-            threadDispatcher.DefaultIfNull().Execute<object?>(executionMode, handler, null, metadata);
+            Execute(threadDispatcher, executionMode, handler, (object?)null, metadata);
+        }
+
+        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata = null)
+        {
+            Execute(threadDispatcher, executionMode, genericHandler: handler, state, metadata);
         }
 
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
@@ -155,8 +167,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(in TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((FuncIn<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo) (object) value!;
+                return ((FuncIn<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo)(object)value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -226,19 +238,19 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Execute<TState>(this IThreadDispatcherHandler<TState> handler, object state)
         {
-            handler.Execute((TState) state);
+            handler.Execute((TState)state);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Invoke<TState>(this Action<TState> handler, object state)
         {
-            handler.Invoke((TState) state);
+            handler.Invoke((TState)state);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder)

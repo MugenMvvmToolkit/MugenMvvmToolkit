@@ -93,12 +93,12 @@ namespace MugenMvvm.UnitTest.Threading
             }
 
             handler = new Action<ThreadDispatcher>(t => { });
-            dispatcher.Execute(mode, handler, dispatcher, DefaultMetadata);
+            dispatcher.TryExecute(mode, handler, dispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
             handler = new TestThreadDispatcherHandler<ThreadDispatcher>();
-            dispatcher.Execute(mode, handler, dispatcher, DefaultMetadata);
+            dispatcher.TryExecute(mode, handler, dispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
         }
 

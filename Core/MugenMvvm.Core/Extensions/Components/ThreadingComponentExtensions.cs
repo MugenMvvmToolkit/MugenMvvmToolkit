@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading.Components;
 
@@ -21,11 +22,10 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool TryExecute<TState>(this IThreadDispatcherComponent[] components, ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
+        public static bool TryExecute<THandler, TState>(this IThreadDispatcherComponent[] components, ThreadExecutionMode executionMode, [DisallowNull]in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(executionMode, nameof(executionMode));
-            Should.NotBeNull(handler, nameof(handler));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryExecute(executionMode, handler, state, metadata))

@@ -34,10 +34,10 @@ namespace MugenMvvm.UnitTest.Threading.Internal
             return CanExecuteInline?.Invoke(executionMode, metadata) ?? true;
         }
 
-        bool IThreadDispatcherComponent.TryExecute<TState>(ThreadExecutionMode executionMode, object handler, in TState state, IReadOnlyMetadataContext? metadata)
+        bool IThreadDispatcherComponent.TryExecute<THandler, TState>(ThreadExecutionMode executionMode, in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (TryExecute != null)
-                return TryExecute(executionMode, handler, state, typeof(TState), metadata);
+                return TryExecute(executionMode, handler!, state, typeof(TState), metadata);
             Action<object?> del;
             if (handler is Action action)
                 del = o => action();
