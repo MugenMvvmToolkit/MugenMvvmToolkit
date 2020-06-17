@@ -63,7 +63,7 @@ namespace MugenMvvm.Extensions
             return wrapperType.IsInstanceOfType(view.Target) || wrapperManager.DefaultIfNull().CanWrap(wrapperType, view.Target, metadata);
         }
 
-        private static object? WrapInternal(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool checkCanWrap)
+        private static object? WrapInternal(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool tryWrap)
         {
             Should.NotBeNull(view, nameof(view));
             Should.NotBeNull(wrapperType, nameof(wrapperType));
@@ -77,11 +77,14 @@ namespace MugenMvvm.Extensions
                 if (item == null)
                 {
                     wrapperManager = wrapperManager.DefaultIfNull();
-                    if (checkCanWrap && !wrapperManager.CanWrap(wrapperType, view.Target, metadata))
-                        return null;
-
-                    item = wrapperManager.Wrap(wrapperType, view.Target, metadata);
-                    collection.Add(item, metadata);
+                    if (tryWrap)
+                    {
+                        item = wrapperManager.TryWrap(wrapperType, view.Target, metadata);
+                        if (item == null)
+                            return null;
+                    }
+                    else
+                        item = wrapperManager.Wrap(wrapperType, view.Target, metadata);
                 }
 
                 return item;

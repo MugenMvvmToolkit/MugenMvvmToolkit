@@ -10,6 +10,6 @@ namespace MugenMvvm.Interfaces.Wrapping
     {
         bool CanWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
-        object Wrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        object? TryWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }
