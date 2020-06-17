@@ -11,6 +11,7 @@ using MugenMvvm.Delegates;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
@@ -23,6 +24,16 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IComponentCollection GetComponentCollection(this IComponentCollectionProvider provider, object owner, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(provider, nameof(provider));
+            Should.NotBeNull(owner, nameof(owner));
+            var collection = provider.TryGetComponentCollection(owner, metadata);
+            if (collection == null)
+                ExceptionManager.ThrowObjectNotInitialized<IComponentCollectionProviderComponent>(provider);
+            return collection;
+        }
 
         public static void SetErrors(this IValidator validator, object target, string memberName, ItemOrList<object, IReadOnlyList<object>> errors, IReadOnlyMetadataContext? metadata = null)
         {
