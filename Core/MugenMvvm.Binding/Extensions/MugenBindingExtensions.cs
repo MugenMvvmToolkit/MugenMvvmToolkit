@@ -43,6 +43,15 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
+        public static ICompiledExpression Compile(this IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(compiler, nameof(compiler));
+            var result = compiler.TryCompile(expression, metadata);
+            if (result == null)
+                BindingExceptionManager.ThrowCannotCompileExpression(expression);
+            return result;
+        }
+
         public static object? ToBindingSource(object? sourceExpression, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             if (sourceExpression is IBindingMemberExpressionNode v)

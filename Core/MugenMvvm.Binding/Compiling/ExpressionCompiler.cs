@@ -21,12 +21,9 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Implementation of interfaces
 
-        public ICompiledExpression Compile(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
+        public ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IExpressionCompilerComponent>(metadata).TryCompile(expression, metadata);
-            if (result == null)
-                BindingExceptionManager.ThrowCannotCompileExpression(expression);
-            return result;
+            return GetComponents<IExpressionCompilerComponent>(metadata).TryCompile(expression, metadata);
         }
 
         #endregion

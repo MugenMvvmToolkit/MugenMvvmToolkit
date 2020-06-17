@@ -4,6 +4,7 @@ using System.Linq;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
