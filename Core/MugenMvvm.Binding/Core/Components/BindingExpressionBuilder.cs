@@ -22,7 +22,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionBuilder : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority//todo cache
+    public sealed class BindingExpressionBuilder : AttachableComponentBase<IBindingManager>, IBindingExpressionBuilderComponent, IHasPriority
     {
         #region Fields
 

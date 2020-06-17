@@ -3,6 +3,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -21,6 +22,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         private readonly ComponentTracker _componentTracker;
         private readonly ExpressionConverterContext<Expression> _context;
+        private readonly TokenParserContext _parserContext;
 
         #endregion
 
@@ -30,8 +32,10 @@ namespace MugenMvvm.Binding.Parsing.Components
         public ExpressionConverterComponent(IMetadataContextProvider? metadataContextProvider = null)
         {
             _context = new ExpressionConverterContext<Expression>(metadataContextProvider);
+            _parserContext = new TokenParserContext(metadataContextProvider);
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
+            _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }
 
         #endregion
@@ -86,26 +90,29 @@ namespace MugenMvvm.Binding.Parsing.Components
         private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(ExpressionConverterRequest expression, IReadOnlyMetadataContext? metadata)
         {
             _context.Initialize(metadata);
-            var target = Convert(expression.Target, false);
-            var source = Convert(expression.Source, false);
+            var target = Convert(expression.Target, metadata);
+            var source = Convert(expression.Source, metadata);
 
             var list = expression.Parameters.List;
             ItemOrList<IExpressionNode, List<IExpressionNode>> parameters = default;
             if (list != null)
             {
                 for (var i = 0; i < list.Count; i++)
-                    AddParameter(list[i], ref parameters);
+                    AddParameter(list[i], ref parameters, metadata);
             }
             else
-                AddParameter(expression.Parameters.Item, ref parameters);
+                AddParameter(expression.Parameters.Item, ref parameters, metadata);
 
             return new ExpressionParserResult(target, source, parameters.Cast<IReadOnlyList<IExpressionNode>>());
         }
 
-        private IExpressionNode Convert(object? expression, bool allowConstant, bool stringAsMember = true)
+        private IExpressionNode Convert(object? expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (expression == null)
                 return MemberExpressionNode.Empty;
+
+            if (expression is IExpressionNode expressionNode)
+                return expressionNode;
 
             if (expression is Expression exp)
             {
@@ -126,22 +133,24 @@ namespace MugenMvvm.Binding.Parsing.Components
                 }
             }
 
-            if (expression is IExpressionNode expressionNode)
-                return expressionNode;
-            if (allowConstant)
-                return ConstantExpressionNode.Get(expression);
-            if (stringAsMember && expression is string member)
-                return MemberExpressionNode.Get(null, member);
+            if (expression is string stExp)
+            {
+                if (string.IsNullOrEmpty(stExp))
+                    return MemberExpressionNode.Empty;
+                _parserContext.Initialize(stExp, metadata);
+                return _parserContext.ParseWhileAnyOf(null);
+            }
+
             BindingExceptionManager.ThrowCannotParseExpression(expression);
             return null!;
         }
 
-        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result)
+        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result, IReadOnlyMetadataContext? metadata)
         {
             if (parameter.Key != null)
-                result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, true)));
+                result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, metadata)));
             else if (parameter.Value != null)
-                result.Add(Convert(parameter.Value, false, false));
+                result.Add(Convert(parameter.Value, metadata));
         }
 
         #endregion

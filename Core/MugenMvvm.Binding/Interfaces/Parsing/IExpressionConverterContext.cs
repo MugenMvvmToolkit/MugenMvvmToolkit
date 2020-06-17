@@ -10,6 +10,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
 
         void ClearExpression(TExpression expression);
 
-        IExpressionNode Convert(TExpression expression);
+        IExpressionNode? TryConvert(TExpression expression);
     }
 }

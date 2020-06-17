@@ -67,13 +67,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
                 ClearExpression.Invoke(expression);
         }
 
-        Expression IExpressionBuilderContext.Build(IExpressionNode expression)
+        Expression? IExpressionBuilderContext.TryBuild(IExpressionNode expression)
         {
             var result = Build?.Invoke(expression);
             if (result == null)
                 _dictionary.TryGetValue(expression, out result);
-            if (result == null)
-                throw new NotSupportedException();
             return result;
         }
 

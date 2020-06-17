@@ -149,14 +149,9 @@ namespace MugenMvvm.Binding.Compiling
             _expressionsDict.Remove(expression);
         }
 
-        public Expression Build(IExpressionNode expression)
+        public Expression? TryBuild(IExpressionNode expression)
         {
-            var exp = _expressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
-            if (exp != null)
-                return exp;
-
-            this.ThrowCannotCompile(expression);
-            return null;
+            return _expressionBuilders.TryBuild(this, expression) ?? TryGetExpression(expression);
         }
 
         IExpressionNode IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
@@ -200,7 +195,7 @@ namespace MugenMvvm.Binding.Compiling
                         _expressionsDict[memberExpression] = index.ConvertIfNeed(expressionValues[memberExpression.Index].Type, false);
                 }
 
-                var expression = Build(_expression).ConvertIfNeed(typeof(object), false);
+                var expression = this.Build(_expression).ConvertIfNeed(typeof(object), false);
                 var lambda = Expression.Lambda<Func<object?[], object?>>(expression, ArrayParameterArray);
                 return lambda.CompileEx();
             }

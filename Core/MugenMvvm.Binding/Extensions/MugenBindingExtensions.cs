@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
 using MugenMvvm.Binding.Compiling;
@@ -123,6 +124,18 @@ namespace MugenMvvm.Binding.Extensions
             Should.NotBeNull(context, nameof(context));
             if (context.GetMetadataOrDefault().TryGet(CompilingMetadata.CompilingErrors, out var errors))
                 return errors;
+            return null;
+        }
+
+        public static Expression Build(this IExpressionBuilderContext context, IExpressionNode expression)
+        {
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(expression, nameof(expression));
+            var exp = context.TryBuild(expression);
+            if (exp != null)
+                return exp;
+
+            context.ThrowCannotCompile(expression);
             return null;
         }
 

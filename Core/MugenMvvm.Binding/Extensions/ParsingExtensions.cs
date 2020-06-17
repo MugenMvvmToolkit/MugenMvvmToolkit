@@ -86,6 +86,18 @@ namespace MugenMvvm.Binding.Extensions
             return new MethodCallExpressionNode(target, methodName ?? method.Name, args, typeArgs);
         }
 
+        public static IExpressionNode Convert<T>(this IExpressionConverterContext<T> context, T expression) where T : class
+        {
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(expression, nameof(expression));
+            var exp = context.TryConvert(expression);
+            if (exp != null)
+                return exp;
+
+            context.ThrowCannotParse(expression);
+            return null;
+        }
+
         [DoesNotReturn]
         public static void ThrowCannotParse<T>(this IParserContext context, T expression)
         {
@@ -168,9 +180,9 @@ namespace MugenMvvm.Binding.Extensions
             return false;
         }
 
-        public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null)
+        public static bool IsEofOrAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null)
         {
-            return context.IsEof(position) || context.IsAnyOf(tokens, position);
+            return context.IsEof(position) || tokens != null && context.IsAnyOf(tokens, position);
         }
 
         public static bool IsEofOrAnyOf(this ITokenParserContext context, IReadOnlyList<string> tokens, int? position = null)
@@ -253,7 +265,7 @@ namespace MugenMvvm.Binding.Extensions
             }
         }
 
-        public static IExpressionNode ParseWhileAnyOf(this ITokenParserContext context, HashSet<char> tokens, int? position = null,
+        public static IExpressionNode ParseWhileAnyOf(this ITokenParserContext context, HashSet<char>? tokens, int? position = null,
             IExpressionNode? expression = null)
         {
             var expressionNode = context.Parse(expression);

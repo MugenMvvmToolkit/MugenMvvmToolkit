@@ -14,6 +14,6 @@ namespace MugenMvvm.Binding.Interfaces.Compiling
 
         void ClearExpression(IExpressionNode expression);
 
-        Expression Build(IExpressionNode expression);
+        Expression? TryBuild(IExpressionNode expression);
     }
 }
