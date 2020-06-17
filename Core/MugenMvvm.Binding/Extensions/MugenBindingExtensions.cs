@@ -14,6 +14,7 @@ using MugenMvvm.Binding.Interfaces.Converters;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members;
@@ -42,6 +43,24 @@ namespace MugenMvvm.Binding.Extensions
         #endregion
 
         #region Methods
+
+        public static IMemberPath GetMemberPath<TPath>(this IObserverProvider observerProvider, [DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(observerProvider, nameof(observerProvider));
+            var result = observerProvider.TryGetMemberPath(path, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IMemberPathProviderComponent>(observerProvider);
+            return result;
+        }
+
+        public static IMemberPathObserver GetMemberPathObserver<TRequest>(this IObserverProvider observerProvider, object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(observerProvider, nameof(observerProvider));
+            var result = observerProvider.TryGetMemberPathObserver(target, request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IMemberPathObserverProviderComponent>(observerProvider);
+            return result;
+        }
 
         public static ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(this IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {

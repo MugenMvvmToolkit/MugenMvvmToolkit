@@ -38,31 +38,25 @@ namespace MugenMvvm.Binding.Observers
 
         #region Implementation of interfaces
 
-        public MemberObserver GetMemberObserver<TMember>(Type type, [DisallowNull]in TMember member, IReadOnlyMetadataContext? metadata = null)
+        public MemberObserver TryGetMemberObserver<TMember>(Type type, [DisallowNull] in TMember member, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _memberObserverComponents!.TryGetMemberObserver(type, member, metadata);
         }
 
-        public IMemberPath GetMemberPath<TPath>([DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPath? TryGetMemberPath<TPath>([DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathComponents == null)
                 _componentTracker.Attach(this, metadata);
-            var result = _memberPathComponents!.TryGetMemberPath(path, metadata);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, _memberPathComponents);
-            return result;
+            return _memberPathComponents!.TryGetMemberPath(path, metadata);
         }
 
-        public IMemberPathObserver GetMemberPathObserver<TRequest>(object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
-            var result = _memberPathObserverComponents!.TryGetMemberPathObserver(target, request, metadata);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, _memberPathObserverComponents);
-            return result;
+            return _memberPathObserverComponents!.TryGetMemberPathObserver(target, request, metadata);
         }
 
         #endregion

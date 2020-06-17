@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Members
             {
                 _observer = _observerProvider
                     .DefaultIfNull()
-                    .GetMemberObserver(_reflectedType, this, metadata);
+                    .TryGetMemberObserver(_reflectedType, this, metadata);
             }
 
             return _observer.Value.TryObserve(target, listener, metadata);

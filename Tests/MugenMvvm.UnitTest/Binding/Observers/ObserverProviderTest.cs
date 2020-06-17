@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Binding.Observers.MemberPaths;
@@ -61,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         public void GetMemberObserverShouldReturnEmptyObserver()
         {
             var provider = new ObserverProvider();
-            provider.GetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            provider.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Theory]
@@ -95,7 +96,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 provider.AddComponent(component);
             }
 
-            provider.GetMemberObserver(type, request, DefaultMetadata).ShouldEqual(result);
+            provider.TryGetMemberObserver(type, request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 

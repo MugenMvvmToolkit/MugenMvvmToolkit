@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Observers;
+﻿using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Observers;
 using MugenMvvm.Binding.Observers.Components;
 using MugenMvvm.Binding.Observers.MemberPaths;
 using MugenMvvm.Extensions;

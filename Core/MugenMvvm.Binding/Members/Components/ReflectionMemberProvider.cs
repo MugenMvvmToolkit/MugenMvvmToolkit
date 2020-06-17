@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (eventInfo == null)
                 return false;
 
-            var memberObserver = _bindingObserverProvider.DefaultIfNull().GetMemberObserver(requestedType, eventInfo, metadata);
+            var memberObserver = _bindingObserverProvider.DefaultIfNull().TryGetMemberObserver(requestedType, eventInfo, metadata);
             if (memberObserver.IsEmpty)
                 return false;
 
