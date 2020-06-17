@@ -12,8 +12,8 @@ namespace MugenMvvm.Interfaces.Serialization
         [Pure]
         bool CanSerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
-        Stream Serialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        Stream? TrySerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
 
-        object Deserialize(Stream stream, IReadOnlyMetadataContext? metadata = null);
+        bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value);
     }
 }

@@ -136,18 +136,18 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static object? TryDeserialize(this ISerializerComponent[] components, Stream stream, IReadOnlyMetadataContext? metadata)
+        public static bool TryDeserialize(this ISerializerComponent[] components, Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(stream, nameof(stream));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryDeserialize(stream, metadata);
-                if (result != null)
-                    return result;
+                if (components[i].TryDeserialize(stream, metadata, out value))
+                    return true;
             }
 
-            return null;
+            value = null;
+            return false;
         }
 
         #endregion

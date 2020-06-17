@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -16,6 +17,8 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
+using MugenMvvm.Interfaces.Serialization;
+using MugenMvvm.Interfaces.Serialization.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Validation;
@@ -28,6 +31,23 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static Stream Serialize<TRequest>(this ISerializer serializer, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(serializer, nameof(serializer));
+            var result = serializer.TrySerialize(request, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
+            return result;
+        }
+
+        public static object? Deserialize(this ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(serializer, nameof(serializer));
+            if (!serializer.TryDeserialize(stream, metadata, out var result))
+                ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
+            return result;
+        }
 
         public static IValidator GetValidator<TRequest>(this IValidatorProvider validatorProvider, in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {

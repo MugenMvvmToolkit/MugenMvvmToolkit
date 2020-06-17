@@ -11,6 +11,6 @@ namespace MugenMvvm.Interfaces.Serialization.Components
 
         Stream? TrySerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
 
-        object? TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata);
+        bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value);
     }
 }
