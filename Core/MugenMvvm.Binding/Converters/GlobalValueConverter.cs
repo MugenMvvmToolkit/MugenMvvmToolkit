@@ -31,13 +31,11 @@ namespace MugenMvvm.Binding.Converters
 
         #region Implementation of interfaces
 
-        public object? Convert(object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
+        public bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            if (!_components!.TryConvert(ref value, targetType, member, metadata))
-                BindingExceptionManager.ThrowCannotConvertType(value, targetType);
-            return value;
+            return _components!.TryConvert(ref value, targetType, member, metadata);
         }
 
         #endregion

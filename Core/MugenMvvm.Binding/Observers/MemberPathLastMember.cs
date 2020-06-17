@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;

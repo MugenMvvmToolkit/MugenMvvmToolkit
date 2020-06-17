@@ -43,6 +43,14 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
+        public static object? Convert(this IGlobalValueConverter converter, object? value, Type targetType, object? member = null, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(converter, nameof(converter));
+            if (!converter.TryConvert(ref value, targetType, member, metadata))
+                BindingExceptionManager.ThrowCannotConvertType(value, targetType);
+            return value;
+        }
+
         public static ICompiledExpression Compile(this IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(compiler, nameof(compiler));

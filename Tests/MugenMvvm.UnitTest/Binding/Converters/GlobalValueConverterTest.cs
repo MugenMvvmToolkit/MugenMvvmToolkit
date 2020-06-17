@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Converters;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;

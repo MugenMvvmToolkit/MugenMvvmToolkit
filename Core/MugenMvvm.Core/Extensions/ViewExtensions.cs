@@ -24,7 +24,7 @@ namespace MugenMvvm.Extensions
             return task;
         }
 
-        public static Task CleanupAsync<TRequest>(this IViewManager viewManager, IView view, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public static Task CleanupAsync<TRequest>(this IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             return viewManager.TryCleanupAsync(view, request, cancellationToken, metadata) ?? Task.CompletedTask;
         }
@@ -79,7 +79,7 @@ namespace MugenMvvm.Extensions
                     wrapperManager = wrapperManager.DefaultIfNull();
                     if (tryWrap)
                     {
-                        item = wrapperManager.TryWrap(wrapperType, view.Target, metadata);
+                        item = wrapperManager.TryWrap(wrapperType, view.Target, metadata)!;
                         if (item == null)
                             return null;
                     }
