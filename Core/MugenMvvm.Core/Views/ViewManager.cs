@@ -43,18 +43,15 @@ namespace MugenMvvm.Views
             return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappings(request, metadata);
         }
 
-        public Task<IView> InitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+        public Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
-            var task = GetComponents<IViewManagerComponent>(metadata).TryInitializeAsync(mapping, request, cancellationToken, metadata);
-            if (task == null)
-                ExceptionManager.ThrowObjectNotInitialized<IViewManagerComponent>(this);
-            return task;
+            return GetComponents<IViewManagerComponent>(metadata).TryInitializeAsync(mapping, request, cancellationToken, metadata);
         }
 
-        public Task CleanupAsync<TRequest>(IView view, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public Task? TryCleanupAsync<TRequest>(IView view, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewManagerComponent>(metadata).TryCleanupAsync(view, request, cancellationToken, metadata) ?? Task.CompletedTask;
+            return GetComponents<IViewManagerComponent>(metadata).TryCleanupAsync(view, request, cancellationToken, metadata);
         }
 
         #endregion
