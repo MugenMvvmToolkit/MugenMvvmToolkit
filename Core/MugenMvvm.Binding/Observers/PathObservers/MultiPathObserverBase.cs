@@ -172,7 +172,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 {
                     if (i == 1)
                         memberFlags = memberFlags.SetInstanceOrStaticFlags(false);
-                    var member = memberManager.GetMember(type, i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, paths[i], metadata);
+                    var member = memberManager.TryGetMember(type, i == lastIndex ? MemberType.Accessor | MemberType.Event : MemberType.Accessor, memberFlags, paths[i], metadata);
                     if (member == null)
                     {
                         if (Optional)

@@ -115,10 +115,10 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             memberManager.AddComponent(providerComponent);
             memberManager.AddComponent(cacheComponent);
 
-            memberManager.GetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.GetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
-            memberManager.GetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
-            memberManager.GetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
+            memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
             memberManager.RemoveComponent(cacheComponent);

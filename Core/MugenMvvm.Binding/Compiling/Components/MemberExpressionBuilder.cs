@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             var member = _memberManager
                 .DefaultIfNull()
-                .GetMember(type, MemberType.Accessor, flags, memberExpression.Member, context.GetMetadataOrDefault()) as IAccessorMemberInfo;
+                .TryGetMember(type, MemberType.Accessor, flags, memberExpression.Member, context.GetMetadataOrDefault()) as IAccessorMemberInfo;
 
             if (member == null)
             {
@@ -107,7 +107,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                 return null;
             var property = _memberManager
                 .DefaultIfNull()
-                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
+                .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.SetInstanceOrStaticFlags(false), member, metadata) as IAccessorMemberInfo;
             if (property == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), member);
             return property.GetValue(target, metadata);

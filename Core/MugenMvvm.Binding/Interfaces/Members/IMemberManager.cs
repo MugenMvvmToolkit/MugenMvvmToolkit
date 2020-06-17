@@ -11,6 +11,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IMemberManager : IComponentOwner<IMemberManager>, IComponent<IMugenApplication>
     {
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }
 }

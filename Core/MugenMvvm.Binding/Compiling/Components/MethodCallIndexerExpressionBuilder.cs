@@ -544,7 +544,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var members = _memberManager
                 .DefaultIfNull()
-                .GetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
+                .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
 
             var methods = new MethodData[members.Count()];
             var count = 0;

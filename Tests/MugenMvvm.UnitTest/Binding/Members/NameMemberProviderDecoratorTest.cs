@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 memberManager.AddComponent(component);
             }
 
-            var result = memberManager.GetMembers(type, memberType, memberFlags, request, DefaultMetadata);
+            var result = memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
             result.Count().ShouldEqual(1);
             result.Item.ShouldEqual(member);
             invokeCount.ShouldEqual(count);

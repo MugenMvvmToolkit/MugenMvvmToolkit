@@ -280,7 +280,7 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 var member = MugenBindingService
                     .MemberManager
-                    .GetMember(_target.GetType(), MemberType.Accessor, MemberFlags.InstanceAll, BindableMembers.Object.Parent.Name, metadata) as IAccessorMemberInfo;
+                    .TryGetMember(_target.GetType(), MemberType.Accessor, MemberFlags.InstanceAll, BindableMembers.Object.Parent.Name, metadata) as IAccessorMemberInfo;
                 var parent = member?.GetValue(_target, metadata) as TTarget;
                 if (ReferenceEquals(_parentRef?.Target, parent))
                 {

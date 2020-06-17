@@ -163,7 +163,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
                 return false;
 
             _enabledMember = MugenBindingService.MemberManager
-                .GetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IAccessorMemberInfo;
+                .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IAccessorMemberInfo;
             if (_enabledMember == null || !_enabledMember.CanWrite)
                 return false;
 

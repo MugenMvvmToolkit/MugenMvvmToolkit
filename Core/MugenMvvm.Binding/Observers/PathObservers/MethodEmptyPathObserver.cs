@@ -89,7 +89,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 _unsubscriber = ActionToken.NoDoToken;
             else
             {
-                var member = MugenBindingService.MemberManager.GetMember(_memberFlags.GetTargetType(ref target), MemberType.Method, _memberFlags, _method, TryGetMetadata());
+                var member = MugenBindingService.MemberManager.TryGetMember(_memberFlags.GetTargetType(ref target), MemberType.Method, _memberFlags, _method, TryGetMetadata());
                 if (member is IObservableMemberInfo observable)
                     _unsubscriber = observable.TryObserve(target, this, TryGetMetadata());
                 if (_unsubscriber.IsEmpty)

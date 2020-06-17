@@ -154,7 +154,7 @@ namespace MugenMvvm.Binding.Observers.PathObservers
                 var targetType = MemberFlags.GetTargetType(ref target);
                 var lastMember = MugenBindingService
                     .MemberManager
-                    .GetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
+                    .TryGetMember(targetType, MemberType.Event | MemberType.Accessor, MemberFlags, Path.Path, metadata);
                 if (lastMember == null)
                 {
                     if (Optional)

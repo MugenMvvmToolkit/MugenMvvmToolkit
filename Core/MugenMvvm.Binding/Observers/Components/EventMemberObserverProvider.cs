@@ -80,13 +80,13 @@ namespace MugenMvvm.Binding.Observers.Components
                 memberName = memberInfo.Name;
             }
             else if (member is string st)
-                return memberManager.DefaultIfNull().GetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IObservableMemberInfo;
+                return memberManager.DefaultIfNull().TryGetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IObservableMemberInfo;
             else
                 return null;
 
             memberManager = memberManager.DefaultIfNull();
-            return memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IObservableMemberInfo
-                   ?? memberManager.GetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IObservableMemberInfo;
+            return memberManager.TryGetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangedEventPostfix, metadata) as IObservableMemberInfo
+                   ?? memberManager.TryGetMember(type, MemberType.Event, flags, memberName + BindingInternalConstant.ChangeEventPostfix, metadata) as IObservableMemberInfo;
         }
 
         private static ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)

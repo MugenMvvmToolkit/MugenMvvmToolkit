@@ -140,9 +140,9 @@ namespace MugenMvvm.Binding.Members.Components
             {
                 IMethodMemberInfo? getter = null, setter = null;
                 if (item.Value.getters != null)
-                    getter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.getters, metadata) as IMethodMemberInfo;
+                    getter = Owner.TryGetMember(type, MemberType.Method, MemberFlags.All, item.Value.getters, metadata) as IMethodMemberInfo;
                 if (item.Value.setters != null)
-                    setter = Owner.GetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodMemberInfo;
+                    setter = Owner.TryGetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodMemberInfo;
 
                 if (getter != null || setter != null)
                     _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));
