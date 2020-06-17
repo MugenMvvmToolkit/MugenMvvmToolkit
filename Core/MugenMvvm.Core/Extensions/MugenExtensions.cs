@@ -13,6 +13,7 @@ using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
+using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Validation;
@@ -24,6 +25,15 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IWeakReference GetWeakReference(this IWeakReferenceProvider weakReferenceProvider, object? item, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(weakReferenceProvider, nameof(weakReferenceProvider));
+            var result = weakReferenceProvider.TryGetWeakReference(item, metadata);
+            if (result == null)
+                ExceptionManager.ThrowObjectNotInitialized<IWeakReferenceProviderComponent>(weakReferenceProvider);
+            return result;
+        }
 
         public static IComponentCollection GetComponentCollection(this IComponentCollectionProvider provider, object owner, IReadOnlyMetadataContext? metadata = null)
         {
@@ -42,7 +52,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(memberName, nameof(memberName));
             InlineValidatorComponent? component = null;
             var components = validator.GetComponents<InlineValidatorComponent>();
-            for (int i = 0; i < components.Length; i++)
+            for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].Target == target)
                 {
@@ -110,7 +120,7 @@ namespace MugenMvvm.Extensions
             return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static ICompositeCommand GetCommand<TRequest>(this ICommandProvider commandProvider, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static ICompositeCommand GetCommand<TRequest>(this ICommandProvider commandProvider, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(commandProvider, nameof(commandProvider));
             var result = commandProvider.TryGetCommand(request, metadata);
@@ -134,8 +144,8 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(in TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((FuncIn<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
-            return (TTo)(object)value!;
+                return ((FuncIn<TFrom, TTo>) (object) GenericCaster<TFrom>.Cast).Invoke(value);
+            return (TTo) (object) value!;
         }
 
         public static bool MemberNameEqual(string changedMember, string listenedMember, bool emptyListenedMemberResult = false)
@@ -205,19 +215,19 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>) o).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Execute<TState>(this IThreadDispatcherHandler<TState> handler, object state)
         {
-            handler.Execute((TState)state);
+            handler.Execute((TState) state);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static void Invoke<TState>(this Action<TState> handler, object state)
         {
-            handler.Invoke((TState)state);
+            handler.Invoke((TState) state);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder)

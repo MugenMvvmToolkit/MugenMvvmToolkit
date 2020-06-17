@@ -28,18 +28,15 @@ namespace MugenMvvm.Internal
 
         #endregion
 
-        #region Implementation of interfaces
+        #region Methods
 
-        public IWeakReference GetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
+        public IWeakReference? TryGetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null)
         {
             if (item == null)
                 return Default.WeakReference;
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            var result = _components!.TryGetWeakReference(item, metadata);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, _components);
-            return result;
+            return _components!.TryGetWeakReference(item, metadata);
         }
 
         #endregion
