@@ -1,11 +1,13 @@
 ﻿using MugenMvvm.Components;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
+using MugenMvvm.Metadata.Components;
 
 namespace MugenMvvm.App
 {
@@ -13,16 +15,29 @@ namespace MugenMvvm.App
     {
         #region Fields
 
+        private IComponentCollection? _components;
         private IDeviceInfo? _deviceInfo;
+        private IMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        public MugenApplication()
+        public MugenApplication(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
-            Components = new ComponentCollection(this);
-            Metadata = new MetadataContext();
+            if (componentCollectionProvider == null)
+            {
+                componentCollectionProvider = new ComponentCollectionProvider();
+                MugenService.Configuration.InitializeInstance(componentCollectionProvider);
+            }
+
+            if (metadataContextProvider == null)
+            {
+                metadataContextProvider = new MetadataContextProvider();
+                metadataContextProvider.AddComponent(new MetadataContextProviderComponent());
+                MugenService.Configuration.InitializeInstance(metadataContextProvider);
+            }
+
             MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
         }
 
@@ -30,13 +45,29 @@ namespace MugenMvvm.App
 
         #region Properties
 
-        public bool HasComponents => Components.Count != 0;
+        public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IComponentCollection Components { get; }
+        public bool HasComponents => _components != null && _components.Count != 0;
 
-        public bool HasMetadata => Metadata.Count != 0;
+        public IMetadataContext Metadata
+        {
+            get
+            {
+                if (_metadata == null)
+                    MugenService.MetadataContextProvider.LazyInitialize(ref _metadata, this);
+                return _metadata;
+            }
+        }
 
-        public IMetadataContext Metadata { get; }
+        public IComponentCollection Components
+        {
+            get
+            {
+                if (_components == null)
+                    MugenService.ComponentCollectionProvider.LazyInitialize(ref _components, this);
+                return _components;
+            }
+        }
 
         public IDeviceInfo DeviceInfo
         {
