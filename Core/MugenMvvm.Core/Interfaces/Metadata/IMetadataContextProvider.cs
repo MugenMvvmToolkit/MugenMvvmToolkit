@@ -8,8 +8,8 @@ namespace MugenMvvm.Interfaces.Metadata
 {
     public interface IMetadataContextProvider : IComponentOwner<IMetadataContextProvider>, IComponent<IMugenApplication>
     {
-        IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default);
+        IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default);
 
-        IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default);
+        IMetadataContext? TryGetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default);
     }
 }

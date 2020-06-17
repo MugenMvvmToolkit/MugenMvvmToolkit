@@ -22,23 +22,19 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext GetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
+        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(target, values);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMetadataContextProviderComponent>(this);
-
-            GetComponents<IMetadataContextProviderListener>().OnReadOnlyContextCreated(this, result!, target);
+            if (result != null)
+                GetComponents<IMetadataContextProviderListener>().OnReadOnlyContextCreated(this, result!, target);
             return result;
         }
 
-        public IMetadataContext GetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
+        public IMetadataContext? TryGetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(target, values);
-            if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMetadataContextProviderComponent>(this);
-
-            GetComponents<IMetadataContextProviderListener>().OnContextCreated(this, result!, target);
+            if (result != null)
+                GetComponents<IMetadataContextProviderListener>().OnContextCreated(this, result!, target);
             return result;
         }
 
