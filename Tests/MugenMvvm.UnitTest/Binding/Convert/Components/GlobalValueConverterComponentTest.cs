@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Globalization;
-using MugenMvvm.Binding.Converters.Components;
+using MugenMvvm.Binding.Convert.Components;
 using Should;
 using Xunit;
 
-namespace MugenMvvm.UnitTest.Binding.Converters.Components
+namespace MugenMvvm.UnitTest.Binding.Convert.Components
 {
     public class GlobalValueConverterComponentTest : UnitTestBase
     {

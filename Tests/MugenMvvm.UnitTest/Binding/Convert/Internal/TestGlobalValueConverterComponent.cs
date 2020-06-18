@@ -1,9 +1,9 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Converters.Components;
+using MugenMvvm.Binding.Interfaces.Convert.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.UnitTest.Binding.Converters.Internal
+namespace MugenMvvm.UnitTest.Binding.Convert.Internal
 {
     public class TestGlobalValueConverterComponent : IGlobalValueConverterComponent, IHasPriority
     {

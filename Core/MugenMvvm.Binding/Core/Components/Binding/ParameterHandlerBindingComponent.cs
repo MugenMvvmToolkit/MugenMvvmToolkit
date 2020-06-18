@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Observers;

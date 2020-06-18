@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
         public void TryParseShouldParseDigitExpression(string expression, object result)
         {
             if (expression.EndsWith("m", StringComparison.OrdinalIgnoreCase))
-                result = Convert.ToDecimal(result);
+                result = System.Convert.ToDecimal(result);
             var component = new DigitTokenParser();
             var ctx = new TokenParserContext();
             ctx.Initialize(expression, DefaultMetadata);

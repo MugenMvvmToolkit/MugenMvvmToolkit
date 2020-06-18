@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Resources.Components
             AddType(typeof(TimeSpan));
             AddType(typeof(Guid));
             AddType(typeof(Math));
-            AddType(typeof(Convert));
+            AddType(typeof(System.Convert));
             AddType(typeof(Enumerable));
             AddType(typeof(Environment));
         }

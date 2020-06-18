@@ -1,11 +1,11 @@
 ﻿using System;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Converters.Components;
+using MugenMvvm.Binding.Interfaces.Convert.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
-namespace MugenMvvm.Binding.Converters.Components
+namespace MugenMvvm.Binding.Convert.Components
 {
     public sealed class GlobalValueConverterComponent : IGlobalValueConverterComponent, IHasPriority
     {
@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Converters.Components
             {
                 value = FormatProvider == null
                     ? value.ToString()
-                    : Convert.ToString(value, FormatProvider.Invoke());
+                    : System.Convert.ToString(value, FormatProvider.Invoke());
                 return true;
             }
 
@@ -46,8 +46,8 @@ namespace MugenMvvm.Binding.Converters.Components
             if (value is IConvertible)
             {
                 value = FormatProvider == null
-                    ? Convert.ChangeType(value, targetType.GetNonNullableType())
-                    : Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider.Invoke());
+                    ? System.Convert.ChangeType(value, targetType.GetNonNullableType())
+                    : System.Convert.ChangeType(value, targetType.GetNonNullableType(), FormatProvider.Invoke());
                 return true;
             }
 

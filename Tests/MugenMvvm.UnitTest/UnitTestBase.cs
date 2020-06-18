@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Converters;
-using MugenMvvm.Binding.Converters.Components;
+using MugenMvvm.Binding.Convert;
+using MugenMvvm.Binding.Convert.Components;
 using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Resources;

@@ -1,8 +1,8 @@
 ﻿using System;
-using MugenMvvm.Binding.Interfaces.Converters;
+using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Interfaces.Metadata;
 
-namespace MugenMvvm.UnitTest.Binding.Converters.Internal
+namespace MugenMvvm.UnitTest.Binding.Convert.Internal
 {
     public class TestBindingValueConverter : IBindingValueConverter
     {
