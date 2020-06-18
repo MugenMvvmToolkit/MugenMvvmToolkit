@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Interfaces.Members;
+﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -23,4 +24,6 @@ namespace MugenMvvm.Binding.Delegates
     public delegate void ValueChangedDelegate<in TMember, in TTarget, in TValue>(TMember member, TTarget target, TValue oldValue, TValue newValue, IReadOnlyMetadataContext? metadata);
 
     public delegate TValue InvokeMethodDelegate<in TMember, in TTarget, out TValue>(TMember member, TTarget target, object?[] args, IReadOnlyMetadataContext? metadata);
+
+    public delegate IAccessorMemberInfo? TryGetAccessorDelegate<in TMember>(TMember member, ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata);
 }
