@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Core
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private IBindingExpressionBuilderComponent[]? _expressionBuilderComponents;
+        private IBindingExpressionParserComponent[]? _expressionBuilderComponents;
         private IBindingHolderComponent[]? _holderComponents;
         private IBindingLifecycleDispatcherComponent[]? _stateDispatcherComponents;
 
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Core
             : base(componentCollectionProvider)
         {
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IBindingExpressionBuilderComponent, BindingManager>((components, state, _) => state._expressionBuilderComponents = components, this);
+            _componentTracker.AddListener<IBindingExpressionParserComponent, BindingManager>((components, state, _) => state._expressionBuilderComponents = components, this);
             _componentTracker.AddListener<IBindingHolderComponent, BindingManager>((components, state, _) => state._holderComponents = components, this);
             _componentTracker.AddListener<IBindingLifecycleDispatcherComponent, BindingManager>((components, state, _) => state._stateDispatcherComponents = components, this);
         }
@@ -37,11 +37,11 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (_expressionBuilderComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _expressionBuilderComponents!.TryBuildBindingExpression(expression, metadata);
+            return _expressionBuilderComponents!.TryParseBindingExpression(expression, metadata);
         }
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)

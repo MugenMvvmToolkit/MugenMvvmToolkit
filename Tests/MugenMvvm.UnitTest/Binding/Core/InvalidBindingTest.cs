@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void BuildShouldReturnSelf()
         {
             var invalidBinding = new InvalidBinding(new Exception());
-            ((IBindingExpression)invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
+            ((IBindingBuilder)invalidBinding).Build(this, null, DefaultMetadata).ShouldEqual(invalidBinding);
         }
 
         [Theory]

@@ -62,10 +62,10 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> BuildBindingExpression<TExpression>(this IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> ParseBindingExpression<TExpression>(this IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
-            var result = bindingManager.TryBuildBindingExpression(expression, metadata);
+            var result = bindingManager.TryParseBindingExpression(expression, metadata);
             if (result.IsNullOrEmpty())
                 BindingExceptionManager.ThrowCannotParseExpression(expression);
             return result;

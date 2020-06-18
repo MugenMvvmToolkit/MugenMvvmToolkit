@@ -306,13 +306,13 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnEventError(exception, sender, message, metadata);
         }
 
-        public static ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(this IBindingExpressionBuilderComponent[] components,
+        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(this IBindingExpressionParserComponent[] components,
             [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryBuildBindingExpression(expression, metadata);
+                var result = components[i].TryParseBindingExpression(expression, metadata);
                 if (result.Item != null || result.List != null)
                     return result;
             }

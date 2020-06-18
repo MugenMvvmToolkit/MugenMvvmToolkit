@@ -22,12 +22,12 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Components
 {
-    public class BindingExpressionBuilderTest : UnitTestBase
+    public class BindingExpressionParserTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
-        public void TryBuildBindingExpressionShouldUseExpressionParser()
+        public void TryParseBindingExpressionShouldUseExpressionParser()
         {
             var count = 0;
             var st = "";
@@ -44,13 +44,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             var parser = new ExpressionParser();
             parser.AddComponent(parserComponent);
-            var builder = new BindingExpressionBuilder(parser);
-            builder.TryBuildBindingExpression(st, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            var builder = new BindingExpressionParser(parser);
+            builder.TryParseBindingExpression(st, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
             count.ShouldEqual(1);
         }
 
         [Fact]
-        public void TryBuildBindingExpressionShouldThrowUnsupportedExpression()
+        public void TryParseBindingExpressionShouldThrowUnsupportedExpression()
         {
             var parserComponent = new TestExpressionParserComponent
             {
@@ -58,8 +58,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             var parser = new ExpressionParser();
             parser.AddComponent(parserComponent);
-            var builder = new BindingExpressionBuilder(parser);
-            var expression = builder.TryBuildBindingExpression("", DefaultMetadata).Item!;
+            var builder = new BindingExpressionParser(parser);
+            var expression = builder.TryParseBindingExpression("", DefaultMetadata).Item!;
             expression.ShouldNotBeNull();
             ShouldThrow<InvalidOperationException>(() => expression.Build(this, this, DefaultMetadata));
         }
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [InlineData(10, 10, true, false)]
         [InlineData(10, 10, false, true)]
         [InlineData(10, 10, false, false)]
-        public void TryBuildBindingExpressionShouldBuildBinding(int expressionCount, int count, bool includeNullComponent, bool includeFactoryComponent)
+        public void TryParseBindingExpressionShouldBuildBinding(int expressionCount, int count, bool includeNullComponent, bool includeFactoryComponent)
         {
             var target = new object();
             var source = new object();
@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 TryParse = (o, type, arg3) => results
             });
             var bindingManager = new BindingManager();
-            var builder = new BindingExpressionBuilder(parser);
+            var builder = new BindingExpressionParser(parser);
             bindingManager.AddComponent(builder);
 
             var components = new List<object>();
@@ -171,13 +171,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 });
             }
 
-            var expressions = builder.TryBuildBindingExpression("", DefaultMetadata).AsList();
+            var expressions = builder.TryParseBindingExpression("", DefaultMetadata).AsList();
             expressions.Count.ShouldEqual(expressionCount);
             for (int i = 0; i < expressions.Count; i++)
             {
                 invokeCount = 0;
                 var result = results[i];
-                var expression = (IHasTargetExpressionBindingExpression)expressions[i];
+                var expression = (IHasTargetExpressionBindingBuilder)expressions[i];
                 expression.ShouldNotBeNull();
                 expression.TargetExpression.ShouldEqual(result.Target);
                 invokeCount.ShouldEqual(0);
@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [InlineData(10, 10, true, false)]
         [InlineData(10, 10, false, true)]
         [InlineData(10, 10, false, false)]
-        public void TryBuildBindingExpressionShouldBuildMultiBinding(int expressionCount, int count, bool includeNullComponent, bool includeFactoryComponent)
+        public void TryParseBindingExpressionShouldBuildMultiBinding(int expressionCount, int count, bool includeNullComponent, bool includeFactoryComponent)
         {
             var target = new object();
             var source = new object();
@@ -253,7 +253,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 TryParse = (o, type, arg3) => results
             });
             var bindingManager = new BindingManager();
-            var builder = new BindingExpressionBuilder(parser, compiler);
+            var builder = new BindingExpressionParser(parser, compiler);
             bindingManager.AddComponent(builder);
 
             var components = new List<object>();
@@ -328,13 +328,13 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 });
             }
 
-            var expressions = builder.TryBuildBindingExpression("", DefaultMetadata).AsList();
+            var expressions = builder.TryParseBindingExpression("", DefaultMetadata).AsList();
             expressions.Count.ShouldEqual(expressionCount);
             for (int i = 0; i < expressions.Count; i++)
             {
                 invokeCount = 0;
                 var result = results[i];
-                var expression = (IHasTargetExpressionBindingExpression)expressions[i];
+                var expression = (IHasTargetExpressionBindingBuilder)expressions[i];
                 expression.ShouldNotBeNull();
                 expression.TargetExpression.ShouldEqual(result.Target);
                 invokeCount.ShouldEqual(0);

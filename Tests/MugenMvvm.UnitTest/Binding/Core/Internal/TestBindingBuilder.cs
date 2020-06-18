@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Internal
 {
-    public class TestBindingExpression : IHasTargetExpressionBindingExpression
+    public class TestBindingBuilder : IHasTargetExpressionBindingBuilder
     {
         #region Properties
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         #region Implementation of interfaces
 
-        IBinding IBindingExpression.Build(object target, object? source, IReadOnlyMetadataContext? metadata)
+        IBinding IBindingBuilder.Build(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return Build?.Invoke(target, source, metadata)!;
         }

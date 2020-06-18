@@ -2,7 +2,7 @@
 
 namespace MugenMvvm.Binding.Interfaces.Core
 {
-    public interface IHasTargetExpressionBindingExpression : IBindingExpression
+    public interface IHasTargetExpressionBindingBuilder : IBindingBuilder
     {
         IExpressionNode TargetExpression { get; }
     }

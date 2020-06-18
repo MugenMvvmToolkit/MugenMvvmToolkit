@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         public void BuildBindingExpressionShouldThrowNoComponents()
         {
             var bindingManager = new BindingManager();
-            ShouldThrow<InvalidOperationException>(() => bindingManager.BuildBindingExpression(this, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => bindingManager.ParseBindingExpression(this, DefaultMetadata));
         }
 
         [Theory]
@@ -32,15 +32,15 @@ namespace MugenMvvm.UnitTest.Binding.Core
         {
             var request = "t";
             var bindingManager = new BindingManager();
-            var expression = new TestBindingExpression();
+            var expression = new TestBindingBuilder();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestBindingExpressionBuilderComponent
+                var component = new TestBindingExpressionParserComponent
                 {
                     Priority = -i,
-                    TryBuildBindingExpression = (r, t, m) =>
+                    TryParseBindingExpression = (r, t, m) =>
                     {
                         ++invokeCount;
                         r.ShouldEqual(request);
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 bindingManager.AddComponent(component);
             }
 
-            var result = bindingManager.BuildBindingExpression(request, DefaultMetadata);
+            var result = bindingManager.ParseBindingExpression(request, DefaultMetadata);
             result.Count().ShouldEqual(1);
             result.Item.ShouldEqual(expression);
             invokeCount.ShouldEqual(count);

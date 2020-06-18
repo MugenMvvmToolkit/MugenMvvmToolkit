@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionBuilderCache : ComponentCacheBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IHasPriority
+    public sealed class BindingExpressionParserCache : ComponentCacheBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IHasPriority
     {
         #region Fields
 
@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Constructors
 
-        public BindingExpressionBuilderCache()
+        public BindingExpressionParserCache()
         {
             _cache = new StringOrdinalLightDictionary<object?>(59);
         }
@@ -38,18 +38,18 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>([DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             if (Default.IsValueType<TExpression>() || !(expression is string s))
-                return Components.TryBuildBindingExpression(expression, metadata);
+                return Components.TryParseBindingExpression(expression, metadata);
 
             if (!_cache.TryGetValue(s, out var value))
             {
-                value = Components.TryBuildBindingExpression(expression, metadata).GetRawValue();
+                value = Components.TryParseBindingExpression(expression, metadata).GetRawValue();
                 _cache[s] = value;
             }
 
-            return ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>.FromRawValue(value);
+            return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(value);
         }
 
         #endregion

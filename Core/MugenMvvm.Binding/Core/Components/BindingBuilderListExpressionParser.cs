@@ -8,7 +8,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BuilderListBindingExpressionBuilder : IBindingExpressionBuilderComponent, IHasPriority
+    public sealed class BindingBuilderListExpressionParser : IBindingExpressionParserComponent, IHasPriority
     {
         #region Properties
 
@@ -18,11 +18,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TExpression>() || !(expression is IReadOnlyList<IBindingExpression> result))
+            if (Default.IsValueType<TExpression>() || !(expression is IReadOnlyList<IBindingBuilder> result))
                 return default;
-            return ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>.FromRawValue(result);
+            return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result);
         }
 
         #endregion

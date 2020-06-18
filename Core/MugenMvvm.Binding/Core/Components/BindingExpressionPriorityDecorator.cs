@@ -16,7 +16,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionBuilderComponent>, IBindingExpressionBuilderComponent, IComparer<IBindingExpression>, IHasPriority
+    public sealed class BindingExpressionPriorityDecorator : ComponentDecoratorBase<IBindingManager, IBindingExpressionParserComponent>, IBindingExpressionParserComponent, IComparer<IBindingBuilder>, IHasPriority
     {
         #region Constructors
 
@@ -46,16 +46,16 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>> TryBuildBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            var expressions = Components.TryBuildBindingExpression(expression, metadata);
+            var expressions = Components.TryParseBindingExpression(expression, metadata);
             var list = expressions.List;
             if (expressions.Item != null || list == null)
                 return expressions;
 
-            if (list is IBindingExpression[] array)
+            if (list is IBindingBuilder[] array)
                 Array.Sort(array, this);
-            else if (list is List<IBindingExpression> l)
+            else if (list is List<IBindingBuilder> l)
                 l.Sort(this);
             else
             {
@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Core.Components
             return expressions;
         }
 
-        int IComparer<IBindingExpression>.Compare(IBindingExpression x, IBindingExpression y)
+        int IComparer<IBindingBuilder>.Compare(IBindingBuilder x, IBindingBuilder y)
         {
             return TryGetPriority(y).CompareTo(TryGetPriority(x));
         }
@@ -76,11 +76,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Methods
 
-        private int TryGetPriority(IBindingExpression expression)
+        private int TryGetPriority(IBindingBuilder expression)
         {
             if (expression is IHasPriority hasPriority)
                 return hasPriority.Priority;
-            if (expression is IHasTargetExpressionBindingExpression hasTargetExpression)
+            if (expression is IHasTargetExpressionBindingBuilder hasTargetExpression)
                 return TryGetPriority(hasTargetExpression.TargetExpression);
             return 0;
         }

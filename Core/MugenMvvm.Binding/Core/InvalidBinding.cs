@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {
-    public sealed class InvalidBinding : Binding, IBindingExpression
+    public sealed class InvalidBinding : Binding, IBindingBuilder
     {
         #region Constructors
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        IBinding IBindingExpression.Build(object target, object? source, IReadOnlyMetadataContext? metadata)
+        IBinding IBindingBuilder.Build(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return this;
         }

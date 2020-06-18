@@ -11,19 +11,19 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Components
 {
-    public class ExceptionBindingExpressionBuilderDecoratorTest : UnitTestBase
+    public class BindingExpressionExceptionDecoratorTest : UnitTestBase
     {
         #region Methods
 
         [Fact]
-        public void TryBuildBindingExpressionShouldWrapExceptionToInvalidBinding()
+        public void TryParseBindingExpressionShouldWrapExceptionToInvalidBinding()
         {
             var request = "";
             var exception = new Exception();
-            var decorator = new ExceptionBindingExpressionBuilderDecorator();
-            var component = new TestBindingExpressionBuilderComponent
+            var decorator = new BindingExpressionExceptionDecorator();
+            var component = new TestBindingExpressionParserComponent
             {
-                TryBuildBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (o, type, arg3) =>
                 {
                     o.ShouldEqual(request);
                     type.ShouldEqual(request.GetType());
@@ -31,9 +31,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     throw exception;
                 }
             };
-            ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
+            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
 
-            var expression = decorator.TryBuildBindingExpression(request, DefaultMetadata).Item!;
+            var expression = decorator.TryParseBindingExpression(request, DefaultMetadata).Item!;
             expression.ShouldNotBeNull();
 
             var binding = (InvalidBinding) expression.Build(this, this, DefaultMetadata);
@@ -43,15 +43,15 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void TryBuildBindingExpressionShouldWrapBuildExceptionToInvalidBinding(int count)
+        public void TryParseBindingExpressionShouldWrapBuildExceptionToInvalidBinding(int count)
         {
             var target = new object();
             var source = new object();
             var exception = new Exception();
-            var expressions = new IBindingExpression[count];
+            var expressions = new IBindingBuilder[count];
             for (var i = 0; i < expressions.Length; i++)
             {
-                expressions[i] = new TestBindingExpression
+                expressions[i] = new TestBindingBuilder
                 {
                     Build = (t, s, arg3) =>
                     {
@@ -63,14 +63,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 };
             }
 
-            var decorator = new ExceptionBindingExpressionBuilderDecorator();
-            var component = new TestBindingExpressionBuilderComponent
+            var decorator = new BindingExpressionExceptionDecorator();
+            var component = new TestBindingExpressionParserComponent
             {
-                TryBuildBindingExpression = (o, type, arg3) => expressions
+                TryParseBindingExpression = (o, type, arg3) => expressions
             };
-            ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
+            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
 
-            var result = decorator.TryBuildBindingExpression("", DefaultMetadata).AsList();
+            var result = decorator.TryParseBindingExpression("", DefaultMetadata).AsList();
             result.Count.ShouldEqual(count);
 
             for (var i = 0; i < result.Count; i++)

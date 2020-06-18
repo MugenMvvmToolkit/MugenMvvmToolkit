@@ -25,14 +25,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         #region Methods
 
         [Fact]
-        public void TryBuildBindingExpressionShouldIgnoreNonListResult()
+        public void TryParseBindingExpressionShouldIgnoreNonListResult()
         {
             var request = "";
-            var exp = new TestBindingExpression();
+            var exp = new TestBindingBuilder();
             var decorator = new BindingExpressionPriorityDecorator();
-            var component = new TestBindingExpressionBuilderComponent
+            var component = new TestBindingExpressionParserComponent
             {
-                TryBuildBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (o, type, arg3) =>
                 {
                     o.ShouldEqual(request);
                     type.ShouldEqual(request.GetType());
@@ -40,48 +40,48 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     return exp;
                 }
             };
-            ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
+            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
 
-            decorator.TryBuildBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
+            decorator.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(2)]
         [InlineData(3)]
-        public void TryBuildBindingExpressionShouldOrderList(int inputParameterState)
+        public void TryParseBindingExpressionShouldOrderList(int inputParameterState)
         {
             const string maxPriorityName = "T1";
             const string minPriorityName = "T2";
 
-            var expressions = new IBindingExpression[]
+            var expressions = new IBindingBuilder[]
             {
-                new NoPriorityBindingExpression(),
-                new TestBindingExpression {TargetExpression = new MemberExpressionNode(new MemberExpressionNode(null, minPriorityName), Guid.NewGuid().ToString())},
-                new TestBindingExpression {TargetExpression = new TestBindingMemberExpressionNode(maxPriorityName)},
-                new HasPriorityBindingExpression {Priority = int.MaxValue - 1},
-                new TestBindingExpression {TargetExpression = new HasPriorityExpressionNode {Priority = 1}}
+                new NoPriorityBindingBuilder(),
+                new TestBindingBuilder {TargetExpression = new MemberExpressionNode(new MemberExpressionNode(null, minPriorityName), Guid.NewGuid().ToString())},
+                new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(maxPriorityName)},
+                new HasPriorityBindingBuilder {Priority = int.MaxValue - 1},
+                new TestBindingBuilder {TargetExpression = new HasPriorityExpressionNode {Priority = 1}}
             };
             var expected = new[] {expressions[2], expressions[3], expressions[4], expressions[0], expressions[1]};
-            IList<IBindingExpression> result;
+            IList<IBindingBuilder> result;
             if (inputParameterState == 1)
                 result = expressions;
             else if (inputParameterState == 2)
                 result = expressions.ToList();
             else
-                result = new Collection<IBindingExpression>(expressions);
+                result = new Collection<IBindingBuilder>(expressions);
 
             var decorator = new BindingExpressionPriorityDecorator();
             decorator.BindingMemberPriorities.Clear();
             decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
             decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;
-            var component = new TestBindingExpressionBuilderComponent
+            var component = new TestBindingExpressionParserComponent
             {
-                TryBuildBindingExpression = (o, type, arg3) => ItemOrList<IBindingExpression, IReadOnlyList<IBindingExpression>>.FromRawValue(result)
+                TryParseBindingExpression = (o, type, arg3) => ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result)
             };
-            ((IComponentCollectionDecorator<IBindingExpressionBuilderComponent>) decorator).Decorate(new List<IBindingExpressionBuilderComponent> {decorator, component}, DefaultMetadata);
+            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
 
-            var bindingExpressions = decorator.TryBuildBindingExpression("", DefaultMetadata).AsList();
+            var bindingExpressions = decorator.TryParseBindingExpression("", DefaultMetadata).AsList();
             bindingExpressions.ShouldEqual(expected);
         }
 
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             #endregion
         }
 
-        private sealed class NoPriorityBindingExpression : IBindingExpression
+        private sealed class NoPriorityBindingBuilder : IBindingBuilder
         {
             #region Implementation of interfaces
 
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             #endregion
         }
 
-        private sealed class HasPriorityBindingExpression : IHasPriority, IBindingExpression
+        private sealed class HasPriorityBindingBuilder : IHasPriority, IBindingBuilder
         {
             #region Properties
 
