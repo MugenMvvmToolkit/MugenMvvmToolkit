@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         #region Methods
 
         [Fact]
-        public void TryParseBindingExpressionShouldUseCacheRequest()
+        public void TryParseBindingExpressionShouldCacheRequest()
         {
             var invokeCount = 0;
             var request = "t";
