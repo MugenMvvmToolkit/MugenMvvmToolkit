@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Observers
 {
-    public class WeakPropertyChangedListenerTest : UnitTestBase
+    public class PropertyChangedListenerCollectionTest : UnitTestBase
     {
         #region Methods
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var listener = new WeakPropertyChangedListener();
+            var listener = new PropertyChangedListenerCollection();
             for (var i = 0; i < count; i++)
                 listener.Add(listeners[i], $"{i}");
 
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var listener = new WeakPropertyChangedListener();
+            var listener = new PropertyChangedListenerCollection();
             for (var i = 0; i < count; i++)
                 listener.Add(listeners[i], $"[{i}]");
 
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var listener = new WeakPropertyChangedListener();
+            var listener = new PropertyChangedListenerCollection();
             for (var i = 0; i < count; i++)
             {
                 listener.Add(listeners[i], args.PropertyName);

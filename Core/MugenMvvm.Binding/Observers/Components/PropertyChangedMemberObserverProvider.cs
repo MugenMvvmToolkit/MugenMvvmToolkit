@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly IAttachedValueProvider? _attachedValueProvider;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
-        private static readonly Func<INotifyPropertyChanged, object?, WeakPropertyChangedListener> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
+        private static readonly Func<INotifyPropertyChanged, object?, PropertyChangedListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
 
@@ -79,9 +79,9 @@ namespace MugenMvvm.Binding.Observers.Components
             return default;
         }
 
-        private static WeakPropertyChangedListener CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _)
+        private static PropertyChangedListenerCollection CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _)
         {
-            var listener = new WeakPropertyChangedListener();
+            var listener = new PropertyChangedListenerCollection();
             propertyChanged.PropertyChanged += listener.Raise;
             return listener;
         }

@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class WeakPropertyChangedListener : ActionToken.IHandler
+    public sealed class PropertyChangedListenerCollection : ActionToken.IHandler
     {
         #region Fields
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        public WeakPropertyChangedListener()
+        public PropertyChangedListenerCollection()
         {
             _listeners = Default.Array<WeakEventListener<string>>();
         }
@@ -51,13 +51,18 @@ namespace MugenMvvm.Binding.Observers
 
         public void Raise(object sender, PropertyChangedEventArgs args)
         {
+            Raise(sender, args, args.PropertyName);
+        }
+
+        public void Raise<T>(object sender, in T message, string propertyName)
+        {
             var hasDeadRef = false;
             var listeners = _listeners;
             var size = _size;
             for (var i = 0; i < size; i++)
             {
                 var listener = listeners[i];
-                if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(args.PropertyName, listener.State, true) && !listener.TryHandle(sender, args, null) && RemoveAt(listeners, i))
+                if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(propertyName, listener.State, true) && !listener.TryHandle(sender, message, null) && RemoveAt(listeners, i))
                     hasDeadRef = true;
             }
 
