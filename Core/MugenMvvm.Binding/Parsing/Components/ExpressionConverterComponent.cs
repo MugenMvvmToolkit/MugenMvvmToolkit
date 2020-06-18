@@ -52,10 +52,10 @@ namespace MugenMvvm.Binding.Parsing.Components
         {
             if (Default.IsValueType<TExpression>())
             {
-                if (typeof(TExpression) == typeof(ExpressionConverterRequest))
-                    return Parse(MugenExtensions.CastGeneric<TExpression, ExpressionConverterRequest>(expression), metadata);
+                if (typeof(TExpression) == typeof(BindingExpressionRequest))
+                    return Parse(MugenExtensions.CastGeneric<TExpression, BindingExpressionRequest>(expression), metadata);
             }
-            else if (expression is IReadOnlyList<ExpressionConverterRequest> expressions)
+            else if (expression is IReadOnlyList<BindingExpressionRequest> expressions)
             {
                 if (expressions.Count == 0)
                     return default;
@@ -87,7 +87,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             _componentTracker.Detach(owner, metadata);
         }
 
-        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(ExpressionConverterRequest expression, IReadOnlyMetadataContext? metadata)
+        private ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> Parse(BindingExpressionRequest expression, IReadOnlyMetadataContext? metadata)
         {
             _context.Initialize(metadata);
             var target = Convert(expression.Target, metadata);

@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Build.Components
                 var request = MugenExtensions.CastGeneric<TExpression, BindingBuilderRequest>(expression);
                 if (!_cache.TryGetValue(request.OriginalDelegate, out var value))
                 {
-                    value = Components.TryParseBindingExpression(request.ToConverterRequest(), metadata).GetRawValue();
+                    value = Components.TryParseBindingExpression(request.ToBindingExpressionRequest(), metadata).GetRawValue();
                     _cache[request.OriginalDelegate] = value;
                 }
 

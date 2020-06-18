@@ -11,14 +11,14 @@ namespace MugenMvvm.Binding.Build
     {
         #region Fields
 
-        public readonly Func<Delegate, ExpressionConverterRequest> GetRequestHandler;
+        public readonly Func<Delegate, BindingExpressionRequest> GetRequestHandler;
         public readonly Delegate OriginalDelegate;
 
         #endregion
 
         #region Constructors
 
-        private BindingBuilderRequest(Delegate originalDelegate, Func<Delegate, ExpressionConverterRequest> getRequestHandler)
+        private BindingBuilderRequest(Delegate originalDelegate, Func<Delegate, BindingExpressionRequest> getRequestHandler)
         {
             OriginalDelegate = originalDelegate;
             GetRequestHandler = getRequestHandler;
@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Build
             return new BindingBuilderRequest(getBuilder, d => ((BindingBuilderDelegate<TTarget, TSource>)d).Invoke(default));
         }
 
-        public ExpressionConverterRequest ToConverterRequest()
+        public BindingExpressionRequest ToBindingExpressionRequest()
         {
             if (GetRequestHandler == null)
                 return default;

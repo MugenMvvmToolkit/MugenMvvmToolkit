@@ -16,29 +16,29 @@ namespace MugenMvvm.UnitTest.Binding.Build
         {
             BindingBuilderRequest request = default;
             request.IsEmpty.ShouldBeTrue();
-            request.ToConverterRequest().IsEmpty.ShouldBeTrue();
+            request.ToBindingExpressionRequest().IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
         public void GetShouldInitializeValues()
         {
-            var converterRequest = new ExpressionConverterRequest("", "", default);
-            BindingBuilderDelegate<string, string> d = target => new ExpressionConverterRequest("", "", default);
+            var converterRequest = new BindingExpressionRequest("", "", default);
+            BindingBuilderDelegate<string, string> d = target => new BindingExpressionRequest("", "", default);
             var request = BindingBuilderRequest.Get(d);
             request.IsEmpty.ShouldBeFalse();
             request.OriginalDelegate.ShouldEqual(d);
-            request.ToConverterRequest().ShouldEqual(converterRequest);
+            request.ToBindingExpressionRequest().ShouldEqual(converterRequest);
         }
 
         [Fact]
-        public void ToConverterRequestShouldThrowClosure()
+        public void ToBindingExpressionRequestShouldThrowClosure()
         {
             var request = BindingBuilderRequest.Get<object, object>(target =>
             {
                 ToString();
                 return target.Action(context => context);
             });
-            ShouldThrow<InvalidOperationException>(() => request.ToConverterRequest());
+            ShouldThrow<InvalidOperationException>(() => request.ToBindingExpressionRequest());
         }
 
         #endregion

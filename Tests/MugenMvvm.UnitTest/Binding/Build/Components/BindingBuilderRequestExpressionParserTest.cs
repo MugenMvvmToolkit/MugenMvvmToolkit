@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Binding.Build.Components
     {
         #region Fields
 
-        private static readonly ExpressionConverterRequest ConverterRequest = new ExpressionConverterRequest("", "", default);
+        private static readonly BindingExpressionRequest ConverterRequest = new BindingExpressionRequest("", "", default);
 
         #endregion
 

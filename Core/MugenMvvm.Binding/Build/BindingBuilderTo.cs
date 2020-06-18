@@ -42,9 +42,9 @@ namespace MugenMvvm.Binding.Build
             return this;
         }
 
-        public static implicit operator ExpressionConverterRequest(BindingBuilderTo<TTarget, TSource> builder)
+        public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder)
         {
-            return new ExpressionConverterRequest(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.Cast<IReadOnlyList<KeyValuePair<string?, object>>>());
+            return new BindingExpressionRequest(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.Cast<IReadOnlyList<KeyValuePair<string?, object>>>());
         }
 
         #endregion

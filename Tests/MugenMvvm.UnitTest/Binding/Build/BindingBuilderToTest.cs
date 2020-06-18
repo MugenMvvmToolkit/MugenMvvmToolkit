@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var param1 = "p1";
             var param2 = "p2";
             var builder = new BindingBuilderTo<string, object>(new BindingBuilderFrom<string, object>(from), to, default);
-            var request = (ExpressionConverterRequest) builder;
+            var request = (BindingExpressionRequest) builder;
             request.Target.ShouldEqual(from);
             request.Source.ShouldEqual(to);
             request.Parameters.AsList().Count.ShouldEqual(0);

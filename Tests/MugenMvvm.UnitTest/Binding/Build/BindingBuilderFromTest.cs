@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var toValue = "t";
             var target = new BindingBuilderFrom<string, object>(fromValue);
 
-            var converterRequest = (ExpressionConverterRequest) target.To(toValue);
+            var converterRequest = (BindingExpressionRequest) target.To(toValue);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(toValue);
             converterRequest.Parameters.AsList().Count.ShouldEqual(0);

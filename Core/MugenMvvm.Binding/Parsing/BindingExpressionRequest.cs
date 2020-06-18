@@ -5,7 +5,7 @@ using MugenMvvm.Internal;
 namespace MugenMvvm.Binding.Parsing
 {
     [StructLayout(LayoutKind.Auto)]
-    public readonly struct ExpressionConverterRequest
+    public readonly struct BindingExpressionRequest
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionConverterRequest(object target, object? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
+        public BindingExpressionRequest(object target, object? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
         {
             Should.NotBeNull(target, nameof(target));
             Target = target;
