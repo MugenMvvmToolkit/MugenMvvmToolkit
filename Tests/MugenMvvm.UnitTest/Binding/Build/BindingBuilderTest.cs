@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
         public void BindShouldBuildBinding1()
         {
             var target = this;
-            object source = null;
+            object? source = null;
             var binding = new TestBinding();
             var testBuilder = new TestBindingBuilder
             {

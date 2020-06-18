@@ -22,6 +22,8 @@
         public const string AttachedHandlerPropertyPrefix = "$#2";
         public const string AttachedHandlerMethodPrefix = "$#3";
 
+        public const string RootObserver = "@$r$";
+
         #endregion
     }
 }

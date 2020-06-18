@@ -146,7 +146,7 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 return Property((id, AttachedHandlerField, PropertyChanged, DefaultValueField, GetDefaultValue),
                     (member, target, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).Value,
-                    (member, target, value, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).SetValue(value, metadata),
+                    (member, target, value, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).SetValue(target!, value, metadata),
                     (member, target, listener, metadata) => InheritedProperty.GetOrAdd(target, member, metadata).Add(listener), null);
             }
 
@@ -173,26 +173,23 @@ namespace MugenMvvm.Binding.Members.Builders
 
         #region Nested types
 
-        private sealed class InheritedProperty : EventListenerCollection, IValueHolder<IWeakReference>, IEventListener
+        private sealed class InheritedProperty : EventListenerCollection, IWeakEventListener
         {
             #region Fields
 
             private readonly DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>?
                 PropertyChanged, TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> _member;
 
-            [NotNull]
-            private readonly TTarget _target;
-
+            private readonly IWeakReference _targetRef;
             private IWeakReference? _parentRef;
             private ActionToken _parentToken;
-
-            private int _state;
+            private byte _state;
             private ActionToken _valueToken;
             public TValue Value;
 
-            private const int DefaultState = 0;
-            private const int ParentState = 1;
-            private const int HasValueState = 2;
+            private const byte DefaultState = 0;
+            private const byte ParentState = 1;
+            private const byte HasValueState = 2;
 
             #endregion
 
@@ -202,17 +199,19 @@ namespace MugenMvvm.Binding.Members.Builders
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
-                _target = target;
+                _targetRef = target.ToWeakReference();
                 _member = member;
-                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo)member, target);
-                InvalidateParent(metadata);
+                Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo) member, target);
+                InvalidateParent(target, metadata);
             }
 
             #endregion
 
             #region Properties
 
-            IWeakReference? IValueHolder<IWeakReference>.Value { get; set; }
+            public bool IsAlive => _targetRef.IsAlive;
+
+            public bool IsWeak => true;
 
             #endregion
 
@@ -220,10 +219,13 @@ namespace MugenMvvm.Binding.Members.Builders
 
             bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
             {
+                var target = (TTarget) _targetRef.Target;
+                if (target == null)
+                    return false;
                 if (!Default.IsValueType<T>() && message is InheritedProperty inheritedProperty)
-                    ApplyValues(inheritedProperty, metadata);
+                    ApplyValues(target, inheritedProperty, metadata);
                 else
-                    InvalidateParent(metadata);
+                    InvalidateParent(target, metadata);
                 return true;
             }
 
@@ -241,18 +243,18 @@ namespace MugenMvvm.Binding.Members.Builders
 #pragma warning disable 8634
                 return attachedValueProvider.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
                 {
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, t, s.metadata);
+                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) s.member, t, s.metadata);
                     return new InheritedProperty(t, s.member, s.metadata);
                 });
 #pragma warning restore 8634
             }
 
-            public void SetValue(TValue value, IReadOnlyMetadataContext? metadata)
+            public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
             {
-                SetValue(value, HasValueState, metadata);
+                SetValue(target, value, HasValueState, metadata);
             }
 
-            private void SetValue(TValue value, int state, IReadOnlyMetadataContext? metadata)
+            private void SetValue(TTarget target, TValue value, byte state, IReadOnlyMetadataContext? metadata)
             {
                 if (state == HasValueState)
                 {
@@ -272,45 +274,45 @@ namespace MugenMvvm.Binding.Members.Builders
                 if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
                     return;
                 Value = value;
-                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo)_member, _target, oldValue, value, metadata);
-                Raise(_target, this, metadata);
+                _member.State.PropertyChanged?.Invoke((IAccessorMemberInfo) _member, target, oldValue, value, metadata);
+                Raise(target, this, metadata);
             }
 
-            private void InvalidateParent(IReadOnlyMetadataContext? metadata)
+            private void InvalidateParent([DisallowNull]TTarget target, IReadOnlyMetadataContext? metadata)
             {
                 var member = MugenBindingService
                     .MemberManager
-                    .TryGetMember(_target.GetType(), MemberType.Accessor, MemberFlags.InstanceAll, BindableMembers.Object.Parent.Name, metadata) as IAccessorMemberInfo;
-                var parent = member?.GetValue(_target, metadata) as TTarget;
+                    .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.InstanceAll, BindableMembers.Object.Parent.Name, metadata) as IAccessorMemberInfo;
+                var parent = member?.GetValue(target, metadata) as TTarget;
                 if (ReferenceEquals(_parentRef?.Target, parent))
                 {
                     if (member != null && _parentRef == null && _parentToken.IsEmpty)
-                        _parentToken = member.TryObserve(_target, this, metadata);
+                        _parentToken = member.TryObserve(target, this, metadata);
                     return;
                 }
 
                 _valueToken.Dispose();
                 if (member != null && _parentToken.IsEmpty)
-                    _parentToken = member.TryObserve(_target, this, metadata);
+                    _parentToken = member.TryObserve(target, this, metadata);
                 if (parent == null)
                 {
                     _parentRef = null;
-                    ApplyValues(null, metadata);
+                    ApplyValues(target, null, metadata);
                     return;
                 }
 
                 _parentRef = parent.ToWeakReference();
                 var inheritedProperty = GetOrAdd(parent, _member, metadata);
-                ApplyValues(inheritedProperty, metadata);
+                ApplyValues(target, inheritedProperty, metadata);
                 _valueToken = inheritedProperty.Add(this);
             }
 
-            private void ApplyValues(InheritedProperty? parentProperty, IReadOnlyMetadataContext? metadata)
+            private void ApplyValues([DisallowNull]TTarget target, InheritedProperty? parentProperty, IReadOnlyMetadataContext? metadata)
             {
                 if (parentProperty != null && parentProperty._state != DefaultState)
-                    SetValue(parentProperty.Value, ParentState, metadata);
+                    SetValue(target, parentProperty.Value, ParentState, metadata);
                 else if (_state == ParentState)
-                    SetValue(_member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo)_member, _target), DefaultState, metadata);
+                    SetValue(target, _member.State.GetDefaultValue == null ? _member.State.DefaultValueField : _member.State.GetDefaultValue((IAccessorMemberInfo) _member, target), DefaultState, metadata);
             }
 
             #endregion
@@ -347,8 +349,8 @@ namespace MugenMvvm.Binding.Members.Builders
 #pragma warning disable 8634
                 return attachedValueProvider.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
                 {
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, t, s.metadata);
-                    return new AutoProperty(s.member.State.PropertyChanged, s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, t));
+                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo) s.member, t, s.metadata);
+                    return new AutoProperty(s.member.State.PropertyChanged, s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo) s.member, t));
                 });
 #pragma warning restore 8634
             }
