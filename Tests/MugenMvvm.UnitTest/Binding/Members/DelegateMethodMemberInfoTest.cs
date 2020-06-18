@@ -4,6 +4,7 @@ using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.UnitTest.Binding.Members.Internal;
 using Should;
 using Xunit;
 
@@ -22,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void ShouldNotBeGeneric()
         {
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null, null);
             memberInfo.IsGenericMethod.ShouldBeFalse();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
             ShouldThrow<NotSupportedException>(() => memberInfo.GetGenericMethodDefinition());
@@ -33,20 +34,42 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void GetParametersShouldUseDelegate()
         {
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null, null);
             memberInfo.GetParameters().ShouldBeEmpty();
 
             var invokeCount = 0;
-            var parameters = new List<IParameterInfo> {null!};
+            var parameters = new List<IParameterInfo> { null! };
             memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", info =>
             {
                 ++invokeCount;
                 info.ShouldEqual(memberInfo);
                 return parameters;
-            }, null, null);
+            }, null, null, null);
             memberInfo.GetParameters().ShouldEqual(parameters);
         }
 
+        [Fact]
+        public void TryGetAccessorShouldUseDelegate()
+        {
+            var flags = ArgumentFlags.Metadata;
+            var values = new object[] { this };
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null, null);
+            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldBeNull();
+
+            var invokeCount = 0;
+            var accessor = new TestAccessorMemberInfo();
+            memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null,
+                (member, argumentFlags, args, metadata) =>
+                {
+                    ++invokeCount;
+                    member.ShouldEqual(memberInfo);
+                    argumentFlags.ShouldEqual(flags);
+                    args.ShouldEqual(values);
+                    metadata.ShouldEqual(DefaultMetadata);
+                    return accessor;
+                }, null, null);
+            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
+        }
 
         [Fact]
         public void InvokeShouldUseDelegate()
@@ -54,7 +77,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             IMemberInfo? m = null;
             var invokeCount = 0;
             string t = "";
-            var objects = new object?[] {"t", 1};
+            var objects = new object?[] { "t", 1 };
             var result = "test";
             var memberInfo = new DelegateMethodMemberInfo<string, string, object?>("", typeof(string), typeof(string), MemberFlags.Dynamic, null, null, (member, target, args, metadata) =>
             {
@@ -64,7 +87,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 objects.ShouldEqual(args);
                 metadata.ShouldEqual(DefaultMetadata);
                 return result;
-            }, null, null, null);
+            }, null, null, null, null);
             m = memberInfo;
             memberInfo.Invoke(t, objects, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
@@ -75,7 +98,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             return new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, args, metadata) => "",
-                null, tryObserve, raise);
+                null, null, tryObserve, raise);
         }
 
         #endregion

@@ -136,6 +136,11 @@ namespace MugenMvvm.Binding.Members
             return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionDelegateProvider);
         }
 
+        public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null)
+        {
+            return null;
+        }
+
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {
             if (target != null && AccessModifiers.HasFlagEx(MemberFlags.Extension))

@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.UnitTest.Binding.Members.Internal;
 using Should;
 using Xunit;
 
@@ -18,6 +19,43 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
     public class MethodMemberAccessorDecoratorTest : UnitTestBase
     {
         #region Methods
+
+        [Fact]
+        public void TryGetMembersShouldHandleCustomMethodCall()
+        {
+            const int index = 1;
+            var accessor = new TestAccessorMemberInfo();
+            var method = new TestMethodMemberInfo
+            {
+                DeclaringType = typeof(object),
+                AccessModifiers = MemberFlags.InstancePublic,
+                TryGetAccessor = (flags, objects, arg3) =>
+                {
+                    flags.ShouldEqual((ArgumentFlags)0);
+                    objects!.Length.ShouldEqual(1);
+                    objects![0].ShouldEqual(1);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return accessor;
+                },
+                GetParameters = () => new[] { new TestParameterInfo { ParameterType = typeof(int) }, }
+            };
+            var manager = new MemberManager();
+            var decorator = new MethodMemberAccessorDecorator();
+            var component = new TestMemberProviderComponent
+            {
+                TryGetMembers = (type, s, arg3) => method
+            };
+
+            manager.AddComponent(decorator);
+            manager.AddComponent(component);
+            ((IComponentCollectionDecorator<IMemberProviderComponent>)decorator).Decorate(new List<IMemberProviderComponent> { decorator, component }, DefaultMetadata);
+
+            decorator.TryGetMembers(typeof(TestMethodInvoker), $"{nameof(TestMethodInvoker.GetValue)}({index.ToString(CultureInfo.InvariantCulture)})", DefaultMetadata)
+                .AsList()
+                .OfType<TestAccessorMemberInfo>()
+                .Single()
+                .ShouldEqual(accessor);
+        }
 
         [Fact]
         public void TryGetMembersShouldHandleMethodCall()

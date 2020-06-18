@@ -23,6 +23,7 @@ namespace MugenMvvm.Binding.Members.Builders
         private bool _isStatic;
         private bool _isObservable;
         private Func<IMethodMemberInfo, IReadOnlyList<IParameterInfo>>? _getParameters;
+        private TryGetAccessorDelegate<IMethodMemberInfo>? _tryGetAccessor;
         private InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn>? _invoke;
 
         #endregion
@@ -45,6 +46,7 @@ namespace MugenMvvm.Binding.Members.Builders
             _underlyingMember = null;
             _getParameters = null;
             _invoke = null;
+            _tryGetAccessor = null;
         }
 
         #endregion
@@ -103,6 +105,13 @@ namespace MugenMvvm.Binding.Members.Builders
             return this;
         }
 
+        public MethodBuilder<TTarget, TReturn> TryGetAccessorHandler(TryGetAccessorDelegate<IMethodMemberInfo> tryGetAccessor)
+        {
+            Should.NotBeNull(tryGetAccessor, nameof(tryGetAccessor));
+            _tryGetAccessor = tryGetAccessor;
+            return this;
+        }
+
         public MethodBuilder<TTarget, TReturn> InvokeHandler(InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn> invoke)
         {
             Should.NotBeNull(invoke, nameof(invoke));
@@ -157,7 +166,7 @@ namespace MugenMvvm.Binding.Members.Builders
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             return new DelegateMethodMemberInfo<TTarget, TReturn, TState>(_name, _declaringType, _returnType, AttachedMemberBuilder.GetFlags(_isStatic), _underlyingMember,
-                state, invoke, getParameters, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
+                state, invoke, getParameters, _tryGetAccessor, _tryObserve == null && !_isObservable ? null : tryObserve, raise);
         }
 
         #endregion

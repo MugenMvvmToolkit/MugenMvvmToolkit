@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Interfaces.Members
@@ -17,6 +18,8 @@ namespace MugenMvvm.Binding.Interfaces.Members
         IMethodMemberInfo GetGenericMethodDefinition();
 
         IMethodMemberInfo MakeGenericMethod(Type[] types);
+
+        IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null);
 
         object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null);
     }

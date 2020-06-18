@@ -67,6 +67,30 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             invokeCount.ShouldEqual(1);
         }
 
+        [Fact]
+        public void TryGetAccessorHandlerShouldUseDelegate()
+        {
+            var flags = ArgumentFlags.Metadata;
+            var values = new object[] { this };
+            IMethodMemberInfo? memberInfo = null;
+
+            var invokeCount = 0;
+            var accessor = new TestAccessorMemberInfo();
+            memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(object))
+                .TryGetAccessorHandler((member, argumentFlags, args, metadata) =>
+                {
+                    ++invokeCount;
+                    member.ShouldEqual(memberInfo);
+                    argumentFlags.ShouldEqual(flags);
+                    args.ShouldEqual(values);
+                    metadata.ShouldEqual(DefaultMetadata);
+                    return accessor;
+                })
+                .InvokeHandler((member, target, args, metadata) => "")
+                .Build();
+            memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
+        }
+
         [Theory]
         [InlineData(true, false)]
         [InlineData(false, true)]

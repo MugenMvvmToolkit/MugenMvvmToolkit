@@ -14,6 +14,7 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, IReadOnlyList<IParameterInfo>>? _getParameters;
+        private readonly TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? _tryGetAccessor;
         private readonly InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> _invoke;
 
         #endregion
@@ -23,12 +24,14 @@ namespace MugenMvvm.Binding.Members
         public DelegateMethodMemberInfo(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
             InvokeMethodDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, TTarget, TReturnValue> invoke,
             Func<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>, IReadOnlyList<IParameterInfo>>? getParameters,
+            TryGetAccessorDelegate<DelegateMethodMemberInfo<TTarget, TReturnValue, TState>>? tryGetAccessor,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
             : base(name, declaringType, memberType, accessModifiers, underlyingMember, in state, tryObserve, raise)
         {
             Should.NotBeNull(invoke, nameof(invoke));
             _invoke = invoke;
             _getParameters = getParameters;
+            _tryGetAccessor = tryGetAccessor;
         }
 
         #endregion
@@ -68,9 +71,14 @@ namespace MugenMvvm.Binding.Members
             return null!;
         }
 
+        public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null)
+        {
+            return _tryGetAccessor?.Invoke(this, argumentFlags, args, metadata);
+        }
+
         public object? Invoke(object? target, object?[] args, IReadOnlyMetadataContext? metadata = null)
         {
-            return BoxingExtensions.Box(_invoke(this, (TTarget) target!, args, metadata));
+            return BoxingExtensions.Box(_invoke(this, (TTarget)target!, args, metadata));
         }
 
         #endregion
