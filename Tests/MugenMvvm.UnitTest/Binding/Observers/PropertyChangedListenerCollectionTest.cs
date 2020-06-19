@@ -120,58 +120,118 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var listener = new PropertyChangedListenerCollection();
+            var collection = new PropertyChangedListenerCollection();
             for (var i = 0; i < count; i++)
             {
-                listener.Add(listeners[i], args.PropertyName);
-
-                listener.Raise(sender, args);
+                collection.Add(listeners[i], args.PropertyName);
+                collection.Raise(sender, args);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
+                collection.HasListeners.ShouldBeTrue();
             }
 
             var removeCount = Math.Min(count, 100);
             for (var i = 0; i < removeCount; i++)
                 listeners[i].IsAlive = false;
 
-            listener.Raise(sender, args);
+            collection.Raise(sender, args);
+            collection.HasListeners.ShouldEqual(count != 1);
             ValidateInvokeCount(listeners, 1);
 
-            listener.Raise(sender, args);
+            collection.Raise(sender, args);
+            collection.HasListeners.ShouldEqual(count != 1);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
             var tokens = new List<ActionToken>();
             for (var i = 0; i < removeCount; i++)
             {
                 listeners[i].IsAlive = true;
-                tokens.Add(listener.Add(listeners[i], args.PropertyName));
+                tokens.Add(collection.Add(listeners[i], args.PropertyName));
             }
 
-            listener.Raise(sender, args);
+            collection.Raise(sender, args);
+            collection.HasListeners.ShouldBeTrue();
             ValidateInvokeCount(listeners, 1);
 
 
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
-                listener.Raise(sender, args);
+                collection.Raise(sender, args);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
             for (var i = 0; i < removeCount; i++)
-                listener.Add(listeners[i], args.PropertyName);
+                collection.Add(listeners[i], args.PropertyName);
 
-            listener.Raise(sender, args);
+            collection.Raise(sender, args);
             ValidateInvokeCount(listeners, 1);
-
+            collection.HasListeners.ShouldBeTrue();
 
             for (var i = 0; i < count; i++)
                 listeners[i].IsAlive = false;
 
-            listener.Raise(sender, args);
+            collection.Raise(sender, args);
             ValidateInvokeCount(listeners, 1);
+            collection.HasListeners.ShouldBeFalse();
 
-            listener.Raise(sender, args);
+            collection.Raise(sender, args);
             ValidateInvokeCount(listeners, 0);
+            collection.HasListeners.ShouldBeFalse();
+        }
+
+        [Fact]
+        public void ShouldInvokeVirtualMethods()
+        {
+            var l1 = new TestWeakEventListener();
+            var l2 = new TestWeakEventListener();
+            var l3 = new TestWeakEventListener();
+
+            var collection = new TestPropertyChangedListenerCollection();
+            var token = collection.Add(l1, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Add(l2, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Add(l3, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            l2.TryHandleDefault = false;
+            l3.TryHandleDefault = false;
+            collection.Raise(this, this, "", DefaultMetadata);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            token.Dispose();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            token = collection.Add(l1, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            token.Dispose();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            collection.Add(l1, "");
+            collection.Add(l2, "");
+            collection.Add(l3, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+            l1.TryHandleDefault = false;
+            l2.TryHandleDefault = false;
+            l3.TryHandleDefault = false;
+            collection.Raise(this, this, "", DefaultMetadata);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
         }
 
         private static void ValidateInvokeCount(TestWeakEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
@@ -185,5 +245,30 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         }
 
         #endregion
+
+        private sealed class TestPropertyChangedListenerCollection : PropertyChangedListenerCollection
+        {
+            #region Properties
+
+            public int RemovedCount { get; set; }
+
+            public int AddedCount { get; set; }
+
+            #endregion
+
+            #region Methods
+
+            protected override void OnListenersAdded()
+            {
+                ++AddedCount;
+            }
+
+            protected override void OnListenersRemoved()
+            {
+                ++RemovedCount;
+            }
+
+            #endregion
+        }
     }
 }

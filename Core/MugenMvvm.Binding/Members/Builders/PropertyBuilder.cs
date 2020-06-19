@@ -261,7 +261,7 @@ namespace MugenMvvm.Binding.Members.Builders
                         _parentToken.Dispose();
                     if (_parentRef != null)
                     {
-                        TryUnsubscribe((TTarget)_parentRef.Target, metadata);
+                        TryUnsubscribe((TTarget)_parentRef?.Target!, metadata);
                         _parentRef = null;
                     }
                 }
@@ -291,7 +291,7 @@ namespace MugenMvvm.Binding.Members.Builders
                     return;
                 }
 
-                TryUnsubscribe((TTarget)oldParent, metadata);
+                TryUnsubscribe((TTarget)oldParent!, metadata);
                 if (member != null && _parentToken.IsEmpty)
                     _parentToken = member.TryObserve(target, this, metadata);
                 if (parent == null)

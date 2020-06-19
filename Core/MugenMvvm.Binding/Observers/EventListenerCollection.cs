@@ -18,6 +18,12 @@ namespace MugenMvvm.Binding.Observers
 
         #endregion
 
+        #region Properties
+
+        public bool HasListeners => _size - _removedSize > 0;
+
+        #endregion
+
         #region Methods
 
         public static EventListenerCollection GetOrAdd(object target, string path, IAttachedValueProvider? attachedValueProvider = null)
@@ -62,6 +68,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = null;
                 _size = 0;
                 _removedSize = 0;
+                OnListenersRemoved();
             }
         }
 
@@ -109,6 +116,8 @@ namespace MugenMvvm.Binding.Observers
                 }
             }
 
+            if (_size - _removedSize == 1)
+                OnListenersAdded();
             return new ActionToken((@this, t) => ((EventListenerCollection)@this!).Unsubscribe(t), this, target);
         }
 
@@ -135,6 +144,7 @@ namespace MugenMvvm.Binding.Observers
                 _listeners = null;
                 _size = 0;
                 _removedSize = 0;
+                OnListenersRemoved();
                 return true;
             }
 
@@ -143,9 +153,45 @@ namespace MugenMvvm.Binding.Observers
 
         public void Clear()
         {
+            if (_size == 0)
+                return;
             _listeners = null;
             _size = 0;
             _removedSize = 0;
+            OnListenersRemoved();
+        }
+
+        protected virtual void OnListenersAdded()
+        {
+        }
+
+        protected virtual void OnListenersRemoved()
+        {
+        }
+
+        private void Unsubscribe(object? target)
+        {
+            if (ReferenceEquals(_listeners, target))
+            {
+                _listeners = null;
+                _size = 0;
+                _removedSize = 0;
+                OnListenersRemoved();
+            }
+            else if (_listeners is object?[] listeners)
+            {
+                var size = _size;
+                for (var i = 0; i < size; i++)
+                {
+                    var t = listeners[i];
+                    if (ReferenceEquals(target, t))
+                    {
+                        if (RemoveAt(listeners, i))
+                            TrimIfNeed(listeners);
+                        break;
+                    }
+                }
+            }
         }
 
         private bool RemoveAt(object?[] listeners, int index)
@@ -162,6 +208,13 @@ namespace MugenMvvm.Binding.Observers
         }
 
         private void TrimIfNeed(object?[] listeners)
+        {
+            TrimIfNeedInternal(listeners);
+            if (_size - _removedSize == 0)
+                OnListenersRemoved();
+        }
+
+        private void TrimIfNeedInternal(object?[] listeners)
         {
             if (_size == _removedSize)
             {
@@ -192,34 +245,10 @@ namespace MugenMvvm.Binding.Observers
             }
 
             var capacity = _size + 1;
-            if (size == capacity)
-                return;
-
-            Array.Resize(ref listeners, capacity);
-            _listeners = listeners;
-        }
-
-        private void Unsubscribe(object? target)
-        {
-            if (ReferenceEquals(_listeners, target))
+            if (size != capacity)
             {
-                _listeners = null;
-                _size = 0;
-                _removedSize = 0;
-            }
-            else if (_listeners is object?[] listeners)
-            {
-                var size = _size;
-                for (var i = 0; i < size; i++)
-                {
-                    var t = listeners[i];
-                    if (ReferenceEquals(target, t))
-                    {
-                        if (RemoveAt(listeners, i))
-                            TrimIfNeed(listeners);
-                        break;
-                    }
-                }
+                Array.Resize(ref listeners, capacity);
+                _listeners = listeners;
             }
         }
 

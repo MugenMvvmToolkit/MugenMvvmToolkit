@@ -41,11 +41,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             }
 
             var collection = new EventListenerCollection();
+            collection.HasListeners.ShouldBeFalse();
             for (var i = 0; i < count; i++)
             {
                 collection.Add(listeners[i]);
                 collection.Raise(sender, msg, DefaultMetadata);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
+                collection.HasListeners.ShouldBeTrue();
             }
 
             var removeCount = Math.Min(count, 100);
@@ -53,9 +55,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 listeners[i].IsAlive = false;
 
             collection.Raise(sender, msg, DefaultMetadata);
+            collection.HasListeners.ShouldEqual(count != 1);
             ValidateInvokeCount(listeners, 1);
 
             collection.Raise(sender, msg, DefaultMetadata);
+            collection.HasListeners.ShouldEqual(count != 1);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
             var tokens = new List<ActionToken>();
@@ -66,12 +70,14 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             }
 
             collection.Raise(sender, msg, DefaultMetadata);
+            collection.HasListeners.ShouldBeTrue();
             ValidateInvokeCount(listeners, 1);
 
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
                 collection.Raise(sender, msg, DefaultMetadata);
+                collection.HasListeners.ShouldEqual(count != 1);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
@@ -79,8 +85,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 collection.Add(listeners[i]);
 
             collection.Raise(sender, msg, DefaultMetadata);
+            collection.HasListeners.ShouldBeTrue();
             ValidateInvokeCount(listeners, 1);
-
 
             for (var index = 0; index < removeCount; index++)
             {
@@ -96,8 +102,74 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             ValidateInvokeCount(listeners, 1);
 
             collection.Clear();
+            collection.HasListeners.ShouldBeFalse();
             collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 0);
+        }
+
+        [Fact]
+        public void ShouldInvokeVirtualMethods()
+        {
+            var l1 = new TestWeakEventListener();
+            var l2 = new TestWeakEventListener();
+            var l3 = new TestWeakEventListener();
+
+            var collection = new TestEventListenerCollection();
+            collection.Add(l1);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Add(l2);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Add(l3);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            l2.TryHandleDefault = false;
+            l3.TryHandleDefault = false;
+            collection.Raise(this, this, DefaultMetadata);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Remove(l1);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            collection.Add(l1);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            collection.Remove(l1);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            var token = collection.Add(l1);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+
+            token.Dispose();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            collection.Add(l1);
+            collection.Add(l2);
+            collection.Add(l3);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+            l1.TryHandleDefault = false;
+            l2.TryHandleDefault = false;
+            l3.TryHandleDefault = false;
+            collection.Raise(this, this, DefaultMetadata);
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
         }
 
         private static void ValidateInvokeCount(TestWeakEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
@@ -108,6 +180,35 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 if (clear)
                     listeners[i].InvokeCount = 0;
             }
+        }
+
+        #endregion
+
+        #region Nested types
+
+        private sealed class TestEventListenerCollection : EventListenerCollection
+        {
+            #region Properties
+
+            public int RemovedCount { get; set; }
+
+            public int AddedCount { get; set; }
+
+            #endregion
+
+            #region Methods
+
+            protected override void OnListenersAdded()
+            {
+                ++AddedCount;
+            }
+
+            protected override void OnListenersRemoved()
+            {
+                ++RemovedCount;
+            }
+
+            #endregion
         }
 
         #endregion

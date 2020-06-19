@@ -3,11 +3,12 @@ using System.ComponentModel;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observers
 {
-    public sealed class PropertyChangedListenerCollection : ActionToken.IHandler
+    public class PropertyChangedListenerCollection : ActionToken.IHandler
     {
         #region Fields
 
@@ -23,6 +24,12 @@ namespace MugenMvvm.Binding.Observers
         {
             _listeners = Default.Array<WeakEventListener<string>>();
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool HasListeners => _size - _removedSize > 0;
 
         #endregion
 
@@ -51,10 +58,10 @@ namespace MugenMvvm.Binding.Observers
 
         public void Raise(object sender, PropertyChangedEventArgs args)
         {
-            Raise(sender, args, args.PropertyName);
+            Raise(sender, args, args.PropertyName, null);
         }
 
-        public void Raise<T>(object sender, in T message, string propertyName)
+        public void Raise<T>(object sender, in T message, string propertyName, IReadOnlyMetadataContext? metadata)
         {
             var hasDeadRef = false;
             var listeners = _listeners;
@@ -62,7 +69,7 @@ namespace MugenMvvm.Binding.Observers
             for (var i = 0; i < size; i++)
             {
                 var listener = listeners[i];
-                if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(propertyName, listener.State, true) && !listener.TryHandle(sender, message, null) && RemoveAt(listeners, i))
+                if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(propertyName, listener.State, true) && !listener.TryHandle(sender, message, metadata) && RemoveAt(listeners, i))
                     hasDeadRef = true;
             }
 
@@ -92,7 +99,27 @@ namespace MugenMvvm.Binding.Observers
                 }
             }
 
+            if (_size - _removedSize == 1)
+                OnListenersAdded();
             return new ActionToken(this, weakItem.Target, path);
+        }
+
+        public void Clear()
+        {
+            if (_size == 0)
+                return;
+            _listeners = Default.Array<WeakEventListener<string>>();
+            _size = 0;
+            _removedSize = 0;
+            OnListenersRemoved();
+        }
+
+        protected virtual void OnListenersAdded()
+        {
+        }
+
+        protected virtual void OnListenersRemoved()
+        {
         }
 
         private bool RemoveAt(WeakEventListener<string>[] listeners, int index)
@@ -109,6 +136,13 @@ namespace MugenMvvm.Binding.Observers
         }
 
         private void TrimIfNeed()
+        {
+            TrimIfNeedInternal();
+            if (_size - _removedSize == 0)
+                OnListenersRemoved();
+        }
+
+        private void TrimIfNeedInternal()
         {
             if (_size == _removedSize)
             {
@@ -133,14 +167,13 @@ namespace MugenMvvm.Binding.Observers
             }
 
             if (_size == 0)
-            {
                 _listeners = Default.Array<WeakEventListener<string>>();
-                return;
+            else
+            {
+                var capacity = _size + 1;
+                if (size != capacity)
+                    Array.Resize(ref _listeners, capacity);
             }
-
-            var capacity = _size + 1;
-            if (size != capacity)
-                Array.Resize(ref _listeners, capacity);
         }
 
         #endregion

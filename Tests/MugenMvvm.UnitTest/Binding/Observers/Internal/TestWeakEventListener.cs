@@ -14,6 +14,8 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Internal
 
         public int InvokeCount { get; set; }
 
+        public bool TryHandleDefault { get; set; } = true;
+
         public Func<object?, object?, IReadOnlyMetadataContext?, bool>? TryHandle { get; set; }
 
         #endregion
@@ -23,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers.Internal
         bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             ++InvokeCount;
-            return TryHandle?.Invoke(sender, message, metadata) ?? true;
+            return TryHandle?.Invoke(sender, message, metadata) ?? TryHandleDefault;
         }
 
         #endregion
