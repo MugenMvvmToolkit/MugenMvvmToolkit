@@ -66,14 +66,15 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
             var changedCount = 0;
             var observer = RootSourceObserver.GetOrAdd(target);
-            observer.Add(new TestWeakEventListener
+            var listener = new TestWeakEventListener
             {
                 TryHandle = (o, o1, arg3) =>
                 {
                     ++changedCount;
                     return true;
                 }
-            });
+            };
+            observer.Add(listener);
             observer.Get(DefaultMetadata).ShouldEqual(target);
             observer.Get(target, DefaultMetadata).ShouldEqual(target);
             changedCount.ShouldEqual(0);
@@ -107,7 +108,14 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             observer.Get(target, DefaultMetadata).ShouldEqual(parent);
             changedCount.ShouldEqual(4);
 
+            observer.Remove(listener);
+            parentListener.ShouldBeNull();
+            
+            observer.Add(listener);
+            parentListener.ShouldNotBeNull();
+
             RootSourceObserver.Clear(target);
+            parentListener.ShouldBeNull();
             parentObserver.Raise(parent, this, DefaultMetadata);
             changedCount.ShouldEqual(4);
             observer.Get(DefaultMetadata).ShouldEqual(parent);
