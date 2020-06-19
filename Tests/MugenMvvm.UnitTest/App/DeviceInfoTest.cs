@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.App;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Metadata;
 using Should;
 using Xunit;

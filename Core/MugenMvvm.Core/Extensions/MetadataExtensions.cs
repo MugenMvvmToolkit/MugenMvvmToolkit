@@ -165,6 +165,18 @@ namespace MugenMvvm.Extensions
             return metadataContext.GetOrAdd(contextKey, valueFactory, (ctx, s) => s(ctx));
         }
 
+        public static void Set<TGet, TSet>(this IMetadataContext metadataContext, IMetadataContextKey<TGet, TSet> contextKey, TSet value)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            metadataContext.Set(contextKey, value, out _);
+        }
+
+        public static bool Clear(this IMetadataContext metadataContext, IMetadataContextKey contextKey)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            return metadataContext.Clear(contextKey, out _);
+        }
+
         #endregion
     }
 }

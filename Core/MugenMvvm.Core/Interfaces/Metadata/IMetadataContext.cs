@@ -17,11 +17,11 @@ namespace MugenMvvm.Interfaces.Metadata
 
         TGet GetOrAdd<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, in TState state, Func<IMetadataContext, TState, TSet> valueFactory);
 
-        void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value);
+        void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value, out object? oldValue);
 
         void Merge(IEnumerable<MetadataContextValue> items);
 
-        bool Clear(IMetadataContextKey contextKey);
+        bool Clear(IMetadataContextKey contextKey, out object? oldValue);
 
         void Clear();
     }

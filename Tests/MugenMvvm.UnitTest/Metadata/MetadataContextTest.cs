@@ -73,7 +73,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>) values);
+            var context = new MetadataContext((ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>)values);
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -97,8 +97,8 @@ namespace MugenMvvm.UnitTest.Metadata
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var context = new MetadataContext(value);
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value});
-            ContainsTest(context, new List<MetadataContextValue> {value});
+            EnumeratorCountTest(context, new List<MetadataContextValue> { value });
+            ContainsTest(context, new List<MetadataContextValue> { value });
             TryGetTest(context, contextKey, intValue);
         }
 
@@ -395,7 +395,8 @@ namespace MugenMvvm.UnitTest.Metadata
                 });
             }
 
-            context.Set(TestKey, int.MinValue);
+            context.Set(TestKey, int.MinValue, out var old);
+            old.ShouldBeNull();
             context.TryGet(TestKey, out var v).ShouldBeTrue();
             v.ShouldEqual(int.MinValue);
 
@@ -419,7 +420,8 @@ namespace MugenMvvm.UnitTest.Metadata
                 });
             }
 
-            context.Set(TestKey, int.MaxValue);
+            context.Set(TestKey, int.MaxValue, out old);
+            old.ShouldEqual(int.MinValue);
             context.TryGet(TestKey, out v).ShouldBeTrue();
             v.ShouldEqual(int.MaxValue);
         }
@@ -543,7 +545,8 @@ namespace MugenMvvm.UnitTest.Metadata
             for (var i = 0; i < count; i++)
             {
                 currentValue = keyValues[0];
-                context.Clear(keyValues[0].Item1).ShouldBeTrue();
+                context.Clear(keyValues[0].Item1, out var old).ShouldBeTrue();
+                old.ShouldEqual(keyValues[0].Item2);
 
                 values.RemoveAt(0);
                 keyValues.RemoveAt(0);
@@ -704,7 +707,8 @@ namespace MugenMvvm.UnitTest.Metadata
             SetterCount = 0;
             SetterValue = int.MinValue;
 
-            context.Set(CustomSetterKey, 0);
+            context.Set(CustomSetterKey, 0, out var old);
+            old.ShouldBeNull();
             context.TryGet(CustomSetterKey, out var v).ShouldBeTrue();
             v.ShouldEqual(int.MinValue);
             SetterCount.ShouldEqual(1);
@@ -713,7 +717,8 @@ namespace MugenMvvm.UnitTest.Metadata
 
             SetterCount = 0;
             SetterValue = int.MaxValue;
-            context.Set(CustomSetterKey, int.MaxValue);
+            context.Set(CustomSetterKey, int.MaxValue, out old);
+            old.ShouldEqual(int.MinValue);
             context.TryGet(CustomSetterKey, out v).ShouldBeTrue();
             v.ShouldEqual(int.MaxValue);
             SetterCount.ShouldEqual(1);

@@ -221,7 +221,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         if (data.IsLambda)
                         {
                             var oldLambdaParameter = context.Metadata.Get(CompilingMetadata.LambdaParameter);
-                            context.Metadata.Set(CompilingMetadata.LambdaParameter, method.Parameters[index]);
+                            context.Metadata.Set(CompilingMetadata.LambdaParameter, method.Parameters[index], out _);
                             try
                             {
                                 data = data.UpdateExpression(context.Build(data.Node));
@@ -229,9 +229,9 @@ namespace MugenMvvm.Binding.Compiling.Components
                             finally
                             {
                                 if (oldLambdaParameter == null)
-                                    context.Metadata.Clear(CompilingMetadata.LambdaParameter);
+                                    context.Metadata.Clear(CompilingMetadata.LambdaParameter, out _);
                                 else
-                                    context.Metadata.Set(CompilingMetadata.LambdaParameter, oldLambdaParameter);
+                                    context.Metadata.Set(CompilingMetadata.LambdaParameter, oldLambdaParameter, out _);
                             }
 
                             arguments[index] = data;

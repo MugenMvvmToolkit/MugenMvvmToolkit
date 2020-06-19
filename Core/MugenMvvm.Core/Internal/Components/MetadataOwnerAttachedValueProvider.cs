@@ -43,7 +43,7 @@ namespace MugenMvvm.Internal.Components
         {
             var owner = (IMetadataOwner<IMetadataContext>)item;
             if (owner.HasMetadata)
-                return owner.Metadata.Clear(Key);
+                return owner.Metadata.Clear(Key, out _);
             return false;
         }
 

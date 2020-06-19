@@ -19,12 +19,12 @@ namespace MugenMvvm.Navigation.Components
 
         public void OnNavigationEntryAdded(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
-            navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow);
+            navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow, out _);
         }
 
         public void OnNavigationEntryUpdated(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
-            navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow);
+            navigationEntry.Metadata.Set(NavigationMetadata.NavigationDate, DateTime.UtcNow, out _);
         }
 
         public void OnNavigationEntryRemoved(INavigationDispatcher dispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)

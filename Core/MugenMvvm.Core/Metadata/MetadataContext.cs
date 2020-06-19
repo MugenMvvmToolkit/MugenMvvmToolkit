@@ -94,7 +94,7 @@ namespace MugenMvvm.Metadata
                 ItemOrList<MetadataContextValue, List<MetadataContextValue>> contextValues = default;
                 foreach (var keyValuePair in _dictionary)
                     contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
-                for (int i = 0; i < components.Length; i++)
+                for (var i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues())
                         contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
@@ -253,10 +253,10 @@ namespace MugenMvvm.Metadata
             return contextKey.GetValue(this, value);
         }
 
-        public void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
+        public void Set<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value, out object? oldValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            object? oldValue, newValue;
+            object? newValue;
             bool hasOldValue;
             var components = GetComponents();
             var listeners = GetListeners();
@@ -285,6 +285,7 @@ namespace MugenMvvm.Metadata
                     foreach (var item in items)
                         Set(components, item.ContextKey, item.Value);
                 }
+
                 return;
             }
 
@@ -311,21 +312,12 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool Clear(IMetadataContextKey contextKey)
+        public bool Clear(IMetadataContextKey contextKey, out object? oldValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             var components = GetComponents();
             var listeners = GetListeners();
-            if (listeners.Length == 0)
-            {
-                lock (_dictionary)
-                {
-                    return Remove(components, contextKey);
-                }
-            }
-
             bool changed;
-            object? oldValue;
             lock (_dictionary)
             {
                 changed = TryGet(components, contextKey, out oldValue) && Remove(components, contextKey);
@@ -347,6 +339,7 @@ namespace MugenMvvm.Metadata
                     _dictionary.Clear();
                     components.Clear();
                 }
+
                 return;
             }
 
@@ -355,7 +348,7 @@ namespace MugenMvvm.Metadata
             {
                 foreach (var pair in _dictionary)
                     oldValues.Add(pair, p => p.Key == null);
-                for (int i = 0; i < components.Length; i++)
+                for (var i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues())
                         oldValues.Add(keyValuePair, p => p.Key == null);

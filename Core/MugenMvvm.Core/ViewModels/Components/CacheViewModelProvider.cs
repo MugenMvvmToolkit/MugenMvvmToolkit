@@ -47,7 +47,7 @@ namespace MugenMvvm.ViewModels.Components
             {
                 var id = viewModel.Metadata.Get(ViewModelMetadata.Id);
                 Add(id, viewModel);
-                viewModel.Metadata.Set(CreatedIdKey, id);
+                viewModel.Metadata.Set(CreatedIdKey, id, out _);
             }
             else if (lifecycleState == ViewModelLifecycleState.Restored)
             {

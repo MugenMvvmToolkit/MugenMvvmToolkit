@@ -20,7 +20,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState);
+            viewModel.Metadata.Set(ViewModelMetadata.LifecycleState, lifecycleState, out _);
         }
 
         #endregion

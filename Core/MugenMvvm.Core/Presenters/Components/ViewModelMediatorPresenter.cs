@@ -159,7 +159,7 @@ namespace MugenMvvm.Presenters.Components
                         if (dictionary == null)
                         {
                             dictionary = new Dictionary<string, IViewModelPresenterMediator>();
-                            viewModel.Metadata.Set(Mediators, dictionary);
+                            viewModel.Metadata.Set(Mediators, dictionary, out _);
                         }
 
                         dictionary[mapping.Id] = mediator;

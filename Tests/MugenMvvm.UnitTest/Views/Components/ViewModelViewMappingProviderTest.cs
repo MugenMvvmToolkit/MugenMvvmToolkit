@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using MugenMvvm.Extensions;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 using MugenMvvm.UnitTest.ViewModels.Internal;
