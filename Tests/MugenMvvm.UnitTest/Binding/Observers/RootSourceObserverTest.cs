@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         public void ShouldReturnSelfNoParent()
         {
             var target = new object();
-            var observer = RootSourceObserver.GetOrAdd(target, DefaultMetadata);
-            observer.GetRoot(DefaultMetadata).ShouldEqual(target);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(target);
+            var observer = RootSourceObserver.GetOrAdd(target);
+            observer.Get(DefaultMetadata).ShouldEqual(target);
+            observer.Get(target, DefaultMetadata).ShouldEqual(target);
         }
 
         [Fact]
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             });
 
             var changedCount = 0;
-            var observer = RootSourceObserver.GetOrAdd(target, DefaultMetadata);
+            var observer = RootSourceObserver.GetOrAdd(target);
             observer.Add(new TestWeakEventListener
             {
                 TryHandle = (o, o1, arg3) =>
@@ -74,26 +74,28 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                     return true;
                 }
             });
-            observer.GetRoot(DefaultMetadata).ShouldEqual(target);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(target);
+            observer.Get(DefaultMetadata).ShouldEqual(target);
+            observer.Get(target, DefaultMetadata).ShouldEqual(target);
             changedCount.ShouldEqual(0);
 
             canReturnParent = true;
             parentListener?.TryHandle(parent, this, DefaultMetadata);
-            observer.GetRoot(DefaultMetadata).ShouldEqual(parent);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(parent);
+            observer.Get(DefaultMetadata).ShouldEqual(parent);
+            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
             changedCount.ShouldEqual(1);
 
             canReturnParent = false;
-            var parentObserver = RootSourceObserver.GetOrAdd(parent, DefaultMetadata);
+            var parentObserver = RootSourceObserver.GetOrAdd(parent);
             parentObserver.Raise(parent, parentObserver, DefaultMetadata);
-            observer.GetRoot(DefaultMetadata).ShouldEqual(parent);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(parent);
+            canReturnParent = true;
+            observer.Get(DefaultMetadata).ShouldEqual(parent);
+            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
             changedCount.ShouldEqual(2);
 
+            canReturnParent = false;
             parentListener?.TryHandle(parent, this, DefaultMetadata);
-            observer.GetRoot(DefaultMetadata).ShouldEqual(target);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(target);
+            observer.Get(DefaultMetadata).ShouldEqual(target);
+            observer.Get(target, DefaultMetadata).ShouldEqual(target);
             changedCount.ShouldEqual(3);
 
             parentObserver.Raise(parent, parentObserver, DefaultMetadata);
@@ -101,15 +103,15 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
             canReturnParent = true;
             parentListener?.TryHandle(parent, this, DefaultMetadata);
-            observer.GetRoot(DefaultMetadata).ShouldEqual(parent);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(parent);
+            observer.Get(DefaultMetadata).ShouldEqual(parent);
+            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
             changedCount.ShouldEqual(4);
 
             RootSourceObserver.Clear(target);
             parentObserver.Raise(parent, this, DefaultMetadata);
             changedCount.ShouldEqual(4);
-            observer.GetRoot(DefaultMetadata).ShouldEqual(target);
-            observer.GetRoot(target, DefaultMetadata).ShouldEqual(target);
+            observer.Get(DefaultMetadata).ShouldEqual(parent);
+            observer.Get(target, DefaultMetadata).ShouldEqual(parent);
         }
 
         #endregion

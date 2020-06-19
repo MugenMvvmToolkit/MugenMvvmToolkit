@@ -219,6 +219,18 @@ namespace MugenMvvm.Binding.Extensions
             return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, MemberFlags.All, metadata, memberManager);
         }
 
+        [return: NotNullIfNotNull("target")]
+        public static object? GetRoot(object? target, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
+        {
+            while (true)
+            {
+                var parent = GetParent(target, metadata, memberManager);
+                if (parent == null)
+                    return target;
+                target = parent;
+            }
+        }
+
         public static object? FindElementSource(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
         {
             Should.NotBeNull(target, nameof(target));

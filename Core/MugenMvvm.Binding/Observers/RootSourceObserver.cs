@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Constants;
+﻿using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -22,11 +23,10 @@ namespace MugenMvvm.Binding.Observers
 
         #region Constructors
 
-        private RootSourceObserver(object target, IReadOnlyMetadataContext? metadata)
+        private RootSourceObserver(object target)
         {
             Should.NotBeNull(target, nameof(target));
             _targetRef = target.ToWeakReference();
-            UpdateParent(target, metadata);
         }
 
         #endregion
@@ -63,17 +63,13 @@ namespace MugenMvvm.Binding.Observers
 
         public void Dispose()
         {
-            var parent = _parentRef?.Target;
-            if (parent != null)
-                GetOrAdd(parent, null).Remove(this);
-            _parentRef = Default.WeakReference;
-            _parentToken.Dispose();
+            ClearParent();
             Clear();
         }
 
-        public static RootSourceObserver GetOrAdd(object target, IReadOnlyMetadataContext? metadata)
+        public static RootSourceObserver GetOrAdd(object target)
         {
-            return MugenService.AttachedValueProvider.GetOrAdd(target, BindingInternalConstant.RootObserver, metadata, (o, m) => new RootSourceObserver(o, m));
+            return MugenService.AttachedValueProvider.GetOrAdd(target, BindingInternalConstant.RootObserver, target, (o, _) => new RootSourceObserver(o));
         }
 
         public static void Clear(object target)
@@ -82,17 +78,27 @@ namespace MugenMvvm.Binding.Observers
                 (value as RootSourceObserver)?.Dispose();
         }
 
-        public object? GetRoot(IReadOnlyMetadataContext? metadata)
+        public object? Get(IReadOnlyMetadataContext? metadata)
         {
-            return GetRoot(_targetRef.Target, metadata);
+            return Get(_targetRef.Target, metadata);
         }
 
-        public object? GetRoot(object? target, IReadOnlyMetadataContext? metadata)
+        [return: NotNullIfNotNull("target")]
+        public object? Get(object? target, IReadOnlyMetadataContext? metadata)
         {
-            var parent = _parentRef?.Target;
-            if (parent == null)
-                return target;
-            return GetOrAdd(parent, metadata).GetRoot(parent, metadata);
+            return MugenBindingExtensions.GetRoot(target, metadata);
+        }
+
+        protected override void OnListenersAdded()
+        {
+            var target = _targetRef.Target;
+            if (target != null)
+                UpdateParent(target, null);
+        }
+
+        protected override void OnListenersRemoved()
+        {
+            ClearParent();
         }
 
         private bool UpdateParent(object target, IReadOnlyMetadataContext? metadata)
@@ -112,11 +118,22 @@ namespace MugenMvvm.Binding.Observers
             if (member != null && _parentToken.IsEmpty)
                 _parentToken = member.TryObserve(target, this, metadata);
             if (oldParent != null)
-                GetOrAdd(oldParent, metadata).Remove(this);
+                GetOrAdd(oldParent).Remove(this);
             if (parent != null)
-                GetOrAdd(parent, metadata).Add(this);
+                GetOrAdd(parent).Add(this);
             _parentRef = parent?.ToWeakReference();
             return true;
+        }
+
+        private void ClearParent()
+        {
+            _parentToken.Dispose();
+            var parent = _parentRef?.Target;
+            if (parent != null)
+            {
+                GetOrAdd(parent).Remove(this);
+                _parentRef = Default.WeakReference;
+            }
         }
 
         #endregion
