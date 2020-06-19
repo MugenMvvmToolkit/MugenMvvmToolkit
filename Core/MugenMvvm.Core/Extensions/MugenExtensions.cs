@@ -145,6 +145,18 @@ namespace MugenMvvm.Extensions
             return valueProvider.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
         }
 
+        public static void Set<TValue>(this IAttachedValueProvider valueProvider, object item, string path, TValue value)
+        {
+            Should.NotBeNull(valueProvider, nameof(valueProvider));
+            valueProvider.Set(item, path, value, out _);
+        }
+
+        public static bool Clear(this IAttachedValueProvider valueProvider, object item, string path)
+        {
+            Should.NotBeNull(valueProvider, nameof(valueProvider));
+            return valueProvider.Clear(item, path, out _);
+        }
+
         public static ICompositeCommand GetCommand(this ICommandProvider? mediatorProvider, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)

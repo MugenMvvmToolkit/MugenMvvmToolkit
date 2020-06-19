@@ -66,13 +66,19 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void SetShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Set(this, TestPath, this));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Set(this, TestPath, this, out _));
         }
 
         [Fact]
-        public void ClearThrowNoComponents()
+        public void ClearThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Clear(this, TestPath));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Clear(this, TestPath, out _));
+        }
+
+        [Fact]
+        public void ClearThrowNoComponents2()
+        {
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Clear(this));
         }
 
         [Theory]
@@ -335,6 +341,7 @@ namespace MugenMvvm.UnitTest.Internal
         [InlineData(10)]
         public void SetShouldBeHandledBySupportedComponent(int count)
         {
+            var oldV = new object();
             object valueToSet = this;
             var methodExecuted = 0;
             var attachedValueProvider = new AttachedValueProvider();
@@ -344,30 +351,68 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    Set = (o, s, v, t) =>
+                    Set = (object item, string path, object value, Type type, out object? oldValue) =>
                     {
-                        o.ShouldEqual(this);
-                        s.ShouldEqual(TestPath);
-                        v.ShouldEqual(valueToSet);
-                        t.ShouldEqual(valueToSet.GetType());
+                        item.ShouldEqual(this);
+                        path.ShouldEqual(TestPath);
+                        value.ShouldEqual(valueToSet);
+                        type.ShouldEqual(valueToSet.GetType());
+                        oldValue = oldV;
                         ++methodExecuted;
                     }
                 };
                 attachedValueProvider.AddComponent(component);
             }
 
-            attachedValueProvider.Set(this, TestPath, this);
+            attachedValueProvider.Set(this, TestPath, this, out var old);
+            old.ShouldEqual(oldV);
             methodExecuted.ShouldEqual(1);
 
             valueToSet = 1;
-            attachedValueProvider.Set(this, TestPath, 1);
+            attachedValueProvider.Set(this, TestPath, 1, out old);
+            old.ShouldEqual(oldV);
             methodExecuted.ShouldEqual(2);
         }
 
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
-        public void ClearShouldBeHandledBySupportedComponent(int count)
+        public void ClearShouldBeHandledBySupportedComponent1(int count)
+        {
+            var result = true;
+            var oldV = new object();
+            var methodExecuted = 0;
+            var attachedValueProvider = new AttachedValueProvider();
+            for (var i = 0; i < count; i++)
+            {
+                var isSupported = count - 1 == i;
+                var component = new TestAttachedValueProviderComponent
+                {
+                    IsSupported = (o, context) => isSupported,
+                    ClearKey = (object item, string path, out object? value) =>
+                    {
+                        ++methodExecuted;
+                        item.ShouldEqual(this);
+                        path.ShouldEqual(TestPath);
+                        value = oldV;
+                        return result;
+                    }
+                };
+                attachedValueProvider.AddComponent(component);
+            }
+
+            attachedValueProvider.Clear(this, TestPath, out var old).ShouldBeTrue();
+            old.ShouldEqual(oldV);
+            result = false;
+            attachedValueProvider.Clear(this, TestPath, out old).ShouldBeFalse();
+            old.ShouldEqual(oldV);
+            methodExecuted.ShouldEqual(2);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void ClearShouldBeHandledBySupportedComponent2(int count)
         {
             var result = true;
             var methodExecuted = 0;
@@ -378,20 +423,19 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    Clear = (o, s) =>
+                    Clear = item =>
                     {
                         ++methodExecuted;
-                        s.ShouldEqual(TestPath);
-                        o.ShouldEqual(this);
+                        item.ShouldEqual(this);
                         return result;
                     }
                 };
                 attachedValueProvider.AddComponent(component);
             }
 
-            attachedValueProvider.Clear(this, TestPath).ShouldBeTrue();
+            attachedValueProvider.Clear(this).ShouldBeTrue();
             result = false;
-            attachedValueProvider.Clear(this, TestPath).ShouldBeFalse();
+            attachedValueProvider.Clear(this).ShouldBeFalse();
             methodExecuted.ShouldEqual(2);
         }
 

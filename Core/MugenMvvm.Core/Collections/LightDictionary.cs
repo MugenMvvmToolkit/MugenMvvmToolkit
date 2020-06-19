@@ -170,6 +170,11 @@ namespace MugenMvvm.Collections
             Insert(key, value, true);
         }
 
+        public void Set(TKey key, TValue value, out TValue oldValue)
+        {
+            oldValue = Insert(key, value, false);
+        }
+
         public void Clear()
         {
             if (_count <= 0)
@@ -184,6 +189,11 @@ namespace MugenMvvm.Collections
 
         public bool Remove(TKey key)
         {
+            return Remove(key, out _);
+        }
+
+        public bool Remove(TKey key, out TValue value)
+        {
             var hashCode = GetHashCode(key) & int.MaxValue;
             var bucket = hashCode % _buckets!.Length;
             var last = -1;
@@ -195,6 +205,7 @@ namespace MugenMvvm.Collections
                         _buckets[bucket] = _entries[i].Next;
                     else
                         _entries[last].Next = _entries[i].Next;
+                    value = _entries[i].Value;
                     _entries[i].HashCode = -1;
                     _entries[i].Next = _freeList;
                     _entries[i].Key = default!;
@@ -210,8 +221,10 @@ namespace MugenMvvm.Collections
                 last = i;
             }
 
+            value = default!;
             return false;
         }
+
 
         public Enumerator GetEnumerator()
         {
@@ -360,7 +373,7 @@ namespace MugenMvvm.Collections
             _count = 0;
         }
 
-        private void Insert(TKey key, TValue value, bool add)
+        private TValue Insert(TKey key, TValue value, bool add)
         {
             if (key == null)
                 ExceptionManager.ThrowNullArgument(nameof(key));
@@ -372,8 +385,9 @@ namespace MugenMvvm.Collections
                 {
                     if (add)
                         ExceptionManager.ThrowDuplicateKey();
+                    var oldValue = _entries[i].Value;
                     _entries[i].Value = value;
-                    return;
+                    return oldValue;
                 }
             }
 
@@ -401,6 +415,7 @@ namespace MugenMvvm.Collections
             _entries[index].Key = key;
             _entries[index].Value = value;
             _buckets[targetBucket] = index;
+            return default!;
         }
 
         private void Resize()

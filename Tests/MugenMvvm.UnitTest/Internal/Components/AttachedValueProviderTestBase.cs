@@ -27,10 +27,14 @@ namespace MugenMvvm.UnitTest.Internal.Components
             component.TryGet(item, TestPath, out AttachedValueProviderTestBase? value).ShouldBeFalse();
             value.ShouldBeNull();
 
-            component.Set(item, TestPath, this);
+            component.Set(item, TestPath, this, out var old);
+            old.ShouldBeNull();
             component.TryGet(item, TestPath, out value).ShouldBeTrue();
             component.Contains(item, TestPath).ShouldBeTrue();
             value.ShouldEqual(this);
+
+            component.Set(item, TestPath, new object(), out old);
+            old.ShouldEqual(this);
         }
 
         [Theory]
@@ -45,7 +49,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             for (var i = 0; i < count; i++)
             {
                 var pair = new KeyValuePair<string, object?>(TestPath + i, i);
-                component.Set(item, pair.Key, pair.Value);
+                component.Set(item, pair.Key, pair.Value, out _);
                 values.Add(pair);
             }
 
@@ -96,7 +100,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var newValue = new object();
             var item = GetSupportedItem();
             var component = GetComponent();
-            component.Set(item, TestPath, oldValue);
+            component.Set(item, TestPath, oldValue, out _);
             component.AddOrUpdate(item, TestPath, newValue, this, (o, value, currentValue, state) =>
             {
                 ++invokeCount;
@@ -119,7 +123,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var newValue = new object();
             var item = GetSupportedItem();
             var component = GetComponent();
-            component.Set(item, TestPath, oldValue);
+            component.Set(item, TestPath, oldValue, out _);
             component.AddOrUpdate(item, TestPath, this, (it, state) =>
             {
                 it.ShouldEqual(item);
@@ -174,7 +178,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var newValue = new object();
             var item = GetSupportedItem();
             var component = GetComponent();
-            component.Set(item, TestPath, oldValue);
+            component.Set(item, TestPath, oldValue, out _);
             component.GetOrAdd(item, TestPath, newValue).ShouldEqual(oldValue);
             component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(oldValue);
@@ -186,7 +190,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var oldValue = new object();
             var item = GetSupportedItem();
             var component = GetComponent();
-            component.Set(item, TestPath, oldValue);
+            component.Set(item, TestPath, oldValue, out _);
             component.GetOrAdd<object, object, object>(item, TestPath, this, (_, __) => throw new NotSupportedException()).ShouldEqual(oldValue);
             component.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(oldValue);
@@ -202,7 +206,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             for (var i = 0; i < count; i++)
             {
                 var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
-                component.Set(item, pair.Key, pair.Value);
+                component.Set(item, pair.Key, pair.Value, out _);
             }
 
             for (var i = 0; i < count; i++)
@@ -210,7 +214,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 component.TryGet(item, TestPath + i, out int v).ShouldBeTrue();
                 v.ShouldEqual(i + 1);
 
-                component.Clear(item, TestPath + i).ShouldBeTrue();
+                component.Clear(item, TestPath + i, out var old).ShouldBeTrue();
+                old.ShouldEqual(i + 1);
+
                 component.TryGet(item, TestPath + i, out v).ShouldBeFalse();
                 v.ShouldNotEqual(i + 1);
             }
@@ -226,10 +232,10 @@ namespace MugenMvvm.UnitTest.Internal.Components
             for (var i = 0; i < count; i++)
             {
                 var pair = new KeyValuePair<string, object>(TestPath + i, i + 1);
-                component.Set(item, pair.Key, pair.Value);
+                component.Set(item, pair.Key, pair.Value, out _);
             }
 
-            component.Clear(item, null);
+            component.Clear(item);
             for (var i = 0; i < count; i++)
             {
                 component.TryGet(item, TestPath + i, out int v).ShouldBeFalse();
@@ -246,9 +252,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
 
             var value = new object();
             var weakReference = new WeakReference(value);
-            component.Set(item, TestPath, value);
+            component.Set(item, TestPath, value, out _);
 
-            component.Clear(item, TestPath);
+            component.Clear(item, TestPath, out _);
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();
@@ -264,7 +270,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
 
             var value = new object();
             var weakReference = new WeakReference(value);
-            component.Set(item, TestPath, value);
+            component.Set(item, TestPath, value, out _);
 
             item = null;
             GC.Collect();
@@ -282,7 +288,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
 
             var value = item;
             var weakReference = new WeakReference(value);
-            component.Set(item, TestPath, value);
+            component.Set(item, TestPath, value, out _);
 
             item = null;
             GC.Collect();

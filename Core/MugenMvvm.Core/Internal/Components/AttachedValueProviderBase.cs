@@ -151,37 +151,45 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual void Set<TValue>(object item, string path, TValue value)
+        public virtual void Set<TValue>(object item, string path, TValue value, out object? oldValue)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
             var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
-                dictionary[path] = BoxingExtensions.Box(value);
+                dictionary.Set(path, BoxingExtensions.Box(value), out oldValue);
             }
         }
 
-        public virtual bool Clear(object item, string? path)
+        public virtual bool Clear(object item, string path, out object? oldValue)
         {
-            if (string.IsNullOrEmpty(path))
-                return ClearInternal(item);
-
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
             var dictionary = GetAttachedDictionary(item, true);
             if (dictionary == null)
+            {
+                oldValue = null;
                 return false;
+            }
 
             bool clear;
             bool removed;
             lock (dictionary)
             {
-                removed = dictionary.Remove(path!);
+                removed = dictionary.Remove(path!, out oldValue);
                 clear = removed && dictionary.Count == 0;
             }
 
             if (clear)
                 return ClearInternal(item);
             return removed;
+        }
+
+        public virtual bool Clear(object item)
+        {
+            Should.NotBeNull(item, nameof(item));
+            return ClearInternal(item);
         }
 
         #endregion

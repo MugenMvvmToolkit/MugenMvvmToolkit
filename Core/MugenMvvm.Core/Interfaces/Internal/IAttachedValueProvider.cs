@@ -28,8 +28,10 @@ namespace MugenMvvm.Interfaces.Internal
         TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)
             where TItem : class;
 
-        void Set<TValue>(object item, string path, TValue value);
+        void Set<TValue>(object item, string path, TValue value, out object? oldValue);
 
-        bool Clear(object item, string? path = null);
+        bool Clear(object item, string path, out object? oldValue);
+
+        bool Clear(object item);
     }
 }

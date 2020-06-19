@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             manager.AddComponent(new ViewModelCleaner(new ViewManager()));
             var viewModel = new TestCleanerViewModel();
             const string attachedPath = "t";
-            MugenService.AttachedValueProvider.Set(viewModel, attachedPath, this);
+            MugenService.AttachedValueProvider.Set(viewModel, attachedPath, this, out _);
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             MugenService.AttachedValueProvider.Contains(viewModel, attachedPath).ShouldBeFalse();
         }

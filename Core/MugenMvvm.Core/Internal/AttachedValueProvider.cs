@@ -73,14 +73,19 @@ namespace MugenMvvm.Internal
             return GetComponent(item).GetOrAdd(item, path, state, valueFactory);
         }
 
-        public void Set<TValue>(object item, string path, TValue value)
+        public void Set<TValue>(object item, string path, TValue value, out object? oldValue)
         {
-            GetComponent(item).Set(item, path, value);
+            GetComponent(item).Set(item, path, value, out oldValue);
         }
 
-        public bool Clear(object item, string? path = null)
+        public bool Clear(object item, string path, out object? oldValue)
         {
-            return GetComponent(item).Clear(item, path);
+            return GetComponent(item).Clear(item, path, out oldValue);
+        }
+
+        public bool Clear(object item)
+        {
+            return GetComponent(item).Clear(item);
         }
 
         #endregion
