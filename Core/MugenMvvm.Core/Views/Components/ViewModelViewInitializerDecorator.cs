@@ -55,7 +55,7 @@ namespace MugenMvvm.Views.Components
                     return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, r.ViewModel, r.View, metadata), cancellationToken, metadata);
                 }
 
-                if (!Default.IsValueType<TRequest>())
+                if (!TypeChecker.IsValueType<TRequest>())
                 {
                     if (request is IViewModelBase viewModel)
                         return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, viewModel, null, metadata), cancellationToken, metadata);

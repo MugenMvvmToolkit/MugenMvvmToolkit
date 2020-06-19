@@ -54,7 +54,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public object? TryGetService<TRequest>(IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>() || !(request is Type service))
+            if (TypeChecker.IsValueType<TRequest>() || !(request is Type service))
                 return null;
 
             if (service == typeof(IMetadataContext))

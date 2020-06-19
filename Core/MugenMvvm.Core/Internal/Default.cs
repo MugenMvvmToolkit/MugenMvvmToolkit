@@ -5,10 +5,8 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
@@ -54,18 +52,6 @@ namespace MugenMvvm.Internal
         public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>()
         {
             return EmptyDictionaryImpl<TKey, TValue>.Instance;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullable<T>()
-        {
-            return GenericChecker<T>.IsNullableType;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsValueType<T>()
-        {
-            return GenericChecker<T>.IsValueType;
         }
 
         internal static PropertyChangedEventArgs GetOrCreatePropertyChangedArgs(string propertyName)
@@ -160,16 +146,6 @@ namespace MugenMvvm.Internal
             #region Fields
 
             public static readonly ReadOnlyDictionary<TKey, TValue> Instance = new ReadOnlyDictionary<TKey, TValue>(new Dictionary<TKey, TValue>());
-
-            #endregion
-        }
-
-        private static class GenericChecker<T>
-        {
-            #region Fields
-
-            public static readonly bool IsNullableType = BoxingExtensions.Box(default(T)) == null;
-            public static readonly bool IsValueType = typeof(T).IsValueType;
 
             #endregion
         }

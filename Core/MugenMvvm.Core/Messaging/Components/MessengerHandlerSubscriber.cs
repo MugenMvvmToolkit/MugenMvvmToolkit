@@ -82,7 +82,7 @@ namespace MugenMvvm.Messaging.Components
         {
             if (_messenger == null)
                 return false;
-            if (Default.IsValueType<TSubscriber>())
+            if (TypeChecker.IsValueType<TSubscriber>())
                 return false;
             if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandler handler)
                 return Add(new HandlerSubscriber(weakReference, RuntimeHelpers.GetHashCode(handler), executionMode), metadata);
@@ -97,7 +97,7 @@ namespace MugenMvvm.Messaging.Components
                 return false;
             if (typeof(TSubscriber) == typeof(HandlerSubscriber))
                 return Remove(MugenExtensions.CastGeneric<TSubscriber, HandlerSubscriber>(subscriber), metadata);
-            if (Default.IsValueType<TSubscriber>())
+            if (TypeChecker.IsValueType<TSubscriber>())
                 return false;
             if (subscriber is IWeakReference weakReference)
             {

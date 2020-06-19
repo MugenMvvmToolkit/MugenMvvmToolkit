@@ -62,7 +62,7 @@ namespace MugenMvvm.Presenters.Components
         {
             object? view;
             IViewModelBase? viewModel;
-            if (Default.IsValueType<TRequest>())
+            if (TypeChecker.IsValueType<TRequest>())
             {
                 if (typeof(TRequest) != typeof(ViewModelViewRequest))
                     return default;
@@ -93,7 +93,7 @@ namespace MugenMvvm.Presenters.Components
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>() || !(request is IViewModelBase viewModel))
+            if (TypeChecker.IsValueType<TRequest>() || !(request is IViewModelBase viewModel))
                 return default;
 
             ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;

@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>() || !(request is IReadOnlyList<IMemberInfo> members))
+            if (TypeChecker.IsValueType<TRequest>() || !(request is IReadOnlyList<IMemberInfo> members))
                 return default;
 
             _selectorDictionary.Clear();

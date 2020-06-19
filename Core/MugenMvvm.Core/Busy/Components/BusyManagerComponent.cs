@@ -51,7 +51,7 @@ namespace MugenMvvm.Busy.Components
 
         public IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>())
+            if (TypeChecker.IsValueType<TRequest>())
             {
                 if (typeof(TRequest) != typeof(DelayBusyRequest))
                     return null;

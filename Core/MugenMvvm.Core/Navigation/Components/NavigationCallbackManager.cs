@@ -33,7 +33,7 @@ namespace MugenMvvm.Navigation.Components
 
         public INavigationCallback? TryAddNavigationCallback<TRequest>(NavigationCallbackType callbackType, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>() || !(request is IHasNavigationInfo hasNavigationInfo))
+            if (TypeChecker.IsValueType<TRequest>() || !(request is IHasNavigationInfo hasNavigationInfo))
                 return null;
 
             var key = GetKeyByCallback(callbackType);
@@ -58,7 +58,7 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (!Default.IsValueType<TRequest>() && request is IMetadataOwner<IReadOnlyMetadataContext> owner)
+            if (!TypeChecker.IsValueType<TRequest>() && request is IMetadataOwner<IReadOnlyMetadataContext> owner)
                 return GetCallbacks(owner.GetMetadataOrDefault(), request as IHasTarget<object?>);
             return default;
         }

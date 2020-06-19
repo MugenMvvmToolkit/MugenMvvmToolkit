@@ -104,7 +104,7 @@ namespace MugenMvvm.Views.Components
 
         public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>())
+            if (TypeChecker.IsValueType<TRequest>())
                 return default;
             if (request is IViewModelBase viewModel)
             {

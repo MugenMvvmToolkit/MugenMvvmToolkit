@@ -222,7 +222,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 var target = (TTarget) _targetRef.Target;
                 if (target == null)
                     return false;
-                if (!Default.IsValueType<T>() && message is InheritedProperty inheritedProperty)
+                if (!TypeChecker.IsValueType<T>() && message is InheritedProperty inheritedProperty)
                     ApplyValues(target, inheritedProperty, metadata);
                 else
                     InvalidateParent(target, metadata);

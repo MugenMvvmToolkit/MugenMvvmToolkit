@@ -44,14 +44,14 @@ namespace MugenMvvm.Wrapping.Components
 
         public bool CanWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) == typeof(TConditionRequest) || !Default.IsValueType<TRequest>() && request is TConditionRequest)
+            if (typeof(TRequest) == typeof(TConditionRequest) || !TypeChecker.IsValueType<TRequest>() && request is TConditionRequest)
                 return _condition.Invoke(wrapperType, MugenExtensions.CastGeneric<TRequest, TConditionRequest>(request), _state, metadata);
             return false;
         }
 
         public object? TryWrap<TRequest>(Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) == typeof(TWrapRequest) || !Default.IsValueType<TRequest>() && request is TWrapRequest)
+            if (typeof(TRequest) == typeof(TWrapRequest) || !TypeChecker.IsValueType<TRequest>() && request is TWrapRequest)
                 return _wrapperFactory.Invoke(wrapperType, MugenExtensions.CastGeneric<TRequest, TWrapRequest>(request), _state, metadata);
             return null;
         }

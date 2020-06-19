@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TExpression>() || !(expression is string s))
+            if (TypeChecker.IsValueType<TExpression>() || !(expression is string s))
                 return Components.TryParseBindingExpression(expression, metadata);
 
             if (!_cache.TryGetValue(s, out var value))

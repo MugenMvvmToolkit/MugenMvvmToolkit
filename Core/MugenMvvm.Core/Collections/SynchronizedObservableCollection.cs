@@ -68,7 +68,7 @@ namespace MugenMvvm.Collections
         object IList.this[int index]
         {
             get => BoxingExtensions.Box(this[index])!;
-            set => this[index] = (T) value;
+            set => this[index] = (T)value;
         }
 
         public T this[int index]
@@ -110,7 +110,7 @@ namespace MugenMvvm.Collections
         {
             lock (Locker)
             {
-                InsertInternal(GetCountInternal(), (T) value, true);
+                InsertInternal(GetCountInternal(), (T)value, true);
                 return GetCountInternal() - 1;
             }
         }
@@ -118,26 +118,26 @@ namespace MugenMvvm.Collections
         bool IList.Contains(object value)
         {
             if (IsCompatibleObject(value))
-                return Contains((T) value);
+                return Contains((T)value);
             return false;
         }
 
         int IList.IndexOf(object value)
         {
             if (IsCompatibleObject(value))
-                return IndexOf((T) value);
+                return IndexOf((T)value);
             return -1;
         }
 
         void IList.Insert(int index, object value)
         {
-            Insert(index, (T) value);
+            Insert(index, (T)value);
         }
 
         void IList.Remove(object value)
         {
             if (IsCompatibleObject(value))
-                Remove((T) value);
+                Remove((T)value);
         }
 
         public void RemoveAt(int index)
@@ -167,7 +167,7 @@ namespace MugenMvvm.Collections
                     GetComponents<IObservableCollectionBatchUpdateListener<T>>().OnBeginBatchUpdate(this);
             }
 
-            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>) @this!).EndBatchUpdate(), this);
+            return new ActionToken((@this, _) => ((SynchronizedObservableCollection<T>)@this!).EndBatchUpdate(), this);
         }
 
         public bool Remove(T item)
@@ -274,7 +274,7 @@ namespace MugenMvvm.Collections
 
         protected virtual void CopyToInternal(Array array, int index)
         {
-            ((ICollection) Items).CopyTo(array, index);
+            ((ICollection)Items).CopyTo(array, index);
         }
 
         protected virtual void CopyToInternal(T[] array, int index)
@@ -364,7 +364,7 @@ namespace MugenMvvm.Collections
         protected virtual void SetInternal(int index, T item)
         {
             var oldItem = Items[index];
-            if (Default.IsNullable<T>() && ReferenceEquals(oldItem, item))
+            if (TypeChecker.IsValueType<T>() && ReferenceEquals(oldItem, item))
                 return;
             if (!GetComponents<IConditionObservableCollectionComponent<T>>().CanReplace(this, oldItem, item, index))
                 return;
@@ -379,7 +379,7 @@ namespace MugenMvvm.Collections
                 return true;
 
             if (value == null)
-                return Default.IsNullable<T>();
+                return TypeChecker.IsNullable<T>();
 
             return false;
         }

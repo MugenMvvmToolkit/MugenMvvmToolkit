@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TExpression>())
+            if (TypeChecker.IsValueType<TExpression>())
             {
                 if (typeof(TExpression) == typeof(BindingExpressionRequest))
                     return Parse(MugenExtensions.CastGeneric<TExpression, BindingExpressionRequest>(expression), metadata);

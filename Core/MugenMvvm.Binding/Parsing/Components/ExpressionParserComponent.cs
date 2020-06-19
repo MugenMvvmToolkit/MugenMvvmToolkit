@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Parsing.Components
         ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(in TExpression expression,
             IReadOnlyMetadataContext? metadata)
         {
-            if (!Default.IsValueType<TExpression>() && expression is string stringExpression)
+            if (!TypeChecker.IsValueType<TExpression>() && expression is string stringExpression)
             {
                 _parserContext.Initialize(stringExpression, metadata);
                 return _parserContext.ParseExpression();

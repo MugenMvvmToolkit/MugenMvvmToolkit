@@ -46,7 +46,7 @@ namespace MugenMvvm.Views.Components
             object? view;
             Type? type;
             string? id;
-            if (Default.IsValueType<TRequest>())
+            if (TypeChecker.IsValueType<TRequest>())
             {
                 if (typeof(TRequest) != typeof(ViewModelViewRequest))
                     return default;

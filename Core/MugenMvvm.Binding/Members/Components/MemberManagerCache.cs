@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>() || !(request is string name))
+            if (TypeChecker.IsValueType<TRequest>() || !(request is string name))
                 return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
 
             var cacheKey = new CacheKey(type, name, memberTypes, flags);
@@ -64,7 +64,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public override void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
-            if (!Default.IsValueType<TState>() && state is Type type)
+            if (!TypeChecker.IsValueType<TState>() && state is Type type)
             {
                 ItemOrList<CacheKey, List<CacheKey>> keys = default;
                 foreach (var pair in _cache)

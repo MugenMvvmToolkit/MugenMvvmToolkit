@@ -40,7 +40,7 @@ namespace MugenMvvm.ViewModels.Components
 
         public IViewModelBase? TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TRequest>() || !(request is Type type))
+            if (TypeChecker.IsValueType<TRequest>() || !(request is Type type))
                 return null;
 
             var viewModel = (IViewModelBase) _serviceProvider.DefaultIfNull().GetService(type);

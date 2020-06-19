@@ -50,7 +50,7 @@ namespace MugenMvvm.Threading.Components
 
         public bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<THandler>())
+            if (TypeChecker.IsValueType<THandler>())
                 return false;
             if (CanExecuteInline(executionMode, metadata))
                 return ExecuteInline(handler, state);

@@ -19,10 +19,6 @@ namespace MugenMvvm.UnitTest.Internal
             Default.Array<string>().ShouldBeEmpty();
             new TestEnumerable().SequenceEqual(new[] {1}).ShouldBeTrue();
             Default.ReadOnlyDictionary<object, object>().ShouldBeEmpty();
-            Default.IsNullable<object>().ShouldBeTrue();
-            Default.IsNullable<bool>().ShouldBeFalse();
-            Default.IsValueType<bool>().ShouldBeTrue();
-            Default.IsValueType<object>().ShouldBeFalse();
             (Default.NextCounter() + 1).ShouldEqual(Default.NextCounter());
             Default.GetOrCreatePropertyChangedArgs("").PropertyName.ShouldEqual("");
             Default.GetOrCreatePropertyChangedArgs("1").PropertyName.ShouldEqual("1");

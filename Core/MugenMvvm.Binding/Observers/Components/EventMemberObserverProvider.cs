@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public MemberObserver TryGetMemberObserver<TMember>(Type type, [DisallowNull] in TMember member, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TMember>())
+            if (TypeChecker.IsValueType<TMember>())
                 return default;
             if (member is MemberInfo reflectionMember && reflectionMember.MemberType == MemberTypes.Event)
                 return default;

@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Observers.Components
 
         public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
         {
-            if (Default.IsValueType<TPath>() || !(path is string stringPath))
+            if (TypeChecker.IsValueType<TPath>() || !(path is string stringPath))
                 return null;
 
             if (stringPath.Length == 0)
