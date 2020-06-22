@@ -27,7 +27,7 @@ namespace MugenMvvm.Commands
         {
             var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
             if (result != null)
-                GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, request, result, metadata);
+                GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, result, request, metadata);
             return result;
         }
 

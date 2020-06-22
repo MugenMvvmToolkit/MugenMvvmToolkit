@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Commands.Internal
 
         #region Implementation of interfaces
 
-        void ICommandProviderListener.OnCommandCreated<TRequest>(ICommandProvider provider, in TRequest request, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        void ICommandProviderListener.OnCommandCreated<TRequest>(ICommandProvider provider, ICompositeCommand command, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             OnCommandCreated?.Invoke(provider, request, typeof(TRequest), command, metadata);
         }

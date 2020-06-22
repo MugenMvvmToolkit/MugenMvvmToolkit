@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface ICommandProviderListener : IComponent<ICommandProvider>
     {
-        void OnCommandCreated<TRequest>(ICommandProvider provider, [DisallowNull]in TRequest request, ICompositeCommand command, IReadOnlyMetadataContext? metadata);
+        void OnCommandCreated<TRequest>(ICommandProvider provider, ICompositeCommand command, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -24,13 +24,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandProvider provider, [DisallowNull] in TRequest request, ICompositeCommand command, IReadOnlyMetadataContext? metadata)
+        public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandProvider provider, ICompositeCommand command, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(provider, nameof(provider));
             Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCommandCreated(provider, request, command, metadata);
+                listeners[i].OnCommandCreated(provider, command, request, metadata);
         }
 
         public static bool HasCanExecute(this IConditionCommandComponent[] components)

@@ -13,6 +13,8 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Entities;
+using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -31,6 +33,24 @@ namespace MugenMvvm.Extensions
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IEntityTrackingCollection GetTrackingCollection<TRequest>(this IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(entityManager, nameof(entityManager));
+            var collection = entityManager.TryGetTrackingCollection(request, metadata);
+            if (collection == null)
+                ExceptionManager.ThrowObjectNotInitialized<IEntityTrackingCollectionProviderComponent>(entityManager);
+            return collection;
+        }
+
+        public static IEntityStateSnapshot GetSnapshot<TState>(this IEntityManager entityManager, object entity, in TState state, IReadOnlyMetadataContext? metadata = null)
+        {
+            Should.NotBeNull(entityManager, nameof(entityManager));
+            var snapshot = entityManager.TryGetSnapshot(entity, state, metadata);
+            if (snapshot == null)
+                ExceptionManager.ThrowObjectNotInitialized<IEntityStateSnapshotProviderComponent>(entityManager);
+            return snapshot;
+        }
 
         public static Stream Serialize<TRequest>(this ISerializer serializer, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
