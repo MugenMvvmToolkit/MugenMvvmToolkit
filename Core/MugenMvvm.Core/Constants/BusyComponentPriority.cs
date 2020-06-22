@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Constants
 {
-    public static class BusyComponentConstants
+    public static class BusyComponentPriority
     {
         #region Fields
 

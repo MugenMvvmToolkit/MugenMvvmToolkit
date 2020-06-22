@@ -27,7 +27,7 @@ namespace MugenMvvm.Busy.Components
 
         public bool IsSuspended => _suspendCount != 0;
 
-        public int Priority => BusyComponentConstants.BusyManager;
+        public int Priority => BusyComponentPriority.BusyManager;
 
         private object Locker => this;
 

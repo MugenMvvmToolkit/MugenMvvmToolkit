@@ -232,6 +232,17 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             collection.Raise(this, this, "", DefaultMetadata);
             collection.AddedCount.ShouldEqual(1);
             collection.RemovedCount.ShouldEqual(1);
+
+            collection.AddedCount = 0;
+            collection.RemovedCount = 0;
+            collection.Add(l1, "");
+            collection.Add(l2, "");
+            collection.Add(l3, "");
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(0);
+            collection.Clear();
+            collection.AddedCount.ShouldEqual(1);
+            collection.RemovedCount.ShouldEqual(1);
         }
 
         private static void ValidateInvokeCount(TestWeakEventListener[] listeners, int count, bool clear = true, int? start = null, int? end = null)
