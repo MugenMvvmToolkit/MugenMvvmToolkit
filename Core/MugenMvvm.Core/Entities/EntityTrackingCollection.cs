@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
@@ -27,7 +26,7 @@ namespace MugenMvvm.Entities
 
         public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
-            _dictionary = new EntityStateDictionary(comparer);
+            _dictionary = new EntityStateDictionary(comparer ?? EqualityComparer<object>.Default);
         }
 
         #endregion
@@ -61,6 +60,8 @@ namespace MugenMvvm.Entities
                 }
             }
         }
+
+        public IEqualityComparer<object> Comparer => _dictionary.Comparer;
 
         #endregion
 
@@ -150,15 +151,15 @@ namespace MugenMvvm.Entities
         {
             #region Fields
 
-            private readonly IEqualityComparer<object>? _comparer;
+            public readonly IEqualityComparer<object> Comparer;
 
             #endregion
 
             #region Constructors
 
-            public EntityStateDictionary(IEqualityComparer<object>? comparer)
+            public EntityStateDictionary(IEqualityComparer<object> comparer)
             {
-                _comparer = comparer;
+                Comparer = comparer;
             }
 
             #endregion
@@ -167,16 +168,12 @@ namespace MugenMvvm.Entities
 
             protected override int GetHashCode(object key)
             {
-                if (_comparer == null)
-                    return RuntimeHelpers.GetHashCode(key);
-                return _comparer.GetHashCode(key);
+                return Comparer.GetHashCode(key);
             }
 
             protected override bool Equals(object x, object y)
             {
-                if (_comparer == null)
-                    return ReferenceEquals(x, y);
-                return _comparer.Equals(x, y);
+                return Comparer.Equals(x, y);
             }
 
             #endregion
