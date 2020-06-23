@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Constants;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
@@ -41,7 +42,9 @@ namespace MugenMvvm.Entities.Components
                 comparer = null;
             else
                 comparer = request as IEqualityComparer<object>;
-            return new EntityTrackingCollection(comparer, _componentCollectionProvider);
+            var collection = new EntityTrackingCollection(comparer, _componentCollectionProvider);
+            collection.AddComponent(EntityStateTransitionManager.Instance);
+            return collection;
         }
 
         #endregion
