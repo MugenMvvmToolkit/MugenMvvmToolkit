@@ -12,7 +12,8 @@ namespace MugenMvvm.Binding.Attributes
     {
         #region Fields
 
-        private readonly UnaryExpressionNode _expressionNode;
+        private IExpressionNode? _expressionNode;
+        private bool _initialized;
 
         #endregion
 
@@ -21,16 +22,27 @@ namespace MugenMvvm.Binding.Attributes
         public BindingMacrosAttribute(string resourceName, bool isStatic = false)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));
-            _expressionNode = UnaryExpressionNode.Get(isStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, resourceName));
+            ResourceName = resourceName;
+            IsStatic = isStatic;
+            ResourceNameIndex = -1;
+        }
+
+        public BindingMacrosAttribute(int resourceNameIndex, bool isStatic = false)
+        {
+            Should.BeValid(nameof(resourceNameIndex), resourceNameIndex >= 0);
+            ResourceNameIndex = resourceNameIndex;
+            IsStatic = isStatic;
         }
 
         #endregion
 
         #region Properties
 
-        public string ResourceName => ((MemberExpressionNode)_expressionNode.Operand).Member;
+        public string? ResourceName { get; }
 
-        public bool IsStatic => _expressionNode.Token == UnaryTokenType.StaticExpression;
+        public bool IsStatic { get; }
+
+        public int ResourceNameIndex { get; }
 
         #endregion
 
@@ -38,8 +50,22 @@ namespace MugenMvvm.Binding.Attributes
 
         protected override bool TryConvertInternal(IExpressionConverterContext<Expression> context, Expression? expression, out IExpressionNode? result)
         {
+            if (!_initialized)
+            {
+                string? resourceName;
+                //T Resource<T>(this IBindingBuilderContext ctx, string resource);
+                if (ResourceNameIndex >= 0 && expression is MethodCallExpression methodCall &&
+                    methodCall.Arguments.Count > ResourceNameIndex && methodCall.Arguments[ResourceNameIndex] is ConstantExpression constant && constant.Value != null)
+                    resourceName = constant.Value.ToString();
+                else
+                    resourceName = ResourceName;
+                if (resourceName != null)
+                    _expressionNode = UnaryExpressionNode.Get(IsStatic ? UnaryTokenType.StaticExpression : UnaryTokenType.DynamicExpression, MemberExpressionNode.Get(null, resourceName));
+                _initialized = true;
+            }
+
             result = _expressionNode;
-            return true;
+            return _expressionNode != null;
         }
 
         #endregion
