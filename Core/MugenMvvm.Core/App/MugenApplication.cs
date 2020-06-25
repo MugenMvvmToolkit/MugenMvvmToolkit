@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Components;
-using MugenMvvm.Enums;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
@@ -7,7 +6,6 @@ using MugenMvvm.Interfaces.App.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.Metadata.Components;
 
 namespace MugenMvvm.App
 {
@@ -23,21 +21,8 @@ namespace MugenMvvm.App
 
         #region Constructors
 
-        public MugenApplication(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public MugenApplication()
         {
-            if (componentCollectionProvider == null)
-            {
-                componentCollectionProvider = new ComponentCollectionProvider();
-                MugenService.Configuration.InitializeInstance(componentCollectionProvider);
-            }
-
-            if (metadataContextProvider == null)
-            {
-                metadataContextProvider = new MetadataContextProvider();
-                metadataContextProvider.AddComponent(new MetadataContextProviderComponent());
-                MugenService.Configuration.InitializeInstance(metadataContextProvider);
-            }
-
             MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
         }
 
