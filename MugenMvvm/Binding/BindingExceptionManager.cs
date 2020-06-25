@@ -12,6 +12,7 @@ namespace MugenMvvm.Binding
     {
         #region Methods
 
+        [DoesNotReturn]
         public static void ThrowAmbiguousMatchFound()
         {
             throw new AmbiguousMatchException();
@@ -95,6 +96,7 @@ namespace MugenMvvm.Binding
             throw new InvalidOperationException(string.Format(CannotConvertTypeFormat2, value, type));
         }
 
+        [DoesNotReturn]
         public static void ThrowCannotUseExpressionClosure(object expression)
         {
             throw new InvalidOperationException(string.Format(CannotUseExpressionClosureFormat1, expression));

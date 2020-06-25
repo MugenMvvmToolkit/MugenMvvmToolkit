@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
     <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net461;</TargetFrameworks>
@@ -15,8 +15,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\MugenMvvm.Binding\MugenMvvm.Binding.csproj" />
-    <ProjectReference Include="..\..\Core\MugenMvvm.Core\MugenMvvm.Core.csproj" />
+    <ProjectReference Include="..\..\MugenMvvm\MugenMvvm.csproj" />
   </ItemGroup>
 
 </Project>
