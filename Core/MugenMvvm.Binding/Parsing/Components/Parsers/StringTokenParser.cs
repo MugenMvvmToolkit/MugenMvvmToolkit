@@ -88,6 +88,12 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             var isVerbatim = context.IsToken('@');
             if (isVerbatim)
                 context.MoveNext();
+            if (!isInterpolated)
+            {
+                isInterpolated = context.IsToken('$');
+                if (isInterpolated)
+                    context.MoveNext();
+            }
 
             var quoteToken = GetQuoteToken(context);
             if (quoteToken == null)
@@ -96,6 +102,8 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             context.MoveNext(quoteToken.Length);
             LazyList<IExpressionNode> args = default;
             StringBuilder? builder = null;
+
+            int openedBraceCount = 0;
             var start = context.Position;
             int? end;
             while (true)
@@ -140,6 +148,8 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                     if (context.MoveNext().IsToken('{'))
                     {
                         InitializeBuilder(context, start, context.Position, ref builder);
+                        builder.Append("{");
+                        ++openedBraceCount;
                         context.MoveNext();
                         continue;
                     }
@@ -209,8 +219,21 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                     break;
                 }
 
-                builder?.Append(context.TokenAt());
+                var t = context.TokenAt();
+                builder?.Append(t);
                 context.MoveNext();
+
+                if (openedBraceCount != 0 && t == '}' && context.TokenAt() == '}')
+                {
+                    --openedBraceCount;
+                    context.MoveNext();
+                }
+            }
+
+            if (openedBraceCount != 0)
+            {
+                AddErrorIfNeed(BindingMessageConstant.CannotParseInterpolatedStringExpressionExpectedTokenFormat1, context, start, context.Position, ref builder);
+                return null;
             }
 
             if (builder == null)
