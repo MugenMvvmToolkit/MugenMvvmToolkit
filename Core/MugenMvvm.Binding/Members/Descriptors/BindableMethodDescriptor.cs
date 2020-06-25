@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace MugenMvvm.Binding.Members.Descriptors
@@ -9,42 +10,36 @@ namespace MugenMvvm.Binding.Members.Descriptors
         #region Fields
 
         public readonly string Name;
+        public readonly Type[] Types;
 
         #endregion
 
         #region Constructors
 
-        public BindableMethodDescriptor(string name)
+        public BindableMethodDescriptor(string name, Type[] types)
         {
             Should.NotBeNull(name, nameof(name));
+            Should.NotBeNull(types, nameof(types));
             Name = name;
+            Types = types;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool IsStatic => typeof(TTarget) == typeof(Type);
 
         #endregion
 
         #region Methods
 
         [Pure]
-        public BindableMethodDescriptor<TNewSource, TReturn> Override<TNewSource>()
-            where TNewSource : class
-        {
-            return new BindableMethodDescriptor<TNewSource, TReturn>(Name);
-        }
+        public BindableMethodDescriptor<TNewTarget, TReturn> Override<TNewTarget>() where TNewTarget : class => new BindableMethodDescriptor<TNewTarget, TReturn>(Name, Types);
 
-        public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(string name)
-        {
-            return new BindableMethodDescriptor<TTarget, TReturn>(name);
-        }
+        public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member) => member.Name;
 
-        public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member)
-        {
-            return member.Name;
-        }
-
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         #endregion
     }

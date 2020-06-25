@@ -5,11 +5,11 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -25,7 +25,6 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObserverProvider? _bindingObserverProvider;
-        private readonly TypeStringLightDictionary<object?> _cache;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly Type[] _singleTypeBuffer;
         private readonly HashSet<Type> _types;
@@ -40,7 +39,6 @@ namespace MugenMvvm.Binding.Members.Components
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _singleTypeBuffer = new Type[1];
-            _cache = new TypeStringLightDictionary<object?>(59);
             _types = new HashSet<Type>
             {
                 typeof(Enumerable)
@@ -57,48 +55,15 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
-            var cacheKey = new TypeStringKey(type, name);
-            if (!_cache.TryGetValue(cacheKey, out var list))
-            {
-                list = GetMembers(type, name).GetRawValue();
-                _cache[cacheKey] = list;
-            }
+            if (!memberTypes.HasFlagEx(MemberType.Method))
+                return default;
 
-            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(list);
-        }
-
-        #endregion
-
-        #region Methods
-
-        public void Add(Type type)
-        {
-            Should.NotBeNull(type, nameof(type));
-            if (_types.Add(type))
-            {
-                _cache.Clear();
-                Owner.TryInvalidateCache();
-            }
-        }
-
-        public void Remove(Type type)
-        {
-            Should.NotBeNull(type, nameof(type));
-            if (_types.Remove(type))
-            {
-                _cache.Clear();
-                Owner.TryInvalidateCache();
-            }
-        }
-
-        private ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers(Type type, string name)
-        {
             ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
             foreach (var exType in _types)
             {
-                var methods = exType.GetMethods(BindingFlagsEx.All);
+                var methods = exType.GetMethods(BindingFlagsEx.StaticOnly);
                 for (var i = 0; i < methods.Length; i++)
                 {
                     var method = methods[i];
@@ -129,6 +94,24 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             return members.Cast<IReadOnlyList<IMemberInfo>>();
+        }
+
+        #endregion
+
+        #region Methods
+
+        public void Add(Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (_types.Add(type))
+                OwnerOptional.TryInvalidateCache();
+        }
+
+        public void Remove(Type type)
+        {
+            Should.NotBeNull(type, nameof(type));
+            if (_types.Remove(type))
+                OwnerOptional.TryInvalidateCache();
         }
 
         private MethodInfo? TryMakeGenericMethod(MethodInfo method, Type type, out Type[]? genericArguments)

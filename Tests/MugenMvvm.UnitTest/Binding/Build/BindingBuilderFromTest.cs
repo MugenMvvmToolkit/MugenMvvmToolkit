@@ -40,13 +40,13 @@ namespace MugenMvvm.UnitTest.Binding.Build
             converterRequest.Source.ShouldEqual(MemberExpressionNode.Empty);
             converterRequest.Parameters.AsList().Count.ShouldEqual(0);
 
-            Expression<Func<IBindingBuilderContext<string, object>, object>> expression1 = context => context.Source;
+            Expression<Func<IBindingBuilderContext<string, object>, object?>> expression1 = context => context.Source;
             converterRequest = target.To(expression1);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression1);
             converterRequest.Parameters.AsList().Count.ShouldEqual(0);
 
-            Expression<Func<IBindingBuilderContext<string, IComparable>, object>> expression2 = context => context.Source;
+            Expression<Func<IBindingBuilderContext<string, IComparable>, object?>> expression2 = context => context.Source;
             converterRequest = target.To(expression2);
             converterRequest.Target.ShouldEqual(fromValue);
             converterRequest.Source.ShouldEqual(expression2);

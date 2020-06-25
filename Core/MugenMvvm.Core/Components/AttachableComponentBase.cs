@@ -9,7 +9,6 @@ namespace MugenMvvm.Components
     {
         #region Fields
 
-        private T? _owner;
         private int _state;
         private const int DetachedState = 0;
         private const int AttachedState = 1;
@@ -23,12 +22,14 @@ namespace MugenMvvm.Components
         {
             get
             {
-                if (_owner == null)
+                if (OwnerOptional == null)
                     ExceptionManager.ThrowObjectNotInitialized(this, nameof(Owner));
-                return _owner;
+                return OwnerOptional;
             }
-            private set => _owner = value;
+            private set => OwnerOptional = value;
         }
+
+        protected T? OwnerOptional { get; private set; }
 
         protected bool IsAttached => _state == AttachedState;
 
@@ -64,7 +65,7 @@ namespace MugenMvvm.Components
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (owner is T o && ReferenceEquals(Owner, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
+            if (owner is T o && ReferenceEquals(OwnerOptional, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
             {
                 OnDetachedInternal(o, metadata);
                 Owner = null;

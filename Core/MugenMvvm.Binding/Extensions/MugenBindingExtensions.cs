@@ -24,6 +24,7 @@ using MugenMvvm.Binding.Observers.PathObservers;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -87,30 +88,113 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static object? ToBindingSource(object? sourceExpression, object target, object? source, IReadOnlyMetadataContext? metadata)
+        public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
         {
-            if (sourceExpression is IBindingMemberExpressionNode v)
-                return v.GetBindingSource(target, source, metadata);
-
-            if (sourceExpression is IBindingMemberExpressionNode[] nodes)
+            if (types == null || types.Count == 0)
+                return Default.Array<Type>();
+            resourceResolver = resourceResolver.DefaultIfNull();
+            var typeArgs = new Type[types.Count];
+            for (var i = 0; i < types.Count; i++)
             {
-                var observers = new object?[nodes.Length];
-                for (var i = 0; i < nodes.Length; i++)
-                    observers[i] = nodes[i].GetBindingSource(target, source, metadata);
-                return observers;
+                var type = resourceResolver.TryGetType<object?>(types[i], null, metadata);
+                if (type == null)
+                    BindingExceptionManager.ThrowCannotResolveType(types[i]);
+                typeArgs[i] = type;
             }
 
-            return sourceExpression;
+            return typeArgs;
         }
 
-        public static void DisposeBindingSource(object? source)
+        public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
+            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out ArgumentFlags flags)
         {
-            if (source is IMemberPathObserver disposable)
-                disposable.Dispose();
-            else if (source is object[] sources)
+            flags = 0;
+            var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
+            object?[] result;
+            if (arguments != null && argsLength == parameters.Count)
+                result = arguments;
+            else
+                result = new object?[parameters.Count];
+            for (var i = 0; i < parameters.Count; i++)
             {
-                for (var i = 0; i < sources.Length; i++)
-                    (sources[i] as IMemberPathObserver)?.Dispose();
+                //optional or params
+                if (i > argsLength - 1)
+                {
+                    for (var j = i; j < parameters.Count; j++)
+                    {
+                        var parameter = parameters[j];
+                        if (j == parameters.Count - 1 && hasParams)
+                        {
+                            ArraySize[0] = 0;
+                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
+                            flags |= ArgumentFlags.EmptyParamArray;
+                        }
+                        else
+                        {
+                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
+                                flags |= ArgumentFlags.Metadata;
+                            else
+                            {
+                                if (!parameter.HasDefaultValue)
+                                    return null;
+                                flags |= ArgumentFlags.Optional;
+                                result[j] = parameter.DefaultValue;
+                            }
+                        }
+                    }
+
+                    break;
+                }
+
+                var parameterInfo = parameters[i];
+                var value = getValue(state, i, parameterInfo);
+                if (i == parameters.Count - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
+                {
+                    flags |= ArgumentFlags.ParamArray;
+                    ArraySize[0] = argsLength - i;
+                    var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType(), ArraySize);
+                    for (var j = i; j < argsLength; j++)
+                    {
+                        ArraySize[0] = j - i;
+                        array.SetValue(getValue(state, j, parameterInfo), ArraySize);
+                    }
+
+                    result[i] = array;
+                }
+                else
+                {
+                    if (converter == null)
+                        converter = MugenBindingService.GlobalValueConverter;
+                    result[i] = converter.Convert(value, parameterInfo.ParameterType, parameterInfo);
+                }
+            }
+
+            return result;
+        }
+
+        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
+        {
+            args = converter.TryGetInvokeArgs(parameters, args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var flags)!;
+            if (args != null && flags.HasFlagEx(ArgumentFlags.Metadata))
+                args[args.Length - 1] = metadata;
+            return args;
+        }
+
+        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out ArgumentFlags flags)
+        {
+            try
+            {
+                return converter.TryGetInvokeArgs(parameters, (args, converter.DefaultIfNull(), metadata), args.Length,
+                    (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
+                    {
+                        var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
+                        return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
+                    }, null, out flags);
+            }
+            catch
+            {
+                flags = 0;
+                return null;
             }
         }
 
@@ -142,13 +226,6 @@ namespace MugenMvvm.Binding.Extensions
             var b = context.TryGetParameterValue<bool?>(parameterName);
             if (b.GetValueOrDefault())
                 memberExpressionVisitor.Flags |= flag;
-        }
-
-        public static IMemberInfo? TryGetMember<TRequest>(this IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request,
-            IReadOnlyMetadataContext? metadata = null)
-        {
-            Should.NotBeNull(memberManager, nameof(memberManager));
-            return memberManager.TryGetMembers(type, memberTypes, flags, request, metadata).FirstOrDefault();
         }
 
         [DoesNotReturn]
@@ -214,74 +291,31 @@ namespace MugenMvvm.Binding.Extensions
             return expression.Invoke(values, metadata);
         }
 
-        public static object? GetParent(object? target, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
+        public static object? ToBindingSource(object? sourceExpression, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            return target?.GetBindableMemberValue(BindableMembers.Object.Parent, null, MemberFlags.All, metadata, memberManager);
-        }
+            if (sourceExpression is IBindingMemberExpressionNode v)
+                return v.GetBindingSource(target, source, metadata);
 
-        [return: NotNullIfNotNull("target")]
-        public static object? GetRoot(object? target, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
-        {
-            while (true)
+            if (sourceExpression is IBindingMemberExpressionNode[] nodes)
             {
-                var parent = GetParent(target, metadata, memberManager);
-                if (parent == null)
-                    return target;
-                target = parent;
-            }
-        }
-
-        public static object? FindElementSource(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
-        {
-            Should.NotBeNull(target, nameof(target));
-            Should.NotBeNull(elementName, nameof(elementName));
-            var args = new object[1];
-            while (target != null)
-            {
-                args[0] = elementName;
-                var result = target.TryInvokeBindableMethod(BindableMembers.Object.FindByName, args, MemberFlags.All, metadata, memberManager);
-                if (result != null)
-                    return result;
-                target = GetParent(target, metadata, memberManager)!;
+                var observers = new object?[nodes.Length];
+                for (var i = 0; i < nodes.Length; i++)
+                    observers[i] = nodes[i].GetBindingSource(target, source, metadata);
+                return observers;
             }
 
-            return null;
+            return sourceExpression;
         }
 
-        public static object? FindRelativeSource(object target, string typeName, int level, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
+        public static void DisposeBindingSource(object? source)
         {
-            Should.NotBeNull(target, nameof(target));
-            Should.NotBeNull(typeName, nameof(typeName));
-            object? fullNameSource = null;
-            object? nameSource = null;
-            var fullNameLevel = 0;
-            var nameLevel = 0;
-
-            target = GetParent(target, metadata, memberManager)!;
-            while (target != null)
+            if (source is IMemberPathObserver disposable)
+                disposable.Dispose();
+            else if (source is object[] sources)
             {
-                TypeNameEqual(target.GetType(), typeName, out var shortNameEqual, out var fullNameEqual);
-                if (shortNameEqual)
-                {
-                    nameSource = target;
-                    nameLevel++;
-                }
-
-                if (fullNameEqual)
-                {
-                    fullNameSource = target;
-                    fullNameLevel++;
-                }
-
-                if (fullNameSource != null && fullNameLevel == level)
-                    return fullNameSource;
-                if (nameSource != null && nameLevel == level)
-                    return nameSource;
-
-                target = GetParent(target, metadata, memberManager)!;
+                for (var i = 0; i < sources.Length; i++)
+                    (sources[i] as IMemberPathObserver)?.Dispose();
             }
-
-            return null;
         }
 
         public static bool IsAllMembersAvailable(ItemOrList<object?, object?[]> observers)
@@ -302,23 +336,6 @@ namespace MugenMvvm.Binding.Extensions
         public static bool IsAllMembersAvailable(this IMemberPathObserver observer)
         {
             return observer.GetLastMember().IsAvailable;
-        }
-
-        public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
-        {
-            if (types == null || types.Count == 0)
-                return Default.Array<Type>();
-            resourceResolver = resourceResolver.DefaultIfNull();
-            var typeArgs = new Type[types.Count];
-            for (var i = 0; i < types.Count; i++)
-            {
-                var type = resourceResolver.TryGetType<object?>(types[i], null, metadata);
-                if (type == null)
-                    BindingExceptionManager.ThrowCannotResolveType(types[i]);
-                typeArgs[i] = type;
-            }
-
-            return typeArgs;
         }
 
         public static object? GetValueFromPath(this IMemberPath path, Type type, object? target, MemberFlags flags,
@@ -382,11 +399,6 @@ namespace MugenMvvm.Binding.Extensions
             }
 
             return memberManager.TryGetMember(type, lastMemberType, flags, lastMemberName, metadata);
-        }
-
-        public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, out IExpressionNode? firstExpression)
-        {
-            return TryBuildBindingMemberPath(target, builder, null, out firstExpression);
         }
 
         public static bool TryBuildBindingMemberPath(this IExpressionNode? target, StringBuilder builder, Func<IExpressionNode, bool>? condition, out IExpressionNode? firstExpression)
@@ -489,72 +501,6 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        [return: MaybeNull]
-        public static TValue GetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, TValue defaultValue = default, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
-        {
-            var propertyInfo = memberManager
-                .DefaultIfNull()
-                .TryGetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IAccessorMemberInfo;
-            if (propertyInfo == null)
-                return defaultValue;
-            return (TValue)propertyInfo.GetValue(target, metadata)!;
-        }
-
-        public static void SetBindableMemberValue<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, [MaybeNull] TValue value, bool throwOnError = true, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
-        {
-            var propertyInfo = memberManager
-                .DefaultIfNull()
-                .TryGetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IAccessorMemberInfo;
-            if (propertyInfo == null)
-            {
-                if (throwOnError)
-                    BindingExceptionManager.ThrowInvalidBindingMember(target.GetType(), bindableMember.Name);
-            }
-            else
-                propertyInfo.SetValue(target, BoxingExtensions.Box(value), metadata);
-        }
-
-        public static ActionToken TryObserveBindableMember<TTarget, TValue>(this TTarget target,
-            BindablePropertyDescriptor<TTarget, TValue> bindableMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
-        {
-            var member = memberManager
-                .DefaultIfNull()
-                .TryGetMember(target.GetType(), MemberType.Accessor, flags, bindableMember.Name, metadata) as IObservableMemberInfo;
-            if (member == null)
-                return default;
-            return member.TryObserve(target, listener, metadata);
-        }
-
-        public static ActionToken TrySubscribeBindableEvent<TTarget>(this TTarget target,
-            BindableEventDescriptor<TTarget> eventMember, IEventListener listener, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
-        {
-            var eventInfo = memberManager
-                .DefaultIfNull()
-                .TryGetMember(target.GetType(), MemberType.Event, flags, eventMember.Name, metadata) as IObservableMemberInfo;
-            if (eventInfo == null)
-                return default;
-            return eventInfo.TryObserve(target, listener, metadata);
-        }
-
-        public static TReturn TryInvokeBindableMethod<TTarget, TReturn>(this TTarget target,
-            BindableMethodDescriptor<TTarget, TReturn> methodMember, object?[]? args = null, MemberFlags flags = MemberFlags.All,
-            IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
-        {
-            var methodInfo = memberManager
-                .DefaultIfNull()
-                .TryGetMember(target.GetType(), MemberType.Method, flags, methodMember.Name, metadata) as IMethodMemberInfo;
-            var value = methodInfo?.Invoke(target, args ?? Default.Array<object>());
-            if (value == null)
-                return default!;
-            return (TReturn)value;
-        }
-
         public static WeakEventListener ToWeak(this IEventListener listener)
         {
             return new WeakEventListener(listener);
@@ -563,99 +509,6 @@ namespace MugenMvvm.Binding.Extensions
         public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, in TState state)
         {
             return new WeakEventListener<TState>(listener, state);
-        }
-
-        public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
-            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out ArgumentFlags flags)
-        {
-            flags = 0;
-            var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
-            object?[] result;
-            if (arguments != null && argsLength == parameters.Count)
-                result = arguments;
-            else
-                result = new object?[parameters.Count];
-            for (var i = 0; i < parameters.Count; i++)
-            {
-                //optional or params
-                if (i > argsLength - 1)
-                {
-                    for (var j = i; j < parameters.Count; j++)
-                    {
-                        var parameter = parameters[j];
-                        if (j == parameters.Count - 1 && hasParams)
-                        {
-                            ArraySize[0] = 0;
-                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
-                            flags |= ArgumentFlags.EmptyParamArray;
-                        }
-                        else
-                        {
-                            if (parameter.ParameterType == typeof(IReadOnlyMetadataContext))
-                                flags |= ArgumentFlags.Metadata;
-                            else
-                            {
-                                if (!parameter.HasDefaultValue)
-                                    return null;
-                                flags |= ArgumentFlags.Optional;
-                                result[j] = parameter.DefaultValue;
-                            }
-                        }
-                    }
-
-                    break;
-                }
-
-                var parameterInfo = parameters[i];
-                var value = getValue(state, i, parameterInfo);
-                if (i == parameters.Count - 1 && hasParams && !parameterInfo.ParameterType.IsInstanceOfType(value))
-                {
-                    flags |= ArgumentFlags.ParamArray;
-                    ArraySize[0] = argsLength - i;
-                    var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType(), ArraySize);
-                    for (var j = i; j < argsLength; j++)
-                    {
-                        ArraySize[0] = j - i;
-                        array.SetValue(getValue(state, j, parameterInfo), ArraySize);
-                    }
-
-                    result[i] = array;
-                }
-                else
-                {
-                    if (converter == null)
-                        converter = MugenBindingService.GlobalValueConverter;
-                    result[i] = converter.Convert(value, parameterInfo.ParameterType, parameterInfo);
-                }
-            }
-
-            return result;
-        }
-
-        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
-        {
-            args = converter.TryGetInvokeArgs(parameters, args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var flags)!;
-            if (args != null && flags.HasFlagEx(ArgumentFlags.Metadata))
-                args[args.Length - 1] = metadata;
-            return args;
-        }
-
-        public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, string[] args, IReadOnlyMetadataContext? metadata, out ArgumentFlags flags)
-        {
-            try
-            {
-                return converter.TryGetInvokeArgs(parameters, (args, converter.DefaultIfNull(), metadata), args.Length,
-                    (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
-                    {
-                        var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
-                        return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
-                    }, null, out flags);
-            }
-            catch
-            {
-                flags = 0;
-                return null;
-            }
         }
 
         public static string[]? GetIndexerArgsRaw(string path)
@@ -688,7 +541,7 @@ namespace MugenMvvm.Binding.Extensions
                 .UnescapeString();
         }
 
-        public static Type GetTargetType(this MemberFlags flags, ref object? target)
+        public static Type GetTargetType<T>(this MemberFlags flags, ref T? target) where T : class
         {
             if (flags.HasFlagEx(MemberFlags.Static))
             {

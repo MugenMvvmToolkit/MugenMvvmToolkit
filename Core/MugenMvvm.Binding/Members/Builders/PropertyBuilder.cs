@@ -279,9 +279,7 @@ namespace MugenMvvm.Binding.Members.Builders
 
             private void InvalidateParent([DisallowNull]TTarget target, IReadOnlyMetadataContext? metadata)
             {
-                var member = MugenBindingService
-                    .MemberManager
-                    .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.InstanceAll, BindableMembers.Object.Parent.Name, metadata) as IAccessorMemberInfo;
+                var member = BindableMembers.For<object>().Parent().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, metadata);
                 var oldParent = _parentRef?.Target;
                 var parent = member?.GetValue(target, metadata) as TTarget;
                 if (ReferenceEquals(oldParent, parent))

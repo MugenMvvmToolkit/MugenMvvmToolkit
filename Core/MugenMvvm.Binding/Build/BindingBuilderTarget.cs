@@ -2,7 +2,9 @@
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Build;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Parsing.Expressions;
 
 namespace MugenMvvm.Binding.Build
@@ -12,6 +14,14 @@ namespace MugenMvvm.Binding.Build
         where TTarget : class
         where TSource : class
     {
+        #region Properties
+
+        public IBindableMembersDescriptor<TTarget> TargetMembers => BindableMembers.For<TTarget>();
+
+        public IBindableMembersDescriptor<TSource> SourceMembers => BindableMembers.For<TSource>();
+
+        #endregion
+
         #region Methods
 
         public BindingBuilderFrom<TTarget, TSource> For(string path)
@@ -29,12 +39,12 @@ namespace MugenMvvm.Binding.Build
             return new BindingBuilderFrom<TTarget, TSource>(expression);
         }
 
-        public BindingBuilderTo<TTarget, TSource> Action(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
+        public BindingBuilderTo<TTarget, TSource> Action(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object?>> expression)
         {
             return Action<TSource>(expression);
         }
 
-        public BindingBuilderTo<TTarget, T> Action<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object>> expression)
+        public BindingBuilderTo<TTarget, T> Action<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object?>> expression)
             where T : class
         {
             return new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(MemberExpressionNode.Action), expression, default);

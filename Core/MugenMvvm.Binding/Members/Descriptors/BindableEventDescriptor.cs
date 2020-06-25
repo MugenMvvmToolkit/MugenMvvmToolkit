@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace MugenMvvm.Binding.Members.Descriptors
@@ -22,29 +23,22 @@ namespace MugenMvvm.Binding.Members.Descriptors
 
         #endregion
 
+        #region Properties
+
+        public bool IsStatic => typeof(TTarget) == typeof(Type);
+
+        #endregion
+
         #region Methods
 
         [Pure]
-        public BindableEventDescriptor<TNewSource> Override<TNewSource>()
-            where TNewSource : class
-        {
-            return new BindableEventDescriptor<TNewSource>(Name);
-        }
+        public BindableEventDescriptor<TNewTarget> Override<TNewTarget>() where TNewTarget : class => new BindableEventDescriptor<TNewTarget>(Name);
 
-        public static implicit operator BindableEventDescriptor<TTarget>(string name)
-        {
-            return new BindableEventDescriptor<TTarget>(name);
-        }
+        public static implicit operator BindableEventDescriptor<TTarget>(string name) => new BindableEventDescriptor<TTarget>(name);
 
-        public static implicit operator string(BindableEventDescriptor<TTarget> member)
-        {
-            return member.Name;
-        }
+        public static implicit operator string(BindableEventDescriptor<TTarget> member) => member.Name;
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         #endregion
     }

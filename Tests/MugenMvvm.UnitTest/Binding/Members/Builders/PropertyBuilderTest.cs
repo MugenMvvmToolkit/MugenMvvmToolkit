@@ -4,6 +4,7 @@ using MugenMvvm.Binding;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
@@ -505,7 +506,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
                 {
-                    if (BindableMembers.Object.Parent.Name.Equals(arg4))
+                    if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;
                     return default;
                 }

@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static void TryAddMembers(this IMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, IReadOnlyMetadataContext? metadata)
+        public static void TryAddMembers(this IMemberProviderComponent[] components, ICollection<IMemberInfo> result, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(result, nameof(result));
@@ -36,22 +36,22 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var members = components[i].TryGetMembers(type, name, metadata);
+                var members = components[i].TryGetMembers(type, name, memberTypes, metadata);
                 for (var j = 0; j < members.Count(); j++)
                     result.Add(members.Get(j));
             }
         }
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(type, nameof(type));
             Should.NotBeNull(name, nameof(name));
             if (components.Length == 1)
-                return components[0].TryGetMembers(type, name, metadata);
+                return components[0].TryGetMembers(type, name, memberTypes, metadata);
             ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetMembers(type, name, metadata));
+                result.AddRange(components[i].TryGetMembers(type, name, memberTypes, metadata));
             return result.Cast<IReadOnlyList<IMemberInfo>>();
         }
 

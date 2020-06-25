@@ -1,6 +1,6 @@
 ﻿using System;
-using MugenMvvm.Binding;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
@@ -18,6 +18,21 @@ namespace MugenMvvm.UnitTest.Binding.Observers
         [Fact]
         public void ShouldReturnSelfNoParent()
         {
+            var parentMember = new TestAccessorMemberInfo
+            {
+                GetValue = (o, context) => null,
+                TryObserve = (o, listener, arg3) => default
+            };
+            using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            {
+                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
+                {
+                    if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
+                        return parentMember;
+                    return default;
+                }
+            });
+
             var target = new object();
             var observer = RootSourceObserver.GetOrAdd(target);
             observer.Get(DefaultMetadata).ShouldEqual(target);
@@ -58,7 +73,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             {
                 TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
                 {
-                    if (BindableMembers.Object.Parent.Name.Equals(arg4))
+                    if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;
                     return default;
                 }
@@ -110,7 +125,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
             observer.Remove(listener);
             parentListener.ShouldBeNull();
-            
+
             observer.Add(listener);
             parentListener.ShouldNotBeNull();
 

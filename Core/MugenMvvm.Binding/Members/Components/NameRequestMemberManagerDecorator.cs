@@ -15,7 +15,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class NameMemberProviderDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority
+    public sealed class NameRequestMemberManagerDecorator : ComponentDecoratorBase<IMemberManager, IMemberManagerComponent>, IMemberManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NameMemberProviderDecorator()
+        public NameRequestMemberManagerDecorator()
         {
             _members = new List<IMemberInfo>();
         }
@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (TypeChecker.IsValueType<TRequest>() || !(request is string name))
                 return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
             _members.Clear();
-            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, metadata);
+            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, memberTypes, metadata);
             if (_members.Count == 0)
                 return default;
             return Components.TryGetMembers(type, memberTypes, flags, _members, metadata);

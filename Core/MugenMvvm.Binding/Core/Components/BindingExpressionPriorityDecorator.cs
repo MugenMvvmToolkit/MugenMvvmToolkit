@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -25,7 +26,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             BindingMemberPriorities = new Dictionary<string, int>
             {
-                {BindableMembers.Object.DataContext, BindableMemberPriority.DataContext},
+                {BindableMembers.For<object>().DataContext(), BindableMemberPriority.DataContext},
                 {"BindingContext", BindableMemberPriority.DataContext},
                 {"ItemTemplate", BindableMemberPriority.Template},
                 {"ItemTemplateSelector", BindableMemberPriority.Template},

@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Members.Builders
 
         #region Methods
 
-        public static EventBuilder<TTarget> Event<TTarget>(BindableEventDescriptor<TTarget> descriptor, Type? eventType = null) where TTarget : class
+        public static EventBuilder<TTarget> ToBuilder<TTarget>(this BindableEventDescriptor<TTarget> descriptor, Type? eventType = null) where TTarget : class
         {
             return Event<TTarget>(descriptor.Name, null, eventType);
         }
@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Members.Builders
             return new EventBuilder<TTarget>(name, declaringType ?? typeof(TTarget), eventType ?? typeof(EventHandler));
         }
 
-        public static PropertyBuilder<TTarget, TValue> Property<TTarget, TValue>(BindablePropertyDescriptor<TTarget, TValue> descriptor)
+        public static PropertyBuilder<TTarget, TValue> ToBuilder<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> descriptor)
             where TTarget : class
         {
             return Property<TTarget, TValue>(descriptor.Name);
@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Members.Builders
             return new PropertyBuilder<TTarget, TValue>(name, declaringType ?? typeof(TTarget), propertyType ?? typeof(TValue));
         }
 
-        public static MethodBuilder<TTarget, TReturn> Method<TTarget, TReturn>(BindableMethodDescriptor<TTarget, TReturn> descriptor) where TTarget : class
+        public static MethodBuilder<TTarget, TReturn> ToBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor) where TTarget : class
         {
             return Method<TTarget, TReturn>(descriptor.Name, typeof(TTarget), typeof(TReturn));
         }
@@ -80,7 +80,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 attachedValueProvider.GetOrAdd(target, id, (member, handler, metadata), (t, state) =>
                 {
                     state.handler(state.member, t, state.metadata);
-                    return (object?) null;
+                    return (object?)null;
                 });
 #pragma warning restore 8634
             }
@@ -102,7 +102,7 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 if (StaticValues.TryGetValue(name, out var valueRaw))
                 {
-                    value = (TValue) valueRaw!;
+                    value = (TValue)valueRaw!;
                     return true;
                 }
 
@@ -117,7 +117,7 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 if (StaticValues.TryGetValue(name, out var valueRaw))
                 {
-                    oldValue = (TValue) valueRaw!;
+                    oldValue = (TValue)valueRaw!;
                     if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
                         return false;
                 }

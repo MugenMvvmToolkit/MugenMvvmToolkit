@@ -148,8 +148,8 @@ namespace MugenMvvm.Binding.Members.Components
             protected override int GetHashCode(IMemberInfo key)
             {
                 if (key is IMethodMemberInfo method)
-                    return HashCode.Combine((byte) key.MemberType, method.GetParameters().Count);
-                return HashCode.Combine((byte) key.MemberType);
+                    return HashCode.Combine((int)key.MemberType, method.GetParameters().Count);
+                return HashCode.Combine((int)key.MemberType);
             }
 
             protected override bool Equals(IMemberInfo x, IMemberInfo y)
@@ -160,8 +160,8 @@ namespace MugenMvvm.Binding.Members.Components
                 if (x.MemberType != MemberType.Method)
                     return true;
 
-                var xM = ((IMethodMemberInfo) x).GetParameters();
-                var yM = ((IMethodMemberInfo) y).GetParameters();
+                var xM = ((IMethodMemberInfo)x).GetParameters();
+                var yM = ((IMethodMemberInfo)y).GetParameters();
                 if (xM.Count != yM.Count)
                     return false;
 

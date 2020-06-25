@@ -11,6 +11,7 @@ using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -45,13 +46,35 @@ namespace MugenMvvm.Binding.Members.Components
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TRequest>() || !(request is string name))
+            string? name;
+            Type[]? types;
+            if (TypeChecker.IsValueType<TRequest>())
+            {
+                if (typeof(TRequest) == typeof(MemberTypesRequest))
+                {
+                    var methodRequest = MugenExtensions.CastGeneric<TRequest, MemberTypesRequest>(request);
+                    name = methodRequest.Name;
+                    types = methodRequest.Types;
+                }
+                else
+                {
+                    name = null;
+                    types = null;
+                }
+            }
+            else
+            {
+                name = request as string;
+                types = Default.Array<Type>();
+            }
+
+            if (name == null)
                 return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
 
-            var cacheKey = new CacheKey(type, name, memberTypes, flags);
+            var cacheKey = new CacheKey(type, name, memberTypes, flags, types!);
             if (!_cache.TryGetValue(cacheKey, out var members))
             {
-                members = Components.TryGetMembers(type, memberTypes, flags, name, metadata).GetRawValue();
+                members = Components.TryGetMembers(type, memberTypes, flags, request, metadata).GetRawValue();
                 _cache[cacheKey] = members;
             }
 
@@ -81,6 +104,16 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache.Clear();
         }
 
+        protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Invalidate<object?>(null, metadata);
+        }
+
+        protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            Invalidate<object?>(null, metadata);
+        }
+
         #endregion
 
         #region Nested types
@@ -99,12 +132,22 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override bool Equals(CacheKey x, CacheKey y)
             {
-                return x.MemberType == y.MemberType && x.MemberFlags == y.MemberFlags && x.Key.Equals(y.Key) && x.Type == y.Type;
+                if (x.MemberType != y.MemberType || x.MemberFlags != y.MemberFlags || !x.Key.Equals(y.Key) || x.Type != y.Type || x.Types.Length != y.Types.Length)
+                    return false;
+                if (ReferenceEquals(x.Types, y.Types))
+                    return true;
+                for (var i = 0; i < x.Types.Length; i++)
+                {
+                    if (x.Types[i] != y.Types[i])
+                        return false;
+                }
+
+                return true;
             }
 
             protected override int GetHashCode(CacheKey key)
             {
-                return HashCode.Combine(key.Key, key.Type, (int) key.MemberType, (int) key.MemberFlags);
+                return HashCode.Combine(key.Key, key.Type, (int)key.MemberType, (int)key.MemberFlags, key.Types.Length);
             }
 
             #endregion
@@ -119,17 +162,19 @@ namespace MugenMvvm.Binding.Members.Components
             public readonly Type Type;
             public readonly MemberType MemberType;
             public readonly MemberFlags MemberFlags;
+            public readonly Type[] Types;
 
             #endregion
 
             #region Constructors
 
-            public CacheKey(Type type, string key, MemberType memberType, MemberFlags memberFlags)
+            public CacheKey(Type type, string key, MemberType memberType, MemberFlags memberFlags, Type[] types)
             {
                 Type = type;
                 Key = key;
                 MemberType = memberType;
                 MemberFlags = memberFlags;
+                Types = types;
             }
 
             #endregion

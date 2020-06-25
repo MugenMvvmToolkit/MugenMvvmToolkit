@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Interfaces.Metadata;
@@ -44,22 +44,24 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             };
             ConstantParametersMethods = new Dictionary<string, string>
             {
-                {nameof(INotifyDataErrorInfo.GetErrors), nameof(INotifyDataErrorInfo.GetErrors)},
-                {"HasErrors", "HasErrors"},
-                {"Rel", BindableMembers.Object.RelativeSource},
-                {"Relative", BindableMembers.Object.RelativeSource},
-                {"El", BindableMembers.Object.ElementSource},
-                {"Element", BindableMembers.Object.ElementSource}
+                {BindableMembers.For<object>().GetErrorsMethod(), BindableMembers.For<object>().GetErrorsMethod()},
+                {BindableMembers.For<object>().GetErrorMethod(), BindableMembers.For<object>().GetErrorMethod()},
+                {BindableMembers.For<object>().HasErrorsMethod(), BindableMembers.For<object>().HasErrorsMethod()},
+                {"Rel", BindableMembers.For<object>().RelativeSourceMethod()},
+                {"Relative", BindableMembers.For<object>().RelativeSourceMethod()},
+                {"El", BindableMembers.For<object>().ElementSourceMethod()},
+                {"Element", BindableMembers.For<object>().ElementSourceMethod()},
             };
             MacrosTargets = new Dictionary<string, IExpressionNode>
             {
-                {nameof(INotifyDataErrorInfo.GetErrors), UnaryExpressionNode.ContextMacros},
-                {"HasErrors", UnaryExpressionNode.ContextMacros},
+                {BindableMembers.For<object>().GetErrorsMethod(), UnaryExpressionNode.ContextMacros},
+                {BindableMembers.For<object>().GetErrorMethod(), UnaryExpressionNode.ContextMacros},
+                {BindableMembers.For<object>().HasErrorsMethod(), UnaryExpressionNode.ContextMacros},
                 {"Rel", UnaryExpressionNode.TargetMacros},
-                {BindableMembers.Object.RelativeSource, UnaryExpressionNode.TargetMacros},
+                {BindableMembers.For<object>().RelativeSourceMethod(), UnaryExpressionNode.TargetMacros},
                 {"El", UnaryExpressionNode.TargetMacros},
                 {"Element", UnaryExpressionNode.TargetMacros},
-                {BindableMembers.Object.ElementSource, UnaryExpressionNode.TargetMacros}
+                {BindableMembers.For<object>().ElementSourceMethod(), UnaryExpressionNode.TargetMacros}
             };
         }
 

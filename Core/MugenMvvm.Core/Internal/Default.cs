@@ -49,6 +49,31 @@ namespace MugenMvvm.Internal
             return EmptyArrayImpl<T>.Instance;
         }
 
+        public static Type[] Types<T1>()
+        {
+            return TypeCache<T1>.Types;
+        }
+
+        public static Type[] Types<T1, T2>()
+        {
+            return TypeCache<T1, T2>.Types;
+        }
+
+        public static Type[] Types<T1, T2, T3>()
+        {
+            return TypeCache<T1, T2, T3>.Types;
+        }
+
+        public static Type[] Types<T1, T2, T3, T4>()
+        {
+            return TypeCache<T1, T2, T3, T4>.Types;
+        }
+
+        public static Type[] Types<T1, T2, T3, T4, T5>()
+        {
+            return TypeCache<T1, T2, T3, T4, T5>.Types;
+        }
+
         public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>()
         {
             return EmptyDictionaryImpl<TKey, TValue>.Instance;
@@ -69,6 +94,51 @@ namespace MugenMvvm.Internal
         #endregion
 
         #region Nested types
+
+        private static class TypeCache<T1>
+        {
+            #region Fields
+
+            public static readonly Type[] Types = { typeof(T1) };
+
+            #endregion
+        }
+
+        private static class TypeCache<T1, T2>
+        {
+            #region Fields
+
+            public static readonly Type[] Types = { typeof(T1), typeof(T2) };
+
+            #endregion
+        }
+
+        private static class TypeCache<T1, T2, T3>
+        {
+            #region Fields
+
+            public static readonly Type[] Types = { typeof(T1), typeof(T2), typeof(T3) };
+
+            #endregion
+        }
+
+        private static class TypeCache<T1, T2, T3, T4>
+        {
+            #region Fields
+
+            public static readonly Type[] Types = { typeof(T1), typeof(T2), typeof(T3), typeof(T4) };
+
+            #endregion
+        }
+
+        private static class TypeCache<T1, T2, T3, T4, T5>
+        {
+            #region Fields
+
+            public static readonly Type[] Types = { typeof(T1), typeof(T2), typeof(T3), typeof(T4), typeof(T5) };
+
+            #endregion
+        }
 
         private sealed class EmptyContext : IReadOnlyMetadataContext, IDisposable, INavigationProvider, IWeakReference
         {

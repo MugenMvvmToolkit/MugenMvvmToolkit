@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Collections;
@@ -141,7 +142,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 //$context
                 if (memberExpression.Member == MacrosConstant.Context)
                 {
-                    _memberBuilder.Insert(0, BindableMembers.Object.DataContext);
+                    _memberBuilder.Insert(0, BindableMembers.For<object>().DataContext());
                     return GetOrAddBindingMember(true, methodName);
                 }
 

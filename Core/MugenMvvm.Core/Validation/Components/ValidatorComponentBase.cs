@@ -172,12 +172,12 @@ namespace MugenMvvm.Validation.Components
 
         protected virtual void OnErrorsChanged(string memberName, IReadOnlyMetadataContext? metadata)
         {
-            Owner.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
+            OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnErrorsChanged(Owner, Target, memberName, metadata);
         }
 
         protected virtual void OnAsyncValidation(string memberName, Task validationTask, IReadOnlyMetadataContext? metadata)
         {
-            Owner.GetComponents<IValidatorListener>(metadata).OnAsyncValidation(Owner, Target, memberName, validationTask, metadata);
+            OwnerOptional?.GetComponents<IValidatorListener>(metadata).OnAsyncValidation(Owner, Target, memberName, validationTask, metadata);
         }
 
         protected virtual void OnDispose()

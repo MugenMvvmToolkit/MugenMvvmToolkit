@@ -49,12 +49,12 @@ namespace MugenMvvm.Binding.Build
             return new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
         }
 
-        public BindingBuilderTo<TTarget, TSource> To(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object>> expression)
+        public BindingBuilderTo<TTarget, TSource> To(Expression<Func<IBindingBuilderContext<TTarget, TSource>, object?>> expression)
         {
             return To<TSource>(expression);
         }
 
-        public BindingBuilderTo<TTarget, T> To<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object>> expression) where T : class
+        public BindingBuilderTo<TTarget, T> To<T>(Expression<Func<IBindingBuilderContext<TTarget, T>, object?>> expression) where T : class
         {
             return new BindingBuilderTo<TTarget, T>(new BindingBuilderFrom<TTarget, T>(PathOrExpression), expression, default);
         }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Convert;
@@ -45,14 +46,17 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
+            if (!memberTypes.HasFlagEx(MemberType.Accessor))
+                return Components.TryGetMembers(type, name, memberTypes, metadata);
+
             var methodArgsRaw = MugenBindingExtensions.GetMethodArgsRaw(name, out var methodName);
             if (methodArgsRaw == null)
-                return Components.TryGetMembers(type, name, metadata);
+                return Components.TryGetMembers(type, name, memberTypes, metadata);
 
             _members.Clear();
-            Components.TryAddMembers(_members, type, methodName, metadata);
+            Components.TryAddMembers(_members, type, methodName, MemberType.Method, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
                 if (_members[i] is IMethodMemberInfo methodInfo)
@@ -69,7 +73,7 @@ namespace MugenMvvm.Binding.Members.Components
                 --i;
             }
 
-            Components.TryAddMembers(_members, type, name, metadata);
+            Components.TryAddMembers(_members, type, name, memberTypes, metadata);
             if (_members.Count == 1)
             {
                 var memberInfo = _members[0];

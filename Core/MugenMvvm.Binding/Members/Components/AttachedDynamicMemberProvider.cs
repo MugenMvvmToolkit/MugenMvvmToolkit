@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Binding.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -13,12 +13,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedDynamicMemberProvider : AttachableComponentBase<IMemberManager>, IAttachedMemberProviderComponent, IHasPriority
+    public sealed class AttachedDynamicMemberProvider : AttachableComponentBase<IMemberManager>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
-        private readonly TypeStringLightDictionary<object?> _cache;
-        private readonly List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
+        private readonly List<Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?>> _dynamicMembers;
 
         #endregion
 
@@ -27,8 +26,7 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public AttachedDynamicMemberProvider()
         {
-            _dynamicMembers = new List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>>();
-            _cache = new TypeStringLightDictionary<object?>(59);
+            _dynamicMembers = new List<Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?>>();
         }
 
         #endregion
@@ -41,30 +39,13 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
-            var key = new TypeStringKey(type, name);
-            if (!_cache.TryGetValue(key, out var result))
-            {
-                if (_dynamicMembers.Count != 0)
-                {
-                    ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
-                    for (var i = 0; i < _dynamicMembers.Count; i++)
-                        members.Add(_dynamicMembers[i].Invoke(type, name, metadata));
-                    result = members.GetRawValue();
-                }
-
-                _cache[key] = result;
-            }
-
-            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(result);
-        }
-
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
-        {
+            if (_dynamicMembers.Count == 0)
+                return default;
             ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
-            foreach (var keyValuePair in _cache)
-                members.AddRange(ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(keyValuePair.Value));
+            for (var i = 0; i < _dynamicMembers.Count; i++)
+                members.Add(_dynamicMembers[i].Invoke(type, name, memberTypes, metadata));
             return members.Cast<IReadOnlyList<IMemberInfo>>();
         }
 
@@ -72,30 +53,24 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        public void Register(Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
+        public void Register(Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {
             Should.NotBeNull(getMember, nameof(getMember));
             _dynamicMembers.Add(getMember);
-            ClearCache();
+            OwnerOptional.TryInvalidateCache();
         }
 
-        public void Unregister(Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
+        public void Unregister(Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?> getMember)
         {
             Should.NotBeNull(getMember, nameof(getMember));
-            _dynamicMembers.Remove(getMember);
-            ClearCache();
+            if (_dynamicMembers.Remove(getMember))
+                OwnerOptional.TryInvalidateCache();
         }
 
         public void Clear()
         {
             _dynamicMembers.Clear();
-            ClearCache();
-        }
-
-        private void ClearCache()
-        {
-            _cache.Clear();
-            Owner.TryInvalidateCache();
+            OwnerOptional.TryInvalidateCache();
         }
 
         #endregion

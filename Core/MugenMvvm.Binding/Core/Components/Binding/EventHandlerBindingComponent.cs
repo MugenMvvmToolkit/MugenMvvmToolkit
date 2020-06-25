@@ -9,6 +9,7 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Commands;
@@ -162,8 +163,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             if (command is ICompositeCommand m && !m.HasCanExecute)
                 return false;
 
-            _enabledMember = MugenBindingService.MemberManager
-                .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static), BindableMembers.Object.Enabled.Name, _currentMetadata) as IAccessorMemberInfo;
+            _enabledMember = BindableMembers.For<object>().Enabled().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, _currentMetadata);
             if (_enabledMember == null || !_enabledMember.CanWrite)
                 return false;
 

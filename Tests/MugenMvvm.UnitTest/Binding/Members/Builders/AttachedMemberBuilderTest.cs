@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Descriptors;
+using MugenMvvm.Internal;
 using Should;
 using Xunit;
 
@@ -31,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             Type declaredType = GetType();
             var memberType = typeof(Action);
             BindableEventDescriptor<AttachedMemberBuilderTest> descriptor = name;
-            var build = AttachedMemberBuilder.Event(descriptor, memberType).Build();
+            var build = descriptor.ToBuilder(memberType).Build();
             build.MemberType.ShouldEqual(MemberType.Event);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);
@@ -58,7 +59,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             Type declaredType = GetType();
             var memberType = typeof(Action);
             BindablePropertyDescriptor<AttachedMemberBuilderTest, Action> descriptor = name;
-            var build = AttachedMemberBuilder.Property(descriptor).Build();
+            var build = descriptor.ToBuilder().Build();
             build.MemberType.ShouldEqual(MemberType.Accessor);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);
@@ -84,8 +85,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, Action> descriptor = name;
-            var build = AttachedMemberBuilder.Method(descriptor).InvokeHandler((member, target, args, metadata) => null!).Build();
+            BindableMethodDescriptor<AttachedMemberBuilderTest, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, Action>(name, Default.Array<Type>());
+            var build = descriptor.ToBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             build.MemberType.ShouldEqual(MemberType.Method);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq.Expressions;
+using System.Reflection;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
@@ -11,6 +11,11 @@ namespace MugenMvvm.Binding
     internal static class BindingExceptionManager
     {
         #region Methods
+
+        public static void ThrowAmbiguousMatchFound()
+        {
+            throw new AmbiguousMatchException();
+        }
 
         [DoesNotReturn]
         public static void ThrowBindingMemberMustBeWritable(IMemberInfo member)

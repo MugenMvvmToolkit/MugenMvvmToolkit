@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
 namespace MugenMvvm.Binding.Members.Descriptors
@@ -22,35 +23,25 @@ namespace MugenMvvm.Binding.Members.Descriptors
 
         #endregion
 
+        #region Properties
+
+        public bool IsStatic => typeof(TTarget) == typeof(Type);
+
+        #endregion
+
         #region Methods
 
         [Pure]
-        public BindablePropertyDescriptor<TNewSource, TValue> Override<TNewSource>()
-            where TNewSource : class
-        {
-            return new BindablePropertyDescriptor<TNewSource, TValue>(Name);
-        }
+        public BindablePropertyDescriptor<TNewTarget, TValue> Override<TNewTarget>() where TNewTarget : class => new BindablePropertyDescriptor<TNewTarget, TValue>(Name);
 
         [Pure]
-        public BindablePropertyDescriptor<TTarget, TNewType> Cast<TNewType>()
-        {
-            return new BindablePropertyDescriptor<TTarget, TNewType>(Name);
-        }
+        public BindablePropertyDescriptor<TTarget, TNewType> ChangeType<TNewType>() => new BindablePropertyDescriptor<TTarget, TNewType>(Name);
 
-        public static implicit operator BindablePropertyDescriptor<TTarget, TValue>(string name)
-        {
-            return new BindablePropertyDescriptor<TTarget, TValue>(name);
-        }
+        public static implicit operator BindablePropertyDescriptor<TTarget, TValue>(string name) => new BindablePropertyDescriptor<TTarget, TValue>(name);
 
-        public static implicit operator string(BindablePropertyDescriptor<TTarget, TValue> member)
-        {
-            return member.Name;
-        }
+        public static implicit operator string(BindablePropertyDescriptor<TTarget, TValue> member) => member.Name;
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
 
         #endregion
     }

@@ -2,6 +2,7 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -60,11 +61,11 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
             string path;
             if (string.IsNullOrEmpty(Path))
-                path = BindableMembers.Object.DataContext;
+                path = BindableMembers.For<object>().DataContext();
             else if (Path.StartsWith("[", StringComparison.Ordinal))
-                path = BindableMembers.Object.DataContext + Path;
+                path = BindableMembers.For<object>().DataContext().Name + Path;
             else
-                path = BindableMembers.Object.DataContext + "." + Path;
+                path = BindableMembers.For<object>().DataContext().Name + "." + Path;
             _dataContextMemberPath = ObserverProvider.DefaultIfNull().GetMemberPath(path, metadata);
             return _dataContextMemberPath;
         }

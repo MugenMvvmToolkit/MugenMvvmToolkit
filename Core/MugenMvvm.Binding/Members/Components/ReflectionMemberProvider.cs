@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Internal;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -21,8 +21,8 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObserverProvider? _bindingObserverProvider;
-        private readonly TypeStringLightDictionary<object?> _cache;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly HashSet<Type> _types;
 
         #endregion
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;
-            _cache = new TypeStringLightDictionary<object?>(59);
+            _types = new HashSet<Type>();
         }
 
         #endregion
@@ -46,31 +46,16 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
-            var cacheKey = new TypeStringKey(type, name);
-            if (!_cache.TryGetValue(cacheKey, out var list))
-            {
-                list = GetMembers(type, name, metadata).GetRawValue();
-                _cache[cacheKey] = list;
-            }
-
-            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(list);
-        }
-
-        #endregion
-
-        #region Methods
-
-        private ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetMembers(Type type, string name, IReadOnlyMetadataContext? metadata)
-        {
+            _types.Clear();
             if (type == typeof(string) && name == BindingInternalConstant.IndexerGetterName)
                 name = BindingInternalConstant.IndexerStringGetterName;
-            var hasProperty = false;
-            var hasEvent = false;
-            var hasField = false;
+            var hasProperty = !memberTypes.HasFlagEx(MemberType.Accessor);
+            var hasField = hasProperty;
+            var hasEvent = !memberTypes.HasFlagEx(MemberType.Event);
             ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
-            var types = MugenBindingExtensions.SelfAndBaseTypes(type);
+            var types = MugenBindingExtensions.SelfAndBaseTypes(type, types: _types);
             foreach (var t in types)
             {
                 if (!hasProperty)
@@ -86,20 +71,27 @@ namespace MugenMvvm.Binding.Members.Components
                     break;
             }
 
-            types.Clear();
-            foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type, false, types: types))
+            if (memberTypes.HasFlagEx(MemberType.Method))
             {
-                var methods = t.GetMethods(BindingFlagsEx.All);
-                for (var index = 0; index < methods.Length; index++)
+                types.Clear();
+                foreach (var t in MugenBindingExtensions.SelfAndBaseTypes(type, false, types: types))
                 {
-                    var methodInfo = methods[index];
-                    if (methodInfo.Name == name)
-                        result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                    var methods = t.GetMethods(BindingFlagsEx.All);
+                    for (var index = 0; index < methods.Length; index++)
+                    {
+                        var methodInfo = methods[index];
+                        if (methodInfo.Name == name)
+                            result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                    }
                 }
             }
 
             return result.Cast<IReadOnlyList<IMemberInfo>>();
         }
+
+        #endregion
+
+        #region Methods
 
         private bool AddEvents(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result, IReadOnlyMetadataContext? metadata)
         {

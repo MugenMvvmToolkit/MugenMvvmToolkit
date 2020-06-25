@@ -7,9 +7,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
     {
         #region Properties
 
-        public Func<T, T, bool>? Equals { get; set; }
+        public new Func<T, T, bool>? Equals { get; set; }
 
-        public Func<T, int>? GetHashCode { get; set; }
+        public new Func<T, int>? GetHashCode { get; set; }
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
         int IEqualityComparer<T>.GetHashCode(T obj)
         {
             if (GetHashCode == null)
-                return obj.GetHashCode();
+                return obj!.GetHashCode();
             return GetHashCode(obj);
         }
 

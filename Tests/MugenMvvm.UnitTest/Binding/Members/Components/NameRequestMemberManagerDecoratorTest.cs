@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Members.Components
 {
-    public class MemberManagerComponentTest : UnitTestBase
+    public class NameRequestMemberManagerDecoratorTest : UnitTestBase
     {
         #region Methods
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public void TryGetMembersShouldIgnoreNotSupportedRequest()
         {
             var manager = new MemberManager();
-            var component = new NameMemberProviderDecorator();
+            var component = new NameRequestMemberManagerDecorator();
             manager.AddComponent(component);
             component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
@@ -51,16 +51,17 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             };
             var provider = new TestMemberProviderComponent
             {
-                TryGetMembers = (t, s, arg3) =>
+                TryGetMembers = (t, s, types, arg3) =>
                 {
                     ++providerCount;
+                    types.ShouldEqual(memberType);
                     type.ShouldEqual(t);
                     s.ShouldEqual(request);
                     arg3.ShouldEqual(DefaultMetadata);
                     return members;
                 }
             };
-            var component = new NameMemberProviderDecorator();
+            var component = new NameRequestMemberManagerDecorator();
             manager.AddComponent(selector);
             manager.AddComponent(provider);
             manager.AddComponent(component);

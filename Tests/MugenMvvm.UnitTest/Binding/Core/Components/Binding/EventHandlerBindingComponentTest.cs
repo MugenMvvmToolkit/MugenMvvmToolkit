@@ -272,7 +272,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
                     meta.ShouldEqual(DefaultMetadata);
-                    r.ShouldEqual(BindableMembers.Object.Enabled.ToString());
+                    r.ShouldEqual(BindableMembers.For<object>().Enabled().Name);
                     f.ShouldEqual(MemberFlags.All & ~(MemberFlags.NonPublic | MemberFlags.Static));
                     m.ShouldEqual(MemberType.Accessor);
                     t.ShouldEqual(target.GetType());

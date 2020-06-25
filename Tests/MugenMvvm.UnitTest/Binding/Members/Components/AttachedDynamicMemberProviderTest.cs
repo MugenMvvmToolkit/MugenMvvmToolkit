@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
@@ -21,8 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public void TryGetMembersShouldReturnNullResult()
         {
             var component = new AttachedDynamicMemberProvider();
-            component.TryGetMembers(typeof(object), string.Empty, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            component.GetAttachedMembers(DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         [Theory]
@@ -34,6 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         {
             var requestType = typeof(string);
             var name = "test";
+            var memberType = MemberType.Method;
 
             var invalidateCount = 0;
             var hasCache = new TestHasCache
@@ -45,11 +46,12 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             owner.AddComponent(component);
             owner.Components.Add(hasCache);
             var list = new List<IMemberInfo>();
-            var delegates = new List<Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?>>();
+            var delegates = new List<Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?>>();
             for (var i = 0; i < count; i++)
             {
-                Func<Type, string, IReadOnlyMetadataContext?, IMemberInfo?> func = (type, s, arg3) =>
+                Func<Type, string, MemberType, IReadOnlyMetadataContext?, IMemberInfo?> func = (type, s, t, arg3) =>
                 {
+                    memberType.ShouldEqual(t);
                     type.ShouldEqual(requestType);
                     name.ShouldEqual(s);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -62,8 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             }
 
             invalidateCount.ShouldEqual(count);
-            component.TryGetMembers(requestType, name, DefaultMetadata).AsList().SequenceEqual(list).ShouldBeTrue();
-            component.GetAttachedMembers(DefaultMetadata).AsList().SequenceEqual(list).ShouldBeTrue();
+            component.TryGetMembers(requestType, name, memberType, DefaultMetadata).AsList().SequenceEqual(list).ShouldBeTrue();
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;
@@ -75,8 +76,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     component.Unregister(@delegate);
             }
 
-            component.TryGetMembers(typeof(object), string.Empty, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            component.GetAttachedMembers(DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(typeof(object), string.Empty, memberType, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
 

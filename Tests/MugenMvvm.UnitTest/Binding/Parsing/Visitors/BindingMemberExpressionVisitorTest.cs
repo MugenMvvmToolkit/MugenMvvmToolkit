@@ -283,7 +283,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var visitor = new BindingMemberExpressionVisitor { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
 
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context));
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindableMembers.Object.DataContext)
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
             {
                 Flags = visitor.Flags.SetTargetFlags(true),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),
@@ -291,7 +291,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             });
 
             expression = new MemberExpressionNode(new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, MacrosConstant.Context)), MemberName);
-            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{BindableMembers.Object.DataContext}.{MemberName}")
+            visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(new BindingMemberExpressionNode($"{BindableMembers.For<object>().DataContext()}.{MemberName}")
             {
                 Flags = visitor.Flags.SetTargetFlags(true),
                 MemberFlags = visitor.MemberFlags.SetInstanceOrStaticFlags(false),

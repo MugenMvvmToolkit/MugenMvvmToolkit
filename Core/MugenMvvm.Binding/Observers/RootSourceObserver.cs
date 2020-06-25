@@ -2,8 +2,8 @@
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -103,9 +103,7 @@ namespace MugenMvvm.Binding.Observers
 
         private bool UpdateParent(object target, IReadOnlyMetadataContext? metadata)
         {
-            var member = MugenBindingService
-                .MemberManager
-                .TryGetMember(target.GetType(), MemberType.Accessor, MemberFlags.InstanceAll, BindableMembers.Object.Parent.Name, metadata) as IAccessorMemberInfo;
+            var member = BindableMembers.For<object>().Parent().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, metadata);
             var oldParent = _parentRef?.Target;
             var parent = member?.GetValue(target, metadata);
             if (oldParent == parent)

@@ -127,7 +127,7 @@ namespace MugenMvvm.Busy.Components
             }
 
             if (busyToken.Combine())
-                Owner.GetComponents<IBusyManagerListener>().OnBeginBusy(Owner, busyToken, metadata);
+                OwnerOptional?.GetComponents<IBusyManagerListener>().OnBeginBusy(Owner, busyToken, metadata);
         }
 
         private void EndSuspendNotifications()
@@ -146,7 +146,7 @@ namespace MugenMvvm.Busy.Components
         private void OnBusyInfoChanged(bool ignoreSuspend = false, IReadOnlyMetadataContext? metadata = null)
         {
             if (ignoreSuspend || !IsSuspended)
-                Owner.GetComponents<IBusyManagerListener>().OnBusyChanged(Owner, metadata);
+                OwnerOptional?.GetComponents<IBusyManagerListener>().OnBusyChanged(Owner, metadata);
         }
 
         #endregion

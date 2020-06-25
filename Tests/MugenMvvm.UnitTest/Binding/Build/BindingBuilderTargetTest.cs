@@ -27,13 +27,13 @@ namespace MugenMvvm.UnitTest.Binding.Build
         public void ActionShouldCreateBindingBuilderTo()
         {
             BindingBuilderTarget<string, object> target = default;
-            Expression<Func<IBindingBuilderContext<string, object>, object>> expression1 = context => context.Source;
+            Expression<Func<IBindingBuilderContext<string, object>, object?>> expression1 = context => context.Source;
             var converterRequest = (BindingExpressionRequest) target.Action(expression1);
             converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
             converterRequest.Source.ShouldEqual(expression1);
             converterRequest.Parameters.AsList().Count.ShouldEqual(0);
 
-            Expression<Func<IBindingBuilderContext<string, IComparable>, object>> expression2 = context => context.Source;
+            Expression<Func<IBindingBuilderContext<string, IComparable>, object?>> expression2 = context => context.Source;
             converterRequest = target.Action(expression2);
             converterRequest.Target.ShouldEqual(MemberExpressionNode.Action);
             converterRequest.Source.ShouldEqual(expression2);
