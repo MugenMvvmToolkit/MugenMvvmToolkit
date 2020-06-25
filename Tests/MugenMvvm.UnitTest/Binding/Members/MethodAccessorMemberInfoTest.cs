@@ -41,6 +41,18 @@ namespace MugenMvvm.UnitTest.Binding.Members
             if (isLastParameterMetadata)
                 checkSetterArgs[checkSetterArgs.Length - 2] = DefaultMetadata;
 
+            var result = new ActionToken((o, o1) => { });
+            var testEventListener = new TestWeakEventListener();
+            var count = 0;
+            var memberObserver = new MemberObserver((target, member, listener, meta) =>
+            {
+                ++count;
+                target.ShouldEqual(this);
+                listener.ShouldEqual(testEventListener);
+                meta.ShouldEqual(DefaultMetadata);
+                return result;
+            }, this);
+
             var memberFlags = MemberFlags.All;
             IMethodMemberInfo? getMethod = null;
             IMethodMemberInfo? setMethod = null;
@@ -57,6 +69,14 @@ namespace MugenMvvm.UnitTest.Binding.Members
                         checkGetterArgs.ShouldEqual(args);
                         metadata.ShouldEqual(DefaultMetadata);
                         return getValue;
+                    },
+                    TryObserve = (o, listener, arg3) =>
+                    {
+                        ++count;
+                        o.ShouldEqual(this);
+                        listener.ShouldEqual(testEventListener);
+                        arg3.ShouldEqual(DefaultMetadata);
+                        return result;
                     },
                     Type = type
                 };
@@ -82,18 +102,6 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
             MethodAccessorMemberInfo? memberInfo = null;
             var reflectedType = typeof(string);
-            var testEventListener = new TestWeakEventListener();
-            var result = new ActionToken((o, o1) => { });
-            var count = 0;
-            var memberObserver = new MemberObserver((target, member, listener, meta) =>
-            {
-                ++count;
-                target.ShouldEqual(this);
-                listener.ShouldEqual(testEventListener);
-                meta.ShouldEqual(DefaultMetadata);
-                return result;
-            }, this);
-
             var observerRequestCount = 0;
             var observerProvider = new ObserverProvider();
             observerProvider.AddComponent(new TestMemberObserverProviderComponent
@@ -122,7 +130,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
             memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
             count.ShouldEqual(1);
-            observerRequestCount.ShouldEqual(1);
+            observerRequestCount.ShouldEqual(!canWrite ? 0 : 1);
 
             if (canRead)
             {
