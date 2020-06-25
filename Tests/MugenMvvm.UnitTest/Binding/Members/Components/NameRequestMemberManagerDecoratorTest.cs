@@ -22,6 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var component = new NameRequestMemberManagerDecorator();
             manager.AddComponent(component);
             component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         [Fact]
