@@ -263,8 +263,13 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         private static void InitializeBuilder(ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder)
         {
+#if SPAN_API
+            if (builder == null)
+                builder = new StringBuilder().Append(context.GetValueSpan(start, end));
+#else
             if (builder == null)
                 builder = new StringBuilder(context.GetValue(start, end));
+#endif
         }
 
         private string? GetQuoteToken(ITokenParserContext context)

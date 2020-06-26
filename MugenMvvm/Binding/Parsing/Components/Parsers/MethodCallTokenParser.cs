@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             context.Position = nameEndPos;
             context.SkipWhitespaces();
 
-            List<string>? typeArgs = null;
+            string[]? typeArgs = null;
             if (context.IsToken('<'))
             {
                 typeArgs = context.MoveNext().ParseStringArguments(">", true);

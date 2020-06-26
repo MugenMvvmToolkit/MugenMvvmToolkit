@@ -1,8 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks Condition="'$(LibraryFrameworks)'==''">net461;</TargetFrameworks>
-    <TargetFrameworks Condition="'$(LibraryFrameworks)'!=''">$(LibraryFrameworks)</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0;monoandroid10.0;net461</TargetFrameworks>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
@@ -10,7 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Should-DotNetStandard" Version="1.0.0" />
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="xunit" Version="2.4.1" />
   </ItemGroup>
 

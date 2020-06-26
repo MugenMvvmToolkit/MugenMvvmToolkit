@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Binding.Observers.MemberPaths
@@ -18,29 +19,47 @@ namespace MugenMvvm.Binding.Observers.MemberPaths
         {
             Should.NotBeNull(path, nameof(path));
             Path = path;
-            Members = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
-
-            if (hasIndexer)
+            if (!hasIndexer)
             {
-                var items = new List<string>();
-                for (var index = 0; index < Members.Count; index++)
-                {
-                    var s = Members[index];
-                    var start = s.IndexOf('[');
-                    var end = s.IndexOf(']');
-                    if (start <= 0 || end < 0)
-                    {
-                        items.Add(s.Trim());
-                        continue;
-                    }
+                Members = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
+                return;
+            }
 
-                    var indexer = s.Substring(start, end - start + 1).Trim();
-                    items.Add(s.Substring(0, start).Trim());
-                    items.Add(indexer);
+            var items = new List<string>();
+#if SPAN_API
+            var span = path.AsSpan();
+            foreach (var range in path.AsSpan().Split(MugenBindingExtensions.DotChar))
+            {
+                var s = span[range];
+                var start = s.IndexOf('[');
+                var end = s.IndexOf(']');
+                if (start <= 0 || end < 0)
+                {
+                    items.Add(s.Trim().ToString());
+                    continue;
                 }
 
-                Members = items;
+                items.Add(s.Slice(0, start).Trim().ToString());
+                items.Add(s.Slice(start, end - start + 1).Trim().ToString());
             }
+#else
+            Members = path.Split(MugenBindingExtensions.DotSeparator, StringSplitOptions.RemoveEmptyEntries);
+            for (var index = 0; index < Members.Count; index++)
+            {
+                var s = Members[index];
+                var start = s.IndexOf('[');
+                var end = s.IndexOf(']');
+                if (start <= 0 || end < 0)
+                {
+                    items.Add(s.Trim());
+                    continue;
+                }
+
+                items.Add(s.Substring(0, start).Trim());
+                items.Add(s.Substring(start, end - start + 1).Trim());
+            }
+#endif
+            Members = items;
         }
 
         #endregion

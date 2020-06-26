@@ -84,6 +84,13 @@ namespace MugenMvvm.Binding.Parsing
             return Source.Substring(start, end - start);
         }
 
+#if SPAN_API
+        public ReadOnlySpan<char> GetValueSpan(int start, int end)
+        {
+            return Source.AsSpan(start, end - start);
+        }
+#endif
+
         public IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null)
         {
             return Parsers.TryParse(this, expression, condition);

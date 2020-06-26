@@ -1,7 +1,7 @@
 ﻿<Project Sdk="MSBuild.Sdk.Extras">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>monoandroid10.0;netstandard2.0;net461</TargetFrameworks>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -10,12 +10,30 @@
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
+    <AndroidClassParser>class-parse</AndroidClassParser>
+    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
+    <IsBindingProject>true</IsBindingProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Platforms\**\*.cs" />
+    <None Include="Platforms\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Compile Include="Platforms\Android\**\*.cs" />
+    <Reference Include="System.Runtime.Serialization" />
+  </ItemGroup>
+
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <WarningsAsErrors>NU1605;</WarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Bcl.HashCode" Version="1.1.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.3" />
+    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
+    <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 </Project>

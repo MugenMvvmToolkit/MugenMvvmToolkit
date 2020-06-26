@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Binding.Attributes;
@@ -306,9 +307,9 @@ namespace MugenMvvm.Binding.Extensions
             return args;
         }
 
-        public static List<string>? ParseStringArguments(this ITokenParserContext context, string endSymbol, bool isPointSupported)
+        public static string[]? ParseStringArguments(this ITokenParserContext context, string endSymbol, bool isPointSupported)
         {
-            LazyList<string> args = default;
+            LazyList<(int start, int end)> args = default;
             var start = context.Position;
             int? end = null;
             while (true)
@@ -318,11 +319,11 @@ namespace MugenMvvm.Binding.Extensions
                 {
                     if (end == null)
                     {
-                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(args.List == null ? null : string.Join(",", args)));
+                        context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedExpressionFormat1.Format(context.Format(args)));
                         return null;
                     }
 
-                    args.Add(context.GetValue(start, end.Value));
+                    args.Add((start, end.Value));
                     context.MoveNext();
                     if (isEnd)
                         break;
@@ -345,11 +346,21 @@ namespace MugenMvvm.Binding.Extensions
                     continue;
                 }
 
-                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(string.Join(",", args.List == null ? null : string.Join(",", args)), endSymbol));
+                context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseArgumentExpressionsExpectedFormat2.Format(context.Format(args), endSymbol));
                 return null;
             }
 
-            return args;
+            var list = args.List;
+            if (list == null)
+                return null;
+            var result = new string[list.Count];
+            for (int i = 0; i < result.Length; i++)
+            {
+                var t = list[i];
+                result[i] = context.GetValue(t.start, t.end);
+            }
+
+            return result;
         }
 
         public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> ParseExpression(this ITokenParserContext context)
@@ -439,6 +450,11 @@ namespace MugenMvvm.Binding.Extensions
             if (isFirstSymbol)
                 return char.IsLetter(symbol) || symbol == '@' || symbol == '_';
             return char.IsLetterOrDigit(symbol) || symbol == '_';
+        }
+
+        private static string? Format(this ITokenParserContext context, LazyList<(int start, int end)> args)
+        {
+            return args.List == null ? null : string.Join(",", args.List.Select(tuple => context.GetValue(tuple.start, tuple.end)));
         }
 
         #endregion

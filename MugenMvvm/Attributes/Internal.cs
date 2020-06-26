@@ -1,5 +1,6 @@
 ﻿using System;
 
+#if !NET_CORE
 // ReSharper disable CheckNamespace
 namespace System.Diagnostics.CodeAnalysis
 {
@@ -141,6 +142,7 @@ namespace System.Diagnostics.CodeAnalysis
         #endregion
     }
 }
+#endif
 
 namespace MugenMvvm.Attributes
 {

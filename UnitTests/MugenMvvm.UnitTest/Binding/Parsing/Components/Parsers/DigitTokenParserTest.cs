@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             component.PostfixToConverter["dp"] = (value, integer, postfix, context) =>
             {
                 ++invokeCount;
-                value.ShouldEqual("1");
+                value.ToString().ShouldEqual("1");
                 integer.ShouldBeTrue();
                 postfix.ShouldEqual("dp");
                 context.ShouldEqual(ctx);

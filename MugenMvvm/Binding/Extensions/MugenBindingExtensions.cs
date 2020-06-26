@@ -35,8 +35,11 @@ namespace MugenMvvm.Binding.Extensions
     {
         #region Fields
 
-        public static readonly char[] CommaSeparator = { ',' };
-        public static readonly char[] DotSeparator = { '.' };
+        internal const char CommaChar = ',';
+        internal const char DotChar = '.';
+
+        public static readonly char[] CommaSeparator = { CommaChar };
+        public static readonly char[] DotSeparator = { DotChar };
         private static readonly int[] ArraySize = new int[1];
 
         #endregion
@@ -519,10 +522,17 @@ namespace MugenMvvm.Binding.Extensions
             else if (!path.StartsWith("[", StringComparison.Ordinal) || !path.EndsWith("]", StringComparison.Ordinal))
                 return null;
 
+#if SPAN_API
+            return path
+                .AsSpan()
+                .RemoveBounds(start)
+                .UnescapeString(CommaChar);
+#else
             return path
                 .RemoveBounds(start)
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                 .UnescapeString();
+#endif
         }
 
         public static string[]? GetMethodArgsRaw(string path, out string methodName)
@@ -535,10 +545,17 @@ namespace MugenMvvm.Binding.Extensions
             }
 
             methodName = path.Substring(0, startIndex);
+#if SPAN_API
+            return path
+                .AsSpan()
+                .RemoveBounds(startIndex + 1)
+                .UnescapeString(CommaChar);
+#else
             return path
                 .RemoveBounds(startIndex + 1)
                 .Split(CommaSeparator, StringSplitOptions.RemoveEmptyEntries)
                 .UnescapeString();
+#endif
         }
 
         public static Type GetTargetType<T>(this MemberFlags flags, ref T? target) where T : class
@@ -694,6 +711,38 @@ namespace MugenMvvm.Binding.Extensions
             return member.GetValue(target, metadata);
         }
 
+#if SPAN_API
+        private static ReadOnlySpan<char> RemoveBounds(this ReadOnlySpan<char> st, int start = 1)
+        {
+            return st.Slice(start, st.Length - start - 1);
+        }
+
+        private static string[] UnescapeString(this ReadOnlySpan<char> source, char separator)
+        {
+            int length = 0;
+            for (int i = 0; i < source.Length; i++)
+            {
+                if (source[i] == separator)
+                    ++length;
+            }
+
+            if (length == 0)
+                return Array.Empty<string>();
+
+            var args = new string[length];
+            int index = 0;
+            foreach (var arg in source.Split(separator))
+            {
+                var value = source[arg].Trim();
+                if (value.StartsWith("\"", StringComparison.Ordinal) && value.EndsWith("\"", StringComparison.Ordinal)
+                || value.StartsWith("'", StringComparison.Ordinal) && value.EndsWith("'", StringComparison.Ordinal))
+                    value = value.RemoveBounds();
+                args[index++] = value.ToString();
+            }
+
+            return args;
+        }
+#else
         private static string RemoveBounds(this string st, int start = 1)
         {
             return st.Substring(start, st.Length - start - 1);
@@ -712,6 +761,7 @@ namespace MugenMvvm.Binding.Extensions
 
             return args;
         }
+#endif
 
         private static void ToStringValue(this IExpressionNode expression, StringBuilder builder)
         {

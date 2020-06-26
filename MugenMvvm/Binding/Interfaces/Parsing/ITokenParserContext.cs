@@ -16,6 +16,10 @@ namespace MugenMvvm.Binding.Interfaces.Parsing
 
         string GetValue(int start, int end);
 
+#if SPAN_API
+        ReadOnlySpan<char> GetValueSpan(int start, int end);
+#endif
+
         IExpressionNode? TryParse(IExpressionNode? expression = null, Func<ITokenParserContext, ITokenParserComponent, bool>? condition = null);
     }
 }

@@ -97,7 +97,11 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 } while (context.IsDigit(end));
             }
 
+#if SPAN_API
+            var value = context.GetValueSpan(start, end);
+#else
             var value = context.GetValue(start, end);
+#endif
             var postfix = "";
             if (context.IsIdentifier(out var position, end))
             {
@@ -115,7 +119,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 }
             }
 
-            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseDigitExpressionFormat1.Format(value + postfix));
+            context.TryGetErrors()?.Add(BindingMessageConstant.CannotParseDigitExpressionFormat1.Format(value.ToString() + postfix));
             return null;
         }
 
@@ -123,7 +127,11 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         #region Methods
 
+#if SPAN_API
+        public static IExpressionNode? Convert(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context)
+#else
         public static IExpressionNode? Convert(string value, bool integer, string postfix, ITokenParserContext context)
+#endif
         {
             switch (postfix)
             {
@@ -181,7 +189,11 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         #region Nested types
 
+#if SPAN_API
+        public delegate IExpressionNode? ConvertDelegate(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context);
+#else
         public delegate IExpressionNode? ConvertDelegate(string value, bool integer, string postfix, ITokenParserContext context);
+#endif
 
         #endregion
     }

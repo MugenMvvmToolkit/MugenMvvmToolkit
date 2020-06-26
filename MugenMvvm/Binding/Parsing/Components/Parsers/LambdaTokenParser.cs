@@ -77,7 +77,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                 if (stringArgs == null)
                     return null;
 
-                args = new IParameterExpressionNode[stringArgs.Count];
+                args = new IParameterExpressionNode[stringArgs.Length];
                 for (int i = 0; i < args.Length; i++)
                     args[i] = new ParameterExpressionNode(stringArgs[i]);
             }
