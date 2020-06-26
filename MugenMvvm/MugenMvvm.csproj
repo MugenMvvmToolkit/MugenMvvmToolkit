@@ -24,6 +24,10 @@
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Compile Include="Platforms\Android\**\*.cs" />
+    <LibraryProjectZip Include="Platforms\Android\Jars\app-release.aar" />
+    <TransformFile Include="Platforms\Android\Transforms\Metadata.xml" />
+    <TransformFile Include="Platforms\Android\Transforms\EnumFields.xml" />
+    <TransformFile Include="Platforms\Android\Transforms\EnumMethods.xml" />
     <Reference Include="System.Runtime.Serialization" />
   </ItemGroup>
 
@@ -36,4 +40,8 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
+
+  <Target Name="BuildAndroidNative" BeforeTargets="Build" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Exec Command="..\BuildAndroidNative.bat"/>
+  </Target>
 </Project>
