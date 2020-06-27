@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Serialization
         [InlineData(10)]
         public void SerializeShouldBeHandledByComponents(int count)
         {
-            var stream = Stream.Null;
+            var stream = "";
             var serializer = new Serializer();
             var executeCount = 0;
             var target = typeof(bool);
@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTest.Serialization
         [Fact]
         public void DeserializeShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(Stream.Null));
+            ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(""));
         }
 
         [Theory]
@@ -105,7 +105,7 @@ namespace MugenMvvm.UnitTest.Serialization
         [InlineData(10)]
         public void DeserializeShouldBeHandledByComponents(int count)
         {
-            var stream = Stream.Null;
+            var stream = "";
             var serializer = new Serializer();
             var executeCount = 0;
             var target = typeof(bool);

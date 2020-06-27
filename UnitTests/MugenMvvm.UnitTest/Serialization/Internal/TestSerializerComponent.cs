@@ -13,9 +13,9 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         public Func<object, Type, IReadOnlyMetadataContext?, bool>? CanSerialize { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, Stream?>? TrySerialize { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, string?>? TrySerialize { get; set; }
 
-        public Func<Stream, IReadOnlyMetadataContext?, object?>? TryDeserialize { get; set; }
+        public Func<string, IReadOnlyMetadataContext?, object?>? TryDeserialize { get; set; }
 
         public int Priority { get; set; }
 
@@ -28,14 +28,14 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
             return CanSerialize?.Invoke(target, typeof(TTarget), metadata) ?? false;
         }
 
-        Stream? ISerializerComponent.TrySerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
+        string? ISerializerComponent.TrySerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
         {
             return TrySerialize?.Invoke(target, typeof(TTarget), metadata);
         }
 
-        bool ISerializerComponent.TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
+        bool ISerializerComponent.TryDeserialize(string data, IReadOnlyMetadataContext? metadata, out object? value)
         {
-            value = TryDeserialize?.Invoke(stream, metadata);
+            value = TryDeserialize?.Invoke(data, metadata);
             return value != null;
         }
 
