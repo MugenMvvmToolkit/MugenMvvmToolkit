@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Serialization.Components
 {
-    public interface ITypeResolverSerializerComponent : IComponent<ISerializer>
+    public interface ITypeResolverComponent : IComponent<ISerializer>
     {
         Type? TryResolveType(string assemblyName, string typeName, ISerializationContext? serializationContext);
 

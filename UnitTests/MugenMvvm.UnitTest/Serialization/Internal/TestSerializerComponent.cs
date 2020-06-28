@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
 
 namespace MugenMvvm.UnitTest.Serialization.Internal
@@ -11,11 +11,9 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, bool>? CanSerialize { get; set; }
+        public Func<Stream, object, Type, ISerializationContext, bool>? TrySerialize { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, string?>? TrySerialize { get; set; }
-
-        public Func<string, IReadOnlyMetadataContext?, object?>? TryDeserialize { get; set; }
+        public Func<Stream, ISerializationContext, object?>? TryDeserialize { get; set; }
 
         public int Priority { get; set; }
 
@@ -23,19 +21,14 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         #region Implementation of interfaces
 
-        bool ISerializerComponent.CanSerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
+        bool ISerializerComponent.TrySerialize<TRequest>(Stream stream, [DisallowNull] in TRequest request, ISerializationContext serializationContext)
         {
-            return CanSerialize?.Invoke(target, typeof(TTarget), metadata) ?? false;
+            return TrySerialize?.Invoke(stream, request, typeof(TRequest), serializationContext) ?? false;
         }
 
-        string? ISerializerComponent.TrySerialize<TTarget>([DisallowNull]in TTarget target, IReadOnlyMetadataContext? metadata)
+        bool ISerializerComponent.TryDeserialize(Stream stream, ISerializationContext serializationContext, out object? value)
         {
-            return TrySerialize?.Invoke(target, typeof(TTarget), metadata);
-        }
-
-        bool ISerializerComponent.TryDeserialize(string data, IReadOnlyMetadataContext? metadata, out object? value)
-        {
-            value = TryDeserialize?.Invoke(data, metadata);
+            value = TryDeserialize?.Invoke(stream, serializationContext);
             return value != null;
         }
 

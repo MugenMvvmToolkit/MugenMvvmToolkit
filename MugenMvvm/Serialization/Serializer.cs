@@ -11,30 +11,36 @@ namespace MugenMvvm.Serialization
 {
     public sealed class Serializer : ComponentOwnerBase<ISerializer>, ISerializer
     {
+        #region Fields
+
+        private readonly IMetadataContextProvider? _metadataContextProvider;
+
+        #endregion
+
         #region Constructors
 
-        public Serializer(IComponentCollectionProvider? componentCollectionProvider = null)
+        public Serializer(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
             : base(componentCollectionProvider)
         {
+            _metadataContextProvider = metadataContextProvider;
         }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public bool CanSerialize<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public bool TrySerialize<TRequest>(Stream stream, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<ISerializerComponent>().CanSerialize(request, metadata);
+            Should.NotBeNull(stream, nameof(stream));
+            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata, _metadataContextProvider);
+            return GetComponents<ISerializerComponent>().TrySerialize(stream, request, ctx);
         }
 
-        public string? TrySerialize<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
         {
-            return GetComponents<ISerializerComponent>().TrySerialize(request, metadata);
-        }
-
-        public bool TryDeserialize(string data, IReadOnlyMetadataContext? metadata, out object? value)
-        {
-            return GetComponents<ISerializerComponent>().TryDeserialize(data, metadata, out value);
+            Should.NotBeNull(stream, nameof(stream));
+            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, metadata) ?? new SerializationContext(metadata, _metadataContextProvider);
+            return GetComponents<ISerializerComponent>().TryDeserialize(stream, ctx, out value);
         }
 
         #endregion

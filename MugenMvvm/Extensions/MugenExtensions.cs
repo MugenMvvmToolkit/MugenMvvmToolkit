@@ -52,19 +52,17 @@ namespace MugenMvvm.Extensions
             return snapshot;
         }
 
-        public static string Serialize<TRequest>(this ISerializer serializer, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static void Serialize<TRequest>(this ISerializer serializer, Stream stream, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
-            var result = serializer.TrySerialize(request, metadata);
-            if (result == null)
+            if (!serializer.TrySerialize(stream, request, metadata))
                 ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
-            return result;
         }
 
-        public static object? Deserialize(this ISerializer serializer, string data, IReadOnlyMetadataContext? metadata = null)
+        public static object? Deserialize(this ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
-            if (!serializer.TryDeserialize(data, metadata, out var result))
+            if (!serializer.TryDeserialize(stream, metadata, out var result))
                 ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
             return result;
         }

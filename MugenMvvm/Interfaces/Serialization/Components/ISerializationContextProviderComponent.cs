@@ -5,6 +5,8 @@ namespace MugenMvvm.Interfaces.Serialization.Components
 {
     public interface ISerializationContextProviderComponent : IComponent<ISerializer>
     {
-        ISerializationContext? TryGetSerializationContext(ISerializer serializer, IReadOnlyMetadataContext? metadata);
+        ISerializationContext? TryGetSerializationContext<TRequest>(ISerializer serializer, in TRequest request, IReadOnlyMetadataContext? metadata);
+
+        ISerializationContext? TryGetDeserializationContext(ISerializer serializer, IReadOnlyMetadataContext? metadata);
     }
 }

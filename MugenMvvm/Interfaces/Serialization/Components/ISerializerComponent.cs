@@ -1,15 +1,13 @@
 ﻿using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Serialization.Components
 {
     public interface ISerializerComponent : IComponent<ISerializer>
     {
-        bool CanSerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
+        bool TrySerialize<TRequest>(Stream stream, [DisallowNull] in TRequest request, ISerializationContext serializationContext);
 
-        string? TrySerialize<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
-
-        bool TryDeserialize(string data, IReadOnlyMetadataContext? metadata, out object? value);
+        bool TryDeserialize(Stream stream, ISerializationContext serializationContext, out object? value);
     }
 }

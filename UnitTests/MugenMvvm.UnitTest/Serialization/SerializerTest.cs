@@ -15,50 +15,9 @@ namespace MugenMvvm.UnitTest.Serialization
         #region Methods
 
         [Fact]
-        public void CanSerializeShouldReturnFalseNoComponents()
-        {
-            new Serializer().CanSerialize(typeof(bool)).ShouldBeFalse();
-        }
-
-        [Theory]
-        [InlineData(1)]
-        [InlineData(10)]
-        public void CanSerializeShouldBeHandledByComponents(int count)
-        {
-            var serializer = new Serializer();
-            var executeCount = 0;
-            var type = typeof(bool);
-            var result = false;
-            for (var i = 0; i < count; i++)
-            {
-                var component = new TestSerializerComponent
-                {
-                    Priority = -i,
-                    CanSerialize = (target, t, context) =>
-                    {
-                        ++executeCount;
-                        target.ShouldEqual(type);
-                        t.ShouldEqual(typeof(Type));
-                        context.ShouldEqual(DefaultMetadata);
-                        return result;
-                    }
-                };
-                serializer.AddComponent(component);
-            }
-
-            serializer.CanSerialize(type, DefaultMetadata).ShouldEqual(result);
-            executeCount.ShouldEqual(count);
-
-            executeCount = 0;
-            result = true;
-            serializer.CanSerialize(type, DefaultMetadata).ShouldEqual(result);
-            executeCount.ShouldEqual(1);
-        }
-
-        [Fact]
         public void SerializeShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(this));
+            ShouldThrow<InvalidOperationException>(() => new Serializer().Serialize(new MemoryStream(), this));
         }
 
         [Theory]
@@ -66,38 +25,50 @@ namespace MugenMvvm.UnitTest.Serialization
         [InlineData(10)]
         public void SerializeShouldBeHandledByComponents(int count)
         {
-            var stream = "";
+            var ctx = new SerializationContext();
+            var stream = Stream.Null;
             var serializer = new Serializer();
+            serializer.AddComponent(new TestSerializationContextProvider
+            {
+                TryGetSerializationContext = (s, o, arg3, arg4) =>
+                {
+                    s.ShouldEqual(serializer);
+                    o.ShouldEqual(this);
+                    arg3.ShouldEqual(GetType());
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return ctx;
+                }
+            });
             var executeCount = 0;
-            var target = typeof(bool);
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
                 var component = new TestSerializerComponent
                 {
-                    TrySerialize = (t, type, context) =>
+                    TrySerialize = (s, t, type, context) =>
                     {
                         ++executeCount;
-                        t.ShouldEqual(target);
-                        type.ShouldEqual(typeof(Type));
-                        context.ShouldEqual(DefaultMetadata);
+                        s.ShouldEqual(stream);
+                        t.ShouldEqual(this);
+                        type.ShouldEqual(GetType());
+                        context.ShouldEqual(ctx);
                         if (isLast)
-                            return stream;
-                        return null;
+                            return true;
+                        return false;
                     },
                     Priority = -i
                 };
                 serializer.AddComponent(component);
             }
 
-            serializer.Serialize(target, DefaultMetadata).ShouldEqual(stream);
+            serializer.Serialize(stream, this, DefaultMetadata);
             executeCount.ShouldEqual(count);
         }
 
         [Fact]
         public void DeserializeShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(""));
+            ShouldThrow<InvalidOperationException>(() => new Serializer().Deserialize(new MemoryStream()));
         }
 
         [Theory]
@@ -105,8 +76,18 @@ namespace MugenMvvm.UnitTest.Serialization
         [InlineData(10)]
         public void DeserializeShouldBeHandledByComponents(int count)
         {
-            var stream = "";
+            var ctx = new SerializationContext();
+            var stream = Stream.Null;
             var serializer = new Serializer();
+            serializer.AddComponent(new TestSerializationContextProvider
+            {
+                TryGetDeserializationContext = (s, arg4) =>
+                {
+                    s.ShouldEqual(serializer);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return ctx;
+                }
+            });
             var executeCount = 0;
             var target = typeof(bool);
             for (var i = 0; i < count; i++)
@@ -118,7 +99,7 @@ namespace MugenMvvm.UnitTest.Serialization
                     {
                         ++executeCount;
                         o.ShouldEqual(stream);
-                        context.ShouldEqual(DefaultMetadata);
+                        context.ShouldEqual(ctx);
                         if (isLast)
                             return target;
                         return null;
