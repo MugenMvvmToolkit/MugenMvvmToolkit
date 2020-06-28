@@ -103,10 +103,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var wrapperManager = new WrapperManager();
 
             var presenter = new ViewModelMediatorPresenter(viewManager, wrapperManager, serviceProvider);
-            var t1 = presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView1>), typeof(TestView1), true);
-            var t2 = presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestViewBase>), typeof(TestViewBase), false);
-            presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(TestView2), true);
-            presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(ViewModelMediatorPresenterTest), false);
+            presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(TestView2), true, 0);
+            presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView2>), typeof(ViewModelMediatorPresenterTest), false, 1);
+            var t2 = presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestViewBase>), typeof(TestViewBase), false, 2);
+            var t1 = presenter.RegisterMediator(typeof(TestViewModelPresenterMediator<TestView1>), typeof(TestView1), true, 3);
 
             var list = isRawRequest ? presenter.TryShow(viewModel, cancellationToken, DefaultMetadata).AsList() : presenter.TryShow(request, cancellationToken, DefaultMetadata).AsList();
             mediators.Count.ShouldEqual(1);

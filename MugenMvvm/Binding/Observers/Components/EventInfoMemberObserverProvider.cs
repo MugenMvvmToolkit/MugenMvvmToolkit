@@ -2,6 +2,7 @@
 using System.Reflection;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observers;
 using MugenMvvm.Binding.Interfaces.Observers.Components;
 using MugenMvvm.Enums;
@@ -22,8 +23,8 @@ namespace MugenMvvm.Binding.Observers.Components
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
-        private static readonly MethodInfo RaiseMethod = typeof(EventListenerCollection)
-            .GetMethodOrThrow(nameof(EventListenerCollection.RaiseNonRef), BindingFlagsEx.InstancePublic);
+        private static readonly MethodInfo RaiseMethod = typeof(MugenBindingExtensions)
+            .GetMethodOrThrow(nameof(MugenBindingExtensions.Raise), BindingFlagsEx.StaticPublic);
 
         #endregion
 
@@ -86,7 +87,7 @@ namespace MugenMvvm.Binding.Observers.Components
         {
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
-                ? new EventHandler(listenerInternal.RaiseNonRef)
+                ? new EventHandler(listenerInternal.Raise)
                 : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionDelegateProvider);
 
             if (handler == null)

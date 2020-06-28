@@ -27,14 +27,14 @@ namespace MugenMvvm.Serialization
             return GetComponents<ISerializerComponent>().CanSerialize(request, metadata);
         }
 
-        public Stream? TrySerialize<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public string? TrySerialize<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<ISerializerComponent>().TrySerialize(request, metadata);
         }
 
-        public bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
+        public bool TryDeserialize(string data, IReadOnlyMetadataContext? metadata, out object? value)
         {
-            return GetComponents<ISerializerComponent>().TryDeserialize(stream, metadata, out value);
+            return GetComponents<ISerializerComponent>().TryDeserialize(data, metadata, out value);
         }
 
         #endregion

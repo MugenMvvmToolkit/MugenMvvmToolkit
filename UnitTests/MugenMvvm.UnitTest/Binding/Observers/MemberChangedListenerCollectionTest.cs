@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using MugenMvvm.Binding.Observers;
 using MugenMvvm.Internal;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.UnitTest.Binding.Observers.Internal;
 using Should;
 using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Observers
 {
-    public class PropertyChangedListenerCollectionTest : UnitTestBase
+    public class MemberChangedListenerCollectionTest : UnitTestBase
     {
         #region Methods
 
@@ -31,19 +32,19 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var listener = new PropertyChangedListenerCollection();
+            var listener = new MemberChangedListenerCollection();
             for (var i = 0; i < count; i++)
                 listener.Add(listeners[i], $"{i}");
 
             for (var i = 0; i < count; i++)
             {
-                listener.Raise(this, new PropertyChangedEventArgs($"{i}"));
+                listener.RaisePropertyChanged(this, new PropertyChangedEventArgs($"{i}"));
                 ValidateInvokeCount(listeners, 1, false, 0, i + 1);
                 ValidateInvokeCount(listeners, 0, false, i + 1);
             }
 
             ValidateInvokeCount(listeners, 1);
-            listener.Raise(this, Default.EmptyPropertyChangedArgs);
+            listener.RaisePropertyChanged(this, Default.EmptyPropertyChangedArgs);
             ValidateInvokeCount(listeners, 1);
         }
 
@@ -65,13 +66,13 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var listener = new PropertyChangedListenerCollection();
+            var listener = new MemberChangedListenerCollection();
             for (var i = 0; i < count; i++)
                 listener.Add(listeners[i], $"[{i}]");
 
             for (var i = 0; i < count; i++)
             {
-                listener.Raise(this, new PropertyChangedEventArgs($"[{i}]"));
+                listener.RaisePropertyChanged(this, new PropertyChangedEventArgs($"[{i}]"));
                 ValidateInvokeCount(listeners, 1, false, 0, i + 1);
                 ValidateInvokeCount(listeners, 0, false, i + 1);
             }
@@ -79,17 +80,17 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             ValidateInvokeCount(listeners, 1);
             for (var i = 0; i < count; i++)
             {
-                listener.Raise(this, new PropertyChangedEventArgs($"Item[{i}]"));
+                listener.RaisePropertyChanged(this, new PropertyChangedEventArgs($"Item[{i}]"));
                 ValidateInvokeCount(listeners, 1, false, 0, i + 1);
                 ValidateInvokeCount(listeners, 0, false, i + 1);
             }
 
             ValidateInvokeCount(listeners, 1);
 
-            listener.Raise(this, Default.IndexerPropertyChangedArgs);
+            listener.RaisePropertyChanged(this, Default.IndexerPropertyChangedArgs);
             ValidateInvokeCount(listeners, 1);
 
-            listener.Raise(this, Default.EmptyPropertyChangedArgs);
+            listener.RaisePropertyChanged(this, Default.EmptyPropertyChangedArgs);
             ValidateInvokeCount(listeners, 1);
         }
 
@@ -120,11 +121,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 };
             }
 
-            var collection = new PropertyChangedListenerCollection();
+            var collection = new MemberChangedListenerCollection();
             for (var i = 0; i < count; i++)
             {
                 collection.Add(listeners[i], args.PropertyName);
-                collection.Raise(sender, args);
+                collection.RaisePropertyChanged(sender, args);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
                 collection.HasListeners.ShouldBeTrue();
             }
@@ -133,11 +134,11 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             for (var i = 0; i < removeCount; i++)
                 listeners[i].IsAlive = false;
 
-            collection.Raise(sender, args);
+            collection.RaisePropertyChanged(sender, args);
             collection.HasListeners.ShouldEqual(count != 1);
             ValidateInvokeCount(listeners, 1);
 
-            collection.Raise(sender, args);
+            collection.RaisePropertyChanged(sender, args);
             collection.HasListeners.ShouldEqual(count != 1);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
@@ -148,7 +149,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
                 tokens.Add(collection.Add(listeners[i], args.PropertyName));
             }
 
-            collection.Raise(sender, args);
+            collection.RaisePropertyChanged(sender, args);
             collection.HasListeners.ShouldBeTrue();
             ValidateInvokeCount(listeners, 1);
 
@@ -156,25 +157,25 @@ namespace MugenMvvm.UnitTest.Binding.Observers
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
-                collection.Raise(sender, args);
+                collection.RaisePropertyChanged(sender, args);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
             for (var i = 0; i < removeCount; i++)
                 collection.Add(listeners[i], args.PropertyName);
 
-            collection.Raise(sender, args);
+            collection.RaisePropertyChanged(sender, args);
             ValidateInvokeCount(listeners, 1);
             collection.HasListeners.ShouldBeTrue();
 
             for (var i = 0; i < count; i++)
                 listeners[i].IsAlive = false;
 
-            collection.Raise(sender, args);
+            collection.RaisePropertyChanged(sender, args);
             ValidateInvokeCount(listeners, 1);
             collection.HasListeners.ShouldBeFalse();
 
-            collection.Raise(sender, args);
+            collection.RaisePropertyChanged(sender, args);
             ValidateInvokeCount(listeners, 0);
             collection.HasListeners.ShouldBeFalse();
         }
@@ -257,7 +258,7 @@ namespace MugenMvvm.UnitTest.Binding.Observers
 
         #endregion
 
-        private sealed class TestPropertyChangedListenerCollection : PropertyChangedListenerCollection
+        private sealed class TestPropertyChangedListenerCollection : MemberChangedListenerCollection
         {
             #region Properties
 

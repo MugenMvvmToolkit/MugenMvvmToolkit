@@ -23,9 +23,7 @@ namespace MugenMvvm.Presenters.Components
     {
         #region Fields
 
-        private readonly List<(Type mediatorType, Type viewType, bool viewExactlyEqual)> _mediators;
-        private readonly RemoveHandler _removeHandlerFalse;
-        private readonly RemoveHandler _removeHandlerTrue;
+        private readonly List<MediatorRegistration> _mediators;
         private readonly IServiceProvider? _serviceProvider;
         private readonly IViewManager? _viewManager;
         private readonly IWrapperManager? _wrapperManager;
@@ -40,12 +38,10 @@ namespace MugenMvvm.Presenters.Components
         [Preserve(Conditional = true)]
         public ViewModelMediatorPresenter(IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, IServiceProvider? serviceProvider = null)
         {
-            _mediators = new List<(Type, Type, bool)>();
+            _mediators = new List<MediatorRegistration>();
             _viewManager = viewManager;
             _wrapperManager = wrapperManager;
             _serviceProvider = serviceProvider;
-            _removeHandlerTrue = new RemoveHandler(_mediators, true);
-            _removeHandlerFalse = new RemoveHandler(_mediators, false);
         }
 
         #endregion
@@ -58,7 +54,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             object? view;
             IViewModelBase? viewModel;
@@ -91,7 +87,7 @@ namespace MugenMvvm.Presenters.Components
             return result.Cast<IReadOnlyList<IPresenterResult>>();
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull]in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is IViewModelBase viewModel))
                 return default;
@@ -113,25 +109,31 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        public ActionToken RegisterMediator<TMediator, TView>(bool viewExactlyEqual = false)
+        public ActionToken RegisterMediator<TMediator, TView>(bool viewExactlyEqual = false, int priority = 0)
             where TMediator : ViewModelPresenterMediatorBase<TView>
             where TView : class
         {
-            return RegisterMediator(typeof(TMediator), typeof(TView), viewExactlyEqual);
+            return RegisterMediator(typeof(TMediator), typeof(TView), viewExactlyEqual, priority);
         }
 
-        public ActionToken RegisterMediator(Type mediatorType, Type viewType, bool viewExactlyEqual)
+        public ActionToken RegisterMediator(Type mediatorType, Type viewType, bool viewExactlyEqual, int priority = 0)
         {
             Should.BeOfType<IViewModelPresenterMediator>(mediatorType, nameof(mediatorType));
             Should.NotBeNull(viewType, nameof(viewType));
+            var registration = new MediatorRegistration(mediatorType, viewType, viewExactlyEqual, priority);
             lock (_mediators)
             {
-                _mediators.Add((mediatorType, viewType, viewExactlyEqual));
+                MugenExtensions.AddOrdered(_mediators, registration, registration);
             }
 
-            if (viewExactlyEqual)
-                return new ActionToken(_removeHandlerTrue, mediatorType, viewType);
-            return new ActionToken(_removeHandlerFalse, mediatorType, viewType);
+            return new ActionToken((l, m) =>
+            {
+                var list = (List<MediatorRegistration>)l!;
+                lock (list)
+                {
+                    list.Remove((MediatorRegistration)m!);
+                }
+            }, _mediators, registration);
         }
 
         private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
@@ -179,19 +181,19 @@ namespace MugenMvvm.Presenters.Components
             for (var i = 0; i < _mediators.Count; i++)
             {
                 var mediatorInfo = _mediators[i];
-                if (mediatorInfo.viewExactlyEqual)
+                if (mediatorInfo.ExactlyEqual)
                 {
-                    if (mediatorInfo.viewType == mapping.ViewType)
+                    if (mediatorInfo.ViewType == mapping.ViewType)
                     {
-                        mediatorType = mediatorInfo.mediatorType;
+                        mediatorType = mediatorInfo.MediatorType;
                         break;
                     }
                 }
                 else
                 {
-                    if (mediatorInfo.viewType.IsAssignableFrom(mapping.ViewType) || wrapperManager.CanWrap(mediatorInfo.viewType, mapping.ViewType, metadata))
+                    if (mediatorInfo.ViewType.IsAssignableFrom(mapping.ViewType) || wrapperManager.CanWrap(mediatorInfo.ViewType, mapping.ViewType, metadata))
                     {
-                        mediatorType = mediatorInfo.mediatorType;
+                        mediatorType = mediatorInfo.MediatorType;
                         break;
                     }
                 }
@@ -209,34 +211,32 @@ namespace MugenMvvm.Presenters.Components
 
         #region Nested types
 
-        private sealed class RemoveHandler : ActionToken.IHandler
+        private sealed class MediatorRegistration : IComparer<MediatorRegistration>
         {
             #region Fields
 
-            private readonly List<(Type mediatorType, Type viewType, bool viewExactlyEqual)> _mediators;
-            private readonly bool _viewExactlyEqual;
+            public readonly bool ExactlyEqual;
+            public readonly Type MediatorType;
+            public readonly int Priority;
+            public readonly Type ViewType;
 
             #endregion
 
             #region Constructors
 
-            public RemoveHandler(List<(Type mediatorType, Type viewType, bool viewExactlyEqual)> mediators, bool viewExactlyEqual)
+            public MediatorRegistration(Type mediatorType, Type viewType, bool exactlyEqual, int priority)
             {
-                _mediators = mediators;
-                _viewExactlyEqual = viewExactlyEqual;
+                MediatorType = mediatorType;
+                ViewType = viewType;
+                ExactlyEqual = exactlyEqual;
+                Priority = priority;
             }
 
             #endregion
 
             #region Implementation of interfaces
 
-            public void Invoke(object? state1, object? state2)
-            {
-                lock (_mediators)
-                {
-                    _mediators.Remove(((Type)state1!, (Type)state2!, _viewExactlyEqual));
-                }
-            }
+            public int Compare(MediatorRegistration x, MediatorRegistration y) => y.Priority.CompareTo(x.Priority);
 
             #endregion
         }

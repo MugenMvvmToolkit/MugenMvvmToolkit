@@ -68,7 +68,7 @@ namespace MugenMvvm.Views.Components
 
                     var task = state.Item1.Components.TryInitializeAsync(state.mapping, state.request!, state.cancellationToken, state.metadata);
                     if (task == null)
-                        ExceptionManager.ThrowObjectNotInitialized(state.Item1);
+                        ExceptionManager.ThrowObjectNotInitialized(state.Item1.Components);
                     state.tcs.TrySetFromTask(task);
                 }
                 catch (Exception e)

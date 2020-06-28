@@ -77,9 +77,9 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Methods
 
-        protected override bool ActivateView(INavigationContext context)
+        protected override bool ActivateView(T view, INavigationContext context)
         {
-            return ActivateViewHandler?.Invoke(context) ?? base.ActivateView(context);
+            return ActivateViewHandler?.Invoke(context) ?? base.ActivateView(view, context);
         }
 
         protected override INavigationContext GetNavigationContext(NavigationMode mode, IReadOnlyMetadataContext? metadata)
@@ -131,22 +131,22 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
             return WaitNavigationBeforeShowAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitNavigationBeforeShowAsync(view, cancellationToken, metadata);
         }
 
-        protected override void ShowView(INavigationContext context)
+        protected override void ShowView(T view, INavigationContext context)
         {
             ShowViewHandler?.Invoke(context);
         }
 
-        protected override void InitializeView(INavigationContext context)
+        protected override void InitializeView(T view, INavigationContext context)
         {
             InitializeViewHandler?.Invoke(context);
         }
 
-        protected override void CloseView(INavigationContext context)
+        protected override void CloseView(T view, INavigationContext context)
         {
             CloseViewHandler?.Invoke(context);
         }
 
-        protected override void CleanupView(INavigationContext context)
+        protected override void CleanupView(T view, INavigationContext context)
         {
             CleanupViewHandler?.Invoke(context);
         }

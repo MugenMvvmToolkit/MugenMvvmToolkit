@@ -123,7 +123,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static Stream? TrySerialize<TRequest>(this ISerializerComponent[] components, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static string? TrySerialize<TRequest>(this ISerializerComponent[] components, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -136,13 +136,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool TryDeserialize(this ISerializerComponent[] components, Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
+        public static bool TryDeserialize(this ISerializerComponent[] components, string data, IReadOnlyMetadataContext? metadata, out object? value)
         {
             Should.NotBeNull(components, nameof(components));
-            Should.NotBeNull(stream, nameof(stream));
+            Should.NotBeNull(data, nameof(data));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryDeserialize(stream, metadata, out value))
+                if (components[i].TryDeserialize(data, metadata, out value))
                     return true;
             }
 

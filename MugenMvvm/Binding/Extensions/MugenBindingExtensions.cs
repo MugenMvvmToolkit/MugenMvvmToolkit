@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Text;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core;
@@ -89,6 +91,18 @@ namespace MugenMvvm.Binding.Extensions
             if (result == null)
                 BindingExceptionManager.ThrowCannotCompileExpression(expression);
             return result;
+        }
+
+        public static Expression Build(this IExpressionBuilderContext context, IExpressionNode expression)
+        {
+            Should.NotBeNull(context, nameof(context));
+            Should.NotBeNull(expression, nameof(expression));
+            var exp = context.TryBuild(expression);
+            if (exp != null)
+                return exp;
+
+            context.ThrowCannotCompile(expression);
+            return null;
         }
 
         public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
@@ -252,16 +266,16 @@ namespace MugenMvvm.Binding.Extensions
             return null;
         }
 
-        public static Expression Build(this IExpressionBuilderContext context, IExpressionNode expression)
+        [Preserve(Conditional = true)]
+        public static void Raise<TArg>(this EventListenerCollection collection, object? sender, TArg args)
         {
-            Should.NotBeNull(context, nameof(context));
-            Should.NotBeNull(expression, nameof(expression));
-            var exp = context.TryBuild(expression);
-            if (exp != null)
-                return exp;
+            collection.Raise(sender, in args, null);
+        }
 
-            context.ThrowCannotCompile(expression);
-            return null;
+        [Preserve(Conditional = true)]
+        public static void RaisePropertyChanged(this MemberChangedListenerCollection collection, object? sender, PropertyChangedEventArgs args)
+        {
+            collection.Raise(sender, args, args.PropertyName, null);
         }
 
         public static object? Invoke(this ICompiledExpression? expression, object? sourceRaw, IReadOnlyMetadataContext? metadata)

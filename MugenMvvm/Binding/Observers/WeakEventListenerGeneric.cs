@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Observers
 
         #region Methods
 
-        public bool TryHandle<T>(object sender, in T message, IReadOnlyMetadataContext? metadata)
+        public bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             return WeakEventListener.TryHandle(Target, sender, message, metadata);
         }

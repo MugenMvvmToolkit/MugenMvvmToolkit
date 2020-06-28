@@ -41,13 +41,6 @@ namespace MugenMvvm.Binding.Observers
             collection?.Raise(target, message, metadata);
         }
 
-        [Preserve(Conditional = true)]
-        public void RaiseNonRef<TArg>(object? sender, TArg args)
-        {
-            Raise(sender, in args, null);
-        }
-
-        [Preserve(Conditional = true)]
         public void Raise<TArg>(object? sender, in TArg args, IReadOnlyMetadataContext? metadata)
         {
             if (_listeners is object?[] listeners)

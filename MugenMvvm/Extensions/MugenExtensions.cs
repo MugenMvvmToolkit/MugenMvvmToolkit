@@ -52,7 +52,7 @@ namespace MugenMvvm.Extensions
             return snapshot;
         }
 
-        public static Stream Serialize<TRequest>(this ISerializer serializer, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static string Serialize<TRequest>(this ISerializer serializer, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
             var result = serializer.TrySerialize(request, metadata);
@@ -61,10 +61,10 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static object? Deserialize(this ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata = null)
+        public static object? Deserialize(this ISerializer serializer, string data, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
-            if (!serializer.TryDeserialize(stream, metadata, out var result))
+            if (!serializer.TryDeserialize(data, metadata, out var result))
                 ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
             return result;
         }

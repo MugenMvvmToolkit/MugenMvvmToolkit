@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
@@ -161,15 +162,15 @@ namespace MugenMvvm.Presenters
 
         #region Methods
 
-        protected abstract void ShowView(INavigationContext context);
+        protected abstract void ShowView(TView view, INavigationContext context);
 
-        protected abstract void InitializeView(INavigationContext context);
+        protected abstract void InitializeView(TView view, INavigationContext context);
 
-        protected abstract void CloseView(INavigationContext context);
+        protected abstract void CloseView(TView view, INavigationContext context);
 
-        protected abstract void CleanupView(INavigationContext context);
+        protected abstract void CleanupView(TView view, INavigationContext context);
 
-        protected virtual bool ActivateView(INavigationContext context)
+        protected virtual bool ActivateView(TView view, INavigationContext context)
         {
             OnViewActivated();
             return true;
@@ -238,8 +239,9 @@ namespace MugenMvvm.Presenters
             if (view == null)
                 return;
 
-            if (CurrentView != null)
-                CleanupView(navigationContext);
+            var currentView = CurrentView;
+            if (currentView != null)
+                CleanupView(currentView, navigationContext);
             ViewManager.CleanupAsync(view, navigationContext, default, navigationContext.GetMetadataOrDefault());
             CurrentView = null;
             View = null;
@@ -259,7 +261,7 @@ namespace MugenMvvm.Presenters
 
         protected internal void OnViewShown(object? sender = null, EventArgs? e = null)
         {
-            OnNavigated(_showingContext ?? GetNavigationContext(NavigationMode.New, null));
+            OnNavigated(_showingContext ?? GetNavigationContext(GetShowNavigationMode(CurrentView, null), null));
         }
 
         protected internal void OnViewActivated(object? sender = null, EventArgs? e = null)
@@ -291,7 +293,7 @@ namespace MugenMvvm.Presenters
             OnNavigated(_closingContext ?? GetNavigationContext(NavigationMode.Close, null));
         }
 
-        protected void ShowInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected virtual void ShowInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var navigationContext = GetNavigationContext(GetShowNavigationMode(view, metadata), metadata);
             if (ViewModel.IsDisposed())
@@ -330,7 +332,7 @@ namespace MugenMvvm.Presenters
             }
         }
 
-        protected void CloseInternal(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected virtual void CloseInternal(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _closingContext = GetNavigationContext(NavigationMode.Close, metadata);
             NavigationDispatcher.OnNavigating(_closingContext, this, (dispatcher, context, state) =>
@@ -340,22 +342,24 @@ namespace MugenMvvm.Presenters
             }, (dispatcher, context, ex, state) => state._closingContext = null, cancellationToken);
         }
 
-        private void UpdateView(IView? view, INavigationContext context)
+        [return: NotNullIfNotNull("view")]
+        private TView? UpdateView(IView? view, INavigationContext context)
         {
             if (ReferenceEquals(view, View))
-                return;
+                return (TView?)view?.Target;
 
             View = view;
             var oldView = CurrentView;
             var newView = view?.Wrap<TView>(context.GetMetadataOrDefault(), _wrapperManager);
             if (ReferenceEquals(oldView, newView))
-                return;
+                return oldView;
 
-            if (CurrentView != null)
-                CleanupView(context);
+            if (oldView != null)
+                CleanupView(oldView, context);
             CurrentView = newView;
-            if (CurrentView != null)
-                InitializeView(context);
+            if (newView != null)
+                InitializeView(newView, context);
+            return newView;
         }
 
         private void OnViewInitializedShowCallback(Task<IView> task, object state)
@@ -372,9 +376,9 @@ namespace MugenMvvm.Presenters
         {
             try
             {
-                UpdateView(task.Result, context);
+                var view = UpdateView(task.Result, context);
                 if (show)
-                    ShowView(context);
+                    ShowView(view, context);
                 else
                     RefreshCallback(context);
             }
@@ -396,7 +400,7 @@ namespace MugenMvvm.Presenters
         {
             try
             {
-                if (!ActivateView(ctx))
+                if (CurrentView == null || !ActivateView(CurrentView, ctx))
                     OnNavigationCanceled(ctx, default);
             }
             catch (Exception e)
@@ -411,10 +415,10 @@ namespace MugenMvvm.Presenters
             {
                 if (_cancelArgs != null)
                     _cancelArgs.Cancel = false;
-                else if (View != null)
+                else if (CurrentView != null)
                 {
                     _shouldClose = true;
-                    CloseView(navigationContext);
+                    CloseView(CurrentView, navigationContext);
                 }
             }
             catch (Exception e)
