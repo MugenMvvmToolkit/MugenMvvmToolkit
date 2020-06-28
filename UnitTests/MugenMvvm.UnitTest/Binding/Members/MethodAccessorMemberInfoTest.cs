@@ -3,11 +3,11 @@ using System.Linq;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
 
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             MethodAccessorMemberInfo? memberInfo = null;
             var reflectedType = typeof(string);
             var observerRequestCount = 0;
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             observerProvider.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>

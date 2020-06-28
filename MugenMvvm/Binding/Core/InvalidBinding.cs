@@ -1,6 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Binding.Observation.Observers;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Core

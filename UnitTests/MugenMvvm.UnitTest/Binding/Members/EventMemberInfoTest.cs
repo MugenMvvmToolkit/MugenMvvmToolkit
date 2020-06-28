@@ -2,9 +2,9 @@
 using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Internal;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
 

@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
 

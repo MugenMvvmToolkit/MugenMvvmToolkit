@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding
             Validate(() => MugenBindingService.GlobalValueConverter, lastType);
             Validate(() => MugenBindingService.BindingManager, lastType);
             Validate(() => MugenBindingService.MemberManager, lastType);
-            Validate(() => MugenBindingService.ObserverProvider, lastType);
+            Validate(() => MugenBindingService.ObservationManager, lastType);
             Validate(() => MugenBindingService.ResourceResolver, lastType);
             Validate(() => MugenBindingService.Parser, lastType);
             Validate(() => MugenBindingService.Compiler, lastType);

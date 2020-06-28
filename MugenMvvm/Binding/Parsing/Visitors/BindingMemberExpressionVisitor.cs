@@ -6,7 +6,7 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
@@ -28,14 +28,14 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         private readonly StringBuilder _memberBuilder;
         private readonly IMemberManager? _memberManager;
         private readonly MemberDictionary _members;
-        private readonly IObserverProvider? _observerProvider;
+        private readonly IObservationManager? _observerProvider;
         private readonly IResourceResolver? _resourceResolver;
 
         #endregion
 
         #region Constructors
 
-        public BindingMemberExpressionVisitor(IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null, IMemberManager? memberManager = null)
+        public BindingMemberExpressionVisitor(IObservationManager? observerProvider = null, IResourceResolver? resourceResolver = null, IMemberManager? memberManager = null)
         {
             _observerProvider = observerProvider;
             _resourceResolver = resourceResolver;

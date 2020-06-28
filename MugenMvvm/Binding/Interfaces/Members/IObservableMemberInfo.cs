@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Binding.Interfaces.Observers;
+﻿using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 

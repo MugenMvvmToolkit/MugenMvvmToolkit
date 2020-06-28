@@ -25,7 +25,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnValidatorCreated<TRequest>(this IValidatorProviderListener[] listeners, IValidatorProvider validatorProvider, IValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static void OnValidatorCreated<TRequest>(this IValidatorProviderListener[] listeners, IValidationManager validatorProvider, IValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(validatorProvider, nameof(validatorProvider));

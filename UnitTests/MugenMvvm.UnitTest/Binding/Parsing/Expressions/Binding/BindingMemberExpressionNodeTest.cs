@@ -1,10 +1,10 @@
 ﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Observers;
-using MugenMvvm.Binding.Observers.MemberPaths;
-using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Binding.Observation;
+using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         {
             var expectedPath = inputPath;
             var path = new SingleMemberPath(Path);
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             var component = new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
@@ -84,7 +84,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             var src = new object();
             object expectedTarget = src;
             var expectedPath = Path;
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             var exp = new BindingMemberExpressionNode(Path, observerProvider)
             {
                 MemberFlags = MemberFlags.All,

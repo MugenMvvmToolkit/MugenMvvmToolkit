@@ -3,7 +3,7 @@ using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observation;
 
 namespace MugenMvvm.Binding.Members.Builders
 {

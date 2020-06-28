@@ -1,7 +1,7 @@
 ﻿using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingResourceMemberExpressionNode(string resourceName, string path, IObserverProvider? observerProvider = null, IResourceResolver? resourceResolver = null)
+        public BindingResourceMemberExpressionNode(string resourceName, string path, IObservationManager? observerProvider = null, IResourceResolver? resourceResolver = null)
             : base(path, observerProvider)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));

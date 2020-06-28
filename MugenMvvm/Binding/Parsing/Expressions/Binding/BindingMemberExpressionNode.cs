@@ -1,7 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingMemberExpressionNode(string path, IObserverProvider? observerProvider = null) : base(path, observerProvider)
+        public BindingMemberExpressionNode(string path, IObservationManager? observerProvider = null) : base(path, observerProvider)
         {
         }
 

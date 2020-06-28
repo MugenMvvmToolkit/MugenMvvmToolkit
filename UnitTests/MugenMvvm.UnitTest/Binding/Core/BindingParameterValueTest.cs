@@ -2,12 +2,12 @@
 using System.Linq;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using MugenMvvm.UnitTest.Models;
 using Should;
 using Xunit;

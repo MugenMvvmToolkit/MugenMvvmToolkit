@@ -3,8 +3,8 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Validation.Components
 {
-    public interface IValidatorProviderListener : IComponent<IValidatorProvider>
+    public interface IValidatorProviderListener : IComponent<IValidationManager>
     {
-        void OnValidatorCreated<TRequest>(IValidatorProvider provider, IValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata);
+        void OnValidatorCreated<TRequest>(IValidationManager provider, IValidator validator, in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

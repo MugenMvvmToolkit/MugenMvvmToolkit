@@ -9,7 +9,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly IObserverProvider? _bindingObserverProvider;
+        private readonly IObservationManager? _bindingObserverProvider;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly Type[] _singleTypeBuffer;
         private readonly HashSet<Type> _types;
@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ExtensionMethodMemberProvider(IObserverProvider? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ExtensionMethodMemberProvider(IObservationManager? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _bindingObserverProvider = bindingObserverProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;

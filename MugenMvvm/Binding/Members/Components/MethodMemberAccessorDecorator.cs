@@ -7,7 +7,7 @@ using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
@@ -22,14 +22,14 @@ namespace MugenMvvm.Binding.Members.Components
 
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
-        private readonly IObserverProvider? _observerProvider;
+        private readonly IObservationManager? _observerProvider;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObserverProvider? observerProvider = null)
+        public MethodMemberAccessorDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observerProvider = null)
         {
             _globalValueConverter = globalValueConverter;
             _observerProvider = observerProvider;

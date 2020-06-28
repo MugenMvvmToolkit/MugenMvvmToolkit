@@ -15,14 +15,14 @@ using MugenMvvm.Binding.Interfaces.Compiling;
 using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Interfaces.Observers.Components;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Interfaces.Observation.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Binding.Observers;
-using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Binding.Observation;
+using MugenMvvm.Binding.Observation.Observers;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
-        public static IMemberPath GetMemberPath<TPath>(this IObserverProvider observerProvider, [DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPath GetMemberPath<TPath>(this IObservationManager observerProvider, [DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(observerProvider, nameof(observerProvider));
             var result = observerProvider.TryGetMemberPath(path, metadata);
@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static IMemberPathObserver GetMemberPathObserver<TRequest>(this IObserverProvider observerProvider, object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPathObserver GetMemberPathObserver<TRequest>(this IObservationManager observerProvider, object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(observerProvider, nameof(observerProvider));
             var result = observerProvider.TryGetMemberPathObserver(target, request, metadata);

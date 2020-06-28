@@ -67,7 +67,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IValidator GetValidator<TRequest>(this IValidatorProvider validatorProvider, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IValidator GetValidator<TRequest>(this IValidationManager validatorProvider, in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             var result = validatorProvider.TryGetValidator(request, metadata);

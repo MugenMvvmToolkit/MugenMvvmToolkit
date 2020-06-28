@@ -4,8 +4,8 @@ using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Members
 
         private readonly Type[]? _genericArguments;
         private readonly MethodInfo _method;
-        private readonly IObserverProvider? _observerProvider;
+        private readonly IObservationManager? _observerProvider;
         private readonly IParameterInfo[] _parameters;
         private readonly Type _reflectedType;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
@@ -30,13 +30,13 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObservationManager? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
             : this(name, method, isExtensionMethodSupported, reflectedType, observerProvider, reflectionDelegateProvider, null, null)
         {
         }
 
         internal MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType,
-            IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider, ParameterInfo[]? parameterInfos, Type[]? genericArguments)
+            IObservationManager? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider, ParameterInfo[]? parameterInfos, Type[]? genericArguments)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(method, nameof(method));

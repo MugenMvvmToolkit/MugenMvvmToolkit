@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Interfaces.Observers.Components;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Interfaces.Observation.Components;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Extensions.Components

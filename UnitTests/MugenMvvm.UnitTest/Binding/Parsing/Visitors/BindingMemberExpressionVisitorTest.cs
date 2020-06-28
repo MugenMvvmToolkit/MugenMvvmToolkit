@@ -6,8 +6,8 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observers;
-using MugenMvvm.Binding.Observers.MemberPaths;
+using MugenMvvm.Binding.Observation;
+using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Binding.Parsing.Visitors;
@@ -15,7 +15,7 @@ using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using MugenMvvm.UnitTest.Binding.Resources.Internal;
 using Should;
 using Xunit;
@@ -402,7 +402,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
 
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             observerProvider.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
@@ -503,7 +503,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
 
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             observerProvider.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
@@ -605,7 +605,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             {
                 TryGetType = (s, o, arg3, arg4) => typeof(string)
             });
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             observerProvider.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) => EmptyMemberPath.Instance
@@ -626,7 +626,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             {
                 TryGetResourceValue = (s, o, arg3, arg4) => new TestResourceValue()
             });
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             observerProvider.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) => EmptyMemberPath.Instance

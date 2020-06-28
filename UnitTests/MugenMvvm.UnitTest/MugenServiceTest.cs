@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest
             Validate(() => MugenService.Presenter, lastType);
             Validate(() => MugenService.Serializer, lastType);
             Validate(() => MugenService.ThreadDispatcher, lastType);
-            Validate(() => MugenService.ValidatorProvider, lastType);
+            Validate(() => MugenService.ValidationManager, lastType);
             Validate(() => MugenService.ViewModelManager, lastType);
             Validate(() => MugenService.ViewManager, lastType);
             Validate(() => MugenService.WrapperManager, lastType);

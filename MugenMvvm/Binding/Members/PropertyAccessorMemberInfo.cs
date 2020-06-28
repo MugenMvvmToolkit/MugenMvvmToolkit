@@ -3,8 +3,8 @@ using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        private readonly IObserverProvider? _observerProvider;
+        private readonly IObservationManager? _observerProvider;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
 
         private readonly PropertyInfo _propertyInfo;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObserverProvider? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObservationManager? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));

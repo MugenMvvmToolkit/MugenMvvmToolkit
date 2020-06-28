@@ -1,12 +1,12 @@
 ﻿using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Observers;
-using MugenMvvm.Binding.Observers.MemberPaths;
-using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Binding.Observation;
+using MugenMvvm.Binding.Observation.Observers;
+using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Extensions;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using MugenMvvm.UnitTest.Binding.Resources.Internal;
 using Should;
 using Xunit;
@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 }
             });
 
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
             var component = new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                     return resource;
                 }
             });
-            var observerProvider = new ObserverProvider();
+            var observerProvider = new ObservationManager();
 
             var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observerProvider, resourceResolver)
             {

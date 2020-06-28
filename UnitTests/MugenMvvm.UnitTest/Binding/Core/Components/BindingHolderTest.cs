@@ -2,9 +2,9 @@
 using System.Linq;
 using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Observers.MemberPaths;
+using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
 

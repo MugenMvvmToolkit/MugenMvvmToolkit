@@ -2,7 +2,7 @@
 using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Resources;
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding
 
         public static IMemberManager MemberManager => MugenService.Instance<IMemberManager>();
 
-        public static IObserverProvider ObserverProvider => MugenService.Instance<IObserverProvider>();
+        public static IObservationManager ObservationManager => MugenService.Instance<IObservationManager>();
 
         public static IResourceResolver ResourceResolver => MugenService.Instance<IResourceResolver>();
 

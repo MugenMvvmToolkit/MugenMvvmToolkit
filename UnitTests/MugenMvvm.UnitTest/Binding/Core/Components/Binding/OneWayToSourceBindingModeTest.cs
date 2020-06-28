@@ -3,11 +3,11 @@ using System.Linq;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Interfaces.Core.Components.Binding;
 using MugenMvvm.Binding.Members;
-using MugenMvvm.Binding.Observers;
-using MugenMvvm.Binding.Observers.PathObservers;
+using MugenMvvm.Binding.Observation;
+using MugenMvvm.Binding.Observation.Observers;
 using MugenMvvm.Extensions;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
-using MugenMvvm.UnitTest.Binding.Observers.Internal;
+using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;
 using Xunit;
 

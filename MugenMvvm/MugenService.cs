@@ -3,6 +3,7 @@ using JetBrains.Annotations;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
@@ -36,6 +37,8 @@ namespace MugenMvvm
 
         public static IAttachedValueProvider AttachedValueProvider => Instance<IAttachedValueProvider>();
 
+        public static IEntityManager EntityManager => Instance<IEntityManager>();
+
         public static IReflectionDelegateProvider ReflectionDelegateProvider => Instance<IReflectionDelegateProvider>();
 
         public static IWeakReferenceProvider WeakReferenceProvider => Instance<IWeakReferenceProvider>();
@@ -52,7 +55,7 @@ namespace MugenMvvm
 
         public static IThreadDispatcher ThreadDispatcher => Instance<IThreadDispatcher>();
 
-        public static IValidatorProvider ValidatorProvider => Instance<IValidatorProvider>();
+        public static IValidationManager ValidationManager => Instance<IValidationManager>();
 
         public static IViewModelManager ViewModelManager => Instance<IViewModelManager>();
 

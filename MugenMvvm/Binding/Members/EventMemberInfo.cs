@@ -3,8 +3,8 @@ using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 

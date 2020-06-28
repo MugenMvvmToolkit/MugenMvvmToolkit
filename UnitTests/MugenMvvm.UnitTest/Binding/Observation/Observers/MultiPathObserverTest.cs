@@ -1,0 +1,23 @@
+﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Observation.Observers;
+
+namespace MugenMvvm.UnitTest.Binding.Observation.Observers
+{
+    public class MultiPathObserverTest : MultiPathObserverTestBase<MultiPathObserver>
+    {
+        #region Methods
+
+        protected override MultiPathObserver GetObserver(object target)
+        {
+            return new MultiPathObserver(target, DefaultPath, MemberFlags.All, false, false);
+        }
+
+        protected override MultiPathObserver GetObserver(object target, IMemberPath path, MemberFlags memberFlags, bool hasStablePath, bool optional)
+        {
+            return new MultiPathObserver(target, path, memberFlags, hasStablePath, optional);
+        }
+
+        #endregion
+    }
+}

@@ -4,8 +4,8 @@ using System.Linq;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observers;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Members
 
         private readonly object?[] _args;
         private readonly IMethodMemberInfo? _getMethod;
-        private readonly IObserverProvider? _observerProvider;
+        private readonly IObservationManager? _observerProvider;
         private readonly Type _reflectedType;
         private readonly IMethodMemberInfo? _setMethod;
         private MemberObserver? _observer;
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObserverProvider? observerProvider)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObservationManager? observerProvider)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));

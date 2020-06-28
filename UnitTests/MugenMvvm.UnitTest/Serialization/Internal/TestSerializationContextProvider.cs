@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         ISerializationContext? ISerializationContextProviderComponent.TryGetSerializationContext<TRequest>(ISerializer serializer, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetSerializationContext?.Invoke(serializer, request, typeof(TRequest), metadata);
+            return TryGetSerializationContext?.Invoke(serializer, request!, typeof(TRequest), metadata);
         }
 
         ISerializationContext? ISerializationContextProviderComponent.TryGetDeserializationContext(ISerializer serializer, IReadOnlyMetadataContext? metadata)

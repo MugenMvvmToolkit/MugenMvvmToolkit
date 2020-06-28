@@ -1,10 +1,10 @@
 ﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
-using MugenMvvm.Binding.Interfaces.Observers;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Observers;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -14,14 +14,14 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
     {
         #region Fields
 
-        protected readonly IObserverProvider? ObserverProvider;
+        protected readonly IObservationManager? ObserverProvider;
         private IMemberPath? _memberPath;
 
         #endregion
 
         #region Constructors
 
-        protected BindingMemberExpressionNodeBase(string path, IObserverProvider? observerProvider)
+        protected BindingMemberExpressionNodeBase(string path, IObservationManager? observerProvider)
         {
             Should.NotBeNull(path, nameof(path));
             Path = path;
