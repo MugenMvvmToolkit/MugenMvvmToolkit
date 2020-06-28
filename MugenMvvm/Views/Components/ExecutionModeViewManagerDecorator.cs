@@ -38,7 +38,7 @@ namespace MugenMvvm.Views.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PreInitializer;
+        public int Priority { get; set; } = ViewComponentPriority.ExecutionModeDecorator;
 
         public ThreadExecutionMode InitializeExecutionMode { get; set; }
 

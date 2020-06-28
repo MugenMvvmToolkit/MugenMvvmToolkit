@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -31,7 +32,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public List<IExpressionVisitor> ParameterVisitors { get; }
 
-        public int Priority { get; set; } = ComponentPriority.PreInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.BindingParameterPreInitializer;
 
         #endregion
 

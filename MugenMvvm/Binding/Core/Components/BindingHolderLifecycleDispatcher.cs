@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -36,7 +37,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PostInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.PostInitializer;
 
         #endregion
 

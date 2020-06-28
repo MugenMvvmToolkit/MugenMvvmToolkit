@@ -6,6 +6,7 @@
 
         public const int Provider = 0;
         public const int ServiceResolver = 0;
+        public const int PostInitializer = -10;
 
         #endregion
     }

@@ -38,7 +38,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.Decorator;
+        public int Priority { get; set; } = PresenterComponentPriority.CallbackDecorator;
 
         #endregion
 

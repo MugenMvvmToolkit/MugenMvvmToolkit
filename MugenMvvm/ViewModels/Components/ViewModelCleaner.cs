@@ -44,7 +44,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PostInitializer;
+        public int Priority { get; set; } = ViewModelComponentPriority.PostInitializer;
 
         public bool CleanupCommands { get; set; } = true;
 

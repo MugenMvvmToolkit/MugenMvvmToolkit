@@ -6,7 +6,7 @@
 
         public const int CommandProvider = 0;
         public const int ConditionEvent = 0;
-        public const int Executor = ComponentPriority.PostInitializer;
+        public const int Executor = -1000;
 
         #endregion
     }

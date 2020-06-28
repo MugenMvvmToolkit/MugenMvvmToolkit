@@ -9,6 +9,7 @@
         public const int Extension = -10;
         public const int Dynamic = -20;
 
+        public const int RequestHandler = 100;
         public const int Selector = 0;
 
         #endregion

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -35,7 +36,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PreInitializer;
+        public int Priority { get; set; } = MemberComponentPriority.RequestHandler;
 
         #endregion
 

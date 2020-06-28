@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Constants;
@@ -12,7 +13,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PostInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.PostInitializer;
 
         #endregion
 

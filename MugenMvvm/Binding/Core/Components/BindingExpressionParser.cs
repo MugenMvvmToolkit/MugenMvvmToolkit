@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public int Priority { get; set; } = BindingComponentPriority.ExpressionBuilder;
+        public int Priority { get; set; } = BindingComponentPriority.ExpressionParser;
 
         #endregion
 

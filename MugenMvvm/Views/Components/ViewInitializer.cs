@@ -13,7 +13,7 @@ namespace MugenMvvm.Views.Components
     {
         #region Properties
 
-        public int Priority { get; set; } = ComponentPriority.PreInitializer;
+        public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
 
         #endregion
 
