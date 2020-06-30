@@ -57,15 +57,24 @@ namespace MugenMvvm.Binding.Members.Components
                 if (!memberTypes.HasFlagEx(memberType) || !flags.HasFlagEx(member.AccessModifiers))
                     continue;
 
-                if (!_selectorDictionary.TryGetValue(member, out var currentMember) || GetPriority(member, type) > GetPriority(currentMember, type))
-                    _selectorDictionary[member] = member;
+                if (_selectorDictionary.TryGetValue(member, out var list))
+                {
+                    if (list.AddMember(member, GetPriority(member, type)))
+                        _selectorDictionary[member] = list;
+                }
+                else
+                    _selectorDictionary[member] = new MemberList(member, GetPriority(member, type));
             }
 
             if (_selectorDictionary.Count == 0)
                 return default;
             if (_selectorDictionary.Count == 1)
-                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(_selectorDictionary.FirstOrDefault.Value);
-            return _selectorDictionary.ValuesToArray();
+                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(_selectorDictionary.FirstOrDefault.Value.GetBestMember());
+            var result = new IMemberInfo[_selectorDictionary.Count];
+            var index = 0;
+            foreach (var pair in _selectorDictionary)
+                result[index++] = pair.Value.GetBestMember();
+            return result;
         }
 
         #endregion
@@ -74,33 +83,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         private static int GetPriority(IMemberInfo member, Type requestedType)
         {
-            var priority = 0;
-            if (requestedType == member.DeclaringType)
-                priority = MaxDeclaringTypePriority;
-            else if (!requestedType.IsInterface)
-            {
-                if (member.DeclaringType.IsInterface)
-                    priority = 1;
-                else
-                {
-                    var type = requestedType;
-                    var nestedCount = 0;
-                    while (type != null)
-                    {
-                        type = type.BaseType;
-                        if (type == member.DeclaringType)
-                        {
-                            priority = MaxDeclaringTypePriority - nestedCount;
-                            break;
-                        }
-
-                        ++nestedCount;
-                    }
-                }
-            }
-
-            priority += GetArgsPriority(member);
-
+            var priority = (requestedType == member.DeclaringType ? MaxDeclaringTypePriority : 0) + GetArgsPriority(member);
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Attached))
                 return AttachedPriority + priority;
             if (member.AccessModifiers.HasFlagEx(MemberFlags.Extension))
@@ -133,7 +116,87 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Nested types
 
-        private sealed class SelectorDictionary : LightDictionary<IMemberInfo, IMemberInfo>
+        private struct MemberList
+        {
+            #region Fields
+
+            private int _currentPriority;
+            private object? _members;
+
+            #endregion
+
+            #region Constructors
+
+            public MemberList(IMemberInfo member, int priority)
+            {
+                _members = member;
+                _currentPriority = priority;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public bool AddMember(IMemberInfo member, int priority)
+            {
+                if (priority < _currentPriority)
+                    return false;
+
+                if (priority > _currentPriority)
+                {
+                    _currentPriority = priority;
+                    if (_members is List<IMemberInfo> list)
+                        list.Clear();
+                    else
+                        _members = null;
+                }
+
+                if (_members == null)
+                    _members = member;
+                else if (_members is List<IMemberInfo> list)
+                    list.Add(member);
+                else
+                    _members = new List<IMemberInfo> { (IMemberInfo)_members, member };
+                return true;
+            }
+
+            public IMemberInfo GetBestMember()
+            {
+                if (!(_members is List<IMemberInfo> members))
+                    return (IMemberInfo)_members!;
+
+                for (var i = 0; i < members.Count; i++)
+                {
+                    var memberValue = members[i];
+                    var isInterface = memberValue.DeclaringType.IsInterface;
+                    for (var j = 0; j < members.Count; j++)
+                    {
+                        if (i == j)
+                            continue;
+                        var pair = members[j];
+                        if (isInterface && memberValue.DeclaringType.IsAssignableFrom(pair.DeclaringType))
+                        {
+                            members.RemoveAt(i);
+                            i--;
+                            break;
+                        }
+
+                        if (pair.DeclaringType.IsSubclassOf(memberValue.DeclaringType))
+                        {
+                            members.RemoveAt(i);
+                            i--;
+                            break;
+                        }
+                    }
+                }
+
+                return members[0];
+            }
+
+            #endregion
+        }
+
+        private sealed class SelectorDictionary : LightDictionary<IMemberInfo, MemberList>
         {
             #region Constructors
 
