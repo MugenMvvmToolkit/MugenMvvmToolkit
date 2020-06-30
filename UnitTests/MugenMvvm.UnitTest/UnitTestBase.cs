@@ -51,9 +51,9 @@ namespace MugenMvvm.UnitTest
             metadataContextProvider.AddComponent(new MugenMvvm.Metadata.Components.MetadataContextProviderComponent());
             MugenService.Configuration.InitializeInstance<IMetadataContextProvider>(metadataContextProvider);
 
-            var weakReferenceProvider = new WeakReferenceProvider();
+            var weakReferenceProvider = new WeakReferenceManager();
             weakReferenceProvider.AddComponent(new WeakReferenceProviderComponent());
-            MugenService.Configuration.InitializeInstance<IWeakReferenceProvider>(weakReferenceProvider);
+            MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceProvider);
 
             InitializeThreadDispatcher();
 

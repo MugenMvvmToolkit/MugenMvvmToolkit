@@ -96,7 +96,7 @@ namespace MugenMvvm.UnitTest
             Validate(() => MugenService.ComponentCollectionProvider, lastType);
             Validate(() => MugenService.AttachedValueManager, lastType);
             Validate(() => MugenService.ReflectionDelegateProvider, lastType);
-            Validate(() => MugenService.WeakReferenceProvider, lastType);
+            Validate(() => MugenService.WeakReferenceManager, lastType);
             Validate(() => MugenService.Messenger, lastType);
             Validate(() => MugenService.MetadataContextProvider, lastType);
             Validate(() => MugenService.NavigationDispatcher, lastType);

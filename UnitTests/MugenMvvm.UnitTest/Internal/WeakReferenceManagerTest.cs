@@ -9,21 +9,21 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public class WeakReferenceProviderTest : ComponentOwnerTestBase<WeakReferenceProvider>
+    public class WeakReferenceManagerTest : ComponentOwnerTestBase<WeakReferenceManager>
     {
         #region Methods
 
         [Fact]
         public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull()
         {
-            var weakReferenceProvider = new WeakReferenceProvider();
+            var weakReferenceProvider = new WeakReferenceManager();
             weakReferenceProvider.GetWeakReference(null, DefaultMetadata).ShouldEqual(Default.WeakReference);
         }
 
         [Fact]
         public void GetWeakReferenceShouldThrowNoComponents()
         {
-            var weakReferenceProvider = new WeakReferenceProvider();
+            var weakReferenceProvider = new WeakReferenceManager();
             ShouldThrow<InvalidOperationException>(() => weakReferenceProvider.GetWeakReference(this, DefaultMetadata));
         }
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Internal
         public void GetWeakReferenceShouldBeHandledByComponents(int count)
         {
             var result = new WeakReferenceImpl(this, true);
-            var weakReferenceProvider = new WeakReferenceProvider();
+            var weakReferenceProvider = new WeakReferenceManager();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -55,9 +55,9 @@ namespace MugenMvvm.UnitTest.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override WeakReferenceProvider GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override WeakReferenceManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new WeakReferenceProvider(collectionProvider);
+            return new WeakReferenceManager(collectionProvider);
         }
 
         #endregion

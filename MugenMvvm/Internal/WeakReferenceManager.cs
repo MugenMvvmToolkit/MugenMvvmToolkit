@@ -8,7 +8,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class WeakReferenceProvider : ComponentOwnerBase<IWeakReferenceProvider>, IWeakReferenceProvider
+    public sealed class WeakReferenceManager : ComponentOwnerBase<IWeakReferenceManager>, IWeakReferenceManager
     {
         #region Fields
 
@@ -20,10 +20,10 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WeakReferenceProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public WeakReferenceManager(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IWeakReferenceProviderComponent, WeakReferenceProvider>((components, state, _) => state._components = components, this);
+            _componentTracker.AddListener<IWeakReferenceProviderComponent, WeakReferenceManager>((components, state, _) => state._components = components, this);
         }
 
         #endregion

@@ -89,7 +89,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IWeakReference GetWeakReference(this IWeakReferenceProvider weakReferenceProvider, object? item, IReadOnlyMetadataContext? metadata = null)
+        public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceProvider, object? item, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(weakReferenceProvider, nameof(weakReferenceProvider));
             var result = weakReferenceProvider.TryGetWeakReference(item, metadata);
@@ -355,7 +355,7 @@ namespace MugenMvvm.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static IWeakReference ToWeakReference(this object? item)
         {
-            return MugenService.WeakReferenceProvider.GetWeakReference(item);
+            return MugenService.WeakReferenceManager.GetWeakReference(item);
         }
 
         internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)

@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IWeakReferenceProvider : IComponentOwner<IWeakReferenceProvider>, IComponent<IMugenApplication>
+    public interface IWeakReferenceManager : IComponentOwner<IWeakReferenceManager>, IComponent<IMugenApplication>
     {
         IWeakReference? TryGetWeakReference(object? item, IReadOnlyMetadataContext? metadata = null);
     }
