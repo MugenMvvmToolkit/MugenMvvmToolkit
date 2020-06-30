@@ -15,7 +15,6 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
-using MugenMvvm.Requests;
 
 namespace MugenMvvm.Presenters.Components
 {
@@ -56,23 +55,7 @@ namespace MugenMvvm.Presenters.Components
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            object? view;
-            IViewModelBase? viewModel;
-            if (TypeChecker.IsValueType<TRequest>())
-            {
-                if (typeof(TRequest) != typeof(ViewModelViewRequest))
-                    return default;
-
-                var r = MugenExtensions.CastGeneric<TRequest, ViewModelViewRequest>(request);
-                view = r.View;
-                viewModel = r.ViewModel;
-            }
-            else
-            {
-                view = null;
-                viewModel = request as IViewModelBase;
-            }
-
+            var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel == null)
                 return default;
 
@@ -89,7 +72,8 @@ namespace MugenMvvm.Presenters.Components
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TRequest>() || !(request is IViewModelBase viewModel))
+            var viewModel = MugenExtensions.TryGetViewModelView(request, out object? _);
+            if (viewModel == null)
                 return default;
 
             ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;

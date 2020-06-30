@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Members.Builders
 
         #region Methods
 
-        public static EventBuilder<TTarget> ToBuilder<TTarget>(this BindableEventDescriptor<TTarget> descriptor, Type? eventType = null) where TTarget : class
+        public static EventBuilder<TTarget> GetBuilder<TTarget>(this BindableEventDescriptor<TTarget> descriptor, Type? eventType = null) where TTarget : class
         {
             return Event<TTarget>(descriptor.Name, null, eventType);
         }
@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Members.Builders
             return new EventBuilder<TTarget>(name, declaringType ?? typeof(TTarget), eventType ?? typeof(EventHandler));
         }
 
-        public static PropertyBuilder<TTarget, TValue> ToBuilder<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> descriptor)
+        public static PropertyBuilder<TTarget, TValue> GetBuilder<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> descriptor)
             where TTarget : class
         {
             return Property<TTarget, TValue>(descriptor.Name);
@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Members.Builders
             return new PropertyBuilder<TTarget, TValue>(name, declaringType ?? typeof(TTarget), propertyType ?? typeof(TValue));
         }
 
-        public static MethodBuilder<TTarget, TReturn> ToBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor) where TTarget : class
+        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor) where TTarget : class
         {
             return Method<TTarget, TReturn>(descriptor.Name, typeof(TTarget), typeof(TReturn));
         }

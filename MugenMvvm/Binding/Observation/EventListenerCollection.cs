@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Properties
 
-        public bool HasListeners => _size - _removedSize > 0;
+        public int Count => _size - _removedSize;
 
         #endregion
 

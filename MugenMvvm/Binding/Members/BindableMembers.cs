@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Attributes;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members.Descriptors;
 
@@ -14,25 +15,25 @@ namespace MugenMvvm.Binding.Members
         public static IBindableMembersDescriptor<T> For<T>(T? _) where T : class => null!;
 
 
-        public static BindablePropertyDescriptor<object, object?> Root(this IBindableMembersDescriptor<object> _) => nameof(Root);
+        public static BindablePropertyDescriptor<T, object?> Root<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(Root);
 
-        public static BindablePropertyDescriptor<object, object?> Parent(this IBindableMembersDescriptor<object> _) => nameof(Parent);
+        public static BindablePropertyDescriptor<T, object?> Parent<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(Parent);
 
-        public static BindablePropertyDescriptor<object, bool> Enabled(this IBindableMembersDescriptor<object> _) => nameof(Enabled);
+        public static BindablePropertyDescriptor<T, bool> Enabled<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(Enabled);
 
-        public static BindablePropertyDescriptor<object, object?> DataContext(this IBindableMembersDescriptor<object> _) => nameof(DataContext);
+        public static BindablePropertyDescriptor<T, object?> DataContext<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(DataContext);
 
-        public static BindableMethodDescriptor<object, string, object?> ElementSourceMethod(this IBindableMembersDescriptor<object> _) => nameof(ElementSource);
+        public static BindableMethodDescriptor<T, string, object?> ElementSourceMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(ElementSource);
 
-        public static BindableMethodDescriptor<object, string, int, object?> RelativeSourceMethod(this IBindableMembersDescriptor<object> _) => nameof(RelativeSource);
+        public static BindableMethodDescriptor<T, string, int, object?> RelativeSourceMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(RelativeSource);
 
-        public static BindableMethodDescriptor<object, string[], bool> HasErrorsMethod(this IBindableMembersDescriptor<object> _) => "HasErrors";
+        public static BindableMethodDescriptor<T, string[], bool> HasErrorsMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.HasErrorsName;
 
-        public static BindableMethodDescriptor<object, string[], IReadOnlyList<object>> GetErrorsMethod(this IBindableMembersDescriptor<object> _) => "GetErrors";
+        public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.GetErrorsName;
 
-        public static BindableMethodDescriptor<object, string[], object?> GetErrorMethod(this IBindableMembersDescriptor<object> _) => "GetError";
+        public static BindableMethodDescriptor<T, string[], object?> GetErrorMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.GetErrorName;
 
-        public static BindableMethodDescriptor<object, string, object?> FindElementByNameMethod(this IBindableMembersDescriptor<object> _) => "FindElementByName";
+        public static BindableMethodDescriptor<T, string, object?> FindElementByNameMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.FindElementByName;
 
 
         [BindingMember(nameof(Root))]

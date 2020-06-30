@@ -17,7 +17,6 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
-using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
 {
@@ -57,21 +56,18 @@ namespace MugenMvvm.Views.Components
         {
             try
             {
-                if (typeof(TRequest) != typeof(ViewModelViewRequest))
+                var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
+                if (viewModel == null || view == null)
                     return null;
 
-                var r = MugenExtensions.CastGeneric<TRequest, ViewModelViewRequest>(request);
-                if (r.ViewModel == null || r.View == null)
-                    return null;
-
-                if (r.ViewModel is IComponentOwner componentOwner)
+                if (viewModel is IComponentOwner componentOwner)
                 {
                     var collection = componentOwner.Components;
-                    return Task.FromResult(InitializeView(mapping, r.ViewModel, r.View, collection.Get<IView>(), collection, (c, view, m) => c.Add(view, m), (c, view, m) => c.Remove(view, m), metadata));
+                    return Task.FromResult(InitializeView(mapping, viewModel, view, collection.Get<IView>(), collection, (c, view, m) => c.Add(view, m), (c, view, m) => c.Remove(view, m), metadata));
                 }
 
-                var list = r.ViewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, o) => new List<IView>(2));
-                return Task.FromResult(InitializeView(mapping, r.ViewModel, r.View, list, list, (c, view, m) => c.Add(view), (c, view, m) => c.Remove(view), metadata));
+                var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, o) => new List<IView>(2));
+                return Task.FromResult(InitializeView(mapping, viewModel, view, list, list, (c, view, m) => c.Add(view), (c, view, m) => c.Remove(view), metadata));
             }
             catch (Exception e)
             {

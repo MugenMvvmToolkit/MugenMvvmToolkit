@@ -9,12 +9,12 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Commands
 {
-    public sealed class CommandProvider : ComponentOwnerBase<ICommandProvider>, ICommandProvider
+    public sealed class CommandManager : ComponentOwnerBase<ICommandManager>, ICommandManager
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CommandProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public CommandManager(IComponentCollectionProvider? componentCollectionProvider = null)
             : base(componentCollectionProvider)
         {
         }

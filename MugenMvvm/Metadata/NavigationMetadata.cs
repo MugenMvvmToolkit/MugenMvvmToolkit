@@ -16,6 +16,7 @@ namespace MugenMvvm.Metadata
 
         private static IMetadataContextKey<string, string>? _viewName;
         private static IMetadataContextKey<bool, bool>? _nonModal;
+        private static IMetadataContextKey<bool, bool>? _clearBackStack;
         private static IMetadataContextKey<DateTime, DateTime>? _navigationDate;
 
         #endregion
@@ -41,6 +42,13 @@ namespace MugenMvvm.Metadata
         {
             get => _navigationDate ??= GetBuilder(_navigationDate, nameof(NavigationDate)).Build();
             set => _navigationDate = value;
+        }
+
+        [AllowNull]
+        public static IMetadataContextKey<bool, bool> ClearBackStack
+        {
+            get => _clearBackStack ??= GetBuilder(_clearBackStack, nameof(ClearBackStack)).Build();
+            set => _clearBackStack = value;
         }
 
         #endregion

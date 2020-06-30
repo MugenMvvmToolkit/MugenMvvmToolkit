@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         public void OnNavigationEntryAddedShouldSetDate()
         {
             var dispatcher = new NavigationDispatcher();
-            var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
+            var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
             var component = new NavigationEntryDateTracker();
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         public void OnNavigationEntryUpdatedShouldSetDate()
         {
             var dispatcher = new NavigationDispatcher();
-            var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
+            var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
             var component = new NavigationEntryDateTracker();
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         public void OnNavigationEntryRemovedShouldNotSetDate()
         {
             var dispatcher = new NavigationDispatcher();
-            var entry = new NavigationEntry(new TestNavigationProvider(), "et", NavigationType.Alert);
+            var entry = new NavigationEntry(this, new TestNavigationProvider(), "et", NavigationType.Alert);
             var context = new NavigationContext(this, entry.NavigationProvider, entry.NavigationId, entry.NavigationType, NavigationMode.Close);
             var component = new NavigationEntryDateTracker();
 

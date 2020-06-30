@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Binding.Observation
 {
-    public class MemberChangedListenerCollectionTest : UnitTestBase
+    public class MemberListenerCollectionTest : UnitTestBase
     {
         #region Methods
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 };
             }
 
-            var listener = new MemberChangedListenerCollection();
+            var listener = new MemberListenerCollection();
             for (var i = 0; i < count; i++)
                 listener.Add(listeners[i], $"{i}");
 
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 };
             }
 
-            var listener = new MemberChangedListenerCollection();
+            var listener = new MemberListenerCollection();
             for (var i = 0; i < count; i++)
                 listener.Add(listeners[i], $"[{i}]");
 
@@ -121,13 +121,13 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 };
             }
 
-            var collection = new MemberChangedListenerCollection();
+            var collection = new MemberListenerCollection();
             for (var i = 0; i < count; i++)
             {
                 collection.Add(listeners[i], args.PropertyName);
                 collection.RaisePropertyChanged(sender, args);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
-                collection.HasListeners.ShouldBeTrue();
+                collection.Count.ShouldEqual(i + 1);
             }
 
             var removeCount = Math.Min(count, 100);
@@ -135,11 +135,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 listeners[i].IsAlive = false;
 
             collection.RaisePropertyChanged(sender, args);
-            collection.HasListeners.ShouldEqual(count != 1);
+            collection.Count.ShouldEqual(listeners.Length - removeCount);
             ValidateInvokeCount(listeners, 1);
 
             collection.RaisePropertyChanged(sender, args);
-            collection.HasListeners.ShouldEqual(count != 1);
+            collection.Count.ShouldEqual(listeners.Length - removeCount);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
             var tokens = new List<ActionToken>();
@@ -150,7 +150,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             }
 
             collection.RaisePropertyChanged(sender, args);
-            collection.HasListeners.ShouldBeTrue();
+            collection.Count.ShouldEqual(listeners.Length);
             ValidateInvokeCount(listeners, 1);
 
 
@@ -166,18 +166,18 @@ namespace MugenMvvm.UnitTest.Binding.Observation
 
             collection.RaisePropertyChanged(sender, args);
             ValidateInvokeCount(listeners, 1);
-            collection.HasListeners.ShouldBeTrue();
+            collection.Count.ShouldEqual(listeners.Length);
 
             for (var i = 0; i < count; i++)
                 listeners[i].IsAlive = false;
 
             collection.RaisePropertyChanged(sender, args);
             ValidateInvokeCount(listeners, 1);
-            collection.HasListeners.ShouldBeFalse();
+            collection.Count.ShouldEqual(0);
 
             collection.RaisePropertyChanged(sender, args);
             ValidateInvokeCount(listeners, 0);
-            collection.HasListeners.ShouldBeFalse();
+            collection.Count.ShouldEqual(0);
         }
 
         [Fact]
@@ -258,7 +258,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
 
         #endregion
 
-        private sealed class TestPropertyChangedListenerCollection : MemberChangedListenerCollection
+        private sealed class TestPropertyChangedListenerCollection : MemberListenerCollection
         {
             #region Properties
 

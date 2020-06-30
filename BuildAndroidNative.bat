@@ -8,4 +8,4 @@ SET buildTask=assembleRelease
 CD %projectPath%
 call gradlew %buildTask%
 
-copy /y %copyFromPath%\app-release.aar %copyToPath%
+copy /y %copyFromPath%\app-release.aar %copyToPath%\mugenmvvm-core.aar

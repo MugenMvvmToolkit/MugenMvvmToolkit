@@ -136,7 +136,14 @@ namespace MugenMvvm.Presenters
             WaitNavigationBeforeShowAsync(view, cancellationToken, metadata).ContinueWith((task, s) =>
             {
                 var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, object?, CancellationToken, IReadOnlyMetadataContext?>)s;
-                tuple.Item1.ShowInternal(tuple.Item2, tuple.Item3, tuple.Item4);
+                try
+                {
+                    tuple.Item1.ShowInternal(tuple.Item2, tuple.Item3, tuple.Item4);
+                }
+                catch (Exception e)
+                {
+                    OnNavigationFailed(GetNavigationContext(GetShowNavigationMode(tuple.Item2, tuple.Item4), tuple.Item4), e);
+                }
             }, Tuple.Create(this, view, cancellationToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
 
             return GetPresenterResult(true, metadata);
@@ -153,7 +160,14 @@ namespace MugenMvvm.Presenters
             WaitNavigationBeforeCloseAsync(cancellationToken, metadata).ContinueWith((task, s) =>
             {
                 var tuple = (Tuple<ViewModelPresenterMediatorBase<TView>, CancellationToken, IReadOnlyMetadataContext?>)s;
-                tuple.Item1.CloseInternal(tuple.Item2, tuple.Item3);
+                try
+                {
+                    tuple.Item1.CloseInternal(tuple.Item2, tuple.Item3);
+                }
+                catch (Exception e)
+                {
+                    OnNavigationFailed(GetNavigationContext(NavigationMode.Close, metadata), e);
+                }
             }, Tuple.Create(this, cancellationToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
             return GetPresenterResult(false, metadata);
         }

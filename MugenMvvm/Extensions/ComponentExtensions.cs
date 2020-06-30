@@ -86,6 +86,29 @@ namespace MugenMvvm.Extensions
             return Default.Array<T>();
         }
 
+        public static TComponent GetOrAddComponent<TComponent>(this IComponentOwner owner, Func<IReadOnlyMetadataContext?, TComponent> getComponent,
+            IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
+        {
+            return owner.GetOrAddComponent(getComponent, (func, context) => func(context), metadata);
+        }
+
+        public static TComponent GetOrAddComponent<TComponent, TState>(this IComponentOwner owner, in TState state, Func<TState, IReadOnlyMetadataContext?, TComponent> getComponent, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
+        {
+            Should.NotBeNull(owner, nameof(owner));
+            Should.NotBeNull(getComponent, nameof(getComponent));
+            lock (owner)
+            {
+                var component = owner.GetComponent<TComponent>(true, metadata);
+                if (component == null)
+                {
+                    component = getComponent(state, metadata);
+                    owner.Components.Add(component);
+                }
+
+                return component;
+            }
+        }
+
         public static TComponent GetComponent<TComponent>(this IComponentOwner owner, IReadOnlyMetadataContext? metadata = null) where TComponent : class, IComponent
         {
             return owner.GetComponent<TComponent>(false, metadata)!;

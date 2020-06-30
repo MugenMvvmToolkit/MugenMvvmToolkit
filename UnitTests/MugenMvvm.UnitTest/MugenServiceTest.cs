@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTest
             MugenService.Configuration.Clear<MugenServiceTest>();
             MugenService.Configuration.InitializeFallback(fallback);
             Validate(() => MugenService.Application, lastType);
-            Validate(() => MugenService.CommandProvider, lastType);
+            Validate(() => MugenService.CommandManager, lastType);
             Validate(() => MugenService.ComponentCollectionProvider, lastType);
             Validate(() => MugenService.AttachedValueProvider, lastType);
             Validate(() => MugenService.ReflectionDelegateProvider, lastType);

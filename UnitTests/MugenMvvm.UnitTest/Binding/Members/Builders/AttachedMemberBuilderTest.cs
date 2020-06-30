@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             Type declaredType = GetType();
             var memberType = typeof(Action);
             BindableEventDescriptor<AttachedMemberBuilderTest> descriptor = name;
-            var build = descriptor.ToBuilder(memberType).Build();
+            var build = descriptor.GetBuilder(memberType).Build();
             build.MemberType.ShouldEqual(MemberType.Event);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             Type declaredType = GetType();
             var memberType = typeof(Action);
             BindablePropertyDescriptor<AttachedMemberBuilderTest, Action> descriptor = name;
-            var build = descriptor.ToBuilder().Build();
+            var build = descriptor.GetBuilder().Build();
             build.MemberType.ShouldEqual(MemberType.Accessor);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             Type declaredType = GetType();
             var memberType = typeof(Action);
             BindableMethodDescriptor<AttachedMemberBuilderTest, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, Action>(name, Default.Array<Type>());
-            var build = descriptor.ToBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
+            var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             build.MemberType.ShouldEqual(MemberType.Method);
             build.Name.ShouldEqual(name);
             build.DeclaringType.ShouldEqual(declaredType);

@@ -12,7 +12,6 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Internal;
 using MugenMvvm.Requests;
 
 namespace MugenMvvm.Views.Components
@@ -49,20 +48,9 @@ namespace MugenMvvm.Views.Components
         {
             try
             {
-                if (typeof(TRequest) == typeof(ViewModelViewRequest))
-                {
-                    var r = MugenExtensions.CastGeneric<TRequest, ViewModelViewRequest>(request);
-                    return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, r.ViewModel, r.View, metadata), cancellationToken, metadata);
-                }
-
-                if (!TypeChecker.IsValueType<TRequest>())
-                {
-                    if (request is IViewModelBase viewModel)
-                        return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, viewModel, null, metadata), cancellationToken, metadata);
-                    if (mapping.ViewType.IsInstanceOfType(request))
-                        return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, null, request, metadata), cancellationToken, metadata);
-                }
-
+                var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
+                if (viewModel == null || view == null)
+                    return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, viewModel, view, metadata), cancellationToken, metadata);
                 return Components.TryInitializeAsync(mapping, request, cancellationToken, metadata);
             }
             catch (Exception e)

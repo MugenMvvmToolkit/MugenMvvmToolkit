@@ -9,13 +9,13 @@ namespace MugenMvvm.UnitTest.Commands.Internal
     {
         #region Properties
 
-        public Action<ICommandProvider, object?, Type, ICompositeCommand, IReadOnlyMetadataContext?>? OnCommandCreated { get; set; }
+        public Action<ICommandManager, object?, Type, ICompositeCommand, IReadOnlyMetadataContext?>? OnCommandCreated { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void ICommandProviderListener.OnCommandCreated<TRequest>(ICommandProvider provider, ICompositeCommand command, in TRequest request, IReadOnlyMetadataContext? metadata)
+        void ICommandProviderListener.OnCommandCreated<TRequest>(ICommandManager provider, ICompositeCommand command, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             OnCommandCreated?.Invoke(provider, request, typeof(TRequest), command, metadata);
         }

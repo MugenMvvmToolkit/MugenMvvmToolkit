@@ -20,6 +20,17 @@ namespace MugenMvvm.Extensions
 
         #region Methods
 
+        public static IReadOnlyMetadataContext ToContext<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
+        {
+            return key.ToContextValue(value).ToContext();
+        }
+
+        public static MetadataContextValue ToContextValue<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
+        {
+            Should.NotBeNull(key, nameof(key));
+            return MetadataContextValue.Create(key, value);
+        }
+
         public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata)
         {
             return metadata == null || metadata.Count == 0;

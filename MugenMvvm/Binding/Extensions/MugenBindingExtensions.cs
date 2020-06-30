@@ -273,7 +273,7 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         [Preserve(Conditional = true)]
-        public static void RaisePropertyChanged(this MemberChangedListenerCollection collection, object? sender, PropertyChangedEventArgs args)
+        public static void RaisePropertyChanged(this MemberListenerCollection collection, object? sender, PropertyChangedEventArgs args)
         {
             collection.Raise(sender, args, args.PropertyName, null);
         }

@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands
 {
-    public interface ICommandProvider : IComponentOwner<ICommandProvider>, IComponent<IMugenApplication>
+    public interface ICommandManager : IComponentOwner<ICommandManager>, IComponent<IMugenApplication>
     {
         ICompositeCommand? TryGetCommand<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null);
     }

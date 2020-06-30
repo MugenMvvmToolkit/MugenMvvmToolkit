@@ -483,7 +483,7 @@ namespace MugenMvvm.UnitTest.Presenters
             {
                 var entries = new List<INavigationEntry>
                 {
-                    new NavigationEntry(mediator, "1", NavigationType.Popup)
+                    new NavigationEntry(this, mediator, "1", NavigationType.Popup)
                 };
                 var callbacks = new List<NavigationCallback>
                 {

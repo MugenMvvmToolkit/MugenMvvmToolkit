@@ -7,7 +7,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observation
 {
-    public class MemberChangedListenerCollection : ActionToken.IHandler
+    public class MemberListenerCollection : ActionToken.IHandler
     {
         #region Fields
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Constructors
 
-        public MemberChangedListenerCollection()
+        public MemberListenerCollection()
         {
             _listeners = Default.Array<WeakEventListener<string>>();
         }
@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Properties
 
-        public bool HasListeners => _size - _removedSize > 0;
+        public int Count => _size - _removedSize;
 
         #endregion
 

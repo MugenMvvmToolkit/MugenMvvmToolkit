@@ -307,4 +307,4 @@ __pycache__/
 /nuspec/push.bat
 /nuspec/push1.bat
 -/.vs/config
-/MugenMvvm/Platforms/Android/Jars/app-release.aar
+/MugenMvvm/Platforms/Android/Jars/mugenmvvm-core.aar

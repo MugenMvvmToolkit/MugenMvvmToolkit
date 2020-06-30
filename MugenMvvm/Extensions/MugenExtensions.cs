@@ -18,6 +18,7 @@ using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
@@ -25,7 +26,9 @@ using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
 using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Requests;
 using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.Extensions
@@ -156,6 +159,37 @@ namespace MugenMvvm.Extensions
             Execute(threadDispatcher, executionMode, genericHandler: handler, state, metadata);
         }
 
+        public static IViewModelBase? TryGetViewModelView<TRequest, TView>(in TRequest request, out TView? view) where TView : class
+        {
+            if (TypeChecker.IsValueType<TRequest>())
+            {
+                if (typeof(TRequest) == typeof(ViewModelViewRequest))
+                {
+                    var r = CastGeneric<TRequest, ViewModelViewRequest>(request);
+                    view = r.View as TView;
+                    return r.ViewModel;
+                }
+
+                view = null;
+                return null;
+            }
+
+            if (request is IViewModelBase vm)
+            {
+                view = null;
+                return vm;
+            }
+
+            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IViewModelBase result)
+            {
+                view = null;
+                return result;
+            }
+
+            view = request as TView;
+            return null;
+        }
+
         public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class
         {
@@ -175,35 +209,35 @@ namespace MugenMvvm.Extensions
             return valueProvider.Clear(item, path, out _);
         }
 
-        public static ICompositeCommand GetCommand(this ICommandProvider? mediatorProvider, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand(this ICommandManager? mediatorProvider, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             return GetCommandInternal<object>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static ICompositeCommand GetCommand<T>(this ICommandProvider? mediatorProvider, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand<T>(this ICommandManager? mediatorProvider, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static ICompositeCommand GetCommand(this ICommandProvider? mediatorProvider, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand(this ICommandManager? mediatorProvider, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             return GetCommandInternal<object>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static ICompositeCommand GetCommand<T>(this ICommandProvider? mediatorProvider, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand<T>(this ICommandManager? mediatorProvider, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
             return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static ICompositeCommand GetCommand<TRequest>(this ICommandProvider commandProvider, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static ICompositeCommand GetCommand<TRequest>(this ICommandManager commandProvider, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(commandProvider, nameof(commandProvider));
             var result = commandProvider.TryGetCommand(request, metadata);
@@ -354,7 +388,7 @@ namespace MugenMvvm.Extensions
             => new SpanSplitEnumerator<char>(span, separator);
 #endif
 
-        private static ICompositeCommand GetCommandInternal<T>(ICommandProvider? mediatorProvider, Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
+        private static ICompositeCommand GetCommandInternal<T>(ICommandManager? mediatorProvider, Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
             ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify, IReadOnlyMetadataContext? metadata)
         {
             var request = new DelegateCommandRequest((in DelegateCommandRequest r, DelegateCommandRequest.IProvider provider, IReadOnlyMetadataContext? m) => provider.TryGetCommand<T>(r, m),

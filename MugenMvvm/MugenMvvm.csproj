@@ -24,7 +24,7 @@
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Compile Include="Platforms\Android\**\*.cs" />
-    <LibraryProjectZip Include="Platforms\Android\Jars\app-release.aar" />
+    <LibraryProjectZip Include="Platforms\Android\Jars\mugenmvvm-core.aar" />
     <TransformFile Include="Platforms\Android\Transforms\Metadata.xml" />
     <TransformFile Include="Platforms\Android\Transforms\EnumFields.xml" />
     <TransformFile Include="Platforms\Android\Transforms\EnumMethods.xml" />
@@ -38,8 +38,12 @@
   <ItemGroup>
     <None Remove="Platforms\Android\Constants\AndroidInternalConstant.cs" />
     <None Remove="Platforms\Android\Enums\AndroidViewLifecycleState.cs" />
+    <None Remove="Platforms\Android\Native\Views\ViewWrapper.cs" />
     <None Remove="Platforms\Android\Presenters\ActivityViewModelPresenterMediator.cs" />
     <None Remove="Platforms\Android\Views\AndroidNativeViewLifecycleStateDispatcher.cs" />
+    <None Remove="Platforms\Android\Views\AndroidViewFirstInitializer.cs" />
+    <None Remove="Platforms\Android\Views\AndroidViewModelViewMapping.cs" />
+    <None Remove="Platforms\Android\Views\AndroidViewModelViewMappingDecorator.cs" />
     <None Remove="Platforms\Android\Views\AndroidViewStateDispatcher.cs" />
   </ItemGroup>
 
@@ -49,7 +53,7 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
 
-  <Target Name="BuildAndroidNative" BeforeTargets="BeforeBuild" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+  <Target Name="BuildAndroidNative" BeforeTargets="PrepareForBuild" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <Exec Command="..\BuildAndroidNative.bat" />
   </Target>
 </Project>

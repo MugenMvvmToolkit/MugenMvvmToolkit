@@ -50,7 +50,7 @@ namespace MugenMvvm.Binding.Members.Components
             for (var index = 0; index < members.Count; index++)
             {
                 var memberInfo = members[index];
-                if (memberTypes.HasFlagEx(memberInfo.MemberType) && type.IsAssignableFromGeneric(memberInfo.DeclaringType))
+                if (memberTypes.HasFlagEx(memberInfo.MemberType) && memberInfo.DeclaringType.IsAssignableFromGeneric(type))
                     result.Add(memberInfo);
             }
 

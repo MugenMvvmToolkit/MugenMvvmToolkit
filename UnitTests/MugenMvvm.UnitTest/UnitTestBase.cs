@@ -61,8 +61,8 @@ namespace MugenMvvm.UnitTest
             reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
             MugenService.Configuration.InitializeInstance<IReflectionDelegateProvider>(reflectionDelegateProvider);
 
-            var commandProvider = new CommandProvider();
-            MugenService.Configuration.InitializeInstance<ICommandProvider>(commandProvider);
+            var commandProvider = new CommandManager();
+            MugenService.Configuration.InitializeInstance<ICommandManager>(commandProvider);
 
             var converter = new GlobalValueConverter();
             converter.AddComponent(new GlobalValueConverterComponent());

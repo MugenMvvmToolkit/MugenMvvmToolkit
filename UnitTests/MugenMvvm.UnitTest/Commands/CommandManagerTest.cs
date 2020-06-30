@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Commands
 {
-    public class CommandProviderTest : ComponentOwnerTestBase<ICommandProvider>
+    public class CommandManagerTest : ComponentOwnerTestBase<ICommandManager>
     {
         #region Methods
 
@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Commands
                     {
                         ++count;
                         o.ShouldEqual(commandProvider);
-                        type.ShouldEqual(typeof(ICommandProvider));
+                        type.ShouldEqual(typeof(ICommandManager));
                         arg3.ShouldEqual(DefaultMetadata);
                         return command;
                     }
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Commands
                     {
                         provider.ShouldEqual(commandProvider);
                         o.ShouldEqual(commandProvider);
-                        arg3.ShouldEqual(typeof(ICommandProvider));
+                        arg3.ShouldEqual(typeof(ICommandManager));
                         arg4.ShouldEqual(command);
                         arg5.ShouldEqual(DefaultMetadata);
                         ++count;
@@ -85,9 +85,9 @@ namespace MugenMvvm.UnitTest.Commands
             ShouldThrow<InvalidOperationException>(() => commandProvider.GetCommand(commandProvider, DefaultMetadata));
         }
 
-        protected override ICommandProvider GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ICommandManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new CommandProvider(collectionProvider);
+            return new CommandManager(collectionProvider);
         }
 
         #endregion

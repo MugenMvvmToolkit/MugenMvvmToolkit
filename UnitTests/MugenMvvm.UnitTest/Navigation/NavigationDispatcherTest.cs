@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             var entries = new HashSet<INavigationEntry>();
             for (var i = 0; i < count; i++)
-                entries.Add(new NavigationEntry(new TestNavigationProvider(), i.ToString(), NavigationType.Page));
+                entries.Add(new NavigationEntry(this, new TestNavigationProvider(), i.ToString(), NavigationType.Page));
             for (var i = 0; i < count; i++)
             {
                 var info = entries.ElementAt(i);
@@ -101,7 +101,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void GetCallbacksShouldReturnEmptyListNoComponents()
         {
-            new NavigationDispatcher().GetNavigationCallbacks(new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Page)).AsList().ShouldBeEmpty();
+            new NavigationDispatcher().GetNavigationCallbacks(new NavigationEntry(this, new TestNavigationProvider(), "tes", NavigationType.Page)).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -109,7 +109,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [InlineData(10)]
         public void GetCallbacksShouldBeHandledByComponents(int count)
         {
-            var navEntry = new NavigationEntry(new TestNavigationProvider(), "tes", NavigationType.Alert);
+            var navEntry = new NavigationEntry(this, new TestNavigationProvider(), "tes", NavigationType.Alert);
             var dispatcher = new NavigationDispatcher();
             var callbacks = new HashSet<INavigationCallback>();
             for (var i = 0; i < count; i++)

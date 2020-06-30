@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         }
 
         [Fact]
-        public void TryGetMembersShouldReturnAssignableTypes()
+        public void TryGetMembersShouldReturnAssignableTypes1()
         {
             const string memberName = "f";
             var owner = new MemberManager();
@@ -82,13 +82,38 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             component.Register(memberInfo2);
             component.Register(memberInfo3);
 
-            var members = component.TryGetMembers(typeof(IEnumerable<object>), memberName, MemberType.All, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(typeof(List<object>), memberName, MemberType.All, DefaultMetadata).AsList();
             members.Count.ShouldEqual(2);
             members.ShouldContain(memberInfo1);
             members.ShouldContain(memberInfo2);
 
             component.TryGetMembers(typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
             component.TryGetMembers(typeof(string), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo3);
+        }
+
+        [Fact]
+        public void TryGetMembersShouldReturnAssignableTypes2()
+        {
+            const string memberName = "f";
+            var owner = new MemberManager();
+            var component = new AttachedMemberProvider();
+            owner.AddComponent(component);
+
+            var memberInfo1 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(object), MemberType = MemberType.Method };
+            var memberInfo2 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(IEnumerable<char>), MemberType = MemberType.Accessor };
+            var memberInfo3 = new TestAccessorMemberInfo { Name = memberName, DeclaringType = typeof(string), MemberType = MemberType.Event };
+            component.Register(memberInfo1);
+            component.Register(memberInfo2);
+            component.Register(memberInfo3);
+
+            var members = component.TryGetMembers(typeof(string), memberName, MemberType.All, DefaultMetadata).AsList();
+            members.Count.ShouldEqual(3);
+            members.ShouldContain(memberInfo1);
+            members.ShouldContain(memberInfo2);
+            members.ShouldContain(memberInfo3);
+
+            component.TryGetMembers(typeof(MemberManager), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1);;
+            component.TryGetMembers(typeof(IList<string>), memberName, MemberType.All, DefaultMetadata).AsList().Single().ShouldEqual(memberInfo1);
         }
 
         [Fact]
@@ -108,11 +133,11 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             component.Register(memberInfo3);
             component.Register(memberInfo4);
 
-            var members = component.TryGetMembers(typeof(IEnumerable<>), memberName, MemberType.Accessor, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(typeof(List<>), memberName, MemberType.Accessor, DefaultMetadata).AsList();
             members.Count.ShouldEqual(3);
             members.ShouldContain(memberInfo1);
             members.ShouldContain(memberInfo2);
-            members.ShouldContain(memberInfo3);
+            members.ShouldContain(memberInfo4);
         }
 
         #endregion

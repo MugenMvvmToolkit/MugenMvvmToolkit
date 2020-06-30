@@ -24,7 +24,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandProvider provider, ICompositeCommand command, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static void OnCommandCreated<TRequest>(this ICommandProviderListener[] listeners, ICommandManager provider, ICompositeCommand command, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(provider, nameof(provider));

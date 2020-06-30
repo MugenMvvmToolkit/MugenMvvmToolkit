@@ -31,7 +31,7 @@ namespace MugenMvvm
 
         public static IMugenApplication Application => Instance<IMugenApplication>();
 
-        public static ICommandProvider CommandProvider => Instance<ICommandProvider>();
+        public static ICommandManager CommandManager => Instance<ICommandManager>();
 
         public static IComponentCollectionProvider ComponentCollectionProvider => Instance<IComponentCollectionProvider>();
 

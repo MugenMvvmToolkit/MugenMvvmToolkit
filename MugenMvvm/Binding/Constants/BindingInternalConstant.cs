@@ -4,6 +4,10 @@
     {
         #region Fields
 
+        public const string HasErrorsName = "HasErrors";
+        public const string GetErrorsName = "GetErrors";
+        public const string GetErrorName = "GetError";
+        public const string FindElementByName = "FindElementByName";
         public const string ChangedEventPostfix = "Changed";
         public const string ChangeEventPostfix = "Change";
         public const string PropertyChangedObserverMember = "~p";

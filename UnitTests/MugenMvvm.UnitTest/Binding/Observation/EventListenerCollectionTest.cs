@@ -41,13 +41,13 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             }
 
             var collection = new EventListenerCollection();
-            collection.HasListeners.ShouldBeFalse();
+            collection.Count.ShouldEqual(0);
             for (var i = 0; i < count; i++)
             {
                 collection.Add(listeners[i]);
                 collection.Raise(sender, msg, DefaultMetadata);
                 ValidateInvokeCount(listeners, 1, true, 0, i + 1);
-                collection.HasListeners.ShouldBeTrue();
+                collection.Count.ShouldEqual(i + 1);
             }
 
             var removeCount = Math.Min(count, 100);
@@ -55,11 +55,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 listeners[i].IsAlive = false;
 
             collection.Raise(sender, msg, DefaultMetadata);
-            collection.HasListeners.ShouldEqual(count != 1);
+            collection.Count.ShouldEqual(listeners.Length - removeCount);
             ValidateInvokeCount(listeners, 1);
 
             collection.Raise(sender, msg, DefaultMetadata);
-            collection.HasListeners.ShouldEqual(count != 1);
+            collection.Count.ShouldEqual(listeners.Length - removeCount);
             ValidateInvokeCount(listeners, 1, true, removeCount);
 
             var tokens = new List<ActionToken>();
@@ -70,14 +70,14 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             }
 
             collection.Raise(sender, msg, DefaultMetadata);
-            collection.HasListeners.ShouldBeTrue();
+            collection.Count.ShouldEqual(listeners.Length);
             ValidateInvokeCount(listeners, 1);
 
             for (var index = 0; index < removeCount; index++)
             {
                 tokens[index].Dispose();
                 collection.Raise(sender, msg, DefaultMetadata);
-                collection.HasListeners.ShouldEqual(count != 1);
+                collection.Count.ShouldEqual(listeners.Length - index - 1);
                 ValidateInvokeCount(listeners, 1, true, index + 1);
             }
 
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 collection.Add(listeners[i]);
 
             collection.Raise(sender, msg, DefaultMetadata);
-            collection.HasListeners.ShouldBeTrue();
+            collection.Count.ShouldEqual(listeners.Length);
             ValidateInvokeCount(listeners, 1);
 
             for (var index = 0; index < removeCount; index++)
@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             ValidateInvokeCount(listeners, 1);
 
             collection.Clear();
-            collection.HasListeners.ShouldBeFalse();
+            collection.Count.ShouldEqual(0);
             collection.Raise(sender, msg, DefaultMetadata);
             ValidateInvokeCount(listeners, 0);
         }

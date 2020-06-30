@@ -58,9 +58,9 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            if (!TypeChecker.IsValueType<TRequest>() && request is IMetadataOwner<IReadOnlyMetadataContext> owner)
-                return GetCallbacks(owner.GetMetadataOrDefault(), request as IHasTarget<object?>);
-            return default;
+            if (TypeChecker.IsValueType<TRequest>())
+                return default;
+            return GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), request as IHasTarget<object?>);
         }
 
         public bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext)
@@ -161,7 +161,7 @@ namespace MugenMvvm.Navigation.Components
                 .Build();
         }
 
-        private static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext metadata, IHasTarget<object?>? hasTarget)
+        private static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext? metadata, IHasTarget<object?>? hasTarget)
         {
             var canMoveNext = true;
             ItemOrList<INavigationCallback, List<INavigationCallback>> list = default;
@@ -181,9 +181,9 @@ namespace MugenMvvm.Navigation.Components
             return list.Cast<IReadOnlyList<INavigationCallback>>();
         }
 
-        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext metadata, ref ItemOrList<INavigationCallback, List<INavigationCallback>> list)
+        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext? metadata, ref ItemOrList<INavigationCallback, List<INavigationCallback>> list)
         {
-            var callbacks = metadata.Get(key);
+            var callbacks = metadata?.Get(key);
             if (callbacks == null)
                 return;
 

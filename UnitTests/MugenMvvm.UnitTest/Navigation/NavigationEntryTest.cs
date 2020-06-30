@@ -15,10 +15,12 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
+            var target = new object();
             var provider = new TestNavigationProvider();
             var type = NavigationType.Alert;
             var id = "t";
-            var navigationEntry = new NavigationEntry(provider, id, type);
+            var navigationEntry = new NavigationEntry(target, provider, id, type);
+            navigationEntry.Target.ShouldEqual(target);
             navigationEntry.NavigationProvider.ShouldEqual(provider);
             navigationEntry.NavigationType.ShouldEqual(type);
             navigationEntry.NavigationId.ShouldEqual(id);
@@ -26,7 +28,7 @@ namespace MugenMvvm.UnitTest.Navigation
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
         {
-            return new NavigationEntry(new TestNavigationProvider(), "f", NavigationType.Alert, metadata, metadataContextProvider);
+            return new NavigationEntry(this, new TestNavigationProvider(), "f", NavigationType.Alert, metadata, metadataContextProvider);
         }
 
         #endregion
