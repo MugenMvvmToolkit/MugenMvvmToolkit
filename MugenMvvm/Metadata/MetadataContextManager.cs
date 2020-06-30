@@ -9,12 +9,12 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
-    public sealed class MetadataContextProvider : ComponentOwnerBase<IMetadataContextProvider>, IMetadataContextProvider
+    public sealed class MetadataContextManager : ComponentOwnerBase<IMetadataContextManager>, IMetadataContextManager
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MetadataContextProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public MetadataContextManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
         }
 
@@ -26,7 +26,7 @@ namespace MugenMvvm.Metadata
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(target, values);
             if (result != null)
-                GetComponents<IMetadataContextProviderListener>().OnReadOnlyContextCreated(this, result!, target);
+                GetComponents<IMetadataContextManagerListener>().OnReadOnlyContextCreated(this, result!, target);
             return result;
         }
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.Metadata
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(target, values);
             if (result != null)
-                GetComponents<IMetadataContextProviderListener>().OnContextCreated(this, result!, target);
+                GetComponents<IMetadataContextManagerListener>().OnContextCreated(this, result!, target);
             return result;
         }
 

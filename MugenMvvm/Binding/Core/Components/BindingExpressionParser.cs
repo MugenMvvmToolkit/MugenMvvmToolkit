@@ -36,12 +36,12 @@ namespace MugenMvvm.Binding.Core.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingExpressionParser(IExpressionParser? parser = null, IExpressionCompiler? expressionCompiler = null, IMetadataContextProvider? metadataContextProvider = null)
+        public BindingExpressionParser(IExpressionParser? parser = null, IExpressionCompiler? expressionCompiler = null, IMetadataContextManager? metadataContextManager = null)
         {
             _parser = parser;
             _expressionCompiler = expressionCompiler;
             _expressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
-            _context = new BindingExpressionInitializerContext(this, metadataContextProvider);
+            _context = new BindingExpressionInitializerContext(this, metadataContextManager);
         }
 
         #endregion

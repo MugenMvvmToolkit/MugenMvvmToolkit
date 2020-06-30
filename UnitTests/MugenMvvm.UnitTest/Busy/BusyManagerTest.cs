@@ -129,7 +129,7 @@ namespace MugenMvvm.UnitTest.Busy
             methodCallCount.ShouldEqual(componentCount);
         }
 
-        protected override BusyManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override BusyManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new BusyManager(collectionProvider);
         }

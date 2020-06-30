@@ -23,9 +23,9 @@ namespace MugenMvvm.ViewModels.Components
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
+        private readonly IMetadataContextManager? _metadataContextManager;
+        private readonly IReflectionManager? _reflectionManager;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
@@ -33,13 +33,13 @@ namespace MugenMvvm.ViewModels.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelServiceResolver(IReflectionDelegateProvider? reflectionDelegateProvider = null, IThreadDispatcher? threadDispatcher = null,
-            IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewModelServiceResolver(IReflectionManager? reflectionManager = null, IThreadDispatcher? threadDispatcher = null,
+            IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
         {
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
             _threadDispatcher = threadDispatcher;
-            _metadataContextProvider = metadataContextProvider;
-            _componentCollectionProvider = componentCollectionProvider;
+            _metadataContextManager = metadataContextManager;
+            _componentCollectionManager = componentCollectionManager;
         }
 
         #endregion
@@ -58,18 +58,18 @@ namespace MugenMvvm.ViewModels.Components
                 return null;
 
             if (service == typeof(IMetadataContext))
-                return _metadataContextProvider.DefaultIfNull().GetMetadataContext(viewModel);
+                return _metadataContextManager.DefaultIfNull().GetMetadataContext(viewModel);
             if (service == typeof(IMessenger))
             {
-                var messenger = new Messenger(_componentCollectionProvider, _metadataContextProvider);
+                var messenger = new Messenger(_componentCollectionManager, _metadataContextManager);
                 messenger.Components.Add(new MessagePublisher(_threadDispatcher), metadata);
-                messenger.Components.Add(new MessengerHandlerSubscriber(_reflectionDelegateProvider), metadata);
+                messenger.Components.Add(new MessengerHandlerSubscriber(_reflectionManager), metadata);
                 return messenger;
             }
 
             if (service == typeof(IBusyManager))
             {
-                var busyManager = new BusyManager(_componentCollectionProvider);
+                var busyManager = new BusyManager(_componentCollectionManager);
                 busyManager.Components.Add(new BusyManagerComponent());
                 return busyManager;
             }

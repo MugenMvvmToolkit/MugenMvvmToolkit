@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface IActivatorReflectionDelegateProviderComponent : IComponent<IReflectionDelegateProvider>
+    public interface IActivatorReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
         Func<object?[], object>? TryGetActivator(ConstructorInfo constructor);
 

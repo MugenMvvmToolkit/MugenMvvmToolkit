@@ -29,10 +29,10 @@ namespace MugenMvvm.Binding.Parsing.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ExpressionConverterComponent(IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionConverterComponent(IMetadataContextManager? metadataContextManager = null)
         {
-            _context = new ExpressionConverterContext<Expression>(metadataContextProvider);
-            _parserContext = new TokenParserContext(metadataContextProvider);
+            _context = new ExpressionConverterContext<Expression>(metadataContextManager);
+            _parserContext = new TokenParserContext(metadataContextManager);
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionConverterComponent<Expression>, ExpressionConverterContext<Expression>>((components, state, _) => state.Converters = components, _context);
             _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);

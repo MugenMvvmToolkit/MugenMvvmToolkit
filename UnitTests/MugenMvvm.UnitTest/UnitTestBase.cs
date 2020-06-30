@@ -41,15 +41,15 @@ namespace MugenMvvm.UnitTest
         public UnitTestBase()
         {
             MugenService.Configuration.InitializeFallback(null);
-            MugenService.Configuration.InitializeInstance<IComponentCollectionProvider>(new ComponentCollectionProvider());
+            MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
 
             var attachedValueManager = new AttachedValueManager();
             attachedValueManager.AddComponent(new ConditionalWeakTableAttachedValueProvider());
             MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueManager);
 
-            var metadataContextProvider = new MugenMvvm.Metadata.MetadataContextProvider();
-            metadataContextProvider.AddComponent(new MugenMvvm.Metadata.Components.MetadataContextProviderComponent());
-            MugenService.Configuration.InitializeInstance<IMetadataContextProvider>(metadataContextProvider);
+            var metadataContextManager = new MugenMvvm.Metadata.MetadataContextManager();
+            metadataContextManager.AddComponent(new MugenMvvm.Metadata.Components.MetadataContextProviderComponent());
+            MugenService.Configuration.InitializeInstance<IMetadataContextManager>(metadataContextManager);
 
             var weakReferenceManager = new WeakReferenceManager();
             weakReferenceManager.AddComponent(new WeakReferenceProviderComponent());
@@ -57,9 +57,9 @@ namespace MugenMvvm.UnitTest
 
             InitializeThreadDispatcher();
 
-            var reflectionDelegateProvider = new ReflectionDelegateProvider();
-            reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
-            MugenService.Configuration.InitializeInstance<IReflectionDelegateProvider>(reflectionDelegateProvider);
+            var reflectionManager = new ReflectionDelegateManager();
+            reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
+            MugenService.Configuration.InitializeInstance<IReflectionManager>(reflectionManager);
 
             var commandManager = new CommandManager();
             MugenService.Configuration.InitializeInstance<ICommandManager>(commandManager);

@@ -157,9 +157,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             invokeCount.ShouldEqual(1);
         }
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
         {
-            var ctx = new TokenParserContext(metadataContextProvider);
+            var ctx = new TokenParserContext(metadataContextManager);
             ctx.Initialize("Test", metadata);
             return ctx;
         }

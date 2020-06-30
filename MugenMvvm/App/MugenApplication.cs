@@ -39,7 +39,7 @@ namespace MugenMvvm.App
             get
             {
                 if (_metadata == null)
-                    MugenService.MetadataContextProvider.LazyInitialize(ref _metadata, this);
+                    MugenService.MetadataContextManager.LazyInitialize(ref _metadata, this);
                 return _metadata;
             }
         }
@@ -49,7 +49,7 @@ namespace MugenMvvm.App
             get
             {
                 if (_components == null)
-                    MugenService.ComponentCollectionProvider.LazyInitialize(ref _components, this);
+                    MugenService.ComponentCollectionManager.LazyInitialize(ref _components, this);
                 return _components;
             }
         }

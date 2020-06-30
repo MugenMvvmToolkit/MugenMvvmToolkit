@@ -15,8 +15,8 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         #region Constructors
 
-        public TestViewModelComponentOwner(IComponentCollection? components = null, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+        public TestViewModelComponentOwner(IComponentCollection? components = null, IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
             _components = components;
         }
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
             get
             {
                 if (_components == null)
-                    MugenService.ComponentCollectionProvider.LazyInitialize(ref _components, this);
+                    MugenService.ComponentCollectionManager.LazyInitialize(ref _components, this);
                 return _components;
             }
         }

@@ -22,7 +22,7 @@ namespace MugenMvvm.Messaging.Components
     {
         #region Fields
 
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
         private IMessenger? _messenger;
         private static readonly CacheDictionary Cache = new CacheDictionary();
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerDelegate = Handle;
@@ -33,10 +33,10 @@ namespace MugenMvvm.Messaging.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MessengerHandlerSubscriber(IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public MessengerHandlerSubscriber(IReflectionManager? reflectionManager = null)
             : base(HandlerSubscriberEqualityComparer.Instance)
         {
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
         }
 
         #endregion
@@ -144,7 +144,7 @@ namespace MugenMvvm.Messaging.Components
                         continue;
                     }
 
-                    var action = GetHandler(_reflectionDelegateProvider, subscriber.GetType(), messageType);
+                    var action = GetHandler(_reflectionManager, subscriber.GetType(), messageType);
                     if (action != null)
                         result.Add(new MessengerHandler(HandlerDelegate, handler.Subscriber, handler.ExecutionMode, action), h => h.IsEmpty);
                     if (subscriber is IMessengerHandlerRaw handlerRaw && handlerRaw.CanHandle(messageType))
@@ -252,7 +252,7 @@ namespace MugenMvvm.Messaging.Components
             return result;
         }
 
-        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionDelegateProvider? reflectionDelegateProvider, Type handlerType, Type messageType)
+        private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
         {
             var key = new CacheKey(handlerType, messageType);
             lock (Cache)
@@ -268,7 +268,7 @@ namespace MugenMvvm.Messaging.Components
                         var typeMessage = @interface.GetGenericArguments()[0];
                         var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
                         if (method != null && typeMessage.IsAssignableFrom(key.MessageType))
-                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionDelegateProvider);
+                            action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionManager);
                     }
 
                     Cache[key] = action;

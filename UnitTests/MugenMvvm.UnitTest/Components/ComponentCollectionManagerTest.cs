@@ -7,7 +7,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Components
 {
-    public class ComponentCollectionProviderTest : ComponentOwnerTestBase<IComponentCollectionProvider>
+    public class ComponentCollectionManagerTest : ComponentOwnerTestBase<IComponentCollectionManager>
     {
         #region Methods
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Components
             };
             collectionProvider.AddComponent(component);
 
-            var listener = new TestComponentCollectionProviderListener();
+            var listener = new TestComponentCollectionManagerListener();
             listener.OnComponentCollectionCreated = (provider, collection, arg3) =>
             {
                 executed++;
@@ -71,9 +71,9 @@ namespace MugenMvvm.UnitTest.Components
         {
         }
 
-        protected override IComponentCollectionProvider GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override IComponentCollectionManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
-            return new ComponentCollectionProvider();
+            return new ComponentCollectionManager();
         }
 
         #endregion

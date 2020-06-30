@@ -25,8 +25,8 @@ namespace MugenMvvm.Binding.Observation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ObservationManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public ObservationManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IMemberObserverProviderComponent, ObservationManager>((components, state, _) => state._memberObserverComponents = components, this);

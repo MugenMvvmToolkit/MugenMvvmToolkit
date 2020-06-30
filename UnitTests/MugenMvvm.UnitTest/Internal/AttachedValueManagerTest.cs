@@ -439,7 +439,7 @@ namespace MugenMvvm.UnitTest.Internal
             methodExecuted.ShouldEqual(2);
         }
 
-        protected override AttachedValueManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override AttachedValueManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new AttachedValueManager(collectionProvider);
         }

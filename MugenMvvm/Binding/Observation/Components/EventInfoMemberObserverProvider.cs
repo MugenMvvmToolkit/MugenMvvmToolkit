@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Observation.Components
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
 
         private static readonly MethodInfo RaiseMethod = typeof(MugenBindingExtensions)
             .GetMethodOrThrow(nameof(MugenBindingExtensions.Raise), BindingFlagsEx.StaticPublic);
@@ -31,10 +31,10 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueManager = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueManager = null, IReflectionManager? reflectionManager = null)
         {
             _attachedValueManager = attachedValueManager;
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
             _createWeakListenerDelegate = CreateWeakListener;
             _memberObserverHandler = TryObserve;
         }
@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private MemberObserver TryGetMemberObserver(EventInfo member)
         {
-            if (member.EventHandlerType == typeof(EventHandler) || member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionDelegateProvider))
+            if (member.EventHandlerType == typeof(EventHandler) || member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager))
                 return new MemberObserver(_memberObserverHandler, member);
             return default;
         }
@@ -88,7 +88,7 @@ namespace MugenMvvm.Binding.Observation.Components
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)
-                : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionDelegateProvider);
+                : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionManager);
 
             if (handler == null)
                 return null;
@@ -97,7 +97,7 @@ namespace MugenMvvm.Binding.Observation.Components
             if (addMethod == null)
                 return null;
 
-            addMethod.GetMethodInvoker<Action<object, Delegate>>(_reflectionDelegateProvider).Invoke(target, handler);
+            addMethod.GetMethodInvoker<Action<object, Delegate>>(_reflectionManager).Invoke(target, handler);
             return listenerInternal;
         }
 

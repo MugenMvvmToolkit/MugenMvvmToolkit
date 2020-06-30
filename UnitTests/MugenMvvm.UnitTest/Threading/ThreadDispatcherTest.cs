@@ -102,7 +102,7 @@ namespace MugenMvvm.UnitTest.Threading
             executeCount.ShouldEqual(count);
         }
 
-        protected override ThreadDispatcher GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ThreadDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new ThreadDispatcher(collectionProvider);
         }

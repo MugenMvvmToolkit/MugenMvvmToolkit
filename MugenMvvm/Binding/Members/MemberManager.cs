@@ -25,8 +25,8 @@ namespace MugenMvvm.Binding.Members
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MemberManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public MemberManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IMemberManagerComponent, MemberManager>((components, state, _) => state._components = components, this);

@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Binding.Convert
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override GlobalValueConverter GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override GlobalValueConverter GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new GlobalValueConverter(collectionProvider);
         }

@@ -24,7 +24,7 @@ namespace MugenMvvm.ViewModels.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
         private readonly IViewManager? _viewManager;
 
         private static readonly TypeLightDictionary<object?> TypesToCommandsProperties = new TypeLightDictionary<object?>(59);
@@ -33,11 +33,11 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Constructors
 
-        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueManager = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueManager = null, IReflectionManager? reflectionManager = null)
         {
             _viewManager = viewManager;
             _attachedValueManager = attachedValueManager;
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
         }
 
         #endregion
@@ -104,7 +104,7 @@ namespace MugenMvvm.ViewModels.Components
                         if (typeof(ICommand).IsAssignableFrom(p.PropertyType) && p.CanRead &&
                             p.GetIndexParameters().Length == 0)
                         {
-                            var func = p.GetMemberGetter<object, ICommand>(_reflectionDelegateProvider);
+                            var func = p.GetMemberGetter<object, ICommand>(_reflectionManager);
                             items.Add(func);
                         }
                     }

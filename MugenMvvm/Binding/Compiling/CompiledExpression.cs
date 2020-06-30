@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Compiling
         private readonly IExpressionNode _expression;
         private readonly ExpressionDictionary _expressionsDict;
         private readonly IReadOnlyMetadataContext? _inputMetadata;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IMetadataContextManager? _metadataContextManager;
         private object?[] _values;
 
         private IExpressionBuilderComponent[] _expressionBuilders;
@@ -36,10 +36,10 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Constructors
 
-        public CompiledExpression(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+        public CompiledExpression(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
         {
             _inputMetadata = metadata;
-            _metadataContextProvider = metadataContextProvider;
+            _metadataContextManager = metadataContextManager;
             _expressionsDict = new ExpressionDictionary();
             _expression = expression.Accept(this, metadata);
             _values = new object[_expressionsDict.Count + 1];
@@ -58,7 +58,7 @@ namespace MugenMvvm.Binding.Compiling
             get
             {
                 if (_metadata == null)
-                    _metadataContextProvider.LazyInitialize(ref _metadata, this, _inputMetadata);
+                    _metadataContextManager.LazyInitialize(ref _metadata, this, _inputMetadata);
                 return _metadata;
             }
         }

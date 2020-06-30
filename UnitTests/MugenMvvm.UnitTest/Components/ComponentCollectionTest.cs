@@ -410,7 +410,7 @@ namespace MugenMvvm.UnitTest.Components
             components.OfType<TestThreadDispatcherComponent>().Count().ShouldEqual(count);
         }
 
-        protected override IComponentCollection GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override IComponentCollection GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new ComponentCollection(this);
         }

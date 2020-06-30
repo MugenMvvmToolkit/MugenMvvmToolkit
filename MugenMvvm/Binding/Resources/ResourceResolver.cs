@@ -12,7 +12,7 @@ namespace MugenMvvm.Binding.Resources
     {
         #region Constructors
 
-        public ResourceResolver(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public ResourceResolver(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
         }
 

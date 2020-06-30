@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTest.Presenters
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override Presenter GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override Presenter GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new Presenter(collectionProvider);
         }

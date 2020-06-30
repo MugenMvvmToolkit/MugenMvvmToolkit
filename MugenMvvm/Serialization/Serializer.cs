@@ -13,16 +13,16 @@ namespace MugenMvvm.Serialization
     {
         #region Fields
 
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IMetadataContextManager? _metadataContextManager;
 
         #endregion
 
         #region Constructors
 
-        public Serializer(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(componentCollectionProvider)
+        public Serializer(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+            : base(componentCollectionManager)
         {
-            _metadataContextProvider = metadataContextProvider;
+            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -32,14 +32,14 @@ namespace MugenMvvm.Serialization
         public bool TrySerialize<TRequest>(Stream stream, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(stream, nameof(stream));
-            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata, _metadataContextProvider);
+            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
             return GetComponents<ISerializerComponent>().TrySerialize(stream, request, ctx);
         }
 
         public bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
         {
             Should.NotBeNull(stream, nameof(stream));
-            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, metadata) ?? new SerializationContext(metadata, _metadataContextProvider);
+            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
             return GetComponents<ISerializerComponent>().TryDeserialize(stream, ctx, out value);
         }
 

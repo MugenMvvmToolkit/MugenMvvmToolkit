@@ -8,9 +8,9 @@ namespace MugenMvvm.UnitTest.Serialization
     {
         #region Methods
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
         {
-            return new SerializationContext(metadata, metadataContextProvider);
+            return new SerializationContext(metadata, metadataContextManager);
         }
 
         #endregion

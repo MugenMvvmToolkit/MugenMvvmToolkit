@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Components
                 componentOwner = GetComponentOwner();
             else
             {
-                var provider = new ComponentCollectionProvider();
+                var provider = new ComponentCollectionManager();
                 provider.AddComponent(testComponentCollectionProviderComponent);
                 componentOwner = GetComponentOwner(provider);
             }
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Components
             componentOwner.HasComponents.ShouldBeFalse();
         }
 
-        protected abstract T GetComponentOwner(IComponentCollectionProvider? collectionProvider = null);
+        protected abstract T GetComponentOwner(IComponentCollectionManager? collectionProvider = null);
 
         #endregion
     }

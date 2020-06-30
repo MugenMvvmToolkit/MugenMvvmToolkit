@@ -33,19 +33,19 @@ namespace MugenMvvm
 
         public static ICommandManager CommandManager => Instance<ICommandManager>();
 
-        public static IComponentCollectionProvider ComponentCollectionProvider => Instance<IComponentCollectionProvider>();
+        public static IComponentCollectionManager ComponentCollectionManager => Instance<IComponentCollectionManager>();
 
         public static IAttachedValueManager AttachedValueManager => Instance<IAttachedValueManager>();
 
         public static IEntityManager EntityManager => Instance<IEntityManager>();
 
-        public static IReflectionDelegateProvider ReflectionDelegateProvider => Instance<IReflectionDelegateProvider>();
+        public static IReflectionManager ReflectionManager => Instance<IReflectionManager>();
 
         public static IWeakReferenceManager WeakReferenceManager => Instance<IWeakReferenceManager>();
 
         public static IMessenger Messenger => Instance<IMessenger>();
 
-        public static IMetadataContextProvider MetadataContextProvider => Instance<IMetadataContextProvider>();
+        public static IMetadataContextManager MetadataContextManager => Instance<IMetadataContextManager>();
 
         public static INavigationDispatcher NavigationDispatcher => Instance<INavigationDispatcher>();
 

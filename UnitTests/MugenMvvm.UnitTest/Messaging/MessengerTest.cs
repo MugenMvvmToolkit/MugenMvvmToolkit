@@ -24,17 +24,17 @@ namespace MugenMvvm.UnitTest.Messaging
         [InlineData(false)]
         public void GetMessageContextShouldReturnDefaultContextNoComponents(bool globalContextProvider)
         {
-            IMetadataContextProvider contextProvider;
+            IMetadataContextManager contextProvider;
             Messenger messenger;
             if (globalContextProvider)
             {
                 messenger = new Messenger();
-                contextProvider = MugenService.MetadataContextProvider;
+                contextProvider = MugenService.MetadataContextManager;
             }
             else
             {
-                contextProvider = new MetadataContextProvider();
-                messenger = new Messenger(metadataContextProvider: contextProvider);
+                contextProvider = new MetadataContextManager();
+                messenger = new Messenger(metadataContextManager: contextProvider);
             }
 
             var metadataContext = new MetadataContext();
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Messaging
             subscribers.Count.ShouldEqual(0);
         }
 
-        protected override Messenger GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new Messenger(collectionProvider);
         }

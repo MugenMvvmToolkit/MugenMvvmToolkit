@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Components
 {
-    public sealed class ComponentCollectionProvider : IComponentCollectionProvider
+    public sealed class ComponentCollectionManager : IComponentCollectionManager
     {
         #region Fields
 
@@ -16,7 +16,7 @@ namespace MugenMvvm.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ComponentCollectionProvider()
+        public ComponentCollectionManager()
         {
         }
 
@@ -44,7 +44,7 @@ namespace MugenMvvm.Components
         {
             Should.NotBeNull(owner, nameof(owner));
             var result = GetComponentCollectionInternal(owner, metadata);
-            var components = _components.GetOrDefault<IComponentCollectionProviderListener>(metadata);
+            var components = _components.GetOrDefault<IComponentCollectionManagerListener>(metadata);
             for (var i = 0; i < components.Length; i++)
                 components[i].OnComponentCollectionCreated(this, result, metadata);
             return result;

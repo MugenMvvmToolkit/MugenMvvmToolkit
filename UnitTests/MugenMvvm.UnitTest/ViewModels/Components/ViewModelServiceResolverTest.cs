@@ -21,13 +21,13 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void TryGetServiceShouldReturnMetadataContext()
         {
             var context = new MetadataContext();
-            var metadataProvider = new MetadataContextProvider();
+            var metadataProvider = new MetadataContextManager();
             metadataProvider.AddComponent(new TestMetadataContextProviderComponent
             {
                 TryGetMetadataContext = (o, list) => context
             });
 
-            var component = new ViewModelServiceResolver(metadataContextProvider: metadataProvider);
+            var component = new ViewModelServiceResolver(metadataContextManager: metadataProvider);
             component.TryGetService(new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldEqual(context);
         }
 

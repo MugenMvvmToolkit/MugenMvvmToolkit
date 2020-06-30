@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface IMemberReflectionDelegateProviderComponent : IComponent<IReflectionDelegateProvider>
+    public interface IMemberReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
         Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType);
 

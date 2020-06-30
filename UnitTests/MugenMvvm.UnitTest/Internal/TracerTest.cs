@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override Tracer GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override Tracer GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new Tracer(collectionProvider);
         }

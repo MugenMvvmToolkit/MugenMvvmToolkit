@@ -15,8 +15,8 @@ namespace MugenMvvm.Busy
     {
         #region Constructors
 
-        public BusyManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public BusyManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

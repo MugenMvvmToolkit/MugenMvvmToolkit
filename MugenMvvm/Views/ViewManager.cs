@@ -19,8 +19,8 @@ namespace MugenMvvm.Views
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public ViewManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

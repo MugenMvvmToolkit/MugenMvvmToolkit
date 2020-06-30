@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public ExpressionConverterContext(IMetadataContextProvider? metadataContextProvider = null) : base(null, metadataContextProvider)
+        public ExpressionConverterContext(IMetadataContextManager? metadataContextManager = null) : base(null, metadataContextManager)
         {
             _expressions = new ExpressionDictionary();
             _converters = Default.Array<IExpressionConverterComponent<TExpression>>();

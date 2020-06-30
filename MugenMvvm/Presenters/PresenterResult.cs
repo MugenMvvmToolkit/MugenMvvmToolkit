@@ -11,8 +11,8 @@ namespace MugenMvvm.Presenters
         #region Constructors
 
         public PresenterResult(object? target, string navigationId, INavigationProvider navigationProvider, NavigationType navigationType,
-            IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+            IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
             Should.NotBeNullOrEmpty(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));

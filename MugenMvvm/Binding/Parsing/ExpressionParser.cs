@@ -14,8 +14,8 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Constructors
 
-        public ExpressionParser(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(componentCollectionProvider)
+        public ExpressionParser(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+            : base(componentCollectionManager)
         {
         }
 

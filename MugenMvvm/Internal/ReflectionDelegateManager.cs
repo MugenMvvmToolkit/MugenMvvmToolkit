@@ -9,12 +9,12 @@ using MugenMvvm.Interfaces.Internal.Components;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class ReflectionDelegateProvider : ComponentOwnerBase<IReflectionDelegateProvider>, IReflectionDelegateProvider
+    public sealed class ReflectionDelegateManager : ComponentOwnerBase<IReflectionManager>, IReflectionManager
     {
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionDelegateProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public ReflectionDelegateManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
         }
 

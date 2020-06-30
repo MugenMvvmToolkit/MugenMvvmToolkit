@@ -24,8 +24,8 @@ namespace MugenMvvm.Binding.Core
 
         #region Constructors
 
-        public BindingManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public BindingManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IBindingExpressionParserComponent, BindingManager>((components, state, _) => state._expressionBuilderComponents = components, this);

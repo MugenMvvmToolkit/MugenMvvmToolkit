@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly IObservationManager? _observerProvider;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
 
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObservationManager? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
+        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObservationManager? observerProvider, IReflectionManager? reflectionManager)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Members
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
             Name = name;
             Type = _propertyInfo.PropertyType;
 
@@ -127,13 +127,13 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
-            _setterFunc = _propertyInfo.GetMemberSetter<object?, object?>(_reflectionDelegateProvider);
+            _setterFunc = _propertyInfo.GetMemberSetter<object?, object?>(_reflectionManager);
             _setterFunc(arg1, arg2);
         }
 
         private object? CompileGetter(object? arg)
         {
-            _getterFunc = _propertyInfo.GetMemberGetter<object?, object?>(_reflectionDelegateProvider);
+            _getterFunc = _propertyInfo.GetMemberGetter<object?, object?>(_reflectionManager);
             return _getterFunc(arg);
         }
 

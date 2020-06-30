@@ -8,8 +8,8 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
     {
         #region Constructors
 
-        public TestViewModel(IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+        public TestViewModel(IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
         }
 

@@ -10,12 +10,12 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public class ReflectionDelegateProviderTest : ComponentOwnerTestBase<ReflectionDelegateProvider>
+    public class ReflectionManagerTest : ComponentOwnerTestBase<ReflectionDelegateManager>
     {
         #region Fields
 
-        public static readonly MethodInfo TestMethod = typeof(ReflectionDelegateProviderTest).GetMethod(nameof(CanCreateDelegateShouldReturnFalseNoComponents));
-        public static readonly ConstructorInfo TestConstructor = typeof(ReflectionDelegateProviderTest).GetConstructor(new Type[0]);
+        public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(CanCreateDelegateShouldReturnFalseNoComponents));
+        public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0]);
 
         #endregion
 
@@ -24,49 +24,49 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void CanCreateDelegateShouldReturnFalseNoComponents()
         {
-            new ReflectionDelegateProvider().CanCreateDelegate(typeof(Action), TestMethod).ShouldBeFalse();
+            new ReflectionDelegateManager().CanCreateDelegate(typeof(Action), TestMethod).ShouldBeFalse();
         }
 
         [Fact]
         public void TryCreateDelegateShouldReturnNullNoComponents()
         {
-            new ReflectionDelegateProvider().TryCreateDelegate(typeof(Action), this, TestMethod).ShouldBeNull();
+            new ReflectionDelegateManager().TryCreateDelegate(typeof(Action), this, TestMethod).ShouldBeNull();
         }
 
         [Fact]
         public void GetActivatorShouldThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateProvider().GetActivator(TestConstructor));
+            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateManager().GetActivator(TestConstructor));
         }
 
         [Fact]
         public void GetActivatorShouldThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateProvider().GetActivator(TestConstructor, typeof(Action)));
+            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateManager().GetActivator(TestConstructor, typeof(Action)));
         }
 
         [Fact]
         public void GetMethodInvokerShouldThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateProvider().GetMethodInvoker(TestMethod));
+            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateManager().GetMethodInvoker(TestMethod));
         }
 
         [Fact]
         public void GetMethodInvokerShouldThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateProvider().GetMethodInvoker(TestMethod, typeof(Action)));
+            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateManager().GetMethodInvoker(TestMethod, typeof(Action)));
         }
 
         [Fact]
         public void GetMemberGetterShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateProvider().GetMemberGetter(TestMethod, typeof(Action)));
+            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateManager().GetMemberGetter(TestMethod, typeof(Action)));
         }
 
         [Fact]
         public void GetMemberSetterShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateProvider().GetMemberSetter(TestMethod, typeof(Action)));
+            ShouldThrow<InvalidOperationException>(() => new ReflectionDelegateManager().GetMemberSetter(TestMethod, typeof(Action)));
         }
 
         [Theory]
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Action result = () => { };
             for (var i = 0; i < count; i++)
             {
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Func<object?[], object>? result = objects => objects;
             for (var i = 0; i < count; i++)
             {
@@ -163,7 +163,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Func<object?[], object>? result = objects => objects;
             for (var i = 0; i < count; i++)
             {
@@ -193,7 +193,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
             {
@@ -222,7 +222,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
             {
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
             {
@@ -282,7 +282,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var invokeCount = 0;
             var delType = typeof(Action);
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             Func<object?, object?[], object?> result = (o, objects) => o;
             for (var i = 0; i < count; i++)
             {
@@ -305,9 +305,9 @@ namespace MugenMvvm.UnitTest.Internal
             invokeCount.ShouldEqual(count);
         }
 
-        protected override ReflectionDelegateProvider GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ReflectionDelegateManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
-            return new ReflectionDelegateProvider(collectionProvider);
+            return new ReflectionDelegateManager(collectionProvider);
         }
 
         #endregion

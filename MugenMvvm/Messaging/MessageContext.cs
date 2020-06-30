@@ -8,8 +8,8 @@ namespace MugenMvvm.Messaging
     {
         #region Constructors
 
-        public MessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+        public MessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
             Should.NotBeNull(message, nameof(message));
             Sender = sender;

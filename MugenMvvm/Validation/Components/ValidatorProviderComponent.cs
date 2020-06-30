@@ -12,18 +12,18 @@ namespace MugenMvvm.Validation.Components
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
+        private readonly IMetadataContextManager? _metadataContextManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ValidatorProviderComponent(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ValidatorProviderComponent(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
         {
-            _componentCollectionProvider = componentCollectionProvider;
-            _metadataContextProvider = metadataContextProvider;
+            _componentCollectionManager = componentCollectionManager;
+            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -38,7 +38,7 @@ namespace MugenMvvm.Validation.Components
 
         public IValidator? TryGetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return new Validator(null, _componentCollectionProvider, _metadataContextProvider);
+            return new Validator(null, _componentCollectionManager, _metadataContextManager);
         }
 
         #endregion

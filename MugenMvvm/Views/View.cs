@@ -11,7 +11,7 @@ namespace MugenMvvm.Views
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
         private IComponentCollection? _components;
 
         #endregion
@@ -19,8 +19,8 @@ namespace MugenMvvm.Views
         #region Constructors
 
         public View(IViewModelViewMapping mapping, object view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null,
-            IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+            IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
             Should.NotBeNull(mapping, nameof(mapping));
             Should.NotBeNull(view, nameof(view));
@@ -28,7 +28,7 @@ namespace MugenMvvm.Views
             Mapping = mapping;
             ViewModel = viewModel;
             Target = view;
-            _componentCollectionProvider = componentCollectionProvider;
+            _componentCollectionManager = componentCollectionManager;
         }
 
         #endregion
@@ -42,7 +42,7 @@ namespace MugenMvvm.Views
             get
             {
                 if (_components == null)
-                    _componentCollectionProvider.DefaultIfNull().LazyInitialize(ref _components, this);
+                    _componentCollectionManager.DefaultIfNull().LazyInitialize(ref _components, this);
                 return _components;
             }
         }

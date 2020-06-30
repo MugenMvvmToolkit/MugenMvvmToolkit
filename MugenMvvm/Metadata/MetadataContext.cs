@@ -69,7 +69,7 @@ namespace MugenMvvm.Metadata
             get
             {
                 if (_components == null)
-                    MugenService.ComponentCollectionProvider.LazyInitialize(ref _components, this);
+                    MugenService.ComponentCollectionManager.LazyInitialize(ref _components, this);
                 return _components;
             }
         }

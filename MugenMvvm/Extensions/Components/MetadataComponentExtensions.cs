@@ -133,22 +133,22 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnReadOnlyContextCreated(this IMetadataContextProviderListener[] listeners, IMetadataContextProvider metadataContextProvider, IReadOnlyMetadataContext metadataContext, object? target)
+        public static void OnReadOnlyContextCreated(this IMetadataContextManagerListener[] listeners, IMetadataContextManager metadataContextManager, IReadOnlyMetadataContext metadataContext, object? target)
         {
             Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnReadOnlyContextCreated(metadataContextProvider, metadataContext, target);
+                listeners[i].OnReadOnlyContextCreated(metadataContextManager, metadataContext, target);
         }
 
-        public static void OnContextCreated(this IMetadataContextProviderListener[] listeners, IMetadataContextProvider metadataContextProvider, IMetadataContext metadataContext, object? target)
+        public static void OnContextCreated(this IMetadataContextManagerListener[] listeners, IMetadataContextManager metadataContextManager, IMetadataContext metadataContext, object? target)
         {
             Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(metadataContextProvider, nameof(metadataContextProvider));
+            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnContextCreated(metadataContextProvider, metadataContext, target);
+                listeners[i].OnContextCreated(metadataContextManager, metadataContext, target);
         }
 
         #endregion

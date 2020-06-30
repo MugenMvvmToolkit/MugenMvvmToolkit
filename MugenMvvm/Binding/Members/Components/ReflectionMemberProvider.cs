@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Fields
 
         private readonly IObservationManager? _bindingObserverProvider;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
         private readonly HashSet<Type> _types;
 
         #endregion
@@ -29,10 +29,10 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionMemberProvider(IObservationManager? bindingObserverProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ReflectionMemberProvider(IObservationManager? bindingObserverProvider = null, IReflectionManager? reflectionManager = null)
         {
             _bindingObserverProvider = bindingObserverProvider;
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
             _types = new HashSet<Type>();
         }
 
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Members.Components
                     {
                         var methodInfo = methods[index];
                         if (methodInfo.Name == name)
-                            result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionDelegateProvider));
+                            result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionManager));
                     }
                 }
             }
@@ -113,7 +113,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (field == null)
                 return false;
 
-            result.Add(new FieldAccessorMemberInfo(name, field, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+            result.Add(new FieldAccessorMemberInfo(name, field, requestedType, _bindingObserverProvider, _reflectionManager));
             return true;
         }
 
@@ -123,7 +123,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (property == null)
                 return false;
 
-            result.Add(new PropertyAccessorMemberInfo(name, property, requestedType, _bindingObserverProvider, _reflectionDelegateProvider));
+            result.Add(new PropertyAccessorMemberInfo(name, property, requestedType, _bindingObserverProvider, _reflectionManager));
             return true;
         }
 

@@ -9,9 +9,9 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
     {
         #region Methods
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
         {
-            return new CompiledExpression(ConstantExpressionNode.EmptyString, metadata, metadataContextProvider);
+            return new CompiledExpression(ConstantExpressionNode.EmptyString, metadata, metadataContextManager);
         }
 
         #endregion

@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTest.Commands
             var count = 0;
             for (int i = 0; i < componentCount; i++)
             {
-                var listener = new TestCommandProviderListener
+                var listener = new TestCommandManagerListener
                 {
                     OnCommandCreated = (provider, o, arg3, arg4, arg5) =>
                     {
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Commands
             ShouldThrow<InvalidOperationException>(() => commandManager.GetCommand(commandManager, DefaultMetadata));
         }
 
-        protected override ICommandManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ICommandManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new CommandManager(collectionProvider);
         }

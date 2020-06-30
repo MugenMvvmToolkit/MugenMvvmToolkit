@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 owner = GetMetadataOwner(null, null);
             else
             {
-                var provider = new MetadataContextProvider();
+                var provider = new MetadataContextManager();
                 provider.AddComponent(component);
                 owner = GetMetadataOwner(null, provider);
             }
@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Metadata
             owner.Metadata.ShouldEqual(context);
         }
 
-        protected abstract IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider);
+        protected abstract IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager);
 
         #endregion
     }

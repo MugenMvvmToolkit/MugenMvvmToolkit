@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Members
         private readonly IObservationManager? _observerProvider;
         private readonly IParameterInfo[] _parameters;
         private readonly Type _reflectedType;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
         private Func<object?, object?[], object?> _invoker;
         private MemberObserver? _observer;
 
@@ -30,13 +30,13 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObservationManager? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider)
-            : this(name, method, isExtensionMethodSupported, reflectedType, observerProvider, reflectionDelegateProvider, null, null)
+        public MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType, IObservationManager? observerProvider, IReflectionManager? reflectionManager)
+            : this(name, method, isExtensionMethodSupported, reflectedType, observerProvider, reflectionManager, null, null)
         {
         }
 
         internal MethodMemberInfo(string name, MethodInfo method, bool isExtensionMethodSupported, Type reflectedType,
-            IObservationManager? observerProvider, IReflectionDelegateProvider? reflectionDelegateProvider, ParameterInfo[]? parameterInfos, Type[]? genericArguments)
+            IObservationManager? observerProvider, IReflectionManager? reflectionManager, ParameterInfo[]? parameterInfos, Type[]? genericArguments)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(method, nameof(method));
@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Members
             _method = method;
             _reflectedType = reflectedType;
             _observerProvider = observerProvider;
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
             _invoker = CompileMethod;
             Name = name;
             if (_method.IsGenericMethod || _method.IsGenericMethodDefinition)
@@ -125,7 +125,7 @@ namespace MugenMvvm.Binding.Members
 
         public IMethodMemberInfo GetGenericMethodDefinition()
         {
-            return new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionDelegateProvider);
+            return new MethodMemberInfo(Name, _method.GetGenericMethodDefinition(), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionManager);
         }
 
         public IMethodMemberInfo MakeGenericMethod(Type[] types)
@@ -133,7 +133,7 @@ namespace MugenMvvm.Binding.Members
             var method = _method;
             if (IsGenericMethodDefinition)
                 method = _method.GetGenericMethodDefinition();
-            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionDelegateProvider);
+            return new MethodMemberInfo(Name, method.MakeGenericMethod(types), AccessModifiers.HasFlagEx(MemberFlags.Extension), _reflectedType, _observerProvider, _reflectionManager);
         }
 
         public IAccessorMemberInfo? TryGetAccessor(ArgumentFlags argumentFlags, object?[]? args, IReadOnlyMetadataContext? metadata = null)
@@ -154,7 +154,7 @@ namespace MugenMvvm.Binding.Members
 
         private object? CompileMethod(object? target, object?[] args)
         {
-            _invoker = _method.GetMethodInvoker(_reflectionDelegateProvider);
+            _invoker = _method.GetMethodInvoker(_reflectionManager);
             return Invoke(target, args);
         }
 

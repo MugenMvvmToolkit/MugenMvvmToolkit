@@ -126,9 +126,9 @@ namespace MugenMvvm.Extensions
             return collection.Get<T>(metadata);
         }
 
-        public static bool LazyInitialize(this IComponentCollectionProvider? componentCollectionProvider, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null)
+        public static bool LazyInitialize(this IComponentCollectionManager? componentCollectionManager, [NotNull] ref IComponentCollection? item, object target, IReadOnlyMetadataContext? metadata = null)
         {
-            return item == null && LazyInitialize(ref item, componentCollectionProvider.DefaultIfNull().GetComponentCollection(target, metadata));
+            return item == null && LazyInitialize(ref item, componentCollectionManager.DefaultIfNull().GetComponentCollection(target, metadata));
         }
 
         public static int GetPriority(this IComponent component, object? owner = null)

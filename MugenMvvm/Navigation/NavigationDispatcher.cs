@@ -21,8 +21,8 @@ namespace MugenMvvm.Navigation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationDispatcher(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public NavigationDispatcher(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

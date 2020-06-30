@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         [Fact]
         public void TryGetMemberObserverShouldObserveEventUsingReflectionDelegateProvider()
         {
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             var testDelegateProvider = new TestReflectionDelegateProviderComponent();
             delegateProvider.AddComponent(testDelegateProvider);
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
 
             var eventInfo = typeof(TestEventClass).GetEvent(nameof(TestEventClass.Action));
             eventInfo.ShouldNotBeNull();
-            var component = new EventInfoMemberObserverProvider(reflectionDelegateProvider: delegateProvider);
+            var component = new EventInfoMemberObserverProvider(reflectionManager: delegateProvider);
 
             var observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
             observer.IsEmpty.ShouldBeTrue();

@@ -471,7 +471,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             item.Parameters.Item.ShouldEqual(expectedResult);
         }
 
-        protected override ExpressionParser GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ExpressionParser GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new ExpressionParser(collectionProvider);
         }

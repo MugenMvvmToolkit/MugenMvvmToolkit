@@ -120,120 +120,120 @@ namespace MugenMvvm.Extensions
             return CreateWeakDelegate(target, invokeAction, _unsubscribePropertyChangedDelegate, _createPropertyChangedHandlerDelegate);
         }
 
-        public static Func<object?[], object> GetActivator(this IReflectionDelegateProvider reflectionDelegateProvider, ConstructorInfo constructor)
+        public static Func<object?[], object> GetActivator(this IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            var result = reflectionDelegateProvider.TryGetActivator(constructor);
+            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
+            var result = reflectionManager.TryGetActivator(constructor);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionManager);
             return result;
         }
 
-        public static Delegate GetActivator(this IReflectionDelegateProvider reflectionDelegateProvider, ConstructorInfo constructor, Type delegateType)
+        public static Delegate GetActivator(this IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType)
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            var result = reflectionDelegateProvider.TryGetActivator(constructor, delegateType);
+            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
+            var result = reflectionManager.TryGetActivator(constructor, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionManager);
             return result;
         }
 
-        public static Func<object?, object?[], object?> GetMethodInvoker(this IReflectionDelegateProvider reflectionDelegateProvider, MethodInfo method)
+        public static Func<object?, object?[], object?> GetMethodInvoker(this IReflectionManager reflectionManager, MethodInfo method)
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            var result = reflectionDelegateProvider.TryGetMethodInvoker(method);
+            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
+            var result = reflectionManager.TryGetMethodInvoker(method);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionManager);
             return result;
         }
 
-        public static Delegate GetMethodInvoker(this IReflectionDelegateProvider reflectionDelegateProvider, MethodInfo method, Type delegateType)
+        public static Delegate GetMethodInvoker(this IReflectionManager reflectionManager, MethodInfo method, Type delegateType)
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            var result = reflectionDelegateProvider.TryGetMethodInvoker(method, delegateType);
+            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
+            var result = reflectionManager.TryGetMethodInvoker(method, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionManager);
             return result;
         }
 
-        public static Delegate GetMemberGetter(this IReflectionDelegateProvider reflectionDelegateProvider, MemberInfo member, Type delegateType)
+        public static Delegate GetMemberGetter(this IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            var result = reflectionDelegateProvider.TryGetMemberGetter(member, delegateType);
+            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
+            var result = reflectionManager.TryGetMemberGetter(member, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionManager);
             return result;
         }
 
-        public static Delegate GetMemberSetter(this IReflectionDelegateProvider reflectionDelegateProvider, MemberInfo member, Type delegateType)
+        public static Delegate GetMemberSetter(this IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
-            Should.NotBeNull(reflectionDelegateProvider, nameof(reflectionDelegateProvider));
-            var result = reflectionDelegateProvider.TryGetMemberSetter(member, delegateType);
+            Should.NotBeNull(reflectionManager, nameof(reflectionManager));
+            var result = reflectionManager.TryGetMemberSetter(member, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionDelegateProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionManager);
             return result;
         }
 
-        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static bool CanCreateDelegate(this Type delegateType, MethodInfo method, IReflectionManager? reflectionManager = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().CanCreateDelegate(delegateType, method);
+            return reflectionManager.DefaultIfNull().CanCreateDelegate(delegateType, method);
         }
 
-        public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Delegate? TryCreateDelegate(this Type delegateType, object? target, MethodInfo method, IReflectionManager? reflectionManager = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().TryCreateDelegate(delegateType, target, method);
+            return reflectionManager.DefaultIfNull().TryCreateDelegate(delegateType, target, method);
         }
 
-        public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Func<object?[], object> GetActivator(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor);
+            return reflectionManager.DefaultIfNull().GetActivator(constructor);
         }
 
-        public static TDelegate GetActivator<TDelegate>(this ConstructorInfo constructor, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static TDelegate GetActivator<TDelegate>(this ConstructorInfo constructor, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor, typeof(TDelegate));
+            return (TDelegate)reflectionManager.DefaultIfNull().GetActivator(constructor, typeof(TDelegate));
         }
 
-        public static Delegate GetActivator(this ConstructorInfo constructor, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Delegate GetActivator(this ConstructorInfo constructor, Type delegateType, IReflectionManager? reflectionManager = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetActivator(constructor, delegateType);
+            return reflectionManager.DefaultIfNull().GetActivator(constructor, delegateType);
         }
 
-        public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static TDelegate GetMethodInvoker<TDelegate>(this MethodInfo method, IReflectionManager? reflectionManager = null)
             where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method, typeof(TDelegate));
+            return (TDelegate)reflectionManager.DefaultIfNull().GetMethodInvoker(method, typeof(TDelegate));
         }
 
-        public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Delegate GetMethodInvoker(this MethodInfo method, Type delegateType, IReflectionManager? reflectionManager = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method, delegateType);
+            return reflectionManager.DefaultIfNull().GetMethodInvoker(method, delegateType);
         }
 
-        public static Func<object?, object?[], object?> GetMethodInvoker(this MethodInfo method, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Func<object?, object?[], object?> GetMethodInvoker(this MethodInfo method, IReflectionManager? reflectionManager = null)
         {
-            return reflectionDelegateProvider.DefaultIfNull().GetMethodInvoker(method);
+            return reflectionManager.DefaultIfNull().GetMethodInvoker(method);
         }
 
-        public static TDelegate GetMemberGetter<TDelegate>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null) where TDelegate : Delegate
+        public static TDelegate GetMemberGetter<TDelegate>(this MemberInfo member, IReflectionManager? reflectionManager = null) where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));
+            return (TDelegate)reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(TDelegate));
         }
 
-        public static TDelegate GetMemberSetter<TDelegate>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null) where TDelegate : Delegate
+        public static TDelegate GetMemberSetter<TDelegate>(this MemberInfo member, IReflectionManager? reflectionManager = null) where TDelegate : Delegate
         {
-            return (TDelegate)reflectionDelegateProvider.DefaultIfNull().GetMemberSetter(member, typeof(TDelegate));
+            return (TDelegate)reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(TDelegate));
         }
 
-        public static Func<TTarget, TType> GetMemberGetter<TTarget, TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Func<TTarget, TType> GetMemberGetter<TTarget, TType>(this MemberInfo member, IReflectionManager? reflectionManager = null)
         {
-            return (Func<TTarget, TType>)reflectionDelegateProvider.DefaultIfNull().GetMemberGetter(member, typeof(Func<TTarget, TType>));
+            return (Func<TTarget, TType>)reflectionManager.DefaultIfNull().GetMemberGetter(member, typeof(Func<TTarget, TType>));
         }
 
-        public static Action<TTarget, TType> GetMemberSetter<TTarget, TType>(this MemberInfo member, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public static Action<TTarget, TType> GetMemberSetter<TTarget, TType>(this MemberInfo member, IReflectionManager? reflectionManager = null)
         {
-            return (Action<TTarget, TType>)reflectionDelegateProvider.DefaultIfNull().GetMemberSetter(member, typeof(Action<TTarget, TType>));
+            return (Action<TTarget, TType>)reflectionManager.DefaultIfNull().GetMemberSetter(member, typeof(Action<TTarget, TType>));
         }
 
         [return: NotNullIfNotNull("expression")]

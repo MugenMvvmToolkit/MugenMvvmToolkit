@@ -22,21 +22,21 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
-        protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        protected SynchronizedObservableCollection(IList<T> list, IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
             Should.NotBeNull(list, nameof(list));
             Items = list;
             Locker = new object();
         }
 
-        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionProvider? componentCollectionProvider = null)
-            : this(new List<T>(items), componentCollectionProvider)
+        public SynchronizedObservableCollection(IEnumerable<T> items, IComponentCollectionManager? componentCollectionManager = null)
+            : this(new List<T>(items), componentCollectionManager)
         {
         }
 
-        public SynchronizedObservableCollection(IComponentCollectionProvider? componentCollectionProvider = null)
-            : this(new List<T>(), componentCollectionProvider)
+        public SynchronizedObservableCollection(IComponentCollectionManager? componentCollectionManager = null)
+            : this(new List<T>(), componentCollectionManager)
         {
         }
 

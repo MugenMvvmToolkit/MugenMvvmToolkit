@@ -20,7 +20,7 @@ namespace MugenMvvm.Threading
 
         #region Constructors
 
-        public ThreadDispatcher(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public ThreadDispatcher(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IThreadDispatcherComponent, ThreadDispatcher>((components, state, _) => state._components = components, this);

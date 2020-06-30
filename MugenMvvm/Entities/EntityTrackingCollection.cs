@@ -24,7 +24,7 @@ namespace MugenMvvm.Entities
 
         #region Constructors
 
-        public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
             _dictionary = new EntityStateDictionary(comparer ?? EqualityComparer<object>.Default);
         }

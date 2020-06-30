@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var delegateProvider = new ReflectionDelegateProvider();
+            var delegateProvider = new ReflectionDelegateManager();
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
 
             memberInfo = new FieldAccessorMemberInfo(name, fieldInfo, reflectedType, observerProvider, delegateProvider);

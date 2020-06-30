@@ -15,16 +15,16 @@ namespace MugenMvvm.Messaging
     {
         #region Fields
 
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IMetadataContextManager? _metadataContextManager;
 
         #endregion
 
         #region Constructors
 
-        public Messenger(IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(componentCollectionProvider)
+        public Messenger(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+            : base(componentCollectionManager)
         {
-            _metadataContextProvider = metadataContextProvider;
+            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -33,7 +33,7 @@ namespace MugenMvvm.Messaging
 
         public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(sender, message, metadata) ?? new MessageContext(sender, message, metadata, _metadataContextProvider);
+            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(sender, message, metadata) ?? new MessageContext(sender, message, metadata, _metadataContextManager);
         }
 
         public bool Publish(IMessageContext messageContext)

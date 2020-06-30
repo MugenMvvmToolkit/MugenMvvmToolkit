@@ -15,8 +15,8 @@ namespace MugenMvvm.ViewModels
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public ViewModelManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

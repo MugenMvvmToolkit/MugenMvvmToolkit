@@ -26,9 +26,9 @@ namespace MugenMvvm.UnitTest.Navigation
             navigationEntry.NavigationId.ShouldEqual(id);
         }
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
         {
-            return new NavigationEntry(this, new TestNavigationProvider(), "f", NavigationType.Alert, metadata, metadataContextProvider);
+            return new NavigationEntry(this, new TestNavigationProvider(), "f", NavigationType.Alert, metadata, metadataContextManager);
         }
 
         #endregion

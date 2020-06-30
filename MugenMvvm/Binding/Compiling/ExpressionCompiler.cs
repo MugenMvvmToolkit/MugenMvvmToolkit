@@ -12,8 +12,8 @@ namespace MugenMvvm.Binding.Compiling
     {
         #region Constructors
 
-        public ExpressionCompiler(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public ExpressionCompiler(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

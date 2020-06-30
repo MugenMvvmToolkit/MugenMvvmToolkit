@@ -25,8 +25,8 @@ namespace MugenMvvm.Views.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
+        private readonly IMetadataContextManager? _metadataContextManager;
 
         private static readonly IMetadataContextKey<List<IView>, List<IView>> ViewsMetadataKey = MetadataContextKey.FromMember(ViewsMetadataKey, typeof(ViewManagerComponent), nameof(ViewsMetadataKey));
 
@@ -35,11 +35,11 @@ namespace MugenMvvm.Views.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewManagerComponent(IAttachedValueManager? attachedValueManager = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewManagerComponent(IAttachedValueManager? attachedValueManager = null, IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
         {
             _attachedValueManager = attachedValueManager;
-            _componentCollectionProvider = componentCollectionProvider;
-            _metadataContextProvider = metadataContextProvider;
+            _componentCollectionManager = componentCollectionManager;
+            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -144,7 +144,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionProvider, _metadataContextProvider);
+            var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager, _metadataContextManager);
             Owner.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
             addAction(collection, view, metadata);
             _attachedValueManager

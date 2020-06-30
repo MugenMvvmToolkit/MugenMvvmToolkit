@@ -9,23 +9,23 @@ namespace MugenMvvm.Components
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
         private IComponentCollection? _components;
 
         #endregion
 
         #region Constructors
 
-        protected ComponentOwnerBase(IComponentCollectionProvider? componentCollectionProvider)
+        protected ComponentOwnerBase(IComponentCollectionManager? componentCollectionManager)
         {
-            _componentCollectionProvider = componentCollectionProvider;
+            _componentCollectionManager = componentCollectionManager;
         }
 
         #endregion
 
         #region Properties
 
-        protected IComponentCollectionProvider ComponentCollectionProvider => _componentCollectionProvider.DefaultIfNull();
+        protected IComponentCollectionManager ComponentCollectionManager => _componentCollectionManager.DefaultIfNull();
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.Components
             get
             {
                 if (_components == null)
-                    ComponentCollectionProvider.LazyInitialize(ref _components, this);
+                    ComponentCollectionManager.LazyInitialize(ref _components, this);
                 return _components;
             }
         }

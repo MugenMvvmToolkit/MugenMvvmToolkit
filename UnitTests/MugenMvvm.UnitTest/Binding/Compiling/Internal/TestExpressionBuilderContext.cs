@@ -18,8 +18,8 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
 
         #region Constructors
 
-        public TestExpressionBuilderContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+        public TestExpressionBuilderContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
             MetadataExpression = Expression.Parameter(typeof(IReadOnlyMetadataContext));
             _dictionary = new Dictionary<IExpressionNode, Expression>();

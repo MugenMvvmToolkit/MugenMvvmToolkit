@@ -225,7 +225,7 @@ namespace MugenMvvm.UnitTest.Validation
             count.ShouldEqual(componentCount);
         }
 
-        protected override Validator GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override Validator GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new Validator(null, collectionProvider);
         }

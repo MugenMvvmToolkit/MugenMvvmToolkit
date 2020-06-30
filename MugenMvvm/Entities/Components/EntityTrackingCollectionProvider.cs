@@ -14,15 +14,15 @@ namespace MugenMvvm.Entities.Components
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
 
         #endregion
 
         #region Constructors
 
-        public EntityTrackingCollectionProvider(IComponentCollectionProvider? componentCollectionProvider = null)
+        public EntityTrackingCollectionProvider(IComponentCollectionManager? componentCollectionManager = null)
         {
-            _componentCollectionProvider = componentCollectionProvider;
+            _componentCollectionManager = componentCollectionManager;
         }
 
         #endregion
@@ -42,7 +42,7 @@ namespace MugenMvvm.Entities.Components
                 comparer = null;
             else
                 comparer = request as IEqualityComparer<object>;
-            var collection = new EntityTrackingCollection(comparer, _componentCollectionProvider);
+            var collection = new EntityTrackingCollection(comparer, _componentCollectionManager);
             collection.AddComponent(EntityStateTransitionManager.Instance);
             return collection;
         }

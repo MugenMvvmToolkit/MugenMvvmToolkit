@@ -6,7 +6,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContextProvider : IComponentOwner<IMetadataContextProvider>, IComponent<IMugenApplication>
+    public interface IMetadataContextManager : IComponentOwner<IMetadataContextManager>, IComponent<IMugenApplication>
     {
         IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default);
 

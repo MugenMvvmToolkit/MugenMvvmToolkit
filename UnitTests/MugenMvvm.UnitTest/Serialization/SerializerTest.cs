@@ -113,7 +113,7 @@ namespace MugenMvvm.UnitTest.Serialization
             executeCount.ShouldEqual(count);
         }
 
-        protected override Serializer GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override Serializer GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new Serializer(collectionProvider);
         }

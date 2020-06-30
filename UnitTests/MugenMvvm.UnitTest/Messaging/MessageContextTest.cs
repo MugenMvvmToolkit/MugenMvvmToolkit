@@ -20,9 +20,9 @@ namespace MugenMvvm.UnitTest.Messaging
             messageContext.Message.ShouldEqual(message);
         }
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextProvider? metadataContextProvider)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
         {
-            return new MessageContext(this, this, metadata, metadataContextProvider);
+            return new MessageContext(this, this, metadata, metadataContextManager);
         }
 
         #endregion

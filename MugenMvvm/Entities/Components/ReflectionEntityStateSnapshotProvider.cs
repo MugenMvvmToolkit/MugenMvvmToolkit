@@ -19,7 +19,7 @@ namespace MugenMvvm.Entities.Components
         #region Fields
 
         private readonly MemberInfoLightDictionary<Type, EntityMemberAccessor[]> _cache;
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
 
         private Func<PropertyInfo, bool>? _memberFilter;
         private BindingFlags _memberFlags = BindingFlags.Public | BindingFlags.Instance;
@@ -28,9 +28,9 @@ namespace MugenMvvm.Entities.Components
 
         #region Constructors
 
-        public ReflectionEntityStateSnapshotProvider(IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ReflectionEntityStateSnapshotProvider(IReflectionManager? reflectionManager = null)
         {
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
             _cache = new MemberInfoLightDictionary<Type, EntityMemberAccessor[]>(7);
         }
 
@@ -107,8 +107,8 @@ namespace MugenMvvm.Entities.Components
                 var propertyInfo = properties[index];
                 if (propertyInfo.CanRead && propertyInfo.CanWrite && propertyInfo.GetIndexParameters().Length == 0 && (MemberFilter == null || MemberFilter(propertyInfo)))
                 {
-                    var getter = propertyInfo.GetMemberGetter<Func<object, object?>>(_reflectionDelegateProvider);
-                    var setter = propertyInfo.GetMemberSetter<Action<object, object?>>(_reflectionDelegateProvider);
+                    var getter = propertyInfo.GetMemberGetter<Func<object, object?>>(_reflectionManager);
+                    var setter = propertyInfo.GetMemberSetter<Action<object, object?>>(_reflectionManager);
                     list.Add(new EntityMemberAccessor(propertyInfo, getter, setter));
                 }
             }

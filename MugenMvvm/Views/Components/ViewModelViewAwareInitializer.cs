@@ -22,7 +22,7 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
+        private readonly IReflectionManager? _reflectionManager;
         private readonly IWrapperManager? _wrapperManager;
 
         private static readonly TypeLightDictionary<object?> UpdateViewDelegates = new TypeLightDictionary<object?>(37);
@@ -35,10 +35,10 @@ namespace MugenMvvm.Views.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelViewAwareInitializer(IWrapperManager? wrapperManager = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ViewModelViewAwareInitializer(IWrapperManager? wrapperManager = null, IReflectionManager? reflectionManager = null)
         {
             _wrapperManager = wrapperManager;
-            _reflectionDelegateProvider = reflectionDelegateProvider;
+            _reflectionManager = reflectionManager;
         }
 
         #endregion
@@ -157,7 +157,7 @@ namespace MugenMvvm.Views.Components
                 var propertyInfo = @interface.GetProperty(propertyName, BindingFlagsEx.InstancePublic);
                 if (propertyInfo != null)
                 {
-                    var methodInvoker = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodInvoker<TInvoker>(_reflectionDelegateProvider);
+                    var methodInvoker = method.MakeGenericMethod(propertyInfo.PropertyType).GetMethodInvoker<TInvoker>(_reflectionManager);
                     result.Add(methodInvoker);
                 }
             }

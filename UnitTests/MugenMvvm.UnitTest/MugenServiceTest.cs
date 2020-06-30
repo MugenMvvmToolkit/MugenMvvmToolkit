@@ -93,12 +93,12 @@ namespace MugenMvvm.UnitTest
             MugenService.Configuration.InitializeFallback(fallback);
             Validate(() => MugenService.Application, lastType);
             Validate(() => MugenService.CommandManager, lastType);
-            Validate(() => MugenService.ComponentCollectionProvider, lastType);
+            Validate(() => MugenService.ComponentCollectionManager, lastType);
             Validate(() => MugenService.AttachedValueManager, lastType);
-            Validate(() => MugenService.ReflectionDelegateProvider, lastType);
+            Validate(() => MugenService.ReflectionManager, lastType);
             Validate(() => MugenService.WeakReferenceManager, lastType);
             Validate(() => MugenService.Messenger, lastType);
-            Validate(() => MugenService.MetadataContextProvider, lastType);
+            Validate(() => MugenService.MetadataContextManager, lastType);
             Validate(() => MugenService.NavigationDispatcher, lastType);
             Validate(() => MugenService.Presenter, lastType);
             Validate(() => MugenService.Serializer, lastType);

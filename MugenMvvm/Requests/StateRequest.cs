@@ -8,18 +8,18 @@ namespace MugenMvvm.Requests
     {
         #region Fields
 
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IMetadataContextManager? _metadataContextManager;
         private IReadOnlyMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        public StateRequest(bool cancel = false, object? state = null, IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
+        public StateRequest(bool cancel = false, object? state = null, IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
             : base(cancel, state)
         {
             _metadata = metadata;
-            _metadataContextProvider = metadataContextProvider;
+            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -28,7 +28,7 @@ namespace MugenMvvm.Requests
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => _metadataContextProvider.LazyInitializeNonReadonly(ref _metadata, this);
+        public IMetadataContext Metadata => _metadataContextManager.LazyInitializeNonReadonly(ref _metadata, this);
 
         #endregion
     }

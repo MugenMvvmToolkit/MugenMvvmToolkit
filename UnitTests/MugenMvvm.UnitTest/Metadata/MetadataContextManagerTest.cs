@@ -11,20 +11,20 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Metadata
 {
-    public class MetadataContextProviderTest : ComponentOwnerTestBase<MetadataContextProvider>
+    public class MetadataContextManagerTest : ComponentOwnerTestBase<MetadataContextManager>
     {
         #region Methods
 
         [Fact]
         public void GetReadOnlyMetadataContextShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new MetadataContextProvider().GetReadOnlyMetadataContext());
+            ShouldThrow<InvalidOperationException>(() => new MetadataContextManager().GetReadOnlyMetadataContext());
         }
 
         [Fact]
         public void GetMetadataContextShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new MetadataContextProvider().GetMetadataContext());
+            ShouldThrow<InvalidOperationException>(() => new MetadataContextManager().GetMetadataContext());
         }
 
         [Theory]
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public void GetReadOnlyMetadataContextShouldBeHandledByComponents(int count)
         {
             var result = DefaultMetadata;
-            var contextProvider = new MetadataContextProvider();
+            var contextProvider = new MetadataContextManager();
             var items = new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public void GetMetadataContextShouldBeHandledByComponents(int count)
         {
             var result = new MetadataContext();
-            var contextProvider = new MetadataContextProvider();
+            var contextProvider = new MetadataContextManager();
             var items = new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
@@ -93,14 +93,14 @@ namespace MugenMvvm.UnitTest.Metadata
         public void GetReadOnlyMetadataContextShouldNotifyListeners(int componentCount)
         {
             var result = DefaultMetadata;
-            var contextProvider = new MetadataContextProvider();
+            var contextProvider = new MetadataContextManager();
             var component = new TestMetadataContextProviderComponent {TryGetReadOnlyMetadataContext = (o, context) => result};
             contextProvider.AddComponent(component);
             var invokeCount = 0;
 
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestMetadataContextProviderListener
+                var listener = new TestMetadataContextManagerListener
                 {
                     OnReadOnlyContextCreated = (provider, context, arg3) =>
                     {
@@ -123,14 +123,14 @@ namespace MugenMvvm.UnitTest.Metadata
         public void GetMetadataContextShouldNotifyListeners(int componentCount)
         {
             var result = new MetadataContext();
-            var contextProvider = new MetadataContextProvider();
+            var contextProvider = new MetadataContextManager();
             var component = new TestMetadataContextProviderComponent {TryGetMetadataContext = (o, context) => result};
             contextProvider.AddComponent(component);
             var invokeCount = 0;
 
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestMetadataContextProviderListener
+                var listener = new TestMetadataContextManagerListener
                 {
                     OnContextCreated = (provider, context, arg3) =>
                     {
@@ -147,9 +147,9 @@ namespace MugenMvvm.UnitTest.Metadata
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override MetadataContextProvider GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override MetadataContextManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
-            return new MetadataContextProvider(collectionProvider);
+            return new MetadataContextManager(collectionProvider);
         }
 
         #endregion

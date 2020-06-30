@@ -14,8 +14,8 @@ namespace MugenMvvm.Commands
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public CommandManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public CommandManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Commands
         {
             var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
             if (result != null)
-                GetComponents<ICommandProviderListener>(metadata).OnCommandCreated(this, result, request, metadata);
+                GetComponents<ICommandManagerListener>(metadata).OnCommandCreated(this, result, request, metadata);
             return result;
         }
 

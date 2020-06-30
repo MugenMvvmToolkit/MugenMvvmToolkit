@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface IReflectionDelegateProviderComponent : IComponent<IReflectionDelegateProvider>
+    public interface IReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
         bool CanCreateDelegate(Type delegateType, MethodInfo method);
 

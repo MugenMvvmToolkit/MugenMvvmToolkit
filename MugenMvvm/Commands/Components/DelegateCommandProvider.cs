@@ -15,8 +15,8 @@ namespace MugenMvvm.Commands.Components
     {
         #region Fields
 
-        private readonly IComponentCollectionProvider? _componentCollectionProvider;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IComponentCollectionManager? _componentCollectionManager;
+        private readonly IMetadataContextManager? _metadataContextManager;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
@@ -24,10 +24,10 @@ namespace MugenMvvm.Commands.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public DelegateCommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public DelegateCommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
         {
-            _componentCollectionProvider = componentCollectionProvider;
-            _metadataContextProvider = metadataContextProvider;
+            _componentCollectionManager = componentCollectionManager;
+            _metadataContextManager = metadataContextManager;
             _threadDispatcher = threadDispatcher;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             EventThreadMode = ThreadExecutionMode.Main;
@@ -58,7 +58,7 @@ namespace MugenMvvm.Commands.Components
 
         ICompositeCommand? DelegateCommandRequest.IProvider.TryGetCommand<T>(in DelegateCommandRequest request, IReadOnlyMetadataContext? metadata)
         {
-            var command = new CompositeCommand(metadata, _componentCollectionProvider, _metadataContextProvider);
+            var command = new CompositeCommand(metadata, _componentCollectionManager, _metadataContextManager);
             command.AddComponent(new DelegateExecutorCommandComponent<T>(request.Execute, request.CanExecute, request.ExecutionMode.GetValueOrDefault(CommandExecutionMode),
                 request.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
             if (request.CanExecute != null && request.Notifiers != null && request.Notifiers.Count > 0)

@@ -13,8 +13,8 @@ namespace MugenMvvm.Validation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ValidationManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public ValidationManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

@@ -14,16 +14,16 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Fields
 
         private readonly ComponentTracker _componentTracker;
-        private readonly IMetadataContextProvider? _metadataContextProvider;
+        private readonly IMetadataContextManager? _metadataContextManager;
         private IExpressionBuilderComponent[] _components;
 
         #endregion
 
         #region Constructors
 
-        public ExpressionCompilerComponent(IMetadataContextProvider? metadataContextProvider = null)
+        public ExpressionCompilerComponent(IMetadataContextManager? metadataContextManager = null)
         {
-            _metadataContextProvider = metadataContextProvider;
+            _metadataContextManager = metadataContextManager;
             _components = Default.Array<IExpressionBuilderComponent>();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IExpressionBuilderComponent, ExpressionCompilerComponent>((components, state, _) => state._components = components, this);
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         public ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
-            return new CompiledExpression(expression, metadata, _metadataContextProvider) {ExpressionBuilders = _components};
+            return new CompiledExpression(expression, metadata, _metadataContextManager) {ExpressionBuilders = _components};
         }
 
         #endregion

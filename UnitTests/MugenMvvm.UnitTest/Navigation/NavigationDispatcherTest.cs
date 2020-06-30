@@ -299,7 +299,7 @@ namespace MugenMvvm.UnitTest.Navigation
             invokeCount.ShouldEqual(count);
         }
 
-        protected override NavigationDispatcher GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override NavigationDispatcher GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new NavigationDispatcher(collectionProvider);
         }

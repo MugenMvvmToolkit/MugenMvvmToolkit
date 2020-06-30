@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override ResourceResolver GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ResourceResolver GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new ResourceResolver(collectionProvider);
         }

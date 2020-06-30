@@ -11,8 +11,8 @@ namespace MugenMvvm.Entities
     {
         #region Constructors
 
-        public EntityManager(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public EntityManager(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

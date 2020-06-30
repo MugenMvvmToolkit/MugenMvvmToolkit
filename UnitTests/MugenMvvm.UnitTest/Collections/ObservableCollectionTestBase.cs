@@ -1047,7 +1047,7 @@ namespace MugenMvvm.UnitTest.Collections
             return new SynchronizedObservableCollection<T>(items);
         }
 
-        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override IObservableCollection<object> GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new SynchronizedObservableCollection<object>(collectionProvider);
         }

@@ -15,8 +15,8 @@ namespace MugenMvvm.Presenters
     {
         #region Constructors
 
-        public Presenter(IComponentCollectionProvider? componentCollectionProvider = null)
-            : base(componentCollectionProvider)
+        public Presenter(IComponentCollectionManager? componentCollectionManager = null)
+            : base(componentCollectionManager)
         {
         }
 

@@ -9,8 +9,8 @@ namespace MugenMvvm.Serialization
     {
         #region Constructors
 
-        public SerializationContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextProvider? metadataContextProvider = null)
-            : base(metadata, metadataContextProvider)
+        public SerializationContext(IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+            : base(metadata, metadataContextManager)
         {
         }
 

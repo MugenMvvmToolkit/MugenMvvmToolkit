@@ -605,7 +605,7 @@ namespace MugenMvvm.UnitTest.Commands
             return null;
         }
 
-        protected override CompositeCommand GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override CompositeCommand GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new CompositeCommand(null, collectionProvider);
         }

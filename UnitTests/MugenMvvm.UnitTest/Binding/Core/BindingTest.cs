@@ -1334,7 +1334,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             return new MugenMvvm.Binding.Core.Binding(target ?? EmptyPathObserver.Empty, source);
         }
 
-        protected override MugenMvvm.Binding.Core.Binding GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override MugenMvvm.Binding.Core.Binding GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return GetBinding();
         }

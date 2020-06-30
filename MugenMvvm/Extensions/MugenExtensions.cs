@@ -98,7 +98,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IComponentCollection GetComponentCollection(this IComponentCollectionProvider provider, object owner, IReadOnlyMetadataContext? metadata = null)
+        public static IComponentCollection GetComponentCollection(this IComponentCollectionManager provider, object owner, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(provider, nameof(provider));
             Should.NotBeNull(owner, nameof(owner));

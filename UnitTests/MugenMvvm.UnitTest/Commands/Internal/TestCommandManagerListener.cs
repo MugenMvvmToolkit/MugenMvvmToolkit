@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.UnitTest.Commands.Internal
 {
-    public class TestCommandProviderListener : ICommandProviderListener
+    public class TestCommandManagerListener : ICommandManagerListener
     {
         #region Properties
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Commands.Internal
 
         #region Implementation of interfaces
 
-        void ICommandProviderListener.OnCommandCreated<TRequest>(ICommandManager provider, ICompositeCommand command, in TRequest request, IReadOnlyMetadataContext? metadata)
+        void ICommandManagerListener.OnCommandCreated<TRequest>(ICommandManager provider, ICompositeCommand command, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             OnCommandCreated?.Invoke(provider, request, typeof(TRequest), command, metadata);
         }

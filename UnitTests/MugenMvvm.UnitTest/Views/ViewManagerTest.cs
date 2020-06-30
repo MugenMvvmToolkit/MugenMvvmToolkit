@@ -192,7 +192,7 @@ namespace MugenMvvm.UnitTest.Views
             invokeCount.ShouldEqual(componentCount);
         }
 
-        protected override ViewManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override ViewManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)
         {
             return new ViewManager(collectionProvider);
         }

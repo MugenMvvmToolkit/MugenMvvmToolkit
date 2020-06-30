@@ -20,7 +20,7 @@ namespace MugenMvvm.Internal
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public WeakReferenceManager(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public WeakReferenceManager(IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<IWeakReferenceProviderComponent, WeakReferenceManager>((components, state, _) => state._components = components, this);
