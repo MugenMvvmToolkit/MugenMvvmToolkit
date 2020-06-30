@@ -71,9 +71,9 @@ namespace MugenMvvm.Binding.Observation
                 TrimIfNeed();
         }
 
-        public ActionToken Add(IEventListener target, string path)
+        public ActionToken Add(IEventListener target, string memberName)
         {
-            var weakItem = target.ToWeak(path);
+            var weakItem = target.ToWeak(memberName);
             if (_removedSize == 0)
             {
                 if (_size == _listeners.Length)
@@ -95,7 +95,8 @@ namespace MugenMvvm.Binding.Observation
 
             if (_size - _removedSize == 1)
                 OnListenersAdded();
-            return new ActionToken(this, weakItem.Target, path);
+            OnListenerAdded(memberName);
+            return new ActionToken(this, weakItem.Target, memberName);
         }
 
         public void Clear()
@@ -116,11 +117,22 @@ namespace MugenMvvm.Binding.Observation
         {
         }
 
+        protected virtual void OnListenerAdded(string memberName)
+        {
+        }
+
+        protected virtual void OnListenerRemoved(string memberName)
+        {
+        }
+
         private bool RemoveAt(WeakEventListener<string>[] listeners, int index)
         {
             if (!ReferenceEquals(listeners, _listeners))
                 return false;
 
+            var listener = listeners[index];
+            if (!listener.IsEmpty)
+                OnListenerRemoved(listener.State);
             listeners[index] = default;
             if (index == _size - 1)
                 --_size;
@@ -154,10 +166,12 @@ namespace MugenMvvm.Binding.Observation
             _removedSize = 0;
             for (var i = 0; i < size; i++)
             {
-                var reference = _listeners[i];
+                var listener = _listeners[i];
                 _listeners[i] = default;
-                if (reference.IsAlive)
-                    _listeners[_size++] = reference;
+                if (listener.IsAlive)
+                    _listeners[_size++] = listener;
+                else if (!listener.IsEmpty)
+                    OnListenerRemoved(listener.State);
             }
 
             if (_size == 0)
