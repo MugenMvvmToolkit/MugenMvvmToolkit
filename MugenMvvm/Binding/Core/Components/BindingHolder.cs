@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly IAttachedValueManager? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueManager;
         private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?, IBinding> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
@@ -27,9 +27,9 @@ namespace MugenMvvm.Binding.Core.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingHolder(IAttachedValueManager? attachedValueProvider = null)
+        public BindingHolder(IAttachedValueManager? attachedValueManager = null)
         {
-            _attachedValueProvider = attachedValueProvider;
+            _attachedValueManager = attachedValueManager;
         }
 
         #endregion
@@ -46,8 +46,8 @@ namespace MugenMvvm.Binding.Core.Components
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? _attachedValueProvider.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
-                : _attachedValueProvider.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
+                ? _attachedValueManager.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                : _attachedValueManager.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
             var count = values.Count(pair => pair.Key == null);
             if (count == 0)
@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Core.Components
             if (target == null)
                 return false;
 
-            _attachedValueProvider
+            _attachedValueManager
                 .DefaultIfNull()
                 .AddOrUpdate(target, GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Core.Components
             Should.NotBeNull(binding, nameof(binding));
             if (target == null)
                 return false;
-            return _attachedValueProvider.DefaultIfNull().Clear(target, GetPath(binding.Target.Path), out _);
+            return _attachedValueManager.DefaultIfNull().Clear(target, GetPath(binding.Target.Path), out _);
         }
 
         #endregion

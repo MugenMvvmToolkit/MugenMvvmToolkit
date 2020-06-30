@@ -89,12 +89,12 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceProvider, object? item, IReadOnlyMetadataContext? metadata = null)
+        public static IWeakReference GetWeakReference(this IWeakReferenceManager weakReferenceManager, object? item, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(weakReferenceProvider, nameof(weakReferenceProvider));
-            var result = weakReferenceProvider.TryGetWeakReference(item, metadata);
+            Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
+            var result = weakReferenceManager.TryGetWeakReference(item, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IWeakReferenceProviderComponent>(weakReferenceProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IWeakReferenceProviderComponent>(weakReferenceManager);
             return result;
         }
 
@@ -237,12 +237,12 @@ namespace MugenMvvm.Extensions
             return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
         }
 
-        public static ICompositeCommand GetCommand<TRequest>(this ICommandManager commandProvider, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static ICompositeCommand GetCommand<TRequest>(this ICommandManager commandManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(commandProvider, nameof(commandProvider));
-            var result = commandProvider.TryGetCommand(request, metadata);
+            Should.NotBeNull(commandManager, nameof(commandManager));
+            var result = commandManager.TryGetCommand(request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(commandProvider);
+                ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(commandManager);
             return result;
         }
 

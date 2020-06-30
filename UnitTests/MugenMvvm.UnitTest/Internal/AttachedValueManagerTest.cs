@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTest.Internal
             var result = new List<KeyValuePair<string, object?>>();
             var filterExecuted = 0;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Internal
                         ++methodExecuted;
                         o.ShouldEqual(this);
                         type.ShouldEqual(typeof(AttachedValueManagerTest));
-                        arg3.ShouldEqual(attachedValueProvider);
+                        arg3.ShouldEqual(attachedValueManager);
                         arg4.ShouldEqual(typeof(AttachedValueManager));
                         if (hasFilter)
                             arg5!.Invoke(o!, default, arg3!).ShouldBeTrue();
@@ -112,11 +112,11 @@ namespace MugenMvvm.UnitTest.Internal
                         return result;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
             Func<AttachedValueManagerTest, KeyValuePair<string, object?>, AttachedValueManager, bool> func = (test, pair, arg3) => ++filterExecuted != -1;
-            attachedValueProvider.GetValues(this, attachedValueProvider, hasFilter ? func : null).ShouldEqual(result);
+            attachedValueManager.GetValues(this, attachedValueManager, hasFilter ? func : null).ShouldEqual(result);
             filterExecuted.ShouldEqual(hasFilter ? 1 : 0);
             methodExecuted.ShouldEqual(1);
         }
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var result = int.MaxValue;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -144,10 +144,10 @@ namespace MugenMvvm.UnitTest.Internal
                         return result;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.TryGet(this, TestPath, out int r).ShouldBeTrue();
+            attachedValueManager.TryGet(this, TestPath, out int r).ShouldBeTrue();
             r.ShouldEqual(result);
             methodExecuted.ShouldEqual(1);
         }
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var result = true;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -174,12 +174,12 @@ namespace MugenMvvm.UnitTest.Internal
                         return result;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.Contains(this, TestPath).ShouldBeTrue();
+            attachedValueManager.Contains(this, TestPath).ShouldBeTrue();
             result = false;
-            attachedValueProvider.Contains(this, TestPath).ShouldBeFalse();
+            attachedValueManager.Contains(this, TestPath).ShouldBeFalse();
             methodExecuted.ShouldEqual(2);
         }
 
@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTest.Internal
             object valueToSet = this;
             var delExecuted = 0;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -206,16 +206,16 @@ namespace MugenMvvm.UnitTest.Internal
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(valueToSet);
                         arg5.ShouldEqual(valueToSet.GetType());
-                        arg6.ShouldEqual(attachedValueProvider);
+                        arg6.ShouldEqual(attachedValueManager);
                         arg7.ShouldEqual(typeof(AttachedValueManager));
                         return arg8(o, arg4, arg4, arg6);
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
             valueToSet = this;
-            attachedValueProvider.AddOrUpdate(this, TestPath, this, attachedValueProvider, (item, value, currentValue, state) =>
+            attachedValueManager.AddOrUpdate(this, TestPath, this, attachedValueManager, (item, value, currentValue, state) =>
             {
                 ++delExecuted;
                 return this;
@@ -232,7 +232,7 @@ namespace MugenMvvm.UnitTest.Internal
             object valueToSet = this;
             var delExecuted = 0;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -245,17 +245,17 @@ namespace MugenMvvm.UnitTest.Internal
                         o.ShouldEqual(this);
                         type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
-                        arg4.ShouldEqual(attachedValueProvider);
+                        arg4.ShouldEqual(attachedValueManager);
                         arg5.ShouldEqual(typeof(AttachedValueManager));
                         arg7.ShouldEqual(typeof(AttachedValueManagerTest));
                         return arg8(o, arg6, arg6(null, null), arg4);
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
             valueToSet = this;
-            attachedValueProvider.AddOrUpdate(this, TestPath, attachedValueProvider, (test, provider) => this, (item, value, currentValue, state) =>
+            attachedValueManager.AddOrUpdate(this, TestPath, attachedValueManager, (test, provider) => this, (item, value, currentValue, state) =>
             {
                 ++delExecuted;
                 return this;
@@ -271,7 +271,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             object valueToSet = this;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -288,14 +288,14 @@ namespace MugenMvvm.UnitTest.Internal
                         return v;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.GetOrAdd(this, TestPath, this).ShouldEqual(valueToSet);
+            attachedValueManager.GetOrAdd(this, TestPath, this).ShouldEqual(valueToSet);
             methodExecuted.ShouldEqual(1);
 
             valueToSet = 1;
-            attachedValueProvider.GetOrAdd(this, TestPath, 1).ShouldEqual(valueToSet);
+            attachedValueManager.GetOrAdd(this, TestPath, 1).ShouldEqual(valueToSet);
             methodExecuted.ShouldEqual(2);
         }
 
@@ -306,7 +306,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             object valueToSet = this;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -318,21 +318,21 @@ namespace MugenMvvm.UnitTest.Internal
                         o.ShouldEqual(this);
                         type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
-                        arg4.ShouldEqual(attachedValueProvider);
+                        arg4.ShouldEqual(attachedValueManager);
                         arg5.ShouldEqual(typeof(AttachedValueManager));
                         arg6.ShouldEqual(valueToSet.GetType());
                         ++methodExecuted;
                         return arg7(null, null);
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.GetOrAdd(this, TestPath, attachedValueProvider, (test, provider) => this).ShouldEqual(valueToSet);
+            attachedValueManager.GetOrAdd(this, TestPath, attachedValueManager, (test, provider) => this).ShouldEqual(valueToSet);
             methodExecuted.ShouldEqual(1);
 
             valueToSet = 1;
-            attachedValueProvider.GetOrAdd(this, TestPath, attachedValueProvider, (test, provider) => 1).ShouldEqual(valueToSet);
+            attachedValueManager.GetOrAdd(this, TestPath, attachedValueManager, (test, provider) => 1).ShouldEqual(valueToSet);
             methodExecuted.ShouldEqual(2);
         }
 
@@ -344,7 +344,7 @@ namespace MugenMvvm.UnitTest.Internal
             var oldV = new object();
             object valueToSet = this;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -361,15 +361,15 @@ namespace MugenMvvm.UnitTest.Internal
                         ++methodExecuted;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.Set(this, TestPath, this, out var old);
+            attachedValueManager.Set(this, TestPath, this, out var old);
             old.ShouldEqual(oldV);
             methodExecuted.ShouldEqual(1);
 
             valueToSet = 1;
-            attachedValueProvider.Set(this, TestPath, 1, out old);
+            attachedValueManager.Set(this, TestPath, 1, out old);
             old.ShouldEqual(oldV);
             methodExecuted.ShouldEqual(2);
         }
@@ -382,7 +382,7 @@ namespace MugenMvvm.UnitTest.Internal
             var result = true;
             var oldV = new object();
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -398,13 +398,13 @@ namespace MugenMvvm.UnitTest.Internal
                         return result;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.Clear(this, TestPath, out var old).ShouldBeTrue();
+            attachedValueManager.Clear(this, TestPath, out var old).ShouldBeTrue();
             old.ShouldEqual(oldV);
             result = false;
-            attachedValueProvider.Clear(this, TestPath, out old).ShouldBeFalse();
+            attachedValueManager.Clear(this, TestPath, out old).ShouldBeFalse();
             old.ShouldEqual(oldV);
             methodExecuted.ShouldEqual(2);
         }
@@ -416,7 +416,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var result = true;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueManager();
+            var attachedValueManager = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -430,12 +430,12 @@ namespace MugenMvvm.UnitTest.Internal
                         return result;
                     }
                 };
-                attachedValueProvider.AddComponent(component);
+                attachedValueManager.AddComponent(component);
             }
 
-            attachedValueProvider.Clear(this).ShouldBeTrue();
+            attachedValueManager.Clear(this).ShouldBeTrue();
             result = false;
-            attachedValueProvider.Clear(this).ShouldBeFalse();
+            attachedValueManager.Clear(this).ShouldBeFalse();
             methodExecuted.ShouldEqual(2);
         }
 

@@ -43,17 +43,17 @@ namespace MugenMvvm.UnitTest
             MugenService.Configuration.InitializeFallback(null);
             MugenService.Configuration.InitializeInstance<IComponentCollectionProvider>(new ComponentCollectionProvider());
 
-            var attachedValueProvider = new AttachedValueManager();
-            attachedValueProvider.AddComponent(new ConditionalWeakTableAttachedValueProvider());
-            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueProvider);
+            var attachedValueManager = new AttachedValueManager();
+            attachedValueManager.AddComponent(new ConditionalWeakTableAttachedValueProvider());
+            MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueManager);
 
             var metadataContextProvider = new MugenMvvm.Metadata.MetadataContextProvider();
             metadataContextProvider.AddComponent(new MugenMvvm.Metadata.Components.MetadataContextProviderComponent());
             MugenService.Configuration.InitializeInstance<IMetadataContextProvider>(metadataContextProvider);
 
-            var weakReferenceProvider = new WeakReferenceManager();
-            weakReferenceProvider.AddComponent(new WeakReferenceProviderComponent());
-            MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceProvider);
+            var weakReferenceManager = new WeakReferenceManager();
+            weakReferenceManager.AddComponent(new WeakReferenceProviderComponent());
+            MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceManager);
 
             InitializeThreadDispatcher();
 
@@ -61,8 +61,8 @@ namespace MugenMvvm.UnitTest
             reflectionDelegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
             MugenService.Configuration.InitializeInstance<IReflectionDelegateProvider>(reflectionDelegateProvider);
 
-            var commandProvider = new CommandManager();
-            MugenService.Configuration.InitializeInstance<ICommandManager>(commandProvider);
+            var commandManager = new CommandManager();
+            MugenService.Configuration.InitializeInstance<ICommandManager>(commandManager);
 
             var converter = new GlobalValueConverter();
             converter.AddComponent(new GlobalValueConverterComponent());

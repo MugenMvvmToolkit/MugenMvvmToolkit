@@ -16,15 +16,15 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void GetWeakReferenceShouldReturnDefaultWeakReferenceNull()
         {
-            var weakReferenceProvider = new WeakReferenceManager();
-            weakReferenceProvider.GetWeakReference(null, DefaultMetadata).ShouldEqual(Default.WeakReference);
+            var weakReferenceManager = new WeakReferenceManager();
+            weakReferenceManager.GetWeakReference(null, DefaultMetadata).ShouldEqual(Default.WeakReference);
         }
 
         [Fact]
         public void GetWeakReferenceShouldThrowNoComponents()
         {
-            var weakReferenceProvider = new WeakReferenceManager();
-            ShouldThrow<InvalidOperationException>(() => weakReferenceProvider.GetWeakReference(this, DefaultMetadata));
+            var weakReferenceManager = new WeakReferenceManager();
+            ShouldThrow<InvalidOperationException>(() => weakReferenceManager.GetWeakReference(this, DefaultMetadata));
         }
 
         [Theory]
@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Internal
         public void GetWeakReferenceShouldBeHandledByComponents(int count)
         {
             var result = new WeakReferenceImpl(this, true);
-            var weakReferenceProvider = new WeakReferenceManager();
+            var weakReferenceManager = new WeakReferenceManager();
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -48,10 +48,10 @@ namespace MugenMvvm.UnitTest.Internal
                         return result;
                     return null;
                 };
-                weakReferenceProvider.AddComponent(component);
+                weakReferenceManager.AddComponent(component);
             }
 
-            weakReferenceProvider.GetWeakReference(this, DefaultMetadata).ShouldEqual(result);
+            weakReferenceManager.GetWeakReference(this, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 

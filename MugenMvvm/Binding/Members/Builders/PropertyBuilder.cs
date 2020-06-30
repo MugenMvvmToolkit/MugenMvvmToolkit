@@ -236,11 +236,11 @@ namespace MugenMvvm.Binding.Members.Builders
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
-                var attachedValueProvider = MugenService.AttachedValueManager;
-                if (attachedValueProvider.TryGet<InheritedProperty>(target!, member.State.id, out var value))
+                var attachedValueManager = MugenService.AttachedValueManager;
+                if (attachedValueManager.TryGet<InheritedProperty>(target!, member.State.id, out var value))
                     return value;
 #pragma warning disable 8634
-                return attachedValueProvider.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
+                return attachedValueManager.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
                 {
                     s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, t, s.metadata);
                     return new InheritedProperty(t, s.member, s.metadata);
@@ -347,11 +347,11 @@ namespace MugenMvvm.Binding.Members.Builders
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
-                var attachedValueProvider = MugenService.AttachedValueManager;
-                if (attachedValueProvider.TryGet<AutoProperty>(target!, member.State.id, out var value))
+                var attachedValueManager = MugenService.AttachedValueManager;
+                if (attachedValueManager.TryGet<AutoProperty>(target!, member.State.id, out var value))
                     return value;
 #pragma warning disable 8634
-                return attachedValueProvider.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
+                return attachedValueManager.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
                 {
                     s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, t, s.metadata);
                     return new AutoProperty(s.member.State.PropertyChanged, s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, t));

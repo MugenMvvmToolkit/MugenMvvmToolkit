@@ -23,7 +23,7 @@ namespace MugenMvvm.ViewModels.Components
     {
         #region Fields
 
-        private readonly IAttachedValueManager? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueManager;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly IViewManager? _viewManager;
 
@@ -33,10 +33,10 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Constructors
 
-        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueManager = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _viewManager = viewManager;
-            _attachedValueProvider = attachedValueProvider;
+            _attachedValueManager = attachedValueManager;
             _reflectionDelegateProvider = reflectionDelegateProvider;
         }
 
@@ -86,7 +86,7 @@ namespace MugenMvvm.ViewModels.Components
             }
 
             viewModel.ClearMetadata(true);
-            _attachedValueProvider.DefaultIfNull().Clear(viewModel);
+            _attachedValueManager.DefaultIfNull().Clear(viewModel);
             (viewModel as IValueHolder<IWeakReference>)?.ReleaseWeakReference();
         }
 

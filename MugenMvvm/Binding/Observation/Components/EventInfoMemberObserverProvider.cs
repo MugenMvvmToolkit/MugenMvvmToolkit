@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Observation.Components
     {
         #region Fields
 
-        private readonly IAttachedValueManager? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
@@ -31,9 +31,9 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueManager = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
-            _attachedValueProvider = attachedValueProvider;
+            _attachedValueManager = attachedValueManager;
             _reflectionDelegateProvider = reflectionDelegateProvider;
             _createWeakListenerDelegate = CreateWeakListener;
             _memberObserverHandler = TryObserve;
@@ -68,7 +68,7 @@ namespace MugenMvvm.Binding.Observation.Components
                 return default;
 
             var eventInfo = (EventInfo)member;
-            var listenerInternal = _attachedValueProvider
+            var listenerInternal = _attachedValueManager
                 .DefaultIfNull()
                 .GetOrAdd(target, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
             if (listenerInternal == null)
