@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Observation.Components
     {
         #region Fields
 
-        private readonly IAttachedValueProvider? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueProvider;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
         private static readonly Func<INotifyPropertyChanged, object?, MemberListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public PropertyChangedMemberObserverProvider(IAttachedValueProvider? attachedValueProvider = null)
+        public PropertyChangedMemberObserverProvider(IAttachedValueManager? attachedValueProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;
             _memberObserverHandler = TryObserve;

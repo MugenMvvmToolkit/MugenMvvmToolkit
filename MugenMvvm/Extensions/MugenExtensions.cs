@@ -190,20 +190,20 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueProvider valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
+        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueManager valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class
         {
             Should.NotBeNull(valueProvider, nameof(valueProvider));
             return valueProvider.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
         }
 
-        public static void Set<TValue>(this IAttachedValueProvider valueProvider, object item, string path, TValue value)
+        public static void Set<TValue>(this IAttachedValueManager valueProvider, object item, string path, TValue value)
         {
             Should.NotBeNull(valueProvider, nameof(valueProvider));
             valueProvider.Set(item, path, value, out _);
         }
 
-        public static bool Clear(this IAttachedValueProvider valueProvider, object item, string path)
+        public static bool Clear(this IAttachedValueManager valueProvider, object item, string path)
         {
             Should.NotBeNull(valueProvider, nameof(valueProvider));
             return valueProvider.Clear(item, path, out _);

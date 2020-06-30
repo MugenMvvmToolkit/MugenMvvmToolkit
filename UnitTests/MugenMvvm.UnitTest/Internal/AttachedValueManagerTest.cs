@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Internal
 {
-    public class AttachedValueProviderTest : ComponentOwnerTestBase<AttachedValueProvider>
+    public class AttachedValueManagerTest : ComponentOwnerTestBase<AttachedValueManager>
     {
         #region Fields
 
@@ -23,62 +23,62 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void GetValuesShouldReturnEmptyNoComponents()
         {
-            new AttachedValueProvider().GetValues(this, this, (test, pair, arg3) => true).AsList().ShouldBeEmpty();
+            new AttachedValueManager().GetValues(this, this, (test, pair, arg3) => true).AsList().ShouldBeEmpty();
         }
 
         [Fact]
         public void TryGetShouldReturnEmptyNoComponents()
         {
-            new AttachedValueProvider().TryGet(this, TestPath, out int value).ShouldBeFalse();
+            new AttachedValueManager().TryGet(this, TestPath, out int value).ShouldBeFalse();
             value.ShouldEqual(0);
         }
 
         [Fact]
         public void ContainsShouldReturnEmptyNoComponents()
         {
-            new AttachedValueProvider().Contains(this, TestPath).ShouldBeFalse();
+            new AttachedValueManager().Contains(this, TestPath).ShouldBeFalse();
         }
 
         [Fact]
         public void AddOrUpdateThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().AddOrUpdate(this, TestPath, this, this, (item, value, currentValue, state) => currentValue));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().AddOrUpdate(this, TestPath, this, this, (item, value, currentValue, state) => currentValue));
         }
 
         [Fact]
         public void AddOrUpdateThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().AddOrUpdate(this, TestPath, this, (test, providerTest) => test, (item, value, currentValue, state) => currentValue));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().AddOrUpdate(this, TestPath, this, (test, providerTest) => test, (item, value, currentValue, state) => currentValue));
         }
 
         [Fact]
         public void GetOrAddShouldThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().GetOrAdd(this, TestPath, this));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().GetOrAdd(this, TestPath, this));
         }
 
         [Fact]
         public void GetOrAddShouldThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().GetOrAdd(this, TestPath, test => this));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().GetOrAdd(this, TestPath, test => this));
         }
 
         [Fact]
         public void SetShouldThrowNoComponents()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Set(this, TestPath, this, out _));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().Set(this, TestPath, this, out _));
         }
 
         [Fact]
         public void ClearThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Clear(this, TestPath, out _));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().Clear(this, TestPath, out _));
         }
 
         [Fact]
         public void ClearThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueProvider().Clear(this));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().Clear(this));
         }
 
         [Theory]
@@ -91,7 +91,7 @@ namespace MugenMvvm.UnitTest.Internal
             var result = new List<KeyValuePair<string, object?>>();
             var filterExecuted = 0;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -102,9 +102,9 @@ namespace MugenMvvm.UnitTest.Internal
                     {
                         ++methodExecuted;
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueProviderTest));
+                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(attachedValueProvider);
-                        arg4.ShouldEqual(typeof(AttachedValueProvider));
+                        arg4.ShouldEqual(typeof(AttachedValueManager));
                         if (hasFilter)
                             arg5!.Invoke(o!, default, arg3!).ShouldBeTrue();
                         else
@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTest.Internal
                 attachedValueProvider.AddComponent(component);
             }
 
-            Func<AttachedValueProviderTest, KeyValuePair<string, object?>, AttachedValueProvider, bool> func = (test, pair, arg3) => ++filterExecuted != -1;
+            Func<AttachedValueManagerTest, KeyValuePair<string, object?>, AttachedValueManager, bool> func = (test, pair, arg3) => ++filterExecuted != -1;
             attachedValueProvider.GetValues(this, attachedValueProvider, hasFilter ? func : null).ShouldEqual(result);
             filterExecuted.ShouldEqual(hasFilter ? 1 : 0);
             methodExecuted.ShouldEqual(1);
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var result = int.MaxValue;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -159,7 +159,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var result = true;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTest.Internal
             object valueToSet = this;
             var delExecuted = 0;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -202,12 +202,12 @@ namespace MugenMvvm.UnitTest.Internal
                     {
                         ++methodExecuted;
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueProviderTest));
+                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(valueToSet);
                         arg5.ShouldEqual(valueToSet.GetType());
                         arg6.ShouldEqual(attachedValueProvider);
-                        arg7.ShouldEqual(typeof(AttachedValueProvider));
+                        arg7.ShouldEqual(typeof(AttachedValueManager));
                         return arg8(o, arg4, arg4, arg6);
                     }
                 };
@@ -232,7 +232,7 @@ namespace MugenMvvm.UnitTest.Internal
             object valueToSet = this;
             var delExecuted = 0;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -243,11 +243,11 @@ namespace MugenMvvm.UnitTest.Internal
                     {
                         ++methodExecuted;
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueProviderTest));
+                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(attachedValueProvider);
-                        arg5.ShouldEqual(typeof(AttachedValueProvider));
-                        arg7.ShouldEqual(typeof(AttachedValueProviderTest));
+                        arg5.ShouldEqual(typeof(AttachedValueManager));
+                        arg7.ShouldEqual(typeof(AttachedValueManagerTest));
                         return arg8(o, arg6, arg6(null, null), arg4);
                     }
                 };
@@ -271,7 +271,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             object valueToSet = this;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -306,7 +306,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             object valueToSet = this;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -316,10 +316,10 @@ namespace MugenMvvm.UnitTest.Internal
                     GetOrAdd1 = (o, type, arg3, arg4, arg5, arg6, arg7) =>
                     {
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueProviderTest));
+                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(attachedValueProvider);
-                        arg5.ShouldEqual(typeof(AttachedValueProvider));
+                        arg5.ShouldEqual(typeof(AttachedValueManager));
                         arg6.ShouldEqual(valueToSet.GetType());
                         ++methodExecuted;
                         return arg7(null, null);
@@ -344,7 +344,7 @@ namespace MugenMvvm.UnitTest.Internal
             var oldV = new object();
             object valueToSet = this;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -382,7 +382,7 @@ namespace MugenMvvm.UnitTest.Internal
             var result = true;
             var oldV = new object();
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -416,7 +416,7 @@ namespace MugenMvvm.UnitTest.Internal
         {
             var result = true;
             var methodExecuted = 0;
-            var attachedValueProvider = new AttachedValueProvider();
+            var attachedValueProvider = new AttachedValueManager();
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
@@ -439,9 +439,9 @@ namespace MugenMvvm.UnitTest.Internal
             methodExecuted.ShouldEqual(2);
         }
 
-        protected override AttachedValueProvider GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
+        protected override AttachedValueManager GetComponentOwner(IComponentCollectionProvider? collectionProvider = null)
         {
-            return new AttachedValueProvider(collectionProvider);
+            return new AttachedValueManager(collectionProvider);
         }
 
         #endregion

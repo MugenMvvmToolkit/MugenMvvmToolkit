@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Internal.Components;
 
 namespace MugenMvvm.Internal
 {
-    public sealed class AttachedValueProvider : ComponentOwnerBase<IAttachedValueProvider>, IAttachedValueProvider
+    public sealed class AttachedValueManager : ComponentOwnerBase<IAttachedValueManager>, IAttachedValueManager
     {
         #region Fields
 
@@ -20,10 +20,10 @@ namespace MugenMvvm.Internal
 
         #region Constructors
 
-        public AttachedValueProvider(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
+        public AttachedValueManager(IComponentCollectionProvider? componentCollectionProvider = null) : base(componentCollectionProvider)
         {
             _componentTracker = new ComponentTracker();
-            _componentTracker.AddListener<IAttachedValueProviderComponent, AttachedValueProvider>((components, state, _) => state._components = components, this);
+            _componentTracker.AddListener<IAttachedValueProviderComponent, AttachedValueManager>((components, state, _) => state._components = components, this);
         }
 
         #endregion

@@ -23,7 +23,7 @@ namespace MugenMvvm.ViewModels.Components
     {
         #region Fields
 
-        private readonly IAttachedValueProvider? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueProvider;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
         private readonly IViewManager? _viewManager;
 
@@ -33,7 +33,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Constructors
 
-        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueProvider? attachedValueProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public ViewModelCleaner(IViewManager? viewManager = null, IAttachedValueManager? attachedValueProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _viewManager = viewManager;
             _attachedValueProvider = attachedValueProvider;

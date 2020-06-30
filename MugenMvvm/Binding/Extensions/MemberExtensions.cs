@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Extensions
             Should.NotBeNull(memberManager, nameof(memberManager));
             return memberManager.TryGetMembers(type, memberTypes, flags, request, metadata).SingleOrDefault<IMemberInfo>();
         }
-
+        //todo notify
         [return: MaybeNull]
         public static TValue GetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
             MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class

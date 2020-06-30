@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Observation.Components
     {
         #region Fields
 
-        private readonly IAttachedValueProvider? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueProvider;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionDelegateProvider? _reflectionDelegateProvider;
@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public EventInfoMemberObserverProvider(IAttachedValueProvider? attachedValueProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
+        public EventInfoMemberObserverProvider(IAttachedValueManager? attachedValueProvider = null, IReflectionDelegateProvider? reflectionDelegateProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;
             _reflectionDelegateProvider = reflectionDelegateProvider;

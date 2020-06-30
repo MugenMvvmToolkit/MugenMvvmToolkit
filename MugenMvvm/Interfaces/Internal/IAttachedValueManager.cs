@@ -8,7 +8,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IAttachedValueProvider : IComponentOwner<IAttachedValueProvider>, IComponent<IMugenApplication>
+    public interface IAttachedValueManager : IComponentOwner<IAttachedValueManager>, IComponent<IMugenApplication>
     {
         ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class;

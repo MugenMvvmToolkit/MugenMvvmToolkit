@@ -236,7 +236,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
-                var attachedValueProvider = MugenService.AttachedValueProvider;
+                var attachedValueProvider = MugenService.AttachedValueManager;
                 if (attachedValueProvider.TryGet<InheritedProperty>(target!, member.State.id, out var value))
                     return value;
 #pragma warning disable 8634
@@ -347,7 +347,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>? PropertyChanged,
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
-                var attachedValueProvider = MugenService.AttachedValueProvider;
+                var attachedValueProvider = MugenService.AttachedValueManager;
                 if (attachedValueProvider.TryGet<AutoProperty>(target!, member.State.id, out var value))
                     return value;
 #pragma warning disable 8634

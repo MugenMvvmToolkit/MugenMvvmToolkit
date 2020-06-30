@@ -73,7 +73,7 @@ namespace MugenMvvm.Binding.Members.Builders
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(handler, nameof(handler));
-            var attachedValueProvider = MugenService.AttachedValueProvider;
+            var attachedValueProvider = MugenService.AttachedValueManager;
             if (!attachedValueProvider.Contains(target!, id))
             {
 #pragma warning disable 8634

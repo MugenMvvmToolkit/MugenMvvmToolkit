@@ -24,7 +24,7 @@ namespace MugenMvvm.Views.Components
     {
         #region Fields
 
-        private readonly IAttachedValueProvider? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueProvider;
         private readonly IComponentCollectionProvider? _componentCollectionProvider;
         private readonly IMetadataContextProvider? _metadataContextProvider;
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.Views.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewManagerComponent(IAttachedValueProvider? attachedValueProvider = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
+        public ViewManagerComponent(IAttachedValueManager? attachedValueProvider = null, IComponentCollectionProvider? componentCollectionProvider = null, IMetadataContextProvider? metadataContextProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;
             _componentCollectionProvider = componentCollectionProvider;

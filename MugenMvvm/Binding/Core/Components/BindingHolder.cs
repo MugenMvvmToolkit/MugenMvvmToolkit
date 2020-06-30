@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly IAttachedValueProvider? _attachedValueProvider;
+        private readonly IAttachedValueManager? _attachedValueProvider;
         private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?, IBinding> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Core.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public BindingHolder(IAttachedValueProvider? attachedValueProvider = null)
+        public BindingHolder(IAttachedValueManager? attachedValueProvider = null)
         {
             _attachedValueProvider = attachedValueProvider;
         }

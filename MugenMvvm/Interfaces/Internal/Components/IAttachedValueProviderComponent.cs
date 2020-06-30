@@ -8,7 +8,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface IAttachedValueProviderComponent : IComponent<IAttachedValueProvider>
+    public interface IAttachedValueProviderComponent : IComponent<IAttachedValueManager>
     {
         bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
 
