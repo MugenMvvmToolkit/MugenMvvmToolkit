@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.App.Configuration;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Components;
@@ -33,69 +34,69 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IMugenApplication DefaultConfiguration(this IMugenApplication application, IServiceProvider? serviceProvider = null)
+        public static MugenApplicationConfiguration DefaultConfiguration(this MugenApplicationConfiguration configuration, IServiceProvider? serviceProvider = null)
         {
-            Should.NotBeNull(application, nameof(application));
             if (serviceProvider != null)
                 MugenService.Configuration.InitializeInstance(serviceProvider);
-            application
-                .WithService(new CommandProvider())
-                .WithService(new ComponentCollectionProvider())
-                .WithService(new EntityManager())
-                .WithService(new AttachedValueProvider())
-                .WithService(new ReflectionDelegateProvider())
-                .WithService(new Tracer())
-                .WithService(new WeakReferenceProvider())
-                .WithService(new Messenger())
-                .WithService(new MetadataContextProvider())
-                .WithService(new NavigationDispatcher())
-                .WithService(new Presenter())
-                .WithService(new Serializer())
-                .WithService(new ThreadDispatcher())
-                .WithService(new ValidationManager())
-                .WithService(new ViewModelManager())
-                .WithService(new ViewManager())
-                .WithService(new WrapperManager());
+            configuration.WithAppService(new ComponentCollectionManager());
 
-            MugenService.CommandProvider
+            configuration.WithAppService(new MetadataContextManager())
+                .WithComponent(new MetadataContextProviderComponent());
+
+            configuration.WithAppService(new CommandManager())
                 .WithComponent(new DelegateCommandProvider());
-            MugenService.EntityManager
+
+            configuration.WithAppService(new EntityManager())
                 .WithComponent(new EntityTrackingCollectionProvider())
                 .WithComponent(new ReflectionEntityStateSnapshotProvider());
-            MugenService.AttachedValueProvider
+
+            configuration.WithAppService(new AttachedValueManager())
                 .WithComponent(new ConditionalWeakTableAttachedValueProvider())
                 .WithComponent(new MetadataOwnerAttachedValueProvider())
                 .WithComponent(new ValueHolderAttachedValueProvider());
-            MugenService.ReflectionDelegateProvider
+
+            configuration.WithAppService(new ReflectionManager())
                 .WithComponent(new ExpressionReflectionDelegateProvider())
                 .WithComponent(new ReflectionDelegateProviderCache());
-            MugenService.WeakReferenceProvider
+
+            configuration.WithAppService(new Tracer());
+
+            configuration.WithAppService(new WeakReferenceManager())
                 .WithComponent(new ValueHolderWeakReferenceProviderCache())
                 .WithComponent(new WeakReferenceProviderComponent());
-            MugenService.Messenger
+
+            configuration.WithAppService(new Messenger())
                 .WithComponent(new MessagePublisher())
                 .WithComponent(new MessengerHandlerSubscriber());
-            MugenService.MetadataContextProvider
-                .WithComponent(new MetadataContextProviderComponent());
-            MugenService.NavigationDispatcher
+
+            configuration.WithAppService(new NavigationDispatcher())
                 .WithComponent(new NavigationCallbackInvoker())
                 .WithComponent(new NavigationCallbackManager())
                 .WithComponent(new NavigationContextProvider())
                 .WithComponent(new NavigationEntryDateTracker())
                 .WithComponent(new NavigationEntryProvider());
-            MugenService.Presenter
+
+            configuration.WithAppService(new Presenter())
                 .WithComponent(new ConditionPresenterDecorator())
                 .WithComponent(new NavigationCallbackPresenterDecorator())
-                .WithComponent(new ViewModelMediatorPresenter());
-            MugenService.ValidationManager
+                .WithComponent(new ViewModelMediatorPresenter())
+                .WithComponent(new ViewPresenterDecorator());
+
+            configuration.WithAppService(new Serializer());
+
+            configuration.WithAppService(new ThreadDispatcher());
+
+            configuration.WithAppService(new ValidationManager())
                 .WithComponent(new ValidatorProviderComponent());
-            MugenService.ViewModelManager
+
+            configuration.WithAppService(new ViewModelManager())
                 .WithComponent(new CacheViewModelProvider())
                 .WithComponent(new TypeViewModelProvider())
                 .WithComponent(new ViewModelCleaner())
                 .WithComponent(new ViewModelLifecycleTracker())
                 .WithComponent(new ViewModelServiceResolver());
-            MugenService.ViewManager
+
+            configuration.WithAppService(new ViewManager())
                 .WithComponent(new ExecutionModeViewManagerDecorator())
                 .WithComponent(new RawViewLifecycleDispatcher())
                 .WithComponent(new ViewCleaner())
@@ -105,24 +106,33 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ViewModelViewAwareInitializer())
                 .WithComponent(new ViewModelViewInitializerDecorator())
                 .WithComponent(new ViewModelViewMappingProvider());
-            return application;
+            configuration.WithAppService(new WrapperManager());
+
+            return configuration;
         }
 
-        public static IMugenApplication WithService<TService>(this IMugenApplication application, IComponentOwner<TService> service, bool registerInstance = true, IReadOnlyMetadataContext? metadata = null)
+        public static ServiceConfiguration<TService> WithAppService<TService>(this MugenApplicationConfiguration configuration, IComponentOwner<TService> service, IReadOnlyMetadataContext? metadata = null)
             where TService : class
         {
-            Should.NotBeNull(application, nameof(application));
-            application.Components.Add(service, metadata);
-            if (registerInstance && service is TService s)
-                MugenService.Configuration.InitializeInstance(s);
-            return application;
+            MugenService.Configuration.InitializeInstance((TService)service);
+            return configuration.ServiceConfiguration<TService>();
         }
 
-        public static IComponentOwner<T> WithComponent<T>(this IComponentOwner<T> componentOwner, IComponent<T> component, IReadOnlyMetadataContext? metadata = null) where T : class
+        public static ServiceConfiguration<TService> WithComponent<TService>(this ServiceConfiguration<TService> configuration, IComponent<TService> component, IReadOnlyMetadataContext? metadata = null)
+            where TService : class, IComponentOwner
         {
-            Should.NotBeNull(componentOwner, nameof(componentOwner));
-            componentOwner.Components.Add(component, metadata);
-            return componentOwner;
+            configuration.Service().Components.Add(component, metadata);
+            return configuration;
+        }
+
+        public static TService Service<TService>(this ServiceConfiguration<TService> _) where TService : class
+        {
+            return MugenService.Instance<TService>();
+        }
+
+        public static IMugenApplication GetApplication(this MugenApplicationConfiguration configuration)
+        {
+            return configuration.Application;
         }
 
         #endregion

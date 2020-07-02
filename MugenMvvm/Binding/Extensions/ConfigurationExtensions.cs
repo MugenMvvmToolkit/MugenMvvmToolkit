@@ -1,11 +1,14 @@
-﻿using MugenMvvm.Binding.Build.Components;
+﻿using MugenMvvm.App.Configuration;
+using MugenMvvm.Binding.Build.Components;
 using MugenMvvm.Binding.Compiling;
 using MugenMvvm.Binding.Compiling.Components;
 using MugenMvvm.Binding.Convert;
 using MugenMvvm.Binding.Convert.Components;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
+using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Observation.Components;
@@ -17,7 +20,6 @@ using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Binding.Resources.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.App;
 
 namespace MugenMvvm.Binding.Extensions
 {
@@ -25,20 +27,9 @@ namespace MugenMvvm.Binding.Extensions
     {
         #region Methods
 
-        public static IMugenApplication DefaultBindingConfiguration(this IMugenApplication application)
+        public static MugenApplicationConfiguration DefaultBindingConfiguration(this MugenApplicationConfiguration configuration)
         {
-            Should.NotBeNull(application, nameof(application));
-            application
-                .WithService(new ExpressionCompiler())
-                .WithService(new GlobalValueConverter())
-                .WithService(new BindingManager())
-                .WithService(new MemberManager())
-                .WithService(new ObservationManager())
-                .WithService(new ExpressionParser())
-                .WithService(new ResourceResolver());
-
-            MugenBindingService
-                .Compiler
+            configuration.WithAppService(new ExpressionCompiler())
                 .WithComponent(new BinaryExpressionBuilder())
                 .WithComponent(new ConditionExpressionBuilder())
                 .WithComponent(new ConstantExpressionBuilder())
@@ -48,17 +39,17 @@ namespace MugenMvvm.Binding.Extensions
                 .WithComponent(new MethodCallIndexerExpressionBuilder())
                 .WithComponent(new NullConditionalExpressionBuilder())
                 .WithComponent(new UnaryExpressionBuilder());
-            MugenBindingService
-                .GlobalValueConverter
+
+            configuration.WithAppService(new GlobalValueConverter())
                 .WithComponent(new GlobalValueConverterComponent());
+
             var macrosBindingInitializer = new MacrosBindingInitializer();
             var macrosVisitor = new MacrosExpressionVisitor();
             macrosBindingInitializer.TargetVisitors.Add(macrosVisitor);
             macrosBindingInitializer.SourceVisitors.Add(macrosVisitor);
             macrosBindingInitializer.ParameterVisitors.Add(macrosVisitor);
-            MugenBindingService
-                .BindingManager
-                .WithComponent(macrosBindingInitializer)
+
+            configuration.WithAppService(new BindingManager()).WithComponent(macrosBindingInitializer)
                 .WithComponent(new BindingBuilderListExpressionParser())
                 .WithComponent(new BindingBuilderRequestExpressionParser())
                 .WithComponent(new BindingCleaner())
@@ -72,8 +63,8 @@ namespace MugenMvvm.Binding.Extensions
                 .WithComponent(new BindingModeInitializer())
                 .WithComponent(new BindingParameterInitializer())
                 .WithComponent(new DelayBindingInitializer());
-            MugenBindingService.MemberManager
-                .WithComponent(new AttachedDynamicMemberProvider())
+
+            configuration.WithAppService(new MemberManager())
                 .WithComponent(new AttachedMemberProvider())
                 .WithComponent(new ExtensionMethodMemberProvider())
                 .WithComponent(new FakeMemberProvider())
@@ -84,14 +75,16 @@ namespace MugenMvvm.Binding.Extensions
                 .WithComponent(new MethodRequestMemberManagerDecorator())
                 .WithComponent(new NameRequestMemberManagerDecorator())
                 .WithComponent(new ReflectionMemberProvider());
-            MugenBindingService.ObservationManager
+
+            configuration.WithAppService(new ObservationManager())
                 .WithComponent(new EventInfoMemberObserverProvider())
                 .WithComponent(new EventMemberObserverProvider())
                 .WithComponent(new MemberPathObserverProvider())
                 .WithComponent(new MemberPathProvider())
                 .WithComponent(new MemberPathProviderCache())
                 .WithComponent(new PropertyChangedMemberObserverProvider());
-            MugenBindingService.Parser
+
+            configuration.WithAppService(new ExpressionParser())
                 .WithComponent(new ExpressionParserComponent())
                 .WithComponent(new UnaryTokenParser())
                 .WithComponent(new MemberTokenParser())
@@ -116,11 +109,47 @@ namespace MugenMvvm.Binding.Extensions
                 .WithComponent(new IndexerExpressionConverter())
                 .WithComponent(new NewArrayExpressionConverter())
                 .WithComponent(new DefaultExpressionConverter());
-            MugenBindingService.ResourceResolver
+
+            configuration.WithAppService(new ResourceResolver())
                 .WithComponent(new ResourceResolverComponent())
                 .WithComponent(new TypeResolverComponent());
 
-            return application;
+            return configuration;
+        }
+
+        public static MugenApplicationConfiguration AttachedMembersBaseConfiguration(this MugenApplicationConfiguration configuration)
+        {
+            var memberManager = configuration.ServiceConfiguration<IMemberManager>().Service();
+            var attachedMemberProvider = memberManager.GetOrAddComponent(context => new AttachedMemberProvider());
+            attachedMemberProvider.Register(Members.BindableMembers.For<object>()
+                .DataContext()
+                .GetBuilder()
+                .Inherits()
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<object>()
+                .CommandParameter()
+                .GetBuilder()
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<object>()
+                .Root()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => GetRoot(target, metadata))
+                .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<object>()
+                .RelativeSourceMethod()
+                .RawMethod
+                .GetBuilder()
+                .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p1").DefaultValue(BoxingExtensions.Box(1)).Build())
+                .InvokeHandler((member, target, args, metadata) => FindRelativeSource(target, (string)args[0]!, (int)args[1]!, metadata))
+                .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
+                .Build());
+            attachedMemberProvider.Register(Members.BindableMembers.For<object>()
+                .Parent()
+                .GetBuilder()
+                .WrapMember(Members.BindableMembers.For<object>().ParentNative())
+                .Build());
+            return configuration;
         }
 
         #endregion
