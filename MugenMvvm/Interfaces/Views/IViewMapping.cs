@@ -4,7 +4,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    public interface IViewModelViewMapping : IMetadataOwner<IReadOnlyMetadataContext>, IHasId<string>
+    public interface IViewMapping : IMetadataOwner<IReadOnlyMetadataContext>, IHasId<string>
     {
         Type ViewType { get; }
 

@@ -14,7 +14,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Views.Components
 {
-    public sealed class ViewModelViewMappingProvider : IViewModelViewMappingProviderComponent, IHasPriority
+    public sealed class ViewMappingProvider : IViewMappingProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace MugenMvvm.Views.Components
 
         #region Constructors
 
-        public ViewModelViewMappingProvider()
+        public ViewMappingProvider()
         {
             _mappings = new List<MappingInfo>();
         }
@@ -39,13 +39,13 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
             var type = view as Type;
             var id = view as string;
 
-            ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> mappings = default;
+            ItemOrList<IViewMapping, List<IViewMapping>> mappings = default;
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
@@ -79,7 +79,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            return mappings.Cast<IReadOnlyList<IViewModelViewMapping>>();
+            return mappings.Cast<IReadOnlyList<IViewMapping>>();
         }
 
         #endregion
@@ -90,11 +90,11 @@ namespace MugenMvvm.Views.Components
         {
             Should.BeOfType(viewModelType, nameof(viewModelType), typeof(IViewModelBase));
             Should.NotBeNull(viewType, nameof(viewType));
-            var mapping = new ViewModelViewMapping(id ?? $"{viewModelType.FullName}{viewType.FullName}{name}", viewType, viewModelType, metadata);
+            var mapping = new ViewMapping(id ?? $"{viewModelType.FullName}{viewType.FullName}{name}", viewType, viewModelType, metadata);
             AddMapping(mapping, exactlyEqual, name);
         }
 
-        public void AddMapping(IViewModelViewMapping mapping, bool exactlyEqual = false, string? name = null)
+        public void AddMapping(IViewMapping mapping, bool exactlyEqual = false, string? name = null)
         {
             Should.NotBeNull(mapping, nameof(mapping));
             var mappingInfo = new MappingInfo(mapping, exactlyEqual, name);
@@ -123,13 +123,13 @@ namespace MugenMvvm.Views.Components
 
             private readonly bool _exactlyEqual;
             private readonly string? _name;
-            public readonly IViewModelViewMapping Mapping;
+            public readonly IViewMapping Mapping;
 
             #endregion
 
             #region Constructors
 
-            public MappingInfo(IViewModelViewMapping mapping, bool exactlyEqual, string? name)
+            public MappingInfo(IViewMapping mapping, bool exactlyEqual, string? name)
             {
                 _exactlyEqual = exactlyEqual;
                 _name = name;

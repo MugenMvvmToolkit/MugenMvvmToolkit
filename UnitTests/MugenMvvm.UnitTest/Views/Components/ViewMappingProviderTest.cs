@@ -9,7 +9,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Views.Components
 {
-    public class ViewModelViewMappingProviderTest : UnitTestBase
+    public class ViewMappingProviderTest : UnitTestBase
     {
         #region Methods
 
@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         [InlineData("test", true)]
         public void AddMappingShouldAddMapping1(string name, bool shouldFail)
         {
-            var component = new ViewModelViewMappingProvider();
+            var component = new ViewMappingProvider();
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
             var metadata = new MetadataContext();
@@ -92,7 +92,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         [InlineData("test", true)]
         public void AddMappingShouldAddMapping2(string name, bool shouldFail)
         {
-            var component = new ViewModelViewMappingProvider();
+            var component = new ViewMappingProvider();
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
             var id = $"{vmType.FullName}{vType.FullName}{name}";
@@ -204,7 +204,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         [InlineData("test", true)]
         public void AddMappingShouldAddMapping3(string name, bool shouldFail)
         {
-            var component = new ViewModelViewMappingProvider();
+            var component = new ViewMappingProvider();
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
             var id = $"{vmType.FullName}{vType.FullName}{name}";
@@ -288,7 +288,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         [Fact]
         public void ClearMappingsShouldClearMappings()
         {
-            var component = new ViewModelViewMappingProvider();
+            var component = new ViewMappingProvider();
             var vmType = typeof(TestViewModel);
             var vType = typeof(BaseView);
             component.AddMapping(vmType, vType, false, null, null, DefaultMetadata);

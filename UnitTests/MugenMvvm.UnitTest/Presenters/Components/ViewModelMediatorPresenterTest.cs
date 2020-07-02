@@ -52,8 +52,8 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var request = new ViewModelViewRequest(viewModel, new object());
             var viewManager = new ViewManager();
             var cancellationToken = new CancellationTokenSource().Token;
-            var mapping = new ViewModelViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
-            viewManager.AddComponent(new TestViewModelViewMappingProviderComponent
+            var mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
+            viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, type, m) =>
                 {
@@ -188,8 +188,8 @@ namespace MugenMvvm.UnitTest.Presenters.Components
                     return result;
                 }
             };
-            var mapping = new ViewModelViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
-            viewManager.AddComponent(new TestViewModelViewMappingProviderComponent
+            var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
+            viewManager.AddComponent(new TestViewMappingProviderComponent
             {
                 TryGetMappings = (o, type, arg3) => mapping,
             });

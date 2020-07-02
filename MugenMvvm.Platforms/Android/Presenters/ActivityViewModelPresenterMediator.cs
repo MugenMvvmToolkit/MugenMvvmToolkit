@@ -141,14 +141,14 @@ namespace MugenMvvm.Android.Presenters
             var resourceId = 0;
             if (!Mapping.ViewType.IsInterface && typeof(IJavaObject).IsAssignableFrom(Mapping.ViewType))
                 activityType = Class.FromType(Mapping.ViewType);
-            if (Mapping is AndroidViewModelViewMapping m)
+            if (Mapping is AndroidViewMapping m)
                 resourceId = m.ResourceId;
             StartActivity(activityView, activityType, resourceId, flags, metadata);
         }
 
         protected virtual void StartActivity(IActivityView? topView, Class? activityType, int resourceId, int flags, IReadOnlyMetadataContext? metadata)
         {
-            if (!AndroidNativeMugenService.StartActivity(topView!, activityType!, resourceId, flags))
+            if (!MugenAndroidNativeService.StartActivity(topView!, activityType!, resourceId, flags))
                 ExceptionManager.ThrowPresenterCannotShowRequest(Mapping, metadata);
         }
 
@@ -250,7 +250,7 @@ namespace MugenMvvm.Android.Presenters
                 }
             }
 
-            public Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
                 if (_viewTask == null || !ReferenceEquals(viewModel, _mediator.ViewModel) || view != null)
@@ -260,7 +260,7 @@ namespace MugenMvvm.Android.Presenters
                 var valueTuple = (this, tcs, mapping, viewModel, metadata);
                 _viewTask.Task.ContinueWith((task, o) =>
                 {
-                    var t = ((ActivityViewDispatcher @this, TaskCompletionSource<IView> tcs, IViewModelViewMapping mapping, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata))o;
+                    var t = ((ActivityViewDispatcher @this, TaskCompletionSource<IView> tcs, IViewMapping mapping, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata))o;
                     t.@this._viewTask = null;
                     var result = t.@this.TryInitializeAsync(t.mapping, new ViewModelViewRequest(t.viewModel, task.Result), default, t.metadata);
                     if (result == null)

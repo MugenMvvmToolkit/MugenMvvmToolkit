@@ -38,12 +38,12 @@ namespace MugenMvvm.Views
             return GetComponents<IViewProviderComponent>(metadata).TryGetViews(request, metadata);
         }
 
-        public ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> GetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> GetMappings<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewModelViewMappingProviderComponent>(metadata).TryGetMappings(request, metadata);
+            return GetComponents<IViewMappingProviderComponent>(metadata).TryGetMappings(request, metadata);
         }
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+        public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IViewManagerComponent>(metadata).TryInitializeAsync(mapping, request, cancellationToken, metadata);

@@ -44,7 +44,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -68,7 +68,7 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        private ViewModelViewRequest ToViewModelViewRequest(IViewModelViewMapping mapping, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata)
+        private ViewModelViewRequest ToViewModelViewRequest(IViewMapping mapping, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata)
         {
             return new ViewModelViewRequest(viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
                 view ?? _serviceProvider.DefaultIfNull().GetService(mapping.ViewType));

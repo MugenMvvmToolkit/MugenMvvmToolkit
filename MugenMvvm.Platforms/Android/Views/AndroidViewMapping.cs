@@ -4,11 +4,11 @@ using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
-    public class AndroidViewModelViewMapping : ViewModelViewMapping
+    public class AndroidViewMapping : ViewMapping
     {
         #region Constructors
 
-        public AndroidViewModelViewMapping(int resourceId, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
+        public AndroidViewMapping(int resourceId, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
             : base(viewModelType.Name + resourceId, viewType, viewModelType, metadata)
         {
             ResourceId = resourceId;

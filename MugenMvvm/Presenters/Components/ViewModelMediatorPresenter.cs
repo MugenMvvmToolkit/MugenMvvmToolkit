@@ -158,7 +158,7 @@ namespace MugenMvvm.Presenters.Components
             return result;
         }
 
-        private IViewModelPresenterMediator? GetMediator(IViewModelBase viewModel, IViewModelViewMapping mapping, IReadOnlyMetadataContext? metadata)
+        private IViewModelPresenterMediator? GetMediator(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
         {
             var wrapperManager = _wrapperManager.DefaultIfNull();
             Type? mediatorType = null;

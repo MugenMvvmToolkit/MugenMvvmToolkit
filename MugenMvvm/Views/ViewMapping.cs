@@ -5,11 +5,11 @@ using MugenMvvm.Interfaces.Views;
 
 namespace MugenMvvm.Views
 {
-    public class ViewModelViewMapping : IViewModelViewMapping
+    public class ViewMapping : IViewMapping
     {
         #region Constructors
 
-        public ViewModelViewMapping(string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
+        public ViewMapping(string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(id, nameof(id));
             Should.NotBeNull(viewType, nameof(viewType));

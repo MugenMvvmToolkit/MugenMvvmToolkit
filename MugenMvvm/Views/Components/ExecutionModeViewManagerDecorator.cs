@@ -48,7 +48,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
             if (dispatcher.CanExecuteInline(InitializeExecutionMode, metadata))

@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var wrapperManager = new WrapperManager();
             var viewModel = new AwareViewModel();
-            var view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), new AwareViewBase(), viewModel);
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), new AwareViewBase(), viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewModelViewAwareInitializer(wrapperManager));
 
@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void ShouldSetView2()
         {
             var viewModel = new AwareViewModel();
-            var view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), new AwareView(), viewModel);
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), new AwareView(), viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewModelViewAwareInitializer());
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var wrapperManager = new WrapperManager();
             var viewModel = new AwareViewModelBase();
             var rawView = new AwareView();
-            var view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewModelViewAwareInitializer(wrapperManager));
 
@@ -108,7 +108,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var viewModel = new AwareViewModel();
             var rawView = new AwareView();
-            var view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewModelViewAwareInitializer());
 

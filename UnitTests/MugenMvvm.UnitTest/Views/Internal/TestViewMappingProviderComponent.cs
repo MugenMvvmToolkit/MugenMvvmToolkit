@@ -8,11 +8,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.UnitTest.Views.Internal
 {
-    public class TestViewModelViewMappingProviderComponent : IViewModelViewMappingProviderComponent, IHasPriority
+    public class TestViewMappingProviderComponent : IViewMappingProviderComponent, IHasPriority
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>>>? TryGetMappings { get; set; }
+        public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>>>? TryGetMappings { get; set; }
 
         public int Priority { get; set; }
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> IViewModelViewMappingProviderComponent.TryGetMappings<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> IViewMappingProviderComponent.TryGetMappings<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             return TryGetMappings?.Invoke(request!, typeof(TRequest), metadata) ?? default;
         }

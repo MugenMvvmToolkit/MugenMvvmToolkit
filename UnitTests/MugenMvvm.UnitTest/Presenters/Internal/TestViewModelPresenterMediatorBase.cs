@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         public new IViewModelBase ViewModel => base.ViewModel;
 
-        public new IViewModelViewMapping Mapping => base.Mapping;
+        public new IViewMapping Mapping => base.Mapping;
 
         public new IView? View => base.View;
 

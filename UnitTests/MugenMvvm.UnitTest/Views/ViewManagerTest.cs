@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Views
             var manager = new ViewManager();
             var invokeCount = 0;
             var state = "state";
-            var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
+            var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var lifecycleState = ViewLifecycleState.Initializing;
             for (var i = 0; i < count; i++)
             {
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Views
             var viewModel = new TestViewModel();
             for (var i = 0; i < count; i++)
             {
-                var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
+                var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
                 views.Add(view);
                 var component = new TestViewProviderComponent
                 {
@@ -87,13 +87,13 @@ namespace MugenMvvm.UnitTest.Views
         public void GetMappingsShouldBeHandledByComponents(int count)
         {
             var viewManager = new ViewManager();
-            var mappings = new List<IViewModelViewMapping>();
+            var mappings = new List<IViewMapping>();
             var view = new object();
             for (var i = 0; i < count; i++)
             {
-                var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+                var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
                 mappings.Add(mapping);
-                var component = new TestViewModelViewMappingProviderComponent
+                var component = new TestViewMappingProviderComponent
                 {
                     TryGetMappings = (r, t, context) =>
                     {
@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTest.Views
         public void InitializeAsyncShouldThrowNoComponents()
         {
             var viewManager = new ViewManager();
-            ShouldThrow<InvalidOperationException>(() => viewManager.InitializeAsync(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this));
+            ShouldThrow<InvalidOperationException>(() => viewManager.InitializeAsync(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this));
         }
 
         [Theory]
@@ -123,9 +123,9 @@ namespace MugenMvvm.UnitTest.Views
         public void InitializeAsyncShouldBeHandledByComponents(int componentCount)
         {
             var manager = new ViewManager();
-            var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
+            var result = Task.FromResult<IView>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var cancellationToken = new CancellationTokenSource().Token;
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var viewModel = new TestViewModel();
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
@@ -162,8 +162,8 @@ namespace MugenMvvm.UnitTest.Views
             var manager = new ViewManager();
             var result = Task.FromResult(this);
             var cancellationToken = new CancellationTokenSource().Token;
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
-            var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
+            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)

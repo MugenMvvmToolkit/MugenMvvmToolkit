@@ -5,7 +5,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Views
 {
-    public class ViewModelViewMappingTest : UnitTestBase
+    public class ViewMappingTest : UnitTestBase
     {
         #region Methods
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Views
             var id = "id";
             var viewType = typeof(string);
             var viewModelType = typeof(TestViewModel);
-            var mapping = new ViewModelViewMapping(id, viewType, viewModelType, DefaultMetadata);
+            var mapping = new ViewMapping(id, viewType, viewModelType, DefaultMetadata);
             mapping.Metadata.ShouldEqual(DefaultMetadata);
             mapping.Id.ShouldEqual(id);
             mapping.ViewType.ShouldEqual(viewType);

@@ -32,7 +32,7 @@ namespace MugenMvvm.Presenters
         private INavigationContext? _closingContext;
 
         private string? _id;
-        private IViewModelViewMapping? _mapping;
+        private IViewMapping? _mapping;
         private string? _navigationId;
         private bool _shouldClose;
         private INavigationContext? _showingContext;
@@ -84,7 +84,7 @@ namespace MugenMvvm.Presenters
             private set => _viewModel = value;
         }
 
-        protected IViewModelViewMapping Mapping
+        protected IViewMapping Mapping
         {
             get
             {
@@ -111,7 +111,7 @@ namespace MugenMvvm.Presenters
 
         #region Implementation of interfaces
 
-        public void Initialize(IViewModelBase viewModel, IViewModelViewMapping mapping, IReadOnlyMetadataContext? metadata)
+        public void Initialize(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(mapping, nameof(mapping));

@@ -52,7 +52,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -129,7 +129,7 @@ namespace MugenMvvm.Views.Components
             return result.Cast<IReadOnlyList<IView>>();
         }
 
-        private IView InitializeView<TList>(IViewModelViewMapping mapping, IViewModelBase viewModel, object rawView,
+        private IView InitializeView<TList>(IViewMapping mapping, IViewModelBase viewModel, object rawView,
             IList<IView> views, TList collection, Action<TList, IView, IReadOnlyMetadataContext?> addAction,
             Action<TList, IView, IReadOnlyMetadataContext?> removeAction, IReadOnlyMetadataContext? metadata) where TList : class
         {

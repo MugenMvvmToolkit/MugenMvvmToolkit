@@ -13,7 +13,7 @@ using MugenMvvm.Android.Native.Interfaces.Views;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidViewModelViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewModelViewMappingProviderComponent>, IViewModelViewMappingProviderComponent, IHasPriority
+    public sealed class AndroidViewMappingDecorator : ComponentDecoratorBase<IViewManager, IViewMappingProviderComponent>, IViewMappingProviderComponent, IHasPriority
     {
         #region Properties
 
@@ -23,21 +23,21 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             var mappings = Components.TryGetMappings(request, metadata);
             MugenExtensions.TryGetViewModelView(request, out IResourceView? view);
             if (view == null)
                 return mappings;
-            ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> result = default;
+            ItemOrList<IViewMapping, List<IViewMapping>> result = default;
             for (var i = 0; i < mappings.Count(); i++)
             {
                 var mapping = mappings.Get(i);
-                if (mapping is AndroidViewModelViewMapping map && map.ResourceId == view.ViewId)
+                if (mapping is AndroidViewMapping map && map.ResourceId == view.ViewId)
                     result.Add(mapping);
             }
 
-            return result.Cast<IReadOnlyList<IViewModelViewMapping>>();
+            return result.Cast<IReadOnlyList<IViewMapping>>();
         }
 
         #endregion

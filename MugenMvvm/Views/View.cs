@@ -18,7 +18,7 @@ namespace MugenMvvm.Views
 
         #region Constructors
 
-        public View(IViewModelViewMapping mapping, object view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null,
+        public View(IViewMapping mapping, object view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null,
             IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
             : base(metadata, metadataContextManager)
         {
@@ -47,7 +47,7 @@ namespace MugenMvvm.Views
             }
         }
 
-        public IViewModelViewMapping Mapping { get; }
+        public IViewMapping Mapping { get; }
 
         public IViewModelBase ViewModel { get; }
 

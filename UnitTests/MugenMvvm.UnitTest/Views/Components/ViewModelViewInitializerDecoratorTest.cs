@@ -26,9 +26,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewModelType = typeof(TestViewModel);
             var view = new object();
             var viewModel = new TestViewModel();
-            var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
+            var result = Task.FromResult<IView>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var initializeCount = 0;
-            var mapping = new ViewModelViewMapping("id", viewType, viewModelType, DefaultMetadata);
+            var mapping = new ViewMapping("id", viewType, viewModelType, DefaultMetadata);
             var cancellationToken = new CancellationTokenSource().Token;
 
             var viewManager = new ViewManager();
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var viewType = typeof(object);
             var viewModelType = typeof(TestViewModel);
-            var mapping = new ViewModelViewMapping("id", viewType, viewModelType, DefaultMetadata);
+            var mapping = new ViewMapping("id", viewType, viewModelType, DefaultMetadata);
             var view = new View(mapping, new object(), new TestViewModel());
             var viewModel = new TestViewModel();
             var result = Task.FromResult(this);

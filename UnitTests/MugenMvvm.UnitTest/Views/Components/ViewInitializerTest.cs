@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                     return true;
                 }
             });
-            var view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewInitializer());
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, this, DefaultMetadata);
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             };
 
             var viewModel = new TestInitializableViewModel();
-            view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
+            view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), rawView, viewModel);
             var viewManager = new ViewManager();
             viewManager.AddComponent(new ViewInitializer());
             view.Components.Add(componentView);

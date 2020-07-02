@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Views.Internal
     {
         #region Properties
 
-        public Func<IViewModelViewMapping, object, Type, IReadOnlyMetadataContext?, CancellationToken, Task<IView>?>? TryInitializeAsync { get; set; }
+        public Func<IViewMapping, object, Type, IReadOnlyMetadataContext?, CancellationToken, Task<IView>?>? TryInitializeAsync { get; set; }
 
         public Func<IView, object?, Type, IReadOnlyMetadataContext?, CancellationToken, Task?>? TryCleanupAsync { get; set; }
 
@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        Task<IView>? IViewManagerComponent.TryInitializeAsync<TRequest>(IViewModelViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task<IView>? IViewManagerComponent.TryInitializeAsync<TRequest>(IViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return TryInitializeAsync?.Invoke(mapping, request!, typeof(TRequest), metadata, cancellationToken);
         }

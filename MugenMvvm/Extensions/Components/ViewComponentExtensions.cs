@@ -35,19 +35,19 @@ namespace MugenMvvm.Extensions.Components
             return result.Cast<IReadOnlyList<IView>>();
         }
 
-        public static ItemOrList<IViewModelViewMapping, IReadOnlyList<IViewModelViewMapping>> TryGetMappings<TRequest>(this IViewModelViewMappingProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(this IViewMappingProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 1)
                 return components[0].TryGetMappings(request, metadata);
 
-            ItemOrList<IViewModelViewMapping, List<IViewModelViewMapping>> result = default;
+            ItemOrList<IViewMapping, List<IViewMapping>> result = default;
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMappings(request, metadata));
-            return result.Cast<IReadOnlyList<IViewModelViewMapping>>();
+            return result.Cast<IReadOnlyList<IViewMapping>>();
         }
 
-        public static Task<IView>? TryInitializeAsync<TRequest>(this IViewManagerComponent[] components, IViewModelViewMapping mapping,
+        public static Task<IView>? TryInitializeAsync<TRequest>(this IViewManagerComponent[] components, IViewMapping mapping,
             [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

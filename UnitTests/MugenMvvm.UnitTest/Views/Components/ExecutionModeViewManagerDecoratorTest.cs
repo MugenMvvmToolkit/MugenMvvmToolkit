@@ -23,9 +23,9 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var viewModel = new TestViewModel();
-            var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
+            var result = Task.FromResult<IView>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var cancellationToken = new CancellationTokenSource().Token;
             Action? action = null;
             dispatcher.AddComponent(new TestThreadDispatcherComponent
@@ -68,9 +68,9 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var viewModel = new TestViewModel();
-            var result = Task.FromResult<IView>(new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
+            var result = Task.FromResult<IView>(new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel()));
             var cancellationTokenSource = new CancellationTokenSource();
             var cancellationToken = cancellationTokenSource.Token;
             var ex = new Exception();
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
-            var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
+            var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var result = Task.FromResult(this);
             var cancellationToken = new CancellationTokenSource().Token;
@@ -177,7 +177,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var dispatcher = new ThreadDispatcher();
             var component = new ExecutionModeViewManagerDecorator(dispatcher);
-            var view = new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
+            var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
             var viewModel = new TestViewModel();
             var result = Task.FromResult(this);
             var cancellationTokenSource = new CancellationTokenSource();

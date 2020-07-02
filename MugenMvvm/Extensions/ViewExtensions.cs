@@ -14,7 +14,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static Task<IView> InitializeAsync<TRequest>(this IViewManager viewManager, IViewModelViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+        public static Task<IView> InitializeAsync<TRequest>(this IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));

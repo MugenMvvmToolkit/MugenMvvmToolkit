@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         public void ShouldTrackLifecycle()
         {
             var viewModel = new TestViewModel();
-            var view = new View(new ViewModelViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
             var manager = new ViewManager();
             var component = new ViewLifecycleTracker();
             manager.AddComponent(component);

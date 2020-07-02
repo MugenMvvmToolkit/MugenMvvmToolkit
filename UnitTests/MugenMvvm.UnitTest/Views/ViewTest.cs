@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Views
         [Fact]
         public void ConstructorShouldInitializeValues()
         {
-            var mapping = new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
+            var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var view = new object();
             var testViewModel = new TestViewModel();
             IView v = new View(mapping, view, testViewModel);
@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Views
 
         protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
         {
-            return new View(new ViewModelViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel(), metadata, null, metadataContextManager);
+            return new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel(), metadata, null, metadataContextManager);
         }
 
         #endregion
