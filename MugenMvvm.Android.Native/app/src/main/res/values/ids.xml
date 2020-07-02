@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="disableParentObserver" type="id"/>
+    <item name="wrapper" type="id"/>
+    <item name="bindHandled" type="id"/>
+    <item name="parent" type="id"/>
+    <item name="listItemResourceId" type="id"/>
+</resources>
