@@ -29,6 +29,7 @@ namespace MugenMvvm.Binding.Members.Builders
         internal Type PropertyType;
         internal bool IsStatic;
         internal bool IsInherits;
+        internal bool IsWrap;
         internal bool HasDefaultValueField;
 
         #endregion
@@ -47,6 +48,7 @@ namespace MugenMvvm.Binding.Members.Builders
             GetDefaultValue = null;
             IsStatic = false;
             IsInherits = false;
+            IsWrap = false;
             DefaultValueField = default!;
             HasDefaultValueField = false;
             PropertyType = propertyType;
@@ -61,6 +63,7 @@ namespace MugenMvvm.Binding.Members.Builders
         {
             Should.BeSupported(AttachedHandlerField == null, nameof(AttachedHandler));
             Should.BeSupported(!IsInherits, nameof(Inherits));
+            Should.BeSupported(!IsWrap, nameof(WrapMember));
             IsStatic = true;
             return this;
         }
@@ -102,6 +105,14 @@ namespace MugenMvvm.Binding.Members.Builders
         public CustomPropertyBuilder<TTarget, TValue> CustomSetter(SetValueDelegate<IAccessorMemberInfo, TTarget, TValue> setter)
         {
             return new CustomPropertyBuilder<TTarget, TValue>(this).CustomSetter(setter);
+        }
+
+        public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, MemberFlags memberFlags = MemberFlags.All)//todo test
+        {
+            Should.BeSupported(!IsStatic, nameof(IsStatic));
+            IsWrap = true;
+            var closure = new MemberWrapperClosure(memberName, memberFlags);
+            return CustomGetter(closure.GetValue).CustomSetter(closure.SetValue).ObservableHandler(closure.TryObserve);
         }
 
         public PropertyBuilder<TTarget, TValue> AttachedHandler(MemberAttachedDelegate<IAccessorMemberInfo, TTarget> attachedHandler)
@@ -172,6 +183,140 @@ namespace MugenMvvm.Binding.Members.Builders
         #endregion
 
         #region Nested types
+
+        private sealed class MemberWrapperClosure
+        {
+            #region Fields
+
+            private readonly MemberFlags _flags;
+            private readonly string _key;
+            private readonly string _memberName;
+
+            #endregion
+
+            #region Constructors
+
+            public MemberWrapperClosure(string memberName, MemberFlags flags)
+            {
+                Should.NotBeNull(memberName, nameof(memberName));
+                _memberName = memberName;
+                _key = BindingInternalConstant.WrapMemberPrefix + memberName;
+                _flags = flags.SetInstanceOrStaticFlags(false);
+            }
+
+            #endregion
+
+            #region Methods
+
+            public TValue GetValue(IAccessorMemberInfo member, TTarget target, IReadOnlyMetadataContext? metadata)
+            {
+                return MemberWrapper.GetOrAdd(target!, _key, _memberName, _flags, metadata).GetValue(target, metadata);
+            }
+
+            public void SetValue(IAccessorMemberInfo member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
+            {
+                MemberWrapper.GetOrAdd(target!, _key, _memberName, _flags, metadata).SetValue(target, value, metadata);
+            }
+
+            public ActionToken TryObserve(IObservableMemberInfo member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata)
+            {
+                return MemberWrapper.GetOrAdd(target!, _key, _memberName, _flags, metadata).TryObserve(target, listener, metadata);
+            }
+
+            #endregion
+        }
+
+        private sealed class MemberWrapper : EventListenerCollection, IWeakEventListener
+        {
+            #region Fields
+
+            private ActionToken _listener;
+            private IAccessorMemberInfo? _member;
+            private TValue _value;
+
+            #endregion
+
+            #region Constructors
+
+            private MemberWrapper(IAccessorMemberInfo? member)
+            {
+                _member = member;
+                _value = default!;
+            }
+
+            #endregion
+
+            #region Properties
+
+            public bool IsAlive => true;
+
+            public bool IsWeak => true;
+
+            #endregion
+
+            #region Implementation of interfaces
+
+            bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+            {
+                Raise(sender, message, metadata);
+                return true;
+            }
+
+            #endregion
+
+            #region Methods
+
+            public static MemberWrapper GetOrAdd(object target, string key, string wrapMemberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
+            {
+                Should.NotBeNull(target, nameof(target));
+                return MugenService.AttachedValueManager.GetOrAdd(target, key, (wrapMemberName, flags, metadata), (o, tuple) =>
+                {
+                    var member = MugenBindingService
+                        .MemberManager
+                        .TryGetMember(o.GetType(), MemberType.Accessor, tuple.flags.SetInstanceOrStaticFlags(false), tuple.wrapMemberName, tuple.metadata) as IAccessorMemberInfo;
+                    return new MemberWrapper(member);
+                });
+            }
+
+            public TValue GetValue(TTarget target, IReadOnlyMetadataContext? metadata)
+            {
+                var member = _member;
+                if (member == null)
+                    return _value;
+                return (TValue)member.GetValue(target, metadata)!;
+            }
+
+            public void SetValue(TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
+            {
+                _value = value;
+                if (_member != null)
+                {
+                    _listener.Dispose();
+                    _member = null;
+                }
+
+                Raise(target, metadata, metadata);
+            }
+
+            public ActionToken TryObserve(TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
+            {
+                if (Count == 0)
+                {
+                    var member = _member;
+                    if (member != null)
+                        _listener = member.TryObserve(target, this, metadata);
+                }
+
+                return Add(listener);
+            }
+
+            protected override void OnListenersRemoved()
+            {
+                _listener.Dispose();
+            }
+
+            #endregion
+        }
 
         private sealed class InheritedProperty : EventListenerCollection, IWeakEventListener
         {

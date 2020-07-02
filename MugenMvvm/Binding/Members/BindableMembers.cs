@@ -19,9 +19,13 @@ namespace MugenMvvm.Binding.Members
 
         public static BindablePropertyDescriptor<T, object?> Parent<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(Parent);
 
+        public static BindablePropertyDescriptor<T, object?> ParentNative<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(ParentNative);
+
         public static BindablePropertyDescriptor<T, bool> Enabled<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(Enabled);
 
         public static BindablePropertyDescriptor<T, object?> DataContext<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(DataContext);
+
+        public static BindablePropertyDescriptor<T, object?> CommandParameter<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(CommandParameter);
 
         public static BindableMethodDescriptor<T, string, object?> ElementSourceMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(ElementSource);
 
@@ -32,8 +36,6 @@ namespace MugenMvvm.Binding.Members
         public static BindableMethodDescriptor<T, string[], IReadOnlyList<object>> GetErrorsMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.GetErrorsName;
 
         public static BindableMethodDescriptor<T, string[], object?> GetErrorMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.GetErrorName;
-
-        public static BindableMethodDescriptor<T, string, object?> FindElementByNameMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => BindingInternalConstant.FindElementByName;
 
 
         [BindingMember(nameof(Root))]
