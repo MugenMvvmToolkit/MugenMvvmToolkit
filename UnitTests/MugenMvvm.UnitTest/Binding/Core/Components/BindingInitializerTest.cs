@@ -261,7 +261,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     new MemberExpressionNode(null, BindingParameterNameConstant.Observable),
                     new MemberExpressionNode(null, BindingParameterNameConstant.Optional),
                     new MemberExpressionNode(null, BindingParameterNameConstant.ToggleEnabled),
-                    new MemberExpressionNode(null, BindingInitializer.OneTimeBindingMode),
+                    new MemberExpressionNode(null, component.OneTimeBindingMode),
                     new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode)
                 };
             }

@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var delegateProvider = new ReflectionDelegateManager();
+            var delegateProvider = new ReflectionManager();
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
 
             memberInfo = new PropertyAccessorMemberInfo(name, propertyInfo, reflectedType, observerProvider, delegateProvider);

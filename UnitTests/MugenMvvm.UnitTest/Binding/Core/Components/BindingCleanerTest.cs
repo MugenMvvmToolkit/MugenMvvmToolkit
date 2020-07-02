@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             targetListener.ShouldBeNull();
             sourceListener.ShouldBeNull();
             disposeCount.ShouldEqual(1);
-            expressionDisposed.ShouldBeTrue();
+            expressionDisposed.ShouldBeFalse();
 
             binding.AddComponent(components[0]).ShouldBeFalse();
             binding.GetComponents().AsList().ShouldBeEmpty();

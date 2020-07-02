@@ -35,5 +35,11 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
         }
 
         #endregion
+
+        #region Methods
+
+        public override string ToString() => $"{Name} - {DeclaringType?.Name} {Type?.Name}";
+
+        #endregion
     }
 }

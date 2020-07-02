@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTest
 
             InitializeThreadDispatcher();
 
-            var reflectionManager = new ReflectionDelegateManager();
+            var reflectionManager = new ReflectionManager();
             reflectionManager.AddComponent(new ExpressionReflectionDelegateProvider());
             MugenService.Configuration.InitializeInstance<IReflectionManager>(reflectionManager);
 

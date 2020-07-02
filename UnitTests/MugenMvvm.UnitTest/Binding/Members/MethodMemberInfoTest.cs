@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var provider = new ReflectionDelegateManager();
+            var provider = new ReflectionManager();
             provider.AddComponent(new ExpressionReflectionDelegateProvider());
             memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType, observerProvider, provider);
             memberInfo.Name.ShouldEqual(name);

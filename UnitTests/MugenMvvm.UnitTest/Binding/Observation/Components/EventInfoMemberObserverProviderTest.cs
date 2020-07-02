@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         [Fact]
         public void TryGetMemberObserverShouldObserveEventUsingReflectionDelegateProvider()
         {
-            var delegateProvider = new ReflectionDelegateManager();
+            var delegateProvider = new ReflectionManager();
             var testDelegateProvider = new TestReflectionDelegateProviderComponent();
             delegateProvider.AddComponent(testDelegateProvider);
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
