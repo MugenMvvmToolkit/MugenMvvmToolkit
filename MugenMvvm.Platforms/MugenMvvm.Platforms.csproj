@@ -1,0 +1,44 @@
+﻿<Project Sdk="MSBuild.Sdk.Extras">
+
+  <PropertyGroup>
+    <TargetFrameworks>monoandroid10.0</TargetFrameworks>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <RootNamespace>MugenMvvm</RootNamespace>
+    <Nullable>enable</Nullable>
+    <LangVersion>8.0</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <AssemblyName>MugenMvvm.Android</AssemblyName>
+    <AndroidClassParser>class-parse</AndroidClassParser>
+    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
+    <IsBindingProject>true</IsBindingProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Android\**\*.cs" />
+    <None Include="Android\**\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Compile Include="Android\**\*.cs" />
+    <LibraryProjectZip Include="Android\Jars\mugenmvvm-core.aar" />
+    <TransformFile Include="Android\Transforms\Metadata.xml" />
+    <TransformFile Include="Android\Transforms\EnumFields.xml" />
+    <TransformFile Include="Android\Transforms\EnumMethods.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Android\Extensions\MugenAndroidExtensions.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
+  </ItemGroup>
+
+  <Target Name="BuildAndroidNative" BeforeTargets="PrepareForBuild" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
+    <Exec Command="..\BuildAndroidNative.bat" />
+  </Target>
+</Project>
