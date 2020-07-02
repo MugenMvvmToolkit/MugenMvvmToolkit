@@ -3,14 +3,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Views
 {
-    public interface IViewManager : IComponentOwner<IViewManager>, IComponent<IMugenApplication>
+    public interface IViewManager : IComponentOwner<IViewManager>
     {
         void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
 

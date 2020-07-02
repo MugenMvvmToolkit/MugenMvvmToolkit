@@ -1,12 +1,11 @@
 ﻿using System;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface ITracer : IComponentOwner<ITracer>, IComponent<IMugenApplication>
+    public interface ITracer : IComponentOwner<ITracer>
     {
         bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata = null);
 

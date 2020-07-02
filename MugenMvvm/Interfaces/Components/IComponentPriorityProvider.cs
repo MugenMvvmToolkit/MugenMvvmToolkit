@@ -1,8 +1,6 @@
-﻿using MugenMvvm.Interfaces.App;
-
-namespace MugenMvvm.Interfaces.Components
+﻿namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentPriorityProvider : IComponent<IMugenApplication>
+    public interface IComponentPriorityProvider
     {
         int GetPriority(object component, object? owner);
     }

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -64,58 +65,34 @@ namespace MugenMvvm.Binding.Extensions
             }
         }
 
-        public static object? FindElementSource(object target, string elementName, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
-        {
-            Should.NotBeNull(target, nameof(target));
-            Should.NotBeNull(elementName, nameof(elementName));
-            var methodDescriptor = Members.BindableMembers.For<object>().FindElementByNameMethod();
-            var args = new object[1];
-            while (target != null)
-            {
-                args[0] = elementName;
-                var result = methodDescriptor.RawMethod.Invoke(target, args, MemberFlags.InstancePublicAll, metadata, memberManager);
-                if (result != null)
-                    return result;
-                target = Members.BindableMembers.For<object>().Parent().GetValue(target, metadata: metadata, memberManager: memberManager)!;
-            }
-
-            return null;
-        }
-
         public static object? FindRelativeSource(object target, string typeName, int level, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(typeName, nameof(typeName));
-            object? fullNameSource = null;
-            object? nameSource = null;
-            var fullNameLevel = 0;
-            var nameLevel = 0;
+            int nameLevel = 0;
 
             target = Members.BindableMembers.For<object>().Parent().GetValue(target, MemberFlags.InstancePublicAll, metadata, memberManager)!;
             while (target != null)
             {
-                TypeNameEqual(target.GetType(), typeName, out var shortNameEqual, out var fullNameEqual);
-                if (shortNameEqual)
-                {
-                    nameSource = target;
-                    nameLevel++;
-                }
-
-                if (fullNameEqual)
-                {
-                    fullNameSource = target;
-                    fullNameLevel++;
-                }
-
-                if (fullNameSource != null && fullNameLevel == level)
-                    return fullNameSource;
-                if (nameSource != null && nameLevel == level)
-                    return nameSource;
+                if (TypeNameEqual(target.GetType(), typeName) && ++nameLevel == level)
+                    return target;
 
                 target = Members.BindableMembers.For<object>().Parent().GetValue(target, MemberFlags.InstancePublicAll, metadata, memberManager)!;
             }
 
             return null;
+        }
+
+        private static bool TypeNameEqual(Type type, string typeName)
+        {
+            while (type != null)
+            {
+                if (type.Name == typeName)
+                    return true;
+                type = type.BaseType;
+            }
+
+            return false;
         }
 
         #endregion

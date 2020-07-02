@@ -19,7 +19,8 @@ namespace MugenMvvm.Binding.Extensions
 
         public static IBindableMembersDescriptor<T> BindableMembers<T>(this T? _) where T : class => Members.BindableMembers.For<T>();
 
-        public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null, MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
+        public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null, MemberFlags flags = MemberFlags.All,
+            IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
             where TTarget : class
         {
             return memberManager
@@ -46,7 +47,7 @@ namespace MugenMvvm.Binding.Extensions
             Should.NotBeNull(memberManager, nameof(memberManager));
             return memberManager.TryGetMembers(type, memberTypes, flags, request, metadata).SingleOrDefault<IMemberInfo>();
         }
-        //todo notify
+
         [return: MaybeNull]
         public static TValue GetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
             MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
@@ -144,6 +145,30 @@ namespace MugenMvvm.Binding.Extensions
             return methodMember
                 .RawMethod
                 .Invoke(target, new[] { BoxingExtensions.Box(arg1), BoxingExtensions.Box(arg2), BoxingExtensions.Box(arg3), BoxingExtensions.Box(arg4), BoxingExtensions.Box(arg5) }, flags, metadata, memberManager);
+        }
+
+        public static void TryRaise<TTarget, TValue, TMessage>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target, in TMessage message,
+            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+        {
+            Should.NotBeNull(target, nameof(target));
+            flags = flags.SetInstanceOrStaticFlags(bindableMember.IsStatic);
+            (bindableMember.TryGetMember(flags.GetTargetType(ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);
+        }
+
+        public static void TryRaise<TTarget, TMessage>(this BindableEventDescriptor<TTarget> eventMember, TTarget target, in TMessage message,
+            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+        {
+            Should.NotBeNull(target, nameof(target));
+            flags = flags.SetInstanceOrStaticFlags(eventMember.IsStatic);
+            (eventMember.TryGetMember(flags.GetTargetType(ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);
+        }
+
+        public static void TryRaise<TTarget, TReturn, TMessage>(this BindableMethodDescriptor<TTarget, TReturn> methodMember, TTarget target, in TMessage message,
+            MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
+        {
+            Should.NotBeNull(target, nameof(target));
+            flags = flags.SetInstanceOrStaticFlags(methodMember.IsStatic);
+            (methodMember.TryGetMember(flags.GetTargetType(ref target!), flags, metadata, memberManager) as INotifiableMemberInfo)?.Raise(target, message, metadata);
         }
 
         [return: MaybeNull]

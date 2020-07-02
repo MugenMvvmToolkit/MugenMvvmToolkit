@@ -1,12 +1,11 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.ViewModels
 {
-    public interface IViewModelManager : IComponentOwner<IViewModelManager>, IComponent<IMugenApplication>
+    public interface IViewModelManager : IComponentOwner<IViewModelManager>
     {
         void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
 

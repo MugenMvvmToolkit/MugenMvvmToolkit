@@ -1,4 +1,7 @@
-﻿using MugenMvvm.Constants;
+﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Members;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -15,13 +18,15 @@ namespace MugenMvvm.Views.Components
 
         public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
 
+        public bool ClearDataContext { get; set; }//todo test
+
         #endregion
 
         #region Implementation of interfaces
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            (component as IInitializableView)?.Initialize<object?>((IView) collection.Owner, null, metadata);
+            (component as IInitializableView)?.Initialize<object?>((IView)collection.Owner, null, metadata);
         }
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
@@ -51,11 +56,14 @@ namespace MugenMvvm.Views.Components
             for (var i = 0; i < initializableViews.Length; i++)
                 initializableViews[i].Initialize(view, state, metadata);
             view.Components.AddComponent(this);
+            view.Target.BindableMembers().DataContext().SetValue(view.Target, view.ViewModel, MemberFlags.All, metadata);
         }
 
         protected virtual void Cleanup<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
         {
             view.Components.RemoveComponent(this);
+            if (ClearDataContext)
+                view.Target.BindableMembers().DataContext().SetValue(view.Target, null, MemberFlags.All, metadata);
         }
 
         #endregion

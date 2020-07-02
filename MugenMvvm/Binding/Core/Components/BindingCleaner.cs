@@ -25,8 +25,6 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (lifecycleState != BindingLifecycleState.Disposed)
                 return;
-            if (binding is MultiBinding multiBinding)
-                multiBinding.Expression?.Dispose();
             DefaultComponentExtensions.Dispose(binding.GetComponents().GetRawValue());
             binding.Target.Dispose();
             MugenBindingExtensions.DisposeBindingSource(binding.Source.GetRawValue());

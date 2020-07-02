@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Linq.Expressions;
-using MugenMvvm.Interfaces.App;
-using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface ILambdaExpressionCompiler : IComponent<IMugenApplication>
+    public interface ILambdaExpressionCompiler
     {
         Delegate Compile(LambdaExpression lambdaExpression);
 

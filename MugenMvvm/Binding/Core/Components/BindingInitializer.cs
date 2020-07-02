@@ -22,8 +22,8 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
+        private static readonly FuncIn<(BindingParameterExpression, bool, bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> GetEventHandlerDelegate = GetEventHandlerComponent;
         private readonly IExpressionCompiler? _compiler;
-        private readonly FuncIn<(BindingParameterExpression, bool, bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _getEventHandlerDelegate;
         private readonly BindingMemberExpressionCollectorVisitor _memberExpressionCollectorVisitor;
         private readonly BindingMemberExpressionVisitor _memberExpressionVisitor;
         private readonly IMemberManager? _memberManager;
@@ -40,7 +40,6 @@ namespace MugenMvvm.Binding.Core.Components
                 MemberFlags = MemberFlags.All & ~MemberFlags.NonPublic
             };
             _memberExpressionCollectorVisitor = new BindingMemberExpressionCollectorVisitor();
-            _getEventHandlerDelegate = GetEventHandlerComponent;
             _compiler = compiler;
             _memberManager = memberManager;
         }
@@ -49,9 +48,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Properties
 
-        public static string OneTimeBindingMode { get; set; } = "OneTime";
+        public string OneTimeBindingMode { get; set; } = BindingModeNameConstant.OneTime;
 
-        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods;
+        public BindingMemberExpressionFlags Flags { get; set; } = BindingMemberExpressionFlags.Observable;
 
         public MemberFlags MemberFlags
         {
@@ -92,15 +91,23 @@ namespace MugenMvvm.Binding.Core.Components
                 return;
             }
 
+            var flags = _memberExpressionVisitor.Flags;
             _memberExpressionVisitor.Flags &= ~(BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.ObservableMethods);
             _memberExpressionVisitor.IgnoreIndexMembers = true;
             _memberExpressionVisitor.IgnoreMethodMembers = true;
             context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
+            if (context.SourceExpression is IBindingMemberExpressionNode memberExpression)
+            {
+                if (flags.HasFlagEx(BindingMemberExpressionFlags.Observable))
+                    memberExpression.Flags |= BindingMemberExpressionFlags.Observable;
+                if (flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods))
+                    memberExpression.Flags |= BindingMemberExpressionFlags.ObservableMethods;
+            }
             _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.Observable;
             var parameter = context.TryGetParameterExpression(_compiler, _memberExpressionVisitor, _memberExpressionCollectorVisitor, BindingParameterNameConstant.CommandParameter, metadata);
             var toggle = context.TryGetParameterValue<bool?>(BindingParameterNameConstant.ToggleEnabled).GetValueOrDefault(ToggleEnabledState);
             context.BindingComponents[BindingParameterNameConstant.EventHandler] =
-                new DelegateBindingComponentProvider<(BindingParameterExpression, bool, bool)>(_getEventHandlerDelegate, (parameter, toggle, IsOneTime(context)));
+                new DelegateBindingComponentProvider<(BindingParameterExpression, bool, bool)>(GetEventHandlerDelegate, (parameter, toggle, IsOneTime(context)));
             context.BindingComponents[BindingParameterNameConstant.Mode] = null;
         }
 
@@ -108,7 +115,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Methods
 
-        private static bool IsOneTime(IBindingExpressionInitializerContext context)
+        private bool IsOneTime(IBindingExpressionInitializerContext context)
         {
             return context.TryGetParameterValue<string>(BindingParameterNameConstant.Mode) == OneTimeBindingMode || context.TryGetParameterValue<bool>(OneTimeBindingMode);
         }
@@ -124,7 +131,7 @@ namespace MugenMvvm.Binding.Core.Components
             return false;
         }
 
-        private IComponent<IBinding> GetEventHandlerComponent(in (BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static IComponent<IBinding> GetEventHandlerComponent(in (BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return EventHandlerBindingComponent.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle, state.isOneTime || binding.GetMetadataOrDefault().Get(BindingMetadata.IsMultiBinding));
         }

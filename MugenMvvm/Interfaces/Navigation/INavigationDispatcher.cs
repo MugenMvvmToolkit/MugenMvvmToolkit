@@ -4,14 +4,13 @@ using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Navigation
 {
-    public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>, IComponent<IMugenApplication>
+    public interface INavigationDispatcher : IComponentOwner<INavigationDispatcher>
     {
         INavigationContext? TryGetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null);

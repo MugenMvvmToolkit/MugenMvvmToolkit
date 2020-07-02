@@ -8,43 +8,24 @@
     <RootNamespace>MugenMvvm</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <DefineConstants>NET_CORE;SPAN_API</DefineConstants>
-    <AndroidClassParser>class-parse</AndroidClassParser>
-    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
-    <IsBindingProject>true</IsBindingProject>
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Platforms\**\*.cs" />
-    <None Include="Platforms\**\*.cs" />
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MugenMvvm.UnitTest</_Parameter1>
+    </AssemblyAttribute>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>MugenMvvm.Android</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
   <ItemGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
-    <Compile Include="Platforms\Android\**\*.cs" />
-    <LibraryProjectZip Include="Platforms\Android\Jars\mugenmvvm-core.aar" />
-    <TransformFile Include="Platforms\Android\Transforms\Metadata.xml" />
-    <TransformFile Include="Platforms\Android\Transforms\EnumFields.xml" />
-    <TransformFile Include="Platforms\Android\Transforms\EnumMethods.xml" />
     <Reference Include="System.Runtime.Serialization" />
-  </ItemGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <WarningsAsErrors>NU1605;</WarningsAsErrors>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <None Remove="Platforms\Android\Constants\AndroidInternalConstant.cs" />
-    <None Remove="Platforms\Android\Enums\AndroidViewLifecycleState.cs" />
-    <None Remove="Platforms\Android\Native\Views\ViewWrapper.cs" />
-    <None Remove="Platforms\Android\Presenters\ActivityViewModelPresenterMediator.cs" />
-    <None Remove="Platforms\Android\Views\AndroidNativeViewLifecycleStateDispatcher.cs" />
-    <None Remove="Platforms\Android\Views\AndroidViewFirstInitializer.cs" />
-    <None Remove="Platforms\Android\Views\AndroidViewModelViewMapping.cs" />
-    <None Remove="Platforms\Android\Views\AndroidViewModelViewMappingDecorator.cs" />
-    <None Remove="Platforms\Android\Views\AndroidViewStateDispatcher.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -52,8 +33,4 @@
     <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
-
-  <Target Name="BuildAndroidNative" BeforeTargets="PrepareForBuild" Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
-    <Exec Command="..\BuildAndroidNative.bat" />
-  </Target>
 </Project>

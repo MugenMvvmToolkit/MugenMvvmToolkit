@@ -437,33 +437,6 @@ namespace MugenMvvm.Binding.Extensions
                 AddInterface(types, interfaces[index], false);
         }
 
-        private static void TypeNameEqual(Type type, string typeName, out bool shortNameEqual, out bool fullNameEqual)
-        {
-            shortNameEqual = false;
-            fullNameEqual = false;
-            while (type != null)
-            {
-                if (!shortNameEqual)
-                {
-                    if (type.Name == typeName)
-                    {
-                        shortNameEqual = true;
-                        if (fullNameEqual)
-                            break;
-                    }
-                }
-
-                if (!fullNameEqual && (type.FullName == typeName || type.AssemblyQualifiedName == typeName))
-                {
-                    fullNameEqual = true;
-                    if (shortNameEqual)
-                        break;
-                }
-
-                type = type.BaseType;
-            }
-        }
-
         #endregion
     }
 }

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
-using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal
 {
-    public interface IAttachedValueManager : IComponentOwner<IAttachedValueManager>, IComponent<IMugenApplication>
+    public interface IAttachedValueManager : IComponentOwner<IAttachedValueManager>
     {
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, in TState state,
+            Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class;
 
         bool TryGet<TValue>(object item, string path, [MaybeNullWhen(false)] out TValue value);

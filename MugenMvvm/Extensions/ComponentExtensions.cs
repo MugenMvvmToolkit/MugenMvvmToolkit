@@ -21,7 +21,7 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static T DefaultIfNull<T>(this T? component) where T : class, IComponent
+        public static T DefaultIfNull<T>(this T? component) where T : class, IComponentOwner
         {
             return component ?? MugenService.Instance<T>();
         }
