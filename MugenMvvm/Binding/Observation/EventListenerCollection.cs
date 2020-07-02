@@ -14,6 +14,7 @@ namespace MugenMvvm.Binding.Observation
         private object? _listeners;
         private ushort _removedSize;
         private ushort _size;
+        private bool _raising;
 
         #endregion
 
@@ -42,26 +43,36 @@ namespace MugenMvvm.Binding.Observation
 
         public void Raise<TArg>(object? sender, in TArg args, IReadOnlyMetadataContext? metadata)
         {
-            if (_listeners is object?[] listeners)
+            var raising = _raising;
+            _raising = true;
+            try
             {
-                var hasDeadRef = false;
-                var size = _size;
-                for (var i = 0; i < size; i++)
+                if (_listeners is object?[] listeners)
                 {
-                    if (!WeakEventListener.TryHandle(listeners[i], sender, args, metadata) && RemoveAt(listeners, i))
-                        hasDeadRef = true;
-                }
+                    var hasDeadRef = false;
+                    var size = _size;
+                    for (var i = 0; i < size; i++)
+                    {
+                        if (!WeakEventListener.TryHandle(listeners[i], sender, args, metadata) && RemoveAt(listeners, i))
+                            hasDeadRef = true;
+                    }
 
-                if (hasDeadRef && ReferenceEquals(_listeners, listeners))
-                    TrimIfNeed(listeners);
+                    if (hasDeadRef && ReferenceEquals(_listeners, listeners))
+                        TrimIfNeed(listeners, true);
+                }
+                else if (_listeners != null && !WeakEventListener.TryHandle(_listeners, sender, args, metadata))
+                {
+                    _listeners = null;
+                    _size = 0;
+                    _removedSize = 0;
+                    OnListenersRemoved();
+                }
             }
-            else if (_listeners != null && !WeakEventListener.TryHandle(_listeners, sender, args, metadata))
+            finally
             {
-                _listeners = null;
-                _size = 0;
-                _removedSize = 0;
-                OnListenersRemoved();
+                _raising = raising;
             }
+
         }
 
         public ActionToken Add(IEventListener listener)
@@ -126,7 +137,7 @@ namespace MugenMvvm.Binding.Observation
                     if (ReferenceEquals(WeakEventListener.GetListener(listeners[i]), listener))
                     {
                         if (RemoveAt(listeners, i))
-                            TrimIfNeed(listeners);
+                            TrimIfNeed(listeners, false);
                         return true;
                     }
                 }
@@ -179,7 +190,7 @@ namespace MugenMvvm.Binding.Observation
                     if (ReferenceEquals(target, t))
                     {
                         if (RemoveAt(listeners, i))
-                            TrimIfNeed(listeners);
+                            TrimIfNeed(listeners, false);
                         break;
                     }
                 }
@@ -199,9 +210,10 @@ namespace MugenMvvm.Binding.Observation
             return true;
         }
 
-        private void TrimIfNeed(object?[] listeners)
+        private void TrimIfNeed(object?[] listeners, bool fromRaise)
         {
-            TrimIfNeedInternal(listeners);
+            if (fromRaise || !_raising)
+                TrimIfNeedInternal(listeners);
             if (_size - _removedSize == 0)
                 OnListenersRemoved();
         }
@@ -215,6 +227,9 @@ namespace MugenMvvm.Binding.Observation
                 _listeners = null;
                 return;
             }
+
+            if (listeners.Length <= 3)
+                return;
 
             if (listeners.Length / (float)(_size - _removedSize) <= 2)
                 return;

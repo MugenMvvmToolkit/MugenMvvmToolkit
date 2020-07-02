@@ -14,6 +14,7 @@ namespace MugenMvvm.Binding.Observation
         private WeakEventListener<string>[] _listeners;
         private ushort _removedSize;
         private ushort _size;
+        private bool _raising;
 
         #endregion
 
@@ -45,7 +46,7 @@ namespace MugenMvvm.Binding.Observation
                 if (ReferenceEquals(listener.Target, target) && listener.State == propertyName)
                 {
                     if (RemoveAt(listeners, i))
-                        TrimIfNeed();
+                        TrimIfNeed(false);
                     break;
                 }
             }
@@ -57,18 +58,28 @@ namespace MugenMvvm.Binding.Observation
 
         public void Raise<T>(object? sender, in T message, string memberName, IReadOnlyMetadataContext? metadata)
         {
-            var hasDeadRef = false;
-            var listeners = _listeners;
-            var size = _size;
-            for (var i = 0; i < size; i++)
+            var raising = _raising;
+            _raising = true;
+            try
             {
-                var listener = listeners[i];
-                if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(memberName, listener.State, true) && !listener.TryHandle(sender, message, metadata) && RemoveAt(listeners, i))
-                    hasDeadRef = true;
+                var hasDeadRef = false;
+                var listeners = _listeners;
+                var size = _size;
+                for (var i = 0; i < size; i++)
+                {
+                    var listener = listeners[i];
+                    if (!listener.IsEmpty && MugenExtensions.MemberNameEqual(memberName, listener.State, true) && !listener.TryHandle(sender, message, metadata) && RemoveAt(listeners, i))
+                        hasDeadRef = true;
+                }
+
+                if (hasDeadRef)
+                    TrimIfNeed(true);
+            }
+            finally
+            {
+                _raising = raising;
             }
 
-            if (hasDeadRef)
-                TrimIfNeed();
         }
 
         public ActionToken Add(IEventListener target, string memberName)
@@ -141,9 +152,10 @@ namespace MugenMvvm.Binding.Observation
             return true;
         }
 
-        private void TrimIfNeed()
+        private void TrimIfNeed(bool fromRaise)
         {
-            TrimIfNeedInternal();
+            if (fromRaise || !_raising)
+                TrimIfNeedInternal();
             if (_size - _removedSize == 0)
                 OnListenersRemoved();
         }
@@ -157,6 +169,9 @@ namespace MugenMvvm.Binding.Observation
                 _listeners = Default.Array<WeakEventListener<string>>();
                 return;
             }
+
+            if (_listeners.Length <= 3)
+                return;
 
             if (_listeners.Length / (float)(_size - _removedSize) <= 2)
                 return;

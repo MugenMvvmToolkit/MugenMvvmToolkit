@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Implementation of interfaces
 
-        public bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             var target = _targetRef.Target;
             if (target == null)
