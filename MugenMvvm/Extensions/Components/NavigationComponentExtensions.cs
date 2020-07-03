@@ -19,6 +19,7 @@ namespace MugenMvvm.Extensions.Components
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationEntry, nameof(navigationEntry));
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationContext);
@@ -34,8 +35,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
-            INavigationContext? navigationContext)
+        public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
@@ -45,13 +45,14 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static INavigationCallback? TryAddNavigationCallback<TRequest>(this INavigationCallbackManagerComponent[] components,
-            NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+            INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(callbackType, nameof(callbackType));
             for (var i = 0; i < components.Length; i++)
             {
-                var callback = components[i].TryAddNavigationCallback(callbackType, request, metadata);
+                var callback = components[i].TryAddNavigationCallback(navigationDispatcher, callbackType, request, metadata);
                 if (callback != null)
                     return callback;
             }
@@ -59,75 +60,80 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components, [DisallowNull] in TRequest request,
-            IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(this INavigationCallbackManagerComponent[] components,
+            INavigationDispatcher navigationDispatcher, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             if (components.Length == 1)
-                return components[0].TryGetNavigationCallbacks(request, metadata);
+                return components[0].TryGetNavigationCallbacks(navigationDispatcher, request, metadata);
             ItemOrList<INavigationCallback, List<INavigationCallback>> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetNavigationCallbacks(request, metadata));
+                result.AddRange(components[i].TryGetNavigationCallbacks(navigationDispatcher, request, metadata));
             return result.Cast<IReadOnlyList<INavigationCallback>>();
         }
 
-        public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, NavigationCallbackType callbackType, INavigationContext navigationContext)
+        public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(callbackType, nameof(callbackType));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             var result = false;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryInvokeNavigationCallbacks(callbackType, navigationContext))
+                if (components[i].TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext))
                     result = true;
             }
 
             return result;
         }
 
-        public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
+        public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(callbackType, nameof(callbackType));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             Should.NotBeNull(exception, nameof(exception));
             var result = false;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryInvokeNavigationCallbacks(callbackType, navigationContext, exception))
+                if (components[i].TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, exception))
                     result = true;
             }
 
             return result;
         }
 
-        public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components,
+        public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher,
             NavigationCallbackType callbackType, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(callbackType, nameof(callbackType));
             var result = false;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryInvokeNavigationCallbacks(callbackType, navigationContext, cancellationToken))
+                if (components[i].TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, cancellationToken))
                     result = true;
             }
 
             return result;
         }
 
-        public static INavigationContext? TryGetNavigationContext(this INavigationContextProviderComponent[] components, object? target, INavigationProvider navigationProvider, string navigationId,
-            NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata)
+        public static INavigationContext? TryGetNavigationContext(this INavigationContextProviderComponent[] components, INavigationDispatcher navigationDispatcher,
+            object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationProvider, nameof(navigationProvider));
             Should.NotBeNull(navigationId, nameof(navigationId));
             Should.NotBeNull(navigationType, nameof(navigationType));
             Should.NotBeNull(navigationMode, nameof(navigationMode));
             for (var i = 0; i < components.Length; i++)
             {
-                var context = components[i].TryGetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
+                var context = components[i].TryGetNavigationContext(navigationDispatcher, target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
                 if (context != null)
                     return context;
             }
@@ -135,14 +141,15 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             if (components.Length == 1)
-                return components[0].TryGetNavigationEntries(metadata);
+                return components[0].TryGetNavigationEntries(navigationDispatcher, metadata);
             ItemOrList<INavigationEntry, List<INavigationEntry>> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetNavigationEntries(metadata));
+                result.AddRange(components[i].TryGetNavigationEntries(navigationDispatcher, metadata));
             return result.Cast<IReadOnlyList<INavigationEntry>>();
         }
 

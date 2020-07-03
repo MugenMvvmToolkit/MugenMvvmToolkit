@@ -31,7 +31,7 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public INavigationCallback? TryAddNavigationCallback<TRequest>(NavigationCallbackType callbackType, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public INavigationCallback? TryAddNavigationCallback<TRequest>(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is IHasNavigationInfo hasNavigationInfo))
                 return null;
@@ -56,24 +56,24 @@ namespace MugenMvvm.Navigation.Components
             return null;
         }
 
-        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(INavigationDispatcher navigationDispatcher, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>())
                 return default;
             return GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), request as IHasTarget<object?>);
         }
 
-        public bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext)
+        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext)
         {
             return InvokeCallbacks(navigationContext, callbackType, null, false, default);
         }
 
-        public bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
+        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
         {
             return InvokeCallbacks(navigationContext, callbackType, exception, false, default);
         }
 
-        public bool TryInvokeNavigationCallbacks(NavigationCallbackType callbackType, INavigationContext navigationContext, CancellationToken cancellationToken)
+        public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             return InvokeCallbacks(navigationContext, callbackType, null, true, cancellationToken);
         }

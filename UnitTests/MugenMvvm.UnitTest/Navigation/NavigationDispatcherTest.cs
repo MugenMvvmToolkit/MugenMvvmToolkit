@@ -40,9 +40,10 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationContextProviderComponent
                 {
                     Priority = -i,
-                    TryGetNavigationContext = (t, provider, s, arg3, arg4, arg5) =>
+                    TryGetNavigationContext = (d, t, provider, s, arg3, arg4, arg5) =>
                     {
                         ++invokeCount;
+                        d.ShouldEqual(dispatcher);
                         t.ShouldEqual(this);
                         provider.ShouldEqual(context.NavigationProvider);
                         s.ShouldEqual(context.NavigationId);
@@ -82,8 +83,9 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationEntryProviderComponent
                 {
                     Priority = -i,
-                    TryGetNavigationEntries = (ctx) =>
+                    TryGetNavigationEntries = (d, ctx) =>
                     {
+                        d.ShouldEqual(dispatcher);
                         ctx.ShouldEqual(DefaultMetadata);
                         return new[] { info };
                     }
@@ -120,8 +122,9 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationCallbackManagerComponent
                 {
                     Priority = -i,
-                    TryGetNavigationCallbacks = (entry, t, ctx) =>
+                    TryGetNavigationCallbacks = (d, entry, t, ctx) =>
                     {
+                        d.ShouldEqual(dispatcher);
                         entry.ShouldEqual(navEntry);
                         t.ShouldEqual(navEntry.GetType());
                         ctx.ShouldEqual(DefaultMetadata);

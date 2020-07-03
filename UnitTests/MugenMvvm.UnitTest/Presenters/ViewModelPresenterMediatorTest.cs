@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTest.Presenters
             mediator.ShowViewHandler = context => mediator.OnViewShown();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (o, provider, nId, type, mode, m) =>
+                TryGetNavigationContext = (d, o, provider, nId, type, mode, m) =>
                 {
                     ++contextCount;
                     o.ShouldEqual(vm);
@@ -492,7 +492,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 };
                 navigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
                 {
-                    TryGetNavigationEntries = context =>
+                    TryGetNavigationEntries = (d, context) =>
                     {
                         context.ShouldEqual(DefaultMetadata);
                         return entries;
@@ -500,7 +500,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 });
                 navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
                 {
-                    TryGetNavigationCallbacks = (o, type, arg3) => callbacks
+                    TryGetNavigationCallbacks = (d, o, type, arg3) => callbacks
                 });
                 invoke = () => callbacks[0].SetResult(new NavigationContext(this, Default.NavigationProvider, "t", mediator.NavigationType, NavigationMode.New));
             }
@@ -539,7 +539,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
+                TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
             {
@@ -652,7 +652,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
+                TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
             {
@@ -721,7 +721,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
+                TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
             {
@@ -794,7 +794,7 @@ namespace MugenMvvm.UnitTest.Presenters
             };
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (o, provider, nId, type, mode, m) =>
+                TryGetNavigationContext = (d, o, provider, nId, type, mode, m) =>
                 {
                     ++contextCount;
                     o.ShouldEqual(vm);

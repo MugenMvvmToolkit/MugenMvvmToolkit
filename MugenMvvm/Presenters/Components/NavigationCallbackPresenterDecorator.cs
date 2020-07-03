@@ -56,8 +56,8 @@ namespace MugenMvvm.Presenters.Components
                     for (var i = 0; i < results.Count(); i++)
                     {
                         var result = results.Get(i);
-                        components.TryAddNavigationCallback(NavigationCallbackType.Showing, result, metadata);
-                        components.TryAddNavigationCallback(NavigationCallbackType.Close, result, metadata);
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, result, metadata);
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Close, result, metadata);
                     }
                 }
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Presenters.Components
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
                     for (var i = 0; i < results.Count(); i++)
-                        components.TryAddNavigationCallback(NavigationCallbackType.Closing, results.Get(i), metadata);
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Closing, results.Get(i), metadata);
                 }
 
                 return results;

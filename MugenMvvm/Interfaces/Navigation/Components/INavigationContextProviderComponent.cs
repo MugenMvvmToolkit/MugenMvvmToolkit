@@ -6,7 +6,7 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationContextProviderComponent : IComponent<INavigationDispatcher>
     {
-        INavigationContext? TryGetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId,
+        INavigationContext? TryGetNavigationContext(INavigationDispatcher navigationDispatcher, object? target, INavigationProvider navigationProvider, string navigationId,
             NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata);
     }
 }

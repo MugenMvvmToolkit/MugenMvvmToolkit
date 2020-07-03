@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             var mode = NavigationMode.Close;
             var metadata = new MetadataContext();
 
-            var context = component.TryGetNavigationContext(target, provider, id, type, mode, metadata)!;
+            var context = component.TryGetNavigationContext(null!, target, provider, id, type, mode, metadata)!;
             context.Target.ShouldEqual(target);
             context.NavigationProvider.ShouldEqual(provider);
             context.NavigationType.ShouldEqual(type);

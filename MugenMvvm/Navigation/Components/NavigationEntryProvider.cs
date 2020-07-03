@@ -95,7 +95,7 @@ namespace MugenMvvm.Navigation.Components
             }
         }
 
-        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
             ItemOrList<INavigationEntry, List<INavigationEntry>> result = default;
             lock (_navigationEntries)

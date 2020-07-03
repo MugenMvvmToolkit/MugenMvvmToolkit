@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             }, "t", Default.NavigationProvider, NavigationType.Popup);
             var component = new NavigationCallbackManager();
-            component.TryAddNavigationCallback(new NavigationCallbackType(int.MinValue), result, DefaultMetadata).ShouldBeNull();
+            component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), result, DefaultMetadata).ShouldBeNull();
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         {
             var result = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Popup);
             var component = new NavigationCallbackManager();
-            component.TryAddNavigationCallback(new NavigationCallbackType(int.MinValue), result, DefaultMetadata).ShouldBeNull();
+            component.TryAddNavigationCallback(null!, new NavigationCallbackType(int.MinValue), result, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -58,11 +58,11 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             for (var i = 0; i < count; i++)
             {
                 var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-                var callback = component.TryAddNavigationCallback(NavigationCallbackType.Showing, result, DefaultMetadata)!;
+                var callback = component.TryAddNavigationCallback(null!, NavigationCallbackType.Showing, result, DefaultMetadata)!;
                 callback.ShouldNotBeNull();
                 addedCallbacks.Add(callback);
-                component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
-                component.TryGetNavigationCallbacks(result, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
+                component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
+                component.TryGetNavigationCallbacks(null!, result, DefaultMetadata).AsList().SequenceEqual(addedCallbacks).ShouldBeTrue();
             }
             addedCallbacks.Count.ShouldEqual(1);
         }
@@ -86,7 +86,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var callback = component.TryAddNavigationCallback(type, result, DefaultMetadata)!;
+                var callback = component.TryAddNavigationCallback(null!, type, result, DefaultMetadata)!;
                 callbacks.Add(callback);
                 callback.AddCallback(new TestNavigationCallbackListener
                 {
@@ -101,12 +101,12 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             }
 
             var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
-            component.TryInvokeNavigationCallbacks(type, wrongIdCtx).ShouldBeFalse();
+            component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            component.TryInvokeNavigationCallbacks(type, navigationContext).ShouldBeTrue();
+            component.TryInvokeNavigationCallbacks(null!, type, navigationContext).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
+            component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -129,7 +129,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var callback = component.TryAddNavigationCallback(type, result, DefaultMetadata)!;
+                var callback = component.TryAddNavigationCallback(null!, type, result, DefaultMetadata)!;
                 callbacks.Add(callback);
                 callback.AddCallback(new TestNavigationCallbackListener
                 {
@@ -145,12 +145,12 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             }
 
             var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
-            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, exception).ShouldBeFalse();
+            component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx, exception).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            component.TryInvokeNavigationCallbacks(type, navigationContext, exception).ShouldBeTrue();
+            component.TryInvokeNavigationCallbacks(null!, type, navigationContext, exception).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
+            component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         [Theory]
@@ -173,7 +173,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             for (var i = 0; i < count; i++)
             {
-                var callback = component.TryAddNavigationCallback(type, result, DefaultMetadata)!;
+                var callback = component.TryAddNavigationCallback(null!, type, result, DefaultMetadata)!;
                 callbacks.Add(callback);
                 callback.AddCallback(new TestNavigationCallbackListener
                 {
@@ -189,12 +189,12 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             }
 
             var wrongIdCtx = new NavigationContext(target, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
-            component.TryInvokeNavigationCallbacks(type, wrongIdCtx, cancellationToken).ShouldBeFalse();
+            component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx, cancellationToken).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
-            component.TryInvokeNavigationCallbacks(type, navigationContext, cancellationToken).ShouldBeTrue();
+            component.TryInvokeNavigationCallbacks(null!, type, navigationContext, cancellationToken).ShouldBeTrue();
             callbacks.Count.ShouldEqual(0);
-            component.TryGetNavigationCallbacks(target, DefaultMetadata).AsList().ShouldBeEmpty();
+            component.TryGetNavigationCallbacks(null!, target, DefaultMetadata).AsList().ShouldBeEmpty();
         }
 
         #endregion

@@ -33,17 +33,17 @@ namespace MugenMvvm.Navigation
         public INavigationContext? TryGetNavigationContext(object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
+            return GetComponents<INavigationContextProviderComponent>(metadata).TryGetNavigationContext(this, target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
         }
 
         public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> GetNavigationEntries(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(metadata);
+            return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(this, metadata);
         }
 
         public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(request, metadata);
+            return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(this, request, metadata);
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)

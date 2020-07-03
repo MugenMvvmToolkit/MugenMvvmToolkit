@@ -22,22 +22,22 @@ namespace MugenMvvm.Navigation.Components
 
         protected override void OnNavigationFailed(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
-            InvokeCallbacks(navigationContext, NavigationCallbackType.Closing, exception, false, default);
-            InvokeCallbacks(navigationContext, NavigationCallbackType.Showing, exception, false, default);
-            InvokeCallbacks(navigationContext, NavigationCallbackType.Close, exception, false, default);
+            InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, exception, false, default);
+            InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, exception, false, default);
+            InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, exception, false, default);
         }
 
         protected override void OnNavigationCanceled(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             if (navigationContext.NavigationMode.IsClose)
-                InvokeCallbacks(navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
             else
             {
-                InvokeCallbacks(navigationContext, NavigationCallbackType.Showing, null, true, cancellationToken);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, true, cancellationToken);
                 if (navigationContext.NavigationMode.IsNew)
                 {
-                    InvokeCallbacks(navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
-                    InvokeCallbacks(navigationContext, NavigationCallbackType.Close, null, true, cancellationToken);
+                    InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, true, cancellationToken);
+                    InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, null, true, cancellationToken);
                 }
             }
         }
@@ -46,23 +46,23 @@ namespace MugenMvvm.Navigation.Components
         {
             if (navigationContext.NavigationMode.IsClose)
             {
-                InvokeCallbacks(navigationContext, NavigationCallbackType.Showing, null, false, default);
-                InvokeCallbacks(navigationContext, NavigationCallbackType.Closing, null, false, default);
-                InvokeCallbacks(navigationContext, NavigationCallbackType.Close, null, false, default);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, false, default);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Closing, null, false, default);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Close, null, false, default);
             }
             else
-                InvokeCallbacks(navigationContext, NavigationCallbackType.Showing, null, false, default);
+                InvokeCallbacks(navigationDispatcher, navigationContext, NavigationCallbackType.Showing, null, false, default);
         }
 
-        private void InvokeCallbacks(INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled, CancellationToken cancellationToken)
+        private void InvokeCallbacks(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled, CancellationToken cancellationToken)
         {
             var components = Owner.GetComponents<INavigationCallbackManagerComponent>(navigationContext.GetMetadataOrDefault());
             if (exception != null)
-                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, exception);
+                components.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, exception);
             else if (canceled)
-                components.TryInvokeNavigationCallbacks(callbackType, navigationContext, cancellationToken);
+                components.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext, cancellationToken);
             else
-                components.TryInvokeNavigationCallbacks(callbackType, navigationContext);
+                components.TryInvokeNavigationCallbacks(navigationDispatcher, callbackType, navigationContext);
         }
 
         #endregion
