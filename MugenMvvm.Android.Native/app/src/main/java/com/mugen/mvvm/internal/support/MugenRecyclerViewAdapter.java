@@ -92,7 +92,7 @@ public class MugenRecyclerViewAdapter extends RecyclerView.Adapter implements II
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
-        notifyItemChanged(positionStart, itemCount);
+        notifyItemRangeChanged(positionStart, itemCount);
     }
 
     @Override

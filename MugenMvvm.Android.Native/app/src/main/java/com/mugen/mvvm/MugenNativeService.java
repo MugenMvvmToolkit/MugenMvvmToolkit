@@ -15,13 +15,18 @@ public final class MugenNativeService {
     private MugenNativeService() {
     }
 
-    public static void initialize(Context context, boolean includeSupportLibs) {
-        MugenService.initialize(context, includeSupportLibs);
+    public static void initialize(Context context) {
+        MugenService.initialize(context);
     }
 
-    public static void nativeConfiguration(IViewBindCallback bindCallback) {
+    public static void nativeConfiguration(IViewBindCallback bindCallback, boolean includeSupportLibs) {
+        MugenService.initializeNative(includeSupportLibs);
         MugenService.addViewDispatcher(new NativeViewDispatcher(bindCallback));
         MugenService.addLifecycleDispatcher(new ViewWrapperCleanerLifecycleDispatcher());
+    }
+
+    public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
+        addLifecycleDispatcher(dispatcher, MugenService.IsNativeConfiguration);
     }
 
     public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher, boolean wrap) {

@@ -17,6 +17,8 @@ import com.mugen.mvvm.views.support.RecyclerViewWrapper;
 import java.util.ArrayList;
 
 public final class MugenService {
+    public static boolean IsNativeConfiguration;
+    public static boolean IncludeSupportLibs;
     private static Context _context;
     private final static ArrayList<ILifecycleDispatcher> _lifecycleDispatchers = new ArrayList<>();
     private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
@@ -24,7 +26,13 @@ public final class MugenService {
     private MugenService() {
     }
 
-    public static void initialize(Context context, boolean includeSupportLibs) {
+    public static void initialize(Context context) {
+        _context = context;
+    }
+
+    public static void initializeNative(boolean includeSupportLibs) {
+        IsNativeConfiguration = true;
+        IncludeSupportLibs = includeSupportLibs;
         MugenExtensions.addWrapperMapping(TextView.class, new IWrapperFactory() {
             @Override
             public Object wrap(Object view) {
@@ -60,7 +68,6 @@ public final class MugenService {
                 }
             });
         }
-        _context = context;
     }
 
     public static Context getAppContext() {

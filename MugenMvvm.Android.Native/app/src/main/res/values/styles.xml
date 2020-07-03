@@ -2,6 +2,7 @@
 <resources>
     <declare-styleable name="Bind">
         <attr name="bind" format="string"/>
+        <attr name="itemTemplate" format="integer"/>
         <attr name="disableParentObserver" format="boolean"/>
     </declare-styleable>
 </resources>

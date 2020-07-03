@@ -105,7 +105,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
 
     @Override
     public void onItemChanged(int position) {
-
+        notifyDataSetChanged();
     }
 
     @Override
@@ -125,7 +125,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
 
     @Override
     public void onItemRangeChanged(int positionStart, int itemCount) {
-
+        notifyDataSetChanged();
     }
 
     @Override
