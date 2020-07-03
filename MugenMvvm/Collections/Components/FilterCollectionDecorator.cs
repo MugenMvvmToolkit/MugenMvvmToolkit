@@ -13,25 +13,28 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class FilterObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollection<T>>, IObservableCollectionDecorator<T>, IEnumerable<T>, IHasPriority
+    public sealed class FilterCollectionDecorator<T> : AttachableComponentBase<IObservableCollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
     {
         #region Fields
 
+        private readonly Func<object?, bool> _internalFilter;
+        private ICollectionDecoratorManagerComponent? _decoratorManager;
         private Func<T, bool>? _filter;
 
         private int[] _keys;
         private int _size;
-        private T[] _values;
+        private object?[] _values;
 
         #endregion
 
         #region Constructors
 
-        public FilterObservableCollectionDecorator()
+        public FilterCollectionDecorator()
         {
             _keys = Default.Array<int>();
-            _values = Default.Array<T>();
+            _values = Default.Array<object?>();
             _size = 0;
+            _internalFilter = FilterInternal;
         }
 
         #endregion
@@ -43,45 +46,37 @@ namespace MugenMvvm.Collections.Components
             get => _filter;
             set
             {
-                if (_filter == value)
-                    return;
-                _filter = value;
-                UpdateFilterInternal(value);
+                if (_filter != value)
+                    UpdateFilterInternal(value, true);
             }
         }
 
         public int Priority { get; set; } = CollectionComponentPriority.FilterDecorator;
 
-        private IDecoratorManagerObservableCollectionComponent<T> Decorator => Owner.GetComponent<IDecoratorManagerObservableCollectionComponent<T>>();
-
-        private bool HasFilter => Filter != null && IsAttached;
+        private bool HasFilter => _filter != null && _decoratorManager != null;
 
         #endregion
 
         #region Implementation of interfaces
 
-        IEnumerable<T> IObservableCollectionDecorator<T>.DecorateItems(IEnumerable<T> items)
+        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection observableCollection, IEnumerable<object?> items)
         {
-            var filter = Filter;
-            if (filter == null)
-                return items;
-
-            return items.Where(filter);
+            return HasFilter ? items.Where(_internalFilter) : items;
         }
 
-        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnItemChanged(IObservableCollection observableCollection, ref object? item, ref int index, ref object? args)
         {
             if (!HasFilter)
                 return true;
 
-            var decoratorManager = Decorator;
+
             var filterIndex = IndexOfKey(index);
             if (FilterInternal(item))
             {
                 if (filterIndex == -1)
                 {
                     index = Add(index, item);
-                    decoratorManager.OnAdded(this, item, index);
+                    _decoratorManager!.OnAdded(observableCollection, this, item, index);
                 }
                 else
                     index = filterIndex;
@@ -92,13 +87,13 @@ namespace MugenMvvm.Collections.Components
             if (filterIndex != -1)
             {
                 RemoveAt(filterIndex);
-                decoratorManager.OnRemoved(this, item, filterIndex);
+                _decoratorManager!.OnRemoved(observableCollection, this, item, filterIndex);
             }
 
             return false;
         }
 
-        bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
+        bool ICollectionDecorator.OnAdded(IObservableCollection observableCollection, ref object? item, ref int index)
         {
             if (!HasFilter)
                 return true;
@@ -111,24 +106,23 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
+        bool ICollectionDecorator.OnReplaced(IObservableCollection observableCollection, ref object? oldItem, ref object? newItem, ref int index)
         {
             if (!HasFilter)
                 return true;
 
-            var decoratorManager = Decorator;
             var filterIndex = IndexOfKey(index);
             if (filterIndex == -1)
             {
                 if (FilterInternal(newItem))
-                    decoratorManager.OnAdded(this, newItem, Add(index, newItem));
+                    _decoratorManager!.OnAdded(observableCollection, this, newItem, Add(index, newItem));
 
                 return false;
             }
 
             if (FilterInternal(newItem))
             {
-                oldItem = GetValue(filterIndex);
+                oldItem = GetValue(filterIndex)!;
                 SetValue(filterIndex, newItem);
                 index = filterIndex;
                 return true;
@@ -136,11 +130,11 @@ namespace MugenMvvm.Collections.Components
 
             var oldValue = GetValue(filterIndex);
             RemoveAt(filterIndex);
-            decoratorManager.OnRemoved(this, oldValue, filterIndex);
+            _decoratorManager!.OnRemoved(observableCollection, this, oldValue, filterIndex);
             return false;
         }
 
-        bool IObservableCollectionDecorator<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
+        bool ICollectionDecorator.OnMoved(IObservableCollection observableCollection, ref object? item, ref int oldIndex, ref int newIndex)
         {
             if (!HasFilter)
                 return true;
@@ -158,7 +152,7 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnRemoved(ref T item, ref int index)
+        bool ICollectionDecorator.OnRemoved(IObservableCollection observableCollection, ref object? item, ref int index)
         {
             if (!HasFilter)
                 return true;
@@ -173,25 +167,24 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnReset(ref IEnumerable<T> items)
+        bool ICollectionDecorator.OnReset(IObservableCollection observableCollection, ref IEnumerable<object?> items)
         {
-            var filter = Filter;
-            if (filter == null)
+            if (!HasFilter)
                 return true;
 
             Clear();
-            UpdateItems(items, filter);
-            items = items.Where(filter);
+            UpdateItems(items);
+            items = this;
             return true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnCleared()
+        bool ICollectionDecorator.OnCleared(IObservableCollection observableCollection)
         {
             Clear();
             return true;
         }
 
-        public IEnumerator<T> GetEnumerator()
+        public IEnumerator<object?> GetEnumerator()
         {
             for (var i = 0; i < _size; i++)
                 yield return _values[i];
@@ -206,50 +199,57 @@ namespace MugenMvvm.Collections.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
+            _decoratorManager = owner.GetOrAddCollectionDecoratorManager();
             UpdateFilter();
         }
 
-        protected override void OnDetachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             Clear();
+            _decoratorManager = null;
         }
 
         public void UpdateFilter()
         {
-            UpdateFilterInternal(Filter);
+            UpdateFilterInternal(null, false);
         }
 
-        private void UpdateFilterInternal(Func<T, bool>? filter)
+        private void UpdateFilterInternal(Func<T, bool>? filter, bool setFilter)
         {
-            if (!IsAttached)
+            if (_decoratorManager == null)
+            {
+                if (setFilter)
+                    _filter = filter;
                 return;
+            }
 
-            var decoratorManager = Decorator;
             using (Owner.TryLock())
             {
+                if (setFilter)
+                    _filter = filter;
                 Clear();
-                if (filter != null)
-                    UpdateItems(decoratorManager.DecorateItems(this), filter);
-                decoratorManager.OnReset(this, this);
+                if (HasFilter)
+                    UpdateItems(_decoratorManager.DecorateItems(Owner, this));
+                _decoratorManager.OnReset(Owner, this, this);
             }
         }
 
-        private void UpdateItems(IEnumerable<T> items, Func<T, bool> filter)
+        private void UpdateItems(IEnumerable<object?> items)
         {
             var index = 0;
             foreach (var item in items)
             {
-                if (filter(item))
+                if (FilterInternal(item))
                     Add(index, item);
                 ++index;
             }
         }
 
-        private bool FilterInternal(T value)
+        private bool FilterInternal(object? value)
         {
-            return Filter?.Invoke(value) ?? true;
+            return _filter == null || !(value is T v) || _filter(v);
         }
 
         private void UpdateIndexes(int index, int value)
@@ -277,7 +277,7 @@ namespace MugenMvvm.Collections.Components
                 _keys[i] += value;
         }
 
-        private int Add(int key, T value)
+        private int Add<TItem>(int key, TItem value)
         {
             var num = Array.BinarySearch(_keys, 0, _size, key);
             if (num >= 0)
@@ -300,7 +300,7 @@ namespace MugenMvvm.Collections.Components
             return num;
         }
 
-        private T GetValue(int index)
+        private object? GetValue(int index)
         {
             if (index >= _size)
                 ExceptionManager.ThrowIntOutOfRangeCollection("index");
@@ -308,12 +308,12 @@ namespace MugenMvvm.Collections.Components
             return _values[index];
         }
 
-        private void SetValue(int index, T value)
+        private void SetValue<TItem>(int index, TItem value)
         {
             if (index >= _size)
                 ExceptionManager.ThrowIntOutOfRangeCollection("index");
 
-            _values[index] = value;
+            _values[index] = BoxingExtensions.Box(value);
         }
 
         private void RemoveAt(int index)
@@ -340,7 +340,7 @@ namespace MugenMvvm.Collections.Components
             SetCapacity(num);
         }
 
-        private int Insert(int index, int key, T value)
+        private int Insert<TItem>(int index, int key, TItem value)
         {
             if (_size == _keys.Length)
                 EnsureCapacity(_size + 1);
@@ -351,7 +351,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             _keys[index] = key;
-            _values[index] = value;
+            _values[index] = BoxingExtensions.Box(value);
             ++_size;
             return index;
         }
@@ -366,7 +366,7 @@ namespace MugenMvvm.Collections.Components
             if (value > 0)
             {
                 var keyArray = new int[value];
-                var objArray = new T[value];
+                var objArray = new object?[value];
                 if (_size > 0)
                 {
                     Array.Copy(_keys, 0, keyArray, 0, _size);
@@ -379,7 +379,7 @@ namespace MugenMvvm.Collections.Components
             else
             {
                 _keys = Default.Array<int>();
-                _values = Default.Array<T>();
+                _values = Default.Array<object?>();
             }
         }
 

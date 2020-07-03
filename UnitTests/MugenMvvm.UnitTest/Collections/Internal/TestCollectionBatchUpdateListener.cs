@@ -5,17 +5,17 @@ using Should;
 
 namespace MugenMvvm.UnitTest.Collections.Internal
 {
-    public class TestObservableCollectionBatchUpdateListener<T> : IObservableCollectionBatchUpdateListener<T>
+    public class TestCollectionBatchUpdateListener : ICollectionBatchUpdateListener
     {
         #region Fields
 
-        private readonly IObservableCollection<T> _collection;
+        private readonly IObservableCollection _collection;
 
         #endregion
 
         #region Constructors
 
-        public TestObservableCollectionBatchUpdateListener(IObservableCollection<T> collection)
+        public TestCollectionBatchUpdateListener(IObservableCollection collection)
         {
             _collection = collection;
         }
@@ -24,9 +24,9 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Properties
 
-        public Action<IObservableCollection<T>>? OnBeginBatchUpdate { get; set; }
+        public Action<IObservableCollection>? OnBeginBatchUpdate { get; set; }
 
-        public Action<IObservableCollection<T>>? OnEndBatchUpdate { get; set; }
+        public Action<IObservableCollection>? OnEndBatchUpdate { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Implementation of interfaces
 
-        void IObservableCollectionBatchUpdateListener<T>.OnBeginBatchUpdate(IObservableCollection<T> collection)
+        void ICollectionBatchUpdateListener.OnBeginBatchUpdate(IObservableCollection collection)
         {
             _collection.ShouldEqual(collection);
             if (OnBeginBatchUpdate == null && ThrowErrorNullDelegate)
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             OnBeginBatchUpdate?.Invoke(collection);
         }
 
-        void IObservableCollectionBatchUpdateListener<T>.OnEndBatchUpdate(IObservableCollection<T> collection)
+        void ICollectionBatchUpdateListener.OnEndBatchUpdate(IObservableCollection collection)
         {
             _collection.ShouldEqual(collection);
             if (OnEndBatchUpdate == null && ThrowErrorNullDelegate)

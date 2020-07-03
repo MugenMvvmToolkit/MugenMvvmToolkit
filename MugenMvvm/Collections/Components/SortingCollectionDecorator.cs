@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using MugenMvvm.Components;
@@ -11,18 +12,19 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Collections.Components
 {
-    public sealed class OrderedObservableCollectionDecorator<T> : AttachableComponentBase<IObservableCollection<T>>, IObservableCollectionDecorator<T>, IHasPriority
+    public sealed class SortingCollectionDecorator : AttachableComponentBase<IObservableCollection>, ICollectionDecorator, IEnumerable<object?>, IHasPriority
     {
         #region Fields
 
         private readonly OrderedItemComparer _comparer;
         private readonly List<OrderedItem> _items;
+        private ICollectionDecoratorManagerComponent? _decoratorManager;
 
         #endregion
 
         #region Constructors
 
-        public OrderedObservableCollectionDecorator(IComparer<T> comparer)
+        public SortingCollectionDecorator(IComparer<object?> comparer)
         {
             Should.NotBeNull(comparer, nameof(comparer));
             _comparer = new OrderedItemComparer(comparer);
@@ -33,26 +35,22 @@ namespace MugenMvvm.Collections.Components
 
         #region Properties
 
-        public IComparer<T> Comparer => _comparer.Comparer;
+        public IComparer<object?> Comparer => _comparer.Comparer;
 
         public int Priority { get; set; } = CollectionComponentPriority.OrderDecorator;
-
-        private IEnumerable<T> Items => _items.Select(item => item.Item);
-
-        private IDecoratorManagerObservableCollectionComponent<T> Decorator => Owner.GetComponent<IDecoratorManagerObservableCollectionComponent<T>>();
 
         #endregion
 
         #region Implementation of interfaces
 
-        IEnumerable<T> IObservableCollectionDecorator<T>.DecorateItems(IEnumerable<T> items)
+        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection observableCollection, IEnumerable<object?> items)
         {
             return items.OrderBy(arg => arg, Comparer);
         }
 
-        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnItemChanged(IObservableCollection observableCollection, ref object? item, ref int index, ref object? args)
         {
-            if (!IsAttached)
+            if (_decoratorManager == null)
                 return false;
 
             var oldIndex = GetIndexByOriginalIndex(index);
@@ -66,14 +64,14 @@ namespace MugenMvvm.Collections.Components
                 index = oldIndex;
             else
             {
-                Decorator.OnMoved(this, item, oldIndex, newIndex);
+                _decoratorManager.OnMoved(observableCollection, this, item, oldIndex, newIndex);
                 index = newIndex;
             }
 
             return true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
+        bool ICollectionDecorator.OnAdded(IObservableCollection observableCollection, ref object? item, ref int index)
         {
             UpdateIndexes(index, 1);
             var newIndex = GetInsertIndex(item);
@@ -82,26 +80,25 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
+        bool ICollectionDecorator.OnReplaced(IObservableCollection observableCollection, ref object? oldItem, ref object? newItem, ref int index)
         {
-            if (!IsAttached)
+            if (_decoratorManager == null)
                 return false;
 
             var oldIndex = GetIndexByOriginalIndex(index);
             if (oldIndex == -1)
                 return false;
 
-            var decoratorManager = Decorator;
             _items.RemoveAt(oldIndex);
-            decoratorManager.OnRemoved(this, oldItem, oldIndex);
+            _decoratorManager.OnRemoved(observableCollection, this, oldItem, oldIndex);
 
             var newIndex = GetInsertIndex(newItem);
             _items.Insert(newIndex, new OrderedItem(index, newItem));
-            decoratorManager.OnAdded(this, newItem, newIndex);
+            _decoratorManager.OnAdded(observableCollection, this, newItem, newIndex);
             return false;
         }
 
-        bool IObservableCollectionDecorator<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
+        bool ICollectionDecorator.OnMoved(IObservableCollection observableCollection, ref object? item, ref int oldIndex, ref int newIndex)
         {
             var index = GetIndexByOriginalIndex(oldIndex);
             UpdateIndexes(oldIndex + 1, -1);
@@ -117,7 +114,7 @@ namespace MugenMvvm.Collections.Components
             return false;
         }
 
-        bool IObservableCollectionDecorator<T>.OnRemoved(ref T item, ref int index)
+        bool ICollectionDecorator.OnRemoved(IObservableCollection observableCollection, ref object? item, ref int index)
         {
             var indexToRemove = GetIndexByOriginalIndex(index);
             UpdateIndexes(index, -1);
@@ -129,54 +126,63 @@ namespace MugenMvvm.Collections.Components
             return true;
         }
 
-        public bool OnReset(ref IEnumerable<T> items)
+        public bool OnReset(IObservableCollection observableCollection, ref IEnumerable<object?> items)
         {
             Reset(items);
-            items = Items;
+            items = this;
             return true;
         }
 
-        public bool OnCleared()
+        public bool OnCleared(IObservableCollection observableCollection)
         {
             _items.Clear();
             return true;
         }
+
+        public IEnumerator<object?> GetEnumerator()
+        {
+            for (var i = 0; i < _items.Count; i++)
+                yield return _items[i].Item;
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         #endregion
 
         #region Methods
 
-        protected override void OnAttachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
+            _decoratorManager = owner.GetOrAddCollectionDecoratorManager();
             Reorder();
         }
 
-        protected override void OnDetachedInternal(IObservableCollection<T> owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             _items.Clear();
+            _decoratorManager = null;
         }
 
         public void Reorder()
         {
-            if (!IsAttached)
+            if (_decoratorManager == null)
                 return;
 
-            var decoratorManager = Decorator;
             using (Owner.TryLock())
             {
-                Reset(decoratorManager.DecorateItems(this));
-                decoratorManager.OnReset(this, Items);
+                Reset(_decoratorManager.DecorateItems(Owner, this));
+                _decoratorManager.OnReset(Owner, this, this);
             }
         }
 
-        private void Reset(IEnumerable<T> items)
+        private void Reset(IEnumerable<object?> items)
         {
             _items.Clear();
             _items.AddRange(items.Select((arg1, i) => new OrderedItem(i, arg1)));
             _items.Sort(_comparer);
         }
 
-        private int GetInsertIndex(T item)
+        private int GetInsertIndex(object? item)
         {
             var num = _items.BinarySearch(new OrderedItem(-1, item), _comparer);
             if (num >= 0)
@@ -218,13 +224,13 @@ namespace MugenMvvm.Collections.Components
         {
             #region Fields
 
-            public readonly IComparer<T> Comparer;
+            public readonly IComparer<object?> Comparer;
 
             #endregion
 
             #region Constructors
 
-            public OrderedItemComparer(IComparer<T> comparer)
+            public OrderedItemComparer(IComparer<object?> comparer)
             {
                 Comparer = comparer;
             }
@@ -246,14 +252,14 @@ namespace MugenMvvm.Collections.Components
         {
             #region Fields
 
-            public readonly T Item;
+            public readonly object? Item;
             public int OriginalIndex;
 
             #endregion
 
             #region Constructors
 
-            public OrderedItem(int originalIndex, T item)
+            public OrderedItem(int originalIndex, object? item)
             {
                 OriginalIndex = originalIndex;
                 Item = item;

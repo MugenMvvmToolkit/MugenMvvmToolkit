@@ -2,8 +2,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Internal;
@@ -34,9 +36,26 @@ namespace MugenMvvm.Extensions
                 list.Get().AddRange(items);
         }
 
-        public static ActionToken TryLock<T>(this IObservableCollection<T>? observableCollection)
+        public static ICollectionDecoratorManagerComponent GetOrAddCollectionDecoratorManager(this IObservableCollectionBase collection)
         {
-            if (!(observableCollection is ICollection c))
+            Should.NotBeNull(collection, nameof(collection));
+            return collection.GetOrAddComponent(context => CollectionDecoratorManager.Instance);
+        }
+
+        [return: NotNullIfNotNull("collection")]
+        public static IEnumerable<object?>? DecorateItems(this IObservableCollectionBase collection)
+        {
+            if (collection == null)
+                return null;
+            var component = collection.GetComponentOptional<ICollectionDecoratorManagerComponent>();
+            if (component == null)
+                return collection as IEnumerable<object?> ?? collection.OfType<object?>();
+            return component.DecorateItems((IObservableCollection)collection);
+        }
+
+        public static ActionToken TryLock(this IObservableCollectionBase? collection)
+        {
+            if (!(collection is ICollection c))
                 return default;
 
             bool taken = false;
@@ -45,17 +64,6 @@ namespace MugenMvvm.Extensions
             if (taken)
                 return new ActionToken((o, _) => Monitor.Exit(o), locker);
             return default;
-        }
-
-        [return: NotNullIfNotNull("observableCollection")]
-        public static IEnumerable<T>? DecorateItems<T>(this IObservableCollection<T>? observableCollection)
-        {
-            if (observableCollection == null)
-                return null;
-            var component = observableCollection.GetComponentOptional<IDecoratorManagerObservableCollectionComponent<T>>();
-            if (component == null)
-                return observableCollection;
-            return component.DecorateItems();
         }
 
         public static void AddRange<T>(this ICollection<T> items, IReadOnlyList<T> value)

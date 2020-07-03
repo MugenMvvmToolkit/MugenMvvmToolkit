@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         public static BindablePropertyDescriptor<T, object?> CommandParameter<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(CommandParameter);
 
-        public static BindableMethodDescriptor<T, string, object?> ElementSourceMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(ElementSource);
+        public static BindableMethodDescriptor<T, object, object?> ElementSourceMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(ElementSource);
 
         public static BindableMethodDescriptor<T, string, int, object?> RelativeSourceMethod<T>(this IBindableMembersDescriptor<T> _) where T : class => nameof(RelativeSource);
 

@@ -11,7 +11,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Collections.Components
 {
-    public class OrderedObservableCollectionDecoratorTest : UnitTestBase, IComparer<int>
+    public class SortingCollectionDecoratorTest : UnitTestBase, IComparer<object?>
     {
         #region Properties
 
@@ -21,8 +21,10 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
         #region Implementation of interfaces
 
-        int IComparer<int>.Compare(int x, int y)
+        int IComparer<object?>.Compare(object? x1, object? x2)
         {
+            var x = (int)x1!;
+            var y = (int)x2!;
             if (DefaultComparer)
                 return Comparer<int>.Default.Compare(x, y);
             return y.CompareTo(x);
@@ -42,8 +44,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             {
                 1, 2, 3, 4, 5, 6, 6
             };
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -52,13 +53,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var items = observableCollection.OrderBy(i => i, this);
 
             decorator.Reorder();
-            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems()).ShouldBeTrue();
+            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems().Cast<int>()).ShouldBeTrue();
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             DefaultComparer = !defaultComparer;
 
             decorator.Reorder();
-            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems()).ShouldBeTrue();
+            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems().Cast<int>()).ShouldBeTrue();
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
         }
 
@@ -70,8 +71,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -100,8 +100,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -132,8 +131,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -159,8 +157,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -189,8 +186,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -216,8 +212,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -249,8 +244,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -275,8 +269,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -287,7 +280,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 observableCollection.Add(i);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
+            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
         }
 
@@ -299,8 +292,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -320,15 +312,16 @@ namespace MugenMvvm.UnitTest.Collections.Components
         [InlineData(false)]
         public void ItemChangedShouldTrackChanges(bool defaultComparer)
         {
-            var comparer = Comparer<TestCollectionItem>.Create((item, collectionItem) =>
+            var comparer = Comparer<object?>.Create((x1, x2) =>
             {
+                var item = (TestCollectionItem)x1!;
+                var collectionItem = (TestCollectionItem)x2!;
                 if (defaultComparer)
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
             });
             var observableCollection = new SynchronizedObservableCollection<TestCollectionItem>();
-            observableCollection.AddComponent(new DecoratorManager<TestCollectionItem>());
-            var decorator = new OrderedObservableCollectionDecorator<TestCollectionItem>(comparer);
+            var decorator = new SortingCollectionDecorator(comparer);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
@@ -336,7 +329,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var items = observableCollection.OrderBy(item => item, comparer);
 
             for (var i = 0; i < 100; i++)
-                observableCollection.Add(new TestCollectionItem {Id = i});
+                observableCollection.Add(new TestCollectionItem { Id = i });
 
             for (var i = 0; i < 100; i++)
             {
@@ -354,8 +347,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -374,7 +366,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             observableCollection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] {1, 2, 3, 4, 5});
+            observableCollection.Reset(new[] { 1, 2, 3, 4, 5 });
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;
@@ -395,8 +387,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             DefaultComparer = defaultComparer;
 
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new OrderedObservableCollectionDecorator<int>(this);
+            var decorator = new SortingCollectionDecorator(this);
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -415,7 +406,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             observableCollection.RemoveAt(0);
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
-            observableCollection.Reset(new[] {Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5});
+            observableCollection.Reset(new[] { Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), Guid.NewGuid().GetHashCode(), 4, 5 });
             tracker.ChangedItems.SequenceEqual(items).ShouldBeTrue();
 
             observableCollection[0] = 200;

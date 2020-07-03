@@ -31,6 +31,7 @@ namespace MugenMvvm.Binding.Members.Builders
         internal bool IsInherits;
         internal bool IsWrap;
         internal bool HasDefaultValueField;
+        internal bool IsNonObservable;
 
         #endregion
 
@@ -49,6 +50,7 @@ namespace MugenMvvm.Binding.Members.Builders
             IsStatic = false;
             IsInherits = false;
             IsWrap = false;
+            IsNonObservable = false;
             DefaultValueField = default!;
             HasDefaultValueField = false;
             PropertyType = propertyType;
@@ -115,6 +117,12 @@ namespace MugenMvvm.Binding.Members.Builders
             return CustomGetter(closure.GetValue).CustomSetter(closure.SetValue).ObservableHandler(closure.TryObserve);
         }
 
+        public PropertyBuilder<TTarget, TValue> NonObservable()
+        {
+            IsNonObservable = true;
+            return this;
+        }
+
         public PropertyBuilder<TTarget, TValue> AttachedHandler(MemberAttachedDelegate<IAccessorMemberInfo, TTarget> attachedHandler)
         {
             Should.NotBeNull(attachedHandler, nameof(attachedHandler));
@@ -177,7 +185,7 @@ namespace MugenMvvm.Binding.Members.Builders
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             return new DelegateAccessorMemberInfo<TTarget, TValue, TState>(Name, DeclaringType, PropertyType,
-                AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, tryObserve, raise);
+                AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, IsNonObservable ? null : tryObserve, raise);
         }
 
         #endregion

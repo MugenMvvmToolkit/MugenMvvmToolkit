@@ -1,27 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.UnitTest.Collections.Internal
 {
-    public class TestObservableCollectionDecorator<T> : IObservableCollectionDecorator<T>, IHasPriority
+    public class TestCollectionDecorator : ICollectionDecorator, IHasPriority
     {
         #region Properties
 
-        public Func<IEnumerable<T>, IEnumerable<T>>? DecorateItems { get; set; }
+        public Func<IEnumerable<object?>, IEnumerable<object?>>? DecorateItems { get; set; }
 
-        public FuncRef<T, int, bool>? OnAdded { get; set; }
+        public FuncRef<object?, int, bool>? OnAdded { get; set; }
 
-        public FuncRef<T, T, int, bool>? OnReplaced { get; set; }
+        public FuncRef<object?, object?, int, bool>? OnReplaced { get; set; }
 
-        public FuncRef<T, int, int, bool>? OnMoved { get; set; }
+        public FuncRef<object?, int, int, bool>? OnMoved { get; set; }
 
-        public FuncRef<T, int, bool>? OnRemoved { get; set; }
+        public FuncRef<object?, int, bool>? OnRemoved { get; set; }
 
-        public FuncRef<IEnumerable<T>, bool>? OnReset { get; set; }
+        public FuncRef<IEnumerable<object?>, bool>? OnReset { get; set; }
 
-        public FuncRef<T, int, object?, bool>? OnItemChanged { get; set; }
+        public FuncRef<object?, int, object?, bool>? OnItemChanged { get; set; }
 
         public Func<bool>? OnCleared { get; set; }
 
@@ -33,56 +34,56 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Implementation of interfaces
 
-        IEnumerable<T> IObservableCollectionDecorator<T>.DecorateItems(IEnumerable<T> items)
+        IEnumerable<object?> ICollectionDecorator.DecorateItems(IObservableCollection collection, IEnumerable<object?> items)
         {
             if (DecorateItems == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return DecorateItems?.Invoke(items) ?? items;
         }
 
-        bool IObservableCollectionDecorator<T>.OnItemChanged(ref T item, ref int index, ref object? args)
+        bool ICollectionDecorator.OnItemChanged(IObservableCollection collection, ref object? item, ref int index, ref object? args)
         {
             if (OnItemChanged == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnItemChanged?.Invoke(ref item, ref index, ref args) ?? true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnAdded(ref T item, ref int index)
+        bool ICollectionDecorator.OnAdded(IObservableCollection collection, ref object? item, ref int index)
         {
             if (OnAdded == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnAdded?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnReplaced(ref T oldItem, ref T newItem, ref int index)
+        bool ICollectionDecorator.OnReplaced(IObservableCollection collection, ref object? oldItem, ref object? newItem, ref int index)
         {
             if (OnReplaced == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnReplaced?.Invoke(ref oldItem, ref newItem, ref index) ?? true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnMoved(ref T item, ref int oldIndex, ref int newIndex)
+        bool ICollectionDecorator.OnMoved(IObservableCollection collection, ref object? item, ref int oldIndex, ref int newIndex)
         {
             if (OnMoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnMoved?.Invoke(ref item, ref oldIndex, ref newIndex) ?? true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnRemoved(ref T item, ref int index)
+        bool ICollectionDecorator.OnRemoved(IObservableCollection collection, ref object? item, ref int index)
         {
             if (OnRemoved == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnRemoved?.Invoke(ref item, ref index) ?? true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnReset(ref IEnumerable<T> items)
+        bool ICollectionDecorator.OnReset(IObservableCollection collection, ref IEnumerable<object?> items)
         {
             if (OnReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
             return OnReset?.Invoke(ref items) ?? true;
         }
 
-        bool IObservableCollectionDecorator<T>.OnCleared()
+        bool ICollectionDecorator.OnCleared(IObservableCollection collection)
         {
             if (OnCleared == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();

@@ -10,7 +10,7 @@ using Should;
 
 namespace MugenMvvm.UnitTest.Collections.Internal
 {
-    public class ObservableCollectionTracker<T> : IObservableCollectionChangedListener<T>
+    public class ObservableCollectionTracker<TItem> : ICollectionChangedListener
     {
         #region Fields
 
@@ -23,49 +23,49 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         public ObservableCollectionTracker()
         {
-            ChangedItems = new List<T>();
+            ChangedItems = new List<TItem>();
         }
 
         #endregion
 
         #region Properties
 
-        public List<T> ChangedItems { get; }
+        public List<TItem> ChangedItems { get; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        public void OnItemChanged(IObservableCollection<T> collection, T item, int index, object? args)
+        public void OnItemChanged<T>(IObservableCollection<T> collection, T item, int index, object? args)
         {
         }
 
-        public void OnAdded(IObservableCollection<T> collection, T item, int index)
+        public void OnAdded<T>(IObservableCollection<T> collection, T item, int index)
         {
             OnAddEvent(ChangedItems, new[] {item}, index);
         }
 
-        public void OnReplaced(IObservableCollection<T> collection, T oldItem, T newItem, int index)
+        public void OnReplaced<T>(IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             OnReplaceEvent(ChangedItems, new[] {oldItem}, new[] {newItem}, index);
         }
 
-        public void OnMoved(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        public void OnMoved<T>(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             OnMoveEvent(ChangedItems, new[] {item}, oldIndex, newIndex);
         }
 
-        public void OnRemoved(IObservableCollection<T> collection, T item, int index)
+        public void OnRemoved<T>(IObservableCollection<T> collection, T item, int index)
         {
             OnRemoveEvent(ChangedItems, new[] {item}, index);
         }
 
-        public void OnReset(IObservableCollection<T> collection, IEnumerable<T> items)
+        public void OnReset<T>(IObservableCollection<T> collection, IEnumerable<T> items)
         {
             OnReset(ChangedItems, items);
         }
 
-        public void OnCleared(IObservableCollection<T> collection)
+        public void OnCleared<T>(IObservableCollection<T> collection)
         {
             OnReset(ChangedItems, Enumerable.Empty<T>());
         }
@@ -83,16 +83,16 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _countRaised = false;
         }
 
-        private static void OnAddEvent(List<T> items, IList newItems, int index)
+        private static void OnAddEvent(List<TItem> items, IList newItems, int index)
         {
-            foreach (T newItem in newItems)
+            foreach (TItem newItem in newItems)
             {
                 items.Insert(index, newItem);
                 index++;
             }
         }
 
-        private static void OnRemoveEvent(List<T> items, IList oldItems, int index)
+        private static void OnRemoveEvent(List<TItem> items, IList oldItems, int index)
         {
             if (oldItems.Count > 1)
                 throw new NotSupportedException();
@@ -100,28 +100,28 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             items.RemoveAt(index);
         }
 
-        private static void OnMoveEvent(List<T> items, IList oldItems, int oldIndex, int newIndex)
+        private static void OnMoveEvent(List<TItem> items, IList oldItems, int oldIndex, int newIndex)
         {
             if (oldItems.Count > 1)
                 throw new NotSupportedException();
 
             items[oldIndex]!.ShouldEqual(oldItems[0]);
             items.RemoveAt(oldIndex);
-            items.Insert(newIndex, (T) oldItems[0]);
+            items.Insert(newIndex, (TItem) oldItems[0]);
         }
 
-        private static void OnReplaceEvent(List<T> items, IList oldItems, IList newItems, int index)
+        private static void OnReplaceEvent(List<TItem> items, IList oldItems, IList newItems, int index)
         {
             if (oldItems.Count > 1 || newItems.Count > 1)
                 throw new NotSupportedException();
             items[index]!.ShouldEqual(oldItems[0]);
-            items[index] = (T) newItems[0];
+            items[index] = (TItem) newItems[0];
         }
 
-        private void OnReset(List<T> items, IEnumerable<T> resetItems)
+        private void OnReset<T>(List<TItem> items, IEnumerable<T> resetItems)
         {
             items.Clear();
-            items.AddRange(resetItems);
+            items.AddRange(resetItems.Cast<TItem>());
         }
 
         public void CollectionOnPropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
                     CheckPropertyChanged(false);
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    OnReset(items, (IEnumerable<T>) sender);
+                    OnReset(items, (IEnumerable<TItem>) sender);
                     CheckPropertyChanged(true);
                     break;
                 default:

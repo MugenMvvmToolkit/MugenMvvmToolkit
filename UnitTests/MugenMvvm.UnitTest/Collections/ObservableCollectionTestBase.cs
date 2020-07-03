@@ -343,7 +343,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var collectionListener = new TestObservableCollectionBatchUpdateListener<TestCollectionItem>(collection)
+                var collectionListener = new TestCollectionBatchUpdateListener((IObservableCollection)collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnBeginBatchUpdate = items => begin++,
@@ -387,7 +387,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanAdd = (items, item, index) =>
                     {
@@ -401,7 +401,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnAdding = (items, item, index) =>
@@ -414,7 +414,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnAdded = (items, item, index) =>
@@ -470,7 +470,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanAdd = (items, item, index) =>
                     {
@@ -484,7 +484,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnAdding = (items, item, index) =>
@@ -497,7 +497,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnAdded = (items, item, index) =>
@@ -555,7 +555,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanReplace = (items, oldItem, newItem, index) =>
                     {
@@ -570,7 +570,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnReplacing = (items, oldItem, newItem, index) =>
@@ -584,7 +584,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnReplaced = (items, oldItem, newItem, index) =>
@@ -646,7 +646,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanMove = (items, item, oldIndex, newIndex) =>
                     {
@@ -661,7 +661,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnMoving = (items, item, oldIndex, newIndex) =>
@@ -675,7 +675,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnMoved = (items, item, oldIndex, newIndex) =>
@@ -736,7 +736,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanRemove = (items, item, index) =>
                     {
@@ -750,7 +750,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnRemoving = (items, item, index) =>
@@ -763,7 +763,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnRemoved = (items, item, index) =>
@@ -821,7 +821,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanRemove = (items, item, index) =>
                     {
@@ -835,7 +835,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnRemoving = (items, item, index) =>
@@ -848,7 +848,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnRemoved = (items, item, index) =>
@@ -905,7 +905,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanReset = (items, enumerable) =>
                     {
@@ -918,7 +918,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnResetting = (items, enumerable) =>
@@ -930,7 +930,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnReset = (items, enumerable) =>
@@ -984,7 +984,7 @@ namespace MugenMvvm.UnitTest.Collections
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var conditionListener = new TestConditionObservableCollectionComponent<TestCollectionItem>(collection)
+                var conditionListener = new TestConditionCollectionComponent<TestCollectionItem>(collection)
                 {
                     CanClear = items =>
                     {
@@ -997,7 +997,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(conditionListener);
 
-                var changingListener = new TestObservableCollectionChangingListener<TestCollectionItem>(collection)
+                var changingListener = new TestCollectionChangingListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnClearing = items =>
@@ -1009,7 +1009,7 @@ namespace MugenMvvm.UnitTest.Collections
                 };
                 collection.AddComponent(changingListener);
 
-                var changedListener = new TestObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionChangedListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnCleared = items =>

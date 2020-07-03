@@ -12,7 +12,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Collections.Components
 {
-    public class DecoratorManagerTest : UnitTestBase
+    public class CollectionDecoratorManagerTest : UnitTestBase
     {
         #region Methods
 
@@ -24,8 +24,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
             var decoratedItems = new[] { item1 };
             var collection = CreateCollection(item1, item2);
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
-            var decorator = new TestObservableCollectionDecorator<TestCollectionItem>
+            collection.AddComponent(CollectionDecoratorManager.Instance);
+            var decorator = new TestCollectionDecorator
             {
                 DecorateItems = items =>
                 {
@@ -47,8 +47,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var decoratedItems1 = new[] { item2 };
             var decoratedItems2 = new[] { item1 };
             var collection = CreateCollection(item1, item2);
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
-            var decorator1 = new TestObservableCollectionDecorator<TestCollectionItem>
+            collection.AddComponent(CollectionDecoratorManager.Instance);
+            var decorator1 = new TestCollectionDecorator
             {
                 DecorateItems = items =>
                 {
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             };
             collection.AddComponent(decorator1);
 
-            var decorator2 = new TestObservableCollectionDecorator<TestCollectionItem>
+            var decorator2 = new TestCollectionDecorator
             {
                 DecorateItems = items =>
                 {
@@ -79,11 +79,11 @@ namespace MugenMvvm.UnitTest.Collections.Components
         [InlineData(true, false)]
         public void DecoratorShouldTrackItemsMulti1(bool defaultComparer, bool filterFirst)
         {
-            var comparer = defaultComparer ? Comparer<int>.Default : Comparer<int>.Create((i, i1) => i1.CompareTo(i));
+            var comparer = defaultComparer ? Comparer<object?>.Create((o, o1) => Comparer<int>.Default.Compare((int)o!, (int)o1!)) : Comparer<object?>.Create((i, i1) => ((int)i1!).CompareTo((int)i!));
             var observableCollection = CreateCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator1 = new OrderedObservableCollectionDecorator<int>(comparer);
-            var decorator2 = new FilterObservableCollectionDecorator<int> { Filter = i => i % 2 == 0 };
+            observableCollection.AddComponent(CollectionDecoratorManager.Instance);
+            var decorator1 = new SortingCollectionDecorator(comparer);
+            var decorator2 = new FilterCollectionDecorator<int> { Filter = i => i % 2 == 0 };
             if (filterFirst)
                 decorator2.Priority = int.MaxValue;
             else
@@ -154,16 +154,18 @@ namespace MugenMvvm.UnitTest.Collections.Components
         [InlineData(true, false)]
         public void DecoratorShouldTrackItemsMulti2(bool defaultComparer, bool filterFirst)
         {
-            var comparer = Comparer<TestCollectionItem>.Create((item, collectionItem) =>
+            var comparer = Comparer<object?>.Create((x1, x2) =>
             {
+                var item = (TestCollectionItem)x1!;
+                var collectionItem = (TestCollectionItem)x2!;
                 if (defaultComparer)
                     return item.Id.CompareTo(collectionItem.Id);
                 return collectionItem.Id.CompareTo(item.Id);
             });
             var observableCollection = CreateCollection<TestCollectionItem>();
-            observableCollection.AddComponent(new DecoratorManager<TestCollectionItem>());
-            var decorator1 = new OrderedObservableCollectionDecorator<TestCollectionItem>(comparer);
-            var decorator2 = new FilterObservableCollectionDecorator<TestCollectionItem> { Filter = i => i.Id % 2 == 0 };
+            observableCollection.AddComponent(CollectionDecoratorManager.Instance);
+            var decorator1 = new SortingCollectionDecorator(comparer);
+            var decorator2 = new FilterCollectionDecorator<TestCollectionItem> { Filter = i => i.Id % 2 == 0 };
             if (filterFirst)
                 decorator2.Priority = int.MaxValue;
             else
@@ -250,11 +252,11 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnAdded = (items, item, index) =>
@@ -289,11 +291,11 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnAdded = (items, item, index) =>
@@ -328,13 +330,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedOldItem = null, expectedNewItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnReplaced = (items, oldItem, newItem, index) =>
@@ -372,13 +374,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedNewIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
             for (var i = 0; i < count + 1; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnMoved = (items, item, oldIndex, newIndex) =>
@@ -415,13 +417,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnRemoved = (items, item, index) =>
@@ -456,13 +458,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var expectedIndex = 0;
             TestCollectionItem? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnRemoved = (items, item, index) =>
@@ -496,13 +498,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
             var reset = 0;
             IEnumerable<TestCollectionItem>? expectedItem = null;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnReset = (items, enumerable) =>
@@ -533,13 +535,13 @@ namespace MugenMvvm.UnitTest.Collections.Components
         {
             var clear = 0;
             var collection = CreateCollection<TestCollectionItem>();
-            collection.AddComponent(new DecoratorManager<TestCollectionItem>());
+            collection.AddComponent(CollectionDecoratorManager.Instance);
             for (var i = 0; i < count; i++)
                 collection.Add(new TestCollectionItem());
 
             for (var i = 0; i < listenersCount; i++)
             {
-                var changedListener = new TestDecoratorObservableCollectionChangedListener<TestCollectionItem>(collection)
+                var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
                     OnCleared = items =>

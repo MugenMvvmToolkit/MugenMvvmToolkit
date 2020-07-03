@@ -10,7 +10,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Collections.Components
 {
-    public class FilterObservableCollectionDecoratorTest : UnitTestBase
+    public class FilterCollectionDecoratorTest : UnitTestBase
     {
         #region Methods
 
@@ -18,8 +18,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ShouldTrackChangesEmptyFilter()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int>();
+            var decorator = new FilterCollectionDecorator<int>();
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -57,8 +56,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
             {
                 1, 2, 3, 4, 5
             };
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int>();
+            var decorator = new FilterCollectionDecorator<int>();
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -66,7 +64,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
 
             decorator.Filter = i => i % 2 == 0;
 
-            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems()).ShouldBeTrue();
+            tracker.ChangedItems.SequenceEqual(observableCollection.DecorateItems().Cast<int>()).ShouldBeTrue();
             tracker.ChangedItems.SequenceEqual(observableCollection.Where(decorator.Filter)).ShouldBeTrue();
         }
 
@@ -74,8 +72,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void AddShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -100,8 +97,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ReplaceShouldTrackChanges1()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -123,8 +119,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ReplaceShouldTrackChanges2()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -149,8 +144,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void MoveShouldTrackChanges1()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -172,8 +166,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void MoveShouldTrackChanges2()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -195,8 +188,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void RemoveShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -223,8 +215,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ResetShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -243,8 +234,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ClearShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();
@@ -263,8 +253,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ItemChangedShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<TestCollectionItem>();
-            observableCollection.AddComponent(new DecoratorManager<TestCollectionItem>());
-            var decorator = new FilterObservableCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
+            var decorator = new FilterCollectionDecorator<TestCollectionItem> {Filter = i => i.Id % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<TestCollectionItem>();
@@ -286,8 +275,7 @@ namespace MugenMvvm.UnitTest.Collections.Components
         public void ShouldTrackChanges()
         {
             var observableCollection = new SynchronizedObservableCollection<int>();
-            observableCollection.AddComponent(new DecoratorManager<int>());
-            var decorator = new FilterObservableCollectionDecorator<int> {Filter = i => i % 2 == 0};
+            var decorator = new FilterCollectionDecorator<int> {Filter = i => i % 2 == 0};
             observableCollection.AddComponent(decorator);
 
             var tracker = new DecoratorObservableCollectionTracker<int>();

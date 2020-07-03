@@ -1,17 +1,12 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Internal;
+﻿using System.Collections;
+using System.Collections.Generic;
 
 namespace MugenMvvm.Interfaces.Collections
 {
-    public interface IObservableCollection<T> : IComponentOwner<IObservableCollection<T>>, IList<T>
+    public interface IObservableCollection : IObservableCollectionBase, IList
     {
-        ActionToken BeginBatchUpdate();
+        void Reset(IEnumerable<object> items);
 
-        void Move(int oldIndex, int newIndex);
-
-        void Reset(IEnumerable<T> items);
-
-        void RaiseItemChanged(T item, object? args);
+        void RaiseItemChanged(object item, object? args);
     }
 }

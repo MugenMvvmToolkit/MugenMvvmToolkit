@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using MugenMvvm.Collections;
+using MugenMvvm.Collections.Components;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Threading;
@@ -15,7 +17,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Collections
 {
-    public class BindableCollectionWrapperBaseTest : UnitTestBase
+    public class BindableCollectionAdapterBaseTest : UnitTestBase
     {
         #region Methods
 
@@ -70,9 +72,10 @@ namespace MugenMvvm.UnitTest.Collections
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
 
-            bindableCollectionWrapper.Detach();
+            bindableCollectionWrapper.Attach(null);
             bindableCollectionWrapper.ShouldBeEmpty();
-            observableCollection.Components.Count.ShouldEqual(0);
+            observableCollection.Components.Count.ShouldEqual(1);
+            observableCollection.GetComponent<ICollectionDecoratorManagerComponent>().ShouldEqual(CollectionDecoratorManager.Instance);
         }
 
         [Fact]
@@ -121,7 +124,7 @@ namespace MugenMvvm.UnitTest.Collections
             tracker.ChangedItems.SequenceEqual(observableCollection).ShouldBeTrue();
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
 
-            bindableCollectionWrapper.Detach();
+            bindableCollectionWrapper.Attach(null);
             bindableCollectionWrapper.ShouldBeEmpty();
             observableCollection.Add(1);
             bindableCollectionWrapper.ShouldBeEmpty();
@@ -266,20 +269,20 @@ namespace MugenMvvm.UnitTest.Collections
             bindableCollectionWrapper.SequenceEqual(observableCollection).ShouldBeTrue();
         }
 
-        protected virtual BindableCollectionWrapperBase<T> GetCollection<T>()
+        protected virtual BindableCollectionAdapterBase<T> GetCollection<T>()
         {
-            return new BindableCollectionWrapper<T>();
+            return new BindableCollectionAdapter<T>();
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class BindableCollectionWrapper<T> : BindableCollectionWrapperBase<T>, IObservableCollectionChangedListener<T>
+        protected class BindableCollectionAdapter<T> : BindableCollectionAdapterBase<T>
         {
             #region Constructors
 
-            public BindableCollectionWrapper(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null)
+            public BindableCollectionAdapter(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null)
                 : base(threadDispatcher, sourceCollection)
             {
             }
@@ -290,24 +293,24 @@ namespace MugenMvvm.UnitTest.Collections
         #endregion
     }
 
-    public class BindableCollectionWrapperWithLockBaseTest : BindableCollectionWrapperBaseTest
+    public class BindableCollectionWrapperWithLockBaseTest : BindableCollectionAdapterBaseTest
     {
         #region Methods
 
-        protected override BindableCollectionWrapperBase<T> GetCollection<T>()
+        protected override BindableCollectionAdapterBase<T> GetCollection<T>()
         {
-            return new BindableCollectionWrapper<T>();
+            return new BindableCollectionAdapterLock<T>();
         }
 
         #endregion
 
         #region Nested types
 
-        private sealed class BindableCollectionWrapper<T> : BindableCollectionWrapperBase<T>, IObservableCollectionChangedListener<T>
+        private sealed class BindableCollectionAdapterLock<T> : BindableCollectionAdapter<T>
         {
             #region Constructors
 
-            public BindableCollectionWrapper(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null)
+            public BindableCollectionAdapterLock(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null)
                 : base(threadDispatcher, sourceCollection)
             {
             }

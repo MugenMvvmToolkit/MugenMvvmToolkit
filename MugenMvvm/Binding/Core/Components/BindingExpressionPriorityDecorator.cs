@@ -31,7 +31,8 @@ namespace MugenMvvm.Binding.Core.Components
                 {"ItemTemplate", BindableMemberPriority.Template},
                 {"ItemTemplateSelector", BindableMemberPriority.Template},
                 {"ContentTemplate", BindableMemberPriority.Template},
-                {"ContentTemplateSelector", BindableMemberPriority.Template}
+                {"ContentTemplateSelector", BindableMemberPriority.Template},
+                {"StableIdProvider", BindableMemberPriority.Template},
             };
         }
 
