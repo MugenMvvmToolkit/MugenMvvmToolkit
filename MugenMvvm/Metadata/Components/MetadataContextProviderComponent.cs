@@ -17,7 +17,7 @@ namespace MugenMvvm.Metadata.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
             var list = values.List;
             var item = values.Item;
@@ -28,7 +28,7 @@ namespace MugenMvvm.Metadata.Components
             return new ReadOnlyMetadataContext(list);
         }
 
-        public IMetadataContext? TryGetMetadataContext(object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public IMetadataContext? TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
             return new MetadataContext(values);
         }

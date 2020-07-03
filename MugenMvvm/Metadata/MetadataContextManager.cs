@@ -24,7 +24,7 @@ namespace MugenMvvm.Metadata
 
         public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(target, values);
+            var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(this, target, values);
             if (result != null)
                 GetComponents<IMetadataContextManagerListener>().OnReadOnlyContextCreated(this, result!, target);
             return result;
@@ -32,7 +32,7 @@ namespace MugenMvvm.Metadata
 
         public IMetadataContext? TryGetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
         {
-            var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(target, values);
+            var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(this, target, values);
             if (result != null)
                 GetComponents<IMetadataContextManagerListener>().OnContextCreated(this, result!, target);
             return result;

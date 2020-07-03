@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             var metadataProvider = new MetadataContextManager();
             metadataProvider.AddComponent(new TestMetadataContextProviderComponent
             {
-                TryGetMetadataContext = (o, list) => context
+                TryGetMetadataContext = (m, o, list) => context
             });
 
             var component = new ViewModelServiceResolver(metadataContextManager: metadataProvider);
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void TryGetServiceShouldReturnMessenger()
         {
             var component = new ViewModelServiceResolver();
-            var service = (IMessenger) component.TryGetService(new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
+            var service = (IMessenger)component.TryGetService(new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
             service.GetComponent<IMessagePublisherComponent>().ShouldNotBeNull();
             service.GetComponent<IMessengerSubscriberComponent>().ShouldNotBeNull();
         }
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void TryGetServiceShouldReturnBusyManager()
         {
             var component = new ViewModelServiceResolver();
-            var service = (IBusyManager) component.TryGetService(new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
+            var service = (IBusyManager)component.TryGetService(new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
             service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
         }
 

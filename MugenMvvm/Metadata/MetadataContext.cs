@@ -57,7 +57,7 @@ namespace MugenMvvm.Metadata
             {
                 lock (_dictionary)
                 {
-                    return _dictionary.Count + GetComponents().GetCount();
+                    return _dictionary.Count + GetComponents().GetCount(this);
                 }
             }
         }
@@ -96,7 +96,7 @@ namespace MugenMvvm.Metadata
                     contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
                 for (var i = 0; i < components.Length; i++)
                 {
-                    foreach (var keyValuePair in components[i].GetValues())
+                    foreach (var keyValuePair in components[i].GetValues(this))
                         contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
                 }
 
@@ -133,7 +133,7 @@ namespace MugenMvvm.Metadata
             var components = GetComponents();
             lock (_dictionary)
             {
-                return _dictionary.ContainsKey(contextKey) || components.Contains(contextKey);
+                return _dictionary.ContainsKey(contextKey) || components.Contains(this, contextKey);
             }
         }
 
@@ -337,7 +337,7 @@ namespace MugenMvvm.Metadata
                 lock (_dictionary)
                 {
                     _dictionary.Clear();
-                    components.Clear();
+                    components.Clear(this);
                 }
 
                 return;
@@ -350,12 +350,12 @@ namespace MugenMvvm.Metadata
                     oldValues.Add(pair, p => p.Key == null);
                 for (var i = 0; i < components.Length; i++)
                 {
-                    foreach (var keyValuePair in components[i].GetValues())
+                    foreach (var keyValuePair in components[i].GetValues(this))
                         oldValues.Add(keyValuePair, p => p.Key == null);
                 }
 
                 _dictionary.Clear();
-                components.Clear();
+                components.Clear(this);
             }
 
             var count = oldValues.Count(p => p.Key == null);
@@ -375,19 +375,19 @@ namespace MugenMvvm.Metadata
 
         private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue)
         {
-            return components.TryGetValue(contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
+            return components.TryGetValue(this, contextKey, out rawValue) || _dictionary.TryGetValue(contextKey, out rawValue);
         }
 
         private void Set(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, object? rawValue)
         {
-            if (!components.TrySetValue(contextKey, rawValue))
+            if (!components.TrySetValue(this, contextKey, rawValue))
                 _dictionary[contextKey] = rawValue;
         }
 
         private bool Remove(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey)
         {
             var remove = _dictionary.Remove(contextKey);
-            return components.TryClear(contextKey) || remove;
+            return components.TryClear(this, contextKey) || remove;
         }
 
         private IMetadataContextValueManagerComponent[] GetComponents()

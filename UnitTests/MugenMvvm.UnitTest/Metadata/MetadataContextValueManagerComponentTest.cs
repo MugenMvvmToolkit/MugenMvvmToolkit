@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var dict = new Dictionary<IMetadataContextKey, object?>();
             var ctx = base.GetMetadataContext();
-            ctx.AddComponent(new TestMetadataContextValueManagerComponent
+            ctx.AddComponent(new TestMetadataContextValueManagerComponent(ctx)
             {
                 GetCount = () => dict.Count,
                 Contains = key => dict.ContainsKey(key),

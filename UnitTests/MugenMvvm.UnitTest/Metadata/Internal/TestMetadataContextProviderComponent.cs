@@ -12,9 +12,9 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
     {
         #region Properties
 
-        public Func<object?, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>, IReadOnlyMetadataContext?>? TryGetReadOnlyMetadataContext { get; set; }
+        public Func<IMetadataContextManager, object?, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>, IReadOnlyMetadataContext?>? TryGetReadOnlyMetadataContext { get; set; }
 
-        public Func<object?, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>, IMetadataContext?>? TryGetMetadataContext { get; set; }
+        public Func<IMetadataContextManager, object?, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>, IMetadataContext?>? TryGetMetadataContext { get; set; }
 
         public int Priority { get; set; }
 
@@ -22,14 +22,14 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
 
         #region Implementation of interfaces
 
-        IReadOnlyMetadataContext? IMetadataContextProviderComponent.TryGetReadOnlyMetadataContext(object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        IReadOnlyMetadataContext? IMetadataContextProviderComponent.TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
-            return TryGetReadOnlyMetadataContext?.Invoke(target, values);
+            return TryGetReadOnlyMetadataContext?.Invoke(metadataContextManager, target, values);
         }
 
-        IMetadataContext? IMetadataContextProviderComponent.TryGetMetadataContext(object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        IMetadataContext? IMetadataContextProviderComponent.TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
-            return TryGetMetadataContext?.Invoke(target, values);
+            return TryGetMetadataContext?.Invoke(metadataContextManager, target, values);
         }
 
         #endregion

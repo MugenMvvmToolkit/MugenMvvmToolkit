@@ -5,18 +5,18 @@ namespace MugenMvvm.Interfaces.Metadata.Components
 {
     public interface IMetadataContextValueManagerComponent : IComponent<IMetadataContext>
     {
-        int GetCount();
+        int GetCount(IMetadataContext context);
 
-        IEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues();
+        IEnumerable<KeyValuePair<IMetadataContextKey, object?>> GetValues(IMetadataContext context);
 
-        bool Contains(IMetadataContextKey contextKey);
+        bool Contains(IMetadataContext context, IMetadataContextKey contextKey);
 
-        bool TryGetValue(IMetadataContextKey contextKey, out object? rawValue);
+        bool TryGetValue(IMetadataContext context, IMetadataContextKey contextKey, out object? rawValue);
 
-        bool TrySetValue(IMetadataContextKey contextKey, object? rawValue);
+        bool TrySetValue(IMetadataContext context, IMetadataContextKey contextKey, object? rawValue);
 
-        bool TryClear(IMetadataContextKey contextKey);
+        bool TryClear(IMetadataContext context, IMetadataContextKey contextKey);
 
-        void Clear();
+        void Clear(IMetadataContext context);
     }
 }

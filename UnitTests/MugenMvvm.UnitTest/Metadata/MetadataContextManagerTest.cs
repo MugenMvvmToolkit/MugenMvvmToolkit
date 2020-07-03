@@ -41,9 +41,10 @@ namespace MugenMvvm.UnitTest.Metadata
                 var canReturn = i == count - 1;
                 var component = new TestMetadataContextProviderComponent();
                 component.Priority = -i;
-                component.TryGetReadOnlyMetadataContext = (o, context) =>
+                component.TryGetReadOnlyMetadataContext = (m, o, context) =>
                 {
                     ++invokeCount;
+                    m.ShouldEqual(contextProvider);
                     o.ShouldEqual(this);
                     context.ShouldEqual(items);
                     if (canReturn)
@@ -71,9 +72,10 @@ namespace MugenMvvm.UnitTest.Metadata
                 var canReturn = i == count - 1;
                 var component = new TestMetadataContextProviderComponent();
                 component.Priority = -i;
-                component.TryGetMetadataContext = (o, context) =>
+                component.TryGetMetadataContext = (m, o, context) =>
                 {
                     ++invokeCount;
+                    m.ShouldEqual(contextProvider);
                     o.ShouldEqual(this);
                     context.ShouldEqual(items);
                     if (canReturn)
@@ -94,7 +96,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = DefaultMetadata;
             var contextProvider = new MetadataContextManager();
-            var component = new TestMetadataContextProviderComponent {TryGetReadOnlyMetadataContext = (o, context) => result};
+            var component = new TestMetadataContextProviderComponent { TryGetReadOnlyMetadataContext = (m, o, context) => result };
             contextProvider.AddComponent(component);
             var invokeCount = 0;
 
@@ -124,7 +126,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = new MetadataContext();
             var contextProvider = new MetadataContextManager();
-            var component = new TestMetadataContextProviderComponent {TryGetMetadataContext = (o, context) => result};
+            var component = new TestMetadataContextProviderComponent { TryGetMetadataContext = (m, o, context) => result };
             contextProvider.AddComponent(component);
             var invokeCount = 0;
 

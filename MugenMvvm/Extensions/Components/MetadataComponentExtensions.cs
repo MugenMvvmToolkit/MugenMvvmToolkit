@@ -10,62 +10,65 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnAdded(this IMetadataContextListener[] listeners, IMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
+        public static void OnAdded(this IMetadataContextListener[] listeners, IMetadataContext context, IMetadataContextKey key, object? newValue)
         {
             Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(key, nameof(key));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnAdded(metadataContext, key, newValue);
+                listeners[i].OnAdded(context, key, newValue);
         }
 
-        public static void OnChanged(this IMetadataContextListener[] listeners, IMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
+        public static void OnChanged(this IMetadataContextListener[] listeners, IMetadataContext context, IMetadataContextKey key, object? oldValue, object? newValue)
         {
             Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(key, nameof(key));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnChanged(metadataContext, key, oldValue, newValue);
+                listeners[i].OnChanged(context, key, oldValue, newValue);
         }
 
-        public static void OnRemoved(this IMetadataContextListener[] listeners, IMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
+        public static void OnRemoved(this IMetadataContextListener[] listeners, IMetadataContext context, IMetadataContextKey key, object? oldValue)
         {
             Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(key, nameof(key));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnRemoved(metadataContext, key, oldValue);
+                listeners[i].OnRemoved(context, key, oldValue);
         }
 
-        public static int GetCount(this IMetadataContextValueManagerComponent[] components)
+        public static int GetCount(this IMetadataContextValueManagerComponent[] components, IMetadataContext context)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             int count = 0;
             for (int i = 0; i < components.Length; i++)
-                count += components[i].GetCount();
+                count += components[i].GetCount(context);
             return count;
         }
 
-        public static bool Contains(this IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey)
+        public static bool Contains(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].Contains(contextKey))
+                if (components[i].Contains(context, contextKey))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryGetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue)
+        public static bool TryGetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey, out object? rawValue)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].TryGetValue(contextKey, out rawValue))
+                if (components[i].TryGetValue(context, contextKey, out rawValue))
                     return true;
             }
 
@@ -73,46 +76,50 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool TrySetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, object? rawValue)
+        public static bool TrySetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey, object? rawValue)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].TrySetValue(contextKey, rawValue))
+                if (components[i].TrySetValue(context, contextKey, rawValue))
                     return true;
             }
             return false;
         }
 
-        public static bool TryClear(this IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey)
+        public static bool TryClear(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             Should.NotBeNull(contextKey, nameof(contextKey));
             bool clear = false;
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].TryClear(contextKey))
+                if (components[i].TryClear(context, contextKey))
                     clear = true;
             }
 
             return clear;
         }
 
-        public static void Clear(this IMetadataContextValueManagerComponent[] components)
+        public static void Clear(this IMetadataContextValueManagerComponent[] components, IMetadataContext context)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(context, nameof(context));
             for (int i = 0; i < components.Length; i++)
-                components[i].Clear();
+                components[i].Clear(context);
         }
 
-        public static IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(this IMetadataContextProviderComponent[] components, object? target,
+        public static IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target,
             ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetReadOnlyMetadataContext(target, values);
+                var result = components[i].TryGetReadOnlyMetadataContext(metadataContextManager, target, values);
                 if (result != null)
                     return result;
             }
@@ -120,12 +127,13 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IMetadataContext? TryGetMetadataContext(this IMetadataContextProviderComponent[] components, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public static IMetadataContext? TryGetMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetMetadataContext(target, values);
+                var result = components[i].TryGetMetadataContext(metadataContextManager, target, values);
                 if (result != null)
                     return result;
             }

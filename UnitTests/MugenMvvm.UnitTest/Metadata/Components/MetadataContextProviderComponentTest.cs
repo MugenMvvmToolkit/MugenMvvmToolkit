@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Metadata.Components
         public void TryGetReadOnlyMetadataContextShouldReturnMetadataContextDefault()
         {
             var component = new MugenMvvm.Metadata.Components.MetadataContextProviderComponent();
-            var context = component.TryGetReadOnlyMetadataContext(this, default)!;
+            var context = component.TryGetReadOnlyMetadataContext(null!, this, default)!;
             context.ShouldEqual(Default.Metadata);
             EnumeratorCountTest(context, new List<MetadataContextValue>());
             ContainsTest(context, new List<MetadataContextValue>());
@@ -28,9 +28,9 @@ namespace MugenMvvm.UnitTest.Metadata.Components
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
             var value = MetadataContextValue.Create(contextKey, intValue);
             var component = new MugenMvvm.Metadata.Components.MetadataContextProviderComponent();
-            var context = component.TryGetReadOnlyMetadataContext(this, value)!;
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value});
-            ContainsTest(context, new List<MetadataContextValue> {value});
+            var context = component.TryGetReadOnlyMetadataContext(null!, this, value)!;
+            EnumeratorCountTest(context, new List<MetadataContextValue> { value });
+            ContainsTest(context, new List<MetadataContextValue> { value });
             TryGetTest(context, contextKey, intValue);
         }
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.UnitTest.Metadata.Components
             }
 
             var component = new MugenMvvm.Metadata.Components.MetadataContextProviderComponent();
-            var context = component.TryGetReadOnlyMetadataContext(this, values)!;
+            var context = component.TryGetReadOnlyMetadataContext(null!, this, values)!;
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Metadata.Components
             }
 
             var component = new MugenMvvm.Metadata.Components.MetadataContextProviderComponent();
-            var context = component.TryGetMetadataContext(this, values)!;
+            var context = component.TryGetMetadataContext(null!, this, values)!;
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)

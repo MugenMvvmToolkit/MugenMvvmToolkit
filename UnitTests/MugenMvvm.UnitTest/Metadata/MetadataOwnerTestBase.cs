@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Metadata
             var context = new MetadataContext();
             var component = new TestMetadataContextProviderComponent
             {
-                TryGetMetadataContext = (o, list) =>
+                TryGetMetadataContext = (m, o, list) =>
                 {
                     o.ShouldEqual(owner);
                     list.List.ShouldBeNull();

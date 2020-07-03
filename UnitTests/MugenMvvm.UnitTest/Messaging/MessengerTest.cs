@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Messaging
 
             var metadataContext = new MetadataContext();
             var contextProviderComponent = new TestMetadataContextProviderComponent();
-            contextProviderComponent.TryGetMetadataContext = (o, list) => metadataContext;
+            contextProviderComponent.TryGetMetadataContext = (m, o, list) => metadataContext;
             using var s = TestComponentSubscriber.Subscribe(contextProvider, contextProviderComponent);
 
             var sender = new object();
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Messaging
                     TryGetSubscribers = (m, arg3) =>
                     {
                         arg3.ShouldEqual(DefaultMetadata);
-                        return new[] {info};
+                        return new[] { info };
                     }
                 };
                 messenger.AddComponent(component);
@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTest.Messaging
         {
             var invokedCount = 0;
             var messenger = new Messenger();
-            var hasCache = new TestHasCache {Invalidate = (o, type, arg3) => { ++invokedCount; }};
+            var hasCache = new TestHasCache { Invalidate = (o, type, arg3) => { ++invokedCount; } };
             messenger.AddComponent(new MessengerHandlerSubscriber());
             messenger.Components.Add(hasCache);
 
