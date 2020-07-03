@@ -17,16 +17,18 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [Fact]
         public void ShouldSupportAction()
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             Action execute = () => ++executed;
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(1);
         }
 
         [Fact]
         public void ShouldSupportActionWithObject()
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             Action<object> execute = item =>
             {
@@ -34,13 +36,14 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 ++executed;
             };
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
-            component.ExecuteAsync(this);
+            component.ExecuteAsync(cmd, this);
             executed.ShouldEqual(1);
         }
 
         [Fact]
         public void ShouldSupportFuncTask()
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
             Func<Task> execute = () =>
@@ -49,7 +52,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
-            var task = component.ExecuteAsync(null);
+            var task = component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
@@ -59,6 +62,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [Fact]
         public void ShouldSupportFuncTaskWithObject()
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
             Func<object?, Task> execute = item =>
@@ -68,7 +72,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
-            var task = component.ExecuteAsync(this);
+            var task = component.ExecuteAsync(cmd, this);
             executed.ShouldEqual(1);
             task.IsCompleted.ShouldBeFalse();
             tcs.SetResult(this);
@@ -82,15 +86,17 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [InlineData(true, false, false)]
         public void HasCanExecuteShouldBe(bool value, bool hasCanExecute, bool allowMultiply)
         {
+            var cmd = new CompositeCommand();
             Action execute = () => { };
             Func<bool> canExecute = () => true;
             var component = new DelegateExecutorCommandComponent<object>(execute, hasCanExecute ? canExecute : null, CommandExecutionMode.None, allowMultiply);
-            component.HasCanExecute().ShouldEqual(value);
+            component.HasCanExecute(cmd).ShouldEqual(value);
         }
 
         [Fact]
         public void ShouldSupportCanExecuteFunc()
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             bool canExecuteValue = false;
             Action execute = () => { };
@@ -100,17 +106,18 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return canExecuteValue;
             };
             var component = new DelegateExecutorCommandComponent<object>(execute, canExecute, CommandExecutionMode.None, true);
-            component.CanExecute(null).ShouldEqual(canExecuteValue);
+            component.CanExecute(cmd, null).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.CanExecute(null).ShouldEqual(canExecuteValue);
+            component.CanExecute(cmd, null).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
         }
 
         [Fact]
         public void ShouldSupportCanExecuteFuncWithObject()
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             bool canExecuteValue = false;
             Action execute = () => { };
@@ -121,11 +128,11 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return canExecuteValue;
             };
             var component = new DelegateExecutorCommandComponent<object>(execute, canExecute, CommandExecutionMode.None, true);
-            component.CanExecute(this).ShouldEqual(canExecuteValue);
+            component.CanExecute(cmd, this).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.CanExecute(this).ShouldEqual(canExecuteValue);
+            component.CanExecute(cmd, this).ShouldEqual(canExecuteValue);
             executed.ShouldEqual(2);
         }
 
@@ -134,6 +141,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [InlineData(false)]
         public void ShouldSupportAllowMultipleExecution(bool value)
         {
+            var cmd = new CompositeCommand();
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
             Func<Task> execute = () =>
@@ -142,12 +150,12 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return tcs.Task;
             };
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, value);
-            component.ExecuteAsync(null);
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(value ? 2 : 1);
 
             tcs.SetResult(this);
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(value ? 3 : 2);
         }
 
@@ -159,17 +167,17 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var executed = 0;
             var tcs = new TaskCompletionSource<object>();
             Func<Task> execute = () => tcs.Task;
-            var compositeCommand = new CompositeCommand();
+            var cmd = new CompositeCommand();
 
-            var listener = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = () => { ++executed; } };
-            compositeCommand.AddComponent(listener);
+            var listener = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = (c) => { ++executed; } };
+            cmd.AddComponent(listener);
 
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, value);
-            compositeCommand.AddComponent(component);
+            cmd.AddComponent(component);
 
             executed.ShouldEqual(1);
             executed = 0;
-            compositeCommand.Execute(this);
+            cmd.Execute(this);
             executed.ShouldEqual(value ? 0 : 1);
 
             tcs.SetResult(this);
@@ -189,12 +197,12 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return canExecuteValue;
             };
 
-            var compositeCommand = new CompositeCommand();
+            var cmd = new CompositeCommand();
             var component = new DelegateExecutorCommandComponent<object>(execute, canExecute, CommandExecutionMode.None, true);
-            compositeCommand.AddComponent(component);
+            cmd.AddComponent(component);
 
-            component.ExecuteAsync(null);
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(2);
             canExecuted.ShouldEqual(0);
         }
@@ -212,16 +220,16 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return canExecuteValue;
             };
 
-            var compositeCommand = new CompositeCommand();
+            var cmd = new CompositeCommand();
             var component = new DelegateExecutorCommandComponent<object>(execute, canExecute, CommandExecutionMode.CanExecuteBeforeExecute, true);
-            compositeCommand.AddComponent(component);
+            cmd.AddComponent(component);
 
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
         }
@@ -239,16 +247,16 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 return canExecuteValue;
             };
 
-            var compositeCommand = new CompositeCommand();
+            var cmd = new CompositeCommand();
             var component = new DelegateExecutorCommandComponent<object>(execute, canExecute, CommandExecutionMode.CanExecuteBeforeExecuteException, true);
-            compositeCommand.AddComponent(component);
+            cmd.AddComponent(component);
 
-            ShouldThrow<InvalidOperationException>(() => component.ExecuteAsync(null));
+            ShouldThrow<InvalidOperationException>(() => component.ExecuteAsync(cmd, null));
             executed.ShouldEqual(0);
             canExecuted.ShouldEqual(1);
 
             canExecuteValue = true;
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(1);
             canExecuted.ShouldEqual(2);
         }
@@ -256,22 +264,23 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [Fact]
         public void ShouldReThrowException()
         {
+            var cmd = new CompositeCommand();
             Action execute = () => throw new NotSupportedException();
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
-            ShouldThrow<NotSupportedException>(() => component.ExecuteAsync(null));
+            ShouldThrow<NotSupportedException>(() => component.ExecuteAsync(cmd, null));
         }
 
         [Fact]
         public void DisposeShouldClearDelegates()
         {
+            var cmd = new CompositeCommand();
             int executed = 0;
             Action execute = () => ++executed;
-            Func<bool> canExecute = () => true;
             var component = new DelegateExecutorCommandComponent<object>(execute, null, CommandExecutionMode.None, true);
             component.Dispose();
 
-            component.CanExecute(null).ShouldBeFalse();
-            component.ExecuteAsync(null);
+            component.CanExecute(cmd, null).ShouldBeFalse();
+            component.ExecuteAsync(cmd, null);
             executed.ShouldEqual(0);
         }
 

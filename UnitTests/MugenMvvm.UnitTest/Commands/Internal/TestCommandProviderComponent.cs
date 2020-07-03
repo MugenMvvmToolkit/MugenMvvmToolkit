@@ -9,15 +9,15 @@ namespace MugenMvvm.UnitTest.Commands.Internal
     {
         #region Properties
 
-        public Func<object?, Type, IReadOnlyMetadataContext?, ICompositeCommand?>? TryGetCommand { get; set; }
+        public Func<ICommandManager, object?, Type, IReadOnlyMetadataContext?, ICompositeCommand?>? TryGetCommand { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ICompositeCommand? ICommandProviderComponent.TryGetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        ICompositeCommand? ICommandProviderComponent.TryGetCommand<TRequest>(ICommandManager commandManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetCommand?.Invoke(request, typeof(TRequest), metadata);
+            return TryGetCommand?.Invoke(commandManager, request, typeof(TRequest), metadata);
         }
 
         #endregion

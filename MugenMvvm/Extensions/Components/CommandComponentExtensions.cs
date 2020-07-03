@@ -11,12 +11,13 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static ICompositeCommand? TryGetCommand<TRequest>(this ICommandProviderComponent[] components, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ICompositeCommand? TryGetCommand<TRequest>(this ICommandProviderComponent[] components, ICommandManager commandManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(commandManager, nameof(commandManager));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryGetCommand(request, metadata);
+                var result = components[i].TryGetCommand(commandManager, request, metadata);
                 if (result != null)
                     return result;
             }
@@ -24,72 +25,78 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnCommandCreated<TRequest>(this ICommandManagerListener[] listeners, ICommandManager provider, ICompositeCommand command, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static void OnCommandCreated<TRequest>(this ICommandManagerListener[] listeners, ICommandManager commandManager, ICompositeCommand command, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
-            Should.NotBeNull(provider, nameof(provider));
+            Should.NotBeNull(commandManager, nameof(commandManager));
             Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnCommandCreated(provider, command, request, metadata);
+                listeners[i].OnCommandCreated(commandManager, command, request, metadata);
         }
 
-        public static bool HasCanExecute(this IConditionCommandComponent[] components)
+        public static bool HasCanExecute(this IConditionCommandComponent[] components, ICompositeCommand command)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].HasCanExecute())
+                if (components[i].HasCanExecute(command))
                     return true;
             }
 
             return false;
         }
 
-        public static bool CanExecute(this IConditionCommandComponent[] components, object? parameter)
+        public static bool CanExecute(this IConditionCommandComponent[] components, ICompositeCommand command, object? parameter)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < components.Length; i++)
             {
-                if (!components[i].CanExecute(parameter))
+                if (!components[i].CanExecute(command, parameter))
                     return false;
             }
 
             return true;
         }
 
-        public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, EventHandler handler)
+        public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler handler)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(handler, nameof(handler));
             for (var i = 0; i < components.Length; i++)
-                components[i].AddCanExecuteChanged(handler);
+                components[i].AddCanExecuteChanged(command, handler);
         }
 
-        public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, EventHandler handler)
+        public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler handler)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(command, nameof(command));
             Should.NotBeNull(handler, nameof(handler));
             for (var i = 0; i < components.Length; i++)
-                components[i].RemoveCanExecuteChanged(handler);
+                components[i].RemoveCanExecuteChanged(command, handler);
         }
 
-        public static void RaiseCanExecuteChanged(this IConditionEventCommandComponent[] components)
+        public static void RaiseCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(command, nameof(command));
             for (var i = 0; i < components.Length; i++)
-                components[i].RaiseCanExecuteChanged();
+                components[i].RaiseCanExecuteChanged(command);
         }
 
-        public static Task ExecuteAsync(this IExecutorCommandComponent[] components, object? parameter)
+        public static Task ExecuteAsync(this IExecutorCommandComponent[] components, ICompositeCommand command, object? parameter)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(command, nameof(command));
             if (components.Length == 0)
                 return Task.CompletedTask;
             if (components.Length == 1)
-                return components[0].ExecuteAsync(parameter);
+                return components[0].ExecuteAsync(command, parameter);
             var tasks = new Task[components.Length];
             for (var i = 0; i < components.Length; i++)
-                tasks[i] = components[i].ExecuteAsync(parameter);
+                tasks[i] = components[i].ExecuteAsync(command, parameter);
             return Task.WhenAll(tasks);
         }
 

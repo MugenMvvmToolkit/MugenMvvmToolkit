@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 
 namespace MugenMvvm.UnitTest.Commands.Internal
@@ -7,29 +8,29 @@ namespace MugenMvvm.UnitTest.Commands.Internal
     {
         #region Properties
 
-        public Action<EventHandler>? AddCanExecuteChanged { get; set; }
+        public Action<ICompositeCommand, EventHandler>? AddCanExecuteChanged { get; set; }
 
-        public Action<EventHandler>? RemoveCanExecuteChanged { get; set; }
+        public Action<ICompositeCommand, EventHandler>? RemoveCanExecuteChanged { get; set; }
 
-        public Action? RaiseCanExecuteChanged { get; set; }
+        public Action<ICompositeCommand>? RaiseCanExecuteChanged { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IConditionEventCommandComponent.AddCanExecuteChanged(EventHandler handler)
+        void IConditionEventCommandComponent.AddCanExecuteChanged(ICompositeCommand command, EventHandler handler)
         {
-            AddCanExecuteChanged?.Invoke(handler);
+            AddCanExecuteChanged?.Invoke(command, handler);
         }
 
-        void IConditionEventCommandComponent.RemoveCanExecuteChanged(EventHandler handler)
+        void IConditionEventCommandComponent.RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler)
         {
-            RemoveCanExecuteChanged?.Invoke(handler);
+            RemoveCanExecuteChanged?.Invoke(command, handler);
         }
 
-        void IConditionEventCommandComponent.RaiseCanExecuteChanged()
+        void IConditionEventCommandComponent.RaiseCanExecuteChanged(ICompositeCommand command)
         {
-            RaiseCanExecuteChanged?.Invoke();
+            RaiseCanExecuteChanged?.Invoke(command);
         }
 
         #endregion

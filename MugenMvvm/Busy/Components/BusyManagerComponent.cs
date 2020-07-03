@@ -46,10 +46,10 @@ namespace MugenMvvm.Busy.Components
 
             if (notify.GetValueOrDefault())
                 OnBusyInfoChanged(true);
-            return new ActionToken((o, _) => ((BusyManagerComponent) o!).EndSuspendNotifications(), this);
+            return new ActionToken((o, _) => ((BusyManagerComponent)o!).EndSuspendNotifications(), this);
         }
 
-        public IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IBusyToken? TryBeginBusy<TRequest>(IBusyManager busyManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>())
             {
@@ -67,12 +67,12 @@ namespace MugenMvvm.Busy.Components
             return Begin(request, 0, metadata);
         }
 
-        public IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
+        public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
         {
             return _busyTail?.TryGetToken(filter, state, metadata);
         }
 
-        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             var busyToken = _busyTail;
             if (busyToken == null)
@@ -119,10 +119,10 @@ namespace MugenMvvm.Busy.Components
                             token.Owner.BeginBusyInternal(token, 0, null);
                         else
                         {
-                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>) state!;
+                            var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>)state!;
                             tuple.Item1.Owner.BeginBusyInternal(tuple.Item1, 0, tuple.Item2);
                         }
-                    }, metadata == null ? busyToken : (object) Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
+                    }, metadata == null ? busyToken : (object)Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
                 return;
             }
 
@@ -213,7 +213,7 @@ namespace MugenMvvm.Busy.Components
 
                             if (IsSuspended)
                                 callback.OnSuspendChanged(true);
-                            return new ActionToken((token, cal) => ((BusyToken) token!).RemoveCallback((IBusyTokenCallback) cal!), this, callback);
+                            return new ActionToken((token, cal) => ((BusyToken)token!).RemoveCallback((IBusyTokenCallback)cal!), this, callback);
                         }
                     }
                 }
@@ -342,7 +342,7 @@ namespace MugenMvvm.Busy.Components
                     SetSuspendedExternal(true);
 
                 if (withToken)
-                    return new ActionToken((t, _) => ((BusyToken) t!).OnEndSuspendExternal(), this);
+                    return new ActionToken((t, _) => ((BusyToken)t!).OnEndSuspendExternal(), this);
                 return default;
             }
 

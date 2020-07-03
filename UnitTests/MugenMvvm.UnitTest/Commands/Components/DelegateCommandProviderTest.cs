@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [Fact]
         public void TryGetCommandShouldReturnNullNotSupportedType()
         {
-            _component.TryGetCommand(_component, DefaultMetadata).ShouldBeNull();
+            _component.TryGetCommand(new CommandManager(), _component, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -43,9 +43,9 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var executedCount = 0;
             var canExecuteValue = true;
             Action execute = () => { ++executedCount; };
-            var canExecute = hasCanExecute ? () => { return canExecuteValue; } : (Func<bool>?) null;
+            var canExecute = hasCanExecute ? () => { return canExecuteValue; } : (Func<bool>?)null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] {new object()} : null;
+            var notifiers = addNotifiers ? new[] { new object() } : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
@@ -53,15 +53,15 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 (in DelegateCommandRequest commandRequest, DelegateCommandRequest.IProvider provider, IReadOnlyMetadataContext? arg3) => { return provider.TryGetCommand<object>(commandRequest, arg3); }, execute,
                 canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
 
-            var command = _component.TryGetCommand(request, metadata)!;
+            var command = _component.TryGetCommand(new CommandManager(), request, metadata)!;
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateExecutorCommandComponent<object>>();
-            component.ExecuteAsync(null);
+            component.ExecuteAsync(command, null);
             executedCount.ShouldEqual(1);
             if (canExecute != null)
             {
-                component.CanExecute(null).ShouldEqual(canExecuteValue);
+                component.CanExecute(command, null).ShouldEqual(canExecuteValue);
                 canExecuteValue = false;
                 command.CanExecute(null).ShouldEqual(canExecuteValue);
                 if (request.Notifiers != null)

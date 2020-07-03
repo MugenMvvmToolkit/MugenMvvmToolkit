@@ -77,19 +77,19 @@ namespace MugenMvvm.Commands.Components
 
         #region Implementation of interfaces
 
-        public void AddCanExecuteChanged(EventHandler handler)
+        public void AddCanExecuteChanged(ICompositeCommand command, EventHandler handler)
         {
             if (_subscriber != null)
                 _canExecuteChanged += handler;
         }
 
-        public void RemoveCanExecuteChanged(EventHandler handler)
+        public void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler)
         {
             // ReSharper disable once DelegateSubtraction
             _canExecuteChanged -= handler;
         }
 
-        public void RaiseCanExecuteChanged()
+        public void RaiseCanExecuteChanged(ICompositeCommand? command = null)
         {
             if (_canExecuteChanged == null)
                 return;
@@ -133,7 +133,7 @@ namespace MugenMvvm.Commands.Components
 
         private void Handle(object message)
         {
-            if (_canNotify == null || _canNotify(message))
+            if ((_canNotify == null || _canNotify(message)))
                 RaiseCanExecuteChanged();
         }
 

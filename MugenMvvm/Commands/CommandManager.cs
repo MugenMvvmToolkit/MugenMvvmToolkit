@@ -25,7 +25,7 @@ namespace MugenMvvm.Commands
 
         public ICompositeCommand? TryGetCommand<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(request, metadata);
+            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(this, request, metadata);
             if (result != null)
                 GetComponents<ICommandManagerListener>(metadata).OnCommandCreated(this, result, request, metadata);
             return result;

@@ -15,7 +15,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Commands
 {
-    public sealed class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasAddedCallbackComponentOwner, IHasAddingCallbackComponentOwner, IHasDisposeCondition
+    public class CompositeCommand : ComponentOwnerBase<ICompositeCommand>, ICompositeCommand, IHasAddedCallbackComponentOwner, IHasAddingCallbackComponentOwner, IHasDisposeCondition
     {
         #region Fields
 
@@ -47,7 +47,7 @@ namespace MugenMvvm.Commands
 
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 
-        public bool HasCanExecute => GetComponents<IConditionCommandComponent>().HasCanExecute();
+        public bool HasCanExecute => GetComponents<IConditionCommandComponent>().HasCanExecute(this);
 
         public bool IsDisposed => _state == DisposedState;
 
@@ -59,8 +59,8 @@ namespace MugenMvvm.Commands
 
         public event EventHandler CanExecuteChanged
         {
-            add => GetComponents<IConditionEventCommandComponent>().AddCanExecuteChanged(value);
-            remove => GetComponents<IConditionEventCommandComponent>().RemoveCanExecuteChanged(value);
+            add => GetComponents<IConditionEventCommandComponent>().AddCanExecuteChanged(this, value);
+            remove => GetComponents<IConditionEventCommandComponent>().RemoveCanExecuteChanged(this, value);
         }
 
         #endregion
@@ -69,12 +69,12 @@ namespace MugenMvvm.Commands
 
         public bool CanExecute(object parameter)
         {
-            return GetComponents<IConditionCommandComponent>().CanExecute(parameter);
+            return GetComponents<IConditionCommandComponent>().CanExecute(this, parameter);
         }
 
         public void Execute(object parameter)
         {
-            GetComponents<IExecutorCommandComponent>().ExecuteAsync(parameter);
+            GetComponents<IExecutorCommandComponent>().ExecuteAsync(this, parameter);
         }
 
         public void Dispose()
@@ -93,7 +93,7 @@ namespace MugenMvvm.Commands
 
         public void RaiseCanExecuteChanged()
         {
-            GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged();
+            GetComponents<IConditionEventCommandComponent>().RaiseCanExecuteChanged(this);
         }
 
         void IHasAddedCallbackComponentOwner.OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)

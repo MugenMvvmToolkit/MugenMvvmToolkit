@@ -4,8 +4,8 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface IConditionCommandComponent : IComponent<ICompositeCommand>
     {
-        bool HasCanExecute();
+        bool HasCanExecute(ICompositeCommand command);
 
-        bool CanExecute(object? parameter);
+        bool CanExecute(ICompositeCommand command, object? parameter);
     }
 }

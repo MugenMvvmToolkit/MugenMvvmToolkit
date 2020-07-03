@@ -49,7 +49,7 @@ namespace MugenMvvm.Commands.Components
 
         #region Implementation of interfaces
 
-        public ICompositeCommand? TryGetCommand<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ICompositeCommand? TryGetCommand<TRequest>(ICommandManager commandManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TRequest) == typeof(DelegateCommandRequest))
                 return MugenExtensions.CastGeneric<TRequest, DelegateCommandRequest>(request).TryGetCommand(this, metadata);

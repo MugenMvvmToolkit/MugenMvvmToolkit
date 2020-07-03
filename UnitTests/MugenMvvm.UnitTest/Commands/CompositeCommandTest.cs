@@ -32,9 +32,10 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 var component = new TestConditionCommandComponent
                 {
-                    HasCanExecute = () =>
+                    HasCanExecute = (c) =>
                     {
                         ++count;
+                        c.ShouldEqual(compositeCommand);
                         return canExecute;
                     }
                 };
@@ -63,8 +64,9 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 var component = new TestConditionCommandComponent
                 {
-                    CanExecute = item =>
+                    CanExecute = (c, item) =>
                     {
+                        c.ShouldEqual(compositeCommand);
                         item.ShouldEqual(compositeCommand);
                         ++count;
                         return canExecute;
@@ -93,9 +95,10 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 var component = new TestConditionEventCommandComponent
                 {
-                    AddCanExecuteChanged = handler =>
+                    AddCanExecuteChanged = (c, handler) =>
                     {
                         ++count;
+                        c.ShouldEqual(compositeCommand);
                         handler.ShouldEqual(eventHandler);
                     }
                 };
@@ -118,9 +121,10 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 var component = new TestConditionEventCommandComponent
                 {
-                    RemoveCanExecuteChanged = handler =>
+                    RemoveCanExecuteChanged = (c, handler) =>
                     {
                         ++count;
+                        c.ShouldEqual(compositeCommand);
                         handler.ShouldEqual(eventHandler);
                     }
                 };
@@ -140,7 +144,14 @@ namespace MugenMvvm.UnitTest.Commands
             var compositeCommand = GetComponentOwner();
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestConditionEventCommandComponent { RaiseCanExecuteChanged = () => ++count };
+                var component = new TestConditionEventCommandComponent
+                {
+                    RaiseCanExecuteChanged = (c) =>
+{
+    c.ShouldEqual(compositeCommand);
+    ++count;
+}
+                };
                 compositeCommand.AddComponent(component);
             }
 
@@ -193,8 +204,9 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 var component = new TestExecutorCommandComponent
                 {
-                    ExecuteAsync = o =>
+                    ExecuteAsync = (c, o) =>
                     {
+                        c.ShouldEqual(compositeCommand);
                         o.ShouldEqual(compositeCommand);
                         var t = new TaskCompletionSource<object>();
                         tcs.Add(t);
@@ -224,8 +236,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
@@ -257,8 +270,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -285,8 +299,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -318,8 +333,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
@@ -351,8 +367,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -379,8 +396,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -412,8 +430,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
@@ -445,8 +464,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -473,8 +493,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -506,8 +527,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     arg3.ShouldEqual(metadata);
@@ -539,8 +561,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();
@@ -567,8 +590,9 @@ namespace MugenMvvm.UnitTest.Commands
             DelegateCommandRequest request = default;
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) =>
+                TryGetCommand = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(MugenService.CommandManager);
                     request = (DelegateCommandRequest)o!;
                     type.ShouldEqual(typeof(DelegateCommandRequest));
                     return new CompositeCommand();

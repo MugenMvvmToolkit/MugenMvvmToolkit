@@ -57,9 +57,10 @@ namespace MugenMvvm.UnitTest.Busy
                 var component = new TestBusyManagerComponent();
                 var i1 = i;
                 component.Priority = -i;
-                component.TryBeginBusy = (o, type, arg3) =>
+                component.TryBeginBusy = (m, o, type, arg3) =>
                 {
                     methodCallCount++;
+                    m.ShouldEqual(componentOwner);
                     o.ShouldEqual(componentOwner);
                     type.ShouldEqual(typeof(BusyManager));
                     arg3.ShouldEqual(DefaultMetadata);
@@ -88,9 +89,10 @@ namespace MugenMvvm.UnitTest.Busy
                 var component = new TestBusyManagerComponent();
                 var i1 = i;
                 component.Priority = -i;
-                component.TryGetToken = (del, o, arg3, arg4, arg5) =>
+                component.TryGetToken = (m, del, o, arg3, arg4, arg5) =>
                 {
                     methodCallCount++;
+                    m.ShouldEqual(componentOwner);
                     o.ShouldEqual(componentOwner);
                     arg3.ShouldEqual(typeof(BusyManager));
                     arg4.ShouldEqual(filter);
@@ -116,9 +118,10 @@ namespace MugenMvvm.UnitTest.Busy
             for (var i = 0; i < componentCount; i++)
             {
                 var component = new TestBusyManagerComponent();
-                component.TryGetTokens = context =>
+                component.TryGetTokens = (m, context) =>
                 {
                     ++methodCallCount;
+                    m.ShouldEqual(componentOwner);
                     context.ShouldEqual(DefaultMetadata);
                     return new[] { new TestBusyToken(), new TestBusyToken() };
                 };

@@ -26,9 +26,10 @@ namespace MugenMvvm.UnitTest.Commands
             {
                 var component = new TestCommandProviderComponent
                 {
-                    TryGetCommand = (o, type, arg3) =>
+                    TryGetCommand = (m, o, type, arg3) =>
                     {
                         ++count;
+                        m.ShouldEqual(commandManager);
                         o.ShouldEqual(commandManager);
                         type.ShouldEqual(typeof(ICommandManager));
                         arg3.ShouldEqual(DefaultMetadata);
@@ -52,7 +53,7 @@ namespace MugenMvvm.UnitTest.Commands
             ICompositeCommand command = new CompositeCommand();
             var component = new TestCommandProviderComponent
             {
-                TryGetCommand = (o, type, arg3) => command
+                TryGetCommand = (m, o, type, arg3) => command
             };
             commandManager.AddComponent(component);
 

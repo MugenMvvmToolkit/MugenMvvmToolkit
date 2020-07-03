@@ -5,10 +5,10 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface IConditionEventCommandComponent : IComponent<ICompositeCommand>
     {
-        void AddCanExecuteChanged(EventHandler handler);
+        void AddCanExecuteChanged(ICompositeCommand command, EventHandler handler);
 
-        void RemoveCanExecuteChanged(EventHandler handler);
+        void RemoveCanExecuteChanged(ICompositeCommand command, EventHandler handler);
 
-        void RaiseCanExecuteChanged();
+        void RaiseCanExecuteChanged(ICompositeCommand command);
     }
 }

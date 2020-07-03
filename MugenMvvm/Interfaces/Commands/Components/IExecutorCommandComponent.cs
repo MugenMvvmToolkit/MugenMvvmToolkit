@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface IExecutorCommandComponent : IComponent<ICompositeCommand>
     {
-        Task ExecuteAsync(object? parameter);
+        Task ExecuteAsync(ICompositeCommand command, object? parameter);
     }
 }

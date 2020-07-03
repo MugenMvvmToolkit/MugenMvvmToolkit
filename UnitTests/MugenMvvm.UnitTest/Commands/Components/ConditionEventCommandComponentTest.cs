@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             conditionEventCommandComponent.RaiseCanExecuteChanged();
@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             conditionEventCommandComponent.RaiseCanExecuteChanged();
@@ -103,13 +103,13 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 sender.ShouldEqual(compositeCommand);
                 ++executed;
             };
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(1);
 
-            conditionEventCommandComponent.RemoveCanExecuteChanged(handler);
+            conditionEventCommandComponent.RemoveCanExecuteChanged(compositeCommand, handler);
             conditionEventCommandComponent.RaiseCanExecuteChanged();
             executed.ShouldEqual(1);
         }
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             conditionEventCommandComponent.RaiseCanExecuteChanged();
@@ -155,7 +155,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             foreach (var model in models)
@@ -194,7 +194,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             subscribedCount.ShouldEqual(listenersCount);
             executed.ShouldEqual(0);
@@ -235,7 +235,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             handlerRaw!.Handle(new MessageContext(this, this, DefaultMetadata));
@@ -262,7 +262,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             propertyChangedModel.OnPropertyChanged(propertyName);
@@ -285,7 +285,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 sender.ShouldEqual(compositeCommand);
                 ++executed;
             };
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             conditionEventCommandComponent.Dispose();
@@ -303,7 +303,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             compositeCommand.AddComponent(conditionEventCommandComponent);
             var executed = 0;
             EventHandler handler = (sender, args) => ++executed;
-            conditionEventCommandComponent.AddCanExecuteChanged(handler);
+            conditionEventCommandComponent.AddCanExecuteChanged(compositeCommand, handler);
 
             executed.ShouldEqual(0);
             propertyChangedModel.OnPropertyChanged("test");

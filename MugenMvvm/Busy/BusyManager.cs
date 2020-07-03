@@ -37,17 +37,17 @@ namespace MugenMvvm.Busy
 
         public IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryBeginBusy(request, metadata);
+            return GetComponents<IBusyManagerComponent>().TryBeginBusy(this, request, metadata);
         }
 
         public IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryGetToken(state, filter, metadata);
+            return GetComponents<IBusyManagerComponent>().TryGetToken(this, state, filter, metadata);
         }
 
         public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryGetTokens(metadata);
+            return GetComponents<IBusyManagerComponent>().TryGetTokens(this, metadata);
         }
 
         #endregion

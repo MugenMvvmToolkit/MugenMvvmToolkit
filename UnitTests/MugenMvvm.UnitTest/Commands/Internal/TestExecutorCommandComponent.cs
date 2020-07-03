@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Internal;
 
@@ -9,15 +10,15 @@ namespace MugenMvvm.UnitTest.Commands.Internal
     {
         #region Properties
 
-        public Func<object?, Task>? ExecuteAsync { get; set; }
+        public Func<ICompositeCommand, object?, Task>? ExecuteAsync { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        Task IExecutorCommandComponent.ExecuteAsync(object? parameter)
+        Task IExecutorCommandComponent.ExecuteAsync(ICompositeCommand command, object? parameter)
         {
-            return ExecuteAsync?.Invoke(parameter) ?? Default.CompletedTask;
+            return ExecuteAsync?.Invoke(command, parameter) ?? Default.CompletedTask;
         }
 
         #endregion
