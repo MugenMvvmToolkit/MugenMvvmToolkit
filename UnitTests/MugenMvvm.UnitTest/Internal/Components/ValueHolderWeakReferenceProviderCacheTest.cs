@@ -1,7 +1,5 @@
-﻿using System.Collections.Generic;
-using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
-using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Internal.Internal;
@@ -19,20 +17,20 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             var weak = new WeakReferenceImpl(this, true);
-            var cacheComponent = new ValueHolderWeakReferenceProviderCache();
-            var providerComponent = new TestWeakReferenceProviderComponent
+            var manager = new WeakReferenceManager();
+            manager.AddComponent(new ValueHolderWeakReferenceProviderCache());
+            manager.AddComponent(new TestWeakReferenceProviderComponent
             {
                 TryGetWeakReference = (o, context) =>
                 {
                     ++invokeCount;
                     return weak;
                 }
-            };
-            ((IComponentCollectionDecorator<IWeakReferenceProviderComponent>)cacheComponent).Decorate(new List<IWeakReferenceProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
+            });
 
             var target = new TestValueHolder<IWeakReference>();
-            cacheComponent.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);
-            cacheComponent.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);
+            manager.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);
+            manager.TryGetWeakReference(target, DefaultMetadata).ShouldEqual(weak);
             target.Value.ShouldEqual(weak);
             invokeCount.ShouldEqual(1);
         }

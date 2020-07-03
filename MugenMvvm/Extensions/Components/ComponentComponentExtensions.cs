@@ -9,6 +9,30 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        public static IComponentCollection? TryGetComponentCollection(this IComponentCollectionProviderComponent[] components, IComponentCollectionManager collectionManager, object owner, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(collectionManager, nameof(collectionManager));
+            Should.NotBeNull(owner, nameof(owner));
+            for (int i = 0; i < components.Length; i++)
+            {
+                var collection = components[i].TryGetComponentCollection(collectionManager, owner, metadata);
+                if (collection != null)
+                    return collection;
+            }
+
+            return null;
+        }
+
+        public static void OnComponentCollectionCreated(this IComponentCollectionManagerListener[] listeners, IComponentCollectionManager collectionManager, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(listeners, nameof(listeners));
+            Should.NotBeNull(collectionManager, nameof(collectionManager));
+            Should.NotBeNull(collection, nameof(collection));
+            for (int i = 0; i < listeners.Length; i++)
+                listeners[i].OnComponentCollectionCreated(collectionManager, collection, metadata);
+        }
+
         public static bool HasComponent<TComponent>(object? components) where TComponent : class, IComponent
         {
             if (components is object[] c)
@@ -137,25 +161,25 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnRemoved(collection, component, metadata);
         }
 
-        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
+        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, IComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
             {
                 if (decorators[i] is IComponentCollectionDecorator<TComponent> decorator)
-                    decorator.Decorate(components, metadata);
+                    decorator.Decorate(collection, components, metadata);
             }
 
             return components.ToArray();
         }
 
-        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
+        public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, IComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < decorators.Length; i++)
-                decorators[i].Decorate(components, metadata);
+                decorators[i].Decorate(collection, components, metadata);
             return components.ToArray();
         }
 

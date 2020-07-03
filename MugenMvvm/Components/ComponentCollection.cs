@@ -233,7 +233,7 @@ namespace MugenMvvm.Components
                     components.Add(c);
             }
 
-            return ComponentTracker.Get(_decorators.Decorate(components, metadata));
+            return ComponentTracker.Get(_decorators.Decorate(this, components, metadata));
         }
 
         #endregion

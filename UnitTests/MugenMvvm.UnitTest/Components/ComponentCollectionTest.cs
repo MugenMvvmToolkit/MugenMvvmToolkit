@@ -346,9 +346,10 @@ namespace MugenMvvm.UnitTest.Components
             componentCollection.Add(component);
 
             componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component }).ShouldBeTrue();
-            decoratorComponent1.Decorate = (list, context) =>
+            decoratorComponent1.Decorate = (c, list, context) =>
             {
                 ++executed;
+                c.ShouldEqual(componentCollection);
                 list.SequenceEqual(new[] { component }).ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated1);
@@ -358,9 +359,10 @@ namespace MugenMvvm.UnitTest.Components
             componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
             executed.ShouldEqual(1);
 
-            decoratorComponent2.Decorate = (list, context) =>
+            decoratorComponent2.Decorate = (c, list, context) =>
             {
                 ++executed;
+                c.ShouldEqual(componentCollection);
                 list.SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
                 context.ShouldEqual(DefaultMetadata);
                 list.Add(componentDecorated2);
@@ -395,9 +397,10 @@ namespace MugenMvvm.UnitTest.Components
             for (var i = 0; i < count; i++)
             {
                 var decoratorComponent = new TestThreadDispatcherDecorator();
-                decoratorComponent.Decorate = (list, context) =>
+                decoratorComponent.Decorate = (c, list, context) =>
                 {
                     ++executed;
+                    c.ShouldEqual(componentCollection);
                     list.Add(new TestThreadDispatcherComponent());
                 };
                 componentCollection.Add(decoratorComponent);

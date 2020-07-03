@@ -27,9 +27,10 @@ namespace MugenMvvm.UnitTest.Components
             var collectionProvider = GetComponentOwner();
             var component = new TestComponentCollectionProviderComponent
             {
-                TryGetComponentCollection = (o, context) =>
+                TryGetComponentCollection = (c, o, context) =>
                 {
                     ++executed;
+                    c.ShouldEqual(collectionProvider);
                     o.ShouldEqual(this);
                     context.ShouldEqual(DefaultMetadata);
                     return result;
@@ -49,7 +50,11 @@ namespace MugenMvvm.UnitTest.Components
             var collectionProvider = GetComponentOwner();
             var component = new TestComponentCollectionProviderComponent
             {
-                TryGetComponentCollection = (o, context) => result
+                TryGetComponentCollection = (c, o, context) =>
+                {
+                    c.ShouldEqual(collectionProvider);
+                    return result;
+                }
             };
             collectionProvider.AddComponent(component);
 

@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -29,8 +29,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var request = "";
             var exp = new TestBindingBuilder();
-            var decorator = new BindingExpressionPriorityDecorator();
-            var component = new TestBindingExpressionParserComponent
+            var bindingManager = new BindingManager();
+            bindingManager.AddComponent(new BindingExpressionPriorityDecorator());
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, type, arg3) =>
                 {
@@ -39,10 +40,8 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     arg3.ShouldEqual(DefaultMetadata);
                     return exp;
                 }
-            };
-            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
-
-            decorator.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
+            });
+            bindingManager.TryParseBindingExpression(request, DefaultMetadata).AsList().Single().ShouldEqual(exp);
         }
 
         [Theory]
@@ -62,7 +61,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 new HasPriorityBindingBuilder {Priority = int.MaxValue - 1},
                 new TestBindingBuilder {TargetExpression = new HasPriorityExpressionNode {Priority = 1}}
             };
-            var expected = new[] {expressions[2], expressions[3], expressions[4], expressions[0], expressions[1]};
+            var expected = new[] { expressions[2], expressions[3], expressions[4], expressions[0], expressions[1] };
             IList<IBindingBuilder> result;
             if (inputParameterState == 1)
                 result = expressions;
@@ -71,17 +70,18 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             else
                 result = new Collection<IBindingBuilder>(expressions);
 
+            var bindingManager = new BindingManager();
             var decorator = new BindingExpressionPriorityDecorator();
             decorator.BindingMemberPriorities.Clear();
             decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
             decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;
-            var component = new TestBindingExpressionParserComponent
+            bindingManager.AddComponent(decorator);
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, type, arg3) => ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result)
-            };
-            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
+            });
 
-            var bindingExpressions = decorator.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var bindingExpressions = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
             bindingExpressions.ShouldEqual(expected);
         }
 

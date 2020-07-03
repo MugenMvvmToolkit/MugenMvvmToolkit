@@ -4,6 +4,6 @@ namespace MugenMvvm.Interfaces.Components
 {
     public interface IComponentCollectionProviderComponent : IComponent<IComponentCollectionManager>
     {
-        IComponentCollection? TryGetComponentCollection(object owner, IReadOnlyMetadataContext? metadata);
+        IComponentCollection? TryGetComponentCollection(IComponentCollectionManager collectionManager, object owner, IReadOnlyMetadataContext? metadata);
     }
 }

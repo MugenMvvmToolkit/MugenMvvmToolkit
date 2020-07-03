@@ -9,7 +9,7 @@ namespace MugenMvvm.UnitTest.Components.Internal
     {
         #region Properties
 
-        public Func<object, IReadOnlyMetadataContext?, IComponentCollection?>? TryGetComponentCollection { get; set; }
+        public Func<IComponentCollectionManager, object, IReadOnlyMetadataContext?, IComponentCollection?>? TryGetComponentCollection { get; set; }
 
         public int Priority { get; set; } = int.MaxValue;
 
@@ -17,9 +17,9 @@ namespace MugenMvvm.UnitTest.Components.Internal
 
         #region Implementation of interfaces
 
-        IComponentCollection? IComponentCollectionProviderComponent.TryGetComponentCollection(object owner, IReadOnlyMetadataContext? metadata)
+        IComponentCollection? IComponentCollectionProviderComponent.TryGetComponentCollection(IComponentCollectionManager collectionManager, object owner, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetComponentCollection?.Invoke(owner, metadata);
+            return TryGetComponentCollection?.Invoke(collectionManager, owner, metadata);
         }
 
         #endregion

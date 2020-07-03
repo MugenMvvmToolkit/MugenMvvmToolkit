@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Components
 {
-    public interface IComponentCollection : IComponentOwner<IComponentCollection>//todo send first arg owner?
+    public interface IComponentCollection : IComponentOwner<IComponentCollection>
     {
         object Owner { get; }
 

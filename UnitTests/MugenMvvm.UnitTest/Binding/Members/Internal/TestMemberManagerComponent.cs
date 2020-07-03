@@ -11,6 +11,13 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 {
     public class TestMemberManagerComponent : IMemberManagerComponent, IHasPriority
     {
+        #region Fields
+
+        public static readonly TestMemberManagerComponent Selector = new TestMemberManagerComponent
+            {TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) => ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(arg4)};
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }

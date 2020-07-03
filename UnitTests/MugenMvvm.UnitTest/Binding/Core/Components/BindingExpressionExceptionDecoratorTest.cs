@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Extensions;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using Should;
 using Xunit;
@@ -20,8 +18,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var request = "";
             var exception = new Exception();
-            var decorator = new BindingExpressionExceptionDecorator();
-            var component = new TestBindingExpressionParserComponent
+            var bindingManager = new BindingManager();
+            bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, type, arg3) =>
                 {
@@ -30,10 +29,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     arg3.ShouldEqual(DefaultMetadata);
                     throw exception;
                 }
-            };
-            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
+            });
 
-            var expression = decorator.TryParseBindingExpression(request, DefaultMetadata).Item!;
+            var expression = bindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
             expression.ShouldNotBeNull();
 
             var binding = (InvalidBinding) expression.Build(this, this, DefaultMetadata);
@@ -63,14 +61,14 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 };
             }
 
-            var decorator = new BindingExpressionExceptionDecorator();
-            var component = new TestBindingExpressionParserComponent
+            var bindingManager = new BindingManager();
+            bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
                 TryParseBindingExpression = (o, type, arg3) => expressions
-            };
-            ((IComponentCollectionDecorator<IBindingExpressionParserComponent>) decorator).Decorate(new List<IBindingExpressionParserComponent> {decorator, component}, DefaultMetadata);
+            });
 
-            var result = decorator.TryParseBindingExpression("", DefaultMetadata).AsList();
+            var result = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
             result.Count.ShouldEqual(count);
 
             for (var i = 0; i < result.Count; i++)

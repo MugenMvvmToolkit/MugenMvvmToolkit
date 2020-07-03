@@ -28,9 +28,9 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        void IComponentCollectionDecorator<TComponent>.Decorate(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        void IComponentCollectionDecorator<TComponent>.Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            DecorateInternal(components, metadata);
+            DecorateInternal(collection, components, metadata);
         }
 
         #endregion
@@ -48,7 +48,7 @@ namespace MugenMvvm.Components
             Components = Default.Array<TComponent>();
         }
 
-        protected virtual void DecorateInternal(IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        protected virtual void DecorateInternal(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
             Components = this.Decorate(components);
         }

@@ -18,11 +18,13 @@ namespace MugenMvvm.UnitTest.Components
         public virtual void ComponentOwnerShouldUseCollectionFactory(bool globalValue)
         {
             T? componentOwner = null;
+            IComponentCollectionManager? manager = null;
             ComponentCollection? collection = null;
             var testComponentCollectionProviderComponent = new TestComponentCollectionProviderComponent
             {
-                TryGetComponentCollection = (o, context) =>
+                TryGetComponentCollection = (c, o, context) =>
                 {
+                    c.ShouldEqual(globalValue ? MugenService.ComponentCollectionManager : manager);
                     componentOwner.ShouldEqual(o);
                     collection = new ComponentCollection(componentOwner!);
                     return collection;
@@ -33,9 +35,9 @@ namespace MugenMvvm.UnitTest.Components
                 componentOwner = GetComponentOwner();
             else
             {
-                var provider = new ComponentCollectionManager();
-                provider.AddComponent(testComponentCollectionProviderComponent);
-                componentOwner = GetComponentOwner(provider);
+                manager = new ComponentCollectionManager();
+                manager.AddComponent(testComponentCollectionProviderComponent);
+                componentOwner = GetComponentOwner(manager);
             }
 
             componentOwner.Components.ShouldEqual(collection);

@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Internal.Components;
+using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -26,26 +25,26 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
-            var providerComponent = new TestActivatorReflectionDelegateProviderComponent();
-            providerComponent.TryGetActivator = info =>
+            var manager = new ReflectionManager();
+            manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent
             {
-                ++invokeCount;
-                info.ShouldEqual(TestConstructor);
-                return result;
-            };
-            var cacheComponent = new ReflectionDelegateProviderCache();
+                TryGetActivator = info =>
+                {
+                    ++invokeCount;
+                    info.ShouldEqual(TestConstructor);
+                    return result;
+                }
+            });
+            manager.AddComponent(new ReflectionDelegateProviderCache());
 
-            ((IComponentCollectionDecorator<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
-                .Decorate(new List<IActivatorReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
-
-            cacheComponent.TryGetActivator(TestConstructor).ShouldEqual(result);
-            cacheComponent.TryGetActivator(TestConstructor).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            cacheComponent.Invalidate<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
             invokeCount = 0;
-            cacheComponent.TryGetActivator(TestConstructor).ShouldEqual(result);
-            cacheComponent.TryGetActivator(TestConstructor).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -54,27 +53,27 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
-            var providerComponent = new TestActivatorReflectionDelegateProviderComponent();
-            providerComponent.TryGetActivator1 = (info, t) =>
+            var manager = new ReflectionManager();
+            manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent
             {
-                ++invokeCount;
-                t.ShouldEqual(result.GetType());
-                info.ShouldEqual(TestConstructor);
-                return result;
-            };
-            var cacheComponent = new ReflectionDelegateProviderCache();
+                TryGetActivator1 = (info, t) =>
+                {
+                    ++invokeCount;
+                    t.ShouldEqual(result.GetType());
+                    info.ShouldEqual(TestConstructor);
+                    return result;
+                }
+            });
+            manager.AddComponent(new ReflectionDelegateProviderCache());
 
-            ((IComponentCollectionDecorator<IActivatorReflectionDelegateProviderComponent>)cacheComponent)
-                .Decorate(new List<IActivatorReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
-
-            cacheComponent.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            cacheComponent.Invalidate<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
             invokeCount = 0;
-            cacheComponent.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
+            manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -83,27 +82,27 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
-            var providerComponent = new TestMemberReflectionDelegateProviderComponent();
-            providerComponent.TryGetMemberGetter = (info, t) =>
+            var manager = new ReflectionManager();
+            manager.AddComponent(new TestMemberReflectionDelegateProviderComponent
             {
-                ++invokeCount;
-                t.ShouldEqual(result.GetType());
-                info.ShouldEqual(TestMethod);
-                return result;
-            };
-            var cacheComponent = new ReflectionDelegateProviderCache();
+                TryGetMemberGetter = (info, t) =>
+                {
+                    ++invokeCount;
+                    t.ShouldEqual(result.GetType());
+                    info.ShouldEqual(TestMethod);
+                    return result;
+                }
+            });
+            manager.AddComponent(new ReflectionDelegateProviderCache());
 
-            ((IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>)cacheComponent)
-                .Decorate(new List<IMemberReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
-
-            cacheComponent.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            cacheComponent.Invalidate<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
             invokeCount = 0;
-            cacheComponent.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -112,27 +111,27 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
-            var providerComponent = new TestMemberReflectionDelegateProviderComponent();
-            providerComponent.TryGetMemberSetter = (info, t) =>
+            var manager = new ReflectionManager();
+            manager.AddComponent(new TestMemberReflectionDelegateProviderComponent
             {
-                ++invokeCount;
-                t.ShouldEqual(result.GetType());
-                info.ShouldEqual(TestMethod);
-                return result;
-            };
-            var cacheComponent = new ReflectionDelegateProviderCache();
+                TryGetMemberSetter = (info, t) =>
+                {
+                    ++invokeCount;
+                    t.ShouldEqual(result.GetType());
+                    info.ShouldEqual(TestMethod);
+                    return result;
+                }
+            });
+            manager.AddComponent(new ReflectionDelegateProviderCache());
 
-            ((IComponentCollectionDecorator<IMemberReflectionDelegateProviderComponent>)cacheComponent)
-                .Decorate(new List<IMemberReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
-
-            cacheComponent.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            cacheComponent.Invalidate<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
             invokeCount = 0;
-            cacheComponent.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -141,26 +140,26 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             Func<object?, object?[], object?> result = (o, objects) => o;
-            var providerComponent = new TestMethodReflectionDelegateProviderComponent();
-            providerComponent.TryGetMethodInvoker = info =>
+            var manager = new ReflectionManager();
+            manager.AddComponent(new TestMethodReflectionDelegateProviderComponent
             {
-                ++invokeCount;
-                info.ShouldEqual(TestMethod);
-                return result;
-            };
-            var cacheComponent = new ReflectionDelegateProviderCache();
+                TryGetMethodInvoker = info =>
+                {
+                    ++invokeCount;
+                    info.ShouldEqual(TestMethod);
+                    return result;
+                }
+            });
+            manager.AddComponent(new ReflectionDelegateProviderCache());
 
-            ((IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>)cacheComponent)
-                .Decorate(new List<IMethodReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
-
-            cacheComponent.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
-            cacheComponent.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            cacheComponent.Invalidate<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
             invokeCount = 0;
-            cacheComponent.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
-            cacheComponent.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
@@ -169,27 +168,27 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             var invokeCount = 0;
             Func<object?, object?[], object?> result = (o, objects) => o;
-            var providerComponent = new TestMethodReflectionDelegateProviderComponent();
-            providerComponent.TryGetMethodInvoker1 = (info, t) =>
+            var manager = new ReflectionManager();
+            manager.AddComponent(new TestMethodReflectionDelegateProviderComponent
             {
-                ++invokeCount;
-                t.ShouldEqual(result.GetType());
-                info.ShouldEqual(TestMethod);
-                return result;
-            };
-            var cacheComponent = new ReflectionDelegateProviderCache();
+                TryGetMethodInvoker1 = (info, t) =>
+                {
+                    ++invokeCount;
+                    t.ShouldEqual(result.GetType());
+                    info.ShouldEqual(TestMethod);
+                    return result;
+                }
+            });
+            manager.AddComponent(new ReflectionDelegateProviderCache());
 
-            ((IComponentCollectionDecorator<IMethodReflectionDelegateProviderComponent>)cacheComponent)
-                .Decorate(new List<IMethodReflectionDelegateProviderComponent> { cacheComponent, providerComponent }, DefaultMetadata);
-
-            cacheComponent.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            cacheComponent.Invalidate<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
             invokeCount = 0;
-            cacheComponent.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
-            cacheComponent.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
+            manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 

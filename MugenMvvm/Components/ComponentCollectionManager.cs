@@ -1,5 +1,6 @@
 ﻿using MugenMvvm.Attributes;
 using MugenMvvm.Extensions;
+using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -44,9 +45,7 @@ namespace MugenMvvm.Components
         {
             Should.NotBeNull(owner, nameof(owner));
             var result = GetComponentCollectionInternal(owner, metadata);
-            var components = _components.GetOrDefault<IComponentCollectionManagerListener>(metadata);
-            for (var i = 0; i < components.Length; i++)
-                components[i].OnComponentCollectionCreated(this, result, metadata);
+            _components.GetOrDefault<IComponentCollectionManagerListener>(metadata).OnComponentCollectionCreated(this, result, metadata);
             return result;
         }
 
@@ -58,13 +57,9 @@ namespace MugenMvvm.Components
         {
             if (!ReferenceEquals(owner, this))
             {
-                var collectionFactories = _components.GetOrDefault<IComponentCollectionProviderComponent>(metadata);
-                for (var i = 0; i < collectionFactories.Length; i++)
-                {
-                    var collection = collectionFactories[i].TryGetComponentCollection(owner, metadata);
-                    if (collection != null)
-                        return collection;
-                }
+                var collection = _components.GetOrDefault<IComponentCollectionProviderComponent>(metadata).TryGetComponentCollection(this, owner, metadata);
+                if (collection != null)
+                    return collection;
             }
 
             return new ComponentCollection(owner);
