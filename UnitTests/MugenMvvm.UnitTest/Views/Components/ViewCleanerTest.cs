@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewModel = new TestCleanableViewModel { Service = new Messenger() };
             viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
             {
-                TryUnsubscribe = (o, type, arg3) =>
+                TryUnsubscribe = (m, o, type, arg3) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(this);

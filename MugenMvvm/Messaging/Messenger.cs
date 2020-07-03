@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
@@ -33,32 +34,41 @@ namespace MugenMvvm.Messaging
 
         public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(sender, message, metadata) ?? new MessageContext(sender, message, metadata, _metadataContextManager);
+            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(this, sender, message, metadata) ?? new MessageContext(sender, message, metadata, _metadataContextManager);
         }
 
         public bool Publish(IMessageContext messageContext)
         {
-            return GetComponents<IMessagePublisherComponent>().TryPublish(messageContext);
+            return GetComponents<IMessagePublisherComponent>().TryPublish(this, messageContext);
         }
 
-        public bool Subscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public bool TrySubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessengerSubscriberComponent>().TrySubscribe(subscriber, executionMode, metadata);
+            var result = GetComponents<IMessengerSubscriberComponent>().TrySubscribe(this, subscriber, executionMode, metadata);
+            if (result)
+                this.TryInvalidateCache(subscriber, metadata);
+            return result;
         }
 
-        public bool Unsubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
+        public bool TryUnsubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessengerSubscriberComponent>().TryUnsubscribe(subscriber, metadata);
+            var result = GetComponents<IMessengerSubscriberComponent>().TryUnsubscribe(this, subscriber, metadata);
+            if (result)
+                this.TryInvalidateCache(subscriber, metadata);
+            return result;
         }
 
-        public void UnsubscribeAll(IReadOnlyMetadataContext? metadata = null)
+        public bool UnsubscribeAll(IReadOnlyMetadataContext? metadata = null)
         {
-            GetComponents<IMessengerSubscriberComponent>().TryUnsubscribeAll(metadata);
+            var result = GetComponents<IMessengerSubscriberComponent>().TryUnsubscribeAll(this, metadata);
+            if (result)
+                this.TryInvalidateCache(metadata);
+            return result;
         }
 
         public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(metadata);
+            return GetComponents<IMessengerSubscriberComponent>().TryGetSubscribers(this, metadata);
         }
 
         #endregion

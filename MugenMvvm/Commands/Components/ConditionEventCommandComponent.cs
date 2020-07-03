@@ -48,13 +48,13 @@ namespace MugenMvvm.Commands.Components
                 var notifier = notifiers[index];
                 if (notifier is IHasService<IMessenger> hasMessenger)
                 {
-                    hasMessenger.Service.Subscribe(_subscriber, eventExecutionMode);
+                    hasMessenger.Service.TrySubscribe(_subscriber, eventExecutionMode);
                     continue;
                 }
 
                 if (notifier is IMessenger messenger)
                 {
-                    messenger.Subscribe(_subscriber, eventExecutionMode);
+                    messenger.TrySubscribe(_subscriber, eventExecutionMode);
                     continue;
                 }
 

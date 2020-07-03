@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 var messenger = new Messenger();
                 var component = new TestMessengerSubscriberComponent
                 {
-                    TrySubscribe = (o, type, arg3, arg4) =>
+                    TrySubscribe = (m, o, type, arg3, arg4) =>
                     {
                         ++subscribedCount;
                         handlerRaw = (IMessengerHandlerRaw?)o;
@@ -214,7 +214,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var messenger = new Messenger();
             var component = new TestMessengerSubscriberComponent
             {
-                TrySubscribe = (o, type, arg3, arg4) =>
+                TrySubscribe = (m, o, type, arg3, arg4) =>
                 {
                     handlerRaw = (IMessengerHandlerRaw?)o;
                     return true;

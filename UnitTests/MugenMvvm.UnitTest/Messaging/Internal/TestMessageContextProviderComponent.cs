@@ -12,15 +12,15 @@ namespace MugenMvvm.UnitTest.Messaging.Internal
 
         public int Priority { get; set; }
 
-        public Func<object?, object, IReadOnlyMetadataContext?, IMessageContext?>? TryGetMessageContext { get; set; }
+        public Func<IMessenger, object?, object, IReadOnlyMetadataContext?, IMessageContext?>? TryGetMessageContext { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        IMessageContext? IMessageContextProviderComponent.TryGetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata)
+        IMessageContext? IMessageContextProviderComponent.TryGetMessageContext(IMessenger messenger, object? sender, object message, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetMessageContext?.Invoke(sender, message, metadata);
+            return TryGetMessageContext?.Invoke(messenger, sender, message, metadata);
         }
 
         #endregion

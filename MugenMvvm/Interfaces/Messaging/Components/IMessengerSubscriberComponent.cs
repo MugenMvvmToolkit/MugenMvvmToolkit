@@ -11,14 +11,14 @@ namespace MugenMvvm.Interfaces.Messaging.Components
 {
     public interface IMessengerSubscriberComponent : IComponent<IMessenger>
     {
-        bool TrySubscribe<TSubscriber>([DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata);
+        bool TrySubscribe<TSubscriber>(IMessenger messenger, [DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata);
 
-        bool TryUnsubscribe<TSubscriber>([DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata);
+        bool TryUnsubscribe<TSubscriber>(IMessenger messenger, [DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata);
 
-        void TryUnsubscribeAll(IReadOnlyMetadataContext? metadata);
+        bool TryUnsubscribeAll(IMessenger messenger, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(Type messageType, IReadOnlyMetadataContext? metadata);
+        ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IReadOnlyMetadataContext? metadata);
+        ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata);
     }
 }

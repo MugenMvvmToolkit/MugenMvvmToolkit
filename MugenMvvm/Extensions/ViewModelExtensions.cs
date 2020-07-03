@@ -28,14 +28,14 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var service = viewModel.TryGetService<IMessenger>();
-            return service != null && service.Subscribe(subscriber, executionMode, metadata);
+            return service != null && service.TrySubscribe(subscriber, executionMode, metadata);
         }
 
         public static bool TryUnsubscribe<T>(this IViewModelBase viewModel, [DisallowNull] in T subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var service = viewModel.TryGetService<IMessenger>();
-            return service != null && service.Unsubscribe(subscriber, metadata);
+            return service != null && service.TryUnsubscribe(subscriber, metadata);
         }
 
         public static TService? TryGetService<TService>(this IViewModelBase viewModel) where TService : class

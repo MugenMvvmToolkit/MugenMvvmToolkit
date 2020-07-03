@@ -42,14 +42,15 @@ namespace MugenMvvm.UnitTest.Messaging.Components
                 }, this, ThreadExecutionMode.Current);
             }
 
-            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
             {
+                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
             };
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(count);
         }
 
@@ -105,14 +106,15 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var subscriberComponent = new TestMessengerSubscriberComponent();
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
-            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
             {
+                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
             };
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(0);
             invokeAction.ShouldNotBeNull();
 
@@ -135,21 +137,23 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var subscriberComponent = new TestMessengerSubscriberComponent();
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
-            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
             {
+                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
             };
-            subscriberComponent.TryUnsubscribe = (o, type, arg3) =>
+            subscriberComponent.TryUnsubscribe = (m, o, type, arg3) =>
             {
                 ++invokedCount;
+                m.ShouldEqual(messenger);
                 o.ShouldEqual(handler);
                 type.ShouldEqual(handler.GetType());
                 return true;
             };
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(1);
         }
 
@@ -173,40 +177,41 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var subscriberComponent = new TestMessengerSubscriberComponent();
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
-            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
             {
                 ++tryGetMessengerHandlersCount;
+                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
             };
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(1);
             tryGetMessengerHandlersCount.ShouldEqual(1);
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(2);
             tryGetMessengerHandlersCount.ShouldEqual(1);
 
             component.Invalidate<object?>(null, null);
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(3);
             tryGetMessengerHandlersCount.ShouldEqual(2);
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(4);
             tryGetMessengerHandlersCount.ShouldEqual(2);
 
             messenger.RemoveComponent(component);
             messenger.AddComponent(component);
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(5);
             tryGetMessengerHandlersCount.ShouldEqual(3);
 
-            component.TryPublish(messageContext);
+            component.TryPublish(messenger, messageContext);
             invokedCount.ShouldEqual(6);
             tryGetMessengerHandlersCount.ShouldEqual(3);
         }

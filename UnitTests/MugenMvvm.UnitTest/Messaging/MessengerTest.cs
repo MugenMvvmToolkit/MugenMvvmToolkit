@@ -5,6 +5,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Messaging;
+using MugenMvvm.Messaging.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Internal.Internal;
@@ -66,9 +67,10 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessageContextProviderComponent
                 {
                     Priority = -i,
-                    TryGetMessageContext = (o, o1, arg3) =>
+                    TryGetMessageContext = (m, o, o1, arg3) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(messenger);
                         o.ShouldEqual(sender);
                         o1.ShouldEqual(message);
                         arg3.ShouldEqual(DefaultMetadata);
@@ -91,16 +93,17 @@ namespace MugenMvvm.UnitTest.Messaging
         {
             var ctx = new MessageContext(new object(), new object(), DefaultMetadata);
             var invokeCount = 0;
-            bool result = false;
+            var result = false;
             var messenger = new Messenger();
             for (var i = 0; i < count; i++)
             {
                 var component = new TestMessagePublisherComponent
                 {
                     Priority = -i,
-                    TryPublish = messageContext =>
+                    TryPublish = (m, messageContext) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(messenger);
                         messageContext.ShouldEqual(ctx);
                         return result;
                     }
@@ -133,9 +136,10 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessengerSubscriberComponent
                 {
                     Priority = -i,
-                    TrySubscribe = (o, type, arg3, arg4) =>
+                    TrySubscribe = (m, o, type, arg3, arg4) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(messenger);
                         o.ShouldEqual(messenger);
                         type.ShouldEqual(messenger.GetType());
                         arg3.ShouldEqual(threadMode);
@@ -146,12 +150,12 @@ namespace MugenMvvm.UnitTest.Messaging
                 messenger.AddComponent(component);
             }
 
-            messenger.Subscribe(messenger, threadMode, DefaultMetadata).ShouldEqual(result);
+            messenger.TrySubscribe(messenger, threadMode, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
 
             invokeCount = 0;
             result = true;
-            messenger.Subscribe(messenger, threadMode, DefaultMetadata).ShouldEqual(result);
+            messenger.TrySubscribe(messenger, threadMode, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -168,9 +172,10 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessengerSubscriberComponent
                 {
                     Priority = -i,
-                    TryUnsubscribe = (o, type, arg3) =>
+                    TryUnsubscribe = (m, o, type, arg3) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(messenger);
                         o.ShouldEqual(messenger);
                         type.ShouldEqual(messenger.GetType());
                         arg3.ShouldEqual(DefaultMetadata);
@@ -180,12 +185,12 @@ namespace MugenMvvm.UnitTest.Messaging
                 messenger.AddComponent(component);
             }
 
-            messenger.Unsubscribe(messenger, DefaultMetadata).ShouldEqual(result);
+            messenger.TryUnsubscribe(messenger, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
 
             invokeCount = 0;
             result = true;
-            messenger.Unsubscribe(messenger, DefaultMetadata).ShouldEqual(result);
+            messenger.TryUnsubscribe(messenger, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -195,22 +200,30 @@ namespace MugenMvvm.UnitTest.Messaging
         public void UnsubscribeAllShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
+            var result = false;
             var messenger = new Messenger();
             for (var i = 0; i < count; i++)
             {
                 var component = new TestMessengerSubscriberComponent
                 {
                     Priority = -i,
-                    TryUnsubscribeAll = arg3 =>
+                    TryUnsubscribeAll = (m, arg3) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(messenger);
                         arg3.ShouldEqual(DefaultMetadata);
+                        return result;
                     }
                 };
                 messenger.AddComponent(component);
             }
 
-            messenger.UnsubscribeAll(DefaultMetadata);
+            messenger.UnsubscribeAll(DefaultMetadata).ShouldEqual(result);
+            invokeCount.ShouldEqual(count);
+
+            invokeCount = 0;
+            result = true;
+            messenger.UnsubscribeAll(DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(count);
         }
 
@@ -236,10 +249,10 @@ namespace MugenMvvm.UnitTest.Messaging
                 var component = new TestMessengerSubscriberComponent
                 {
                     Priority = -i,
-                    TryGetSubscribers = arg3 =>
+                    TryGetSubscribers = (m, arg3) =>
                     {
                         arg3.ShouldEqual(DefaultMetadata);
-                        return new[] { info };
+                        return new[] {info};
                     }
                 };
                 messenger.AddComponent(component);
@@ -250,6 +263,33 @@ namespace MugenMvvm.UnitTest.Messaging
             foreach (var messengerSubscriberInfo in result)
                 subscribers.Remove(messengerSubscriberInfo);
             subscribers.Count.ShouldEqual(0);
+        }
+
+        [Fact]
+        public void TrySubscribeUnsubscribeUnsubscribeAllShouldNotifyListeners()
+        {
+            var invokedCount = 0;
+            var messenger = new Messenger();
+            var hasCache = new TestHasCache {Invalidate = (o, type, arg3) => { ++invokedCount; }};
+            messenger.AddComponent(new MessengerHandlerSubscriber());
+            messenger.Components.Add(hasCache);
+
+            invokedCount.ShouldEqual(0);
+            var handler = new TestMessengerHandler();
+            messenger.TrySubscribe(handler);
+            invokedCount.ShouldEqual(1);
+
+            messenger.TryUnsubscribe(handler);
+            invokedCount.ShouldEqual(2);
+
+            messenger.TrySubscribe(handler);
+            invokedCount = 0;
+
+            messenger.UnsubscribeAll();
+            invokedCount.ShouldEqual(1);
+
+            messenger.UnsubscribeAll();
+            invokedCount.ShouldEqual(1);
         }
 
         protected override Messenger GetComponentOwner(IComponentCollectionManager? collectionProvider = null)

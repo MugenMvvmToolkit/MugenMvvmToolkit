@@ -102,13 +102,8 @@ namespace MugenMvvm.Messaging.Components
             }
         }
 
-        public bool TryPublish(IMessageContext messageContext)
+        public bool TryPublish(IMessenger messenger, IMessageContext messageContext)
         {
-            Should.NotBeNull(messageContext, nameof(messageContext));
-            var messenger = _owner;
-            if (messenger == null)
-                return false;
-
             var threadDispatcher = _threadDispatcher.DefaultIfNull();
             ThreadExecutionModeDictionary? dictionary;
             lock (this)
@@ -134,7 +129,7 @@ namespace MugenMvvm.Messaging.Components
 
         private static ThreadExecutionModeDictionary? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode, IReadOnlyMetadataContext? metadata)
         {
-            var handlers = messenger.GetComponents<IMessengerSubscriberComponent>().TryGetMessengerHandlers(messageType, metadata);
+            var handlers = messenger.GetComponents<IMessengerSubscriberComponent>().TryGetMessengerHandlers(messenger, messageType, metadata);
             var count = handlers.Count(h => h.IsEmpty);
             if (count == 0)
                 return null;
@@ -225,7 +220,7 @@ namespace MugenMvvm.Messaging.Components
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)
-                        _messenger.Unsubscribe(this[i], messageContext.GetMetadataOrDefault());
+                        _messenger.TryUnsubscribe(this[i], messageContext.GetMetadataOrDefault());
                 }
             }
 

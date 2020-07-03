@@ -24,7 +24,7 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(subscriber, nameof(subscriber));
-            return messenger.Subscribe(subscriber.ToWeakReference(), executionMode, metadata);
+            return messenger.TrySubscribe(subscriber.ToWeakReference(), executionMode, metadata);
         }
 
         #endregion

@@ -10,11 +10,11 @@ namespace MugenMvvm.Interfaces.Messaging
 {
     public interface IMessenger : IMessagePublisher, IComponentOwner<IMessenger>
     {
-        bool Subscribe<TSubscriber>([DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null);
+        bool TrySubscribe<TSubscriber>([DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null);
 
-        bool Unsubscribe<TSubscriber>([DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null);
+        bool TryUnsubscribe<TSubscriber>([DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null);
 
-        void UnsubscribeAll(IReadOnlyMetadataContext? metadata = null);
+        bool UnsubscribeAll(IReadOnlyMetadataContext? metadata = null);
 
         ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> GetSubscribers(IReadOnlyMetadataContext? metadata = null);
     }

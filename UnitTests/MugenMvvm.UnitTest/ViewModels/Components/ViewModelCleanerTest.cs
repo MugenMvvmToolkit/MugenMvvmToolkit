@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
                 Messenger = new Messenger()
             };
             viewModel.Messenger.AddComponent(new MessengerHandlerSubscriber());
-            viewModel.Messenger.Subscribe(new TestMessengerHandlerRaw()).ShouldBeTrue();
+            viewModel.Messenger.TrySubscribe(new TestMessengerHandlerRaw()).ShouldBeTrue();
             manager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Disposed, this);
             viewModel.Messenger.GetSubscribers().AsList().ShouldBeEmpty();
             viewModel.Messenger.Components.Count.ShouldEqual(0);

@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewModel = new TestInitializableViewModel { Service = new Messenger() };
             viewModel.Service.AddComponent(new TestMessengerSubscriberComponent
             {
-                TrySubscribe = (o, type, m, arg3) =>
+                TrySubscribe = (_, o, type, m, arg3) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(this);

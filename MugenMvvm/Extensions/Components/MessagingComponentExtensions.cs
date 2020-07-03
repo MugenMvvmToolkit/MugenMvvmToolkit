@@ -14,13 +14,14 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IMessageContext? TryGetMessageContext(this IMessageContextProviderComponent[] components, object? sender, object message, IReadOnlyMetadataContext? metadata)
+        public static IMessageContext? TryGetMessageContext(this IMessageContextProviderComponent[] components, IMessenger messenger, object? sender, object message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(message, nameof(message));
             for (var i = 0; i < components.Length; i++)
             {
-                var ctx = components[i].TryGetMessageContext(sender, message, metadata);
+                var ctx = components[i].TryGetMessageContext(messenger, sender, message, metadata);
                 if (ctx != null)
                     return ctx;
             }
@@ -28,73 +29,85 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static bool TryPublish(this IMessagePublisherComponent[] components, IMessageContext messageContext)
+        public static bool TryPublish(this IMessagePublisherComponent[] components, IMessenger messenger, IMessageContext messageContext)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(messageContext, nameof(messageContext));
             bool published = false;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryPublish(messageContext))
+                if (components[i].TryPublish(messenger, messageContext))
                     published = true;
             }
 
             return published;
         }
 
-        public static bool TrySubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, [DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+        public static bool TrySubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, IMessenger messenger, [DisallowNull] in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
             var result = false;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TrySubscribe(subscriber, executionMode, metadata))
+                if (components[i].TrySubscribe(messenger, subscriber, executionMode, metadata))
                     result = true;
             }
 
             return result;
         }
 
-        public static bool TryUnsubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, [DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
+        public static bool TryUnsubscribe<TSubscriber>(this IMessengerSubscriberComponent[] components, IMessenger messenger, [DisallowNull] in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
             var result = false;
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryUnsubscribe(subscriber, metadata))
+                if (components[i].TryUnsubscribe(messenger, subscriber, metadata))
                     result = true;
             }
 
             return result;
         }
 
-        public static void TryUnsubscribeAll(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static bool TryUnsubscribeAll(this IMessengerSubscriberComponent[] components, IMessenger messenger, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
+            bool result = false;
             for (var i = 0; i < components.Length; i++)
-                components[i].TryUnsubscribeAll(metadata);
+            {
+                if (components[i].TryUnsubscribeAll(messenger, metadata))
+                    result = true;
+            }
+
+            return result;
         }
 
-        public static ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(this IMessengerSubscriberComponent[] components, IMessenger messenger, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
             if (components.Length == 1)
-                return components[0].TryGetSubscribers(metadata);
+                return components[0].TryGetSubscribers(messenger, metadata);
             ItemOrList<MessengerSubscriberInfo, List<MessengerSubscriberInfo>> subscribers = default;
             for (var i = 0; i < components.Length; i++)
-                subscribers.AddRange(components[i].TryGetSubscribers(metadata), info => info.IsEmpty);
+                subscribers.AddRange(components[i].TryGetSubscribers(messenger, metadata), info => info.IsEmpty);
             return subscribers.Cast<IReadOnlyList<MessengerSubscriberInfo>>();
         }
 
-        public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, Type messageType, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(messenger, nameof(messenger));
             Should.NotBeNull(messageType, nameof(messageType));
             if (components.Length == 1)
-                return components[0].TryGetMessengerHandlers(messageType, metadata);
+                return components[0].TryGetMessengerHandlers(messenger, messageType, metadata);
             ItemOrList<MessengerHandler, List<MessengerHandler>> handlers = default;
             for (var i = 0; i < components.Length; i++)
-                handlers.AddRange(components[i].TryGetMessengerHandlers(messageType, metadata), handler => handler.IsEmpty);
+                handlers.AddRange(components[i].TryGetMessengerHandlers(messenger, messageType, metadata), handler => handler.IsEmpty);
             return handlers.Cast<IReadOnlyList<MessengerHandler>>();
         }
 
