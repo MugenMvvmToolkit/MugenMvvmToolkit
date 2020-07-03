@@ -35,7 +35,7 @@ namespace MugenMvvm.Entities.Components
 
         #region Implementation of interfaces
 
-        public IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             IEqualityComparer<object>? comparer;
             if (TypeChecker.IsValueType<TRequest>())

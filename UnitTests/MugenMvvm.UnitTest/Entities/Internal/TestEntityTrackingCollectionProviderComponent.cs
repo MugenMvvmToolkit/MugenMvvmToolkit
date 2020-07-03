@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Entities.Internal
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, IEntityTrackingCollection?>? TryGetTrackingCollection { get; set; }
+        public Func<IEntityManager, object, Type, IReadOnlyMetadataContext?, IEntityTrackingCollection?>? TryGetTrackingCollection { get; set; }
 
         public int Priority { get; set; }
 
@@ -18,9 +18,9 @@ namespace MugenMvvm.UnitTest.Entities.Internal
 
         #region Implementation of interfaces
 
-        IEntityTrackingCollection? IEntityTrackingCollectionProviderComponent.TryGetTrackingCollection<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        IEntityTrackingCollection? IEntityTrackingCollectionProviderComponent.TryGetTrackingCollection<TRequest>(IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetTrackingCollection?.Invoke(request!, typeof(TRequest), metadata);
+            return TryGetTrackingCollection?.Invoke(entityManager, request!, typeof(TRequest), metadata);
         }
 
         #endregion

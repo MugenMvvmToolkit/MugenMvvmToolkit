@@ -25,9 +25,10 @@ namespace MugenMvvm.UnitTest.Entities
             {
                 var component = new TestEntityTrackingCollectionProviderComponent
                 {
-                    TryGetTrackingCollection = (o, type, arg3) =>
+                    TryGetTrackingCollection = (m, o, type, arg3) =>
                     {
                         ++count;
+                        m.ShouldEqual(entityManager);
                         o.ShouldEqual(entityManager);
                         type.ShouldEqual(typeof(EntityManager));
                         arg3.ShouldEqual(DefaultMetadata);
@@ -55,9 +56,10 @@ namespace MugenMvvm.UnitTest.Entities
             {
                 var component = new TestEntityStateSnapshotProviderComponent
                 {
-                    TryGetSnapshot = (e, o, type, arg3) =>
+                    TryGetSnapshot = (m, e, o, type, arg3) =>
                     {
                         ++count;
+                        m.ShouldEqual(entityManager);
                         e.ShouldEqual(entity);
                         o.ShouldEqual(entityManager);
                         type.ShouldEqual(typeof(EntityManager));
@@ -82,7 +84,7 @@ namespace MugenMvvm.UnitTest.Entities
             var collection = new EntityTrackingCollection();
             var component = new TestEntityTrackingCollectionProviderComponent
             {
-                TryGetTrackingCollection = (o, type, arg3) => collection
+                TryGetTrackingCollection = (m, o, type, arg3) => collection
             };
             entityManager.AddComponent(component);
 
@@ -118,7 +120,7 @@ namespace MugenMvvm.UnitTest.Entities
             var snapshot = new TestEntityStateSnapshot();
             var component = new TestEntityStateSnapshotProviderComponent
             {
-                TryGetSnapshot = (e, o, type, arg3) => snapshot
+                TryGetSnapshot = (m, e, o, type, arg3) => snapshot
             };
             entityManager.AddComponent(component);
 

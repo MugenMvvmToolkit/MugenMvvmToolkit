@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Entities.Components
 {
     public interface IEntityStateSnapshotProviderComponent : IComponent<IEntityManager>
     {
-        IEntityStateSnapshot? TryGetSnapshot<TState>(object entity, in TState state, IReadOnlyMetadataContext? metadata);
+        IEntityStateSnapshot? TryGetSnapshot<TState>(IEntityManager entityManager, object entity, in TState state, IReadOnlyMetadataContext? metadata);
     }
 }

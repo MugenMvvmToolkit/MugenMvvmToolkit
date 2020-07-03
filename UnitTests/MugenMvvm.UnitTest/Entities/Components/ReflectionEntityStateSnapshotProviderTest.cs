@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var entitySnapshot = manager.TryGetSnapshot(stateModel, this, DefaultMetadata)!;
+            var entitySnapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
 
             stateModel.Int = int.MaxValue;
             stateModel.Int.ShouldEqual(int.MaxValue);
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
             snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel).ShouldBeFalse();
 
@@ -103,19 +103,19 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
-            var v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Guid));
+            var v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
 
-            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Int));
+            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Int));
             v.OldValue.ShouldEqual(IntValue);
             v.NewValue.ShouldEqual(IntValue);
 
-            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.String));
+            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.String));
             v.OldValue.ShouldEqual(StringValue);
             v.NewValue.ShouldEqual(StringValue);
 
@@ -125,15 +125,15 @@ namespace MugenMvvm.UnitTest.Entities.Components
 
             values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
-            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Guid));
+            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(Guid.Empty);
 
-            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Int));
+            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Int));
             v.OldValue.ShouldEqual(IntValue);
             v.NewValue.ShouldEqual(int.MaxValue);
 
-            v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.String));
+            v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.String));
             v.OldValue.ShouldEqual(StringValue);
             v.NewValue.ShouldEqual(null);
         }
@@ -147,18 +147,18 @@ namespace MugenMvvm.UnitTest.Entities.Components
                 MemberFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
                 MemberFilter = info => info.Name == nameof(stateModel.Guid)
             };
-            var snapshot = manager.TryGetSnapshot(stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(1);
-            var v = values.Single(value => ((PropertyInfo) value.Member).Name == nameof(stateModel.Guid));
+            var v = values.Single(value => ((PropertyInfo)value.Member).Name == nameof(stateModel.Guid));
             v.OldValue.ShouldEqual(GuidValue);
             v.NewValue.ShouldEqual(GuidValue);
         }
 
         private static EntityStateModel GetModel()
         {
-            return new EntityStateModel {Guid = GuidValue, Int = IntValue, String = StringValue};
+            return new EntityStateModel { Guid = GuidValue, Int = IntValue, String = StringValue };
         }
 
         private static void AssertModel(EntityStateModel model)

@@ -22,7 +22,7 @@ namespace MugenMvvm.Entities
 
         public IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var collection = GetComponents<IEntityTrackingCollectionProviderComponent>().TryGetTrackingCollection(request, metadata);
+            var collection = GetComponents<IEntityTrackingCollectionProviderComponent>().TryGetTrackingCollection(this, request, metadata);
             if (collection != null)
                 GetComponents<IEntityManagerListener>().OnTrackingCollectionCreated(this, collection, request, metadata);
             return collection;
@@ -30,7 +30,7 @@ namespace MugenMvvm.Entities
 
         public IEntityStateSnapshot? TryGetSnapshot<TState>(object entity, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
-            var snapshot = GetComponents<IEntityStateSnapshotProviderComponent>().TryGetSnapshot(entity, state, metadata);
+            var snapshot = GetComponents<IEntityStateSnapshotProviderComponent>().TryGetSnapshot(this, entity, state, metadata);
             if (snapshot != null)
                 GetComponents<IEntityManagerListener>().OnSnapshotCreated(this, snapshot, entity, state, metadata);
             return snapshot;

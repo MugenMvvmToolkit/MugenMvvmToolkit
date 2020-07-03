@@ -9,13 +9,13 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IEntityStateSnapshot? TryGetSnapshot<TState>(this IEntityStateSnapshotProviderComponent[] components, object entity, in TState state, IReadOnlyMetadataContext? metadata)
+        public static IEntityStateSnapshot? TryGetSnapshot<TState>(this IEntityStateSnapshotProviderComponent[] components, IEntityManager entityManager, object entity, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(entity, nameof(entity));
             for (var i = 0; i < components.Length; i++)
             {
-                var snapshot = components[i].TryGetSnapshot(entity, state, metadata);
+                var snapshot = components[i].TryGetSnapshot(entityManager, entity, state, metadata);
                 if (snapshot != null)
                     return snapshot;
             }
@@ -23,12 +23,12 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(this IEntityTrackingCollectionProviderComponent[] components, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(this IEntityTrackingCollectionProviderComponent[] components, IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
             {
-                var collection = components[i].TryGetTrackingCollection(request, metadata);
+                var collection = components[i].TryGetTrackingCollection(entityManager, request, metadata);
                 if (collection != null)
                     return collection;
             }
