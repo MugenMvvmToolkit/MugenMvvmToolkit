@@ -13,7 +13,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Components
         public void TryGetResourceValueShouldReturnNullEmpty()
         {
             var component = new ResourceResolverComponent();
-            component.TryGetResourceValue("test", this, DefaultMetadata).ShouldBeNull();
+            component.TryGetResourceValue(null!, "test", this, DefaultMetadata).ShouldBeNull();
         }
 
         [Fact]
@@ -27,10 +27,10 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Components
             component.AddResource(name, resource);
             component.Resources.Count.ShouldEqual(1);
             component.Resources[name].ShouldEqual(resource);
-            component.TryGetResourceValue(name, this, DefaultMetadata).ShouldEqual(resource);
+            component.TryGetResourceValue(null!, name, this, DefaultMetadata).ShouldEqual(resource);
 
             component.Resources.Remove(name);
-            component.TryGetResourceValue(name, this, DefaultMetadata).ShouldBeNull();
+            component.TryGetResourceValue(null!, name, this, DefaultMetadata).ShouldBeNull();
         }
 
         #endregion

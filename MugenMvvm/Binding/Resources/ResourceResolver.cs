@@ -22,12 +22,12 @@ namespace MugenMvvm.Binding.Resources
 
         public IResourceValue? TryGetResourceValue<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IResourceResolverComponent>(metadata).TryGetResourceValue(name, state, metadata);
+            return GetComponents<IResourceResolverComponent>(metadata).TryGetResourceValue(this, name, state, metadata);
         }
 
         public Type? TryGetType<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<ITypeResolverComponent>(metadata).TryGetType(name, state, metadata);
+            return GetComponents<ITypeResolverComponent>(metadata).TryGetType(this, name, state, metadata);
         }
 
         #endregion

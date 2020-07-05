@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestResourceResolverComponent
+                var component = new TestResourceResolverComponent(resolver)
                 {
                     Priority = -i,
                     TryGetResourceValue = (s, o, arg3, arg4) =>
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestTypeResolverComponent
+                var component = new TestTypeResolverComponent(resolver)
                 {
                     Priority = -i,
                     TryGetType = (s, o, arg3, arg4) =>

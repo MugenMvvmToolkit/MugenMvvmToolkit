@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Components
         public void TryGetResourceValueShouldReturnNullEmpty()
         {
             var component = new TypeResolverComponent();
-            component.TryGetType("test", this, DefaultMetadata).ShouldBeNull();
+            component.TryGetType(null!, "test", this, DefaultMetadata).ShouldBeNull();
         }
 
         [Fact]
@@ -26,13 +26,13 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Components
             component.Types.Count.ShouldEqual(2);
             component.Types[resource.Name].ShouldEqual(resource);
             component.Types[resource.FullName].ShouldEqual(resource);
-            component.TryGetType(resource.Name, this, DefaultMetadata).ShouldEqual(resource);
-            component.TryGetType(resource.FullName, this, DefaultMetadata).ShouldEqual(resource);
+            component.TryGetType(null!, resource.Name, this, DefaultMetadata).ShouldEqual(resource);
+            component.TryGetType(null!, resource.FullName, this, DefaultMetadata).ShouldEqual(resource);
 
             component.Types.Remove(resource.Name);
             component.Types.Remove(resource.FullName);
-            component.TryGetType(resource.FullName, this, DefaultMetadata).ShouldBeNull();
-            component.TryGetType(resource.Name, this, DefaultMetadata).ShouldBeNull();
+            component.TryGetType(null!, resource.FullName, this, DefaultMetadata).ShouldBeNull();
+            component.TryGetType(null!, resource.Name, this, DefaultMetadata).ShouldBeNull();
         }
 
         #endregion

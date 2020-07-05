@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
+using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Interfaces.Resources.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -71,7 +72,7 @@ namespace MugenMvvm.Binding.Resources.Components
 
         #region Implementation of interfaces
 
-        public Type? TryGetType<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata)
+        public Type? TryGetType<TState>(IResourceResolver resourceResolver, string name, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Types.TryGetValue(name, out var value);
             return value;
