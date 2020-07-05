@@ -1,7 +1,6 @@
 ﻿using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Binding.Interfaces.Members;
 
 namespace MugenMvvm.Binding.Interfaces.Build
 {
@@ -19,9 +18,6 @@ namespace MugenMvvm.Binding.Interfaces.Build
     {
         [BindingMacros(MacrosConstant.Target)]
         TTarget Target { get; }
-
-        [BindingMacros(MacrosConstant.Target)]
-        IBindableMembersBuildingDescriptor<TTarget> TargetEx { get; }
     }
 
     public interface IBindingBuilderContext<out TTarget, out TSource> : IBindingBuilderContext<TTarget>
@@ -30,8 +26,5 @@ namespace MugenMvvm.Binding.Interfaces.Build
     {
         [BindingMacros(MacrosConstant.Source)]
         TSource Source { get; }
-
-        [BindingMacros(MacrosConstant.Source)]
-        IBindableMembersBuildingDescriptor<TTarget> SourceEx { get; }
     }
 }

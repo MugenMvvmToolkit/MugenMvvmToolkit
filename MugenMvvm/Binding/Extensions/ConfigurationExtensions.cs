@@ -127,10 +127,6 @@ namespace MugenMvvm.Binding.Extensions
                 .Inherits()
                 .Build());
             attachedMemberProvider.Register(Members.BindableMembers.For<object>()
-                .CommandParameter()
-                .GetBuilder()
-                .Build());
-            attachedMemberProvider.Register(Members.BindableMembers.For<object>()
                 .Root()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => GetRoot(target, metadata))

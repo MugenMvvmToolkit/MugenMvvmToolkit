@@ -66,7 +66,7 @@ namespace MugenMvvm.Binding.Attributes
             return _expressionNode != null;
         }
 
-        private static IExpressionNode? GetTarget(IExpressionConverterContext<Expression> context, Expression? expression)
+        internal static IExpressionNode? GetTarget(IExpressionConverterContext<Expression> context, Expression? expression)
         {
             if (expression is MethodCallExpression method)
             {

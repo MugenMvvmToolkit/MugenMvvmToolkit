@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -22,14 +23,14 @@ namespace MugenMvvm.Wrapping.Components
 
         #region Implementation of interfaces
 
-        public bool CanWrap<TRequest>(IWrapperManager wrapperManager, Type wrapperType, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public bool CanWrap<TRequest>(IWrapperManager wrapperManager, Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is IView view))
                 return Components.CanWrap(wrapperManager, wrapperType, request, metadata);
             return wrapperType.IsInstanceOfType(view.Target) || Components.CanWrap(wrapperManager, wrapperType, view.Target, metadata);
         }
 
-        public object? TryWrap<TRequest>(IWrapperManager wrapperManager, Type wrapperType, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public object? TryWrap<TRequest>(IWrapperManager wrapperManager, Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is IView view))
                 return Components.TryWrap(wrapperManager, wrapperType, request, metadata);
@@ -40,7 +41,7 @@ namespace MugenMvvm.Wrapping.Components
                 var item = collection.Get<object>(metadata).FirstOrDefault(wrapperType.IsInstanceOfType);
                 if (item == null)
                 {
-                    item = Components.TryWrap(wrapperManager, wrapperType, view.Target, metadata);
+                    item = Components.TryWrap(wrapperManager, wrapperType, view.Target, metadata)!;
                     if (item != null)
                         collection.Add(item);
                 }

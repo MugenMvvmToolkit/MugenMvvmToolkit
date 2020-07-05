@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
@@ -17,7 +18,8 @@ namespace MugenMvvm.Binding.Extensions
     {
         #region Methods
 
-        public static IBindableMembersDescriptor<T> BindableMembers<T>(this T? _) where T : class => Members.BindableMembers.For<T>();
+        [IgnoreBindingMember]
+        public static BindableMembersTargetDescriptor<T> BindableMembers<T>(this T target) where T : class => Members.BindableMembers.For(target);
 
         public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
@@ -48,7 +50,6 @@ namespace MugenMvvm.Binding.Extensions
             return memberManager.TryGetMembers(type, memberTypes, flags, request, metadata).SingleOrDefault<IMemberInfo>();
         }
 
-        [return: MaybeNull]
         public static TValue GetValue<TTarget, TValue>(this BindablePropertyDescriptor<TTarget, TValue> bindableMember, TTarget target,
             MemberFlags flags = MemberFlags.All, IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null) where TTarget : class
         {

@@ -2,9 +2,8 @@
 using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Interfaces.Build;
-using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Parsing.Expressions;
 
 namespace MugenMvvm.Binding.Build
@@ -16,9 +15,9 @@ namespace MugenMvvm.Binding.Build
     {
         #region Properties
 
-        public IBindableMembersDescriptor<TTarget> TargetMembers => BindableMembers.For<TTarget>();
+        public BindableMembersDescriptor<TTarget> TargetMembers => default;
 
-        public IBindableMembersDescriptor<TSource> SourceMembers => BindableMembers.For<TSource>();
+        public BindableMembersDescriptor<TSource> SourceMembers => default;
 
         #endregion
 

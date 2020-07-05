@@ -56,14 +56,14 @@ namespace MugenMvvm.Views.Components
             for (var i = 0; i < initializableViews.Length; i++)
                 initializableViews[i].Initialize(view, state, metadata);
             view.Components.AddComponent(this);
-            view.Target.BindableMembers().DataContext().SetValue(view.Target, view.ViewModel, MemberFlags.All, metadata);
+            view.Target.BindableMembers().SetDataContext(view.ViewModel);
         }
 
         protected virtual void Cleanup<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
         {
             view.Components.RemoveComponent(this);
             if (ClearDataContext)
-                view.Target.BindableMembers().DataContext().SetValue(view.Target, null, MemberFlags.All, metadata);
+                view.Target.BindableMembers().SetDataContext(null);
         }
 
         #endregion
