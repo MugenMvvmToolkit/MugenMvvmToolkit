@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryShow = (o, type, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
+                TryShow = (p, o, type, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
             presenter.AddComponent(new TestPresenterComponent
             {
-                TryClose = (o, type, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
+                TryClose = (p, o, type, arg3, arg4) => new[] { presenterResult1, presenterResult2 }
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {

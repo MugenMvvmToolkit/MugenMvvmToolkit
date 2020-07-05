@@ -45,28 +45,33 @@ namespace MugenMvvm.Presenters.Components
 
         public int Priority { get; set; } = PresenterComponentPriority.ViewModelProviderDecorator;
 
+        public bool DisposeViewModelOnClose { get; set; } = true;
+
         #endregion
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = TryGetViewModel(request, cancellationToken, metadata, out var view);
             if (viewModel == null)
-                return Components.TryShow(request, cancellationToken, metadata);
-            var result = Components.TryShow(new ViewModelViewRequest(viewModel, view), cancellationToken, metadata);
-            for (var i = 0; i < result.Count(); i++)
+                return Components.TryShow(presenter, request, cancellationToken, metadata);
+            var result = Components.TryShow(presenter, new ViewModelViewRequest(viewModel, view), cancellationToken, metadata);
+            if (DisposeViewModelOnClose)
             {
-                var callbacks = _navigationDispatcher
-                    .DefaultIfNull()
-                    .GetNavigationCallbacks(result.Get(i), metadata);
-                for (var j = 0; j < callbacks.Count(); j++)
+                for (var i = 0; i < result.Count(); i++)
                 {
-                    var callback = callbacks.Get(j);
-                    if (callback.CallbackType == NavigationCallbackType.Close)
+                    var callbacks = _navigationDispatcher
+                        .DefaultIfNull()
+                        .GetNavigationCallbacks(result.Get(i), metadata);
+                    for (var j = 0; j < callbacks.Count(); j++)
                     {
-                        callback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);
-                        break;
+                        var callback = callbacks.Get(j);
+                        if (callback.CallbackType == NavigationCallbackType.Close)
+                        {
+                            callback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);
+                            break;
+                        }
                     }
                 }
             }
@@ -74,9 +79,9 @@ namespace MugenMvvm.Presenters.Components
             return result;
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return Components.TryClose(request, cancellationToken, metadata);
+            return Components.TryClose(presenter, request, cancellationToken, metadata);
         }
 
         #endregion

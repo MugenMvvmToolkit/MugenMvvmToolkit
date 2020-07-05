@@ -25,9 +25,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var invoked = 0;
             var presenterComponent = new TestPresenterComponent
             {
-                TryShow = (o, type, arg3, arg4) =>
+                TryShow = (p, o, type, arg3, arg4) =>
                 {
                     ++invoked;
+                    p.ShouldEqual(presenter);
                     return new[] { result };
                 }
             };
@@ -36,8 +37,9 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var canExecute = false;
             var component = new TestConditionPresenterComponent
             {
-                CanShow = (c, results, r, t, m) =>
+                CanShow = (p, c, results, r, t, m) =>
                 {
+                    p.ShouldEqual(presenter);
                     c.ShouldEqual(presenterComponent);
                     results.AsList().ShouldBeEmpty();
                     r.ShouldEqual(presenter);
@@ -65,9 +67,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var invoked = 0;
             var presenterComponent = new TestPresenterComponent
             {
-                TryClose = (o, type, arg3, arg4) =>
+                TryClose = (p, o, type, arg3, arg4) =>
                 {
                     ++invoked;
+                    p.ShouldEqual(presenter);
                     return new[] { result };
                 }
             };
@@ -76,8 +79,9 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var canExecute = false;
             var component = new TestConditionPresenterComponent
             {
-                CanClose = (c, results, r, t, m) =>
+                CanClose = (p, c, results, r, t, m) =>
                 {
+                    p.ShouldEqual(presenter);
                     c.ShouldEqual(presenterComponent);
                     results.AsList().ShouldBeEmpty();
                     r.ShouldEqual(presenter);

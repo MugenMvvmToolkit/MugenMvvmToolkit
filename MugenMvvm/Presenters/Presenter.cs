@@ -26,13 +26,13 @@ namespace MugenMvvm.Presenters
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryShow(request, cancellationToken, metadata);
+            return GetComponents<IPresenterComponent>(metadata).TryShow(this, request, cancellationToken, metadata);
         }
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IPresenterComponent>(metadata).TryClose(request, cancellationToken, metadata);
+            return GetComponents<IPresenterComponent>(metadata).TryClose(this, request, cancellationToken, metadata);
         }
 
         #endregion

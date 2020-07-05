@@ -34,9 +34,10 @@ namespace MugenMvvm.UnitTest.Presenters
                 results.Add(result);
                 var component = new TestPresenterComponent
                 {
-                    TryShow = (o, type, arg3, arg4) =>
+                    TryShow = (p, o, type, arg3, arg4) =>
                     {
                         ++invokeCount;
+                        p.ShouldEqual(presenter);
                         o.ShouldEqual(request);
                         type.ShouldEqual(request.GetType());
                         arg3.ShouldEqual(DefaultMetadata);
@@ -68,9 +69,10 @@ namespace MugenMvvm.UnitTest.Presenters
                 results.Add(result);
                 var component = new TestPresenterComponent
                 {
-                    TryClose = (o, type, arg3, arg4) =>
+                    TryClose = (p, o, type, arg3, arg4) =>
                     {
                         ++invokeCount;
+                        p.ShouldEqual(presenter);
                         o.ShouldEqual(request);
                         type.ShouldEqual(request.GetType());
                         arg3.ShouldEqual(DefaultMetadata);

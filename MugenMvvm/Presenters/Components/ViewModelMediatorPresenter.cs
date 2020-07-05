@@ -53,7 +53,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel == null)
@@ -70,7 +70,7 @@ namespace MugenMvvm.Presenters.Components
             return result.Cast<IReadOnlyList<IPresenterResult>>();
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? _);
             if (viewModel == null)

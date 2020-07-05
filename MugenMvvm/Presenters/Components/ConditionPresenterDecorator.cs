@@ -23,29 +23,29 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
             ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
             for (var i = 0; i < components.Length; i++)
             {
-                var presenter = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, result.Cast<IReadOnlyList<IPresenterResult>>(), request, metadata))
-                    result.AddRange(presenter.TryShow(request, cancellationToken, metadata));
+                var presenterComponent = components[i];
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, presenterComponent, result.Cast<IReadOnlyList<IPresenterResult>>(), request, metadata))
+                    result.AddRange(presenterComponent.TryShow(presenter, request, cancellationToken, metadata));
             }
 
             return result.Cast<IReadOnlyList<IPresenterResult>>();
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
             ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
             for (var i = 0; i < components.Length; i++)
             {
-                var presenter = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, result.Cast<IReadOnlyList<IPresenterResult>>(), request, metadata))
-                    result.AddRange(presenter.TryClose(request, cancellationToken, metadata));
+                var presenterComponent = components[i];
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, presenterComponent, result.Cast<IReadOnlyList<IPresenterResult>>(), request, metadata))
+                    result.AddRange(presenterComponent.TryClose(presenter, request, cancellationToken, metadata));
             }
 
             return result.Cast<IReadOnlyList<IPresenterResult>>();
