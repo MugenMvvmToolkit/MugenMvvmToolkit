@@ -35,7 +35,7 @@ namespace MugenMvvm.Binding.Convert
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            return _components!.TryConvert(ref value, targetType, member, metadata);
+            return _components!.TryConvert(this, ref value, targetType, member, metadata);
         }
 
         #endregion

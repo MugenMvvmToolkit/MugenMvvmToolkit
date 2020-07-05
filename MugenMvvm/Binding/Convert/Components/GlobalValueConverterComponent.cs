@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Convert.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -19,7 +20,7 @@ namespace MugenMvvm.Binding.Convert.Components
 
         #region Implementation of interfaces
 
-        public bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
+        public bool TryConvert(IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {
             if (value == null)
             {

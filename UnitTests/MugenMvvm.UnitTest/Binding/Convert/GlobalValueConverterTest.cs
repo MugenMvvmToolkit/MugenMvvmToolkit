@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTest.Binding.Convert
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestGlobalValueConverterComponent
+                var component = new TestGlobalValueConverterComponent(converter)
                 {
                     TryConvert = (ref object? o, Type type1, object? arg3, IReadOnlyMetadataContext? arg4) =>
                     {

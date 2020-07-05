@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Convert.Components
 {
     public interface IGlobalValueConverterComponent : IComponent<IGlobalValueConverter>
     {
-        bool TryConvert(ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata);
+        bool TryConvert(IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata);
     }
 }

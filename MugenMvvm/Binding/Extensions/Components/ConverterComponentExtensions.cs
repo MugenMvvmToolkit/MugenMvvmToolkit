@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Convert.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -8,13 +9,14 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static bool TryConvert(this IGlobalValueConverterComponent[] components, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
+        public static bool TryConvert(this IGlobalValueConverterComponent[] components, IGlobalValueConverter converter, ref object? value, Type targetType, object? member, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(converter, nameof(converter));
             Should.NotBeNull(targetType, nameof(targetType));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryConvert(ref value, targetType, member, metadata))
+                if (components[i].TryConvert(converter, ref value, targetType, member, metadata))
                     return true;
             }
 
