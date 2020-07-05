@@ -15,7 +15,7 @@ namespace MugenMvvm.UnitTest.Validation.Components
         {
             var component = new ValidatorProviderComponent();
             component.Priority.ShouldEqual(ValidationComponentPriority.ValidatorProvider);
-            component.TryGetValidator(this, DefaultMetadata).ShouldBeType<Validator>();
+            component.TryGetValidator(null!, this, DefaultMetadata).ShouldBeType<Validator>();
         }
 
         #endregion

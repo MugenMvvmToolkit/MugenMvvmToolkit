@@ -12,15 +12,15 @@ namespace MugenMvvm.UnitTest.Validation.Internal
 
         public int Priority { get; set; }
 
-        public Func<object, Type?, IReadOnlyMetadataContext?, IValidator?>? TryGetValidator { get; set; }
+        public Func<IValidationManager, object, Type?, IReadOnlyMetadataContext?, IValidator?>? TryGetValidator { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        IValidator? IValidatorProviderComponent.TryGetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        IValidator? IValidatorProviderComponent.TryGetValidator<TRequest>(IValidationManager validationManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetValidator?.Invoke(request!, typeof(TRequest), metadata);
+            return TryGetValidator?.Invoke(validationManager, request!, typeof(TRequest), metadata);
         }
 
         #endregion

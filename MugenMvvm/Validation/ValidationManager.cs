@@ -24,7 +24,7 @@ namespace MugenMvvm.Validation
 
         public IValidator? TryGetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(request, metadata);
+            var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(this, request, metadata);
             if (result != null)
                 GetComponents<IValidatorProviderListener>(metadata).OnValidatorCreated(this, result, request, metadata);
             return result;

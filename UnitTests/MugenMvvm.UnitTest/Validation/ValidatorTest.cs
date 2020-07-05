@@ -67,9 +67,10 @@ namespace MugenMvvm.UnitTest.Validation
             {
                 var component = new TestValidatorComponent
                 {
-                    HasErrors = (s, m) =>
+                    HasErrors = (v, s, m) =>
                     {
                         ++count;
+                        v.ShouldEqual(validator);
                         s.ShouldEqual(expectedMember);
                         m.ShouldEqual(DefaultMetadata);
                         return hasErrors;
@@ -108,9 +109,10 @@ namespace MugenMvvm.UnitTest.Validation
                 var s = i.ToString();
                 var component = new TestValidatorComponent
                 {
-                    GetErrors = (m, metadata) =>
+                    GetErrors = (v, m, metadata) =>
                     {
                         ++count;
+                        v.ShouldEqual(validator);
                         m.ShouldEqual(memberName);
                         metadata.ShouldEqual(DefaultMetadata);
                         return new[] { s };
@@ -139,9 +141,10 @@ namespace MugenMvvm.UnitTest.Validation
                 var s = i.ToString();
                 var component = new TestValidatorComponent
                 {
-                    GetAllErrors = metadata =>
+                    GetAllErrors = (v, metadata) =>
                     {
                         ++count;
+                        v.ShouldEqual(validator);
                         metadata.ShouldEqual(DefaultMetadata);
                         return new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>
                         {
@@ -175,9 +178,10 @@ namespace MugenMvvm.UnitTest.Validation
                 tasks.Add(tcs);
                 var component = new TestValidatorComponent
                 {
-                    ValidateAsync = (m, token, metadata) =>
+                    ValidateAsync = (v, m, token, metadata) =>
                     {
                         ++count;
+                        v.ShouldEqual(validator);
                         m.ShouldEqual(memberName);
                         token.ShouldEqual(cts.Token);
                         metadata.ShouldEqual(DefaultMetadata);
@@ -211,9 +215,10 @@ namespace MugenMvvm.UnitTest.Validation
                 var s = i.ToString();
                 var component = new TestValidatorComponent
                 {
-                    ClearErrors = (m, metadata) =>
+                    ClearErrors = (v, m, metadata) =>
                     {
                         ++count;
+                        v.ShouldEqual(validator);
                         m.ShouldEqual(memberName);
                         metadata.ShouldEqual(DefaultMetadata);
                     }

@@ -65,7 +65,7 @@ namespace MugenMvvm.Validation.Components
             _disposeCancellationTokenSource?.Cancel();
         }
 
-        public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
+        public bool HasErrors(IValidator validator, string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (_validatingTasks != null && _validatingTasks.Count != 0)
                 return true;
@@ -77,7 +77,7 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        public ItemOrList<object, IReadOnlyList<object>> TryGetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<object, IReadOnlyList<object>> TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_errors)
             {
@@ -99,7 +99,7 @@ namespace MugenMvvm.Validation.Components
             return default;
         }
 
-        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> TryGetErrors(IReadOnlyMetadataContext? metadata = null)
+        public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_errors)
             {
@@ -112,7 +112,7 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        public Task? TryValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public Task? TryValidateAsync(IValidator validator, string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
             if (IsDisposed)
                 return null;
@@ -143,7 +143,7 @@ namespace MugenMvvm.Validation.Components
             }
         }
 
-        public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
+        public void ClearErrors(IValidator validator, string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (IsDisposed)
                 return;
@@ -213,7 +213,7 @@ namespace MugenMvvm.Validation.Components
                 .AsTask()
                 .ContinueWith((t, state) =>
                 {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>) state;
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state;
                     tuple.Item1.OnValidationCompleted(tuple.Item2, t.Result);
                 }, Tuple.Create(this, memberName), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }
@@ -228,7 +228,7 @@ namespace MugenMvvm.Validation.Components
             {
                 if (result.SingleMemberName != null || result.Errors!.Count == 0)
                 {
-                    ClearErrors(memberName, result.Metadata);
+                    ClearErrors(OwnerOptional!, memberName, result.Metadata);
                     if (result.SingleMemberName != null && !result.SingleMemberErrors.IsNullOrEmpty())
                         UpdateErrors(result.SingleMemberName, result.SingleMemberErrors, true, result.Metadata);
                     return;
@@ -300,7 +300,7 @@ namespace MugenMvvm.Validation.Components
                 // ReSharper disable once MethodSupportsCancellation
                 task.ContinueWith((t, state) =>
                 {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string, CancellationTokenSource, IReadOnlyMetadataContext?>) state;
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string, CancellationTokenSource, IReadOnlyMetadataContext?>)state;
                     tuple.Item1.OnAsyncValidationCompleted(tuple.Item2, tuple.Item3, tuple.Item4);
                 }, Tuple.Create(this, member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
             }

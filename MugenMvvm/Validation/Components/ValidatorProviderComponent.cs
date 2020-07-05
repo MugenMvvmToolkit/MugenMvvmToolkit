@@ -36,7 +36,7 @@ namespace MugenMvvm.Validation.Components
 
         #region Implementation of interfaces
 
-        public IValidator? TryGetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IValidator? TryGetValidator<TRequest>(IValidationManager validationManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             return new Validator(null, _componentCollectionManager, _metadataContextManager);
         }

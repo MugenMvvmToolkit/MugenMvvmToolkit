@@ -79,27 +79,27 @@ namespace MugenMvvm.Validation
 
         public bool HasErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).HasErrors(memberName, metadata);
+            return GetComponents<IValidatorComponent>(metadata).HasErrors(this, memberName, metadata);
         }
 
         public ItemOrList<object, IReadOnlyList<object>> GetErrors(string? memberName, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(memberName, metadata);
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, memberName, metadata);
         }
 
         public IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> GetErrors(IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+            return GetComponents<IValidatorComponent>(metadata).TryGetErrors(this, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
         }
 
         public Task ValidateAsync(string? memberName = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IValidatorComponent>(metadata).TryValidateAsync(memberName, cancellationToken, metadata) ?? Task.CompletedTask;
+            return GetComponents<IValidatorComponent>(metadata).TryValidateAsync(this, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
         }
 
         public void ClearErrors(string? memberName = null, IReadOnlyMetadataContext? metadata = null)
         {
-            GetComponents<IValidatorComponent>(metadata).ClearErrors(memberName, metadata);
+            GetComponents<IValidatorComponent>(metadata).ClearErrors(this, memberName, metadata);
         }
 
         #endregion

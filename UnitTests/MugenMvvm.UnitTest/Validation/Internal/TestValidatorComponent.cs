@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Internal;
 
@@ -13,17 +14,17 @@ namespace MugenMvvm.UnitTest.Validation.Internal
     {
         #region Properties
 
-        public Func<string?, IReadOnlyMetadataContext?, bool>? HasErrors { get; set; }
+        public Func<IValidator, string?, IReadOnlyMetadataContext?, bool>? HasErrors { get; set; }
 
         public Action? Dispose { get; set; }
 
-        public Func<string?, IReadOnlyMetadataContext?, ItemOrList<object, IReadOnlyList<object>>>? GetErrors { get; set; }
+        public Func<IValidator, string?, IReadOnlyMetadataContext?, ItemOrList<object, IReadOnlyList<object>>>? GetErrors { get; set; }
 
-        public Func<IReadOnlyMetadataContext?, IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>>? GetAllErrors { get; set; }
+        public Func<IValidator, IReadOnlyMetadataContext?, IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>>? GetAllErrors { get; set; }
 
-        public Func<string?, CancellationToken, IReadOnlyMetadataContext?, Task>? ValidateAsync { get; set; }
+        public Func<IValidator, string?, CancellationToken, IReadOnlyMetadataContext?, Task>? ValidateAsync { get; set; }
 
-        public Action<string?, IReadOnlyMetadataContext?>? ClearErrors { get; set; }
+        public Action<IValidator, string?, IReadOnlyMetadataContext?>? ClearErrors { get; set; }
 
         public int Priority { get; set; }
 
@@ -36,29 +37,29 @@ namespace MugenMvvm.UnitTest.Validation.Internal
             Dispose?.Invoke();
         }
 
-        bool IValidatorComponent.HasErrors(string? memberName, IReadOnlyMetadataContext? metadata)
+        bool IValidatorComponent.HasErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
         {
-            return HasErrors?.Invoke(memberName, metadata) ?? false;
+            return HasErrors?.Invoke(validator, memberName, metadata) ?? false;
         }
 
-        ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(string? memberName, IReadOnlyMetadataContext? metadata)
+        ItemOrList<object, IReadOnlyList<object>> IValidatorComponent.TryGetErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
         {
-            return GetErrors?.Invoke(memberName, metadata) ?? default;
+            return GetErrors?.Invoke(validator, memberName, metadata) ?? default;
         }
 
-        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> IValidatorComponent.TryGetErrors(IReadOnlyMetadataContext? metadata)
+        IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>> IValidatorComponent.TryGetErrors(IValidator validator, IReadOnlyMetadataContext? metadata)
         {
-            return GetAllErrors?.Invoke(metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
+            return GetAllErrors?.Invoke(validator, metadata) ?? Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
         }
 
-        Task? IValidatorComponent.TryValidateAsync(string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task? IValidatorComponent.TryValidateAsync(IValidator validator, string? memberName, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return ValidateAsync?.Invoke(memberName, cancellationToken, metadata) ?? Task.CompletedTask;
+            return ValidateAsync?.Invoke(validator, memberName, cancellationToken, metadata) ?? Task.CompletedTask;
         }
 
-        void IValidatorComponent.ClearErrors(string? memberName, IReadOnlyMetadataContext? metadata)
+        void IValidatorComponent.ClearErrors(IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)
         {
-            ClearErrors?.Invoke(memberName, metadata);
+            ClearErrors?.Invoke(validator, memberName, metadata);
         }
 
         #endregion

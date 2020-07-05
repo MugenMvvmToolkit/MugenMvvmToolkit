@@ -27,9 +27,10 @@ namespace MugenMvvm.UnitTest.Validation
                 var isLast = i == componentCount - 1;
                 var component = new TestValidatorProviderComponent
                 {
-                    TryGetValidator = (o, type, meta) =>
+                    TryGetValidator = (m, o, type, meta) =>
                     {
                         ++count;
+                        m.ShouldEqual(provider);
                         o.ShouldEqual(this);
                         type.ShouldEqual(typeof(ValidationManagerTest));
                         meta.ShouldEqual(DefaultMetadata);
