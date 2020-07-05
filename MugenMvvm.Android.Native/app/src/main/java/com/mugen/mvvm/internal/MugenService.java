@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
@@ -13,6 +14,7 @@ import com.mugen.mvvm.interfaces.views.IWrapperFactory;
 import com.mugen.mvvm.views.AdapterViewWrapper;
 import com.mugen.mvvm.views.TextViewWrapper;
 import com.mugen.mvvm.views.support.RecyclerViewWrapper;
+import com.mugen.mvvm.views.support.SwipeRefreshLayoutWrapper;
 
 import java.util.ArrayList;
 
@@ -64,7 +66,18 @@ public final class MugenService {
 
                 @Override
                 public int getPriority() {
-                    return 1;
+                    return 0;
+                }
+            });
+            MugenExtensions.addWrapperMapping(SwipeRefreshLayout.class, new IWrapperFactory() {
+                @Override
+                public Object wrap(Object view) {
+                    return new SwipeRefreshLayoutWrapper(view);
+                }
+
+                @Override
+                public int getPriority() {
+                    return 0;
                 }
             });
         }

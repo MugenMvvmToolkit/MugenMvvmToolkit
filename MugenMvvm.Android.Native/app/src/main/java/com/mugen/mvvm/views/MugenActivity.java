@@ -14,6 +14,7 @@ import com.mugen.mvvm.internal.MugenService;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.internal.MugenContextWrapper;
+import com.mugen.mvvm.views.support.MugenAppCompatActivity;
 
 public class MugenActivity extends Activity implements INativeActivityView {
     private SparseArray<Object> _state;
@@ -185,5 +186,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
             super.onPostCreate(savedInstanceState);
             MugenService.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
         }
+    }
+
+    public static class Main extends MugenAppCompatActivity {
     }
 }

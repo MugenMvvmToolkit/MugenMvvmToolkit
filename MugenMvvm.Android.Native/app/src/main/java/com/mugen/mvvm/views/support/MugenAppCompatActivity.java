@@ -186,4 +186,7 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
             MugenService.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
         }
     }
+
+    public static class Main extends MugenAppCompatActivity {
+    }
 }

@@ -10,6 +10,8 @@ import com.mugen.mvvm.internal.MugenService;
 import com.mugen.mvvm.internal.NativeLifecycleDispatcherWrapper;
 import com.mugen.mvvm.internal.NativeViewDispatcher;
 import com.mugen.mvvm.internal.ViewWrapperCleanerLifecycleDispatcher;
+import com.mugen.mvvm.views.MugenActivity;
+import com.mugen.mvvm.views.support.MugenAppCompatActivity;
 
 public final class MugenNativeService {
     private MugenNativeService() {
@@ -45,6 +47,14 @@ public final class MugenNativeService {
 
     public static void removeViewDispatcher(IViewDispatcher viewDispatcher) {
         MugenService.removeViewDispatcher(viewDispatcher);
+    }
+
+    public static void setMainActivityMapping(int resource) {
+        MugenExtensions.addActivityViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.Main.class : MugenActivity.Main.class, resource);
+    }
+
+    public static void addCommonActivityMapping(int resource) {
+        MugenExtensions.addActivityViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.class : MugenActivity.class, resource);
     }
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {
