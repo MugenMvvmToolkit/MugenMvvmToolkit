@@ -26,12 +26,12 @@ namespace MugenMvvm.Wrapping
 
         public bool CanWrap<TRequest>(Type wrapperType, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(wrapperType, request, metadata);
+            return GetComponents<IWrapperManagerComponent>(metadata).CanWrap(this, wrapperType, request, metadata);
         }
 
         public object? TryWrap<TRequest>(Type wrapperType, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(wrapperType, request, metadata);
+            var wrapper = GetComponents<IWrapperManagerComponent>(metadata).TryWrap(this, wrapperType, request, metadata);
             if (wrapper != null)
                 GetComponents<IWrapperManagerListener>(metadata).OnWrapped(this, wrapper, request, metadata);
             return wrapper;
