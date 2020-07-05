@@ -42,21 +42,21 @@ namespace MugenMvvm.Binding.Observation
         {
             if (_memberObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _memberObserverComponents!.TryGetMemberObserver(type, member, metadata);
+            return _memberObserverComponents!.TryGetMemberObserver(this, type, member, metadata);
         }
 
         public IMemberPath? TryGetMemberPath<TPath>([DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _memberPathComponents!.TryGetMemberPath(path, metadata);
+            return _memberPathComponents!.TryGetMemberPath(this, path, metadata);
         }
 
         public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _memberPathObserverComponents!.TryGetMemberPathObserver(target, request, metadata);
+            return _memberPathObserverComponents!.TryGetMemberPathObserver(this, target, request, metadata);
         }
 
         #endregion

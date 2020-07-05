@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
         {
             var component = new EventInfoMemberObserverProvider();
-            component.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProvider();
 
-            var observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProvider(reflectionManager: delegateProvider);
 
-            var observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
             observer.IsEmpty.ShouldBeTrue();
 
             testDelegateProvider.CanCreateDelegate = (type, info) =>
@@ -93,11 +93,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 type.ShouldEqual(typeof(Action));
                 return true;
             };
-            observer = component.TryGetMemberObserver(typeof(TestEventClass), eventInfo, DefaultMetadata);
+            observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
 
             testDelegateProvider.TryCreateDelegate = (type, o, arg3) =>
             {
-                var collection = (EventListenerCollection) o!;
+                var collection = (EventListenerCollection)o!;
                 return new Action(() => collection.Raise(target, msg, DefaultMetadata));
             };
 

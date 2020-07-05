@@ -8,6 +8,6 @@ namespace MugenMvvm.Binding.Interfaces.Observation.Components
 {
     public interface IMemberObserverProviderComponent : IComponent<IObservationManager>
     {
-        MemberObserver TryGetMemberObserver<TMember>(Type type, [DisallowNull]in TMember member, IReadOnlyMetadataContext? metadata);
+        MemberObserver TryGetMemberObserver<TMember>(IObservationManager observationManager, Type type, [DisallowNull]in TMember member, IReadOnlyMetadataContext? metadata);
     }
 }

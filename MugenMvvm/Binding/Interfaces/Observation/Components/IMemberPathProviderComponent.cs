@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Observation.Components
 {
     public interface IMemberPathProviderComponent : IComponent<IObservationManager>
     {
-        IMemberPath? TryGetMemberPath<TPath>([DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata);
+        IMemberPath? TryGetMemberPath<TPath>(IObservationManager observationManager, [DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata);
     }
 }

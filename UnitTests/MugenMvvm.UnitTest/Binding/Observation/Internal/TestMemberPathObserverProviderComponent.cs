@@ -3,11 +3,27 @@ using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Observation.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using Should;
 
 namespace MugenMvvm.UnitTest.Binding.Observation.Internal
 {
     public class TestMemberPathObserverProviderComponent : IMemberPathObserverProviderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IObservationManager? _observationManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestMemberPathObserverProviderComponent(IObservationManager? observationManager = null)
+        {
+            _observationManager = observationManager;
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }
@@ -18,8 +34,9 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Internal
 
         #region Implementation of interfaces
 
-        IMemberPathObserver? IMemberPathObserverProviderComponent.TryGetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata)
+        IMemberPathObserver? IMemberPathObserverProviderComponent.TryGetMemberPathObserver<TRequest>(IObservationManager observationManager, object target, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
+            _observationManager?.ShouldEqual(observationManager);
             return TryGetMemberPathObserver?.Invoke(target, request!, typeof(TRequest), metadata);
         }
 

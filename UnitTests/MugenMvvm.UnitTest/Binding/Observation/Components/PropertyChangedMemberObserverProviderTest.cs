@@ -16,7 +16,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         public void TryGetMemberObserverShouldReturnEmptyUnsupportedRequest()
         {
             var component = new PropertyChangedMemberObserverProvider();
-            component.TryGetMemberObserver(typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
+            component.TryGetMemberObserver(null!, typeof(object), this, DefaultMetadata).IsEmpty.ShouldBeTrue();
         }
 
         [Fact]
@@ -31,13 +31,13 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
-                    ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
                     return true;
                 }
             };
 
             var member = target.GetType().GetProperty(propertyName);
-            var observer = component.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, target.GetType(), member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -63,13 +63,13 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 TryHandle = (o, o1, m) =>
                 {
                     o.ShouldEqual(target);
-                    ((PropertyChangedEventArgs) o1!).PropertyName.ShouldEqual(propertyName);
+                    ((PropertyChangedEventArgs)o1!).PropertyName.ShouldEqual(propertyName);
                     return true;
                 }
             };
 
-            var member = new TestAccessorMemberInfo {Name = propertyName};
-            var observer = component.TryGetMemberObserver(target.GetType(), member, DefaultMetadata);
+            var member = new TestAccessorMemberInfo { Name = propertyName };
+            var observer = component.TryGetMemberObserver(null!, target.GetType(), member, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);

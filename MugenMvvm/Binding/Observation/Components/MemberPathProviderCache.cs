@@ -37,14 +37,14 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Implementation of interfaces
 
-        public IMemberPath? TryGetMemberPath<TPath>(in TPath path, IReadOnlyMetadataContext? metadata)
+        public IMemberPath? TryGetMemberPath<TPath>(IObservationManager observationManager, in TPath path, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TPath>() || !(path is string stringPath))
                 return null;
 
             if (!_cache.TryGetValue(stringPath, out var value))
             {
-                value = Components.TryGetMemberPath(stringPath, metadata)!;
+                value = Components.TryGetMemberPath(observationManager, stringPath, metadata)!;
                 _cache[stringPath] = value;
             }
 

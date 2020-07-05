@@ -13,14 +13,14 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         public void TryGetMemberPathShouldReturnEmptyUnsupportedRequest()
         {
             var component = new MemberPathProvider();
-            component.TryGetMemberPath(this, DefaultMetadata).ShouldBeNull();
+            component.TryGetMemberPath(null!, this, DefaultMetadata).ShouldBeNull();
         }
 
         [Fact]
         public void TryGetMemberPathShouldReturnEmptyPath()
         {
             var component = new MemberPathProvider();
-            component.TryGetMemberPath("", DefaultMetadata).ShouldEqual(EmptyMemberPath.Instance);
+            component.TryGetMemberPath(null!, "", DefaultMetadata).ShouldEqual(EmptyMemberPath.Instance);
         }
 
         [Fact]
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         {
             const string member = "Test";
             var component = new MemberPathProvider();
-            var path = (SingleMemberPath) component.TryGetMemberPath(member, DefaultMetadata)!;
+            var path = (SingleMemberPath)component.TryGetMemberPath(null!, member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
         }
 
@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         {
             const string member = "Test.Test[T]";
             var component = new MemberPathProvider();
-            var path = (MultiMemberPath) component.TryGetMemberPath(member, DefaultMetadata)!;
+            var path = (MultiMemberPath)component.TryGetMemberPath(null!, member, DefaultMetadata)!;
             path.Path.ShouldEqual(member);
         }
 

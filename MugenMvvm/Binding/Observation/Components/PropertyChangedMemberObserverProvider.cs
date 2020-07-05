@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Implementation of interfaces
 
-        public MemberObserver TryGetMemberObserver<TMember>(Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        public MemberObserver TryGetMemberObserver<TMember>(IObservationManager observationManager, Type type, in TMember member, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TMember>())
                 return default;

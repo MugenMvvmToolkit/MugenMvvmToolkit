@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestMemberPathProviderComponent
+                var component = new TestMemberPathProviderComponent(provider)
                 {
                     Priority = -i,
                     TryGetMemberPath = (o, arg3, arg4) =>
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestMemberObserverProviderComponent
+                var component = new TestMemberObserverProviderComponent(provider)
                 {
                     Priority = -i,
                     TryGetMemberObserver = (t, o, arg3, arg4) =>
@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestMemberPathObserverProviderComponent()
+                var component = new TestMemberPathObserverProviderComponent(provider)
                 {
                     Priority = -i,
                     TryGetMemberPathObserver = (t, o, arg3, arg4) =>

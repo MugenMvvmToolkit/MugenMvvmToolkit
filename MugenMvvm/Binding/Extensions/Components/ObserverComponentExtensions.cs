@@ -11,13 +11,15 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static MemberObserver TryGetMemberObserver<TMember>(this IMemberObserverProviderComponent[] components, Type type, [DisallowNull] in TMember member, IReadOnlyMetadataContext? metadata)
+        public static MemberObserver TryGetMemberObserver<TMember>(this IMemberObserverProviderComponent[] components, IObservationManager observationManager, Type type, [DisallowNull] in TMember member,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(type, nameof(type));
             for (var i = 0; i < components.Length; i++)
             {
-                var observer = components[i].TryGetMemberObserver(type, member, metadata);
+                var observer = components[i].TryGetMemberObserver(observationManager, type, member, metadata);
                 if (!observer.IsEmpty)
                     return observer;
             }
@@ -25,12 +27,13 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static IMemberPath? TryGetMemberPath<TPath>(this IMemberPathProviderComponent[] components, [DisallowNull]in TPath path, IReadOnlyMetadataContext? metadata)
+        public static IMemberPath? TryGetMemberPath<TPath>(this IMemberPathProviderComponent[] components, IObservationManager observationManager, [DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(observationManager, nameof(observationManager));
             for (var i = 0; i < components.Length; i++)
             {
-                var memberPath = components[i].TryGetMemberPath(path, metadata);
+                var memberPath = components[i].TryGetMemberPath(observationManager, path, metadata);
                 if (memberPath != null)
                     return memberPath;
             }
@@ -38,13 +41,15 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static IMemberPathObserver? TryGetMemberPathObserver<TRequest>(this IMemberPathObserverProviderComponent[] components, object target, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IMemberPathObserver? TryGetMemberPathObserver<TRequest>(this IMemberPathObserverProviderComponent[] components, IObservationManager observationManager, object target,
+            [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(observationManager, nameof(observationManager));
             Should.NotBeNull(target, nameof(target));
             for (var i = 0; i < components.Length; i++)
             {
-                var observer = components[i].TryGetMemberPathObserver(target, request, metadata);
+                var observer = components[i].TryGetMemberPathObserver(observationManager, target, request, metadata);
                 if (observer != null)
                     return observer;
             }

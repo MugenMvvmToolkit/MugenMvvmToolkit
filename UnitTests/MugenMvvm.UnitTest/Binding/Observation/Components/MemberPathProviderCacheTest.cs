@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             invokeCount.ShouldEqual(1);
 
             provider.RemoveComponent(decorator);
-            decorator.TryGetMemberPath(path.Path, DefaultMetadata).ShouldBeNull();
+            decorator.TryGetMemberPath(provider, path.Path, DefaultMetadata).ShouldBeNull();
         }
 
         #endregion

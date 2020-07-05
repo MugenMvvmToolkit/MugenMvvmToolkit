@@ -31,7 +31,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Implementation of interfaces
 
-        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(IObservationManager observationManager, object target, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TRequest) != typeof(MemberPathObserverRequest))
                 return null;
