@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        private readonly IObservationManager? _observerProvider;
+        private readonly IObservationManager? _observationManager;
         private readonly IReflectionManager? _reflectionManager;
 
         private readonly PropertyInfo _propertyInfo;
@@ -30,14 +30,14 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObservationManager? observerProvider, IReflectionManager? reflectionManager)
+        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObservationManager? observationManager, IReflectionManager? reflectionManager)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
-            _observerProvider = observerProvider;
+            _observationManager = observationManager;
             _reflectionManager = reflectionManager;
             Name = name;
             Type = _propertyInfo.PropertyType;
@@ -96,7 +96,7 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observerProvider.DefaultIfNull().TryGetMemberObserver(_reflectedType, this, metadata);
+                _observer = _observationManager.DefaultIfNull().TryGetMemberObserver(_reflectedType, this, metadata);
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 

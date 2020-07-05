@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         {
             var expectedPath = inputPath;
             var path = new SingleMemberPath(Path);
-            var observerProvider = new ObservationManager();
+            var observationManager = new ObservationManager();
             var component = new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
@@ -41,12 +41,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                     return path;
                 }
             };
-            observerProvider.AddComponent(component);
+            observationManager.AddComponent(component);
 
             var target = new object();
             var source = new object();
 
-            var exp = new BindingMemberExpressionNode(inputPath, observerProvider)
+            var exp = new BindingMemberExpressionNode(inputPath, observationManager)
             {
                 MemberFlags = MemberFlags.All,
                 Flags = BindingMemberExpressionFlags.Target
@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             p.ShouldEqual(path);
 
             expectedPath = inputPath;
-            exp = new BindingMemberExpressionNode(inputPath, observerProvider)
+            exp = new BindingMemberExpressionNode(inputPath, observationManager)
             {
                 MemberFlags = MemberFlags.All
             };
@@ -84,8 +84,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             var src = new object();
             object expectedTarget = src;
             var expectedPath = Path;
-            var observerProvider = new ObservationManager();
-            var exp = new BindingMemberExpressionNode(Path, observerProvider)
+            var observationManager = new ObservationManager();
+            var exp = new BindingMemberExpressionNode(Path, observationManager)
             {
                 MemberFlags = MemberFlags.All,
                 Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods |
@@ -93,7 +93,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 ObservableMethodName = "M"
             };
 
-            observerProvider.AddComponent(new TestMemberPathProviderComponent
+            observationManager.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
                 {
@@ -102,12 +102,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                     return path;
                 }
             });
-            observerProvider.AddComponent(new TestMemberPathObserverProviderComponent
+            observationManager.AddComponent(new TestMemberPathObserverProviderComponent
             {
                 TryGetMemberPathObserver = (target, req, arg3, arg4) =>
                 {
                     target.ShouldEqual(expectedTarget);
-                    var request = (MemberPathObserverRequest) req;
+                    var request = (MemberPathObserverRequest)req;
                     request.Path.ShouldEqual(path);
                     request.MemberFlags.ShouldEqual(exp.MemberFlags);
                     request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
             exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
 
-            exp = new BindingMemberExpressionNode(Path, observerProvider)
+            exp = new BindingMemberExpressionNode(Path, observationManager)
             {
                 MemberFlags = MemberFlags.All,
                 Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods,
@@ -133,6 +133,17 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
 
             expectedPath = $"DataContext.{Path}";
+            expectedTarget = t;
+            exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
+
+            exp = new BindingMemberExpressionNode(Path, observationManager)
+            {
+                MemberFlags = MemberFlags.All,
+                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods |
+                        BindingMemberExpressionFlags.DataContextPath,
+                ObservableMethodName = "M"
+            };
+            expectedPath = $"Parent.DataContext.{Path}";
             expectedTarget = t;
             exp.GetBindingSource(t, null, DefaultMetadata).ShouldEqual(observer);
         }

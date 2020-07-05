@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                 }
             });
 
-            var observerProvider = new ObservationManager();
+            var observationManager = new ObservationManager();
             var component = new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
@@ -59,9 +59,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                     return path;
                 }
             };
-            observerProvider.AddComponent(component);
+            observationManager.AddComponent(component);
 
-            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observerProvider, resourceResolver)
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observationManager, resourceResolver)
             {
                 MemberFlags = MemberFlags.All
             };
@@ -94,16 +94,16 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                     return resource;
                 }
             });
-            var observerProvider = new ObservationManager();
+            var observationManager = new ObservationManager();
 
-            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observerProvider, resourceResolver)
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observationManager, resourceResolver)
             {
                 MemberFlags = MemberFlags.All,
                 Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods,
                 ObservableMethodName = "M"
             };
 
-            observerProvider.AddComponent(new TestMemberPathProviderComponent
+            observationManager.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
                 {
@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
                     return path;
                 }
             });
-            observerProvider.AddComponent(new TestMemberPathObserverProviderComponent
+            observationManager.AddComponent(new TestMemberPathObserverProviderComponent
             {
                 TryGetMemberPathObserver = (target, req, arg3, arg4) =>
                 {

@@ -8,8 +8,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
     {
         #region Constructors
 
-        public BindingInstanceMemberExpressionNode(object instance, string path, IObservationManager? observerProvider = null)
-            : base(path, observerProvider)
+        public BindingInstanceMemberExpressionNode(object instance, string path, IObservationManager? observationManager = null)
+            : base(path, observationManager)
         {
             Should.NotBeNull(instance, nameof(instance));
             Instance = instance;

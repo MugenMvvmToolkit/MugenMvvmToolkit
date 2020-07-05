@@ -18,8 +18,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingResourceMemberExpressionNode(string resourceName, string path, IObservationManager? observerProvider = null, IResourceResolver? resourceResolver = null)
-            : base(path, observerProvider)
+        public BindingResourceMemberExpressionNode(string resourceName, string path, IObservationManager? observationManager = null, IResourceResolver? resourceResolver = null)
+            : base(path, observationManager)
         {
             Should.NotBeNull(resourceName, nameof(resourceName));
             ResourceName = resourceName;

@@ -14,18 +14,18 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
     {
         #region Fields
 
-        protected readonly IObservationManager? ObserverProvider;
+        protected readonly IObservationManager? ObservationManager;
         private IMemberPath? _memberPath;
 
         #endregion
 
         #region Constructors
 
-        protected BindingMemberExpressionNodeBase(string path, IObservationManager? observerProvider)
+        protected BindingMemberExpressionNodeBase(string path, IObservationManager? observationManager)
         {
             Should.NotBeNull(path, nameof(path));
             Path = path;
-            ObserverProvider = observerProvider;
+            ObservationManager = observationManager;
             Index = -1;
         }
 
@@ -66,7 +66,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         protected IMemberPath GetMemberPath(IReadOnlyMetadataContext? metadata)
         {
             if (_memberPath == null)
-                _memberPath = ObserverProvider.DefaultIfNull().GetMemberPath(Path, metadata);
+                _memberPath = ObservationManager.DefaultIfNull().GetMemberPath(Path, metadata);
             return _memberPath;
         }
 
@@ -76,7 +76,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             var request = new MemberPathObserverRequest(memberPath, MemberFlags,
                 Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
-            return ObserverProvider.DefaultIfNull().GetMemberPathObserver(target, request, metadata);
+            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, request, metadata);
         }
 
         public override string ToString()

@@ -28,16 +28,16 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         private readonly StringBuilder _memberBuilder;
         private readonly IMemberManager? _memberManager;
         private readonly MemberDictionary _members;
-        private readonly IObservationManager? _observerProvider;
+        private readonly IObservationManager? _observationManager;
         private readonly IResourceResolver? _resourceResolver;
 
         #endregion
 
         #region Constructors
 
-        public BindingMemberExpressionVisitor(IObservationManager? observerProvider = null, IResourceResolver? resourceResolver = null, IMemberManager? memberManager = null)
+        public BindingMemberExpressionVisitor(IObservationManager? observationManager = null, IResourceResolver? resourceResolver = null, IMemberManager? memberManager = null)
         {
-            _observerProvider = observerProvider;
+            _observationManager = observationManager;
             _resourceResolver = resourceResolver;
             _memberManager = memberManager;
             _members = new MemberDictionary();
@@ -155,7 +155,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                         var result = TryGetConstant("~t", memberExpression.Member, out var key);
                         if (result == null)
                         {
-                            var value = _observerProvider.DefaultIfNull()
+                            var value = _observationManager.DefaultIfNull()
                                 .GetMemberPath(_memberBuilder.GetPath(), metadata)
                                 .GetValueFromPath(type, null, MemberFlags.SetInstanceOrStaticFlags(true), 0, metadata, _memberManager);
                             result = ConstantExpressionNode.Get(value);
@@ -181,7 +181,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                             result = ConstantExpressionNode.Null;
                         else
                         {
-                            var value = _observerProvider
+                            var value = _observationManager
                                 .DefaultIfNull()
                                 .GetMemberPath(_memberBuilder.GetPath(), metadata)
                                 .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags.SetInstanceOrStaticFlags(false), 0, metadata, _memberManager);
@@ -222,7 +222,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType)type);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingMemberExpressionNode(key.Path, _observerProvider)
+                node = new BindingMemberExpressionNode(key.Path, _observationManager)
                 {
                     ObservableMethodName = methodName,
                     Flags = flags,
@@ -240,7 +240,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, flags, instance, BindingMemberType.Instance);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingInstanceMemberExpressionNode(instance, key.Path, _observerProvider)
+                node = new BindingInstanceMemberExpressionNode(instance, key.Path, _observationManager)
                 {
                     ObservableMethodName = methodName,
                     Flags = Flags,
@@ -258,7 +258,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, BindingMemberType.Resource);
             if (!_members.TryGetValue(key, out var node))
             {
-                node = new BindingResourceMemberExpressionNode(resourceName, key.Path, _observerProvider, _resourceResolver)
+                node = new BindingResourceMemberExpressionNode(resourceName, key.Path, _observationManager, _resourceResolver)
                 {
                     ObservableMethodName = methodName,
                     Flags = Flags,

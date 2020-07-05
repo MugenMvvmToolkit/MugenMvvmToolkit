@@ -50,11 +50,11 @@ public final class MugenNativeService {
     }
 
     public static void setMainActivityMapping(int resource) {
-        MugenExtensions.addActivityViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.Main.class : MugenActivity.Main.class, resource);
+        MugenExtensions.addViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.Main.class : MugenActivity.Main.class, resource);
     }
 
     public static void addCommonActivityMapping(int resource) {
-        MugenExtensions.addActivityViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.class : MugenActivity.class, resource);
+        MugenExtensions.addViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.class : MugenActivity.class, resource);
     }
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {

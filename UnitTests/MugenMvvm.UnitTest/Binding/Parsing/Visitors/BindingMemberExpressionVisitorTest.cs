@@ -402,8 +402,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
 
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberPathProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
                 {
@@ -418,7 +418,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
 
-            var visitor = new BindingMemberExpressionVisitor(observerProvider, resolver, memberManager) { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver, memberManager) { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName));
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(returnType));
             invokeCount.ShouldEqual(1);
@@ -503,8 +503,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
 
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberPathProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) =>
                 {
@@ -517,7 +517,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
                 }
             });
 
-            var visitor = new BindingMemberExpressionVisitor(observerProvider, resolver, memberManager) { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver, memberManager) { MemberFlags = MemberFlags.All, Flags = BindingMemberExpressionFlags.Observable };
             IExpressionNode expression = new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName));
             visitor.Visit(expression, isTarget, DefaultMetadata).ShouldEqual(ConstantExpressionNode.Get(resource.Value));
             invokeCount.ShouldEqual(1);
@@ -605,15 +605,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             {
                 TryGetType = (s, o, arg3, arg4) => typeof(string)
             });
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberPathProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) => EmptyMemberPath.Instance
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)),
                 new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)));
-            var visitor = new BindingMemberExpressionVisitor(observerProvider, resolver);
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
             var expressionNode = (BinaryExpressionNode)visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }
@@ -626,15 +626,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             {
                 TryGetResourceValue = (s, o, arg3, arg4) => new TestResourceValue()
             });
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberPathProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberPathProviderComponent
             {
                 TryGetMemberPath = (o, type, arg3) => EmptyMemberPath.Instance
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),
                 new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)));
-            var visitor = new BindingMemberExpressionVisitor(observerProvider, resolver);
+            var visitor = new BindingMemberExpressionVisitor(observationManager, resolver);
             var expressionNode = (BinaryExpressionNode)visitor.Visit(expression, true, DefaultMetadata);
             ReferenceEquals(expressionNode.Left, expressionNode.Right).ShouldBeTrue();
         }

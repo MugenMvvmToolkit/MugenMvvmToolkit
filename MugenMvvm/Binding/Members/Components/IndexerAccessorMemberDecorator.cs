@@ -27,17 +27,17 @@ namespace MugenMvvm.Binding.Members.Components
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
         private readonly MemberDictionary _membersDictionary;
-        private readonly IObservationManager? _observerProvider;
+        private readonly IObservationManager? _observationManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observerProvider = null)
+        public IndexerAccessorMemberDecorator(IGlobalValueConverter? globalValueConverter = null, IObservationManager? observationManager = null)
         {
             _globalValueConverter = globalValueConverter;
-            _observerProvider = observerProvider;
+            _observationManager = observationManager;
             _members = new List<IMemberInfo>();
             _membersDictionary = new MemberDictionary();
         }
@@ -148,7 +148,7 @@ namespace MugenMvvm.Binding.Members.Components
                     setter = Owner.TryGetMember(type, MemberType.Method, MemberFlags.All, item.Value.setters, metadata) as IMethodMemberInfo;
 
                 if (getter != null || setter != null)
-                    _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observerProvider));
+                    _members.Add(new MethodAccessorMemberInfo(name, getter, setter, item.Value.args, item.Value.flags, type, _observationManager));
             }
 
             _membersDictionary.Clear();

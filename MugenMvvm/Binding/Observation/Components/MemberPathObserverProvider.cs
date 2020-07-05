@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Properties
 
-        public int Priority { get; set; } = ObserverComponentPriority.ObserverProvider;
+        public int Priority { get; set; } = ObserverComponentPriority.MemberPathObserverProvider;
 
         public HashSet<string>? ObservableMethods { get; set; }
 

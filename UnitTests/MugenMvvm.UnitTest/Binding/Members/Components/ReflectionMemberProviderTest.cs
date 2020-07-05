@@ -86,8 +86,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         [InlineData(false)]
         public void TryGetMembersShouldReturnStaticEvents(bool canObserve)
         {
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberObserverProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -97,7 +97,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 }
             });
 
-            var component = new ReflectionMemberProvider(observerProvider);
+            var component = new ReflectionMemberProvider(observationManager);
             var items = GetType()
                 .GetEvents(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(info => info.Name == nameof(EventStatic))
@@ -143,8 +143,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         [InlineData(false)]
         public void TryGetMembersShouldReturnInstanceEvents(bool canObserve)
         {
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberObserverProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 }
             });
 
-            var component = new ReflectionMemberProvider(observerProvider);
+            var component = new ReflectionMemberProvider(observationManager);
             var items = GetType()
                 .GetEvents(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
                 .Where(info => info.Name == nameof(Event))

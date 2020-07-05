@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Members
 
         private readonly object?[] _args;
         private readonly IMethodMemberInfo? _getMethod;
-        private readonly IObservationManager? _observerProvider;
+        private readonly IObservationManager? _observationManager;
         private readonly Type _reflectedType;
         private readonly IMethodMemberInfo? _setMethod;
         private MemberObserver? _observer;
@@ -27,7 +27,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObservationManager? observerProvider)
+        public MethodAccessorMemberInfo(string name, IMethodMemberInfo? getMethod, IMethodMemberInfo? setMethod, object?[] args, ArgumentFlags argumentFlags, Type reflectedType, IObservationManager? observationManager)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(args, nameof(args));
@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Members
             _args = args;
             ArgumentFlags = argumentFlags;
             _reflectedType = reflectedType;
-            _observerProvider = observerProvider;
+            _observationManager = observationManager;
         }
 
         #endregion
@@ -85,7 +85,7 @@ namespace MugenMvvm.Binding.Members
             }
             if (_observer == null)
             {
-                _observer = _observerProvider
+                _observer = _observationManager
                     .DefaultIfNull()
                     .TryGetMemberObserver(_reflectedType, this, metadata);
             }

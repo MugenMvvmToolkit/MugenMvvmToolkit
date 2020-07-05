@@ -18,7 +18,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Constructors
 
-        public BindingMemberExpressionNode(string path, IObservationManager? observerProvider = null) : base(path, observerProvider)
+        public BindingMemberExpressionNode(string path, IObservationManager? observationManager = null) : base(path, observationManager)
         {
         }
 
@@ -66,7 +66,9 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
                 path = BindableMembers.For<object>().DataContext().Name + Path;
             else
                 path = BindableMembers.For<object>().DataContext().Name + "." + Path;
-            _dataContextMemberPath = ObserverProvider.DefaultIfNull().GetMemberPath(path, metadata);
+            if (Flags.HasFlagEx(BindingMemberExpressionFlags.DataContextPath))
+                path = BindableMembers.For<object>().Parent().Name + "." + path;
+            _dataContextMemberPath = ObservationManager.DefaultIfNull().GetMemberPath(path, metadata);
             return _dataContextMemberPath;
         }
 

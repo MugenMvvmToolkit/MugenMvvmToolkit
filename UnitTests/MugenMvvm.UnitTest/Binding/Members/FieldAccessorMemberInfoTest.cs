@@ -46,8 +46,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
             }, fieldInfo);
 
             var observerRequestCount = 0;
-            var observerProvider = new ObservationManager();
-            observerProvider.AddComponent(new TestMemberObserverProviderComponent
+            var observationManager = new ObservationManager();
+            observationManager.AddComponent(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var delegateProvider = new ReflectionManager();
             delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
 
-            memberInfo = new FieldAccessorMemberInfo(name, fieldInfo, reflectedType, observerProvider, delegateProvider);
+            memberInfo = new FieldAccessorMemberInfo(name, fieldInfo, reflectedType, observationManager, delegateProvider);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(fieldInfo.FieldType);
             memberInfo.DeclaringType.ShouldEqual(fieldInfo.DeclaringType);

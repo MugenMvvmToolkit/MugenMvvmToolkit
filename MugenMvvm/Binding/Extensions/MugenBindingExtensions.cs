@@ -48,21 +48,21 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
-        public static IMemberPath GetMemberPath<TPath>(this IObservationManager observerProvider, [DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPath GetMemberPath<TPath>(this IObservationManager observationManager, [DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(observerProvider, nameof(observerProvider));
-            var result = observerProvider.TryGetMemberPath(path, metadata);
+            Should.NotBeNull(observationManager, nameof(observationManager));
+            var result = observationManager.TryGetMemberPath(path, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberPathProviderComponent>(observerProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IMemberPathProviderComponent>(observationManager);
             return result;
         }
 
-        public static IMemberPathObserver GetMemberPathObserver<TRequest>(this IObservationManager observerProvider, object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPathObserver GetMemberPathObserver<TRequest>(this IObservationManager observationManager, object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(observerProvider, nameof(observerProvider));
-            var result = observerProvider.TryGetMemberPathObserver(target, request, metadata);
+            Should.NotBeNull(observationManager, nameof(observationManager));
+            var result = observationManager.TryGetMemberPathObserver(target, request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberPathObserverProviderComponent>(observerProvider);
+                ExceptionManager.ThrowObjectNotInitialized<IMemberPathObserverProviderComponent>(observationManager);
             return result;
         }
 
@@ -576,12 +576,13 @@ namespace MugenMvvm.Binding.Extensions
         {
             if (flags.HasFlagEx(MemberFlags.Static))
             {
-                var t = target as Type ?? target!.GetType();
+                Should.NotBeNull(target, nameof(target));
+                var t = target;
                 target = null;
-                return t;
+                return t as Type ?? t.GetType();
             }
 
-            return target!.GetType();
+            return target?.GetType() ?? typeof(object);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

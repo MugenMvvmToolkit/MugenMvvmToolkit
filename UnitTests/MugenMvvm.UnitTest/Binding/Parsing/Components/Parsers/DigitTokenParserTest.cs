@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             var component = new DigitTokenParser();
             var ctx = new TokenParserContext
             {
-                Parsers = new[] {new ConstantTokenParser()}
+                Parsers = new[] { new ConstantTokenParser() }
             };
             ctx.Initialize("null", DefaultMetadata);
             component.TryParse(ctx, null).ShouldBeNull();
@@ -64,9 +64,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Parsers
             var ctx = new TokenParserContext();
             ctx.Initialize("1dp", DefaultMetadata);
             component.PostfixToConverter.Clear();
-            component.PostfixToConverter["dp"] = (value, integer, postfix, context) =>
+            component.PostfixToConverter["dp"] = (value, integer, postfix, context, format) =>
             {
                 ++invokeCount;
+                format.ShouldEqual(component.FormatProvider);
                 value.ToString().ShouldEqual("1");
                 integer.ShouldBeTrue();
                 postfix.ShouldEqual("dp");

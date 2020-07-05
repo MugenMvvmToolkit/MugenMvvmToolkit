@@ -8,6 +8,7 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Delegates;
@@ -87,6 +88,8 @@ namespace MugenMvvm.Binding.Core.Components
             context.TargetExpression = _memberExpressionVisitor.Visit(context.TargetExpression, true, metadata);
             if (!IsEvent(context.Target, context.Source, context.TargetExpression, metadata))
             {
+                if (context.TargetExpression is IBindingMemberExpressionNode member && BindableMembers.For<object>().DataContext() == member.Path)
+                    _memberExpressionVisitor.Flags |= BindingMemberExpressionFlags.DataContextPath;
                 context.SourceExpression = _memberExpressionVisitor.Visit(context.SourceExpression, false, metadata);
                 return;
             }

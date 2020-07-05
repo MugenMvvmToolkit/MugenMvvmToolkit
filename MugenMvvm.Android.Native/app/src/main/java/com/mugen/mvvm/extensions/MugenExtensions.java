@@ -34,8 +34,8 @@ public final class MugenExtensions {
         }
     };
 
-    private final static SparseArray<Class> _resourceActivityMapping = new SparseArray<>();
-    private final static HashMap<Class, Integer> _activityResourceMapping = new HashMap<>();
+    private final static SparseArray<Class> _resourceViewMapping = new SparseArray<>();
+    private final static HashMap<Class, Integer> _viewResourceMapping = new HashMap<>();
 
     private final static HashMap<Class, IWrapperFactory> _viewMapping = new HashMap<>();
     private final static HashMap<Class, IWrapperFactory> _cacheViewFactoryMapping = new HashMap<>();
@@ -77,33 +77,33 @@ public final class MugenExtensions {
         return wrapper;
     }
 
-    public static void addWrapperMapping(Class nativeClass, IWrapperFactory factory) {
-        _viewMapping.put(nativeClass, factory);
+    public static void addWrapperMapping(Class viewClass, IWrapperFactory factory) {
+        _viewMapping.put(viewClass, factory);
         _cacheViewFactoryMapping.clear();
     }
 
-    public static int tryGetViewId(Class activityClass, Intent intent, int defaultValue) {
+    public static int tryGetViewId(Class viewClass, Intent intent, int defaultValue) {
         if (intent != null && intent.hasExtra(ViewIdIntentKey))
             return intent.getIntExtra(ViewIdIntentKey, defaultValue);
-        if (activityClass == null)
+        if (viewClass == null)
             return defaultValue;
-        Integer value = _activityResourceMapping.get(activityClass);
+        Integer value = _viewResourceMapping.get(viewClass);
         if (value == null || value == 0)
             return defaultValue;
         return value;
     }
 
-    public static void addActivityViewMapping(Class activityType, int resourceId) {
-        _resourceActivityMapping.put(resourceId, activityType);
-        if (_activityResourceMapping.containsKey(activityType))
-            _activityResourceMapping.put(activityType, 0);
+    public static void addViewMapping(Class viewClass, int resourceId) {
+        _resourceViewMapping.put(resourceId, viewClass);
+        if (_viewResourceMapping.containsKey(viewClass))
+            _viewResourceMapping.put(viewClass, 0);
         else
-            _activityResourceMapping.put(activityType, resourceId);
+            _viewResourceMapping.put(viewClass, resourceId);
     }
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {
         if (activityClass == null)
-            activityClass = _resourceActivityMapping.get(resourceId);
+            activityClass = _resourceViewMapping.get(resourceId);
         if (activityClass == null)
             return false;
 

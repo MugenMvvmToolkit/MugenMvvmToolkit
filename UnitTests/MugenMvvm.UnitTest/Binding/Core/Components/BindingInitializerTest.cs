@@ -10,8 +10,10 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Metadata;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.Binding.Parsing.Expressions;
+using MugenMvvm.Binding.Parsing.Expressions.Binding;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
@@ -48,6 +50,36 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             context.Initialize(this, this, target, source, default, DefaultMetadata);
             context.BindingComponents[BindingParameterNameConstant.EventHandler] = null;
             component.Initialize(null!, context);
+        }
+
+        [Fact]
+        public void ShouldUseParentDataContextForDataContextBind()
+        {
+            var context = new BindingExpressionInitializerContext(this);
+            var bindingManager = new BindingManager();
+            var component = new BindingInitializer();
+            bindingManager.AddComponent(component);
+
+            var sourceVisitCount = 0;
+            var target = new TestBindingMemberExpressionNode(BindableMembers.For<object>().DataContext())
+            {
+                GetSource = (o, o1, arg3) => (this, EmptyMemberPath.Instance, MemberFlags.Instance)
+            };
+            var source = new TestExpressionNode
+            {
+                Visit = (visitor, metadataContext) =>
+                {
+                    ++sourceVisitCount;
+                    metadataContext.ShouldEqual(context.GetMetadataOrDefault());
+                    var expressionVisitor = (BindingMemberExpressionVisitor)visitor;
+                    expressionVisitor.Flags.HasFlagEx(BindingMemberExpressionFlags.DataContextPath);
+                    return null;
+                }
+            };
+            context.Initialize(this, this, target, source, default, DefaultMetadata);
+            component.Initialize(null!, context);
+            sourceVisitCount.ShouldEqual(1);
+            context.BindingComponents.ShouldBeEmpty();
         }
 
         [Theory]
