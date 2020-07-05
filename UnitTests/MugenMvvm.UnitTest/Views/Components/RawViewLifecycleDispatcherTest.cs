@@ -27,8 +27,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             viewManager.AddComponent(new RawViewLifecycleDispatcher());
             viewManager.AddComponent(new TestViewProviderComponent
             {
-                TryGetViews = (o, type, arg3) =>
+                TryGetViews = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(viewManager);
                     o.ShouldEqual(this);
                     arg3.ShouldEqual(DefaultMetadata);
                     return view;
@@ -36,11 +37,12 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             viewManager.AddComponent(new TestViewLifecycleDispatcherComponent
             {
-                OnLifecycleChanged = (o, lifecycleState, arg3, arg4, arg5) =>
+                OnLifecycleChanged = (m, o, lifecycleState, arg3, arg4, arg5) =>
                 {
                     if (o == this)
                         return;
                     ++invokeCount;
+                    m.ShouldEqual(viewManager);
                     o.ShouldEqual(view);
                     lifecycleState.ShouldEqual(st);
                     arg3.ShouldEqual(state);

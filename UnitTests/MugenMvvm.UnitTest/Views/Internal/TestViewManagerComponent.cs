@@ -12,9 +12,9 @@ namespace MugenMvvm.UnitTest.Views.Internal
     {
         #region Properties
 
-        public Func<IViewMapping, object, Type, IReadOnlyMetadataContext?, CancellationToken, Task<IView>?>? TryInitializeAsync { get; set; }
+        public Func<IViewManager, IViewMapping, object, Type, IReadOnlyMetadataContext?, CancellationToken, Task<IView>?>? TryInitializeAsync { get; set; }
 
-        public Func<IView, object?, Type, IReadOnlyMetadataContext?, CancellationToken, Task?>? TryCleanupAsync { get; set; }
+        public Func<IViewManager, IView, object?, Type, IReadOnlyMetadataContext?, CancellationToken, Task?>? TryCleanupAsync { get; set; }
 
         public int Priority { get; set; }
 
@@ -22,14 +22,14 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        Task<IView>? IViewManagerComponent.TryInitializeAsync<TRequest>(IViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task<IView>? IViewManagerComponent.TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return TryInitializeAsync?.Invoke(mapping, request!, typeof(TRequest), metadata, cancellationToken);
+            return TryInitializeAsync?.Invoke(viewManager, mapping, request!, typeof(TRequest), metadata, cancellationToken);
         }
 
-        Task? IViewManagerComponent.TryCleanupAsync<TRequest>(IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        Task? IViewManagerComponent.TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return TryCleanupAsync?.Invoke(view, request, typeof(TRequest), metadata, cancellationToken);
+            return TryCleanupAsync?.Invoke(viewManager, view, request, typeof(TRequest), metadata, cancellationToken);
         }
 
         #endregion

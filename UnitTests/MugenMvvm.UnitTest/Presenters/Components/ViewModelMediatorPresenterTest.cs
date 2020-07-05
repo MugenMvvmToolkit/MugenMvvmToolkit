@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var mapping = new ViewMapping("t", typeof(TestView1), typeof(TestViewModel), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, type, m) =>
+                TryGetMappings = (_, o, type, m) =>
                 {
                     if (isRawRequest)
                     {
@@ -191,7 +191,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var mapping = new ViewMapping("t", typeof(object), typeof(object), DefaultMetadata);
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (o, type, arg3) => mapping,
+                TryGetMappings = (_, o, type, arg3) => mapping,
             });
             var wrapperManager = new WrapperManager();
             var serviceProvider = new TestServiceProvider

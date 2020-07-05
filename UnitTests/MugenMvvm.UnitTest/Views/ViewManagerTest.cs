@@ -34,9 +34,10 @@ namespace MugenMvvm.UnitTest.Views
             {
                 var component = new TestViewLifecycleDispatcherComponent
                 {
-                    OnLifecycleChanged = (v, viewLifecycleState, st, stateType, metadata) =>
+                    OnLifecycleChanged = (m, v, viewLifecycleState, st, stateType, metadata) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(manager);
                         v.ShouldEqual(view);
                         st.ShouldEqual(state);
                         stateType.ShouldEqual(state.GetType());
@@ -66,12 +67,13 @@ namespace MugenMvvm.UnitTest.Views
                 views.Add(view);
                 var component = new TestViewProviderComponent
                 {
-                    TryGetViews = (r, t, context) =>
+                    TryGetViews = (m, r, t, context) =>
                     {
+                        m.ShouldEqual(viewManager);
                         r.ShouldEqual(viewModel);
                         t.ShouldEqual(typeof(TestViewModel));
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] {view};
+                        return new[] { view };
                     },
                     Priority = -i
                 };
@@ -95,12 +97,13 @@ namespace MugenMvvm.UnitTest.Views
                 mappings.Add(mapping);
                 var component = new TestViewMappingProviderComponent
                 {
-                    TryGetMappings = (r, t, context) =>
+                    TryGetMappings = (m, r, t, context) =>
                     {
+                        m.ShouldEqual(viewManager);
                         r.ShouldEqual(view);
                         t.ShouldEqual(typeof(object));
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] {mapping};
+                        return new[] { mapping };
                     },
                     Priority = -i
                 };
@@ -133,9 +136,10 @@ namespace MugenMvvm.UnitTest.Views
                 var isLast = i == componentCount - 1;
                 var component = new TestViewManagerComponent
                 {
-                    TryInitializeAsync = (viewMapping, r, t, meta, token) =>
+                    TryInitializeAsync = (m, viewMapping, r, t, meta, token) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(manager);
                         viewMapping.ShouldEqual(mapping);
                         r.ShouldEqual(viewModel);
                         t.ShouldEqual(typeof(TestViewModel));
@@ -171,9 +175,10 @@ namespace MugenMvvm.UnitTest.Views
                 var isLast = i == componentCount - 1;
                 var component = new TestViewManagerComponent
                 {
-                    TryCleanupAsync = (v, r, t, meta, token) =>
+                    TryCleanupAsync = (m, v, r, t, meta, token) =>
                     {
                         ++invokeCount;
+                        m.ShouldEqual(manager);
                         v.ShouldEqual(view);
                         r.ShouldEqual(viewModel);
                         t.ShouldEqual(typeof(TestViewModel));

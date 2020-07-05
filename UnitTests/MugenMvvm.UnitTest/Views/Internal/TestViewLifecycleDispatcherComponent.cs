@@ -2,6 +2,7 @@
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 
 namespace MugenMvvm.UnitTest.Views.Internal
@@ -12,15 +13,15 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         public int Priority { get; set; }
 
-        public Action<object, ViewLifecycleState, object?, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
+        public Action<IViewManager, object, ViewLifecycleState, object?, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IViewLifecycleDispatcherComponent.OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IViewLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            OnLifecycleChanged?.Invoke(view, lifecycleState, state, typeof(TState), metadata);
+            OnLifecycleChanged?.Invoke(viewManager, view, lifecycleState, state, typeof(TState), metadata);
         }
 
         #endregion

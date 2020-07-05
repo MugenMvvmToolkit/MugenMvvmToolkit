@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Views.Internal
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>>>? TryGetMappings { get; set; }
+        public Func<IViewManager, object, Type, IReadOnlyMetadataContext?, ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>>>? TryGetMappings { get; set; }
 
         public int Priority { get; set; }
 
@@ -20,9 +20,9 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> IViewMappingProviderComponent.TryGetMappings<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> IViewMappingProviderComponent.TryGetMappings<TRequest>(IViewManager viewManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetMappings?.Invoke(request!, typeof(TRequest), metadata) ?? default;
+            return TryGetMappings?.Invoke(viewManager, request!, typeof(TRequest), metadata) ?? default;
         }
 
         #endregion

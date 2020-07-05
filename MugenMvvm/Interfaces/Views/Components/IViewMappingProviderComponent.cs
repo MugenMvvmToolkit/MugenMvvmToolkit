@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.Views.Components
 {
     public interface IViewMappingProviderComponent : IComponent<IViewManager>
     {
-        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
+        ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(IViewManager viewManager, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

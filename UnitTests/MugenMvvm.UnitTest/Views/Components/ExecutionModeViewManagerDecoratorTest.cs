@@ -45,8 +45,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, meta, token) =>
+                TryInitializeAsync = (m, viewMapping, r, t, meta, token) =>
                 {
+                    m.ShouldEqual(manager);
                     viewMapping.ShouldEqual(mapping);
                     r.ShouldEqual(viewModel);
                     t.ShouldEqual(viewModel.GetType());
@@ -93,8 +94,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, meta, token) =>
+                TryInitializeAsync = (m, viewMapping, r, t, meta, token) =>
                 {
+                    m.ShouldEqual(manager);
                     viewMapping.ShouldEqual(mapping);
                     r.ShouldEqual(viewModel);
                     t.ShouldEqual(viewModel.GetType());
@@ -154,8 +156,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (v, r, t, meta, token) =>
+                TryCleanupAsync = (m, v, r, t, meta, token) =>
                 {
+                    m.ShouldEqual(manager);
                     v.ShouldEqual(view);
                     r.ShouldEqual(viewModel);
                     t.ShouldEqual(viewModel.GetType());
@@ -202,8 +205,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (v, r, t, meta, token) =>
+                TryCleanupAsync = (m, v, r, t, meta, token) =>
                 {
+                    m.ShouldEqual(manager);
                     v.ShouldEqual(view);
                     r.ShouldEqual(viewModel);
                     t.ShouldEqual(viewModel.GetType());

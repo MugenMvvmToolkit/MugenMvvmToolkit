@@ -20,22 +20,22 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (view is IView)
             {
-                Components.OnLifecycleChanged(view, lifecycleState, state, metadata);
+                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
                 return;
             }
 
             var list = Owner.GetViews(view, metadata);
             var count = list.Count();
             if (count == 0)
-                Components.OnLifecycleChanged(view, lifecycleState, state, metadata);
+                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
             else
             {
                 for (var i = 0; i < count; i++)
-                    Components.OnLifecycleChanged(list.Get(i), lifecycleState, state, metadata);
+                    Components.OnLifecycleChanged(viewManager, list.Get(i), lifecycleState, state, metadata);
             }
         }
 

@@ -44,14 +44,14 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
                 if (viewModel == null || view == null)
-                    return Components.TryInitializeAsync(mapping, ToViewModelViewRequest(mapping, viewModel, view, metadata), cancellationToken, metadata);
-                return Components.TryInitializeAsync(mapping, request, cancellationToken, metadata);
+                    return Components.TryInitializeAsync(viewManager, mapping, ToViewModelViewRequest(mapping, viewModel, view, metadata), cancellationToken, metadata);
+                return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
             }
             catch (Exception e)
             {
@@ -59,9 +59,9 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        public Task? TryCleanupAsync<TRequest>(IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return Components.TryCleanupAsync(view, request, cancellationToken, metadata);
+            return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
         }
 
         #endregion

@@ -34,9 +34,10 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) =>
+                TryInitializeAsync = (mm, viewMapping, r, t, m, token) =>
                 {
                     ++initializeCount;
+                    mm.ShouldEqual(viewManager);
                     viewManager.ShouldEqual(viewManager);
                     var request = (ViewModelViewRequest)r;
                     request.View.ShouldEqual(view);
@@ -95,9 +96,10 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (v, r, t, meta, token) =>
+                TryCleanupAsync = (m, v, r, t, meta, token) =>
                 {
                     ++invokeCount;
+                    m.ShouldEqual(viewManager);
                     v.ShouldEqual(view);
                     r.ShouldEqual(viewModel);
                     t.ShouldEqual(viewModel.GetType());

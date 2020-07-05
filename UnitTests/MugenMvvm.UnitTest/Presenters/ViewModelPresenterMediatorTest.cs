@@ -154,7 +154,7 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) =>
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) =>
                 {
                     if (state == 1)
                         return Task.FromResult<IView>(view);
@@ -218,7 +218,7 @@ namespace MugenMvvm.UnitTest.Presenters
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) =>
+                TryInitializeAsync = (_, viewMapping, r, t, m, token) =>
                 {
                     viewMapping.ShouldEqual(mapping);
                     r.ShouldEqual(new ViewModelViewRequest(vm, includeView ? view.Target : null));
@@ -258,7 +258,7 @@ namespace MugenMvvm.UnitTest.Presenters
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, m, token) => Task.FromResult<IView>(view)
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
             wrapperManager.AddComponent(new DelegateWrapperManager<Type, object, object?>((type, type1, arg3, arg4) => true, (type, request, _, __) =>
@@ -298,7 +298,7 @@ namespace MugenMvvm.UnitTest.Presenters
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, m, token) => Task.FromResult<IView>(view)
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
             mediator.Initialize(vm, mapping, DefaultMetadata);
@@ -364,7 +364,7 @@ namespace MugenMvvm.UnitTest.Presenters
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, m, token) => Task.FromResult<IView>(view)
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
             mediator.Initialize(vm, mapping, DefaultMetadata);
@@ -424,14 +424,14 @@ namespace MugenMvvm.UnitTest.Presenters
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) =>
+                TryInitializeAsync = (_, viewMapping, r, t, m, token) =>
                 {
                     var viewModelViewRequest = (ViewModelViewRequest)r;
                     if (viewModelViewRequest.View == null)
                         return Task.FromResult<IView>(view);
                     return Task.FromResult<IView>(newView);
                 },
-                TryCleanupAsync = (v, r, rt, m, t) =>
+                TryCleanupAsync = (_, v, r, rt, m, t) =>
                 {
                     v.ShouldEqual(view);
                     t.ShouldNotEqual(default);
@@ -471,7 +471,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
             });
             var threadDispatcher = new ThreadDispatcher();
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
@@ -565,7 +565,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
             });
 
             var threadDispatcher = new ThreadDispatcher();
@@ -613,8 +613,8 @@ namespace MugenMvvm.UnitTest.Presenters
             navigationDispatcher.AddComponent(new NavigationContextProvider());
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, m, token) => Task.FromResult<IView>(view),
-                TryCleanupAsync = (v, o, arg3, arg4, arg5) =>
+                TryInitializeAsync = (_, viewMapping, r, t, m, token) => Task.FromResult<IView>(view),
+                TryCleanupAsync = (_, v, o, arg3, arg4, arg5) =>
                 {
                     ++clearCount;
                     v.ShouldEqual(view);
@@ -680,7 +680,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
             });
 
             var threadDispatcher = new ThreadDispatcher();
@@ -738,7 +738,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
             });
 
             var threadDispatcher = new ThreadDispatcher();
@@ -835,7 +835,7 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
             });
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
             mediator.Initialize(vm, mapping, DefaultMetadata);
@@ -890,7 +890,7 @@ namespace MugenMvvm.UnitTest.Presenters
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
+                TryInitializeAsync = (_, viewMapping, r, t, token, m) => Task.FromResult<IView>(view)
             });
             var threadDispatcher = new ThreadDispatcher();
             threadDispatcher.AddComponent(new TestThreadDispatcherComponent());
