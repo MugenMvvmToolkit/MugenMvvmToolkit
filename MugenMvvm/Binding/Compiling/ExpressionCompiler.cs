@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Compiling
 
         public ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IExpressionCompilerComponent>(metadata).TryCompile(expression, metadata);
+            return GetComponents<IExpressionCompilerComponent>(metadata).TryCompile(this, expression, metadata);
         }
 
         #endregion

@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     cmdParameter = new TestMemberPathObserver();
                     compiler.AddComponent(new TestExpressionCompilerComponent
                     {
-                        TryCompile = (node, m) =>
+                        TryCompile = (_, node, m) =>
                         {
                             node.ShouldEqual(cmdParameterNode);
                             m.ShouldEqual(context.GetMetadataOrDefault());

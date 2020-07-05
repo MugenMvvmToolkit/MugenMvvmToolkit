@@ -29,7 +29,7 @@ namespace MugenMvvm.Extensions
             return viewManager.TryCleanupAsync(view, request, cancellationToken, metadata) ?? Task.CompletedTask;
         }
 
-        public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
+        public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)//todo decorator
             where TView : class
         {
             return (TView?)view.TryWrap(typeof(TView), metadata, wrapperManager);

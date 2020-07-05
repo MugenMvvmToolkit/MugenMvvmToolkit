@@ -10,15 +10,15 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Internal
     {
         #region Properties
 
-        public Func<IExpressionNode, IReadOnlyMetadataContext?, ICompiledExpression?>? TryCompile { get; set; }
+        public Func<IExpressionCompiler, IExpressionNode, IReadOnlyMetadataContext?, ICompiledExpression?>? TryCompile { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ICompiledExpression? IExpressionCompilerComponent.TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        ICompiledExpression? IExpressionCompilerComponent.TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
-            return TryCompile?.Invoke(expression, metadata);
+            return TryCompile?.Invoke(compiler, expression, metadata);
         }
 
         #endregion

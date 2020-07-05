@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var compiler = new ExpressionCompiler();
             compiler.AddComponent(new TestExpressionCompilerComponent
             {
-                TryCompile = (node, m) =>
+                TryCompile = (_, node, m) =>
                 {
                     node.ShouldEqual(parameters[2].Right);
                     m.ShouldEqual(context.GetMetadataOrDefault());

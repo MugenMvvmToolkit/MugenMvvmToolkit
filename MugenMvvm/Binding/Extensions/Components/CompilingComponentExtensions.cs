@@ -10,13 +10,14 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static ICompiledExpression? TryCompile(this IExpressionCompilerComponent[] components, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        public static ICompiledExpression? TryCompile(this IExpressionCompilerComponent[] components, IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(compiler, nameof(compiler));
             Should.NotBeNull(expression, nameof(expression));
             for (var i = 0; i < components.Length; i++)
             {
-                var compiledExpression = components[i].TryCompile(expression, metadata);
+                var compiledExpression = components[i].TryCompile(compiler, expression, metadata);
                 if (compiledExpression != null)
                     return compiledExpression;
             }

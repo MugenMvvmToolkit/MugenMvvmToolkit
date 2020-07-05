@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Compiling.Components
 {
     public interface IExpressionCompilerComponent : IComponent<IExpressionCompiler>
     {
-        ICompiledExpression? TryCompile(IExpressionNode expression, IReadOnlyMetadataContext? metadata);
+        ICompiledExpression? TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata);
     }
 }

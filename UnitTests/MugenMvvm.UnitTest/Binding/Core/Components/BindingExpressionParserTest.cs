@@ -237,7 +237,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var compiler = new ExpressionCompiler();
             compiler.AddComponent(new TestExpressionCompilerComponent
             {
-                TryCompile = (node, context) =>
+                TryCompile = (_, node, context) =>
                 {
                     var expected = GetBindingSourceExpression(count, out var n1, out var n2);
                     n1.Index = 0;
