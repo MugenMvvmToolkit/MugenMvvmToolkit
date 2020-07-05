@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void Initialize(IBindingExpressionInitializerContext context)
+        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
             TryAddDelay(context, BindingParameterNameConstant.Delay);
             TryAddDelay(context, BindingParameterNameConstant.TargetDelay);

@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             });
 
-            initializer.Initialize(ctx);
+            initializer.Initialize(null!, ctx);
             ctx.TargetExpression.ShouldEqual(newNode);
             ctx.SourceExpression.ShouldEqual(source);
             ctx.Parameters.AsList().ShouldEqual(parameters);
@@ -69,7 +69,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             });
 
-            initializer.Initialize(ctx);
+            initializer.Initialize(null!, ctx);
             ctx.TargetExpression.ShouldEqual(target);
             ctx.SourceExpression.ShouldEqual(newNode);
             ctx.Parameters.AsList().ShouldEqual(parameters);
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             });
 
-            initializer.Initialize(ctx);
+            initializer.Initialize(null!, ctx);
             ctx.TargetExpression.ShouldEqual(target);
             ctx.SourceExpression.ShouldEqual(source);
             ctx.Parameters.AsList().ShouldEqual(new[] { newNode, newNode, newNode });

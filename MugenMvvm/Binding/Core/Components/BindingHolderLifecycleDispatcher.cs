@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -43,15 +42,15 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged<TState>(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v, false) && v)
                 return;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
-                _components.TryRegister(typeof(TState) == typeof(BindingTargetSourceState) ? MugenExtensions.CastGeneric<TState, BindingTargetSourceState>(state).Target : binding.Target.Target, binding, metadata);
+                _components.TryRegister(bindingManager, typeof(TState) == typeof(BindingTargetSourceState) ? MugenExtensions.CastGeneric<TState, BindingTargetSourceState>(state).Target : binding.Target.Target, binding, metadata);
             else if (lifecycleState == BindingLifecycleState.Disposed)
-                _components.TryUnregister(binding.Target.Target, binding, metadata);
+                _components.TryUnregister(bindingManager, binding.Target.Target, binding, metadata);
         }
 
         #endregion

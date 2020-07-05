@@ -8,6 +8,6 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingExpressionParserComponent : IComponent<IBindingManager>
     {
-        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata);
+        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata);
     }
 }

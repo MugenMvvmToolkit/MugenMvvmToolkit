@@ -20,22 +20,25 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var binding = new TestBinding();
             var target = new object();
+            var manager = new BindingManager();
 
             var registerCount = 0;
             var unregisterCount = 0;
             var holder = new TestBindingHolderComponent
             {
-                TryRegister = (o, b, arg3) =>
+                TryRegister = (m, o, b, arg3) =>
                 {
                     ++registerCount;
+                    m.ShouldEqual(manager);
                     o.ShouldEqual(target);
                     b.ShouldEqual(binding);
                     arg3.ShouldEqual(DefaultMetadata);
                     return true;
                 },
-                TryUnregister = (o, b, arg3) =>
+                TryUnregister = (m, o, b, arg3) =>
                 {
                     ++unregisterCount;
+                    m.ShouldEqual(manager);
                     o.ShouldEqual(target);
                     b.ShouldEqual(binding);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -43,7 +46,6 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             };
 
-            var manager = new BindingManager();
             manager.AddComponent(holder);
             manager.AddComponent(new BindingHolderLifecycleDispatcher());
 
@@ -51,7 +53,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(0);
 
-            binding.Target = new TestMemberPathObserver {Target = target};
+            binding.Target = new TestMemberPathObserver { Target = target };
             manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
             registerCount.ShouldEqual(2);
             unregisterCount.ShouldEqual(0);

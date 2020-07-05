@@ -126,25 +126,28 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             {
                 var subscribe = TestComponentSubscriber.Subscribe(new TestBindingEventHandlerComponent
                 {
-                    OnBeginEvent = (s, msg, metadata) =>
+                    OnBeginEvent = (m, s, msg, metadata) =>
                     {
                         if (isError)
                             throw exception;
+                        m.ShouldEqual(MugenBindingService.BindingManager);
                         ++beginEventCount;
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
-                    OnEndEvent = (s, msg, metadata) =>
+                    OnEndEvent = (m, s, msg, metadata) =>
                     {
                         ++endEventCount;
+                        m.ShouldEqual(MugenBindingService.BindingManager);
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
-                    OnEventError = (e, s, msg, metadata) =>
+                    OnEventError = (m, e, s, msg, metadata) =>
                     {
                         ++errorEventCount;
+                        m.ShouldEqual(MugenBindingService.BindingManager);
                         e.ShouldEqual(exception);
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);

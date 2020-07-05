@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             context.Initialize(this, this, target, source, default, DefaultMetadata);
             context.BindingComponents[BindingParameterNameConstant.EventHandler] = null;
-            component.Initialize(context);
+            component.Initialize(null!, context);
         }
 
         [Theory]
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 }
             };
             context.Initialize(this, this, target, source, parameters, DefaultMetadata);
-            component.Initialize(context);
+            component.Initialize(null!, context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
             context.BindingComponents.ShouldBeEmpty();
@@ -314,7 +314,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
 
             context.Initialize(targetSrc, sourceSrc, target, source, parameters, DefaultMetadata);
-            component.Initialize(context);
+            component.Initialize(null!, context);
             targetVisitCount.ShouldEqual(1);
             sourceVisitCount.ShouldEqual(1);
             context.BindingComponents[BindingParameterNameConstant.Mode].ShouldBeNull();

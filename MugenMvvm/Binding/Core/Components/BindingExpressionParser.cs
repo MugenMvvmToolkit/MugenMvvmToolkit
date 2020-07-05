@@ -54,7 +54,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             var parserResult = _parser.DefaultIfNull().TryParse(expression, metadata);
             var list = parserResult.List;
@@ -154,7 +154,7 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 var component = (BindingExpressionParser)_context.Owner;
                 _context.Initialize(target, source, TargetExpression, (IExpressionNode?)_sourceExpression, GetParameters(), metadata);
-                component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(_context);
+                component.Owner.Components.Get<IBindingExpressionInitializerComponent>(metadata).Initialize(component.Owner, _context);
                 TargetExpression = _context.TargetExpression;
                 var sourceExpression = _context.SourceExpression;
 

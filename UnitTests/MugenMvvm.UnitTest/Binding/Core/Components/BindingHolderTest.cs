@@ -25,21 +25,21 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var bindings = new List<IBinding>();
             for (var i = 0; i < count; i++)
             {
-                var testBinding = new TestBinding {Target = new TestMemberPathObserver {Path = new MultiMemberPath(defaultPath + i)}};
+                var testBinding = new TestBinding { Target = new TestMemberPathObserver { Path = new MultiMemberPath(defaultPath + i) } };
                 bindings.Add(testBinding);
 
-                bindingHolder.TryRegister(this, testBinding, DefaultMetadata).ShouldBeTrue();
-                bindingHolder.TryGetBindings(this, defaultPath + i, DefaultMetadata).AsList().Single().ShouldEqual(testBinding);
-                var array = bindingHolder.TryGetBindings(this, null, DefaultMetadata).AsList();
+                bindingHolder.TryRegister(null!, this, testBinding, DefaultMetadata).ShouldBeTrue();
+                bindingHolder.TryGetBindings(null!, this, defaultPath + i, DefaultMetadata).AsList().Single().ShouldEqual(testBinding);
+                var array = bindingHolder.TryGetBindings(null!, this, null, DefaultMetadata).AsList();
                 array.Count.ShouldEqual(bindings.Count);
                 array.ShouldContain(bindings);
             }
 
             for (var i = 0; i < count; i++)
             {
-                bindingHolder.TryUnregister(this, bindings[i], DefaultMetadata).ShouldBeTrue();
-                bindingHolder.TryGetBindings(this, defaultPath + i, DefaultMetadata).AsList().ShouldBeEmpty();
-                var array = bindingHolder.TryGetBindings(this, null, DefaultMetadata).AsList();
+                bindingHolder.TryUnregister(null!, this, bindings[i], DefaultMetadata).ShouldBeTrue();
+                bindingHolder.TryGetBindings(null!, this, defaultPath + i, DefaultMetadata).AsList().ShouldBeEmpty();
+                var array = bindingHolder.TryGetBindings(null!, this, null, DefaultMetadata).AsList();
                 array.Count.ShouldEqual(bindings.Count - i - 1);
                 array.ShouldContain(bindings.Skip(i + 1));
             }
@@ -52,21 +52,21 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var b2Disposed = false;
             var b1 = new TestBinding
             {
-                Target = new TestMemberPathObserver {Path = new SingleMemberPath("T")},
+                Target = new TestMemberPathObserver { Path = new SingleMemberPath("T") },
                 Dispose = () => b1Disposed = true
             };
             var b2 = new TestBinding
             {
-                Target = new TestMemberPathObserver {Path = new SingleMemberPath("T")},
+                Target = new TestMemberPathObserver { Path = new SingleMemberPath("T") },
                 Dispose = () => b2Disposed = true
             };
             var bindingHolder = new BindingHolder();
 
-            bindingHolder.TryRegister(this, b1, DefaultMetadata).ShouldBeTrue();
+            bindingHolder.TryRegister(null!, this, b1, DefaultMetadata).ShouldBeTrue();
             b1Disposed.ShouldBeFalse();
             b2Disposed.ShouldBeFalse();
 
-            bindingHolder.TryRegister(this, b2, DefaultMetadata).ShouldBeTrue();
+            bindingHolder.TryRegister(null!, this, b2, DefaultMetadata).ShouldBeTrue();
             b1Disposed.ShouldBeTrue();
             b2Disposed.ShouldBeFalse();
         }

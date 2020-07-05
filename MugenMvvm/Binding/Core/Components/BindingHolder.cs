@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(object target, string? path, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Core.Components
             return bindings;
         }
 
-        public bool TryRegister(object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public bool TryRegister(IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
             if (target == null)
@@ -73,7 +73,7 @@ namespace MugenMvvm.Binding.Core.Components
             return true;
         }
 
-        public bool TryUnregister(object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public bool TryUnregister(IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(binding, nameof(binding));
             if (target == null)

@@ -15,11 +15,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         [Fact]
         public void ShouldDispatchInputBuilders()
         {
-            var bindingExpressions = new List<IBindingBuilder> {new TestBindingBuilder(), new TestBindingBuilder()};
+            var bindingExpressions = new List<IBindingBuilder> { new TestBindingBuilder(), new TestBindingBuilder() };
             var builder = new BindingBuilderListExpressionParser();
-            builder.TryParseBindingExpression(bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
+            builder.TryParseBindingExpression(null!, bindingExpressions, DefaultMetadata).List.ShouldEqual(bindingExpressions);
 
-            builder.TryParseBindingExpression(this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            builder.TryParseBindingExpression(null!, this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         #endregion

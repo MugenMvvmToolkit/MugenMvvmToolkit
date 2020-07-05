@@ -22,11 +22,11 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             try
             {
-                var result = Components.TryParseBindingExpression(expression, metadata);
+                var result = Components.TryParseBindingExpression(bindingManager, expression, metadata);
                 if (result.Item != null)
                     return ExceptionWrapperBindingBuilder.Wrap(result.Item);
 

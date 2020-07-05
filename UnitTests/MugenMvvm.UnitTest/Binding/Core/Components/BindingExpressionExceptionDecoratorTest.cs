@@ -22,8 +22,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
                     type.ShouldEqual(request.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
@@ -34,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var expression = bindingManager.TryParseBindingExpression(request, DefaultMetadata).Item!;
             expression.ShouldNotBeNull();
 
-            var binding = (InvalidBinding) expression.Build(this, this, DefaultMetadata);
+            var binding = (InvalidBinding)expression.Build(this, this, DefaultMetadata);
             binding.Exception.ShouldEqual(exception);
         }
 
@@ -65,7 +66,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) => expressions
+                TryParseBindingExpression = (_, o, type, arg3) => expressions
             });
 
             var result = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();
@@ -73,7 +74,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             for (var i = 0; i < result.Count; i++)
             {
-                var binding = (InvalidBinding) result[i].Build(target, source, DefaultMetadata);
+                var binding = (InvalidBinding)result[i].Build(target, source, DefaultMetadata);
                 binding.Exception.ShouldEqual(exception);
             }
         }

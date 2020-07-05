@@ -14,15 +14,15 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         public int Priority { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>>? TryParseBindingExpression { get; set; }
+        public Func<IBindingManager, object, Type, IReadOnlyMetadataContext?, ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>>? TryParseBindingExpression { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> IBindingExpressionParserComponent.TryParseBindingExpression<TExpression>(in TExpression expression, IReadOnlyMetadataContext? metadata)
+        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> IBindingExpressionParserComponent.TryParseBindingExpression<TExpression>(IBindingManager bindingManager, in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            return TryParseBindingExpression?.Invoke(expression!, typeof(TExpression), metadata) ?? default;
+            return TryParseBindingExpression?.Invoke(bindingManager, expression!, typeof(TExpression), metadata) ?? default;
         }
 
         #endregion

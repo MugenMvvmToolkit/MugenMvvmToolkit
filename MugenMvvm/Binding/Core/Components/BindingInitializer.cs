@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void Initialize(IBindingExpressionInitializerContext context)
+        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
             if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler))
                 return;

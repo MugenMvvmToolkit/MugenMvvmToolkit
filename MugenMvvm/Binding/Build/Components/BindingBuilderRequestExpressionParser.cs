@@ -38,21 +38,21 @@ namespace MugenMvvm.Binding.Build.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TExpression) == typeof(BindingBuilderRequest))
             {
                 var request = MugenExtensions.CastGeneric<TExpression, BindingBuilderRequest>(expression);
                 if (!_cache.TryGetValue(request.OriginalDelegate, out var value))
                 {
-                    value = Components.TryParseBindingExpression(request.ToBindingExpressionRequest(), metadata).GetRawValue();
+                    value = Components.TryParseBindingExpression(bindingManager, request.ToBindingExpressionRequest(), metadata).GetRawValue();
                     _cache[request.OriginalDelegate] = value;
                 }
 
                 return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(value);
             }
 
-            return Components.TryParseBindingExpression(expression, metadata);
+            return Components.TryParseBindingExpression(bindingManager, expression, metadata);
         }
 
         #endregion

@@ -40,9 +40,10 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 var component = new TestBindingExpressionParserComponent
                 {
                     Priority = -i,
-                    TryParseBindingExpression = (r, t, m) =>
+                    TryParseBindingExpression = (b, r, t, m) =>
                     {
                         ++invokeCount;
+                        b.ShouldEqual(bindingManager);
                         r.ShouldEqual(request);
                         t.ShouldEqual(request.GetType());
                         m.ShouldEqual(DefaultMetadata);
@@ -77,8 +78,9 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 var component = new TestBindingHolderComponent
                 {
                     Priority = -i,
-                    TryGetBindings = (t, p, m) =>
+                    TryGetBindings = (b, t, p, m) =>
                     {
+                        b.ShouldEqual(bindingManager);
                         list2.Add(binding);
                         t.ShouldEqual(target);
                         p.ShouldEqual(path);
@@ -108,9 +110,10 @@ namespace MugenMvvm.UnitTest.Binding.Core
             {
                 var component = new TestBindingStateDispatcherComponent
                 {
-                    OnLifecycleChanged = (vm, viewModelLifecycleState, st, stateType, metadata) =>
+                    OnLifecycleChanged = (b, vm, viewModelLifecycleState, st, stateType, metadata) =>
                     {
                         ++invokeCount;
+                        b.ShouldEqual(manager);
                         vm.ShouldEqual(binding);
                         st.ShouldEqual(state);
                         stateType.ShouldEqual(state.GetType());

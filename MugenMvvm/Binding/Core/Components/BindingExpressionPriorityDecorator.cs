@@ -48,9 +48,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
-            var expressions = Components.TryParseBindingExpression(expression, metadata);
+            var expressions = Components.TryParseBindingExpression(bindingManager, expression, metadata);
             var list = expressions.List;
             if (expressions.Item != null || list == null)
                 return expressions;

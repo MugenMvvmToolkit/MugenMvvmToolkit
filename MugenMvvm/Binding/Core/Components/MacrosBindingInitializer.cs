@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void Initialize(IBindingExpressionInitializerContext context)
+        public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
             var metadata = context.GetMetadataOrDefault();
             for (var i = 0; i < TargetVisitors.Count; i++)

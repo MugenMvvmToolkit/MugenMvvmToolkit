@@ -11,15 +11,15 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         public int Priority { get; set; }
 
-        public Action<IBindingExpressionInitializerContext>? Initialize { get; set; }
+        public Action<IBindingManager, IBindingExpressionInitializerContext>? Initialize { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IBindingExpressionInitializerComponent.Initialize(IBindingExpressionInitializerContext context)
+        void IBindingExpressionInitializerComponent.Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            Initialize?.Invoke(context);
+            Initialize?.Invoke(bindingManager, context);
         }
 
         #endregion

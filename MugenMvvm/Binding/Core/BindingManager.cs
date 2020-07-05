@@ -41,21 +41,21 @@ namespace MugenMvvm.Binding.Core
         {
             if (_expressionBuilderComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _expressionBuilderComponents!.TryParseBindingExpression(expression, metadata);
+            return _expressionBuilderComponents!.TryParseBindingExpression(this, expression, metadata);
         }
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> GetBindings(object target, string? path = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (_holderComponents == null)
                 _componentTracker.Attach(this, metadata);
-            return _holderComponents!.TryGetBindings(target, path, metadata);
+            return _holderComponents!.TryGetBindings(this, target, path, metadata);
         }
 
         public void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
             if (_stateDispatcherComponents == null)
                 _componentTracker.Attach(this, metadata);
-            _stateDispatcherComponents!.OnLifecycleChanged(binding, lifecycleState, state, metadata);
+            _stateDispatcherComponents!.OnLifecycleChanged(this, binding, lifecycleState, state, metadata);
         }
 
         #endregion

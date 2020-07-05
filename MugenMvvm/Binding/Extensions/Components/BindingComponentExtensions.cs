@@ -281,38 +281,42 @@ namespace MugenMvvm.Binding.Extensions.Components
             }
         }
 
-        public static void OnBeginEvent<T>(this IBindingEventHandlerComponent[] components, object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public static void OnBeginEvent<T>(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
-                components[i].OnBeginEvent(sender, message, metadata);
+                components[i].OnBeginEvent(bindingManager, sender, message, metadata);
         }
 
-        public static void OnEndEvent<T>(this IBindingEventHandlerComponent[] components, object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public static void OnEndEvent<T>(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
-                components[i].OnEndEvent(sender, message, metadata);
+                components[i].OnEndEvent(bindingManager, sender, message, metadata);
         }
 
-        public static void OnEventError<T>(this IBindingEventHandlerComponent[] components, Exception exception, object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public static void OnEventError<T>(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, Exception exception, object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(exception, nameof(exception));
             Should.NotBeNull(sender, nameof(sender));
             for (var i = 0; i < components.Length; i++)
-                components[i].OnEventError(exception, sender, message, metadata);
+                components[i].OnEventError(bindingManager, exception, sender, message, metadata);
         }
 
         public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(this IBindingExpressionParserComponent[] components,
-            [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+            IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryParseBindingExpression(expression, metadata);
+                var result = components[i].TryParseBindingExpression(bindingManager, expression, metadata);
                 if (result.Item != null || result.List != null)
                     return result;
             }
@@ -320,61 +324,65 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static void Initialize(this IBindingExpressionInitializerComponent[] components, IBindingExpressionInitializerContext context)
+        public static void Initialize(this IBindingExpressionInitializerComponent[] components, IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(context, nameof(context));
             for (var i = 0; i < components.Length; i++)
-                components[i].Initialize(context);
+                components[i].Initialize(bindingManager, context);
         }
 
-        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, object target, string? path, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IBinding, IReadOnlyList<IBinding>> TryGetBindings(this IBindingHolderComponent[] components, IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(target, nameof(target));
             if (components.Length == 1)
-                return components[0].TryGetBindings(target, path, metadata);
+                return components[0].TryGetBindings(bindingManager, target, path, metadata);
 
             ItemOrList<IBinding, List<IBinding>> result = default;
             for (var i = 0; i < components.Length; i++)
-                result.AddRange(components[i].TryGetBindings(target, path, metadata));
+                result.AddRange(components[i].TryGetBindings(bindingManager, target, path, metadata));
             return result.Cast<IReadOnlyList<IBinding>>();
         }
 
-        public static bool TryRegister(this IBindingHolderComponent[] components, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public static bool TryRegister(this IBindingHolderComponent[] components, IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryRegister(target, binding, metadata))
+                if (components[i].TryRegister(bindingManager, target, binding, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static bool TryUnregister(this IBindingHolderComponent[] components, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
+        public static bool TryUnregister(this IBindingHolderComponent[] components, IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             for (var i = 0; i < components.Length; i++)
             {
-                if (components[i].TryUnregister(target, binding, metadata))
+                if (components[i].TryUnregister(bindingManager, target, binding, metadata))
                     return true;
             }
 
             return false;
         }
 
-        public static void OnLifecycleChanged<TState>(this IBindingLifecycleDispatcherComponent[] components, IBinding binding,
+        public static void OnLifecycleChanged<TState>(this IBindingLifecycleDispatcherComponent[] components, IBindingManager bindingManager, IBinding binding,
             BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(bindingManager, nameof(bindingManager));
             Should.NotBeNull(binding, nameof(binding));
             Should.NotBeNull(lifecycleState, nameof(lifecycleState));
             for (var i = 0; i < components.Length; i++)
-                components[i].OnLifecycleChanged(binding, lifecycleState, state, metadata);
+                components[i].OnLifecycleChanged(bindingManager, binding, lifecycleState, state, metadata);
         }
 
         public static ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]> TryGetBindingComponents(object?[] bindingComponents, IComparer<IComponent<IBinding>?> comparer,

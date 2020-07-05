@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var initializer = new DelayBindingInitializer();
             var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Action, default, DefaultMetadata);
-            initializer.Initialize(context);
+            initializer.Initialize(null!, context);
             context.BindingComponents.ShouldBeEmpty();
         }
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 context.BindingComponents[BindingParameterNameConstant.Delay] = null;
             }
 
-            initializer.Initialize(context);
+            initializer.Initialize(null!, context);
             context.BindingComponents.Count.ShouldEqual(1);
             if (ignore)
             {
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 context.BindingComponents[BindingParameterNameConstant.TargetDelay] = null;
             }
 
-            initializer.Initialize(context);
+            initializer.Initialize(null!, context);
             context.BindingComponents.Count.ShouldEqual(1);
             if (ignore)
             {

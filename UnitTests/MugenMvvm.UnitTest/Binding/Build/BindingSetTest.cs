@@ -42,10 +42,11 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
                     ++invokeCount;
-                    ((BindingBuilderRequest) o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
+                    m.ShouldEqual(bindingManager);
+                    ((BindingBuilderRequest)o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
                     type.ShouldEqual(typeof(BindingBuilderRequest));
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
@@ -78,10 +79,11 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
                     ++invokeCount;
-                    ((BindingBuilderRequest) o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
+                    m.ShouldEqual(bindingManager);
+                    ((BindingBuilderRequest)o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
                     type.ShouldEqual(typeof(BindingBuilderRequest));
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
@@ -116,9 +118,10 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
                     ++invokeCount;
+                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
                     type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
@@ -153,9 +156,10 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
                     ++invokeCount;
+                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
                     type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
@@ -202,8 +206,9 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(bindingManager);
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
@@ -265,8 +270,9 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(bindingManager);
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
@@ -323,8 +329,9 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(bindingManager);
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;

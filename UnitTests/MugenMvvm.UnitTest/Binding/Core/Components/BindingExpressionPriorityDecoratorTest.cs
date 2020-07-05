@@ -33,8 +33,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(new BindingExpressionPriorityDecorator());
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) =>
+                TryParseBindingExpression = (m, o, type, arg3) =>
                 {
+                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
                     type.ShouldEqual(request.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
@@ -78,7 +79,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(decorator);
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (o, type, arg3) => ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result)
+                TryParseBindingExpression = (_, o, type, arg3) => ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result)
             });
 
             var bindingExpressions = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();

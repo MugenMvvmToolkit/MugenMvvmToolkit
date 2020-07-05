@@ -93,11 +93,12 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
         {
-            var components = MugenBindingService.BindingManager.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
+            var bindingManager = MugenBindingService.BindingManager;
+            var components = bindingManager.GetComponents<IBindingEventHandlerComponent>(_currentMetadata);
             try
             {
                 EventArgs = message;
-                components.OnBeginEvent(sender, message, _currentMetadata);
+                components.OnBeginEvent(bindingManager, sender, message, _currentMetadata);
                 switch (_currentValue)
                 {
                     case ICommand command:
@@ -112,13 +113,13 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             }
             catch (Exception e)
             {
-                components.OnEventError(e, sender, message, _currentMetadata);
+                components.OnEventError(bindingManager, e, sender, message, _currentMetadata);
                 return true;
             }
             finally
             {
                 EventArgs = null;
-                components.OnEndEvent(sender, message, _currentMetadata);
+                components.OnEndEvent(bindingManager, sender, message, _currentMetadata);
             }
         }
 

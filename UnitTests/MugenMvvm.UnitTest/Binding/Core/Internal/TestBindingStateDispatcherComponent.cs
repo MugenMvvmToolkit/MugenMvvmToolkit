@@ -13,15 +13,15 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         public int Priority { get; set; }
 
-        public Action<IBinding, BindingLifecycleState, object, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
+        public Action<IBindingManager, IBinding, BindingLifecycleState, object, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IBindingLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IBindingLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            OnLifecycleChanged?.Invoke(binding, lifecycleState, state!, typeof(TState), metadata);
+            OnLifecycleChanged?.Invoke(bindingManager, binding, lifecycleState, state!, typeof(TState), metadata);
         }
 
         #endregion

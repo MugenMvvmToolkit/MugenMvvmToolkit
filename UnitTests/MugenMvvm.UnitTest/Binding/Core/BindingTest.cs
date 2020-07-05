@@ -1300,7 +1300,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             int disposeCount = 0;
             var testLifecycleListener = new TestBindingStateDispatcherComponent
             {
-                OnLifecycleChanged = (b, state, _, __, m) =>
+                OnLifecycleChanged = (mm, b, state, _, __, m) =>
                 {
                     ++disposeCount;
                     b.ShouldEqual(binding);

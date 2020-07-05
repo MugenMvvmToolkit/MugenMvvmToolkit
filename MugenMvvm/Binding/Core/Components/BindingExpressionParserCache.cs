@@ -38,14 +38,14 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TExpression>() || !(expression is string s))
-                return Components.TryParseBindingExpression(expression, metadata);
+                return Components.TryParseBindingExpression(bindingManager, expression, metadata);
 
             if (!_cache.TryGetValue(s, out var value))
             {
-                value = Components.TryParseBindingExpression(expression, metadata).GetRawValue();
+                value = Components.TryParseBindingExpression(bindingManager, expression, metadata).GetRawValue();
                 _cache[s] = value;
             }
 
