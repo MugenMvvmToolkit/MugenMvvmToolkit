@@ -52,7 +52,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        public object? TryGetService<TRequest>(IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public object? TryGetService<TRequest>(IViewModelManager viewModelManager, IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is Type service))
                 return null;

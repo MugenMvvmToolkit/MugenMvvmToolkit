@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void ShouldIgnoreNonGuidRequest()
         {
             var component = new TypeViewModelProvider();
-            component.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+            component.TryGetViewModel(null!, this, DefaultMetadata).ShouldBeNull();
         }
 
         [Fact]
@@ -29,8 +29,9 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             var manager = new ViewModelManager();
             manager.AddComponent(new TestViewModelLifecycleDispatcherComponent
             {
-                OnLifecycleChanged = (vm, state, arg3, arg4, m) =>
+                OnLifecycleChanged = (mm, vm, state, arg3, arg4, m) =>
                 {
+                    mm.ShouldEqual(manager);
                     vm.ShouldEqual(viewModel);
                     m.ShouldEqual(DefaultMetadata);
                     lifeCycles.Add(state);

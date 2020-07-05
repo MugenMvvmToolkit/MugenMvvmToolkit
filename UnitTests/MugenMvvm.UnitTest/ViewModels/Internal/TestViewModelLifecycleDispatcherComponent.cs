@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
     {
         #region Properties
 
-        public Action<IViewModelBase, ViewModelLifecycleState, object?, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
+        public Action<IViewModelManager, IViewModelBase, ViewModelLifecycleState, object?, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         #region Implementation of interfaces
 
-        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            OnLifecycleChanged?.Invoke(viewModel, lifecycleState, state, typeof(TState), metadata);
+            OnLifecycleChanged?.Invoke(viewModelManager, viewModel, lifecycleState, state, typeof(TState), metadata);
         }
 
         #endregion

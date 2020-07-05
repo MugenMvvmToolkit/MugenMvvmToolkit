@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.ViewModels.Components
 {
     public interface IViewModelProviderComponent : IComponent<IViewModelManager>
     {
-        IViewModelBase? TryGetViewModel<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
+        IViewModelBase? TryGetViewModel<TRequest>(IViewModelManager viewModelManager, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

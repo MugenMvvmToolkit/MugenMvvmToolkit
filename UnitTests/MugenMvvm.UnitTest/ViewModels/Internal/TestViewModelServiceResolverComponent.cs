@@ -12,15 +12,15 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         public int Priority { get; set; }
 
-        public Func<IViewModelBase, object, Type, IReadOnlyMetadataContext?, object?>? TryGetService { get; set; }
+        public Func<IViewModelManager, IViewModelBase, object, Type, IReadOnlyMetadataContext?, object?>? TryGetService { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        object? IViewModelServiceResolverComponent.TryGetService<TRequest>(IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
+        object? IViewModelServiceResolverComponent.TryGetService<TRequest>(IViewModelManager viewModelManager, IViewModelBase viewModel, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetService?.Invoke(viewModel, request!, typeof(TRequest), metadata);
+            return TryGetService?.Invoke(viewModelManager, viewModel, request!, typeof(TRequest), metadata);
         }
 
         #endregion

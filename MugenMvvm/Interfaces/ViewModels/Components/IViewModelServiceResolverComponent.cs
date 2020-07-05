@@ -8,6 +8,6 @@ namespace MugenMvvm.Interfaces.ViewModels.Components
     public interface IViewModelServiceResolverComponent : IComponent<IViewModelManager>
     {
         [Pure]
-        object? TryGetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
+        object? TryGetService<TRequest>(IViewModelManager viewModelManager, IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -38,7 +38,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                 {
                     ++initializeCount;
                     viewManager.ShouldEqual(viewManager);
-                    var request = (ViewModelViewRequest) r;
+                    var request = (ViewModelViewRequest)r;
                     request.View.ShouldEqual(view);
                     request.ViewModel.ShouldEqual(viewModel);
                     m.ShouldEqual(DefaultMetadata);
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewModelManager = new ViewModelManager();
             viewModelManager.AddComponent(new TestViewModelProviderComponent
             {
-                TryGetViewModel = (o, type, arg3) =>
+                TryGetViewModel = (m, o, type, arg3) =>
                 {
                     o.ShouldEqual(viewModelType);
                     type.ShouldEqual(typeof(Type));

@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void ShouldIgnoreNonGuidRequest()
         {
             var component = new CacheViewModelProvider();
-            component.TryGetViewModel(this, DefaultMetadata).ShouldBeNull();
+            component.TryGetViewModel(null!, this, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]

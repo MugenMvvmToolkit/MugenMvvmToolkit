@@ -26,17 +26,17 @@ namespace MugenMvvm.ViewModels
 
         public void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
-            GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(viewModel, lifecycleState, state, metadata);
+            GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(this, viewModel, lifecycleState, state, metadata);
         }
 
         public object? TryGetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(viewModel, request, metadata);
+            return GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(this, viewModel, request, metadata);
         }
 
         public IViewModelBase? TryGetViewModel<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(request, metadata);
+            return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(this, request, metadata);
         }
 
         #endregion

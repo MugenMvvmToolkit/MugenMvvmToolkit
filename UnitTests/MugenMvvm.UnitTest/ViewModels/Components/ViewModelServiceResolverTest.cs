@@ -28,14 +28,14 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             });
 
             var component = new ViewModelServiceResolver(metadataContextManager: metadataProvider);
-            component.TryGetService(new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldEqual(context);
+            component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldEqual(context);
         }
 
         [Fact]
         public void TryGetServiceShouldReturnMessenger()
         {
             var component = new ViewModelServiceResolver();
-            var service = (IMessenger)component.TryGetService(new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
+            var service = (IMessenger)component.TryGetService(null!, new TestViewModel(), typeof(IMessenger), DefaultMetadata)!;
             service.GetComponent<IMessagePublisherComponent>().ShouldNotBeNull();
             service.GetComponent<IMessengerSubscriberComponent>().ShouldNotBeNull();
         }
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void TryGetServiceShouldReturnBusyManager()
         {
             var component = new ViewModelServiceResolver();
-            var service = (IBusyManager)component.TryGetService(new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
+            var service = (IBusyManager)component.TryGetService(null!, new TestViewModel(), typeof(IBusyManager), DefaultMetadata)!;
             service.GetComponent<IBusyManagerComponent>().ShouldNotBeNull();
         }
 
@@ -52,7 +52,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         public void TryGetServiceShouldReturnNullUnknownComponent()
         {
             var component = new ViewModelServiceResolver();
-            component.TryGetService(new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
+            component.TryGetService(null!, new TestViewModel(), typeof(object), DefaultMetadata).ShouldBeNull();
         }
 
         #endregion

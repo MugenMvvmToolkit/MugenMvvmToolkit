@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
     {
         #region Properties
 
-        public Func<object, Type, IReadOnlyMetadataContext?, IViewModelBase?>? TryGetViewModel { get; set; }
+        public Func<IViewModelManager, object, Type, IReadOnlyMetadataContext?, IViewModelBase?>? TryGetViewModel { get; set; }
 
         public int Priority { get; set; }
 
@@ -18,9 +18,9 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         #region Implementation of interfaces
 
-        IViewModelBase? IViewModelProviderComponent.TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        IViewModelBase? IViewModelProviderComponent.TryGetViewModel<TRequest>(IViewModelManager viewModelManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetViewModel?.Invoke(request!, typeof(TRequest), metadata);
+            return TryGetViewModel?.Invoke(viewModelManager, request!, typeof(TRequest), metadata);
         }
 
         #endregion

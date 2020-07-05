@@ -1,6 +1,5 @@
 ﻿using System;
 using MugenMvvm.Attributes;
-using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -12,7 +11,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.ViewModels.Components
 {
-    public sealed class TypeViewModelProvider : AttachableComponentBase<IViewModelManager>, IViewModelProviderComponent, IHasPriority
+    public sealed class TypeViewModelProvider : IViewModelProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -38,7 +37,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        public IViewModelBase? TryGetViewModel<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IViewModelBase? TryGetViewModel<TRequest>(IViewModelManager viewModelManager, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is Type type))
                 return null;
@@ -46,8 +45,8 @@ namespace MugenMvvm.ViewModels.Components
             var viewModel = (IViewModelBase) _serviceProvider.DefaultIfNull().GetService(type);
             if (viewModel != null)
             {
-                Owner.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initializing, request, metadata);
-                Owner.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initialized, request, metadata);
+                viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initializing, request, metadata);
+                viewModelManager.OnLifecycleChanged(viewModel, ViewModelLifecycleState.Initialized, request, metadata);
             }
 
             return viewModel;
