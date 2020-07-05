@@ -358,6 +358,17 @@ namespace MugenMvvm.Extensions
             return MugenService.WeakReferenceManager.GetWeakReference(item);
         }
 
+        internal static Task ContinueWithEx<TTask, TState>(this TTask task, TState state, Action<TTask, TState> execute) where TTask : Task
+        {
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(execute, nameof(execute));
+            return task.ContinueWith((t, o) =>
+            {
+                var tuple = (Tuple<TState, Action<Task, TState>>)o;
+                tuple.Item2(t, tuple.Item1);
+            }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
+        }
+
         internal static void TrySetExceptionEx<T>(this TaskCompletionSource<T> tcs, Exception e)
         {
             if (e is AggregateException aggregateException)

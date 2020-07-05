@@ -297,12 +297,7 @@ namespace MugenMvvm.Validation.Components
 
                 oldValue?.Cancel();
                 OnAsyncValidation(member, task, metadata);
-                // ReSharper disable once MethodSupportsCancellation
-                task.ContinueWith((t, state) =>
-                {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string, CancellationTokenSource, IReadOnlyMetadataContext?>)state;
-                    tuple.Item1.OnAsyncValidationCompleted(tuple.Item2, tuple.Item3, tuple.Item4);
-                }, Tuple.Create(this, member, source, metadata), TaskContinuationOptions.ExecuteSynchronously);
+                task.ContinueWithEx((this, member, source, metadata), (t, state) => state.Item1.OnAsyncValidationCompleted(state.member, state.source, state.metadata));
             }
 
             return task;

@@ -34,6 +34,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             viewModel.View.ShouldBeNull();
 
             var wrapper = new AwareView();
+            wrapperManager.AddComponent(new ViewWrapperManagerDecorator());
             wrapperManager.AddComponent(new DelegateWrapperManager<AwareViewBase, AwareViewBase, object?>((type, v, arg3, arg4) =>
             {
                 arg4.ShouldEqual(DefaultMetadata);
@@ -102,7 +103,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             rawViewComponent.ViewModelBase.ShouldBeNull();
             rawViewComponent.ViewModel.ShouldBeNull();
         }
-        
+
         [Fact]
         public void ShouldSetViewModel2()
         {

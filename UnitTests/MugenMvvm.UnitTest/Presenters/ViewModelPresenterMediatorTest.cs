@@ -264,7 +264,7 @@ namespace MugenMvvm.UnitTest.Presenters
             wrapperManager.AddComponent(new DelegateWrapperManager<Type, object, object?>((type, type1, arg3, arg4) => true, (type, request, _, __) =>
             {
                 type.ShouldEqual(typeof(ViewModelPresenterMediatorTest));
-                request.ShouldEqual(view.Target);
+                request.ShouldEqual(view);
                 return this;
             }, null));
 

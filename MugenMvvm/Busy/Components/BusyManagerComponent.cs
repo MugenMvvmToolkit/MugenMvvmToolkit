@@ -122,7 +122,7 @@ namespace MugenMvvm.Busy.Components
                             var tuple = (Tuple<BusyToken, IReadOnlyMetadataContext>)state!;
                             tuple.Item1.Owner.BeginBusyInternal(tuple.Item1, 0, tuple.Item2);
                         }
-                    }, metadata == null ? busyToken : (object)Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);//todo add extension with generic state
+                    }, metadata == null ? busyToken : (object)Tuple.Create(busyToken, metadata), TaskContinuationOptions.ExecuteSynchronously);
                 return;
             }
 

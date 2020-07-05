@@ -27,6 +27,7 @@ using MugenMvvm.ViewModels.Components;
 using MugenMvvm.Views;
 using MugenMvvm.Views.Components;
 using MugenMvvm.Wrapping;
+using MugenMvvm.Wrapping.Components;
 
 namespace MugenMvvm.Extensions
 {
@@ -106,7 +107,8 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ViewModelViewAwareInitializer())
                 .WithComponent(new ViewModelViewInitializerDecorator())
                 .WithComponent(new ViewMappingProvider());
-            configuration.WithAppService(new WrapperManager());
+            configuration.WithAppService(new WrapperManager())
+                .WithComponent(new ViewWrapperManagerDecorator());
 
             return configuration;
         }
