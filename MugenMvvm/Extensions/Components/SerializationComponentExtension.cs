@@ -50,6 +50,7 @@ namespace MugenMvvm.Extensions.Components
         public static ISurrogateProvider? TryGetSurrogateProvider(this ISurrogateProviderComponent[] components, ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(type, nameof(type));
             for (var i = 0; i < components.Length; i++)
             {
@@ -64,6 +65,7 @@ namespace MugenMvvm.Extensions.Components
         public static Type? TryResolveType(this ITypeResolverComponent[] components, ISerializer serializer, string assemblyName, string typeName, ISerializationContext? serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(assemblyName, nameof(assemblyName));
             Should.NotBeNull(typeName, nameof(typeName));
             for (var i = 0; i < components.Length; i++)
@@ -79,6 +81,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool TryResolveName(this ITypeResolverComponent[] components, ISerializer serializer, Type serializedType, ISerializationContext? serializationContext, out string? assemblyName, out string? typeName)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializedType, nameof(serializedType));
             for (var i = 0; i < components.Length; i++)
             {
@@ -123,6 +126,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool TrySerialize<TRequest>(this ISerializerComponent[] components, ISerializer serializer, Stream stream, [DisallowNull] in TRequest request, ISerializationContext serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(serializationContext, nameof(serializationContext));
             Should.NotBeNull(stream, nameof(stream));
             for (var i = 0; i < components.Length; i++)
@@ -137,6 +141,7 @@ namespace MugenMvvm.Extensions.Components
         public static bool TryDeserialize(this ISerializerComponent[] components, ISerializer serializer, Stream stream, ISerializationContext serializationContext, out object? value)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(serializer, nameof(serializer));
             Should.NotBeNull(stream, nameof(stream));
             for (var i = 0; i < components.Length; i++)
             {

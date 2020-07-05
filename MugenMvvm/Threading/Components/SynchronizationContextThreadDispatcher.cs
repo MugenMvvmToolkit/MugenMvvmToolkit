@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Threading.Components
 {
-    public sealed class SynchronizationContextThreadDispatcher : IThreadDispatcherComponent, IHasPriority
+    public class SynchronizationContextThreadDispatcher : IThreadDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -43,16 +43,16 @@ namespace MugenMvvm.Threading.Components
 
         #region Implementation of interfaces
 
-        public bool CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
+        public bool CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
+        public bool TryExecute<THandler, TState>(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<THandler>())
                 return false;
-            if (CanExecuteInline(executionMode, metadata))
+            if (CanExecuteInline(threadDispatcher, executionMode, metadata))
                 return ExecuteInline(handler, state);
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
                 return ExecuteMainThread(handler, state);
@@ -65,7 +65,7 @@ namespace MugenMvvm.Threading.Components
 
         #region Methods
 
-        private static bool ExecuteBackground<TState>(object handler, in TState state)
+        protected virtual bool ExecuteBackground<TState>(object handler, in TState state)
         {
             if (handler is WaitCallback waitCallback)
             {
@@ -100,7 +100,7 @@ namespace MugenMvvm.Threading.Components
             return false;
         }
 
-        private bool ExecuteMainThread<TState>(object handler, in TState state)
+        protected virtual bool ExecuteMainThread<TState>(object handler, in TState state)
         {
             if (handler is SendOrPostCallback callback)
             {
@@ -135,7 +135,7 @@ namespace MugenMvvm.Threading.Components
             return false;
         }
 
-        private static bool ExecuteInline<TState>(object handler, in TState state)
+        protected virtual bool ExecuteInline<TState>(object handler, in TState state)
         {
             if (handler is Action action)
             {
@@ -164,7 +164,7 @@ namespace MugenMvvm.Threading.Components
             return false;
         }
 
-        private bool IsOnMainThread()
+        protected bool IsOnMainThread()
         {
             if (_mainThreadId == null)
                 return SynchronizationContext.Current == _synchronizationContext;

@@ -6,12 +6,20 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
+using Should;
 
 namespace MugenMvvm.UnitTest.Threading.Internal
 {
     public sealed class TestThreadDispatcherComponent : IThreadDispatcherComponent, IHasPriority
     {
+        private readonly IThreadDispatcher? _dispatcher;
+
         #region Properties
+
+        public TestThreadDispatcherComponent(IThreadDispatcher? dispatcher = null)
+        {
+            _dispatcher = dispatcher;
+        }
 
         public Func<ThreadExecutionMode, IReadOnlyMetadataContext?, bool>? CanExecuteInline { get; set; }
 
@@ -29,13 +37,15 @@ namespace MugenMvvm.UnitTest.Threading.Internal
 
         #region Implementation of interfaces
 
-        bool IThreadDispatcherComponent.CanExecuteInline(ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
+        bool IThreadDispatcherComponent.CanExecuteInline(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
+            _dispatcher?.ShouldEqual(threadDispatcher);
             return CanExecuteInline?.Invoke(executionMode, metadata) ?? true;
         }
 
-        bool IThreadDispatcherComponent.TryExecute<THandler, TState>(ThreadExecutionMode executionMode, in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
+        bool IThreadDispatcherComponent.TryExecute<THandler, TState>(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
         {
+            _dispatcher?.ShouldEqual(threadDispatcher);
             if (TryExecute != null)
                 return TryExecute(executionMode, handler!, state, typeof(TState), metadata);
             Action<object?> del;

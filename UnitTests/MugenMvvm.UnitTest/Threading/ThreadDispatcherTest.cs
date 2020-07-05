@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Threading
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestThreadDispatcherComponent
+                var component = new TestThreadDispatcherComponent(dispatcher)
                 {
                     Priority = -i,
                     CanExecuteInline = (mode, m) =>
@@ -75,7 +75,7 @@ namespace MugenMvvm.UnitTest.Threading
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestThreadDispatcherComponent
+                var component = new TestThreadDispatcherComponent(dispatcher)
                 {
                     TryExecute = (m, h, state, stateType, meta) =>
                     {

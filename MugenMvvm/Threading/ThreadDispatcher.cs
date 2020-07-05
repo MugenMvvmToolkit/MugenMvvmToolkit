@@ -34,14 +34,14 @@ namespace MugenMvvm.Threading
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            return _components!.CanExecuteInline(executionMode, metadata);
+            return _components!.CanExecuteInline(this, executionMode, metadata);
         }
 
         public bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata = null)
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            return _components!.TryExecute(executionMode, handler, state, metadata);
+            return _components!.TryExecute(this, executionMode, handler, state, metadata);
         }
 
         #endregion
