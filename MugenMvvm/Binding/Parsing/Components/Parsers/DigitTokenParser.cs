@@ -43,6 +43,8 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         public Dictionary<string, ConvertDelegate> PostfixToConverter { get; }
 
+        public IFormatProvider FormatProvider { get; set; } = CultureInfo.InvariantCulture;
+
         public int Priority { get; set; } = ParsingComponentPriority.Constant;
 
         #endregion
@@ -111,7 +113,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
             if (PostfixToConverter.TryGetValue(postfix, out var convert))
             {
-                var result = convert(value, integer, postfix, context);
+                var result = convert(value, integer, postfix, context, FormatProvider);
                 if (result != null)
                 {
                     context.Position = end;
@@ -128,44 +130,44 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
         #region Methods
 
 #if SPAN_API
-        public static IExpressionNode? Convert(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context)
+        public static IExpressionNode? Convert(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider)
 #else
-        public static IExpressionNode? Convert(string value, bool integer, string postfix, ITokenParserContext context)
+        public static IExpressionNode? Convert(string value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider)
 #endif
         {
             switch (postfix)
             {
                 case "f":
                 case "F":
-                    if (float.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var f))
+                    if (float.TryParse(value, NumberStyles.Any, formatProvider, out var f))
                         return new ConstantExpressionNode(f, typeof(float));
                     return null;
                 case "d":
                 case "D":
-                    if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var d))
+                    if (double.TryParse(value, NumberStyles.Any, formatProvider, out var d))
                         return new ConstantExpressionNode(d, typeof(double));
                     return null;
                 case "m":
                 case "M":
-                    if (decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var m))
+                    if (decimal.TryParse(value, NumberStyles.Any, formatProvider, out var m))
                         return new ConstantExpressionNode(m, typeof(decimal));
                     return null;
                 case "u":
                 case "U":
-                    if (uint.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var ui))
+                    if (uint.TryParse(value, NumberStyles.Any, formatProvider, out var ui))
                         return ConstantExpressionNode.Get(ui);
                     return null;
                 case "ul":
                 case "UL":
                 case "Ul":
                 case "uL":
-                    if (ulong.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var ul))
+                    if (ulong.TryParse(value, NumberStyles.Any, formatProvider, out var ul))
                         return ConstantExpressionNode.Get(ul);
                     return null;
                 case "":
                     if (integer)
                     {
-                        if (ulong.TryParse(value, out var result))
+                        if (ulong.TryParse(value, NumberStyles.Any, formatProvider, out var result))
                         {
                             if (result <= int.MaxValue)
                                 return ConstantExpressionNode.Get((int)result);
@@ -177,7 +179,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
                         return null;
                     }
 
-                    if (double.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var r))
+                    if (double.TryParse(value, NumberStyles.Any, formatProvider, out var r))
                         return new ConstantExpressionNode(r, typeof(double));
                     return null;
             }
@@ -190,9 +192,9 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
         #region Nested types
 
 #if SPAN_API
-        public delegate IExpressionNode? ConvertDelegate(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context);
+        public delegate IExpressionNode? ConvertDelegate(ReadOnlySpan<char> value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider);
 #else
-        public delegate IExpressionNode? ConvertDelegate(string value, bool integer, string postfix, ITokenParserContext context);
+        public delegate IExpressionNode? ConvertDelegate(string value, bool integer, string postfix, ITokenParserContext context, IFormatProvider formatProvider);
 #endif
 
         #endregion

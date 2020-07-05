@@ -45,7 +45,7 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
-        public IEnumerable<T>? WrappedCollection { get; private set; }
+        public IEnumerable<T>? Collection { get; private set; }
 
         protected List<CollectionChangedEvent> Events { get; }
 
@@ -88,9 +88,11 @@ namespace MugenMvvm.Collections
 
         public void Attach(IEnumerable<T>? wrappedCollection)
         {
-            if (WrappedCollection != null)
+            if (ReferenceEquals(wrappedCollection, Collection))
+                return;
+            if (Collection != null)
                 OnDetach();
-            if (wrappedCollection != null && !ReferenceEquals(wrappedCollection, WrappedCollection))
+            if (wrappedCollection != null && !ReferenceEquals(wrappedCollection, Collection))
                 OnAttach(wrappedCollection);
         }
 
@@ -170,7 +172,7 @@ namespace MugenMvvm.Collections
             OnBeginBatchUpdate();
             try
             {
-                WrappedCollection = wrappedCollection;
+                Collection = wrappedCollection;
                 AddCollectionListener(wrappedCollection);
                 OnReset(GetCollectionItems(wrappedCollection));
             }
@@ -182,14 +184,14 @@ namespace MugenMvvm.Collections
 
         protected virtual void OnDetach()
         {
-            if (WrappedCollection == null)
+            if (Collection == null)
                 return;
 
             OnBeginBatchUpdate();
             try
             {
-                RemoveCollectionListener(WrappedCollection);
-                WrappedCollection = null;
+                RemoveCollectionListener(Collection);
+                Collection = null;
                 OnCleared();
             }
             finally
@@ -369,7 +371,7 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     return e.OldItems.Count != 1;
                 case NotifyCollectionChangedAction.Reset:
-                    return WrappedCollection != null && WrappedCollection.Count() != 0;
+                    return Collection != null && Collection.Count() != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     return false;
