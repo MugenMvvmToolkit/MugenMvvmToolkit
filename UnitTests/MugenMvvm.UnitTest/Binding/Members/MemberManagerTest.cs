@@ -30,10 +30,10 @@ namespace MugenMvvm.UnitTest.Binding.Members
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestMemberManagerComponent
+                var component = new TestMemberManagerComponent(memberManager)
                 {
                     Priority = -i,
-                    TryGetMembers = (t, m, f, r, tt, meta) =>
+                    TryGetMembers = ( t, m, f, r, tt, meta) =>
                     {
                         ++invokeCount;
                         t.ShouldEqual(type);

@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is IReadOnlyList<IMemberInfo> members))
                 return default;

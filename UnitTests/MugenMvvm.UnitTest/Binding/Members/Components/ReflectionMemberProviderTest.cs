@@ -49,8 +49,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .ToArray();
             items.ShouldNotBeEmpty();
 
-            component.TryGetMembers(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            var members = component.TryGetMembers(typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata).AsList();
+            component.TryGetMembers(null!, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            var members = component.TryGetMembers(null!, typeof(Enumerable), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -63,8 +63,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(FieldStatic))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            component.TryGetMembers(GetType(), nameof(FieldStatic), MemberType.Event, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            var members = component.TryGetMembers(GetType(), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata).AsList();
+            component.TryGetMembers(null!, GetType(), nameof(FieldStatic), MemberType.Event, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            var members = component.TryGetMembers(null!, GetType(), nameof(FieldStatic), MemberType.Accessor, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -77,7 +77,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(PropertyStatic))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(GetType(), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(null!, GetType(), nameof(PropertyStatic), MemberType.Accessor, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -103,8 +103,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(EventStatic))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            component.TryGetMembers(GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            var members = component.TryGetMembers(GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata).AsList();
+            component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            var members = component.TryGetMembers(null!, GetType(), nameof(EventStatic), MemberType.Event, DefaultMetadata).AsList();
 
             if (canObserve)
                 members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(_field))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(GetType(), nameof(_field), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(null!, GetType(), nameof(_field), MemberType.Accessor, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -134,7 +134,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(List<object>.Count))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(typeof(List<object>), nameof(List<object>.Count), MemberType.Accessor, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(null!, typeof(List<object>), nameof(List<object>.Count), MemberType.Accessor, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 
@@ -160,7 +160,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(Event))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(GetType(), nameof(Event), MemberType.Event, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(null!, GetType(), nameof(Event), MemberType.Event, DefaultMetadata).AsList();
 
             if (canObserve)
                 members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
@@ -177,7 +177,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                 .Where(info => info.Name == nameof(List<object>.Remove))
                 .ToArray();
             items.ShouldNotBeEmpty();
-            var members = component.TryGetMembers(typeof(List<object>), nameof(List<object>.Remove), MemberType.Method, DefaultMetadata).AsList();
+            var members = component.TryGetMembers(null!, typeof(List<object>), nameof(List<object>.Remove), MemberType.Method, DefaultMetadata).AsList();
             members.Select(info => (MemberInfo)info.UnderlyingMember!).ShouldContain(items);
         }
 

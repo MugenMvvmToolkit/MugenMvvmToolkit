@@ -44,7 +44,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             string? name;
             Type[]? types;
@@ -69,12 +69,12 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             if (name == null)
-                return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
+                return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
 
             var cacheKey = new CacheKey(type, name, memberTypes, flags, types!);
             if (!_cache.TryGetValue(cacheKey, out var members))
             {
-                members = Components.TryGetMembers(type, memberTypes, flags, request, metadata).GetRawValue();
+                members = Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata).GetRawValue();
                 _cache[cacheKey] = members;
             }
 

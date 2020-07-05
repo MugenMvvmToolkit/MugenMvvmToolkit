@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             object request = this;
             var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
@@ -58,7 +58,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var request = "test";
             var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var request = new MemberTypesRequest("test", new[] { typeof(object) });
             var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var request2 = "test2";
             var result = new TestAccessorMemberInfo();
             var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var result = new TestAccessorMemberInfo();
             var cacheComponent = new MemberManagerCache();
             var memberManager = new MemberManager();
-            memberManager.AddComponent(new TestMemberManagerComponent
+            memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
                 TryGetMembers = (t, m, f, r, tt, meta) =>
                 {
@@ -187,10 +187,10 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
 
             memberManager.RemoveComponent(cacheComponent);
             invokeCount = 0;
-            cacheComponent.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            cacheComponent.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            cacheComponent.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            cacheComponent.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type1, memberType, memberFlags, request1, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            cacheComponent.TryGetMembers(memberManager, type2, memberType, memberFlags, request2, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
             invokeCount.ShouldEqual(0);
         }
 

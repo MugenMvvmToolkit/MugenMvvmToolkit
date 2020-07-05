@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public void TryGetMembersShouldReturnNullResult()
         {
             var component = new AttachedDynamicMemberProvider();
-            component.TryGetMembers(typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(object), string.Empty, MemberType.All, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         [Theory]
@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             }
 
             invalidateCount.ShouldEqual(count);
-            component.TryGetMembers(requestType, name, memberType, DefaultMetadata).AsList().SequenceEqual(list).ShouldBeTrue();
+            component.TryGetMembers(null!, requestType, name, memberType, DefaultMetadata).AsList().SequenceEqual(list).ShouldBeTrue();
             list.Count.ShouldEqual(count);
 
             invalidateCount = 0;
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
                     component.Unregister(@delegate);
             }
 
-            component.TryGetMembers(typeof(object), string.Empty, memberType, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(object), string.Empty, memberType, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
             invalidateCount.ShouldEqual(clear ? 1 : count);
         }
 

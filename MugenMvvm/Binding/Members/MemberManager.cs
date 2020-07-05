@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Members
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            return _components!.TryGetMembers(type, memberTypes, flags, request, metadata);
+            return _components!.TryGetMembers(this, type, memberTypes, flags, request, metadata);
         }
 
         #endregion

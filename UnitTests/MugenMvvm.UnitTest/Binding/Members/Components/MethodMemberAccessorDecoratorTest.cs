@@ -46,7 +46,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             manager.AddComponent(new MethodMemberAccessorDecorator());
             manager.AddComponent(new TestMemberProviderComponent
             {
-                TryGetMembers = (type, s, t, arg3) =>
+                TryGetMembers = (mm, type, s, t, arg3) =>
                 {
                     if (t == MemberType.Method)
                         return method;

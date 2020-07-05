@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         private static void TrySelectMembersShouldSelectCorrectMembers(IReadOnlyList<IMemberInfo> members, Type type, MemberType memberTypes, MemberFlags flags, IReadOnlyList<IMemberInfo> result)
         {
             var component = new MemberSelector();
-            var array = component.TryGetMembers(type, memberTypes, flags, members, DefaultMetadata).AsList();
+            var array = component.TryGetMembers(null!, type, memberTypes, flags, members, DefaultMetadata).AsList();
             for (int i = 0; i < array.Count; i++)
             {
                 array[i].ShouldEqual(result[i]);

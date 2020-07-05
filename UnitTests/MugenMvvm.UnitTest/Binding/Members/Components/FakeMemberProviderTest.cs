@@ -15,22 +15,22 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
         public void TryGetMembersShouldReturnFakeMember1()
         {
             var component = new FakeMemberProvider();
-            component.TryGetMembers(typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, DefaultMetadata).Item.ShouldBeType<ConstantMemberInfo>();
-            component.TryGetMembers(typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Accessor, DefaultMetadata).Item.ShouldBeType<ConstantMemberInfo>();
+            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefix}test", MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         [Fact]
         public void TryGetMembersShouldReturnFakeMember2()
         {
             var component = new FakeMemberProvider();
-            component.TryGetMembers(typeof(object), $"{FakeMemberProvider.FakeMemberPrefixSymbol}test", MemberType.Accessor, DefaultMetadata).Item.ShouldBeType<ConstantMemberInfo>();
+            component.TryGetMembers(null!, typeof(object), $"{FakeMemberProvider.FakeMemberPrefixSymbol}test", MemberType.Accessor, DefaultMetadata).Item.ShouldBeType<ConstantMemberInfo>();
         }
 
         [Fact]
         public void TryGetMembersShouldReturnEmptyResultNoPrefix()
         {
             var component = new FakeMemberProvider();
-            component.TryGetMembers(typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(null!, typeof(object), "test", MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         #endregion

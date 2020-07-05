@@ -42,7 +42,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!memberTypes.HasFlagEx(MemberType.Accessor) || name.Length == 0 || name[0] != FakeMemberPrefixSymbol && !name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal))
                 return default;

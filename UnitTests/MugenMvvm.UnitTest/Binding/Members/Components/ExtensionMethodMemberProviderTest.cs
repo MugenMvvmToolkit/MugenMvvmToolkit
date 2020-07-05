@@ -21,18 +21,18 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             memberManager.AddComponent(provider);
             provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
 
-            provider.TryGetMembers(typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
 
             var method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] { typeof(string) });
-            var itemOrList = provider.TryGetMembers(typeof(string), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
+            var itemOrList = provider.TryGetMembers(null!, typeof(string), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
             itemOrList.Item.UnderlyingMember.ShouldEqual(method);
 
             method = typeof(ExtensionMethodMemberProviderComponentExtTest).GetMethod(nameof(ExtensionMethodMemberProviderComponentExtTest.Method), new[] { typeof(int) });
-            itemOrList = provider.TryGetMembers(typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
+            itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
             itemOrList.Item.UnderlyingMember.ShouldEqual(method);
 
             provider.Remove(typeof(ExtensionMethodMemberProviderComponentExtTest));
-            itemOrList = provider.TryGetMembers(typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
+            itemOrList = provider.TryGetMembers(null!, typeof(int), nameof(ExtensionMethodMemberProviderComponentExtTest.Method), MemberType.Method, DefaultMetadata);
             itemOrList.IsNullOrEmpty().ShouldBeTrue();
         }
 
@@ -44,9 +44,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             memberManager.AddComponent(provider);
             provider.Add(typeof(ExtensionMethodMemberProviderComponentExtTest));
 
-            provider.TryGetMembers(typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
 
-            var members = provider.TryGetMembers(typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
+            var members = provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
             members.Count().ShouldEqual(2);
 
             var methodInfos = typeof(Enumerable)

@@ -43,19 +43,19 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TRequest) != typeof(MemberTypesRequest))
-                return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
+                return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
 
             var typesRequest = MugenExtensions.CastGeneric<TRequest, MemberTypesRequest>(request);
             _members.Clear();
-            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, typesRequest.Name, memberTypes, metadata);
+            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(memberManager, _members, type, typesRequest.Name, memberTypes, metadata);
             if (_members.Count == 0)
                 return default;
 
             var types = typesRequest.Types;
-            var result = Components.TryGetMembers(type, memberTypes, flags, _members, metadata);
+            var result = Components.TryGetMembers(memberManager, type, memberTypes, flags, _members, metadata);
             _members.Clear();
             for (var i = 0; i < result.Count(); i++)
             {

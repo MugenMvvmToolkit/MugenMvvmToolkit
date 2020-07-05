@@ -15,7 +15,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class AttachedMemberProvider : AttachableComponentBase<IMemberManager>, IAttachedMemberProviderComponent, IHasPriority
+    public sealed class AttachedMemberProvider : AttachableComponentBase<IMemberManager>, IMemberProviderComponent, IHasPriority
     {
         #region Fields
 
@@ -39,9 +39,9 @@ namespace MugenMvvm.Binding.Members.Components
 
         #endregion
 
-        #region Implementation of interfaces
+        #region Methods
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!_registeredMembers.TryGetValue(name, out var members))
                 return default;
@@ -64,10 +64,6 @@ namespace MugenMvvm.Binding.Members.Components
                 members.AddRange(keyValuePair.Value);
             return members.Cast<IReadOnlyList<IMemberInfo>>();
         }
-
-        #endregion
-
-        #region Methods
 
         public void Register(IMemberInfo member, string? name = null)
         {

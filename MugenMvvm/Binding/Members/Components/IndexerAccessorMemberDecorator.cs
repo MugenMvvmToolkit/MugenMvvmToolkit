@@ -52,14 +52,14 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
             if (!memberTypes.HasFlagEx(MemberType.Accessor))
-                return Components.TryGetMembers(type, name, memberTypes, metadata);
+                return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             var indexerArgsRaw = MugenBindingExtensions.GetIndexerArgsRaw(name);
             if (indexerArgsRaw == null)
-                return Components.TryGetMembers(type, name, memberTypes, metadata);
+                return Components.TryGetMembers(memberManager, type, name, memberTypes, metadata);
 
             string getterName;
             string? setterName;
@@ -81,7 +81,7 @@ namespace MugenMvvm.Binding.Members.Components
 
             _membersDictionary.Clear();
             _members.Clear();
-            Components.TryAddMembers(_members, type, getterName, MemberType.Method, metadata);
+            Components.TryAddMembers(memberManager, _members, type, getterName, MemberType.Method, metadata);
             for (var i = 0; i < _members.Count; i++)
             {
                 if (!(_members[i] is IMethodMemberInfo method) || method.Type == typeof(void))
@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (setterName != null)
             {
                 _members.Clear();
-                Components.TryAddMembers(_members, type, setterName, MemberType.Method, metadata);
+                Components.TryAddMembers(memberManager, _members, type, setterName, MemberType.Method, metadata);
 
                 for (var i = 0; i < _members.Count; i++)
                 {
@@ -152,7 +152,7 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             _membersDictionary.Clear();
-            Components.TryAddMembers(_members, type, name, memberTypes, metadata);
+            Components.TryAddMembers(memberManager, _members, type, name, memberTypes, metadata);
             if (_members.Count == 1)
             {
                 var memberInfo = _members[0];

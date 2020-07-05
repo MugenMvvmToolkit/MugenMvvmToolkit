@@ -42,15 +42,15 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is string name))
-                return Components.TryGetMembers(type, memberTypes, flags, request, metadata);
+                return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
             _members.Clear();
-            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(_members, type, name, memberTypes, metadata);
+            Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(memberManager, _members, type, name, memberTypes, metadata);
             if (_members.Count == 0)
                 return default;
-            return Components.TryGetMembers(type, memberTypes, flags, _members, metadata);
+            return Components.TryGetMembers(memberManager, type, memberTypes, flags, _members, metadata);
         }
 
         #endregion

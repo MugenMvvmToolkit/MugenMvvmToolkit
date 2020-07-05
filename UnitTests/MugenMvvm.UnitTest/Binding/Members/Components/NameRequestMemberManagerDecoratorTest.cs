@@ -21,8 +21,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var manager = new MemberManager();
             var component = new NameRequestMemberManagerDecorator();
             manager.AddComponent(component);
-            component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
-            component.TryGetMembers(typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, "", DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
+            component.TryGetMembers(manager, typeof(object), MemberType.All, MemberFlags.All, this, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
         }
 
         [Fact]
@@ -34,15 +34,15 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var request = "";
             var selectorCount = 0;
             var providerCount = 0;
-            var members = new[] {new TestAccessorMemberInfo(), new TestAccessorMemberInfo()};
+            var members = new[] { new TestAccessorMemberInfo(), new TestAccessorMemberInfo() };
 
             var manager = new MemberManager();
-            var selector = new TestMemberManagerComponent
+            var selector = new TestMemberManagerComponent(manager)
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = ( t, m, f, r, tt, meta) =>
                 {
                     ++selectorCount;
-                    ((IEnumerable<IMemberInfo>) r).SequenceEqual(members).ShouldBeTrue();
+                    ((IEnumerable<IMemberInfo>)r).SequenceEqual(members).ShouldBeTrue();
                     type.ShouldEqual(t);
                     memberType.ShouldEqual(m);
                     memberFlags.ShouldEqual(f);
@@ -52,9 +52,10 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             };
             var provider = new TestMemberProviderComponent
             {
-                TryGetMembers = (t, s, types, arg3) =>
+                TryGetMembers = (mm, t, s, types, arg3) =>
                 {
                     ++providerCount;
+                    mm.ShouldEqual(manager);
                     types.ShouldEqual(memberType);
                     type.ShouldEqual(t);
                     s.ShouldEqual(request);
