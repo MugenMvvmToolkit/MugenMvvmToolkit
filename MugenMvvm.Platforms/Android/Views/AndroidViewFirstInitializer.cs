@@ -13,7 +13,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Views
 {
-    public sealed class AndroidViewFirstInitializer : AttachableComponentBase<IViewManager>, IViewLifecycleDispatcherComponent, IHasPriority
+    public sealed class AndroidViewFirstInitializer : IViewLifecycleDispatcherComponent, IHasPriority
     {
         #region Fields
 
@@ -40,19 +40,19 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
-            if (!(view is IView))
+            if (view is IView)
+                return;
+
+            var views = viewManager.GetViews(view, metadata);
+            if (lifecycleState == AndroidViewLifecycleState.Started)
             {
-                var views = Owner.GetViews(view, metadata);
-                if (lifecycleState == AndroidViewLifecycleState.Started)
-                {
-                    if (views.IsNullOrEmpty())
-                        _presenter.DefaultIfNull().TryShow(new ViewModelViewRequest(null, view), default, metadata);
-                }
-                else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishWithoutView && view is IActivityView activityView)
-                    activityView.Finish();
+                if (views.IsNullOrEmpty())
+                    _presenter.DefaultIfNull().TryShow(new ViewModelViewRequest(null, view), default, metadata);
             }
+            else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishWithoutView && view is IActivityView activityView)
+                activityView.Finish();
         }
 
         #endregion

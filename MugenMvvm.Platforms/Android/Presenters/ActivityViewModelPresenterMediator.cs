@@ -217,7 +217,7 @@ namespace MugenMvvm.Android.Presenters
 
             #region Implementation of interfaces
 
-            public void OnLifecycleChanged<TState>(object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+            public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
             {
                 if (view is IView v)
                     view = v.Target;
@@ -250,29 +250,27 @@ namespace MugenMvvm.Android.Presenters
                 }
             }
 
-            public Task<IView>? TryInitializeAsync<TRequest>(IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task<IView>? TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
                 if (_viewTask == null || !ReferenceEquals(viewModel, _mediator.ViewModel) || view != null)
-                    return Components.TryInitializeAsync(mapping, request, cancellationToken, metadata);
+                    return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
                 var tcs = new TaskCompletionSource<IView>();
-                var valueTuple = (this, tcs, mapping, viewModel, metadata);
-                _viewTask.Task.ContinueWith((task, o) =>
+                _viewTask.Task.ContinueWithEx((this, viewManager, tcs, mapping, viewModel, metadata), (task, s) =>
                 {
-                    var t = ((ActivityViewDispatcher @this, TaskCompletionSource<IView> tcs, IViewMapping mapping, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata))o;
-                    t.@this._viewTask = null;
-                    var result = t.@this.TryInitializeAsync(t.mapping, new ViewModelViewRequest(t.viewModel, task.Result), default, t.metadata);
+                    s.Item1._viewTask = null;
+                    var result = s.Item1.TryInitializeAsync(s.viewManager, s.mapping, new ViewModelViewRequest(s.viewModel, task.Result), default, s.metadata);
                     if (result == null)
-                        ExceptionManager.ThrowObjectNotInitialized(t.@this.Components);
-                    t.tcs.TrySetFromTask(result);
-                }, valueTuple, TaskContinuationOptions.ExecuteSynchronously);
+                        ExceptionManager.ThrowObjectNotInitialized(s.Item1.Components);
+                    s.tcs.TrySetFromTask(result);
+                });
                 return tcs.Task;
             }
 
-            public Task? TryCleanupAsync<TRequest>(IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
-                return Components.TryCleanupAsync(view, request, cancellationToken, metadata);
+                return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
             }
 
             #endregion

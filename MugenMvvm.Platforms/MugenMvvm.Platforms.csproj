@@ -8,6 +8,7 @@
     <RootNamespace>MugenMvvm</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
@@ -31,7 +32,15 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Android\Binding\SingleDataTemplateSelector.cs" />
+    <None Remove="Android\Collections\AndroidCollectionItemsSourceProvider.cs" />
+    <None Remove="Android\Collections\AndroidNativeBindableCollectionAdapter.cs" />
     <None Remove="Android\Extensions\MugenAndroidExtensions.cs" />
+    <None Remove="Android\Interfaces\IDataTemplateSelector.cs" />
+    <None Remove="Android\Interfaces\IStableIdProvider.cs" />
+    <None Remove="Android\Members\AndroidNativeBindableMembers.cs" />
+    <None Remove="Android\Views\AndroidViewBindCallback.cs" />
+    <None Remove="Android\Views\AndroidViewMemberObserver.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -23,9 +24,9 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(IViewManager viewManager, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata)
         {
-            var mappings = Components.TryGetMappings(request, metadata);
+            var mappings = Components.TryGetMappings(viewManager, request, metadata);
             MugenExtensions.TryGetViewModelView(request, out IResourceView? view);
             if (view == null)
                 return mappings;
