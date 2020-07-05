@@ -33,14 +33,14 @@ namespace MugenMvvm.Serialization
         {
             Should.NotBeNull(stream, nameof(stream));
             using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
-            return GetComponents<ISerializerComponent>().TrySerialize(stream, request, ctx);
+            return GetComponents<ISerializerComponent>().TrySerialize(this, stream, request, ctx);
         }
 
         public bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
         {
             Should.NotBeNull(stream, nameof(stream));
             using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
-            return GetComponents<ISerializerComponent>().TryDeserialize(stream, ctx, out value);
+            return GetComponents<ISerializerComponent>().TryDeserialize(this, stream, ctx, out value);
         }
 
         #endregion

@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Serialization.Components
 {
     public interface ISurrogateProviderComponent : IComponent<ISerializer>
     {
-        ISurrogateProvider? TryGetSurrogateProvider(Type type, ISerializationContext? serializationContext);
+        ISurrogateProvider? TryGetSurrogateProvider(ISerializer serializer, Type type, ISerializationContext? serializationContext);
     }
 }
