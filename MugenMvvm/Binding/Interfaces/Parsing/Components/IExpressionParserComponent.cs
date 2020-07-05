@@ -9,6 +9,6 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Components
 {
     public interface IExpressionParserComponent : IComponent<IExpressionParser>
     {
-        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata);
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>(IExpressionParser parser, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata);
     }
 }

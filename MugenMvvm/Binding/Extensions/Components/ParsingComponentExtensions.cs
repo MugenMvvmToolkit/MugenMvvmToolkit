@@ -29,13 +29,14 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>(this IExpressionParserComponent[] components, [DisallowNull] in TExpression expression,
-            IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>(this IExpressionParserComponent[] components, IExpressionParser parser,
+            [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(parser, nameof(parser));
             for (var i = 0; i < components.Length; i++)
             {
-                var result = components[i].TryParse(expression, metadata);
+                var result = components[i].TryParse(parser, expression, metadata);
                 if (!result.Item.IsEmpty || result.List != null)
                     return result;
             }

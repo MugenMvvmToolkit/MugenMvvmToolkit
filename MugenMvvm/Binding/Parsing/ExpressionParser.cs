@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Constructors
 
-        public ExpressionParser(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public ExpressionParser(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
         }
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IExpressionParserComponent>(metadata).TryParse(expression, metadata);
+            return GetComponents<IExpressionParserComponent>(metadata).TryParse(this, expression, metadata);
         }
 
         #endregion

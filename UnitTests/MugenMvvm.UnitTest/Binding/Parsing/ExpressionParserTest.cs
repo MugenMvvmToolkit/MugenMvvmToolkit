@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestExpressionParserComponent
+                var component = new TestExpressionParserComponent(parser)
                 {
                     Priority = -i,
                     TryParse = (o, arg3, arg4) =>
