@@ -105,6 +105,18 @@ namespace MugenMvvm.Binding.Extensions
             return null;
         }
 
+        public static void ClearBindings(object? target, bool clearAttachedValues)
+        {
+            if (target == null)
+                return;
+            var bindings = MugenBindingService.BindingManager.GetBindings(target);
+            var count = bindings.Count();
+            for (int i = 0; i < count; i++)
+                bindings.Get(i).Dispose();
+            if (clearAttachedValues)
+                MugenService.AttachedValueManager.Clear(target);
+        }
+
         public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)
         {
             if (types == null || types.Count == 0)

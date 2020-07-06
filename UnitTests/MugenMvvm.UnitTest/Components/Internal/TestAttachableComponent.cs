@@ -9,13 +9,13 @@ namespace MugenMvvm.UnitTest.Components.Internal
     {
         #region Properties
 
-        public Action<T, IReadOnlyMetadataContext?>? OnAttached { get; set; }
+        public Action<T, IReadOnlyMetadataContext?>? OnAttachedHandler { get; set; }
 
-        public Action<T, IReadOnlyMetadataContext?>? OnDetached { get; set; }
+        public Action<T, IReadOnlyMetadataContext?>? OnDetachedHandler { get; set; }
 
-        public Func<T, IReadOnlyMetadataContext?, bool>? OnAttaching { get; set; }
+        public Func<T, IReadOnlyMetadataContext?, bool>? OnAttachingHandler { get; set; }
 
-        public Func<T, IReadOnlyMetadataContext?, bool>? OnDetaching { get; set; }
+        public Func<T, IReadOnlyMetadataContext?, bool>? OnDetachingHandler { get; set; }
 
         public new T Owner => base.Owner;
 
@@ -25,26 +25,26 @@ namespace MugenMvvm.UnitTest.Components.Internal
 
         #region Methods
 
-        protected override void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
-            OnAttached?.Invoke(owner, metadata);
-            base.OnAttachedInternal(owner, metadata);
+            OnAttachedHandler?.Invoke(owner, metadata);
+            base.OnAttached(owner, metadata);
         }
 
-        protected override bool OnAttachingInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
         {
-            return OnAttaching?.Invoke(owner, metadata) ?? base.OnAttachingInternal(owner, metadata);
+            return OnAttachingHandler?.Invoke(owner, metadata) ?? base.OnAttaching(owner, metadata);
         }
 
-        protected override void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
-            OnDetached?.Invoke(owner, metadata);
-            base.OnDetachedInternal(owner, metadata);
+            OnDetachedHandler?.Invoke(owner, metadata);
+            base.OnDetached(owner, metadata);
         }
 
-        protected override bool OnDetachingInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
         {
-            return OnDetaching?.Invoke(owner, metadata) ?? base.OnDetachingInternal(owner, metadata);
+            return OnDetachingHandler?.Invoke(owner, metadata) ?? base.OnDetaching(owner, metadata);
         }
 
         #endregion

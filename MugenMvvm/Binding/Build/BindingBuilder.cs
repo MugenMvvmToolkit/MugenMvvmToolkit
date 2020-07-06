@@ -51,6 +51,12 @@ namespace MugenMvvm.Binding.Build
             return bindingManager.BindInternal(expression, target, source, metadata);
         }
 
+        public static void BindWithoutResult<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
+            where TTarget : class
+        {
+            bindingManager.BindInternalWithoutBindings(expression, target, source, metadata);
+        }
+
         public static BindingBuilderTo<TTarget, TSource> TwoWay<TTarget, TSource>(this BindingBuilderTo<TTarget, TSource> builder)
             where TTarget : class
             where TSource : class
@@ -229,6 +235,23 @@ namespace MugenMvvm.Binding.Build
             where TSource : class
         {
             return builder.BindingParameter(BindingParameterNameConstant.TargetNullValue, ConstantExpressionNode.Get(value));
+        }
+
+        private static void BindInternalWithoutBindings<TRequest>(this IBindingManager? bindingManager, [DisallowNull]in TRequest request, object target, object? source, IReadOnlyMetadataContext? metadata)
+        {
+            Should.NotBeNull(target, nameof(target));
+            var expressions = bindingManager
+                .DefaultIfNull()
+                .ParseBindingExpression(request, metadata);
+
+            if (expressions.Item == null)
+            {
+                var count = expressions.Count();
+                for (int i = 0; i < count; i++)
+                    expressions.Get(i).Build(target, source, metadata);
+            }
+            else
+                expressions.Item.Build(target, source, metadata);
         }
 
         private static ItemOrList<IBinding, IReadOnlyList<IBinding>> BindInternal<TRequest>(this IBindingManager? bindingManager, [DisallowNull]in TRequest request, object target, object? source, IReadOnlyMetadataContext? metadata)

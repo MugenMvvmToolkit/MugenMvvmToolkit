@@ -26,15 +26,15 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnAttachedInternal(owner, metadata);
+            base.OnAttached(owner, metadata);
             Invalidate<object?>(null, metadata);
         }
 
-        protected override void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnDetachedInternal(owner, metadata);
+            base.OnDetached(owner, metadata);
             Invalidate<object?>(null, metadata);
         }
 

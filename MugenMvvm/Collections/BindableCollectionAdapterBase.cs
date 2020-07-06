@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -45,7 +46,7 @@ namespace MugenMvvm.Collections
 
         #region Properties
 
-        public IEnumerable<T>? Collection { get; private set; }
+        public IEnumerable? Collection { get; private set; }
 
         protected List<CollectionChangedEvent> Events { get; }
 
@@ -86,22 +87,22 @@ namespace MugenMvvm.Collections
 
         #region Methods
 
-        public void Attach(IEnumerable<T>? wrappedCollection)
+        public void Attach(IEnumerable? collection)
         {
-            if (ReferenceEquals(wrappedCollection, Collection))
+            if (ReferenceEquals(collection, Collection))
                 return;
             if (Collection != null)
                 OnDetach();
-            if (wrappedCollection != null && !ReferenceEquals(wrappedCollection, Collection))
-                OnAttach(wrappedCollection);
+            if (collection != null && !ReferenceEquals(collection, Collection))
+                OnAttach(collection);
         }
 
-        protected void OnBeginBatchUpdate()
+        protected void BeginBatchUpdate()
         {
             ThreadDispatcher.Execute(ExecutionMode, this, o => o.OnBeginBatchUpdateImpl());
         }
 
-        protected void OnEndBatchUpdate()
+        protected void EndBatchUpdate()
         {
             ThreadDispatcher.Execute(ExecutionMode, this, o => o.OnEndBatchUpdateImpl());
         }
@@ -143,7 +144,7 @@ namespace MugenMvvm.Collections
             RaiseEvent(new CollectionChangedEvent(CollectionChangedAction.Clear, default!, default!, -1, -1, null));
         }
 
-        protected virtual void AddCollectionListener(IEnumerable<T> collection)
+        protected virtual void AddCollectionListener(IEnumerable collection)
         {
             if (collection is IObservableCollection components)
             {
@@ -157,7 +158,7 @@ namespace MugenMvvm.Collections
             }
         }
 
-        protected virtual void RemoveCollectionListener(IEnumerable<T> collection)
+        protected virtual void RemoveCollectionListener(IEnumerable collection)
         {
             if (_weakListener == null)
                 return;
@@ -167,18 +168,18 @@ namespace MugenMvvm.Collections
                 notifyCollectionChanged.CollectionChanged -= _weakListener.OnCollectionChanged;
         }
 
-        protected virtual void OnAttach(IEnumerable<T> wrappedCollection)
+        protected virtual void OnAttach(IEnumerable collection)
         {
-            OnBeginBatchUpdate();
+            BeginBatchUpdate();
             try
             {
-                Collection = wrappedCollection;
-                AddCollectionListener(wrappedCollection);
-                OnReset(GetCollectionItems(wrappedCollection));
+                Collection = collection;
+                AddCollectionListener(collection);
+                OnReset(GetCollectionItems(collection));
             }
             finally
             {
-                OnEndBatchUpdate();
+                EndBatchUpdate();
             }
         }
 
@@ -187,7 +188,7 @@ namespace MugenMvvm.Collections
             if (Collection == null)
                 return;
 
-            OnBeginBatchUpdate();
+            BeginBatchUpdate();
             try
             {
                 RemoveCollectionListener(Collection);
@@ -196,11 +197,11 @@ namespace MugenMvvm.Collections
             }
             finally
             {
-                OnEndBatchUpdate();
+                EndBatchUpdate();
             }
         }
 
-        protected virtual void OnBeginBatchUpdateInternal()
+        protected virtual void OnBeginBatchUpdate()
         {
         }
 
@@ -211,11 +212,11 @@ namespace MugenMvvm.Collections
             Events.Clear();
         }
 
-        protected virtual void OnItemChangedInternal(T item, int index, object? args, bool batch)
+        protected virtual void OnItemChanged(T item, int index, object? args, bool batch)
         {
         }
 
-        protected virtual void OnAddedInternal(T item, int index, bool batch)
+        protected virtual void OnAdded(T item, int index, bool batch)
         {
             Insert(index, item);
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
@@ -224,7 +225,7 @@ namespace MugenMvvm.Collections
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, BoxingExtensions.Box(item), index));
         }
 
-        protected virtual void OnReplacedInternal(T oldItem, T newItem, int index, bool batch)
+        protected virtual void OnReplaced(T oldItem, T newItem, int index, bool batch)
         {
             this[index] = newItem;
             RaisePropertyChanged(Default.IndexerPropertyChangedArgs);
@@ -232,7 +233,7 @@ namespace MugenMvvm.Collections
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, BoxingExtensions.Box(newItem), BoxingExtensions.Box(oldItem), index));
         }
 
-        protected virtual void OnMovedInternal(T item, int oldIndex, int newIndex, bool batch)
+        protected virtual void OnMoved(T item, int oldIndex, int newIndex, bool batch)
         {
             RemoveAt(oldIndex);
             Insert(newIndex, item);
@@ -241,7 +242,7 @@ namespace MugenMvvm.Collections
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Move, BoxingExtensions.Box(item), newIndex, oldIndex));
         }
 
-        protected virtual void OnRemovedInternal(T item, int index, bool batch)
+        protected virtual void OnRemoved(T item, int index, bool batch)
         {
             RemoveAt(index);
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
@@ -250,7 +251,7 @@ namespace MugenMvvm.Collections
                 RaiseCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, BoxingExtensions.Box(item), index));
         }
 
-        protected virtual void OnResetInternal(IEnumerable<T> items, bool batch)
+        protected virtual void OnReset(IEnumerable<T> items, bool batch)
         {
             Clear();
             foreach (var item in items)
@@ -260,7 +261,7 @@ namespace MugenMvvm.Collections
             RaiseCollectionChanged(Default.ResetCollectionEventArgs);
         }
 
-        protected virtual void OnClearedInternal(bool batch)
+        protected virtual void OnCleared(bool batch)
         {
             Clear();
             RaisePropertyChanged(Default.CountPropertyChangedArgs);
@@ -278,7 +279,7 @@ namespace MugenMvvm.Collections
             PropertyChanged?.Invoke(this, args);
         }
 
-        protected IEnumerable<T> GetCollectionItems(IEnumerable<T> collection)
+        protected IEnumerable<T> GetCollectionItems(IEnumerable collection)
         {
             if (collection is IObservableCollection observableCollection)
             {
@@ -286,7 +287,7 @@ namespace MugenMvvm.Collections
                 return result as IEnumerable<T> ?? result.OfType<T>();
             }
 
-            return collection;
+            return collection as IEnumerable<T> ?? collection.Cast<T>();
         }
 
         private void RaiseEvent(in CollectionChangedEvent collectionChangedEvent)
@@ -313,7 +314,7 @@ namespace MugenMvvm.Collections
         private void OnBeginBatchUpdateImpl()
         {
             if (Interlocked.Increment(ref _suspendCount) == 1)
-                OnBeginBatchUpdateInternal();
+                OnBeginBatchUpdate();
         }
 
         private void OnEndBatchUpdateImpl()
@@ -371,11 +372,20 @@ namespace MugenMvvm.Collections
                 case NotifyCollectionChangedAction.Replace:
                     return e.OldItems.Count != 1;
                 case NotifyCollectionChangedAction.Reset:
-                    return Collection != null && Collection.Count() != 0;
+                    return GetCollectionCount() != 0;
                 default:
                     ExceptionManager.ThrowEnumOutOfRange(nameof(e.Action), e.Action);
                     return false;
             }
+        }
+
+        private int GetCollectionCount()
+        {
+            if (Collection == null)
+                return 0;
+            if (Collection is ICollection c)
+                return c.Count;
+            return Collection.Cast<T>().Count();
         }
 
         private void AddEvent(in CollectionChangedEvent collectionChangedEvent)
@@ -418,12 +428,12 @@ namespace MugenMvvm.Collections
 
             public void OnBeginBatchUpdate(IObservableCollection collection)
             {
-                GetAdapter()?.OnBeginBatchUpdate();
+                GetAdapter()?.BeginBatchUpdate();
             }
 
             public void OnEndBatchUpdate(IObservableCollection collection)
             {
-                GetAdapter()?.OnEndBatchUpdate();
+                GetAdapter()?.EndBatchUpdate();
             }
 
             public void OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
@@ -465,7 +475,7 @@ namespace MugenMvvm.Collections
 
             #region Methods
 
-            protected override void OnAttachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
+            protected override void OnAttached(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
             {
                 owner.GetOrAddCollectionDecoratorManager();
             }
@@ -525,25 +535,25 @@ namespace MugenMvvm.Collections
                 switch (Action)
                 {
                     case CollectionChangedAction.Add:
-                        listener.OnAddedInternal(NewItem, NewIndex, batch);
+                        listener.OnAdded(NewItem, NewIndex, batch);
                         break;
                     case CollectionChangedAction.Move:
-                        listener.OnMovedInternal(NewItem, OldIndex, NewIndex, batch);
+                        listener.OnMoved(NewItem, OldIndex, NewIndex, batch);
                         break;
                     case CollectionChangedAction.Remove:
-                        listener.OnRemovedInternal(OldItem, OldIndex, batch);
+                        listener.OnRemoved(OldItem, OldIndex, batch);
                         break;
                     case CollectionChangedAction.Replace:
-                        listener.OnReplacedInternal(OldItem, NewItem, OldIndex, batch);
+                        listener.OnReplaced(OldItem, NewItem, OldIndex, batch);
                         break;
                     case CollectionChangedAction.Clear:
-                        listener.OnClearedInternal(batch);
+                        listener.OnCleared(batch);
                         break;
                     case CollectionChangedAction.Reset:
-                        listener.OnResetInternal((IEnumerable<T>)State!, batch);
+                        listener.OnReset((IEnumerable<T>)State!, batch);
                         break;
                     case CollectionChangedAction.Changed:
-                        listener.OnItemChangedInternal(OldItem, OldIndex, State, batch);
+                        listener.OnItemChanged(OldItem, OldIndex, State, batch);
                         break;
                     default:
                         ExceptionManager.ThrowEnumOutOfRange(nameof(Action), Action);

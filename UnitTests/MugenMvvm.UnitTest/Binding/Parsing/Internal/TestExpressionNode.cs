@@ -13,15 +13,15 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public override ExpressionNodeType ExpressionType => ExpressionNodeType.Parameter;
 
-        public Func<IExpressionVisitor, IReadOnlyMetadataContext?, IExpressionNode?>? Visit { get; set; }
+        public Func<IExpressionVisitor, IReadOnlyMetadataContext?, IExpressionNode?>? VisitHandler { get; set; }
 
         #endregion
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
-            return Visit?.Invoke(visitor, metadata) ?? this;
+            return VisitHandler?.Invoke(visitor, metadata) ?? this;
         }
 
         #endregion

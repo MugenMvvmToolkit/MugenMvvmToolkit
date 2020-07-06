@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Members
     {
         #region Fields
 
-        private readonly IObservationManager? _observationManager;
+        private readonly IObservationManager? _observationManager;//todo remove?
         private readonly IReflectionManager? _reflectionManager;
 
         private readonly PropertyInfo _propertyInfo;
@@ -127,6 +127,8 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
+            if(_propertyInfo.IsStatic())
+                _setterFunc = _propertyInfo.GetMemberGetter<Action<object?>>(_reflectionManager)
             _setterFunc = _propertyInfo.GetMemberSetter<object?, object?>(_reflectionManager);
             _setterFunc(arg1, arg2);
         }

@@ -45,7 +45,7 @@ namespace MugenMvvm.UnitTest.Components
         {
             var methodCallCount = 0;
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            testAttachableComponent.OnAttached = (test, context) =>
+            testAttachableComponent.OnAttachedHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Components
             var methodCallCount = 0;
             var canAttach = false;
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            testAttachableComponent.OnAttaching = (test, context) =>
+            testAttachableComponent.OnAttachingHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
@@ -88,7 +88,7 @@ namespace MugenMvvm.UnitTest.Components
         {
             var methodCallCount = 0;
             var testAttachableComponent = new TestAttachableComponent<AttachableComponentTest>();
-            testAttachableComponent.OnDetached = (test, context) =>
+            testAttachableComponent.OnDetachedHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);
@@ -117,7 +117,7 @@ namespace MugenMvvm.UnitTest.Components
             IDetachableComponent attachable = testAttachableComponent;
             attachable.OnDetaching(this, DefaultMetadata).ShouldBeTrue();
 
-            testAttachableComponent.OnDetaching = (test, context) =>
+            testAttachableComponent.OnDetachingHandler = (test, context) =>
             {
                 ++methodCallCount;
                 test.ShouldEqual(this);

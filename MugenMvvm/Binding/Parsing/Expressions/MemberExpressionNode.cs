@@ -141,7 +141,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return new MemberExpressionNode(target, member);
         }
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             if (Target == null)
                 return this;

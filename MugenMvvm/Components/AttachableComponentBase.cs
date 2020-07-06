@@ -40,7 +40,7 @@ namespace MugenMvvm.Components
         bool IAttachableComponent.OnAttaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
-                return OnAttachingInternal(o, metadata);
+                return OnAttaching(o, metadata);
             return true;
         }
 
@@ -53,13 +53,13 @@ namespace MugenMvvm.Components
                 ExceptionManager.ThrowObjectInitialized(this);
 
             Owner = o;
-            OnAttachedInternal(o, metadata);
+            OnAttached(o, metadata);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             if (owner is T o)
-                return OnDetachingInternal(o, metadata);
+                return OnDetaching(o, metadata);
             return true;
         }
 
@@ -67,7 +67,7 @@ namespace MugenMvvm.Components
         {
             if (owner is T o && ReferenceEquals(OwnerOptional, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
             {
-                OnDetachedInternal(o, metadata);
+                OnDetached(o, metadata);
                 Owner = null;
             }
         }
@@ -76,21 +76,21 @@ namespace MugenMvvm.Components
 
         #region Methods
 
-        protected virtual bool OnAttachingInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected virtual bool OnAttaching(T owner, IReadOnlyMetadataContext? metadata)
         {
             return true;
         }
 
-        protected virtual void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
         }
 
-        protected virtual bool OnDetachingInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected virtual bool OnDetaching(T owner, IReadOnlyMetadataContext? metadata)
         {
             return true;
         }
 
-        protected virtual void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
         }
 

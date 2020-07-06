@@ -19,7 +19,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
+    public sealed class BindingInitializer : IBindingExpressionInitializerComponent, IHasPriority//todo add inline optimizer or one time mode
     {
         #region Fields
 

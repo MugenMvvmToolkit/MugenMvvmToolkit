@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             #region Methods
 
-            protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+            protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
             {
                 throw new NotSupportedException();
             }

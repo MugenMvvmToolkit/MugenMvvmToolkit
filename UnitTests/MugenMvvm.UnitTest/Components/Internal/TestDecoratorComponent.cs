@@ -17,18 +17,18 @@ namespace MugenMvvm.UnitTest.Components.Internal
 
         public new TComponent[] Components => base.Components;
 
-        public Action<IComponentCollection, IList<TComponent>, IReadOnlyMetadataContext?>? Decorate { get; set; }
+        public Action<IComponentCollection, IList<TComponent>, IReadOnlyMetadataContext?>? DecorateHandler { get; set; }
 
         #endregion
 
         #region Methods
 
-        protected override void DecorateInternal(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        protected override void Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            if (Decorate == null)
-                base.DecorateInternal(collection, components, metadata);
+            if (DecorateHandler == null)
+                base.Decorate(collection, components, metadata);
             else
-                Decorate.Invoke(collection, components, metadata);
+                DecorateHandler.Invoke(collection, components, metadata);
         }
 
         #endregion

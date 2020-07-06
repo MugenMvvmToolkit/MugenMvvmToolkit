@@ -41,13 +41,13 @@ namespace MugenMvvm.Binding.Parsing.Expressions
                     return node;
             }
 
-            node = VisitInternal(visitor, metadata);
+            node = Visit(visitor, metadata);
             if (visitor.IsPostOrder)
                 return VisitWithCheck(visitor, node, true, ref changed, metadata);
             return node;
         }
 
-        protected abstract IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata);
+        protected abstract IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata);
 
         protected T VisitWithCheck<T>(IExpressionVisitor visitor, T node, bool notNull, ref bool changed, IReadOnlyMetadataContext? metadata)
             where T : class, IExpressionNode

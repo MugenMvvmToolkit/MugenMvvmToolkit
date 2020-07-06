@@ -36,7 +36,7 @@ namespace MugenMvvm.Extensions
 
         public static object? TryWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
-            return WrapInternal(view, wrapperType, metadata, wrapperManager, true);
+            return wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
         }
 
         public static TView Wrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
@@ -47,7 +47,7 @@ namespace MugenMvvm.Extensions
 
         public static object Wrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
-            return WrapInternal(view, wrapperType, metadata, wrapperManager, false)!;
+            return wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
         }
 
         public static bool CanWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null) where TView : class
@@ -58,13 +58,6 @@ namespace MugenMvvm.Extensions
         public static bool CanWrap(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)
         {
             return wrapperManager.DefaultIfNull().CanWrap(wrapperType, view, metadata);
-        }
-
-        private static object? WrapInternal(this IView view, Type wrapperType, IReadOnlyMetadataContext? metadata, IWrapperManager? wrapperManager, bool tryWrap)
-        {
-            if (tryWrap)
-                return wrapperManager.DefaultIfNull().TryWrap(wrapperType, view, metadata);
-            return wrapperManager.DefaultIfNull().Wrap(wrapperType, view, metadata);
         }
 
         #endregion

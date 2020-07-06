@@ -82,13 +82,15 @@ namespace MugenMvvm.Binding.Resources.Components
 
         #region Methods
 
-        public void AddType(Type type)
+        public void AddType(Type type, string? alias = null)
         {
             Should.NotBeNull(type, nameof(type));
             Types[type.Name] = type;
             var fullName = type.FullName;
             if (fullName != null)
                 Types[fullName] = type;
+            if (alias != null)
+                Types[alias] = type;
         }
 
         #endregion

@@ -33,7 +33,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public Func<object, object?, IReadOnlyMetadataContext?, object?>? GetBindingSource { get; set; }
 
-        public Func<IExpressionVisitor, IReadOnlyMetadataContext?, IExpressionNode?>? Visit { get; set; }
+        public Func<IExpressionVisitor, IReadOnlyMetadataContext?, IExpressionNode?>? VisitHandler { get; set; }
 
         #endregion
 
@@ -56,9 +56,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
-            return Visit?.Invoke(visitor, metadata) ?? this;
+            return VisitHandler?.Invoke(visitor, metadata) ?? this;
         }
 
         public override string ToString()

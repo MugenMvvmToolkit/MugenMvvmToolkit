@@ -248,13 +248,13 @@ namespace MugenMvvm.UnitTest.Components
             var componentCollection = new ComponentCollection(this);
             var component = new TestAttachableComponent<ComponentCollectionTest>
             {
-                OnAttaching = (test, context) =>
+                OnAttachingHandler = (test, context) =>
                 {
                     attachingCount++;
                     test.ShouldEqual(this);
                     return canAttach;
                 },
-                OnAttached = (test, context) =>
+                OnAttachedHandler = (test, context) =>
                 {
                     attachedCount++;
                     test.ShouldEqual(this);
@@ -283,13 +283,13 @@ namespace MugenMvvm.UnitTest.Components
             var componentCollection = new ComponentCollection(this);
             var component = new TestAttachableComponent<ComponentCollectionTest>
             {
-                OnDetaching = (test, context) =>
+                OnDetachingHandler = (test, context) =>
                 {
                     detachingCount++;
                     test.ShouldEqual(this);
                     return canDetach;
                 },
-                OnDetached = (test, context) =>
+                OnDetachedHandler = (test, context) =>
                 {
                     detachedCount++;
                     test.ShouldEqual(this);
@@ -318,7 +318,7 @@ namespace MugenMvvm.UnitTest.Components
             var componentCollection = new ComponentCollection(this);
             var component = new TestAttachableComponent<ComponentCollectionTest>
             {
-                OnDetached = (test, context) =>
+                OnDetachedHandler = (test, context) =>
                 {
                     detachedCount++;
                     test.ShouldEqual(this);
@@ -346,7 +346,7 @@ namespace MugenMvvm.UnitTest.Components
             componentCollection.Add(component);
 
             componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component }).ShouldBeTrue();
-            decoratorComponent1.Decorate = (c, list, context) =>
+            decoratorComponent1.DecorateHandler = (c, list, context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
@@ -359,7 +359,7 @@ namespace MugenMvvm.UnitTest.Components
             componentCollection.Get<IThreadDispatcherComponent>(DefaultMetadata).SequenceEqual(new[] { component, componentDecorated1 }).ShouldBeTrue();
             executed.ShouldEqual(1);
 
-            decoratorComponent2.Decorate = (c, list, context) =>
+            decoratorComponent2.DecorateHandler = (c, list, context) =>
             {
                 ++executed;
                 c.ShouldEqual(componentCollection);
@@ -397,7 +397,7 @@ namespace MugenMvvm.UnitTest.Components
             for (var i = 0; i < count; i++)
             {
                 var decoratorComponent = new TestThreadDispatcherDecorator();
-                decoratorComponent.Decorate = (c, list, context) =>
+                decoratorComponent.DecorateHandler = (c, list, context) =>
                 {
                     ++executed;
                     c.ShouldEqual(componentCollection);

@@ -30,25 +30,25 @@ namespace MugenMvvm.Components
 
         void IComponentCollectionDecorator<TComponent>.Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
-            DecorateInternal(collection, components, metadata);
+            Decorate(collection, components, metadata);
         }
 
         #endregion
 
         #region Methods
 
-        protected override void OnAttachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             owner.Components.AddComponent(this, metadata);
         }
 
-        protected override void OnDetachedInternal(T owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             owner.Components.RemoveComponent(this, metadata);
             Components = Default.Array<TComponent>();
         }
 
-        protected virtual void DecorateInternal(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
+        protected virtual void Decorate(IComponentCollection collection, IList<TComponent> components, IReadOnlyMetadataContext? metadata)
         {
             Components = this.Decorate(components);
         }

@@ -56,7 +56,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         m.ShouldEqual(context.GetMetadataOrDefault());
                         return converterParameter;
                     },
-                    Visit = (visitor, metadataContext) =>
+                    VisitHandler = (visitor, metadataContext) =>
                     {
                         ++parameterVisitCount;
                         metadataContext.ShouldEqual(context.GetMetadataOrDefault());

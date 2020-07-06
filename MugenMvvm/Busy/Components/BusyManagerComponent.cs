@@ -84,12 +84,12 @@ namespace MugenMvvm.Busy.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IBusyManager owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(IBusyManager owner, IReadOnlyMetadataContext? metadata)
         {
             OnBusyInfoChanged(metadata: metadata);
         }
 
-        protected override void OnDetachedInternal(IBusyManager owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(IBusyManager owner, IReadOnlyMetadataContext? metadata)
         {
             OnBusyInfoChanged(metadata: metadata);
         }

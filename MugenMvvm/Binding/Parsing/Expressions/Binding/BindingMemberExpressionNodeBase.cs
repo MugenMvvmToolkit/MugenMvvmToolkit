@@ -57,7 +57,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             return this;
         }

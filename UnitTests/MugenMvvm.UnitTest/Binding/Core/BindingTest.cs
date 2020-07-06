@@ -266,13 +266,13 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var componentCollection = (IComponentCollection)binding;
             var component = new TestAttachableComponent<IBinding>
             {
-                OnAttaching = (test, context) =>
+                OnAttachingHandler = (test, context) =>
                 {
                     attachingCount++;
                     test.ShouldEqual(binding);
                     return canAttach;
                 },
-                OnAttached = (test, context) =>
+                OnAttachedHandler = (test, context) =>
                 {
                     attachedCount++;
                     test.ShouldEqual(binding);
@@ -302,13 +302,13 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var componentCollection = (IComponentCollection)binding;
             var component = new TestAttachableComponent<IBinding>
             {
-                OnDetaching = (test, context) =>
+                OnDetachingHandler = (test, context) =>
                 {
                     detachingCount++;
                     test.ShouldEqual(binding);
                     return canDetach;
                 },
-                OnDetached = (test, context) =>
+                OnDetachedHandler = (test, context) =>
                 {
                     detachedCount++;
                     test.ShouldEqual(binding);
@@ -338,7 +338,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var componentCollection = (IComponentCollection)binding;
             var component = new TestAttachableComponent<IBinding>
             {
-                OnDetached = (test, context) =>
+                OnDetachedHandler = (test, context) =>
                 {
                     detachedCount++;
                     test.ShouldEqual(binding);
@@ -1220,13 +1220,13 @@ namespace MugenMvvm.UnitTest.Binding.Core
                 var canAdd = i % 2 == 0;
                 var component = new TestAttachableComponent<IBinding>
                 {
-                    OnAttaching = (b, ctx) =>
+                    OnAttachingHandler = (b, ctx) =>
                     {
                         b.ShouldEqual(binding);
                         ctx.ShouldEqual(DefaultMetadata);
                         return canAddAll || canAdd;
                     },
-                    OnAttached = (b, ctx) =>
+                    OnAttachedHandler = (b, ctx) =>
                     {
                         ++attachedCount;
                         b.ShouldEqual(binding);

@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             return new UnaryExpressionNode(token, operand);
         }
 
-        protected override IExpressionNode VisitInternal(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
+        protected override IExpressionNode Visit(IExpressionVisitor visitor, IReadOnlyMetadataContext? metadata)
         {
             var changed = false;
             var operand = VisitWithCheck(visitor, Operand, true, ref changed, metadata);

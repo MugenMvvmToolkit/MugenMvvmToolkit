@@ -41,11 +41,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(component);
             var target = new TestExpressionNode
             {
-                Visit = (visitor, metadataContext) => throw new NotSupportedException()
+                VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
             };
             var source = new TestExpressionNode
             {
-                Visit = (visitor, metadataContext) => throw new NotSupportedException()
+                VisitHandler = (visitor, metadataContext) => throw new NotSupportedException()
             };
             context.Initialize(this, this, target, source, default, DefaultMetadata);
             context.BindingComponents[BindingParameterNameConstant.EventHandler] = null;
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             var source = new TestExpressionNode
             {
-                Visit = (visitor, metadataContext) =>
+                VisitHandler = (visitor, metadataContext) =>
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var sourceVisitCount = 0;
             var target = new TestExpressionNode
             {
-                Visit = (visitor, metadataContext) =>
+                VisitHandler = (visitor, metadataContext) =>
                 {
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
@@ -140,7 +140,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             var source = new TestExpressionNode
             {
-                Visit = (visitor, metadataContext) =>
+                VisitHandler = (visitor, metadataContext) =>
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
@@ -239,7 +239,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         m.ShouldEqual(context.GetMetadataOrDefault());
                         return cmdParameter;
                     },
-                    Visit = (visitor, metadataContext) =>
+                    VisitHandler = (visitor, metadataContext) =>
                     {
                         ++parameterVisitCount;
                         metadataContext.ShouldEqual(context.GetMetadataOrDefault());
@@ -318,7 +318,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     m.ShouldEqual(context.GetMetadataOrDefault());
                     return (targetSrc, targetPath, memberFlags);
                 },
-                Visit = (visitor, metadataContext) =>
+                VisitHandler = (visitor, metadataContext) =>
                 {
                     ++targetVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());
@@ -332,7 +332,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             };
             var source = new TestBindingMemberExpressionNode
             {
-                Visit = (visitor, metadataContext) =>
+                VisitHandler = (visitor, metadataContext) =>
                 {
                     ++sourceVisitCount;
                     metadataContext.ShouldEqual(context.GetMetadataOrDefault());

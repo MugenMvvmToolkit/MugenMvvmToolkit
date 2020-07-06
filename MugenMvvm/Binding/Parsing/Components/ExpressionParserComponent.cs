@@ -55,15 +55,15 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnAttachedInternal(owner, metadata);
+            base.OnAttached(owner, metadata);
             _componentTracker.Attach(owner, metadata);
         }
 
-        protected override void OnDetachedInternal(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(IExpressionParser owner, IReadOnlyMetadataContext? metadata)
         {
-            base.OnDetachedInternal(owner, metadata);
+            base.OnDetached(owner, metadata);
             _componentTracker.Detach(owner, metadata);
         }
 

@@ -151,13 +151,13 @@ namespace MugenMvvm.Collections.Components
 
         #region Methods
 
-        protected override void OnAttachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnAttached(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             _decoratorManager = owner.GetOrAddCollectionDecoratorManager();
             Reorder();
         }
 
-        protected override void OnDetachedInternal(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
+        protected override void OnDetached(IObservableCollection owner, IReadOnlyMetadataContext? metadata)
         {
             _items.Clear();
             _decoratorManager = null;
