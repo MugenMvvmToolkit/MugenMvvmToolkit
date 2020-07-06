@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         }
 
         [Fact]
-        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegateFieldStatic()
+        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegateFieldStatic1()
         {
             const string value = "Test";
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
@@ -129,8 +129,24 @@ namespace MugenMvvm.UnitTest.Internal.Components
             getter().ShouldEqual(TestMemberGetterSetter.FieldStatic);
         }
 
+
         [Fact]
-        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic()
+        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegateFieldStatic2()
+        {
+            const string value = "Test";
+            IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
+            var field = typeof(TestMemberGetterSetter).GetField(nameof(TestMemberGetterSetter.FieldStatic), BindingFlags.Static | BindingFlags.Public);
+            var getter = (Func<object?, string>)component.TryGetMemberGetter(field, typeof(Func<object?, string>))!;
+            var setter = (Action<object?, string>)component.TryGetMemberSetter(field, typeof(Action<object?, string>))!;
+            getter(null).ShouldEqual(TestMemberGetterSetter.FieldStatic);
+
+            setter.Invoke(null, value);
+            TestMemberGetterSetter.FieldStatic.ShouldEqual(value);
+            getter(null).ShouldEqual(TestMemberGetterSetter.FieldStatic);
+        }
+
+        [Fact]
+        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic1()
         {
             const string value = "Test";
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
@@ -142,6 +158,21 @@ namespace MugenMvvm.UnitTest.Internal.Components
             setter.Invoke(value);
             TestMemberGetterSetter.PropertyStatic.ShouldEqual(value);
             getter().ShouldEqual(TestMemberGetterSetter.PropertyStatic);
+        }
+
+        [Fact]
+        public void TryGetMemberGetterSetterShouldGenerateCorrectDelegatePropertyStatic2()
+        {
+            const string value = "Test";
+            IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
+            var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public);
+            var getter = (Func<object?, string>)component.TryGetMemberGetter(property, typeof(Func<object?, string>))!;
+            var setter = (Action<object?, string>)component.TryGetMemberSetter(property, typeof(Action<object?, string>))!;
+            getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
+
+            setter.Invoke(null, value);
+            TestMemberGetterSetter.PropertyStatic.ShouldEqual(value);
+            getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
         }
 
         [Fact]

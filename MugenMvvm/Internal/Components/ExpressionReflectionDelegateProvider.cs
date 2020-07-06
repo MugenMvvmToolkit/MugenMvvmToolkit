@@ -201,11 +201,21 @@ namespace MugenMvvm.Internal.Components
             LambdaExpression expression;
             if (member.IsStatic())
             {
-                if (delegateParameters.Length != 0)
+                if (delegateParameters.Length == 0)
+                {
+                    expression = Expression.Lambda(delegateType, Expression
+                       .MakeMemberAccess(null, member)
+                       .ConvertIfNeed(delegateMethod.ReturnType, false));
+                }
+                else if (delegateParameters.Length == 1)//ignoring first parameter
+                {
+                    var parameter = Expression.Parameter(delegateParameters[0].ParameterType);
+                    expression = Expression.Lambda(delegateType, Expression
+                        .MakeMemberAccess(null, member)
+                        .ConvertIfNeed(delegateMethod.ReturnType, false), parameter);
+                }
+                else
                     return null;
-                expression = Expression.Lambda(delegateType, Expression
-                    .MakeMemberAccess(null, member)
-                    .ConvertIfNeed(delegateMethod.ReturnType, false));
             }
             else
             {
@@ -228,9 +238,12 @@ namespace MugenMvvm.Internal.Components
             ParameterExpression? targetParameter;
             if (member.IsStatic())
             {
-                if (delegateParameters.Length != 1)
+                if (delegateParameters.Length == 1)
+                    targetParameter = null;
+                else if (delegateParameters.Length == 2)//ignoring first parameter
+                    targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
+                else
                     return null;
-                targetParameter = null;
             }
             else
             {
