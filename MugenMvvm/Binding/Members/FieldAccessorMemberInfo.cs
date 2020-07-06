@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -17,11 +16,8 @@ namespace MugenMvvm.Binding.Members
         #region Fields
 
         private readonly FieldInfo _fieldInfo;
-        private readonly IObservationManager? _observationManager;
         private readonly Type _reflectedType;
-        private readonly IReflectionManager? _reflectionManager;
         private Func<object?, object?> _getterFunc;
-
         private MemberObserver? _observer;
         private Action<object?, object?> _setterFunc;
 
@@ -29,16 +25,13 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public FieldAccessorMemberInfo(string name, FieldInfo fieldInfo, Type reflectedType, IObservationManager? observationManager,
-            IReflectionManager? reflectionManager)
+        public FieldAccessorMemberInfo(string name, FieldInfo fieldInfo, Type reflectedType)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(fieldInfo, nameof(fieldInfo));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             _fieldInfo = fieldInfo;
             _reflectedType = reflectedType;
-            _observationManager = observationManager;
-            _reflectionManager = reflectionManager;
             Name = name;
             _getterFunc = CompileGetter;
             _setterFunc = CompileSetter;
@@ -51,7 +44,7 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type DeclaringType => _fieldInfo.DeclaringType;
+        public Type DeclaringType => _fieldInfo.DeclaringType ?? typeof(object);
 
         public Type Type => _fieldInfo.FieldType;
 
@@ -72,7 +65,7 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observationManager.DefaultIfNull().TryGetMemberObserver(_reflectedType, this, metadata);
+                _observer = MugenBindingService.ObservationManager.TryGetMemberObserver(_reflectedType, this, metadata);
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 
@@ -92,13 +85,13 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
-            _setterFunc = _fieldInfo.GetMemberSetter<object?, object?>(_reflectionManager);
+            _setterFunc = _fieldInfo.GetMemberSetter<object?, object?>();
             _setterFunc(arg1, arg2);
         }
 
         private object? CompileGetter(object? arg)
         {
-            _getterFunc = _fieldInfo.GetMemberGetter<object?, object?>(_reflectionManager);
+            _getterFunc = _fieldInfo.GetMemberGetter<object?, object?>();
             return _getterFunc(arg);
         }
 

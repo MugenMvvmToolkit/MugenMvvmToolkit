@@ -9,11 +9,9 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -24,8 +22,6 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly IObservationManager? _bindingObserverProvider;
-        private readonly IReflectionManager? _reflectionManager;
         private readonly Type[] _singleTypeBuffer;
         private readonly HashSet<Type> _types;
 
@@ -34,10 +30,8 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ExtensionMethodMemberProvider(IObservationManager? bindingObserverProvider = null, IReflectionManager? reflectionManager = null)
+        public ExtensionMethodMemberProvider()
         {
-            _bindingObserverProvider = bindingObserverProvider;
-            _reflectionManager = reflectionManager;
             _singleTypeBuffer = new Type[1];
             _types = new HashSet<Type>
             {
@@ -76,7 +70,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                     if (parameters[0].ParameterType.IsAssignableFrom(type))
                     {
-                        members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionManager, parameters, null));
+                        members.Add(new MethodMemberInfo(name, method, true, type, parameters, null));
                         continue;
                     }
 
@@ -89,7 +83,7 @@ namespace MugenMvvm.Binding.Members.Components
 
                     parameters = method.GetParameters();
                     if (parameters[0].ParameterType.IsAssignableFrom(type))
-                        members.Add(new MethodMemberInfo(name, method, true, type, _bindingObserverProvider, _reflectionManager, parameters, genericArgs));
+                        members.Add(new MethodMemberInfo(name, method, true, type, parameters, genericArgs));
                 }
             }
 

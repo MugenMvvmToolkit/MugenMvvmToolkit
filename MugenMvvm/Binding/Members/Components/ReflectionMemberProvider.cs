@@ -9,7 +9,6 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -20,8 +19,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly IObservationManager? _bindingObserverProvider;
-        private readonly IReflectionManager? _reflectionManager;
+        private readonly IObservationManager? _observationManager;
         private readonly HashSet<Type> _types;
 
         #endregion
@@ -29,10 +27,9 @@ namespace MugenMvvm.Binding.Members.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ReflectionMemberProvider(IObservationManager? bindingObserverProvider = null, IReflectionManager? reflectionManager = null)
+        public ReflectionMemberProvider(IObservationManager? observationManager = null)
         {
-            _bindingObserverProvider = bindingObserverProvider;
-            _reflectionManager = reflectionManager;
+            _observationManager = observationManager;
             _types = new HashSet<Type>();
         }
 
@@ -81,7 +78,7 @@ namespace MugenMvvm.Binding.Members.Components
                     {
                         var methodInfo = methods[index];
                         if (methodInfo.Name == name)
-                            result.Add(new MethodMemberInfo(name, methodInfo, false, type, _bindingObserverProvider, _reflectionManager));
+                            result.Add(new MethodMemberInfo(name, methodInfo, false, type));
                     }
                 }
             }
@@ -99,7 +96,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (eventInfo == null)
                 return false;
 
-            var memberObserver = _bindingObserverProvider.DefaultIfNull().TryGetMemberObserver(requestedType, eventInfo, metadata);
+            var memberObserver = _observationManager.DefaultIfNull().TryGetMemberObserver(requestedType, eventInfo, metadata);
             if (memberObserver.IsEmpty)
                 return false;
 
@@ -113,7 +110,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (field == null)
                 return false;
 
-            result.Add(new FieldAccessorMemberInfo(name, field, requestedType, _bindingObserverProvider, _reflectionManager));
+            result.Add(new FieldAccessorMemberInfo(name, field, requestedType));
             return true;
         }
 
@@ -123,7 +120,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (property == null)
                 return false;
 
-            result.Add(new PropertyAccessorMemberInfo(name, property, requestedType, _bindingObserverProvider, _reflectionManager));
+            result.Add(new PropertyAccessorMemberInfo(name, property, requestedType));
             return true;
         }
 

@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -15,9 +14,6 @@ namespace MugenMvvm.Binding.Members
     public sealed class PropertyAccessorMemberInfo : IAccessorMemberInfo
     {
         #region Fields
-
-        private readonly IObservationManager? _observationManager;//todo remove?
-        private readonly IReflectionManager? _reflectionManager;
 
         private readonly PropertyInfo _propertyInfo;
         private readonly Type _reflectedType;
@@ -30,15 +26,13 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType, IObservationManager? observationManager, IReflectionManager? reflectionManager)
+        public PropertyAccessorMemberInfo(string name, PropertyInfo propertyInfo, Type reflectedType)
         {
             Should.NotBeNull(name, nameof(name));
             Should.NotBeNull(propertyInfo, nameof(propertyInfo));
             Should.NotBeNull(reflectedType, nameof(reflectedType));
             _propertyInfo = propertyInfo;
             _reflectedType = reflectedType;
-            _observationManager = observationManager;
-            _reflectionManager = reflectionManager;
             Name = name;
             Type = _propertyInfo.PropertyType;
 
@@ -75,7 +69,7 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type DeclaringType => _propertyInfo.DeclaringType;
+        public Type DeclaringType => _propertyInfo.DeclaringType ?? typeof(object);
 
         public Type Type { get; }
 
@@ -96,7 +90,7 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_observer == null)
-                _observer = _observationManager.DefaultIfNull().TryGetMemberObserver(_reflectedType, this, metadata);
+                _observer = MugenBindingService.ObservationManager.TryGetMemberObserver(_reflectedType, this, metadata);
             return _observer.Value.TryObserve(target, listener, metadata);
         }
 
@@ -127,15 +121,13 @@ namespace MugenMvvm.Binding.Members
 
         private void CompileSetter(object? arg1, object? arg2)
         {
-            if(_propertyInfo.IsStatic())
-                _setterFunc = _propertyInfo.GetMemberGetter<Action<object?>>(_reflectionManager)
-            _setterFunc = _propertyInfo.GetMemberSetter<object?, object?>(_reflectionManager);
+            _setterFunc = _propertyInfo.GetMemberSetter<object?, object?>();
             _setterFunc(arg1, arg2);
         }
 
         private object? CompileGetter(object? arg)
         {
-            _getterFunc = _propertyInfo.GetMemberGetter<object?, object?>(_reflectionManager);
+            _getterFunc = _propertyInfo.GetMemberGetter<object?, object?>();
             return _getterFunc(arg);
         }
 

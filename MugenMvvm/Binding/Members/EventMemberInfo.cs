@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Members
 
         public string Name { get; }
 
-        public Type DeclaringType => _eventInfo.DeclaringType;
+        public Type DeclaringType => _eventInfo.DeclaringType ?? typeof(object);
 
         public Type Type { get; }
 

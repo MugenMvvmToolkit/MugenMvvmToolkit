@@ -4,10 +4,9 @@ using System.Reflection;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observation;
-using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
-using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -17,7 +16,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
     {
         #region Methods
 
-        public string Method1([Obfuscation]string v)
+        public string Method1([Obfuscation] string v)
         {
             return v;
         }
@@ -48,8 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             }, this);
 
             var observerRequestCount = 0;
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -62,9 +60,8 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var provider = new ReflectionManager();
-            provider.AddComponent(new ExpressionReflectionDelegateProvider());
-            memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType, observationManager, provider);
+
+            memberInfo = new MethodMemberInfo(name, methodInfo, false, reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);

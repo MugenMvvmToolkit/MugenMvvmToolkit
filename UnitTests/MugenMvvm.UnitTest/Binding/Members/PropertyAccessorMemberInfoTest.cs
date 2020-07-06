@@ -6,6 +6,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -68,8 +69,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             }, propertyInfo);
 
             var observerRequestCount = 0;
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -82,10 +82,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var delegateProvider = new ReflectionManager();
-            delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
-
-            memberInfo = new PropertyAccessorMemberInfo(name, propertyInfo, reflectedType, observationManager, delegateProvider);
+            memberInfo = new PropertyAccessorMemberInfo(name, propertyInfo, reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(propertyInfo.PropertyType);
             memberInfo.DeclaringType.ShouldEqual(propertyInfo.DeclaringType);
@@ -110,14 +107,14 @@ namespace MugenMvvm.UnitTest.Binding.Members
             {
                 memberInfo.CanWrite.ShouldBeFalse();
                 memberInfo.CanRead.ShouldBeTrue();
-                memberInfo.GetValue(null, DefaultMetadata).ShouldEqual(ReadOnlyProperty);
+                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(ReadOnlyProperty);
                 ShouldThrow<InvalidOperationException>(() => memberInfo.SetValue(this, nameof(Property1), DefaultMetadata));
             }
             else if (fieldName == nameof(WriteOnlyProperty))
             {
                 memberInfo.CanWrite.ShouldBeTrue();
                 memberInfo.CanRead.ShouldBeFalse();
-                memberInfo.SetValue(null, "", DefaultMetadata);
+                memberInfo.SetValue(this, "", DefaultMetadata);
                 ShouldThrow<InvalidOperationException>(() => memberInfo.GetValue(this, DefaultMetadata));
             }
             else
@@ -159,7 +156,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
             var observerRequestCount = 0;
             var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -172,10 +169,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var delegateProvider = new ReflectionManager();
-            delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
-
-            memberInfo = new PropertyAccessorMemberInfo(name, propertyInfo, reflectedType, observationManager, delegateProvider);
+            memberInfo = new PropertyAccessorMemberInfo(name, propertyInfo, reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(propertyInfo.PropertyType);
             memberInfo.DeclaringType.ShouldEqual(propertyInfo.DeclaringType);

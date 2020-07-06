@@ -8,11 +8,12 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Collections;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MemberSelector : IMemberManagerComponent
+    public sealed class MemberSelector : IMemberManagerComponent, IHasPriority
     {
         #region Fields
 
@@ -53,8 +54,7 @@ namespace MugenMvvm.Binding.Members.Components
             for (var i = 0; i < members.Count; i++)
             {
                 var member = members[i];
-                var memberType = member.MemberType;
-                if (!memberTypes.HasFlagEx(memberType) || !flags.HasFlagEx(member.AccessModifiers))
+                if (!memberTypes.HasFlagEx(member.MemberType) || !flags.HasFlagEx(member.AccessModifiers))
                     continue;
 
                 if (_selectorDictionary.TryGetValue(member, out var list))

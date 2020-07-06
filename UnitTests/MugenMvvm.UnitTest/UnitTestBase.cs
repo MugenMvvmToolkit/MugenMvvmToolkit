@@ -5,8 +5,10 @@ using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Resources;
 using MugenMvvm.Binding.Resources.Components;
 using MugenMvvm.Commands;
@@ -77,6 +79,9 @@ namespace MugenMvvm.UnitTest
 
             IBindingManager bindingManager = new BindingManager();
             MugenService.Configuration.InitializeInstance(bindingManager);
+
+            IObservationManager observationManager = new ObservationManager();
+            MugenService.Configuration.InitializeInstance(observationManager);
         }
 
         #endregion

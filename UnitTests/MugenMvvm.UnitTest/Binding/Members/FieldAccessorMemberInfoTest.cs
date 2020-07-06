@@ -5,6 +5,7 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -16,6 +17,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
 
         public string? Field1;
         public int Field2;
+
+        public static string? Field1Static;
+        public static int Field2Static;
 
         #endregion
 
@@ -46,8 +50,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             }, fieldInfo);
 
             var observerRequestCount = 0;
-            var observationManager = new ObservationManager();
-            observationManager.AddComponent(new TestMemberObserverProviderComponent
+            using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
                 TryGetMemberObserver = (type, o, arg3, arg4) =>
                 {
@@ -60,10 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 }
             });
 
-            var delegateProvider = new ReflectionManager();
-            delegateProvider.AddComponent(new ExpressionReflectionDelegateProvider());
-
-            memberInfo = new FieldAccessorMemberInfo(name, fieldInfo, reflectedType, observationManager, delegateProvider);
+            memberInfo = new FieldAccessorMemberInfo(name, fieldInfo, reflectedType);
             memberInfo.Name.ShouldEqual(name);
             memberInfo.Type.ShouldEqual(fieldInfo.FieldType);
             memberInfo.DeclaringType.ShouldEqual(fieldInfo.DeclaringType);
@@ -90,6 +90,70 @@ namespace MugenMvvm.UnitTest.Binding.Members
             }
         }
 
+        [Theory]
+        [InlineData(nameof(Field1Static))]
+        [InlineData(nameof(Field2Static))]
+        public void ConstructorShouldInitializeStaticMember(string fieldName)
+        {
+            var fieldInfo = GetType().GetField(fieldName);
+            fieldInfo.ShouldNotBeNull();
+            var reflectedType = typeof(object);
+            var name = fieldName + "t";
+            var testEventListener = new TestWeakEventListener();
+            var result = new ActionToken((o, o1) => { });
+            var count = 0;
+            FieldAccessorMemberInfo? memberInfo = null;
+
+            var memberObserver = new MemberObserver((target, member, listener, meta) =>
+            {
+                ++count;
+                target.ShouldEqual(this);
+                member.ShouldEqual(fieldInfo);
+                listener.ShouldEqual(testEventListener);
+                meta.ShouldEqual(DefaultMetadata);
+                return result;
+            }, fieldInfo);
+
+            var observerRequestCount = 0;
+            using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg3, arg4) =>
+                {
+                    ++observerRequestCount;
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(typeof(FieldAccessorMemberInfo));
+                    arg4.ShouldEqual(DefaultMetadata);
+                    type.ShouldEqual(reflectedType);
+                    return memberObserver;
+                }
+            });
+
+            memberInfo = new FieldAccessorMemberInfo(name, fieldInfo, reflectedType);
+            memberInfo.Name.ShouldEqual(name);
+            memberInfo.Type.ShouldEqual(fieldInfo.FieldType);
+            memberInfo.DeclaringType.ShouldEqual(fieldInfo.DeclaringType);
+            memberInfo.UnderlyingMember.ShouldEqual(fieldInfo);
+            memberInfo.MemberType.ShouldEqual(MemberType.Accessor);
+            memberInfo.AccessModifiers.ShouldEqual(MemberFlags.Static | MemberFlags.Public);
+
+            memberInfo.TryObserve(this, testEventListener, DefaultMetadata).ShouldEqual(result);
+            count.ShouldEqual(1);
+            observerRequestCount.ShouldEqual(1);
+
+            if (fieldName == nameof(Field1Static))
+            {
+                Field1Static = "test";
+                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(Field1Static);
+                memberInfo.SetValue(this, nameof(Field1Static), DefaultMetadata);
+                Field1Static.ShouldEqual(nameof(Field1Static));
+            }
+            else
+            {
+                memberInfo.GetValue(this, DefaultMetadata).ShouldEqual(Field2Static);
+                memberInfo.SetValue(this, int.MaxValue, DefaultMetadata);
+                Field2Static.ShouldEqual(int.MaxValue);
+            }
+        }
         #endregion
     }
 }
