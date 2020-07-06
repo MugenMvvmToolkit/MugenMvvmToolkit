@@ -58,6 +58,8 @@ namespace MugenMvvm.Binding.Observation
 
         public void Raise<T>(object? sender, in T message, string memberName, IReadOnlyMetadataContext? metadata)
         {
+            if (Count == 0)
+                return;
             var raising = _raising;
             _raising = true;
             try

@@ -43,6 +43,8 @@ namespace MugenMvvm.Binding.Observation
 
         public void Raise<TArg>(object? sender, in TArg args, IReadOnlyMetadataContext? metadata)
         {
+            if (Count == 0)
+                return;
             var raising = _raising;
             _raising = true;
             try
