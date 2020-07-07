@@ -95,10 +95,11 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
+        [InlineData(true, true)]
         public void ObservableShouldUseDelegates(bool withAttachedHandler, bool isStatic)
         {
             var message = "m";
-            var target = new object();
+            var target = isStatic ? null : new object();
             var testEventHandler = new TestWeakEventListener();
             var attachedInvokeCount = 0;
             var invokeCount = 0;
@@ -152,12 +153,14 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         }
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void InstanceObservableShouldRaise(bool withAttachedHandler)
+        [InlineData(true, true)]
+        [InlineData(true, false)]
+        [InlineData(false, true)]
+        [InlineData(false, false)]
+        public void ObservableShouldRaise(bool withAttachedHandler, bool isStatic)
         {
             var message = "m";
-            var target = new object();
+            var target = isStatic ? null : new object();
             var attachedInvokeCount = 0;
             IMethodMemberInfo? memberInfo = null;
             var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").Observable();
@@ -172,12 +175,14 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                 });
             }
 
+            if (isStatic)
+                builder.Static();
             memberInfo = builder.Build();
             var testEventHandler = new TestWeakEventListener
             {
                 TryHandle = (t, msg, metadata) =>
                 {
-                    t.ShouldEqual(target);
+                    t.ShouldEqual(isStatic ? typeof(object) : target);
                     message.ShouldEqual(msg);
                     metadata.ShouldEqual(DefaultMetadata);
                     return true;
@@ -199,34 +204,12 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             }
         }
 
-        [Fact]
-        public void StaticObservableShouldRaise()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void InvokeShouldCallAttachedHandler(bool isStatic)
         {
-            var message = "m";
-            var memberInfo = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "").Static().Observable().Build();
-            var testEventHandler = new TestWeakEventListener
-            {
-                TryHandle = (t, msg, meta) =>
-                {
-                    t.ShouldBeNull();
-                    message.ShouldEqual(msg);
-                    meta.ShouldEqual(DefaultMetadata);
-                    return true;
-                }
-            };
-            var actionToken = memberInfo.TryObserve(null, testEventHandler, DefaultMetadata);
-            ((INotifiableMemberInfo)memberInfo).Raise(null, message, DefaultMetadata);
-            testEventHandler.InvokeCount.ShouldEqual(1);
-
-            actionToken.Dispose();
-            ((INotifiableMemberInfo)memberInfo).Raise(null, message, DefaultMetadata);
-            testEventHandler.InvokeCount.ShouldEqual(1);
-        }
-
-        [Fact]
-        public void InvokeShouldCallAttachedHandler()
-        {
-            var target = new object();
+            var target = isStatic ? null : new object();
             var attachedInvokeCount = 0;
             IMethodMemberInfo? memberInfo = null;
             var builder = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, o, args, metadata) => "")
@@ -237,6 +220,9 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                     t.ShouldEqual(target);
                     metadata.ShouldEqual(DefaultMetadata);
                 });
+
+            if (isStatic)
+                builder.Static();
 
             memberInfo = builder.Build();
             memberInfo.Invoke(target, Default.Array<object>(), DefaultMetadata);
@@ -249,9 +235,10 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         [InlineData(true, false)]
         [InlineData(false, true)]
         [InlineData(false, false)]
+        [InlineData(true, true)]
         public void InvokeShouldUseDelegates(bool withAttachedHandler, bool isStatic)
         {
-            var target = new object();
+            var target = isStatic ? null : new object();
             var resultValue = new object();
             var parameters = new object[] { "" };
             var invokeCount = 0;

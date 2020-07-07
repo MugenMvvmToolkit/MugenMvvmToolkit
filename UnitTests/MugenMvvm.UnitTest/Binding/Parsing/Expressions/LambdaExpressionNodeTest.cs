@@ -21,6 +21,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.Lambda);
             exp.Body.ShouldEqual(target);
             exp.Parameters.ShouldEqual(args);
+            exp.ToString().ShouldEqual("(Test) => \"1\"");
         }
 
         [Theory]

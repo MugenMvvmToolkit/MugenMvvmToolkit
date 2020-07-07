@@ -55,7 +55,6 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public MethodBuilder<TTarget, TReturn> Static()
         {
-            Should.BeSupported(_attachedHandler == null, nameof(AttachedHandler));
             _isStatic = true;
             return this;
         }
@@ -70,7 +69,6 @@ namespace MugenMvvm.Binding.Members.Builders
         public MethodBuilder<TTarget, TReturn> AttachedHandler(MemberAttachedDelegate<IMethodMemberInfo, TTarget> attachedHandler)
         {
             Should.NotBeNull(attachedHandler, nameof(attachedHandler));
-            Should.BeSupported(!_isStatic, nameof(Static));
             _attachedHandler = attachedHandler;
             return this;
         }
@@ -128,20 +126,14 @@ namespace MugenMvvm.Binding.Members.Builders
                 if (!_isObservable)
                     return Method<object?>(null, _invoke, _getParameters, _tryObserve, _raise);
 
-                if (_isStatic)
-                {
-                    return Method(id!, _invoke, _getParameters, (member, target, listener, metadata) => AttachedMemberBuilder.AddStaticEvent(member.State, listener),
-                        (member, target, message, metadata) => AttachedMemberBuilder.RaiseStaticEvent(member.State, message, metadata));
-                }
-
-                return Method(id!, _invoke, _getParameters, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(target!, member.State).Add(listener),
-                    (member, target, message, metadata) => EventListenerCollection.Raise(target!, member.State, message, metadata));
+                return Method(id!, _invoke, _getParameters, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
+                    (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State, message, metadata));
             }
 
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, (InvokeMethodDelegate<IMethodMemberInfo, TTarget, TReturn> _invoke, TryObserveDelegate<INotifiableMemberInfo, TTarget>? _tryObserve,
                 MemberAttachedDelegate<IMethodMemberInfo, TTarget> _attachedHandler, string attachedId, string? id)>, TTarget>? raise = null;
             if (id != null)
-                raise = (member, target, message, metadata) => EventListenerCollection.Raise(target!, member.State.id!, message, metadata);
+                raise = (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State.id!, message, metadata);
             var attachedId = GenerateMemberId(false);
             return Method((_invoke, _tryObserve, _attachedHandler, attachedId, id), (member, target, args, metadata) =>
             {
@@ -152,7 +144,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IMethodMemberInfo)member, member.State._attachedHandler, metadata);
                 if (member.State.id == null)
                     return member.State._tryObserve!(member, target, listener, metadata);
-                return EventListenerCollection.GetOrAdd(target!, member.State.id).Add(listener);
+                return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);
             }, raise ?? _raise);
         }
 

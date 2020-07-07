@@ -24,6 +24,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             var exp = new ParameterExpressionNode(Name);
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.Parameter);
             exp.Name.ShouldEqual(Name);
+            exp.ToString().ShouldEqual(Name);
         }
 
         [Theory]

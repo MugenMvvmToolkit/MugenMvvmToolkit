@@ -23,6 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             exp.Left.ShouldEqual(left);
             exp.Right.ShouldEqual(right);
             exp.Token.ShouldEqual(tokenType);
+            exp.ToString().ShouldEqual("(\"1\" == \"2\")");
         }
 
         [Theory]

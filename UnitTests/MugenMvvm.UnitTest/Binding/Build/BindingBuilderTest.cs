@@ -162,6 +162,45 @@ namespace MugenMvvm.UnitTest.Binding.Build
         }
 
         [Fact]
+        public void BindWithoutResultShouldBuildBinding()
+        {
+            var request = "Test";
+            var target = this;
+            var source = "";
+            var binding = new TestBinding();
+            var buildInvokeCount = 0;
+            var testBuilder = new TestBindingBuilder
+            {
+                Build = (o, o1, arg3) =>
+                {
+                    ++buildInvokeCount;
+                    o.ShouldEqual(target);
+                    o1.ShouldEqual(source);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return binding;
+                }
+            };
+            var bindingManager = new BindingManager();
+            var invokeCount = 0;
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            {
+                TryParseBindingExpression = (m, o, type, arg3) =>
+                {
+                    ++invokeCount;
+                    m.ShouldEqual(bindingManager);
+                    o.ShouldEqual(request);
+                    type.ShouldEqual(typeof(string));
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return new[] { testBuilder, testBuilder };
+                }
+            });
+
+            target.BindWithoutResult(request, source, DefaultMetadata, bindingManager);
+            invokeCount.ShouldEqual(1);
+            buildInvokeCount.ShouldEqual(2);
+        }
+
+        [Fact]
         public void ModeTest()
         {
             var target = "T";

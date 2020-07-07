@@ -30,6 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             exp.Arguments.ShouldEqual(args);
             exp.TypeArgs.ShouldEqual(TypeArgs);
             exp.Method.ShouldEqual(MethodName);
+            exp.ToString().ShouldEqual("\"1\".@4<te, tes>(\"2\")");
         }
 
         [Fact]

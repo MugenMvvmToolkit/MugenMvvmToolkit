@@ -90,6 +90,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
             exp.Target.ShouldEqual(target);
             exp.Member.ShouldEqual(MemberName);
+            exp.ToString().ShouldEqual("\"1\".@4");
         }
 
         [Fact]

@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Observation.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
@@ -19,7 +18,6 @@ namespace MugenMvvm.Binding.Observation.Components
     {
         #region Fields
 
-        private static readonly MemberInfoLightDictionary<EventInfo, EventListenerCollection?> StaticEvents = new MemberInfoLightDictionary<EventInfo, EventListenerCollection?>(7);
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
@@ -67,18 +65,12 @@ namespace MugenMvvm.Binding.Observation.Components
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
             var eventInfo = (EventInfo)member;
-            EventListenerCollection? listenerInternal;
-            if (eventInfo.IsStatic())
-                listenerInternal = GetOrAddStaticEvent(eventInfo);
-            else
-            {
-                if (target == null)
-                    return default;
+            if (target == null && !eventInfo.IsStatic())
+                return default;
 
-                listenerInternal = _attachedValueManager
-                    .DefaultIfNull()
-                    .GetOrAdd(target, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
-            }
+            var listenerInternal = _attachedValueManager
+                .DefaultIfNull()
+                .GetOrAdd(target ?? eventInfo.DeclaringType, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
@@ -89,20 +81,6 @@ namespace MugenMvvm.Binding.Observation.Components
             if (member.EventHandlerType == typeof(EventHandler) || member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager))
                 return new MemberObserver(_memberObserverHandler, member);
             return default;
-        }
-
-        private EventListenerCollection? GetOrAddStaticEvent(EventInfo eventInfo)
-        {
-            lock (StaticEvents)
-            {
-                if (!StaticEvents.TryGetValue(eventInfo, out var listeners))
-                {
-                    listeners = CreateWeakListener(null, eventInfo);
-                    StaticEvents[eventInfo] = listeners;
-                }
-
-                return listeners;
-            }
         }
 
         private EventListenerCollection? CreateWeakListener(object? target, EventInfo eventInfo)

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Convert.Components;
 using Should;
 using Xunit;
@@ -9,6 +10,15 @@ namespace MugenMvvm.UnitTest.Binding.Convert.Components
     public class GlobalValueConverterComponentTest : UnitTestBase
     {
         #region Methods
+
+        [Fact]
+        public void ConstructorShouldInitializeValues()
+        {
+            var component = new GlobalValueConverterComponent();
+            component.Priority.ShouldEqual(ConverterComponentPriority.Converter);
+            component.Priority = int.MaxValue;
+            component.Priority.ShouldEqual(int.MaxValue);
+        }
 
         [Fact]
         public void TryConvertShouldHandleNull()

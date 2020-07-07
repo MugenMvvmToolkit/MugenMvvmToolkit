@@ -1,27 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members.Descriptors;
-using MugenMvvm.Binding.Observation;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Builders
 {
     public static class AttachedMemberBuilder
     {
-        #region Fields
-
-        private static readonly Dictionary<string, EventListenerCollection> StaticEvents = new Dictionary<string, EventListenerCollection>();
-        private static readonly Dictionary<string, object?> StaticValues = new Dictionary<string, object?>();
-
-        #endregion
-
         #region Methods
 
         public static EventBuilder<TTarget> Event<TTarget>(string name, Type? declaringType = null, Type? eventType = null) where TTarget : class?
@@ -100,20 +90,28 @@ namespace MugenMvvm.Binding.Members.Builders
             where TTarget : class?
             where TMember : class, IMemberInfo
         {
-            Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(handler, nameof(handler));
             var attachedValueManager = MugenService.AttachedValueManager;
-            if (!attachedValueManager.Contains(target!, id))
+            var key = member.GetTarget(target);
+            if (!attachedValueManager.Contains(key, id))
             {
 #pragma warning disable 8634
-                attachedValueManager.GetOrAdd(target, id, (member, handler, metadata), (t, state) =>
+                attachedValueManager.GetOrAdd(key, id, (member, handler, metadata), (t, state) =>
                 {
-                    state.handler(state.member, t, state.metadata);
-                    return (object?) null;
+                    state.handler(state.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, state.metadata);
+                    return (object?)null;
                 });
 #pragma warning restore 8634
             }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal static object GetTarget(this IMemberInfo member, object? target)
+        {
+            if (member.AccessModifiers.HasFlagEx(MemberFlags.Static))
+                return member.DeclaringType;
+            return target!;
         }
 
         internal static MemberFlags GetFlags(bool isStatic)
@@ -124,63 +122,6 @@ namespace MugenMvvm.Binding.Members.Builders
         internal static string GenerateMemberId(string prefix, Type declaringType, string name)
         {
             return prefix + declaringType.FullName.Length.ToString(CultureInfo.InvariantCulture) + declaringType.Name + declaringType.AssemblyQualifiedName.Length.ToString(CultureInfo.InvariantCulture) + name;
-        }
-
-        internal static bool TryGetStaticValue<TValue>(string name, out TValue value)
-        {
-            lock (StaticValues)
-            {
-                if (StaticValues.TryGetValue(name, out var valueRaw))
-                {
-                    value = (TValue) valueRaw!;
-                    return true;
-                }
-
-                value = default!;
-                return false;
-            }
-        }
-
-        internal static bool TrySetStaticValue<TValue>(string name, TValue value, out TValue oldValue)
-        {
-            lock (StaticValues)
-            {
-                if (StaticValues.TryGetValue(name, out var valueRaw))
-                {
-                    oldValue = (TValue) valueRaw!;
-                    if (EqualityComparer<TValue>.Default.Equals(oldValue, value))
-                        return false;
-                }
-                else
-                    oldValue = default!;
-
-                StaticValues[name] = BoxingExtensions.Box(value);
-                return true;
-            }
-        }
-
-        internal static ActionToken AddStaticEvent(string name, IEventListener listener)
-        {
-            EventListenerCollection events;
-            lock (StaticEvents)
-            {
-                if (!StaticEvents.TryGetValue(name, out events))
-                {
-                    events = new EventListenerCollection();
-                    StaticEvents[name] = events;
-                }
-            }
-
-            return events.Add(listener);
-        }
-
-        internal static void RaiseStaticEvent<T>(string name, in T message, IReadOnlyMetadataContext? metadata)
-        {
-            lock (StaticEvents)
-            {
-                if (StaticEvents.TryGetValue(name, out var listener))
-                    listener.Raise(null, message, metadata);
-            }
         }
 
         #endregion

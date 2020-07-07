@@ -21,6 +21,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.Unary);
             exp.Operand.ShouldEqual(target);
             exp.Token.ShouldEqual(UnaryTokenType.BitwiseNegation);
+            exp.ToString().ShouldEqual("~\"1\"");
         }
 
         [Theory]

@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MugenMvvm.Binding.Observation.Paths;
 using Should;
 using Xunit;
@@ -18,6 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Paths
             singleMemberPath.Members[0].ShouldEqual(path);
             singleMemberPath.Members.Count.ShouldEqual(1);
             singleMemberPath.Path.ShouldEqual(path);
+            ShouldThrow<ArgumentOutOfRangeException>(() => singleMemberPath.Members[1].ToString());
         }
 
         #endregion

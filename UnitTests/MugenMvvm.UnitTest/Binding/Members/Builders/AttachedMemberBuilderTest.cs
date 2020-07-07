@@ -94,6 +94,101 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
         }
 
         [Fact]
+        public void MethodShouldBuildMethod3()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action>(name);
+            var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
+            var parameters = build.GetParameters();
+            parameters.Count.ShouldEqual(1);
+            parameters[0].ParameterType.ShouldEqual(typeof(int));
+            build.MemberType.ShouldEqual(MemberType.Method);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
+
+        [Fact]
+        public void MethodShouldBuildMethod4()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action>(name);
+            var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
+            var parameters = build.GetParameters();
+            parameters.Count.ShouldEqual(2);
+            parameters[0].ParameterType.ShouldEqual(typeof(byte));
+            parameters[1].ParameterType.ShouldEqual(typeof(char));
+            build.MemberType.ShouldEqual(MemberType.Method);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
+
+        [Fact]
+        public void MethodShouldBuildMethod5()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action>(name);
+            var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
+            var parameters = build.GetParameters();
+            parameters.Count.ShouldEqual(3);
+            parameters[0].ParameterType.ShouldEqual(typeof(byte));
+            parameters[1].ParameterType.ShouldEqual(typeof(char));
+            parameters[2].ParameterType.ShouldEqual(typeof(short));
+            build.MemberType.ShouldEqual(MemberType.Method);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
+
+        [Fact]
+        public void MethodShouldBuildMethod6()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action>(name);
+            var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
+            var parameters = build.GetParameters();
+            parameters.Count.ShouldEqual(4);
+            parameters[0].ParameterType.ShouldEqual(typeof(byte));
+            parameters[1].ParameterType.ShouldEqual(typeof(char));
+            parameters[2].ParameterType.ShouldEqual(typeof(short));
+            parameters[3].ParameterType.ShouldEqual(typeof(int));
+            build.MemberType.ShouldEqual(MemberType.Method);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
+
+        [Fact]
+        public void MethodShouldBuildMethod7()
+        {
+            string name = "t";
+            Type declaredType = GetType();
+            var memberType = typeof(Action);
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action>(name);
+            var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
+            var parameters = build.GetParameters();
+            parameters.Count.ShouldEqual(5);
+            parameters[0].ParameterType.ShouldEqual(typeof(byte));
+            parameters[1].ParameterType.ShouldEqual(typeof(char));
+            parameters[2].ParameterType.ShouldEqual(typeof(short));
+            parameters[3].ParameterType.ShouldEqual(typeof(int));
+            parameters[4].ParameterType.ShouldEqual(typeof(long));
+            build.MemberType.ShouldEqual(MemberType.Method);
+            build.Name.ShouldEqual(name);
+            build.DeclaringType.ShouldEqual(declaredType);
+            build.Type.ShouldEqual(memberType);
+        }
+
+        [Fact]
         public void ParameterShouldBuildParameter1()
         {
             string name = "t";
@@ -102,7 +197,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             parameterInfo.ParameterType.ShouldEqual(type);
             parameterInfo.Name.ShouldEqual(name);
         }
-        
+
         [Fact]
         public void ParameterShouldBuildParameter2()
         {

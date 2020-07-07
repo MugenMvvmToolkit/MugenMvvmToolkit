@@ -47,6 +47,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             exp.Value.ShouldEqual(value);
             exp.Type.ShouldEqual(value.GetType());
             exp.ConstantExpression.ShouldEqual(constantExpression);
+            exp.ToString().ShouldEqual("\"d\"");
         }
 
         [Fact]

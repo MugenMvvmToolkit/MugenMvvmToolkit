@@ -46,7 +46,6 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public EventBuilder<TTarget> Static()
         {
-            Should.BeSupported(_attachedHandler == null, nameof(AttachedHandler));
             _isStatic = true;
             return this;
         }
@@ -69,7 +68,6 @@ namespace MugenMvvm.Binding.Members.Builders
         public EventBuilder<TTarget> AttachedHandler(MemberAttachedDelegate<INotifiableMemberInfo, TTarget> attachedHandler)
         {
             Should.NotBeNull(attachedHandler, nameof(attachedHandler));
-            Should.BeSupported(!_isStatic, nameof(Static));
             _attachedHandler = attachedHandler;
             return this;
         }
@@ -80,20 +78,12 @@ namespace MugenMvvm.Binding.Members.Builders
             if (_subscribe != null && _attachedHandler == null)
                 return Event<object?>(null, _subscribe, _raise);
 
-            //auto implementation static
-            if (_isStatic)
-            {
-                var id = GenerateMemberId(true);
-                return Event(id, (member, target, listener, metadata) => AttachedMemberBuilder.AddStaticEvent(member.State, listener),
-                    (member, target, message, metadata) => AttachedMemberBuilder.RaiseStaticEvent(member.State, message, metadata));
-            }
-
             //auto implementation
             if (_attachedHandler == null)
             {
                 var id = GenerateMemberId(true);
-                return Event(id, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(target!, member.State).Add(listener),
-                    (member, target, message, metadata) => EventListenerCollection.Raise(target!, member.State, message, metadata));
+                return Event(id, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
+                    (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State, message, metadata));
             }
 
             //auto implementation with attached handler
@@ -104,8 +94,8 @@ namespace MugenMvvm.Binding.Members.Builders
                 return Event((id, attachedHandlerId, _attachedHandler), (member, target, listener, metadata) =>
                 {
                     AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedHandlerId, target, member, member.State._attachedHandler, metadata);
-                    return EventListenerCollection.GetOrAdd(target!, member.State.id).Add(listener);
-                }, (member, target, message, metadata) => EventListenerCollection.Raise(target!, member.State.id, message, metadata));
+                    return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);
+                }, (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State.id, message, metadata));
             }
 
             //custom implementation with attached handler

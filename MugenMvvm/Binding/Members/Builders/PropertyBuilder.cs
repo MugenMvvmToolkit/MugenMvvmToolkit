@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Members.Builders
         internal Type PropertyType;
         internal bool IsStatic;
         internal bool IsInherits;
-        internal bool IsWrap;
+        internal MemberWrapperClosure? WrapperClosure;
         internal bool HasDefaultValueField;
         internal bool IsNonObservable;
 
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Members.Builders
             GetDefaultValue = null;
             IsStatic = false;
             IsInherits = false;
-            IsWrap = false;
+            WrapperClosure = null;
             IsNonObservable = false;
             DefaultValueField = default!;
             HasDefaultValueField = false;
@@ -63,9 +63,7 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public PropertyBuilder<TTarget, TValue> Static()
         {
-            Should.BeSupported(AttachedHandlerField == null, nameof(AttachedHandler));
             Should.BeSupported(!IsInherits, nameof(Inherits));
-            Should.BeSupported(!IsWrap, nameof(WrapMember));
             IsStatic = true;
             return this;
         }
@@ -111,10 +109,8 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, MemberFlags memberFlags = MemberFlags.All)
         {
-            Should.BeSupported(!IsStatic, nameof(IsStatic));
-            IsWrap = true;
-            var closure = new MemberWrapperClosure(memberName, memberFlags);
-            return CustomGetter(closure.GetValue).CustomSetter(closure.SetValue).ObservableHandler(closure.TryObserve);
+            WrapperClosure = new MemberWrapperClosure(memberName, memberFlags);
+            return CustomGetter(WrapperClosure.GetValue).CustomSetter(WrapperClosure.SetValue).ObservableHandler(WrapperClosure.TryObserve);
         }
 
         public PropertyBuilder<TTarget, TValue> NonObservable()
@@ -126,7 +122,6 @@ namespace MugenMvvm.Binding.Members.Builders
         public PropertyBuilder<TTarget, TValue> AttachedHandler(MemberAttachedDelegate<IAccessorMemberInfo, TTarget> attachedHandler)
         {
             Should.NotBeNull(attachedHandler, nameof(attachedHandler));
-            Should.BeSupported(!IsStatic, nameof(Static));
             AttachedHandlerField = attachedHandler;
             return this;
         }
@@ -140,27 +135,8 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public IAccessorMemberInfo Build()
         {
+            WrapperClosure?.SetFlags(IsStatic);
             var id = GenerateMemberId(true);
-            if (IsStatic)
-            {
-                return Property((id, PropertyChanged, HasDefaultValueField, DefaultValueField, GetDefaultValue), (member, target, metadata) =>
-                {
-                    if (!AttachedMemberBuilder.TryGetStaticValue<TValue>(member.State.id, out var value) && member.State.HasDefaultValueField)
-                    {
-                        value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue(member, target);
-                        AttachedMemberBuilder.TrySetStaticValue(member.State.id, value, out _);
-                    }
-
-                    return value;
-                }, (member, target, value, metadata) =>
-                {
-                    if (!AttachedMemberBuilder.TrySetStaticValue(member.State.id, value, out var oldValue))
-                        return;
-                    member.State.PropertyChanged?.Invoke(member, target, oldValue, value, metadata);
-                    AttachedMemberBuilder.RaiseStaticEvent(member.State.id, metadata, metadata);
-                }, (member, target, listener, metadata) => AttachedMemberBuilder.AddStaticEvent(member.State.id, listener), null);
-            }
-
             if (IsInherits)
             {
                 return Property((id, AttachedHandlerField, PropertyChanged, DefaultValueField, GetDefaultValue),
@@ -192,11 +168,11 @@ namespace MugenMvvm.Binding.Members.Builders
 
         #region Nested types
 
-        private sealed class MemberWrapperClosure
+        internal sealed class MemberWrapperClosure
         {
             #region Fields
 
-            private readonly MemberFlags _flags;
+            private MemberFlags _flags;
             private readonly string _key;
             private readonly string _memberName;
 
@@ -209,26 +185,31 @@ namespace MugenMvvm.Binding.Members.Builders
                 Should.NotBeNull(memberName, nameof(memberName));
                 _memberName = memberName;
                 _key = BindingInternalConstant.WrapMemberPrefix + memberName;
-                _flags = flags.SetInstanceOrStaticFlags(false);
+                _flags = flags;
             }
 
             #endregion
 
             #region Methods
 
+            public void SetFlags(bool isStatic)
+            {
+                _flags = _flags.SetInstanceOrStaticFlags(isStatic);
+            }
+
             public TValue GetValue(IAccessorMemberInfo member, TTarget target, IReadOnlyMetadataContext? metadata)
             {
-                return MemberWrapper.GetOrAdd(target!, _key, _memberName, _flags, metadata).GetValue(target, metadata);
+                return MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).GetValue(target, metadata);
             }
 
             public void SetValue(IAccessorMemberInfo member, TTarget target, TValue value, IReadOnlyMetadataContext? metadata)
             {
-                MemberWrapper.GetOrAdd(target!, _key, _memberName, _flags, metadata).SetValue(target, value, metadata);
+                MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).SetValue(target, value, metadata);
             }
 
             public ActionToken TryObserve(IObservableMemberInfo member, TTarget target, IEventListener listener, IReadOnlyMetadataContext? metadata)
             {
-                return MemberWrapper.GetOrAdd(target!, _key, _memberName, _flags, metadata).TryObserve(target, listener, metadata);
+                return MemberWrapper.GetOrAdd(member.GetTarget(target), _key, _memberName, _flags, metadata).TryObserve(target, listener, metadata);
             }
 
             #endregion
@@ -281,7 +262,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 {
                     var member = MugenBindingService
                         .MemberManager
-                        .TryGetMember(o.GetType(), MemberType.Accessor, tuple.flags.SetInstanceOrStaticFlags(false), tuple.wrapMemberName, tuple.metadata) as IAccessorMemberInfo;
+                        .TryGetMember(tuple.flags.GetTargetType(ref o), MemberType.Accessor, tuple.flags, tuple.wrapMemberName, tuple.metadata) as IAccessorMemberInfo;
                     return new MemberWrapper(member);
                 });
             }
@@ -430,7 +411,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 Raise(target, this, metadata);
             }
 
-            private void InvalidateParent([DisallowNull]TTarget target, IReadOnlyMetadataContext? metadata)
+            private void InvalidateParent([DisallowNull] TTarget target, IReadOnlyMetadataContext? metadata)
             {
                 var member = BindableMembers.For<object>().Parent().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, metadata);
                 var oldParent = _parentRef?.Target;
@@ -458,7 +439,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 inheritedProperty.Add(this);
             }
 
-            private void ApplyValues([DisallowNull]TTarget target, InheritedProperty? parentProperty, IReadOnlyMetadataContext? metadata)
+            private void ApplyValues([DisallowNull] TTarget target, InheritedProperty? parentProperty, IReadOnlyMetadataContext? metadata)
             {
                 if (parentProperty != null && parentProperty._state != DefaultState)
                     SetValue(target, parentProperty.Value, ParentState, metadata);
@@ -501,13 +482,17 @@ namespace MugenMvvm.Binding.Members.Builders
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
                 var attachedValueManager = MugenService.AttachedValueManager;
-                if (attachedValueManager.TryGet<AutoProperty>(target!, member.State.id, out var value))
+                var key = member.GetTarget(target);
+                if (attachedValueManager.TryGet<AutoProperty>(key, member.State.id, out var value))
                     return value;
 #pragma warning disable 8634
-                return attachedValueManager.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
+                return attachedValueManager.GetOrAdd(key, member.State.id, (member, metadata), (t, s) =>
                 {
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, t, s.metadata);
-                    return new AutoProperty(s.member.State.PropertyChanged, s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, t));
+                    if (s.member.AccessModifiers.HasFlagEx(MemberFlags.Static))
+                        t = null!;
+                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, (TTarget)t, s.metadata);
+                    return new AutoProperty(s.member.State.PropertyChanged,
+                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, (TTarget)t));
                 });
 #pragma warning restore 8634
             }

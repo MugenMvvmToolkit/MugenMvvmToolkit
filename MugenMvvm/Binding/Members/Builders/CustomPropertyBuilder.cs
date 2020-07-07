@@ -86,26 +86,21 @@ namespace MugenMvvm.Binding.Members.Builders
 
         public IAccessorMemberInfo Build()
         {
+            _propertyBuilder.WrapperClosure?.SetFlags(_propertyBuilder.IsStatic);
             var id = _isObservable ? _propertyBuilder.GenerateMemberId(true) : null;
             if (_propertyBuilder.AttachedHandlerField == null)
             {
                 if (!_isObservable)
                     return _propertyBuilder.Property<object?>(null, _getter, _setter, _tryObserve, _raise);
 
-                if (_propertyBuilder.IsStatic)
-                {
-                    return _propertyBuilder.Property(id!, _getter, _setter, (member, target, listener, metadata) => AttachedMemberBuilder.AddStaticEvent(member.State, listener),
-                        (member, target, message, metadata) => AttachedMemberBuilder.RaiseStaticEvent(member.State, message, metadata));
-                }
-
-                return _propertyBuilder.Property(id!, _getter, _setter, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(target!, member.State).Add(listener),
-                    (member, target, message, metadata) => EventListenerCollection.Raise(target!, member.State, message, metadata));
+                return _propertyBuilder.Property(id!, _getter, _setter, (member, target, listener, metadata) => EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State).Add(listener),
+                    (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State, message, metadata));
             }
 
             RaiseDelegate<DelegateObservableMemberInfo<TTarget, (GetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _getter, SetValueDelegate<IAccessorMemberInfo, TTarget, TValue>? _setter,
                 TryObserveDelegate<IObservableMemberInfo, TTarget>? _tryObserve, MemberAttachedDelegate<IAccessorMemberInfo, TTarget> AttachedHandlerField, string attachedId, string? id)>, TTarget>? raise = null;
             if (id != null)
-                raise = (member, target, message, metadata) => EventListenerCollection.Raise(target!, member.State.id!, message, metadata);
+                raise = (member, target, message, metadata) => EventListenerCollection.Raise(member.GetTarget(target), member.State.id!, message, metadata);
             var attachedId = _propertyBuilder.GenerateMemberId(false);
             return Property((_getter, _setter, _tryObserve, _propertyBuilder.AttachedHandlerField, attachedId, id), (member, target, metadata) =>
             {
@@ -117,10 +112,10 @@ namespace MugenMvvm.Binding.Members.Builders
                 member.State._setter!(member, target, value, metadata);
             }, (member, target, listener, metadata) =>
             {
-                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IAccessorMemberInfo) member, member.State.AttachedHandlerField!, metadata);
+                AttachedMemberBuilder.RaiseMemberAttached(member.State.attachedId, target, (IAccessorMemberInfo)member, member.State.AttachedHandlerField!, metadata);
                 if (member.State.id == null)
                     return member.State._tryObserve!(member, target, listener, metadata);
-                return EventListenerCollection.GetOrAdd(target!, member.State.id).Add(listener);
+                return EventListenerCollection.GetOrAdd(member.GetTarget(target), member.State.id).Add(listener);
             }, raise ?? _raise);
         }
 

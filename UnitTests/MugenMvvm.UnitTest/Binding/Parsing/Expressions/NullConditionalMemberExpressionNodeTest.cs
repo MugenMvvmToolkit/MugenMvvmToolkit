@@ -19,6 +19,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions
             var exp = new NullConditionalMemberExpressionNode(target);
             exp.ExpressionType.ShouldEqual(ExpressionNodeType.Member);
             exp.Target.ShouldEqual(target);
+            exp.ToString().ShouldEqual("\"1\"?");
         }
 
         [Fact]
