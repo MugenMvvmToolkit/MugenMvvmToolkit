@@ -4,6 +4,10 @@ import android.view.View;
 import com.mugen.mvvm.interfaces.IMemberObserver;
 
 public interface IAndroidView extends IResourceView, IHasTagView, IReleasable {
+    String ParentMemberName = "Parent";
+    String ParentEventName = "ParentChanged";
+    String ClickEventName = "Click";
+
     View getView();
 
     Object getParent();

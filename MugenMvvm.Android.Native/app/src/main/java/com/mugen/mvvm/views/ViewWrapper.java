@@ -9,9 +9,6 @@ import com.mugen.mvvm.interfaces.views.IAndroidView;
 import com.mugen.mvvm.interfaces.views.IResourceView;
 
 public class ViewWrapper extends WeakTargetBase<View> implements IAndroidView, View.OnClickListener {
-    public static final String ParentMemberName = "Parent";
-    public static final String ParentEventName = "ParentChanged";
-    public static final String ClickEventName = "Click";
     public static final Object NullParent = "";
 
     private short _clickListenerCount;

@@ -8,9 +8,6 @@ import com.mugen.mvvm.interfaces.IMemberObserver;
 import com.mugen.mvvm.interfaces.views.ITextView;
 
 public class TextViewWrapper extends ViewWrapper implements TextWatcher, ITextView {
-    public static final String TextMemberName = "Text";
-    public static final String TextEventName = "TextChanged";
-
     private short _textChangedListenerCount;
 
     //todo using Object as type to prevent xamarin linker keep View

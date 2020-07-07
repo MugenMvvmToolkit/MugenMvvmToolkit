@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.TextView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.mugen.mvvm.extensions.MugenExtensions;
@@ -13,14 +14,11 @@ import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.interfaces.views.IWrapperFactory;
 import com.mugen.mvvm.views.AdapterViewWrapper;
 import com.mugen.mvvm.views.TextViewWrapper;
-import com.mugen.mvvm.views.support.RecyclerViewWrapper;
-import com.mugen.mvvm.views.support.SwipeRefreshLayoutWrapper;
 
 import java.util.ArrayList;
 
 public final class MugenService {
     public static boolean IsNativeConfiguration;
-    public static boolean IncludeSupportLibs;
     private static Context _context;
     private final static ArrayList<ILifecycleDispatcher> _lifecycleDispatchers = new ArrayList<>();
     private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
@@ -28,40 +26,14 @@ public final class MugenService {
     private MugenService() {
     }
 
-    public static void initialize(Context context) {
+    public static void initialize(Context context, boolean isNativeConfiguration) {
         _context = context;
-    }
-
-    public static void initializeNative(boolean includeSupportLibs) {
-        IsNativeConfiguration = true;
-        IncludeSupportLibs = includeSupportLibs;
-        MugenExtensions.addWrapperMapping(TextView.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new TextViewWrapper((TextView) view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-        MugenExtensions.addWrapperMapping(AdapterView.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new AdapterViewWrapper(view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-        if (includeSupportLibs) {
-            MugenExtensions.addWrapperMapping(RecyclerView.class, new IWrapperFactory() {
+        IsNativeConfiguration = isNativeConfiguration;
+        if (isNativeConfiguration) {
+            MugenExtensions.addWrapperMapping(TextView.class, new IWrapperFactory() {
                 @Override
                 public Object wrap(Object view) {
-                    return new RecyclerViewWrapper(view);
+                    return new TextViewWrapper((TextView) view);
                 }
 
                 @Override
@@ -69,10 +41,10 @@ public final class MugenService {
                     return 0;
                 }
             });
-            MugenExtensions.addWrapperMapping(SwipeRefreshLayout.class, new IWrapperFactory() {
+            MugenExtensions.addWrapperMapping(AdapterView.class, new IWrapperFactory() {
                 @Override
                 public Object wrap(Object view) {
-                    return new SwipeRefreshLayoutWrapper(view);
+                    return new AdapterViewWrapper(view);
                 }
 
                 @Override

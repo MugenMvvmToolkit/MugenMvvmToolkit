@@ -2,10 +2,10 @@ package com.mugen.mvvm.views.support;
 
 import android.view.View;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import com.mugen.mvvm.interfaces.views.IRefreshView;
 import com.mugen.mvvm.views.ViewWrapper;
 
-public class SwipeRefreshLayoutWrapper extends ViewWrapper implements SwipeRefreshLayout.OnRefreshListener {
-    public static final String RefreshedEventName = "Refreshed";
+public class SwipeRefreshLayoutWrapper extends ViewWrapper implements IRefreshView, SwipeRefreshLayout.OnRefreshListener {
     private int _listenerCount;
 
     public SwipeRefreshLayoutWrapper(Object view) {
