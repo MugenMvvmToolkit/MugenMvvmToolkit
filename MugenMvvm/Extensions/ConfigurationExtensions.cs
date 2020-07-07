@@ -54,6 +54,7 @@ namespace MugenMvvm.Extensions
             configuration.WithAppService(new AttachedValueManager())
                 .WithComponent(new ConditionalWeakTableAttachedValueProvider())
                 .WithComponent(new MetadataOwnerAttachedValueProvider())
+                .WithComponent(new StaticTypeAttachedValueProvider())
                 .WithComponent(new ValueHolderAttachedValueProvider());
 
             configuration.WithAppService(new ReflectionManager())
