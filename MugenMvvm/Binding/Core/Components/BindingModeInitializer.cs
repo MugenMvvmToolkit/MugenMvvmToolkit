@@ -34,7 +34,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public Dictionary<string, object?> BindingModes { get; }
 
-        public int Priority { get; set; } = BindingComponentPriority.BindingParameterInitializer;
+        public int Priority { get; set; } = BindingComponentPriority.BindingParameterPostInitializer;
 
         #endregion
 

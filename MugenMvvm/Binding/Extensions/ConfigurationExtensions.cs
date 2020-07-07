@@ -62,6 +62,7 @@ namespace MugenMvvm.Binding.Extensions
                 .WithComponent(new BindingInitializer())
                 .WithComponent(new BindingModeInitializer())
                 .WithComponent(new BindingParameterInitializer())
+                .WithComponent(new InlineExpressionBindingInitializer())
                 .WithComponent(new DelayBindingInitializer());
 
             configuration.WithAppService(new MemberManager())

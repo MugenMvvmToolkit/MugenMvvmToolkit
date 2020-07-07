@@ -8,6 +8,8 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
     {
         BindingMemberExpressionFlags Flags { get; set; }
 
+        MemberFlags MemberFlags { get; }
+
         int Index { get; set; }
 
         string Path { get; }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Compiling;
@@ -72,7 +73,7 @@ namespace MugenMvvm.Binding.Core
 
         protected override IEnumerator<MetadataContextValue> GetMetadataEnumerator()
         {
-            return ((IEnumerable<MetadataContextValue>) new[] {MetadataContextValue.Create(BindingMetadata.Binding, this), MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true)}).GetEnumerator();
+            return ((IEnumerable<MetadataContextValue>)new[] { MetadataContextValue.Create(BindingMetadata.Binding, this), MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true) }).GetEnumerator();
         }
 
         protected override bool ContainsMetadata(IMetadataContextKey contextKey)
@@ -80,7 +81,7 @@ namespace MugenMvvm.Binding.Core
             return base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
         }
 
-        protected override bool TryGetMetadata<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue)
+        protected override bool TryGetMetadata<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
         {
             if (BindingMetadata.IsMultiBinding.Equals(contextKey))
             {

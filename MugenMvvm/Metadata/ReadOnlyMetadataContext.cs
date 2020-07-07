@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -44,7 +45,7 @@ namespace MugenMvvm.Metadata
             return _dictionary.Select(MetadataContextValue.CreateDelegate).GetEnumerator();
         }
 
-        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
         {
             if (_dictionary.TryGetValue(contextKey, out var objValue))
             {

@@ -250,7 +250,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
             return new MethodCallExpressionNode(StringType, "Format", args.List);
         }
 
-        private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, [NotNull] ref StringBuilder? builder, object? param = null)
+        private static void AddErrorIfNeed(string message, ITokenParserContext context, int start, int end, ref StringBuilder? builder, object? param = null)
         {
             var errors = context.TryGetErrors();
             if (errors != null)

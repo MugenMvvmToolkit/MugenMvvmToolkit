@@ -143,7 +143,7 @@ namespace MugenMvvm.Collections
             return false;
         }
 
-        public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value)
+        public bool TryGetValue(TKey key, out TValue value)
         {
             if (key == null)
                 ExceptionManager.ThrowNullArgument(nameof(key));

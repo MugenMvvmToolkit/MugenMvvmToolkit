@@ -22,6 +22,7 @@ namespace MugenMvvm
                 ExceptionManager.ThrowNullArgument(paramName);
         }
 
+#pragma warning disable CS8777
         [DebuggerStepThrough]
         [AssertionMethod]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -31,6 +32,7 @@ namespace MugenMvvm
             if (string.IsNullOrEmpty(argumentValue))
                 ExceptionManager.ThrowNullOrEmptyArgument(paramName);
         }
+#pragma warning restore
 
         [DebuggerStepThrough]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

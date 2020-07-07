@@ -44,7 +44,7 @@ namespace MugenMvvm.Internal
                 return false;
             }
 
-            return component.TryGet(item, path, out value);
+            return component.TryGet(item, path, out value!);
         }
 
         public bool Contains(object item, string path)

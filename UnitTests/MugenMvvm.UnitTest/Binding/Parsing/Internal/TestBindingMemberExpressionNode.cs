@@ -25,6 +25,8 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public BindingMemberExpressionFlags Flags { get; set; }
 
+        public MemberFlags MemberFlags { get; set; }
+
         public int Index { get; set; }
 
         public string Path { get; set; }

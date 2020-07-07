@@ -262,7 +262,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 {
                     var member = MugenBindingService
                         .MemberManager
-                        .TryGetMember(tuple.flags.GetTargetType(ref o), MemberType.Accessor, tuple.flags, tuple.wrapMemberName, tuple.metadata) as IAccessorMemberInfo;
+                        .TryGetMember(tuple.flags.GetTargetType(ref o!), MemberType.Accessor, tuple.flags, tuple.wrapMemberName, tuple.metadata) as IAccessorMemberInfo;
                     return new MemberWrapper(member);
                 });
             }

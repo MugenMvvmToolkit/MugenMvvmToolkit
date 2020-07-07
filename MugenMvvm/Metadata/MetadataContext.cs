@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MugenMvvm.Collections.Internal;
 using MugenMvvm.Delegates;
@@ -106,7 +107,7 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, T defaultValue = default)
+        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             object? obj;

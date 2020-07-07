@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using MugenMvvm.Extensions;
@@ -333,11 +334,11 @@ namespace MugenMvvm.Metadata
                 return SetValueFunc(metadataContext, this, oldValue, newValue);
             }
 
-            public TGet GetDefaultValue(IReadOnlyMetadataContext metadataContext, TGet defaultValue)
+            public TGet GetDefaultValue(IReadOnlyMetadataContext metadataContext, [AllowNull] TGet defaultValue)
             {
                 if (GetDefaultValueFunc == null)
-                    return HasDefaultValue ? DefaultValue : defaultValue;
-                return GetDefaultValueFunc(metadataContext, this, defaultValue);
+                    return HasDefaultValue ? DefaultValue : defaultValue!;
+                return GetDefaultValueFunc(metadataContext, this, defaultValue!);
             }
 
             #endregion

@@ -74,8 +74,8 @@ namespace MugenMvvm.UnitTest.Metadata
 
         public void TryGetTest<T>(IReadOnlyMetadataContext context, IReadOnlyMetadataContextKey<T> key, T expectedValue)
         {
-            context.TryGet(key, out var value, default).ShouldBeTrue();
-            value.ShouldEqual(expectedValue);
+            context.TryGet(key, out var value, default!).ShouldBeTrue();
+            value!.ShouldEqual(expectedValue);
         }
 
         public void TryGetGetterTest(IReadOnlyMetadataContext metadataContext)
