@@ -9,7 +9,6 @@
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
-    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
