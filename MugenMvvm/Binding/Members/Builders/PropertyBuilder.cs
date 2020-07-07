@@ -109,7 +109,7 @@ namespace MugenMvvm.Binding.Members.Builders
             return new CustomPropertyBuilder<TTarget, TValue>(this).CustomSetter(setter);
         }
 
-        public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, MemberFlags memberFlags = MemberFlags.All)//todo test
+        public CustomPropertyBuilder<TTarget, TValue> WrapMember(string memberName, MemberFlags memberFlags = MemberFlags.All)
         {
             Should.BeSupported(!IsStatic, nameof(IsStatic));
             IsWrap = true;
