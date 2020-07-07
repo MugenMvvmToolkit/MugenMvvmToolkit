@@ -55,7 +55,7 @@ namespace MugenMvvm.Extensions
             return snapshot;
         }
 
-        public static void Serialize<TRequest>(this ISerializer serializer, Stream stream, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static void Serialize<TRequest>(this ISerializer serializer, Stream stream, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
             if (!serializer.TrySerialize(stream, request, metadata))
@@ -362,6 +362,18 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(task, nameof(task));
             Should.NotBeNull(execute, nameof(execute));
+            if (task.IsCompleted)
+            {
+                try
+                {
+                    execute(task, state);
+                    return task;
+                }
+                catch (Exception e)
+                {
+                    return Task.FromException(e);
+                }
+            }
             return task.ContinueWith((t, o) =>
             {
                 var tuple = (Tuple<TState, Action<Task, TState>>)o;

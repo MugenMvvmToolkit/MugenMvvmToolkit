@@ -20,7 +20,7 @@ using MugenMvvm.Requests;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent, IHasPriority//todo test
+    public sealed class ViewPresenterDecorator : ComponentDecoratorBase<IPresenter, IPresenterComponent>, IPresenterComponent, IHasPriority
     {
         #region Fields
 
