@@ -1,4 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
+using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Interfaces.Members;
+using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
@@ -6,8 +11,11 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
+using MugenMvvm.Internal;
 using MugenMvvm.Messaging;
 using MugenMvvm.Metadata;
+using MugenMvvm.UnitTest.Binding.Members.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
 using MugenMvvm.UnitTest.Messaging.Internal;
 using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.Views;
@@ -20,6 +28,26 @@ namespace MugenMvvm.UnitTest.Views.Components
     public class ViewCleanerTest : UnitTestBase
     {
         #region Methods
+
+        [Fact]
+        public void ShouldClearDataContext()
+        {
+            var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
+            TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
+            {
+                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) => ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(accessorMemberInfo)
+            });
+
+
+            var viewModel = new TestCleanableViewModel { Service = new Messenger() };
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new ViewCleaner { ClearDataContext = true });
+            view.Target.BindableMembers().SetDataContext(viewModel);
+            view.Target.BindableMembers().DataContext().ShouldEqual(viewModel);
+            viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, this, DefaultMetadata);
+            view.Target.BindableMembers().DataContext().ShouldBeNull();
+        }
 
         [Fact]
         public void ShouldUnsubscribeViewModel()

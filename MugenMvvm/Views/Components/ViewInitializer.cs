@@ -1,5 +1,4 @@
-﻿using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
+﻿using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -18,7 +17,7 @@ namespace MugenMvvm.Views.Components
 
         public int Priority { get; set; } = ViewComponentPriority.PreInitializer;
 
-        public bool ClearDataContext { get; set; }//todo test
+        public bool SetDataContext { get; set; } = true;
 
         #endregion
 
@@ -56,14 +55,13 @@ namespace MugenMvvm.Views.Components
             for (var i = 0; i < initializableViews.Length; i++)
                 initializableViews[i].Initialize(view, state, metadata);
             view.Components.AddComponent(this);
-            view.Target.BindableMembers().SetDataContext(view.ViewModel);
+            if (SetDataContext)
+                view.Target.BindableMembers().SetDataContext(view.ViewModel);
         }
 
         protected virtual void Cleanup<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
         {
             view.Components.RemoveComponent(this);
-            if (ClearDataContext)
-                view.Target.BindableMembers().SetDataContext(null);
         }
 
         #endregion

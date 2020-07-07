@@ -1,4 +1,6 @@
-﻿using MugenMvvm.Constants;
+﻿using MugenMvvm.Binding.Extensions;
+using MugenMvvm.Binding.Members;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
@@ -14,6 +16,8 @@ namespace MugenMvvm.Views.Components
         #region Properties
 
         public int Priority { get; set; } = ViewComponentPriority.PostInitializer;
+
+        public bool ClearDataContext { get; set; }
 
         #endregion
 
@@ -59,6 +63,8 @@ namespace MugenMvvm.Views.Components
             view.Components.RemoveComponent(this);
             view.Components.Clear(metadata);
             view.Components.ClearComponents(metadata);
+            if (ClearDataContext)
+                view.Target.BindableMembers().SetDataContext(null);
         }
 
         #endregion
