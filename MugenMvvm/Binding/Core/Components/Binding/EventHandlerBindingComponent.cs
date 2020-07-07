@@ -56,6 +56,8 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public object? EventArgs { get; private set; }
 
+        protected virtual bool IsOneTime => true;
+
         #endregion
 
         #region Implementation of interfaces
@@ -74,7 +76,10 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         void IAttachableComponent.OnAttached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            ((IBinding)owner).UpdateTarget();
+            var binding = (IBinding)owner;
+            binding.UpdateTarget();
+            if (!MugenBindingExtensions.IsAllMembersAvailable(binding.Source) && IsOneTime)
+                binding.Components.Add(OneTimeBindingMode.NonDisposeInstance);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -229,6 +234,12 @@ namespace MugenMvvm.Binding.Core.Components.Binding
                 : base(commandParameter, toggleEnabledState)
             {
             }
+
+            #endregion
+
+            #region Properties
+
+            protected override bool IsOneTime => false;
 
             #endregion
 

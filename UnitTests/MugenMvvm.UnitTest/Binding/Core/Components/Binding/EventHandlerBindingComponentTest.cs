@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using MugenMvvm.Binding;
 using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components.Binding;
@@ -77,17 +78,30 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             eventListener.ShouldNotBeNull();
         }
 
-        [Fact]
-        public void OnAttachedShouldUpdateTarget()
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void OnAttachedShouldUpdateTargetAddOneTimeModeIfNeed(bool addOneTimeMode)
         {
             var updateCount = 0;
             var binding = new TestBinding
             {
-                UpdateTarget = () => ++updateCount
+                UpdateTarget = () => ++updateCount,
+                Target = new TestMemberPathObserver
+                {
+                    GetLastMember = metadata => new MemberPathLastMember(this, ConstantMemberInfo.Target)
+                }
             };
+            if (addOneTimeMode)
+                binding.Source = new TestMemberPathObserver { GetLastMember = metadata => default };
             IAttachableComponent component = EventHandlerBindingComponent.Get(default, false, true);
             component.OnAttached(binding, DefaultMetadata);
             updateCount.ShouldEqual(1);
+            if (addOneTimeMode)
+            {
+                binding.Components.Count.ShouldEqual(1);
+                binding.Components.Get<object>().Single().ShouldEqual(OneTimeBindingMode.NonDisposeInstance);
+            }
         }
 
         [Theory]
