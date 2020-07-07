@@ -39,7 +39,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         public void Initialize(IBindingManager bindingManager, IBindingExpressionInitializerContext context)
         {
-            if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler) || context.BindingComponents.ContainsKey(BindingParameterNameConstant.Mode))
+            if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler)
+                || context.BindingComponents.ContainsKey(BindingParameterNameConstant.Mode)
+                || !MugenMvvm.Extensions.MugenExtensions.IsNullOrEmpty(context.Parameters))
                 return;
 
             var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression);
