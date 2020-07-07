@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Wrapping.Components
 {
-    public sealed class ViewWrapperManagerDecorator : ComponentDecoratorBase<IWrapperManager, IWrapperManagerComponent>, IWrapperManagerComponent, IHasPriority//todo test
+    public sealed class ViewWrapperManagerDecorator : ComponentDecoratorBase<IWrapperManager, IWrapperManagerComponent>, IWrapperManagerComponent, IHasPriority
     {
         #region Properties
 
