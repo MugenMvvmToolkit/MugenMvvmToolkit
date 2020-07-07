@@ -60,6 +60,42 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         }
 
         [Fact]
+        public void TryGetMemberObserverShouldObserveEventHandlerStatic()
+        {
+            var msg = new EventArgs();
+            var listener = new TestWeakEventListener
+            {
+                IsAlive = true,
+                TryHandle = (o, o1, m) =>
+                {
+                    o.ShouldEqual(null);
+                    o1.ShouldEqual(msg);
+                    return true;
+                }
+            };
+
+            var eventInfo = typeof(TestEventClass).GetEvent(nameof(TestEventClass.EventHandlerStatic));
+            eventInfo.ShouldNotBeNull();
+            var component = new EventInfoMemberObserverProvider();
+
+            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
+            observer.IsEmpty.ShouldBeFalse();
+
+            var actionToken = observer.TryObserve(null, listener, DefaultMetadata);
+            actionToken.IsEmpty.ShouldBeFalse();
+
+            listener.InvokeCount.ShouldEqual(0);
+            TestEventClass.OnEventHandlerStatic(msg);
+            listener.InvokeCount.ShouldEqual(1);
+            TestEventClass.OnEventHandlerStatic(msg);
+            listener.InvokeCount.ShouldEqual(2);
+
+            actionToken.Dispose();
+            TestEventClass.OnEventHandlerStatic(msg);
+            listener.InvokeCount.ShouldEqual(2);
+        }
+
+        [Fact]
         public void TryGetMemberObserverShouldObserveEventUsingReflectionDelegateProvider()
         {
             var delegateProvider = new ReflectionManager();
@@ -123,6 +159,8 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         {
             #region Events
 
+            public static event EventHandler? EventHandlerStatic;
+
             public event EventHandler? EventHandler;
 
             public event Action? Action;
@@ -130,6 +168,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             #endregion
 
             #region Methods
+
+            public static void OnEventHandlerStatic(EventArgs args)
+            {
+                EventHandlerStatic?.Invoke(null, args);
+            }
 
             public void OnEventHandler(EventArgs args)
             {

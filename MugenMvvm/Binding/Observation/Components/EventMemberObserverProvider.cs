@@ -71,16 +71,16 @@ namespace MugenMvvm.Binding.Observation.Components
             MemberFlags flags;
             if (member is MemberInfo m)
             {
-                flags = m.GetAccessModifiers();
+                flags = MemberFlags.All.ClearInstanceOrStaticFlags(m.GetAccessModifiers().HasFlagEx(MemberFlags.Static));
                 memberName = m.Name;
             }
             else if (member is IMemberInfo memberInfo)
             {
-                flags = memberInfo.AccessModifiers;
+                flags = MemberFlags.All.ClearInstanceOrStaticFlags(memberInfo.AccessModifiers.HasFlagEx(MemberFlags.Static));
                 memberName = memberInfo.Name;
             }
             else if (member is string st)
-                return memberManager.DefaultIfNull().TryGetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticPublic : MemberFlags.InstancePublic, st, metadata) as IObservableMemberInfo;
+                return memberManager.DefaultIfNull().TryGetMember(type, MemberType.Event, type.IsStatic() ? MemberFlags.StaticAll : MemberFlags.InstanceAll, st, metadata) as IObservableMemberInfo;
             else
                 return null;
 

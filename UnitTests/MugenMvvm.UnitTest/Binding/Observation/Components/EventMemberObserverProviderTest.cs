@@ -167,7 +167,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             const string memberName = nameof(TryGetMemberObserverShouldUseMemberManager2);
             var member = typeof(EventMemberObserverProviderTest).GetMethod(memberName);
             var set = new HashSet<string>();
-            var flags = member.GetAccessModifiers();
+            var flags = MemberFlags.InstanceAll;
             var target = new object();
             var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
@@ -218,7 +218,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         {
             var member = "EventMember";
             var set = new HashSet<string>();
-            var flags = isStatic ? MemberFlags.StaticPublic : MemberFlags.InstancePublic;
+            var flags = isStatic ? MemberFlags.StaticAll : MemberFlags.InstanceAll;
             var target = new object();
             var listener = new TestWeakEventListener();
             var token = ActionToken.NoDoToken;
