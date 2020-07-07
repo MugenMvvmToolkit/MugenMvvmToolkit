@@ -1,5 +1,6 @@
 ﻿using Android.App;
 using Android.Content;
+using Android.Views;
 using MugenMvvm.Android.Binding;
 using MugenMvvm.Android.Collections;
 using MugenMvvm.Android.Members;
@@ -18,9 +19,9 @@ using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Presenters.Components;
 using MugenMvvm.Threading.Components;
+using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
 
 namespace MugenMvvm.Android.Extensions
 {
@@ -28,12 +29,10 @@ namespace MugenMvvm.Android.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, bool nativeConfiguration, bool includeSupportLibs, Context? context = null)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, bool nativeConfiguration, Context? context = null)
         {
-            MugenAndroidNativeService.Initialize(context ?? Application.Context);
-            MugenAndroidNativeService.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeConfiguration);
-            if (nativeConfiguration)
-                MugenAndroidNativeService.NativeConfiguration(new AndroidViewBindCallback(), includeSupportLibs);
+            MugenAndroidNativeService.Initialize(context ?? Application.Context, nativeConfiguration, new AndroidViewBindCallback());
+            MugenAndroidNativeService.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher());
             configuration.ServiceConfiguration<IThreadDispatcher>()
                 .WithComponent(new SynchronizationContextThreadDispatcher(Application.SynchronizationContext));
 
@@ -48,6 +47,55 @@ namespace MugenMvvm.Android.Extensions
             return configuration;
         }
 
+        public static MugenApplicationConfiguration AndroidMenuAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
+        {
+            var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service().GetOrAddComponent(context => new AttachedMemberProvider());
+            attachedMemberProvider.Register(BindableMembers.For<IMenu>()
+                .ItemTemplate()
+                .GetBuilder()
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<IMenu>()
+                .ItemsSource()
+                .GetBuilder()
+                .PropertyChangedHandler((member, target, value, newValue, metadata) => AndroidMenuItemsSourceAdapter.GetOrAdd(target, target.BindableMembers().ItemTemplate()!).Attach(newValue))
+                .Build());
+
+            var enabled = AttachedMemberBuilder
+                .Property<IMenuItem, bool>(nameof(IMenuItem.IsEnabled))
+                .CustomGetter((member, target, metadata) => target.IsEnabled)
+                .CustomSetter((member, target, value, metadata) => target.SetEnabled(value))
+                .Build();
+            attachedMemberProvider.Register(enabled);
+            attachedMemberProvider.Register(enabled, BindableMembers.For<object>().Enabled());
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Property<IMenuItem, bool>(nameof(IMenuItem.IsCheckable))
+                .CustomGetter((member, target, metadata) => target.IsCheckable)
+                .CustomSetter((member, target, value, metadata) => target.SetCheckable(value))
+                .Build());
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Property<IMenuItem, bool>(nameof(IMenuItem.IsChecked))
+                .CustomGetter((member, target, metadata) => target.IsChecked)
+                .CustomSetter((member, target, value, metadata) => target.SetChecked(value))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<IMenuItem>()
+                .Title()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.TitleFormatted?.ToString())
+                .CustomSetter((member, target, value, metadata) => target.SetTitle(value!))
+                .Build());
+            attachedMemberProvider.Register(AttachedMemberBuilder
+                .Property<IMenuItem, bool>(nameof(IMenuItem.IsVisible))
+                .CustomGetter((member, target, metadata) => target.IsVisible)
+                .CustomSetter((member, target, value, metadata) => target.SetVisible(value))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<IMenuItem>()
+                .Click()
+                .GetBuilder()
+                .CustomImplementation((member, target, listener, metadata) => MenuItemClickListener.AddListener(target, listener))
+                .Build());
+            return configuration;
+        }
+
         public static MugenApplicationConfiguration AndroidNativeAttachedMembersConfiguration(this MugenApplicationConfiguration configuration)
         {
             var attachedMemberProvider = configuration.ServiceConfiguration<IMemberManager>().Service().GetOrAddComponent(context => new AttachedMemberProvider());
@@ -56,6 +104,18 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => target.Parent)
                 .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberObserver.Add(target, listener, nameof(target.Parent)))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<IAndroidView>()
+                .Visible()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.Visibility == (int)ViewStates.Visible)
+                .CustomSetter((member, target, value, metadata) => target.Visibility = value ? (int)ViewStates.Visible : (int)ViewStates.Gone)
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<IAndroidView>()
+                .Invisible()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.Visibility == (int)ViewStates.Invisible)
+                .CustomSetter((member, target, value, metadata) => target.Visibility = value ? (int)ViewStates.Invisible : (int)ViewStates.Gone)
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<IAndroidView>()
                 .RelativeSourceMethod()
@@ -75,11 +135,29 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberObserver.Add(target, listener, member.Name))
                 .Build());
+
             attachedMemberProvider.Register(BindableMembers.For<ITextView>()
                 .TextChanged()
                 .GetBuilder()
                 .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberObserver.Add(target, listener, member.Name))
                 .Build());
+
+            attachedMemberProvider.Register(BindableMembers.For<IRefreshView>()
+                .Refreshed()
+                .GetBuilder()
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberObserver.Add(target, listener, member.Name))
+                .Build());
+
+            attachedMemberProvider.Register(BindableMembers.For<IHasMenuView>()
+                .MenuTemplate()
+                .GetBuilder()
+                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                {
+                    oldValue?.Clear(target.Menu);
+                    newValue?.Apply(target.Menu, target);
+                })
+                .Build());
+
             attachedMemberProvider.Register(BindableMembers.For<IListView>()
                 .StableIdProvider()
                 .GetBuilder()
@@ -100,7 +178,6 @@ namespace MugenMvvm.Android.Extensions
                         provider = new AndroidCollectionItemsSourceProvider(target, target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
                         target.ItemsSourceProvider = provider;
                     }
-
                     provider.SetItemsSource(newValue);
                 }).Build());
             return configuration;

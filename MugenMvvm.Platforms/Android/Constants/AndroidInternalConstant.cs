@@ -6,6 +6,8 @@
 
         public const string BundleVmId = "@!vm";
         public const string BundleViewState = "@!v";
+        public const string MenuItemsSource = "`@mi";
+        public const string MenuClickListener = "`@mc";
 
         #endregion
     }

@@ -1,6 +1,4 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces;
@@ -84,7 +82,7 @@ namespace MugenMvvm.Android.Collections
 
         public void SetItemsSource(IEnumerable? items)
         {
-            _collectionAdapter.Attach(items as IEnumerable<object?> ?? items?.Cast<object?>());
+            _collectionAdapter.Attach(items);
         }
 
         private object? GetItemAt(int position)

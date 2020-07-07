@@ -23,44 +23,44 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        protected override void OnAddedInternal(object? item, int index, bool batch)
+        protected override void OnAdded(object? item, int index, bool batch)
         {
-            base.OnAddedInternal(item, index, batch);
+            base.OnAdded(item, index, batch);
             for (var i = 0; i < Observers.Count; i++)
                 Observers[i].OnItemInserted(index);
         }
 
-        protected override void OnMovedInternal(object? item, int oldIndex, int newIndex, bool batch)
+        protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batch)
         {
-            base.OnMovedInternal(item, oldIndex, newIndex, batch);
+            base.OnMoved(item, oldIndex, newIndex, batch);
             for (var i = 0; i < Observers.Count; i++)
                 Observers[i].OnItemMoved(oldIndex, newIndex);
         }
 
-        protected override void OnRemovedInternal(object? item, int index, bool batch)
+        protected override void OnRemoved(object? item, int index, bool batch)
         {
-            base.OnRemovedInternal(item, index, batch);
+            base.OnRemoved(item, index, batch);
             for (var i = 0; i < Observers.Count; i++)
                 Observers[i].OnItemRemoved(index);
         }
 
-        protected override void OnReplacedInternal(object? oldItem, object? newItem, int index, bool batch)
+        protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batch)
         {
-            base.OnReplacedInternal(oldItem, newItem, index, batch);
+            base.OnReplaced(oldItem, newItem, index, batch);
             for (var i = 0; i < Observers.Count; i++)
                 Observers[i].OnItemChanged(index);
         }
 
-        protected override void OnResetInternal(IEnumerable<object?> items, bool batch)
+        protected override void OnReset(IEnumerable<object?> items, bool batch)
         {
-            base.OnResetInternal(items, batch);
+            base.OnReset(items, batch);
             for (var i = 0; i < Observers.Count; i++)
                 Observers[i].OnReset();
         }
 
-        protected override void OnClearedInternal(bool batch)
+        protected override void OnCleared(bool batch)
         {
-            base.OnClearedInternal(batch);
+            base.OnCleared(batch);
             for (var i = 0; i < Observers.Count; i++)
                 Observers[i].OnReset();
         }

@@ -14,6 +14,7 @@
   <attr path="/api/package[@name='com.mugen.mvvm']" name="managedName">MugenMvvm.Android.Native</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.constants']" name="managedName">MugenMvvm.Android.Native.Constants</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.views']" name="managedName">MugenMvvm.Android.Native.Views</attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.views.support']" name="managedName">MugenMvvm.Android.Native.Views.Support</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.models']" name="managedName">MugenMvvm.Android.Native.Models</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']" name="managedName">MugenMvvm.Android.Native.Interfaces</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']" name="managedName">MugenMvvm.Android.Native.Interfaces.Views</attr>

@@ -8,13 +8,12 @@
     <RootNamespace>MugenMvvm</RootNamespace>
     <Nullable>enable</Nullable>
     <LangVersion>8.0</LangVersion>
-    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <AssemblyName>MugenMvvm.Android</AssemblyName>
-    <AndroidClassParser>class-parse</AndroidClassParser>
-    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
+    <!-- <AndroidClassParser>class-parse</AndroidClassParser> -->
+    <!-- <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget> -->
     <IsBindingProject>true</IsBindingProject>
   </PropertyGroup>
 
@@ -32,13 +31,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="Android\Binding\MenuItemClickListener.cs" />
+    <None Remove="Android\Binding\MenuItemTemplate.cs" />
+    <None Remove="Android\Binding\MenuTemplate.cs" />
     <None Remove="Android\Binding\SingleDataTemplateSelector.cs" />
     <None Remove="Android\Collections\AndroidCollectionItemsSourceProvider.cs" />
+    <None Remove="Android\Collections\AndroidMenuItemsSourceAdapter.cs" />
     <None Remove="Android\Collections\AndroidNativeBindableCollectionAdapter.cs" />
     <None Remove="Android\Extensions\MugenAndroidExtensions.cs" />
     <None Remove="Android\Interfaces\IDataTemplateSelector.cs" />
+    <None Remove="Android\Interfaces\IMenuItemTemplate.cs" />
+    <None Remove="Android\Interfaces\IMenuTemplate.cs" />
     <None Remove="Android\Interfaces\IStableIdProvider.cs" />
-    <None Remove="Android\Members\AndroidNativeBindableMembers.cs" />
+    <None Remove="Android\Members\AndroidMenuBindableMembers.cs" />
+    <None Remove="Android\Members\AndroidNativeViewBindableMembers.cs" />
     <None Remove="Android\Views\AndroidViewBindCallback.cs" />
     <None Remove="Android\Views\AndroidViewMemberObserver.cs" />
   </ItemGroup>
