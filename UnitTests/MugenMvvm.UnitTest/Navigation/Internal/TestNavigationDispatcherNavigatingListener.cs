@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
@@ -11,7 +9,7 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
     {
         #region Properties
 
-        public Func<INavigationDispatcher, INavigationContext, CancellationToken, Task<bool>?>? OnNavigatingAsync { get; set; }
+        public Action<INavigationDispatcher, INavigationContext>? OnNavigating { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,9 +17,9 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Implementation of interfaces
 
-        Task<bool>? INavigationDispatcherNavigatingListener.OnNavigatingAsync(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        void INavigationDispatcherNavigatingListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            return OnNavigatingAsync?.Invoke(navigationDispatcher, navigationContext, cancellationToken);
+            OnNavigating?.Invoke(navigationDispatcher, navigationContext);
         }
 
         #endregion

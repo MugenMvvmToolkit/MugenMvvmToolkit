@@ -541,9 +541,9 @@ namespace MugenMvvm.UnitTest.Presenters
             {
                 TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+            navigationDispatcher.AddComponent(new TestConditionNavigationDispatcherComponent
             {
-                OnNavigatingAsync = (dispatcher, context, t) =>
+                CanNavigateAsync = (dispatcher, context, t) =>
                 {
                     dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
@@ -654,9 +654,9 @@ namespace MugenMvvm.UnitTest.Presenters
             {
                 TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+            navigationDispatcher.AddComponent(new TestConditionNavigationDispatcherComponent
             {
-                OnNavigatingAsync = (dispatcher, context, t) =>
+                CanNavigateAsync = (dispatcher, context, t) =>
                 {
                     dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
@@ -723,9 +723,9 @@ namespace MugenMvvm.UnitTest.Presenters
             {
                 TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
-            navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+            navigationDispatcher.AddComponent(new TestConditionNavigationDispatcherComponent
             {
-                OnNavigatingAsync = (dispatcher, context, t) =>
+                CanNavigateAsync = (dispatcher, context, t) =>
                 {
                     dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);

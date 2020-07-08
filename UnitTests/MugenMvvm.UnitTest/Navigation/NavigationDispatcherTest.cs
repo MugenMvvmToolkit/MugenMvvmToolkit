@@ -163,6 +163,7 @@ namespace MugenMvvm.UnitTest.Navigation
         {
             var cts = new CancellationTokenSource();
             var token = cts.Token;
+            int navigatingCount = 0;
             var navigationContext = new NavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
             var dispatcher = new NavigationDispatcher();
             var callbacks = new List<TaskCompletionSource<bool>>();
@@ -171,10 +172,10 @@ namespace MugenMvvm.UnitTest.Navigation
             for (var i = 0; i < count; i++)
             {
                 var source = callbacks.ElementAt(i);
-                var component = new TestNavigationDispatcherNavigatingListener
+                var component = new TestConditionNavigationDispatcherComponent
                 {
                     Priority = -i,
-                    OnNavigatingAsync = (navigationDispatcher, context, arg3) =>
+                    CanNavigateAsync = (navigationDispatcher, context, arg3) =>
                     {
                         navigationDispatcher.ShouldEqual(dispatcher);
                         context.ShouldEqual(navigationContext);
@@ -183,6 +184,15 @@ namespace MugenMvvm.UnitTest.Navigation
                     }
                 };
                 dispatcher.AddComponent(component);
+                dispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+                {
+                    OnNavigating = (navigationDispatcher, context) =>
+                    {
+                        ++navigatingCount;
+                        navigationDispatcher.ShouldEqual(dispatcher);
+                        context.ShouldEqual(navigationContext);
+                    }
+                });
             }
 
             var result = dispatcher.OnNavigatingAsync(navigationContext, token);
@@ -200,6 +210,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 callbacks.Last().TrySetResult(state == 0);
                 result.IsCompleted.ShouldBeTrue();
                 result.Result.ShouldEqual(state == 0);
+                navigatingCount.ShouldEqual(state == 0 ? count : 0);
                 return;
             }
 
@@ -209,6 +220,7 @@ namespace MugenMvvm.UnitTest.Navigation
                     callbacks.Last().TrySetCanceled(token);
                 result.IsCompleted.ShouldBeTrue();
                 result.IsCanceled.ShouldBeTrue();
+                navigatingCount.ShouldEqual(0);
                 return;
             }
 
@@ -217,6 +229,7 @@ namespace MugenMvvm.UnitTest.Navigation
             result.IsCompleted.ShouldBeTrue();
             result.IsFaulted.ShouldBeTrue();
             result.Exception.InnerExceptions.Contains(ex).ShouldBeTrue();
+            navigatingCount.ShouldEqual(0);
         }
 
         [Theory]

@@ -153,17 +153,24 @@ namespace MugenMvvm.Extensions.Components
             return result.Cast<IReadOnlyList<INavigationEntry>>();
         }
 
-        public static Task<bool> OnNavigatingAsync(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext,
-            CancellationToken cancellationToken)
+        public static Task<bool> OnNavigatingAsync(this IConditionNavigationDispatcherComponent[] components, INavigationDispatcherNavigatingListener[] listeners,
+            INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
+        {
+            Should.NotBeNull(components, nameof(components));
+            Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
+            Should.NotBeNull(navigationContext, nameof(navigationContext));
+            if (components.Length == 0)
+                return Default.TrueTask;
+            return new NavigatingResult(navigationDispatcher, components, listeners, navigationContext, cancellationToken).Task;
+        }
+
+        public static void OnNavigating(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
-            if (listeners.Length == 0)
-                return Default.TrueTask;
-            if (listeners.Length == 1)
-                return listeners[0].OnNavigatingAsync(navigationDispatcher, navigationContext, cancellationToken) ?? Default.TrueTask;
-            return new NavigatingResult(navigationDispatcher, listeners, navigationContext, cancellationToken).Task;
+            for (var i = 0; i < listeners.Length; i++)
+                listeners[i].OnNavigating(navigationDispatcher, navigationContext);
         }
 
         public static void OnNavigated(this INavigationDispatcherNavigatedListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
@@ -203,8 +210,8 @@ namespace MugenMvvm.Extensions.Components
             #region Fields
 
             private readonly CancellationToken _cancellationToken;
-
-            private readonly INavigationDispatcherNavigatingListener[] _components;
+            private readonly IConditionNavigationDispatcherComponent[] _components;
+            private readonly INavigationDispatcherNavigatingListener[] _listeners;
             private readonly INavigationDispatcher _dispatcher;
             private readonly INavigationContext _navigationContext;
             private int _index;
@@ -213,10 +220,12 @@ namespace MugenMvvm.Extensions.Components
 
             #region Constructors
 
-            public NavigatingResult(INavigationDispatcher dispatcher, INavigationDispatcherNavigatingListener[] components, INavigationContext navigationContext, CancellationToken cancellationToken)
+            public NavigatingResult(INavigationDispatcher dispatcher, IConditionNavigationDispatcherComponent[] components,
+                INavigationDispatcherNavigatingListener[] listeners, INavigationContext navigationContext, CancellationToken cancellationToken)
             {
                 _dispatcher = dispatcher;
                 _components = components;
+                _listeners = listeners;
                 _navigationContext = navigationContext;
                 _cancellationToken = cancellationToken;
                 OnExecuted(Default.TrueTask);
@@ -254,8 +263,11 @@ namespace MugenMvvm.Extensions.Components
                         return;
                     }
 
-                    var resultTask = _components[_index++].OnNavigatingAsync(_dispatcher, _navigationContext, _cancellationToken) ?? Default.TrueTask;
-                    resultTask.ContinueWith((t, state) => ((NavigatingResult)state).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
+                    var resultTask = _components[_index++].CanNavigateAsync(_dispatcher, _navigationContext, _cancellationToken);
+                    if (resultTask == null)
+                        OnExecuted(Default.TrueTask);
+                    else
+                        resultTask.ContinueWith((t, state) => ((NavigatingResult)state).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
                 }
                 catch (Exception e)
                 {
@@ -270,7 +282,11 @@ namespace MugenMvvm.Extensions.Components
                 else if (canceled)
                     TrySetCanceled();
                 else
+                {
+                    if (result)
+                        _listeners.OnNavigating(_dispatcher, _navigationContext);
                     TrySetResult(result);
+                }
             }
 
             #endregion

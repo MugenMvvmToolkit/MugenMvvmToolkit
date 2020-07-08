@@ -41,14 +41,15 @@ namespace MugenMvvm.Navigation
             return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(this, metadata);
         }
 
-        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks<TRequest>([DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(this, request, metadata);
         }
 
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
         {
-            return GetComponents<INavigationDispatcherNavigatingListener>(navigationContext.GetMetadataOrDefault()).OnNavigatingAsync(this, navigationContext, cancellationToken);
+            var meta = navigationContext.GetMetadataOrDefault();
+            return GetComponents<IConditionNavigationDispatcherComponent>(meta).OnNavigatingAsync(GetComponents<INavigationDispatcherNavigatingListener>(meta), this, navigationContext, cancellationToken);
         }
 
         public void OnNavigated(INavigationContext navigationContext)

@@ -374,10 +374,34 @@ namespace MugenMvvm.Extensions
                     return Task.FromException(e);
                 }
             }
+
             return task.ContinueWith((t, o) =>
             {
                 var tuple = (Tuple<TState, Action<Task, TState>>)o;
                 tuple.Item2(t, tuple.Item1);
+            }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
+        }
+
+        internal static Task<TNewResult> ContinueWithEx<TResult, TState, TNewResult>(this Task<TResult> task, TState state, Func<Task<TResult>, TState, TNewResult> execute)
+        {
+            Should.NotBeNull(task, nameof(task));
+            Should.NotBeNull(execute, nameof(execute));
+            if (task.IsCompleted)
+            {
+                try
+                {
+                    return Task.FromResult(execute(task, state));
+                }
+                catch (Exception e)
+                {
+                    return Task.FromException<TNewResult>(e);
+                }
+            }
+
+            return task.ContinueWith((t, o) =>
+            {
+                var tuple = (Tuple<TState, Func<Task<TResult>, TState, TNewResult>>)o;
+                return tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
 
