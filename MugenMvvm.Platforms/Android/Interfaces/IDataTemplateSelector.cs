@@ -4,6 +4,6 @@
     {
         int TemplateTypeCount { get; }
 
-        int SelectTemplate(object? item, object container);
+        int SelectTemplate(object container, object? item);
     }
 }

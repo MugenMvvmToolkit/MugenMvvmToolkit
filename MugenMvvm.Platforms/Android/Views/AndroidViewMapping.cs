@@ -1,10 +1,11 @@
 ﻿using System;
+using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
-    public class AndroidViewMapping : ViewMapping
+    public class AndroidViewMapping : ViewMapping, IAndroidViewMapping
     {
         #region Constructors
 

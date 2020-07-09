@@ -35,7 +35,6 @@ namespace MugenMvvm.Android.Enums
         public static readonly ViewLifecycleState Stopped = new ViewLifecycleState(nameof(Stopped));
         public static readonly ViewLifecycleState PostCreating = new ViewLifecycleState(nameof(PostCreating));
         public static readonly ViewLifecycleState PostCreated = new ViewLifecycleState(nameof(PostCreated));
-
         public static readonly ViewLifecycleState ClearBackStack = new ViewLifecycleState(nameof(ClearBackStack));
 
         #endregion

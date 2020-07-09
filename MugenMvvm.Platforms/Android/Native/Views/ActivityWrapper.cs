@@ -35,15 +35,6 @@ namespace MugenMvvm.Android.Native.Views
 
         void IWeakReference.Release()
         {
-            OnWeakReferenceRemoved();
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnWeakReferenceRemoved()
-        {
             _isAlive = false;
             ((IValueHolder<LightDictionary<string, object?>>)this).Value?.Clear();
         }

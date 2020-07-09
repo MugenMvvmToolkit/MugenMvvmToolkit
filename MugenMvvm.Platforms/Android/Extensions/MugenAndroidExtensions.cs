@@ -1,8 +1,11 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.Views;
+using Java.Lang;
 using MugenMvvm.Android.Binding;
 using MugenMvvm.Android.Collections;
+using MugenMvvm.Android.Interfaces;
+using MugenMvvm.Android.Internal;
 using MugenMvvm.Android.Members;
 using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
@@ -16,6 +19,7 @@ using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Threading;
@@ -29,9 +33,9 @@ namespace MugenMvvm.Android.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, bool nativeConfiguration, Context? context = null)
+        public static MugenApplicationConfiguration AndroidNativeConfiguration(this MugenApplicationConfiguration configuration, Context? context = null)
         {
-            MugenAndroidNativeService.Initialize(context ?? Application.Context, nativeConfiguration, new AndroidViewBindCallback());
+            MugenAndroidNativeService.InitializeNative(context ?? Application.Context, new AndroidViewBindCallback(), new AndroidNativeWeakReferenceCallback());
             MugenAndroidNativeService.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher());
             configuration.ServiceConfiguration<IThreadDispatcher>()
                 .WithComponent(new SynchronizationContextThreadDispatcher(Application.SynchronizationContext));
@@ -39,6 +43,8 @@ namespace MugenMvvm.Android.Extensions
             configuration.ServiceConfiguration<IViewManager>()
                 .WithComponent(new AndroidViewStateDispatcher())
                 .WithComponent(new AndroidViewFirstInitializer())
+                .WithComponent(new AndroidViewRequestManager())
+                .WithComponent(new AndroidDestroyViewHandler())
                 .WithComponent(new AndroidViewMappingDecorator());
 
             var mediatorPresenter = configuration.ServiceConfiguration<IPresenter>().Service().GetOrAddComponent(ctx => new ViewModelMediatorPresenter());
@@ -103,6 +109,7 @@ namespace MugenMvvm.Android.Extensions
                 .Parent()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => target.Parent)
+                .CustomSetter((member, target, value, metadata) => target.Parent = (Object)value!)
                 .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberObserver.Add(target, listener, nameof(target.Parent)))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<IAndroidView>()
@@ -157,6 +164,56 @@ namespace MugenMvvm.Android.Extensions
                     newValue?.Apply(target.Menu, target);
                 })
                 .Build());
+
+
+            attachedMemberProvider.Register(BindableMembers.For<IContentView>()
+                .ContentTemplateSelector()
+                .GetBuilder()
+                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                {
+                    if (newValue is IDataTemplateSelector selector)
+                        member.SetValue(target, new ContentTemplateResourceSelectorWrapper(selector), metadata);
+                })
+                .DefaultValue(new DefaultContentTemplate())
+                .Build());
+
+            attachedMemberProvider.Register(BindableMembers.For<IContentView>()
+                .Content()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) => target.Content?.BindableMembers().DataContext())
+                .CustomSetter((member, target, value, metadata) =>
+                {
+                    var contentTemplateSelector = target.BindableMembers().ContentTemplateSelector();
+                    if (contentTemplateSelector == null)
+                        ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
+
+                    var oldValue = target.Content;
+                    var newValue = value == null ? null : (Object)contentTemplateSelector.SelectTemplate(target, value)!;
+                    if (Equals(newValue, oldValue))
+                        return;
+
+                    var viewManager = MugenService.ViewManager;
+                    if (oldValue != null)
+                        viewManager.OnLifecycleChanged(oldValue, ViewLifecycleState.Disappearing, metadata, metadata);
+
+                    if (newValue != null)
+                    {
+                        newValue.BindableMembers().SetDataContext(value);
+                        newValue.BindableMembers().SetParent(target);
+                        viewManager.OnLifecycleChanged(newValue, ViewLifecycleState.Appearing, metadata, metadata);
+                    }
+
+                    target.Content = newValue!;
+
+                    if (oldValue != null)
+                        viewManager.OnLifecycleChanged(oldValue, ViewLifecycleState.Disappeared, metadata, metadata);
+
+                    if (newValue != null)
+                        viewManager.OnLifecycleChanged(newValue, ViewLifecycleState.Appeared, metadata, metadata);
+                })
+                .Observable()
+                .Build());
+
 
             attachedMemberProvider.Register(BindableMembers.For<IListView>()
                 .StableIdProvider()

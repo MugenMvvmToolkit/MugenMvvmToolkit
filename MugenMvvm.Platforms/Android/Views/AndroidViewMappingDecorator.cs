@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -34,7 +35,7 @@ namespace MugenMvvm.Android.Views
             for (var i = 0; i < mappings.Count(); i++)
             {
                 var mapping = mappings.Get(i);
-                if (mapping is AndroidViewMapping map && map.ResourceId == view.ViewId)
+                if (mapping is IAndroidViewMapping map && map.ResourceId == view.ViewId)
                     result.Add(mapping);
             }
 

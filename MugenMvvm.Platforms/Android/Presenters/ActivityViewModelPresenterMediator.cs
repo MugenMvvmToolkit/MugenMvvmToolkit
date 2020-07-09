@@ -6,6 +6,7 @@ using Android.Content;
 using Android.Runtime;
 using Java.Lang;
 using MugenMvvm.Android.Enums;
+using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using MugenMvvm.Android.Views;
@@ -36,8 +37,8 @@ namespace MugenMvvm.Android.Presenters
 
         private ActivityViewDispatcher? _activityDispatcher;
         private bool _addedComponent;
-        private bool _shouldRaiseShown;
-        private bool _shouldRaiseShownOnShowView;
+        private bool _shouldRaiseOnResume;
+        private bool _shouldRaiseOnShow;
 
         #endregion
 
@@ -82,25 +83,25 @@ namespace MugenMvvm.Android.Presenters
                 if (view == null)
                 {
                     ActivityDispatcher.WaitView();
-                    _shouldRaiseShown = true;
+                    _shouldRaiseOnResume = true;
                 }
                 else //restore or first view
-                    _shouldRaiseShownOnShowView = true;
+                    _shouldRaiseOnShow = true;
             }
             else // refresh current
-                _shouldRaiseShown = true;
+                _shouldRaiseOnResume = true;
 
-            if (_shouldRaiseShown)
+            if (_shouldRaiseOnResume && view == null)
                 ShowActivityIfNeed(metadata);
             base.ShowInternal(view, default, metadata);
         }
 
         protected override void ShowView(IActivityView view, INavigationContext context)
         {
-            if (_shouldRaiseShownOnShowView)
+            if (_shouldRaiseOnShow)
             {
                 OnViewShown();
-                _shouldRaiseShownOnShowView = false;
+                _shouldRaiseOnShow = false;
             }
         }
 
@@ -139,9 +140,9 @@ namespace MugenMvvm.Android.Presenters
 
             Class? activityType = null;
             var resourceId = 0;
-            if (!Mapping.ViewType.IsInterface && typeof(IJavaObject).IsAssignableFrom(Mapping.ViewType))
+            if (typeof(Object).IsAssignableFrom(Mapping.ViewType))
                 activityType = Class.FromType(Mapping.ViewType);
-            if (Mapping is AndroidViewMapping m)
+            if (Mapping is IAndroidViewMapping m)
                 resourceId = m.ResourceId;
             StartActivity(activityView, activityType, resourceId, flags, metadata);
         }
@@ -154,10 +155,10 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void OnResumed(IReadOnlyMetadataContext? metadata)
         {
-            if (_shouldRaiseShown)
+            if (_shouldRaiseOnResume)
             {
                 OnViewShown();
-                _shouldRaiseShown = false;
+                _shouldRaiseOnResume = false;
             }
         }
 

@@ -25,6 +25,10 @@ namespace MugenMvvm.Android.Members
 
         public static BindablePropertyDescriptor<T, bool> Invisible<T>(this BindableMembersDescriptor<T> _) where T : class, IAndroidView => nameof(Invisible);
 
+        public static BindablePropertyDescriptor<T, object?> Content<T>(this BindableMembersDescriptor<T> _) where T : class, IContentView => nameof(Content);
+
+        public static BindablePropertyDescriptor<T, object?> ContentTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : class, IContentView => nameof(ContentTemplateSelector);
+
         public static BindableEventDescriptor<T> Click<T>(this BindableMembersDescriptor<T> _) where T : class, IAndroidView => nameof(Click);
 
         public static BindableEventDescriptor<T> ParentChanged<T>(this BindableMembersDescriptor<T> _) where T : class, IAndroidView => nameof(ParentChanged);
@@ -40,12 +44,14 @@ namespace MugenMvvm.Android.Members
         public static void SetStableIdProvider<T>(this BindableMembersTargetDescriptor<T> descriptor, IStableIdProvider? value) where T : class, IListView =>
             StableIdProvider<T>(_: default).SetValue(descriptor.Target, value);
 
+
         [BindingMember(nameof(ItemTemplateSelector))]
         public static IDataTemplateSelector? ItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IListView =>
             ItemTemplateSelector<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IDataTemplateSelector? value) where T : class, IListView =>
             ItemTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);
+
 
         [BindingMember(nameof(ItemsSource))]
         public static IEnumerable? ItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IListView =>
@@ -54,21 +60,40 @@ namespace MugenMvvm.Android.Members
         public static void SetItemsSource<T>(this BindableMembersTargetDescriptor<T> descriptor, IEnumerable? value) where T : class, IListView =>
             ItemsSource<T>(_: default).SetValue(descriptor.Target, value);
 
+
         [BindingMember(nameof(MenuTemplate))]
         public static IMenuTemplate? MenuTemplate<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IHasMenuView => MenuTemplate<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetMenuTemplate<T>(this BindableMembersTargetDescriptor<T> descriptor, IMenuTemplate? value) where T : class, IHasMenuView =>
             MenuTemplate<T>(_: default).SetValue(descriptor.Target, value);
 
+
         [BindingMember(nameof(Visible))]
         public static bool Visible<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IAndroidView => Visible<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetVisible<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : class, IAndroidView => Visible<T>(_: default).SetValue(descriptor.Target, value);
 
+
         [BindingMember(nameof(Invisible))]
         public static bool Invisible<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IAndroidView => Invisible<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetInvisible<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : class, IAndroidView => Invisible<T>(_: default).SetValue(descriptor.Target, value);
+
+
+        [BindingMember(nameof(Content))]
+        public static object? Content<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IContentView => Content<T>(_: default).GetValue(descriptor.Target);
+
+        public static void SetContent<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class, IContentView =>
+            Content<T>(_: default).SetValue(descriptor.Target, value);
+
+
+        [BindingMember(nameof(ContentTemplateSelector))]
+        public static IContentTemplateSelector? ContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IContentView =>
+            (IContentTemplateSelector?)ContentTemplateSelector<T>(_: default).GetValue(descriptor.Target);
+
+        public static void SetContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IContentTemplateSelector? value) where T : class, IContentView =>
+            ContentTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);
+
 
         public static ActionToken AddClickListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : class, IAndroidView =>
             Click<T>(default).Subscribe(descriptor.Target, listener);

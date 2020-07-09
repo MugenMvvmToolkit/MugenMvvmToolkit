@@ -29,7 +29,7 @@ namespace MugenMvvm.Android.Binding
 
         #region Implementation of interfaces
 
-        public int SelectTemplate(object? item, object container) => _templateId;
+        public int SelectTemplate(object container, object? item) => _templateId;
 
         #endregion
 

@@ -26,6 +26,8 @@ namespace MugenMvvm.Android.Native.Views
             }
         }
 
+        //https://forums.xamarin.com/discussion/356/binding-a-java-library-clarifications-anyone
+        //note in this case it's ok to keep state object only for mono objects we shouldn't create java objects from mono runtime
         [Preserve(Conditional = true)]
         LightDictionary<string, object?>? IValueHolder<LightDictionary<string, object?>>.Value { get; set; }
 
@@ -34,15 +36,6 @@ namespace MugenMvvm.Android.Native.Views
         #region Implementation of interfaces
 
         void IWeakReference.Release()
-        {
-            OnWeakReferenceRemoved();
-        }
-
-        #endregion
-
-        #region Methods
-
-        protected override void OnWeakReferenceRemoved()
         {
             _isAlive = false;
             ((IValueHolder<LightDictionary<string, object?>>)this).Value?.Clear();
