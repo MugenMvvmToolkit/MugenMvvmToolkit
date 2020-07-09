@@ -59,29 +59,28 @@ namespace MugenMvvm.Android.Views
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
             var viewRequest = MugenExtensions.CastGeneric<TRequest, AndroidViewRequest>(request);
-            var views = viewManager.GetViews(request, metadata);
-            if (views.Item != null)
-                return Task.FromResult(views.Item);
+            if (!(viewRequest.Container is Object container))
+                return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
-            IAndroidViewMapping? map = null;
+            IAndroidViewMapping? viewMapping = null;
             var mappings = viewManager.GetMappings(viewRequest.ViewModel, metadata);
             var count = mappings.Count();
             for (var i = 0; i < count; i++)
             {
                 if (mappings.Get(i) is IAndroidViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
                 {
-                    map = m;
+                    viewMapping = m;
                     break;
                 }
             }
 
-            if (!(viewRequest.Container is Object container) || map == null && viewRequest.ResourceId == 0)
+            if (viewMapping == null && viewRequest.ResourceId == 0)
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
-            var view = MugenAndroidNativeService.GetView(container, map?.ResourceId ?? viewRequest.ResourceId);
-            map ??= new AndroidViewMapping(viewRequest.ResourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
+            var view = MugenAndroidNativeService.GetView(container, viewMapping?.ResourceId ?? viewRequest.ResourceId);
+            viewMapping ??= new AndroidViewMapping(viewRequest.ResourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
 
-            return Components.TryInitializeAsync(viewManager, map, new ViewModelViewRequest(viewRequest.ViewModel, view), cancellationToken, metadata);
+            return Components.TryInitializeAsync(viewManager, viewMapping, new ViewModelViewRequest(viewRequest.ViewModel, view), cancellationToken, metadata);
         }
 
         public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
