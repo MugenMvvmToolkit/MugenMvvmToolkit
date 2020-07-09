@@ -623,6 +623,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             protected override bool Equals(Type[] x, Type[] y)
             {
+                if (ReferenceEquals(x, y))
+                    return true;
+
                 if (x.Length != y.Length)
                     return false;
                 for (var i = 0; i < x.Length; i++)

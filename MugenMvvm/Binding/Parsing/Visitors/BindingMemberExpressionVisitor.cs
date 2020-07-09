@@ -169,12 +169,12 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
 
                 //resource -> $i18n, $color, etc
-                if (unaryExpression.Token == UnaryTokenType.StaticExpression)
+                var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.Member, memberExpression, metadata);
+                if (unaryExpression.Token == UnaryTokenType.StaticExpression || resourceValue != null && resourceValue.IsStatic)
                 {
                     var result = TryGetConstant("~r", memberExpression.Member, out var key);
                     if (result == null)
                     {
-                        var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.Member, memberExpression, metadata);
                         if (resourceValue == null)
                             BindingExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
                         if (resourceValue.Value == null)

@@ -217,6 +217,9 @@ namespace MugenMvvm.Binding.Members.Components
 
             protected override bool Equals(IMemberInfo x, IMemberInfo y)
             {
+                if (ReferenceEquals(x, y))
+                    return true;
+
                 if (x.MemberType != y.MemberType)
                     return false;
 

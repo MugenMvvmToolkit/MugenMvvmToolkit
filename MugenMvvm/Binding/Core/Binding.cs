@@ -349,7 +349,9 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual object? GetSourceValue(MemberPathLastMember targetMember)
         {
-            return ((IMemberPathObserver)SourceRaw!).GetLastMember(this).GetValueOrThrow(this);
+            if (SourceRaw is IMemberPathObserver memberPath)
+                return memberPath.GetLastMember(this).GetValueOrThrow(this);
+            return SourceRaw;
         }
 
         protected virtual bool UpdateSourceInternal(out object? newValue)

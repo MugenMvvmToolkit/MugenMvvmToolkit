@@ -170,7 +170,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        public readonly struct MemberKey
+        private readonly struct MemberKey
         {
             #region Fields
 

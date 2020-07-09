@@ -19,7 +19,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
 {
-    public sealed class BindingInitializer : IBindingExpressionInitializerComponent, IHasPriority//todo rewrite tests
+    public sealed class BindingInitializer : IBindingExpressionInitializerComponent, IHasPriority
     {
         #region Fields
 

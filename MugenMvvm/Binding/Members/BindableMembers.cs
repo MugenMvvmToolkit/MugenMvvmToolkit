@@ -38,20 +38,24 @@ namespace MugenMvvm.Binding.Members
         [BindingMember(nameof(Root))]
         public static object? Root<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Root<T>(_: default).GetValue(descriptor.Target);
 
+
         [BindingMember(nameof(Parent))]
         public static object? Parent<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Parent<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetParent<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class => Parent<T>(_: default).SetValue(descriptor.Target, value);
+
 
         [BindingMember(nameof(Enabled))]
         public static bool Enabled<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => Enabled<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetEnabled<T>(this BindableMembersTargetDescriptor<T> descriptor, bool value) where T : class => Enabled<T>(_: default).SetValue(descriptor.Target, value);
 
+
         [BindingMember(nameof(DataContext))]
         public static object? DataContext<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class => DataContext<T>(_: default).GetValue(descriptor.Target);
 
         public static void SetDataContext<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class => DataContext<T>(_: default).SetValue(descriptor.Target, value);
+
 
         public static object? ElementSource<T>(this BindableMembersTargetDescriptor<T> descriptor, object name) where T : class => ElementSourceMethod<T>(default).Invoke(descriptor.Target, name);
 

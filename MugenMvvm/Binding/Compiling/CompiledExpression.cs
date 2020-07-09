@@ -212,6 +212,9 @@ namespace MugenMvvm.Binding.Compiling
 
         protected override bool Equals(object x, object y)
         {
+            if (ReferenceEquals(x, y))
+                return true;
+
             var typeX = x as Type;
             var typeY = y as Type;
             if (typeX != null || typeY != null)
@@ -223,11 +226,8 @@ namespace MugenMvvm.Binding.Compiling
 
             var typesX = x as Type[];
             var typesY = y as Type[];
-            if (typesX == null && typesY == null) //not supported state
-            {
-                ExceptionManager.ThrowNotSupported(nameof(Equals));
+            if (typesX == null && typesY == null)
                 return false;
-            }
 
             if (typesX == null)
                 return Equals(typesY!, (ParameterValue[])x);
@@ -304,10 +304,9 @@ namespace MugenMvvm.Binding.Compiling
 
             protected override bool Equals(IExpressionNode x, IExpressionNode y)
             {
-                if (x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP)
-                    return xP.Index == yP.Index && xP.Path == yP.Path;
-
-                return ReferenceEquals(x, y);
+                if (ReferenceEquals(x, y))
+                    return true;
+                return x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
             }
 
             #endregion

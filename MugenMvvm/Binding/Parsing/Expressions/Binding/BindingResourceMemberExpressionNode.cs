@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
                 return GetObserver(resourceValue, memberPath, metadata);
             if (resourceValue.Value == null)
                 return null;
-            return memberPath.GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags, 0, metadata);
+            return memberPath.GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags, 1, metadata);
         }
 
         private IResourceValue GetResource(object target, object? source, IReadOnlyMetadataContext? metadata)
