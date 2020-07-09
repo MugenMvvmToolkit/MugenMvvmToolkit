@@ -76,7 +76,7 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new NavigationCallbackManager())
                 .WithComponent(new NavigationContextProvider())
                 .WithComponent(new NavigationEntryDateTracker())
-                .WithComponent(new NavigationEntryProvider());
+                .WithComponent(new NavigationEntryManager());
 
             configuration.WithAppService(new Presenter())
                 .WithComponent(new ConditionPresenterDecorator())

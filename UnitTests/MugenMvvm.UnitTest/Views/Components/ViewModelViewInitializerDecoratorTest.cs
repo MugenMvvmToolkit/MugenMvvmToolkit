@@ -40,8 +40,13 @@ namespace MugenMvvm.UnitTest.Views.Components
                     mm.ShouldEqual(viewManager);
                     viewManager.ShouldEqual(viewManager);
                     var request = (ViewModelViewRequest)r;
-                    request.View.ShouldEqual(view);
-                    request.ViewModel.ShouldEqual(viewModel);
+                    if (viewMapping == ViewMapping.Undefined)
+                        request.IsEmpty.ShouldBeTrue();
+                    else
+                    {
+                        request.View.ShouldEqual(view);
+                        request.ViewModel.ShouldEqual(viewModel);
+                    }
                     m.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;
@@ -78,6 +83,10 @@ namespace MugenMvvm.UnitTest.Views.Components
 
             initializeCount = 0;
             viewManager.InitializeAsync(mapping, view, cancellationToken, DefaultMetadata).ShouldEqual(result);
+            initializeCount.ShouldEqual(1);
+
+            initializeCount = 0;
+            viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(), cancellationToken, DefaultMetadata).ShouldEqual(result);
             initializeCount.ShouldEqual(1);
         }
 

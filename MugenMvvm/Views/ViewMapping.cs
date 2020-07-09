@@ -1,12 +1,19 @@
 ﻿using System;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 
 namespace MugenMvvm.Views
 {
     public class ViewMapping : IViewMapping
     {
+        #region Fields
+
+        public static readonly IViewMapping Undefined = new ViewMapping("-", typeof(object), typeof(IViewModelBase));
+
+        #endregion
+
         #region Constructors
 
         public ViewMapping(string id, Type viewType, Type viewModelType, IReadOnlyMetadataContext? metadata = null)

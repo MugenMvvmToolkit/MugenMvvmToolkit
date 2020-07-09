@@ -48,9 +48,13 @@ namespace MugenMvvm.Views.Components
         {
             try
             {
-                var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
-                if (viewModel == null || view == null)
-                    return Components.TryInitializeAsync(viewManager, mapping, ToViewModelViewRequest(mapping, viewModel, view, metadata), cancellationToken, metadata);
+                if (!ReferenceEquals(mapping, ViewMapping.Undefined))
+                {
+                    var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
+                    if (viewModel == null || view == null)
+                        return Components.TryInitializeAsync(viewManager, mapping, ToViewModelViewRequest(mapping, viewModel, view, metadata), cancellationToken, metadata);
+                }
+
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
             }
             catch (Exception e)

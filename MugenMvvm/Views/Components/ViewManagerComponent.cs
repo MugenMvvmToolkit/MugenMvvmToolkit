@@ -62,11 +62,11 @@ namespace MugenMvvm.Views.Components
                 if (viewModel is IComponentOwner componentOwner)
                 {
                     var collection = componentOwner.Components;
-                    return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, view, m) => c.Add(view, m), (c, view, m) => c.Remove(view, m), metadata));
+                    return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, collection.Get<IView>(), collection, (c, v, m) => c.Add(v, m), (c, v, m) => c.Remove(v, m), metadata));
                 }
 
                 var list = viewModel.Metadata.GetOrAdd(ViewsMetadataKey, (object?)null, (context, o) => new List<IView>(2));
-                return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, view, m) => c.Add(view), (c, view, m) => c.Remove(view), metadata));
+                return Task.FromResult(InitializeView(viewManager, mapping, viewModel, view, list, list, (c, v, m) => c.Add(v), (c, v, m) => c.Remove(v), metadata));
             }
             catch (Exception e)
             {

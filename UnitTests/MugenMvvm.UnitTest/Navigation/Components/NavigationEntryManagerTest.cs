@@ -14,7 +14,7 @@ using Xunit;
 
 namespace MugenMvvm.UnitTest.Navigation.Components
 {
-    public class NavigationEntryProviderTest : UnitTestBase
+    public class NavigationEntryManagerTest : UnitTestBase
     {
         #region Fields
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         {
             var provider = new TestNavigationProvider { Id = "t" };
             var dispatcher = new NavigationDispatcher();
-            var component = new NavigationEntryProvider();
+            var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
             NavigationContext? ctx = null;
             int invokedCount = 0;
@@ -81,7 +81,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         {
             var provider = new TestNavigationProvider { Id = "t" };
             var dispatcher = new NavigationDispatcher();
-            var component = new NavigationEntryProvider();
+            var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
             NavigationContext? ctx = null;
             int invokedCount = 0;
@@ -137,7 +137,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
         {
             var provider = new TestNavigationProvider { Id = "t" };
             var dispatcher = new NavigationDispatcher();
-            var component = new NavigationEntryProvider();
+            var component = new NavigationEntryManager();
             var contexts = new List<NavigationContext>();
             NavigationContext? ctx = null;
 

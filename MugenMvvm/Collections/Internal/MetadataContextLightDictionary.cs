@@ -16,7 +16,7 @@ namespace MugenMvvm.Collections.Internal
 
         protected override bool Equals(IMetadataContextKey x, IMetadataContextKey y)
         {
-            return x.Equals(y);
+            return ReferenceEquals(x, y) || x.Equals(y);
         }
 
         protected override int GetHashCode(IMetadataContextKey key)

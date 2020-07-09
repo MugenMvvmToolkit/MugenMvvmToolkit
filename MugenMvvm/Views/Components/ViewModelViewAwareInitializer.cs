@@ -25,8 +25,8 @@ namespace MugenMvvm.Views.Components
         private readonly IReflectionManager? _reflectionManager;
         private readonly IWrapperManager? _wrapperManager;
 
-        private static readonly TypeLightDictionary<object?> UpdateViewDelegates = new TypeLightDictionary<object?>(37);
-        private static readonly TypeLightDictionary<object?> UpdateViewModelDelegates = new TypeLightDictionary<object?>(37);
+        private static readonly TypeLightDictionary<object?> UpdateViewDelegates = new TypeLightDictionary<object?>(7);
+        private static readonly TypeLightDictionary<object?> UpdateViewModelDelegates = new TypeLightDictionary<object?>(7);
         private static readonly MethodInfo UpdateViewMethodInfo = typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateView), BindingFlagsEx.InstancePublic);
         private static readonly MethodInfo UpdateViewModelMethodInfo = typeof(ViewModelViewAwareInitializer).GetMethodOrThrow(nameof(TryUpdateViewModel), BindingFlagsEx.InstancePublic);
 
@@ -72,11 +72,11 @@ namespace MugenMvvm.Views.Components
                 var components = viewImp.GetComponents<object>();
                 for (var i = 0; i < components.Length; i++)
                     TryUpdateViewModel(components[i], viewImp.ViewModel);
-                TryUpdateView(viewImp.ViewModel, viewImp, metadata);
+                TryUpdateView(viewImp, false, metadata);
             }
             else if (lifecycleState == ViewLifecycleState.Clearing)
             {
-                TryUpdateView(viewImp.ViewModel, null, metadata);
+                TryUpdateView(viewImp, true, metadata);
                 TryUpdateViewModel(viewImp.Target, null);
                 var components = viewImp.GetComponents<object>();
                 for (var i = 0; i < components.Length; i++)
@@ -90,10 +90,14 @@ namespace MugenMvvm.Views.Components
         #region Methods
 
         [Preserve(Conditional = true)]
-        public void TryUpdateView<TView>(IViewAwareViewModel<TView> viewModel, IView? view, IReadOnlyMetadataContext? metadata) where TView : class
+        public void TryUpdateView<TView>(IView view, bool clear, IReadOnlyMetadataContext? metadata) where TView : class
         {
-            if (view == null)
-                viewModel.View = null;
+            IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>)view.ViewModel;
+            if (clear)
+            {
+                if (ReferenceEquals(viewModel.View, view.Target))
+                    viewModel.View = null;
+            }
             else if (view.Target is TView v)
                 viewModel.View = v;
             else if (view.CanWrap<TView>(metadata, _wrapperManager))
@@ -109,22 +113,22 @@ namespace MugenMvvm.Views.Components
                 view.ViewModel = vm;
         }
 
-        private void TryUpdateView(IViewModelBase viewModel, IView? view, IReadOnlyMetadataContext? metadata)
+        private void TryUpdateView(IView view, bool clear, IReadOnlyMetadataContext? metadata)
         {
-            var vmType = viewModel.GetType();
+            var vmType = view.ViewModel.GetType();
             object? delegates;
             lock (UpdateViewDelegates)
             {
                 if (!UpdateViewDelegates.TryGetValue(vmType, out delegates))
                 {
-                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, object, IView?, IReadOnlyMetadataContext?>>(vmType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View), UpdateViewMethodInfo).GetRawValue();
+                    delegates = GetDelegates<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>(vmType, typeof(IViewAwareViewModel<>), nameof(IViewAwareViewModel<object>.View), UpdateViewMethodInfo).GetRawValue();
                     UpdateViewDelegates[vmType] = delegates;
                 }
             }
 
-            var list = ItemOrList<Action<ViewModelViewAwareInitializer, object, IView?, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, object, IView?, IReadOnlyMetadataContext?>>>.FromRawValue(delegates);
+            var list = ItemOrList<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>.FromRawValue(delegates);
             for (var i = 0; i < list.Count(); i++)
-                list.Get(i).Invoke(this, viewModel, view, metadata);
+                list.Get(i).Invoke(this, view, clear, metadata);
         }
 
         private void TryUpdateViewModel(object view, IViewModelBase? viewModel)

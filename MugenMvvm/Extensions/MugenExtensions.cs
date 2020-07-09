@@ -358,7 +358,7 @@ namespace MugenMvvm.Extensions
             return MugenService.WeakReferenceManager.GetWeakReference(item);
         }
 
-        internal static Task ContinueWithEx<TTask, TState>(this TTask task, TState state, Action<TTask, TState> execute) where TTask : Task
+        internal static Task ContinueWithEx<TState>(this Task task, TState state, Action<Task, TState> execute)
         {
             Should.NotBeNull(task, nameof(task));
             Should.NotBeNull(execute, nameof(execute));
@@ -382,7 +382,7 @@ namespace MugenMvvm.Extensions
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
 
-        internal static Task<TNewResult> ContinueWithEx<TResult, TState, TNewResult>(this Task<TResult> task, TState state, Func<Task<TResult>, TState, TNewResult> execute)
+        internal static Task ContinueWithEx<T, TState>(this Task<T> task, TState state, Action<Task<T>, TState> execute)
         {
             Should.NotBeNull(task, nameof(task));
             Should.NotBeNull(execute, nameof(execute));
@@ -390,18 +390,19 @@ namespace MugenMvvm.Extensions
             {
                 try
                 {
-                    return Task.FromResult(execute(task, state));
+                    execute(task, state);
+                    return task;
                 }
                 catch (Exception e)
                 {
-                    return Task.FromException<TNewResult>(e);
+                    return Task.FromException(e);
                 }
             }
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Func<Task<TResult>, TState, TNewResult>>)o;
-                return tuple.Item2(t, tuple.Item1);
+                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o;
+                tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
 

@@ -31,7 +31,7 @@ namespace MugenMvvm.Views.Components
         {
             _threadDispatcher = threadDispatcher;
             InitializeExecutionMode = ThreadExecutionMode.Main;
-            CleanupExecutionMode = ThreadExecutionMode.MainAsync;
+            CleanupExecutionMode = ThreadExecutionMode.Main;
         }
 
         #endregion

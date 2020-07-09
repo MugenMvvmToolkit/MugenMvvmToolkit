@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Navigation.Components
 {
-    public sealed class NavigationEntryProvider : INavigationEntryProviderComponent, INavigationDispatcherNavigatedListener, IHasPriority
+    public sealed class NavigationEntryManager : INavigationEntryProviderComponent, INavigationDispatcherNavigatedListener, IHasPriority
     {
         #region Fields
 
@@ -24,7 +24,7 @@ namespace MugenMvvm.Navigation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationEntryProvider(IMetadataContextManager? metadataContextManager = null)
+        public NavigationEntryManager(IMetadataContextManager? metadataContextManager = null)
         {
             _metadataContextManager = metadataContextManager;
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();

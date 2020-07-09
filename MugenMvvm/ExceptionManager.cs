@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using static MugenMvvm.Constants.MessageConstant;
 
@@ -12,6 +11,12 @@ namespace MugenMvvm
     internal static class ExceptionManager
     {
         #region Methods
+
+        [DoesNotReturn]
+        public static void ThrowAmbiguousMappingMatchFound()
+        {
+            throw new InvalidOperationException(AmbiguousMappingMatchFound);
+        }
 
         [DoesNotReturn]
         public static void ThrowNullArgument(string paramName)
@@ -128,7 +133,7 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized(object obj, [CallerMemberName]string? hint = null)
+        public static void ThrowObjectNotInitialized(object obj, [CallerMemberName] string? hint = null)
         {
             throw new InvalidOperationException(ObjectNotInitializedFormat2.Format((obj as Type ?? obj.GetType()).Name, hint));
         }
