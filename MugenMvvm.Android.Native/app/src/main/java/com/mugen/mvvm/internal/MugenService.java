@@ -4,15 +4,16 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.FrameLayout;
 import android.widget.TextView;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
+import com.mugen.mvvm.interfaces.INativeWeakReferenceCallback;
+import com.mugen.mvvm.interfaces.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.interfaces.views.IWrapperFactory;
 import com.mugen.mvvm.views.AdapterViewWrapper;
+import com.mugen.mvvm.views.ContentViewWrapper;
 import com.mugen.mvvm.views.TextViewWrapper;
 
 import java.util.ArrayList;
@@ -20,6 +21,8 @@ import java.util.ArrayList;
 public final class MugenService {
     public static boolean IsNativeConfiguration;
     private static Context _context;
+    private static IViewFactory _viewFactory;
+    private static INativeWeakReferenceCallback _weakReferenceCallback;
     private final static ArrayList<ILifecycleDispatcher> _lifecycleDispatchers = new ArrayList<>();
     private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
 
@@ -52,7 +55,40 @@ public final class MugenService {
                     return 0;
                 }
             });
+            MugenExtensions.addWrapperMapping(FrameLayout.class, new IWrapperFactory() {
+                @Override
+                public int getPriority() {
+                    return 0;
+                }
+
+                @Override
+                public Object wrap(Object view) {
+                    return new ContentViewWrapper(view);
+                }
+            });
         }
+    }
+
+    public static IViewFactory getViewFactory() {
+        if (_viewFactory == null)
+            setViewFactory(new ViewFactory());
+        return _viewFactory;
+    }
+
+    public static void setViewFactory(IViewFactory viewFactory) {
+        if (_viewFactory instanceof ILifecycleDispatcher)
+            removeLifecycleDispatcher((ILifecycleDispatcher) _viewFactory);
+        _viewFactory = viewFactory;
+        if (_viewFactory instanceof ILifecycleDispatcher)
+            addLifecycleDispatcher((ILifecycleDispatcher) _viewFactory, 0);
+    }
+
+    public static INativeWeakReferenceCallback getWeakReferenceCallback() {
+        return _weakReferenceCallback;
+    }
+
+    public static void setWeakReferenceCallback(INativeWeakReferenceCallback callback) {
+        _weakReferenceCallback = callback;
     }
 
     public static Context getAppContext() {
@@ -61,6 +97,10 @@ public final class MugenService {
 
     public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
         _lifecycleDispatchers.add(dispatcher);
+    }
+
+    public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher, int index) {
+        _lifecycleDispatchers.add(index, dispatcher);
     }
 
     public static void removeLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
@@ -138,5 +178,10 @@ public final class MugenService {
                 return view;
         }
         return null;
+    }
+
+    public static void onWeakReferenceRemoved(Object wrapper) {
+        if (_weakReferenceCallback != null)
+            _weakReferenceCallback.onWeakReferenceRemoved(wrapper);
     }
 }

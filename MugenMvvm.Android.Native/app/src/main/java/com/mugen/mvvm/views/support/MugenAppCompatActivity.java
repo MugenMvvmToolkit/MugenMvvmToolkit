@@ -1,5 +1,6 @@
 package com.mugen.mvvm.views.support;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -17,6 +18,11 @@ import com.mugen.mvvm.internal.MugenService;
 
 public class MugenAppCompatActivity extends AppCompatActivity implements INativeActivityView {
     private SparseArray<Object> _state;
+
+    @Override
+    public Activity getActivity() {
+        return this;
+    }
 
     @Override
     public int getViewId() {

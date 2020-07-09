@@ -7,15 +7,22 @@ import com.mugen.mvvm.interfaces.views.IResourceView;
 import com.mugen.mvvm.models.WeakTargetBase;
 
 public class ActivityWrapper extends WeakTargetBase<Activity> implements IActivityView {
+    private boolean _isFinishing;
+
     public ActivityWrapper(Object target) {
         super((Activity) target);
+    }
+
+    @Override
+    public Activity getActivity() {
+        return getTarget();
     }
 
     @Override
     public boolean isFinishing() {
         Activity target = getTarget();
         if (target == null)
-            return true;
+            return _isFinishing;
         return target.isFinishing();
     }
 
@@ -47,5 +54,11 @@ public class ActivityWrapper extends WeakTargetBase<Activity> implements IActivi
         if (target == null)
             return 0;
         return target.getViewId();
+    }
+
+    @Override
+    protected void onReleased(Activity target) {
+        _isFinishing = target.isFinishing();
+        super.onReleased(target);
     }
 }

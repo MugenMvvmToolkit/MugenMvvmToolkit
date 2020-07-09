@@ -5,4 +5,5 @@
     <item name="bindHandled" type="id"/>
     <item name="parent" type="id"/>
     <item name="listItemResourceId" type="id"/>
+    <item name="views" type="id"/>
 </resources>

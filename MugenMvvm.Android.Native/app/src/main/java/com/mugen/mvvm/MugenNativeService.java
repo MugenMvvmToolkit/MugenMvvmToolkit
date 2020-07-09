@@ -6,14 +6,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
-import com.mugen.mvvm.interfaces.views.IActivityView;
-import com.mugen.mvvm.interfaces.views.IViewBindCallback;
-import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.interfaces.views.IWrapperFactory;
-import com.mugen.mvvm.internal.MugenService;
-import com.mugen.mvvm.internal.NativeLifecycleDispatcherWrapper;
-import com.mugen.mvvm.internal.NativeViewDispatcher;
-import com.mugen.mvvm.internal.ViewWrapperCleanerLifecycleDispatcher;
+import com.mugen.mvvm.interfaces.INativeWeakReferenceCallback;
+import com.mugen.mvvm.interfaces.views.*;
+import com.mugen.mvvm.internal.*;
 import com.mugen.mvvm.views.MainMugenActivity;
 import com.mugen.mvvm.views.MugenActivity;
 import com.mugen.mvvm.views.support.*;
@@ -22,12 +17,16 @@ public final class MugenNativeService {
     private MugenNativeService() {
     }
 
-    public static void initialize(Context context, boolean isNativeConfiguration, IViewBindCallback bindCallback) {
-        MugenService.initialize(context, isNativeConfiguration);
-        if (isNativeConfiguration) {
-            MugenService.addViewDispatcher(new NativeViewDispatcher(bindCallback));
-            MugenService.addLifecycleDispatcher(new ViewWrapperCleanerLifecycleDispatcher());
-        }
+    public static void initialize(Context context) {
+        MugenService.initialize(context, false);
+    }
+
+    public static void initializeNative(Context context, IViewBindCallback bindCallback, INativeWeakReferenceCallback weakReferenceCallback) {
+        MugenService.initialize(context, true);
+        MugenService.setWeakReferenceCallback(weakReferenceCallback);
+        MugenService.addViewDispatcher(new NativeViewDispatcher(bindCallback));
+        MugenService.addLifecycleDispatcher(new FragmentStateCleaner());
+        MugenService.addLifecycleDispatcher(new ViewWrapperCleaner());
     }
 
     public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
@@ -37,7 +36,7 @@ public final class MugenNativeService {
     public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher, boolean wrap) {
         if (wrap)
             dispatcher = new NativeLifecycleDispatcherWrapper(dispatcher);
-        MugenService.addLifecycleDispatcher(dispatcher);
+        MugenService.addLifecycleDispatcher(dispatcher, 0);
     }
 
     public static void removeLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
@@ -100,6 +99,13 @@ public final class MugenNativeService {
                 return 0;
             }
         });
+    }
+
+    public static Object getView(Object container, int resourceId) {
+        Object view = MugenService.getViewFactory().getView(container, resourceId);
+        if (MugenService.IsNativeConfiguration)
+            return MugenExtensions.wrap(view, true);
+        return view;
     }
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {

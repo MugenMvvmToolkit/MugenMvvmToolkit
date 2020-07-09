@@ -7,8 +7,9 @@ import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.views.IAndroidView;
+import com.mugen.mvvm.interfaces.views.IReleasable;
 
-public class ViewWrapperCleanerLifecycleDispatcher implements ILifecycleDispatcher {
+public class ViewWrapperCleaner implements ILifecycleDispatcher {
     @Override
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
         return true;
@@ -16,12 +17,16 @@ public class ViewWrapperCleanerLifecycleDispatcher implements ILifecycleDispatch
 
     @Override
     public void onLifecycleChanged(Object target, int lifecycle, Object state) {
-        if (!(target instanceof Activity) || lifecycle != LifecycleState.Destroy) {
+        if (!(target instanceof Activity) || lifecycle != LifecycleState.Destroy)
             return;
-        }
+
         View view = ((Activity) target).findViewById(android.R.id.content);
         if (view != null)
             clear(view);
+
+        target = MugenExtensions.wrap(target, false);
+        if (target instanceof IReleasable)
+            ((IReleasable) target).release();
     }
 
     private static void clear(View view) {

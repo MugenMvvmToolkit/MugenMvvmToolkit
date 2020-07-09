@@ -64,7 +64,7 @@ public class ViewWrapper extends WeakTargetBase<View> implements IAndroidView, V
 
     @Override
     public View getView() {
-        return (View) getTarget();
+        return getTarget();
     }
 
     @Override

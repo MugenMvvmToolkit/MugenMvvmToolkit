@@ -20,6 +20,11 @@ public class MugenActivity extends Activity implements INativeActivityView {
     private SparseArray<Object> _state;
 
     @Override
+    public Activity getActivity() {
+        return this;
+    }
+
+    @Override
     public int getViewId() {
         return MugenExtensions.tryGetViewId(getClass(), getIntent(), 0);
     }
