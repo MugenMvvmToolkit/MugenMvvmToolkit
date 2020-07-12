@@ -9,10 +9,10 @@ import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
-import com.mugen.mvvm.interfaces.IItemsSourceProvider;
+import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 
 public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserver {
-    private final IItemsSourceProvider _provider;
+    private final IResourceItemsSourceProvider _provider;
     private final boolean _hasStableId;
     private final int _viewTypeCount;
     private final LayoutInflater _inflater;
@@ -21,7 +21,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
     private SparseIntArray _resourceTypeToItemType;
     private int _currentTypeIndex;
 
-    public MugenListAdapter(Object owner, Context context, IItemsSourceProvider provider) {
+    public MugenListAdapter(Object owner, Context context, IResourceItemsSourceProvider provider) {
         _owner = owner;
         _inflater = LayoutInflater.from(context);
         _provider = provider;
@@ -30,7 +30,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
         provider.addObserver(this);
     }
 
-    public IItemsSourceProvider getItemsSourceProvider() {
+    public IResourceItemsSourceProvider getItemsSourceProvider() {
         return _provider;
     }
 
@@ -49,7 +49,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
             return Adapter.IGNORE_ITEM_VIEW_TYPE;
         if (_viewTypeCount == 1)
             return super.getItemViewType(position);
-        int resourceId = _provider.getItemResourceId(position);
+        int resourceId = _provider.getItemViewType(position);
         if (resourceId == 0)
             return 0;
         if (_resourceTypeToItemType == null)
@@ -86,13 +86,13 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        int itemResourceId = _provider.getItemResourceId(position);
+        int itemResourceId = _provider.getItemViewType(position);
         if (convertView == null || !isValidView(convertView, itemResourceId)) {
             convertView = _inflater.inflate(itemResourceId, parent, false);
             convertView.setTag(R.id.listItemResourceId, itemResourceId);
-            _provider.onViewCreated(_owner, convertView);
+            _provider.onViewCreated(convertView);
         }
-        _provider.onBindView(_owner, convertView, position);
+        _provider.onBindView(convertView, position);
         return convertView;
     }
 

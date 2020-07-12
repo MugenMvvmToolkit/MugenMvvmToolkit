@@ -12,7 +12,7 @@ public interface IAndroidView extends IResourceView, IHasTagView, IReleasable {
 
     Object getParent();
 
-    void setParent(Object parent);
+    void setParent(Object parent);//todo move
 
     Object findRelativeSource(String name, int level);
 

@@ -1,9 +1,9 @@
 package com.mugen.mvvm.interfaces.views;
 
-import com.mugen.mvvm.interfaces.IItemsSourceProvider;
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 
 public interface IListView extends IAndroidView {
-    IItemsSourceProvider getItemsSourceProvider();
+    IItemsSourceProviderBase getItemsSourceProvider();
 
-    void setItemsSourceProvider(IItemsSourceProvider provider);
+    void setItemsSourceProvider(IItemsSourceProviderBase provider);
 }

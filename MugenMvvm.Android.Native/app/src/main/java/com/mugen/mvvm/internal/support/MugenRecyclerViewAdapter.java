@@ -7,22 +7,22 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
-import com.mugen.mvvm.interfaces.IItemsSourceProvider;
+import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 
 public class MugenRecyclerViewAdapter extends RecyclerView.Adapter implements IItemsSourceObserver {
-    private final IItemsSourceProvider _provider;
+    private final IResourceItemsSourceProvider _provider;
     private final LayoutInflater _inflater;
     private final Object _owner;
     private int _attachCount;
 
-    public MugenRecyclerViewAdapter(Object owner, Context context, IItemsSourceProvider provider) {
+    public MugenRecyclerViewAdapter(Object owner, Context context, IResourceItemsSourceProvider provider) {
         _owner = owner;
         _inflater = LayoutInflater.from(context);
         _provider = provider;
         setHasStableIds(provider.hasStableId());
     }
 
-    public IItemsSourceProvider getItemsSourceProvider() {
+    public IResourceItemsSourceProvider getItemsSourceProvider() {
         return _provider;
     }
 
@@ -44,7 +44,7 @@ public class MugenRecyclerViewAdapter extends RecyclerView.Adapter implements II
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = _inflater.inflate(viewType, parent, false);
-        _provider.onViewCreated(_owner, view);
+        _provider.onViewCreated(view);
         return new ViewHolderIml(view);
     }
 
@@ -57,12 +57,12 @@ public class MugenRecyclerViewAdapter extends RecyclerView.Adapter implements II
 
     @Override
     public int getItemViewType(int position) {
-        return _provider.getItemResourceId(position);
+        return _provider.getItemViewType(position);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        _provider.onBindView(_owner, holder.itemView, position);
+        _provider.onBindView(holder.itemView, position);
     }
 
     @Override

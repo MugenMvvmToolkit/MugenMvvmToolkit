@@ -2,14 +2,20 @@ package com.mugen.mvvm.internal;
 
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
-import com.mugen.mvvm.interfaces.IItemsSourceProvider;
+import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.interfaces.views.IAndroidView;
 
-public class NativeItemsSourceProviderWrapper implements IItemsSourceProvider {
-    private final IItemsSourceProvider _target;
+public class NativeResourceItemsSourceProviderWrapper implements IResourceItemsSourceProvider {
+    private final IResourceItemsSourceProvider _target;
+    private final Object _owner;
 
-    public NativeItemsSourceProviderWrapper(IItemsSourceProvider _target) {
-        this._target = _target;
+    public NativeResourceItemsSourceProviderWrapper(Object owner, IResourceItemsSourceProvider target) {
+        _owner = owner;
+        _target = target;
+    }
+
+    public IResourceItemsSourceProvider getNestedProvider() {
+        return _target;
     }
 
     @Override
@@ -33,21 +39,21 @@ public class NativeItemsSourceProviderWrapper implements IItemsSourceProvider {
     }
 
     @Override
-    public int getItemResourceId(int position) {
-        return _target.getItemResourceId(position);
+    public int getItemViewType(int position) {
+        return _target.getItemViewType(position);
     }
 
     @Override
-    public void onViewCreated(Object owner, Object view) {
+    public void onViewCreated(Object view) {
         Object viewWrapper = MugenExtensions.wrap(view, true);
-        _target.onViewCreated(MugenExtensions.wrap(owner, true), viewWrapper);
+        _target.onViewCreated(viewWrapper);
         if (viewWrapper instanceof IAndroidView)
-            ((IAndroidView) viewWrapper).setParent(owner);
+            ((IAndroidView) viewWrapper).setParent(_owner);
     }
 
     @Override
-    public void onBindView(Object owner, Object view, int position) {
-        _target.onBindView(MugenExtensions.wrap(owner, true), MugenExtensions.wrap(view, true), position);
+    public void onBindView(Object view, int position) {
+        _target.onBindView(MugenExtensions.wrap(view, true), position);
     }
 
     @Override

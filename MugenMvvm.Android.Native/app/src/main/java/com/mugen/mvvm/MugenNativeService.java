@@ -4,6 +4,7 @@ import android.content.Context;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.ViewPager;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.INativeWeakReferenceCallback;
@@ -92,6 +93,20 @@ public final class MugenNativeService {
             @Override
             public Object wrap(Object view) {
                 return new SwipeRefreshLayoutWrapper(view);
+            }
+
+            @Override
+            public int getPriority() {
+                return 0;
+            }
+        });
+    }
+
+    public static void addViewPagerMapping() {
+        MugenExtensions.addWrapperMapping(ViewPager.class, new IWrapperFactory() {
+            @Override
+            public Object wrap(Object view) {
+                return new ViewPagerWrapper(view);
             }
 
             @Override

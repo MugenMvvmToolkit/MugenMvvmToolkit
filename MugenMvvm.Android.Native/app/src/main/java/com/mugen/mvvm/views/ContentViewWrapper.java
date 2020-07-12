@@ -6,8 +6,8 @@ import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.views.IAndroidView;
 import com.mugen.mvvm.interfaces.views.IContentView;
 
+//todo handle fragments
 public class ContentViewWrapper extends ViewWrapper implements IContentView {
-    //todo handle fragments
     public ContentViewWrapper(Object view) {
         super(view);
     }

@@ -2,9 +2,10 @@ package com.mugen.mvvm.views.support;
 
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
-import com.mugen.mvvm.interfaces.IItemsSourceProvider;
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
+import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.interfaces.views.IListView;
-import com.mugen.mvvm.internal.NativeItemsSourceProviderWrapper;
+import com.mugen.mvvm.internal.NativeResourceItemsSourceProviderWrapper;
 import com.mugen.mvvm.internal.ViewParentObserver;
 import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
 import com.mugen.mvvm.views.ViewWrapper;
@@ -16,33 +17,37 @@ public class RecyclerViewWrapper extends ViewWrapper implements IListView {
     }
 
     @Override
-    public IItemsSourceProvider getItemsSourceProvider() {
+    public IItemsSourceProviderBase getItemsSourceProvider() {
         RecyclerView view = (RecyclerView) getView();
         if (view == null)
             return null;
-        RecyclerView.Adapter adapter = view.getAdapter();
-        if (adapter instanceof MugenRecyclerViewAdapter)
-            return ((MugenRecyclerViewAdapter) adapter).getItemsSourceProvider();
-        return null;
+        return getProvider(view);
     }
 
     @Override
-    public void setItemsSourceProvider(IItemsSourceProvider provider) {
+    public void setItemsSourceProvider(IItemsSourceProviderBase provider) {
         RecyclerView view = (RecyclerView) getView();
-        if (view == null)
-            return;
-        RecyclerView.Adapter adapter = view.getAdapter();
-        if (adapter instanceof MugenRecyclerViewAdapter && ((MugenRecyclerViewAdapter) adapter).getItemsSourceProvider() == provider)
+        if (view == null || getProvider(view) == provider)
             return;
         if (provider == null) {
             view.setAdapter(null);
         } else
-            view.setAdapter(new MugenRecyclerViewAdapter(view, view.getContext(), new NativeItemsSourceProviderWrapper(provider)));
+            view.setAdapter(new MugenRecyclerViewAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper(view, (IResourceItemsSourceProvider) provider)));
     }
 
     @Override
     protected void onReleased(View target) {
         super.onReleased(target);
         ((RecyclerView) target).setAdapter(null);
+    }
+
+    private IResourceItemsSourceProvider getProvider(RecyclerView view) {
+        RecyclerView.Adapter adapter = view.getAdapter();
+        if (adapter instanceof MugenRecyclerViewAdapter) {
+            IResourceItemsSourceProvider provider = ((MugenRecyclerViewAdapter) adapter).getItemsSourceProvider();
+            if (provider != null)
+                return ((NativeResourceItemsSourceProviderWrapper) provider).getNestedProvider();
+        }
+        return null;
     }
 }

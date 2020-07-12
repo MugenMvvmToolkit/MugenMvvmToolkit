@@ -108,7 +108,14 @@ public class ViewWrapper extends WeakTargetBase<View> implements IAndroidView, V
         View view = getView();
         if (view == null)
             return;
-        view.setTag(R.id.parent, MugenExtensions.wrap(parent, true));
+        Object oldParent = getParentRaw(view);
+        if (oldParent == parent)
+            return;
+        parent = MugenExtensions.wrap(parent, true);
+        if (oldParent == parent)
+            return;
+
+        view.setTag(R.id.parent, parent);
         onMemberChanged(ParentMemberName, null);
     }
 
