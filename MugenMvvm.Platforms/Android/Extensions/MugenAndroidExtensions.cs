@@ -232,7 +232,7 @@ namespace MugenMvvm.Android.Extensions
                 {
                     if (!(target.ItemsSourceProvider is AndroidCollectionItemsSourceProvider provider))
                     {
-                        provider = new AndroidCollectionItemsSourceProvider(target, target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
+                        provider = new AndroidCollectionItemsSourceProvider(target, (IDataTemplateSelector)target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
                         target.ItemsSourceProvider = provider;
                     }
                     provider.SetItemsSource(newValue);

@@ -2,6 +2,6 @@
 {
     public interface IContentTemplateSelector
     {
-        object? SelectTemplate(object container, object item);
+        object? SelectTemplate(object container, object? item);
     }
 }

@@ -7,7 +7,7 @@ using MugenMvvm.Binding.Members;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class AndroidCollectionItemsSourceProvider : Object, IItemsSourceProvider
+    public class AndroidCollectionItemsSourceProvider : Object, IResourceItemsSourceProvider
     {
         #region Fields
 
@@ -51,17 +51,18 @@ namespace MugenMvvm.Android.Collections
             return _stableIdProvider.GetId(GetItemAt(position));
         }
 
-        public int GetItemResourceId(int position)
+        public int GetItemViewType(int position)
         {
-            return _selector.SelectTemplate(GetItemAt(position), _owner);
+            return _selector.SelectTemplate(_owner, GetItemAt(position));
         }
 
-        public void OnBindView(Object owner, Object view, int position)
+        public void OnBindView(Object view, int position)
         {
             view.BindableMembers().SetDataContext(GetItemAt(position));
+            //todo move parent here?
         }
 
-        public void OnViewCreated(Object owner, Object view)
+        public void OnViewCreated(Object view)
         {
             view.BindableMembers().SetDataContext(null);
         }

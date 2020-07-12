@@ -86,29 +86,6 @@ namespace MugenMvvm.UnitTest.App
             states[1].ShouldEqual(ApplicationLifecycleState.Initialized);
         }
 
-        [Fact]
-        public void StartShouldBeHandledByComponent()
-        {
-            var state = this;
-            var states = new List<ApplicationLifecycleState>();
-            var application = new MugenApplication();
-            application.AddComponent(new TestApplicationLifecycleDispatcherComponent
-            {
-                OnLifecycleChanged = (app, viewModelLifecycleState, st, stateType, metadata) =>
-                {
-                    states.Add(viewModelLifecycleState);
-                    app.ShouldEqual(application);
-                    st.ShouldEqual(state);
-                    stateType.ShouldEqual(state.GetType());
-                    metadata.ShouldEqual(DefaultMetadata);
-                }
-            });
-            application.Start(state, DefaultMetadata);
-            states.Count.ShouldEqual(2);
-            states[0].ShouldEqual(ApplicationLifecycleState.Starting);
-            states[1].ShouldEqual(ApplicationLifecycleState.Started);
-        }
-
         #endregion
     }
 }

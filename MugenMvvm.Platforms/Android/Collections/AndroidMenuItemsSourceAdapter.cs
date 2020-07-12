@@ -6,7 +6,7 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class AndroidMenuItemsSourceAdapter : BindableCollectionAdapterBase<object?>
+    public class AndroidMenuItemsSourceAdapter : BindableCollectionAdapterBase<object?>
     {
         #region Fields
 

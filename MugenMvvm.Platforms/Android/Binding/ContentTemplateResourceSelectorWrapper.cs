@@ -27,7 +27,7 @@ namespace MugenMvvm.Android.Binding
 
         #region Implementation of interfaces
 
-        public object? SelectTemplate(object container, object item)
+        public object? SelectTemplate(object container, object? item)
         {
             var template = _selector.SelectTemplate(container, item);
             if (item is IViewModelBase viewModel)

@@ -219,7 +219,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             manager.AddComponent(new ReflectionMemberProvider());
             manager.AddComponent(TestMemberManagerComponent.Selector);
 
-            var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}, {string.Join(",", args)}]", DefaultMetadata)
+            var member = manager.TryGetMembers(typeof(TestIndexer), MemberType.Accessor, MemberFlags.All, $"[{index1}, {string.Join(" , ", args)}]", DefaultMetadata)
                 .AsList()
                 .OfType<MethodAccessorMemberInfo>()
                 .Single(info => info.ArgumentFlags.HasFlagEx(ArgumentFlags.ParamArray));

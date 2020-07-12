@@ -15,7 +15,7 @@ namespace MugenMvvm.Android.Members
 
         public static BindablePropertyDescriptor<T, IStableIdProvider?> StableIdProvider<T>(this BindableMembersDescriptor<T> _) where T : class, IListView => nameof(StableIdProvider);
 
-        public static BindablePropertyDescriptor<T, IDataTemplateSelector?> ItemTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : class, IListView => nameof(ItemTemplateSelector);
+        public static BindablePropertyDescriptor<T, object?> ItemTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : class, IListView => nameof(ItemTemplateSelector);
 
         public static BindablePropertyDescriptor<T, IEnumerable?> ItemsSource<T>(this BindableMembersDescriptor<T> _) where T : class, IListView => nameof(ItemsSource);
 
@@ -46,10 +46,10 @@ namespace MugenMvvm.Android.Members
 
 
         [BindingMember(nameof(ItemTemplateSelector))]
-        public static IDataTemplateSelector? ItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IListView =>
+        public static object? ItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IListView =>
             ItemTemplateSelector<T>(_: default).GetValue(descriptor.Target);
 
-        public static void SetItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IDataTemplateSelector? value) where T : class, IListView =>
+        public static void SetItemTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : class, IListView =>
             ItemTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);
 
 

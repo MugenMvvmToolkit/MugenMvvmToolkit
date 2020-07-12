@@ -9,7 +9,7 @@ namespace MugenMvvm.Android.Binding
     {
         #region Implementation of interfaces
 
-        public object? SelectTemplate(object container, object item)
+        public object? SelectTemplate(object container, object? item)
         {
             if (item is IViewModelBase viewModel)
                 return MugenService.ViewManager.GetOrCreateView(new AndroidViewRequest(viewModel, container, 0)).Target;
