@@ -3,7 +3,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    public interface ICollectionChangedListener : IComponent<IObservableCollection>
+    public interface ICollectionChangedListener : IComponent<IObservableCollection>//todo non generic and generic impls
     {
         void OnItemChanged<T>(IObservableCollection<T> collection, T item, int index, object? args);
 

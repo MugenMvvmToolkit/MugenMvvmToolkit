@@ -22,6 +22,7 @@ namespace MugenMvvm.Extensions
         }
 
         [return: MaybeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TItem FirstOrDefault<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TList : class, IEnumerable<TItem>
         {
@@ -30,6 +31,7 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
             where TItem : class?
             where TList : class, ICollection<TItem>
@@ -39,6 +41,7 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item == null ? 0 : 1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
             where TItem : class?
         {
@@ -47,6 +50,7 @@ namespace MugenMvvm.Extensions
             return itemOrList.Item == null ? 0 : 1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TItem, bool> isNullOrEmpty)
             where TList : class, ICollection<TItem>
         {
@@ -55,6 +59,7 @@ namespace MugenMvvm.Extensions
             return isNullOrEmpty(itemOrList.Item!) ? 0 : 1;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
             where TList : class, IList<TItem>
         {

@@ -746,7 +746,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static string[] UnescapeString(this ReadOnlySpan<char> source, char separator)
         {
-            int length = 0;
+            int length = 1;
             for (int i = 0; i < source.Length; i++)
             {
                 if (source[i] == separator)

@@ -82,12 +82,6 @@ namespace MugenMvvm.App
             OnLifecycleChanged(ApplicationLifecycleState.Initialized, state, metadata);
         }
 
-        public void Start<TState>(in TState state, IReadOnlyMetadataContext? metadata = null)
-        {
-            OnLifecycleChanged(ApplicationLifecycleState.Starting, state, metadata);
-            OnLifecycleChanged(ApplicationLifecycleState.Started, state, metadata);
-        }
-
         #endregion
     }
 }

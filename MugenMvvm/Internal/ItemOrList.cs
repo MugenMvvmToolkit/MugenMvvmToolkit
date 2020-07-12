@@ -123,6 +123,7 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Deconstruct([MaybeNull]out TItem item, [MaybeNull]out TList list)
         {
             item = Item;

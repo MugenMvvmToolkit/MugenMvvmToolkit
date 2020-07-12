@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
@@ -19,7 +20,8 @@ namespace MugenMvvm.Binding.Extensions
         #region Methods
 
         [IgnoreBindingMember]
-        public static BindableMembersTargetDescriptor<T> BindableMembers<T>(this T target) where T : class => Members.BindableMembers.For(target);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static BindableMembersTargetDescriptor<T> BindableMembers<T>(this T target) where T : class => new BindableMembersTargetDescriptor<T>(target);
 
         public static IMethodMemberInfo? TryGetMember<TTarget, TValue>(this BindableMethodDescriptor<TTarget, TValue> bindableMember, Type? type = null, MemberFlags flags = MemberFlags.All,
             IReadOnlyMetadataContext? metadata = null, IMemberManager? memberManager = null)
@@ -173,6 +175,7 @@ namespace MugenMvvm.Binding.Extensions
         }
 
         [return: MaybeNull]
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TReturn? SingleOrDefault<TReturn>(this ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> itemOrList) where TReturn : class, IMemberInfo
         {
             if (itemOrList.Count() > 1)

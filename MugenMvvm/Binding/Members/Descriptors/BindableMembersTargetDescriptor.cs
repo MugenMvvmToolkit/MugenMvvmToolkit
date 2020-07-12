@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Binding.Members.Descriptors
 {
@@ -13,6 +14,7 @@ namespace MugenMvvm.Binding.Members.Descriptors
 
         #region Constructors
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public BindableMembersTargetDescriptor(TTarget target)
         {
             Should.NotBeNull(target, nameof(target));

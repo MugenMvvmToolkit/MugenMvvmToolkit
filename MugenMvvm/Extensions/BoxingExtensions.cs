@@ -204,7 +204,8 @@ namespace MugenMvvm.Extensions
         }
 
         [return: NotNullIfNotNull("value")]
-        public static object? Box<T>([AllowNull]T value)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? Box<T>([AllowNull] T value)
         {
             if (BoxingTypeChecker<T>.IsBoxRequired)
                 return ((BoxingDelegate<T>)BoxingDelegates[typeof(T)]).Invoke(value!);

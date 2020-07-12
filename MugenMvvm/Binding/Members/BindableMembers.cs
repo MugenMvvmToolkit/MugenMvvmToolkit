@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members.Descriptors;
@@ -9,8 +10,10 @@ namespace MugenMvvm.Binding.Members
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMembersDescriptor<T> For<T>() where T : class => default;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static BindableMembersTargetDescriptor<T> For<T>(T target) where T : class => new BindableMembersTargetDescriptor<T>(target);
 
 

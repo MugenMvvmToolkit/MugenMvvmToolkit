@@ -11,7 +11,5 @@ namespace MugenMvvm.Interfaces.App
         void OnLifecycleChanged<TState>(ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
 
         void Initialize<TState>(IDeviceInfo device, in TState state, IReadOnlyMetadataContext? metadata = null);
-
-        void Start<TState>(in TState state, IReadOnlyMetadataContext? metadata = null);
     }
 }

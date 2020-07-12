@@ -8,12 +8,14 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using MugenMvvm.Components;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Internal;
 
@@ -407,7 +409,7 @@ namespace MugenMvvm.Collections
 
         #region Nested types
 
-        private sealed class WeakListener : AttachableComponentBase<IObservableCollection>, ICollectionBatchUpdateListener, ICollectionDecoratorListener
+        protected class WeakListener : AttachableComponentBase<IObservableCollection>, ICollectionBatchUpdateListener, ICollectionDecoratorListener, IHasPriority
         {
             #region Fields
 
@@ -421,6 +423,12 @@ namespace MugenMvvm.Collections
             {
                 _reference = adapter.ToWeakReference();
             }
+
+            #endregion
+
+            #region Properties
+
+            public int Priority { get; set; } = ComponentPriority.PostInitializer;
 
             #endregion
 

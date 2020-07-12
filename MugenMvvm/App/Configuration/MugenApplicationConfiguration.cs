@@ -24,12 +24,12 @@ namespace MugenMvvm.App.Configuration
 
         #region Methods
 
-        public static MugenApplicationConfiguration Get()
+        public static MugenApplicationConfiguration Configure()
         {
-            return Get(MugenService.Optional<IMugenApplication>() ?? new MugenApplication());
+            return Configure(MugenService.Optional<IMugenApplication>() ?? new MugenApplication());
         }
 
-        public static MugenApplicationConfiguration Get(IMugenApplication application)
+        public static MugenApplicationConfiguration Configure(IMugenApplication application)
         {
             return new MugenApplicationConfiguration(application);
         }
