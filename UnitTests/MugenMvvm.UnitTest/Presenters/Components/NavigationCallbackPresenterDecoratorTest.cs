@@ -45,12 +45,11 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             navigationDispatcher.Components.Add(new TestSuspendableComponent
             {
-                Suspend = (o, type, arg3) =>
+                Suspend = (o, arg3) =>
                 {
                     suspended.ShouldBeFalse();
                     suspended = true;
                     o.ShouldEqual(presenter);
-                    type.ShouldEqual(typeof(IPresenter));
                     arg3.ShouldEqual(DefaultMetadata);
                     return new ActionToken((o1, o2) => suspended = false);
                 }
@@ -92,12 +91,11 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             navigationDispatcher.Components.Add(new TestSuspendableComponent
             {
-                Suspend = (o, type, arg3) =>
+                Suspend = (o, arg3) =>
                 {
                     suspended.ShouldBeFalse();
                     suspended = true;
                     o.ShouldEqual(presenter);
-                    type.ShouldEqual(typeof(IPresenter));
                     arg3.ShouldEqual(DefaultMetadata);
                     return new ActionToken((o1, o2) => suspended = false);
                 }

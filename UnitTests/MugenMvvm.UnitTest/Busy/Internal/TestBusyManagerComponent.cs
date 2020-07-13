@@ -13,9 +13,9 @@ namespace MugenMvvm.UnitTest.Busy.Internal
     {
         #region Properties
 
-        public Func<IBusyManager, object?, Type, IReadOnlyMetadataContext?, IBusyToken?>? TryBeginBusy { get; set; }
+        public Func<IBusyManager, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryBeginBusy { get; set; }
 
-        public Func<IBusyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool>, object?, Type, Delegate, IReadOnlyMetadataContext?, IBusyToken?>? TryGetToken { get; set; }
+        public Func<IBusyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool>, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryGetToken { get; set; }
 
         public Func<IBusyManager, IReadOnlyMetadataContext?, ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>>>? TryGetTokens { get; set; }
 
@@ -25,14 +25,14 @@ namespace MugenMvvm.UnitTest.Busy.Internal
 
         #region Implementation of interfaces
 
-        IBusyToken? IBusyManagerComponent.TryBeginBusy<TRequest>(IBusyManager busyManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        IBusyToken? IBusyManagerComponent.TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
-            return TryBeginBusy?.Invoke(busyManager, request, typeof(TRequest), metadata);
+            return TryBeginBusy?.Invoke(busyManager, request, metadata);
         }
 
-        IBusyToken? IBusyManagerComponent.TryGetToken<TState>(IBusyManager busyManager, in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
+        IBusyToken? IBusyManagerComponent.TryGetToken(IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetToken?.Invoke(busyManager, (o, token, arg3) => filter((TState)o!, token, arg3), state, typeof(TState), filter, metadata);
+            return TryGetToken?.Invoke(busyManager, filter, state, metadata);
         }
 
         ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> IBusyManagerComponent.TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)

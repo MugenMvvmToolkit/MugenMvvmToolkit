@@ -11,7 +11,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IBusyToken? TryBeginBusy<TRequest>(this IBusyManagerComponent[] components, IBusyManager busyManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static IBusyToken? TryBeginBusy(this IBusyManagerComponent[] components, IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(busyManager, nameof(busyManager));
@@ -25,14 +25,14 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IBusyToken? TryGetToken<TState>(this IBusyManagerComponent[] components, IBusyManager busyManager, in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata)
+        public static IBusyToken? TryGetToken(this IBusyManagerComponent[] components, IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(filter, nameof(filter));
             Should.NotBeNull(busyManager, nameof(busyManager));
             for (var i = 0; i < components.Length; i++)
             {
-                var token = components[i].TryGetToken(busyManager, state, filter, metadata);
+                var token = components[i].TryGetToken(busyManager, filter, state, metadata);
                 if (token != null)
                     return token;
             }

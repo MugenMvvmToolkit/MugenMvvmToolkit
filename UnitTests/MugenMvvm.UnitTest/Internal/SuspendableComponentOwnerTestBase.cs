@@ -50,10 +50,9 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < componentCount; i++)
             {
                 var suspendableComponent = GetSuspendableComponent();
-                suspendableComponent.Suspend = (s, t, m) =>
+                suspendableComponent.Suspend = (s,  m) =>
                 {
                     s.ShouldEqual(this);
-                    t.ShouldEqual(typeof(SuspendableComponentOwnerTestBase<T>));
                     m.ShouldEqual(DefaultMetadata);
                     return new ActionToken((o, o1) => methodCallCount++);
                 };

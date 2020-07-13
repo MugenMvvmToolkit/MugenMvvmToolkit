@@ -86,7 +86,7 @@ namespace MugenMvvm.Commands
             this.ClearMetadata(true);
         }
 
-        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<ISuspendable>().Suspend(state, metadata);
         }

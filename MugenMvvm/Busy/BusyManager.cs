@@ -6,7 +6,6 @@ using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Busy
@@ -22,27 +21,16 @@ namespace MugenMvvm.Busy
 
         #endregion
 
-        #region Properties
-
-        public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
-
-        #endregion
-
         #region Implementation of interfaces
 
-        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
-        {
-            return GetComponents<ISuspendable>().Suspend(state, metadata);
-        }
-
-        public IBusyToken? TryBeginBusy<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IBusyToken? TryBeginBusy(object? request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IBusyManagerComponent>().TryBeginBusy(this, request, metadata);
         }
 
-        public IBusyToken? TryGetToken<TState>(in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null)
+        public IBusyToken? TryGetToken(Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IBusyManagerComponent>().TryGetToken(this, state, filter, metadata);
+            return GetComponents<IBusyManagerComponent>().TryGetToken(this, filter, state, metadata);
         }
 
         public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens(IReadOnlyMetadataContext? metadata = null)

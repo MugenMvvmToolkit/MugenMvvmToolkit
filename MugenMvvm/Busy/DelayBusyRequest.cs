@@ -1,31 +1,21 @@
-﻿using System.Runtime.InteropServices;
-using MugenMvvm.Interfaces.Busy;
-
-namespace MugenMvvm.Busy
+﻿namespace MugenMvvm.Busy
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct DelayBusyRequest
+    public class DelayBusyRequest
     {
         #region Fields
 
+        public readonly int Delay;
         public readonly object? Message;
-        public readonly int MillisecondsDelay;
 
         #endregion
 
         #region Constructors
 
-        public DelayBusyRequest(object? message, int millisecondsDelay)
+        public DelayBusyRequest(object? message, int delay)
         {
             Message = message;
-            MillisecondsDelay = millisecondsDelay;
+            Delay = delay;
         }
-
-        #endregion
-
-        #region Properties
-
-        public IBusyToken? ParentToken => Message as IBusyToken;
 
         #endregion
     }

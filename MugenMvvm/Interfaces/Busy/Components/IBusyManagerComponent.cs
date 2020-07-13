@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Busy.Components
 {
-    public interface IBusyManagerComponent : IComponent<IBusyManager>, ISuspendable
+    public interface IBusyManagerComponent : IComponent<IBusyManager>
     {
-        IBusyToken? TryBeginBusy<TRequest>(IBusyManager busyManager, in TRequest request, IReadOnlyMetadataContext? metadata);
+        IBusyToken? TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata);
 
-        IBusyToken? TryGetToken<TState>(IBusyManager busyManager, in TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata);
+        IBusyToken? TryGetToken(IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata);
 
         ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata);
     }

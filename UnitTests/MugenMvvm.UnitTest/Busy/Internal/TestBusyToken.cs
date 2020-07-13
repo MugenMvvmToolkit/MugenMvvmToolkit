@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Busy.Internal
         {
         }
 
-        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             return default;
         }

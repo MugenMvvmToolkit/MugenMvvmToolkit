@@ -7,6 +7,6 @@ namespace MugenMvvm.Interfaces.Models
     {
         bool IsSuspended { get; }
 
-        ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata);
+        ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

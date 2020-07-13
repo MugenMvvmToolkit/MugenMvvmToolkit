@@ -87,7 +87,7 @@ namespace MugenMvvm.Navigation.Components
             OnNavigated(navigationDispatcher, navigationContext);
         }
 
-        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             bool begin;
             lock (_suspendedEvents)

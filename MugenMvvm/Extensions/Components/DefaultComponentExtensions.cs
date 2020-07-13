@@ -47,7 +47,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static ActionToken Suspend<TState>(this ISuspendable[] components, in TState state, IReadOnlyMetadataContext? metadata)
+        public static ActionToken Suspend(this ISuspendable[] components, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             if (components.Length == 0)

@@ -11,15 +11,15 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         public bool IsSuspended { get; set; }
 
-        public Func<object?, Type, IReadOnlyMetadataContext?, ActionToken>? Suspend { get; set; }
+        public Func<object?, IReadOnlyMetadataContext?, ActionToken>? Suspend { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ActionToken ISuspendable.Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        ActionToken ISuspendable.Suspend(object? state, IReadOnlyMetadataContext? metadata)
         {
-            return Suspend?.Invoke(state, typeof(TState), metadata) ?? default;
+            return Suspend?.Invoke(state, metadata) ?? default;
         }
 
         #endregion

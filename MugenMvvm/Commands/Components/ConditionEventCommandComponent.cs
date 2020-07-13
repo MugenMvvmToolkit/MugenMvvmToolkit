@@ -110,7 +110,7 @@ namespace MugenMvvm.Commands.Components
             _subscriber = null;
         }
 
-        public ActionToken Suspend<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public ActionToken Suspend(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Interlocked.Increment(ref _suspendCount);
             return new ActionToken((o, _) => ((ConditionEventCommandComponent)o!).EndSuspendNotifications(), this);
