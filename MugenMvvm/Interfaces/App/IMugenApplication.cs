@@ -8,8 +8,8 @@ namespace MugenMvvm.Interfaces.App
     {
         IDeviceInfo DeviceInfo { get; }
 
-        void OnLifecycleChanged<TState>(ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null);
+        void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null);
 
-        void Initialize<TState>(IDeviceInfo device, in TState state, IReadOnlyMetadataContext? metadata = null);
+        void Initialize(IDeviceInfo device, object? state, IReadOnlyMetadataContext? metadata = null);
     }
 }

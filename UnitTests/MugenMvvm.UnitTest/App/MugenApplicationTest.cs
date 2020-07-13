@@ -43,12 +43,11 @@ namespace MugenMvvm.UnitTest.App
             {
                 var component = new TestApplicationLifecycleDispatcherComponent
                 {
-                    OnLifecycleChanged = (app, viewModelLifecycleState, st, stateType, metadata) =>
+                    OnLifecycleChanged = (app, viewModelLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
                         app.ShouldEqual(manager);
                         st.ShouldEqual(state);
-                        stateType.ShouldEqual(state.GetType());
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
@@ -70,12 +69,11 @@ namespace MugenMvvm.UnitTest.App
             var application = new MugenApplication();
             application.AddComponent(new TestApplicationLifecycleDispatcherComponent
             {
-                OnLifecycleChanged = (app, viewModelLifecycleState, st, stateType, metadata) =>
+                OnLifecycleChanged = (app, viewModelLifecycleState, st, metadata) =>
                 {
                     states.Add(viewModelLifecycleState);
                     app.ShouldEqual(application);
                     st.ShouldEqual(state);
-                    stateType.ShouldEqual(state.GetType());
                     metadata.ShouldEqual(DefaultMetadata);
                 }
             });

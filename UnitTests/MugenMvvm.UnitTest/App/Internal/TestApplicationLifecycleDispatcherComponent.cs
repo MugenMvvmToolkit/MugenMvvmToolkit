@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.App.Internal
     {
         #region Properties
 
-        public Action<IMugenApplication, ApplicationLifecycleState, object?, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
+        public Action<IMugenApplication, ApplicationLifecycleState, object?, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.App.Internal
 
         #region Implementation of interfaces
 
-        void IApplicationLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IMugenApplication application, ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IApplicationLifecycleDispatcherComponent.OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            OnLifecycleChanged?.Invoke(application, lifecycleState, state, typeof(TState), metadata);
+            OnLifecycleChanged?.Invoke(application, lifecycleState, state, metadata);
         }
 
         #endregion

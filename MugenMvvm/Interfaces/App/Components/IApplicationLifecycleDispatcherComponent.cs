@@ -6,6 +6,6 @@ namespace MugenMvvm.Interfaces.App.Components
 {
     public interface IApplicationLifecycleDispatcherComponent : IComponent<IMugenApplication>
     {
-        void OnLifecycleChanged<TState>(IMugenApplication application, ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata);
+        void OnLifecycleChanged(IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -69,12 +69,12 @@ namespace MugenMvvm.App
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(ApplicationLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null)
         {
             Components.Get<IApplicationLifecycleDispatcherComponent>().OnLifecycleChanged(this, lifecycleState, state, metadata);
         }
 
-        public void Initialize<TState>(IDeviceInfo device, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public void Initialize(IDeviceInfo device, object? state, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(device, nameof(device));
             DeviceInfo = device;

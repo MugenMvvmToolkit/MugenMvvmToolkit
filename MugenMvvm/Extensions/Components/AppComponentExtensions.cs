@@ -9,8 +9,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged<TState>(this IApplicationLifecycleDispatcherComponent[] components, IMugenApplication application, ApplicationLifecycleState lifecycleState, in TState state,
-            IReadOnlyMetadataContext? metadata)
+        public static void OnLifecycleChanged(this IApplicationLifecycleDispatcherComponent[] components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(application, nameof(application));
