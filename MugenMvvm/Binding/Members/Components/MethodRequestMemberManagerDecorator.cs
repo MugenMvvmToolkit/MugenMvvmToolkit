@@ -10,7 +10,6 @@ using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -55,11 +54,10 @@ namespace MugenMvvm.Binding.Members.Components
                 return default;
 
             var types = typesRequest.Types;
-            var result = Components.TryGetMembers(memberManager, type, memberTypes, flags, _members, metadata);
+            var iterator = Components.TryGetMembers(memberManager, type, memberTypes, flags, _members, metadata).Iterator();
             _members.Clear();
-            for (var i = 0; i < result.Count(); i++)
+            foreach (var memberInfo in iterator)
             {
-                var memberInfo = result.Get(i);
                 if (!(memberInfo is IMethodMemberInfo methodInfo))
                 {
                     _members.Add(memberInfo);
@@ -87,8 +85,8 @@ namespace MugenMvvm.Binding.Members.Components
             if (_members.Count == 0)
                 return default;
             if (_members.Count == 1)
-                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(_members[0]);
-            return _members.ToArray();
+                return ItemOrList.FromItem(_members[0]);
+            return ItemOrList.FromListToReadOnly(_members.ToArray());
         }
 
         #endregion

@@ -120,7 +120,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                     break;
                 case 2:
                     task.IsFaulted.ShouldBeTrue();
-                    task.Exception.GetBaseException().ShouldEqual(ex);
+                    task.Exception!.GetBaseException().ShouldEqual(ex);
                     break;
                 default:
                     task.IsCompleted.ShouldBeTrue();
@@ -231,7 +231,7 @@ namespace MugenMvvm.UnitTest.Views.Components
                     break;
                 case 2:
                     task.IsFaulted.ShouldBeTrue();
-                    task.Exception.GetBaseException().ShouldEqual(ex);
+                    task.Exception!.GetBaseException().ShouldEqual(ex);
                     break;
                 default:
                     task.IsCompleted.ShouldBeTrue();

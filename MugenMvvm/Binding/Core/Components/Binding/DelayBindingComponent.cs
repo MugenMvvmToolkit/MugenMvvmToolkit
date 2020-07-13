@@ -118,9 +118,9 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             return new Source(delay);
         }
 
-        private static void Callback(object state)
+        private static void Callback(object? state)
         {
-            MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler)state);
+            MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler)state!);
         }
 
         #endregion

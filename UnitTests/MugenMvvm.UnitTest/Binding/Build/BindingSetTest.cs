@@ -212,7 +212,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
-                        return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(builders);
+                        return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
                     }
 
                     return list.Single(tuple => tuple.request.Equals(o)).builder;
@@ -276,7 +276,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
-                        return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(builders);
+                        return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
                     }
 
                     return list.Single(tuple => tuple.request.Equals(o)).builder;
@@ -335,7 +335,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
-                        return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(builders);
+                        return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builders);
                     }
 
                     return list.Single(tuple => tuple.request.Equals(o)).builder;

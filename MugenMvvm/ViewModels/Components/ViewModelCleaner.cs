@@ -6,7 +6,6 @@ using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
@@ -67,9 +66,8 @@ namespace MugenMvvm.ViewModels.Components
             if (CleanupCommands)
                 DisposeCommands(viewModel);
             var viewManager = _viewManager.DefaultIfNull();
-            var views = viewManager.GetViews(viewModel, metadata);
-            for (var i = 0; i < views.Count(); i++)
-                viewManager.CleanupAsync(views.Get(i), state, default, metadata);
+            foreach (var v in viewManager.GetViews(viewModel, metadata).Iterator())
+                viewManager.CleanupAsync(v, state, default, metadata);
 
             var busyManager = viewModel.TryGetOptionalService<IBusyManager>();
             if (busyManager != null)
@@ -98,7 +96,7 @@ namespace MugenMvvm.ViewModels.Components
             {
                 if (!TypesToCommandsProperties.TryGetValue(type, out rawValue))
                 {
-                    ItemOrList<Func<object, ICommand>, List<Func<object, ICommand>>> items = default;
+                    ItemOrListEditor<Func<object, ICommand>, List<Func<object, ICommand>>> items = ItemOrListEditor.Get<Func<object, ICommand>>();
                     foreach (var p in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
                         if (typeof(ICommand).IsAssignableFrom(p.PropertyType) && p.CanRead &&
@@ -117,12 +115,11 @@ namespace MugenMvvm.ViewModels.Components
             if (rawValue == null)
                 return;
 
-            var list = ItemOrList<Func<object, ICommand>, List<Func<object, ICommand>>>.FromRawValue(rawValue);
-            for (var index = 0; index < MugenExtensions.Count(list); index++)
+            foreach (var invoker in ItemOrList.FromRawValue<Func<object, ICommand>, List<Func<object, ICommand>>>(rawValue, true).Iterator())
             {
                 try
                 {
-                    (MugenExtensions.Get(list, index).Invoke(viewModel) as IDisposable)?.Dispose();
+                    (invoker.Invoke(viewModel) as IDisposable)?.Dispose();
                 }
                 catch (Exception)
                 {

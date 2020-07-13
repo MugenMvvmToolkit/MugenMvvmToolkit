@@ -67,7 +67,7 @@ namespace MugenMvvm.Binding.Core.Components
                     bindingExpressions[i] = new BindingBuilder(_context, result.Target, result.Source, result.Parameters.GetRawValue());
                 }
 
-                return bindingExpressions;
+                return ItemOrList.FromListToReadOnly(bindingExpressions);
             }
 
             var item = parserResult.Item;
@@ -142,7 +142,7 @@ namespace MugenMvvm.Binding.Core.Components
                     if (_parametersRaw is object[] components)
                         binding.Initialize(BindingComponentExtensions.TryGetBindingComponents(components, binding!, binding, target, source, metadata), metadata);
                     else
-                        binding.Initialize(new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
+                        binding.Initialize(ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(BindingComponentExtensions.TryGetBindingComponent(_parametersRaw, binding, target, source, metadata)), metadata);
                 }
 
                 if (binding.State == BindingState.Valid)
@@ -174,11 +174,12 @@ namespace MugenMvvm.Binding.Core.Components
                     _compiledExpression = component._expressionCompiler.DefaultIfNull().Compile(sourceExpression, metadata);
                 }
 
-                ItemOrList<object, List<object>> components = default;
+                ItemOrListEditor<object, List<object>> components = ItemOrListEditor.Get<object>();
                 foreach (var componentPair in _context.BindingComponents)
                     components.Add(componentPair.Value);
 
-                _parametersRaw = components.Item ?? components.List?.ToArray();
+                var itemOrList = components.ToItemOrList();
+                _parametersRaw = itemOrList.Item ?? itemOrList.List?.ToArray();
                 _context.Clear();
             }
 
@@ -187,8 +188,8 @@ namespace MugenMvvm.Binding.Core.Components
                 if (_parametersRaw == null)
                     return default;
                 if (_parametersRaw is IReadOnlyList<IExpressionNode> parameters)
-                    return parameters.ToList();
-                return ItemOrList<IExpressionNode, IList<IExpressionNode>>.FromRawValue(_parametersRaw);
+                    return ItemOrList.FromList(iList: parameters.ToList());
+                return ItemOrList.FromRawValue<IExpressionNode, IList<IExpressionNode>>(_parametersRaw, true);
             }
 
             #endregion

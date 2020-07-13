@@ -520,7 +520,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
                     arg3.ShouldEqual(MemberFlags.All.SetInstanceOrStaticFlags(isStatic));
                     wrappedMember.Name.ShouldEqual(arg4);
                     arg6.ShouldEqual(DefaultMetadata);
-                    return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(wrappedMember);
+                    return ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(wrappedMember);
                 }
             });
             var listener = new TestWeakEventListener

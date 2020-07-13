@@ -31,10 +31,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetViews(viewManager, request, metadata);
 
-            ItemOrList<IView, List<IView>> result = default;
+            ItemOrListEditor<IView, List<IView>> result = ItemOrListEditor.Get<IView>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetViews(viewManager, request, metadata));
-            return result.Cast<IReadOnlyList<IView>>();
+            return result.ToItemOrList<IReadOnlyList<IView>>();
         }
 
         public static ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(this IViewMappingProviderComponent[] components, IViewManager viewManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
@@ -44,10 +44,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetMappings(viewManager, request, metadata);
 
-            ItemOrList<IViewMapping, List<IViewMapping>> result = default;
+            ItemOrListEditor<IViewMapping, List<IViewMapping>> result = ItemOrListEditor.Get<IViewMapping>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMappings(viewManager, request, metadata));
-            return result.Cast<IReadOnlyList<IViewMapping>>();
+            return result.ToItemOrList<IReadOnlyList<IViewMapping>>();
         }
 
         public static Task<IView>? TryInitializeAsync<TRequest>(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping,
@@ -74,10 +74,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 0)
                 return components[0].TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
 
-            ItemOrList<Task, List<Task>> result = default;
+            ItemOrListEditor<Task, List<Task>> result = ItemOrListEditor.Get<Task>();
             for (var i = 0; i < components.Length; i++)
                 result.Add(components[i].TryCleanupAsync(viewManager, view, request, cancellationToken, metadata));
-            return result.WhenAll();
+            return result.ToItemOrList().WhenAll();
         }
 
         #endregion

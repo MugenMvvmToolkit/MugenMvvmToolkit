@@ -69,7 +69,7 @@ namespace MugenMvvm.ViewModels.Components
                 return null;
 
             var id = MugenExtensions.CastGeneric<TRequest, Guid>(request);
-            object value;
+            object? value;
             lock (_viewModelsCache)
             {
                 if (!_viewModelsCache.TryGetValue(id, out value))

@@ -32,8 +32,10 @@ namespace MugenMvvm.Extensions
             return sb.ToString();
         }
 
-        private static void FlattenInternal(Exception exception, StringBuilder sb, bool includeStackTrace)
+        private static void FlattenInternal(Exception? exception, StringBuilder sb, bool includeStackTrace)
         {
+            if (exception == null)
+                return;
             if (exception is AggregateException aggregateException)
             {
                 sb.AppendLine(aggregateException.Message);
@@ -54,7 +56,7 @@ namespace MugenMvvm.Extensions
                 if (includeStackTrace)
                     sb.Append(exception.StackTrace);
 
-                if (exception is ReflectionTypeLoadException loadException)
+                if (exception is ReflectionTypeLoadException loadException && loadException.LoaderExceptions != null)
                 {
                     if (includeStackTrace)
                         sb.AppendLine();

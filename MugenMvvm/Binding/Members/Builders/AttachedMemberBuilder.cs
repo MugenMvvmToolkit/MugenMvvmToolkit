@@ -121,7 +121,7 @@ namespace MugenMvvm.Binding.Members.Builders
 
         internal static string GenerateMemberId(string prefix, Type declaringType, string name)
         {
-            return prefix + declaringType.FullName.Length.ToString(CultureInfo.InvariantCulture) + declaringType.Name + declaringType.AssemblyQualifiedName.Length.ToString(CultureInfo.InvariantCulture) + name;
+            return prefix + declaringType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + declaringType.Name + declaringType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture) + name;
         }
 
         #endregion

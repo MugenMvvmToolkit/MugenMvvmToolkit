@@ -5,7 +5,6 @@ using System.Threading;
 using MugenMvvm.Attributes;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
@@ -59,15 +58,11 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return default;
 
-            ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
-            var mediators = TryGetMediators(viewModel, request, metadata);
-            for (var i = 0; i < MugenExtensions.Count(mediators); i++)
-            {
-                var mediator = MugenExtensions.Get(mediators, i);
+            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
+            foreach (var mediator in TryGetMediators(viewModel, request, metadata).Iterator())
                 result.Add(mediator.TryShow(view, cancellationToken, metadata));
-            }
 
-            return result.Cast<IReadOnlyList<IPresenterResult>>();
+            return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
         }
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
@@ -76,7 +71,7 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return default;
 
-            ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
+            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
             lock (_mediators)
             {
                 var dictionary = viewModel.GetMetadataOrDefault().Get(Mediators);
@@ -85,7 +80,7 @@ namespace MugenMvvm.Presenters.Components
 
                 foreach (var mediator in dictionary)
                     result.Add(mediator.Value.TryClose(cancellationToken, metadata));
-                return result.Cast<IReadOnlyList<IPresenterResult>>();
+                return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
             }
         }
 
@@ -125,17 +120,15 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel == null)
                 return default;
 
-            ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> result = default;
+            ItemOrListEditor<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> result = ItemOrListEditor.Get<IViewModelPresenterMediator>();
             lock (_mediators)
             {
                 if (_mediators.Count == 0)
                     return default;
 
                 var dictionary = viewModel.Metadata.Get(Mediators);
-                var mappings = _viewManager.DefaultIfNull().GetMappings(request, metadata);
-                for (var i = 0; i < mappings.Count(); i++)
+                foreach (var mapping in _viewManager.DefaultIfNull().GetMappings(request, metadata).Iterator())
                 {
-                    var mapping = mappings.Get(i);
                     if (dictionary == null || !dictionary.TryGetValue(mapping.Id, out var mediator))
                     {
                         mediator = GetMediator(viewModel, mapping, metadata)!;
@@ -155,7 +148,7 @@ namespace MugenMvvm.Presenters.Components
                 }
             }
 
-            return result;
+            return result.ToItemOrList();
         }
 
         private IViewModelPresenterMediator? GetMediator(IViewModelBase viewModel, IViewMapping mapping, IReadOnlyMetadataContext? metadata)
@@ -220,7 +213,7 @@ namespace MugenMvvm.Presenters.Components
 
             #region Implementation of interfaces
 
-            public int Compare(MediatorRegistration x, MediatorRegistration y) => y.Priority.CompareTo(x.Priority);
+            public int Compare([AllowNull] MediatorRegistration x, [AllowNull] MediatorRegistration y) => y!.Priority.CompareTo(x!.Priority);
 
             #endregion
         }

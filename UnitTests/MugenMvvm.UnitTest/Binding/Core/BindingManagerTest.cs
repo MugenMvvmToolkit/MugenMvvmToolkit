@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using Should;
@@ -56,7 +55,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             }
 
             var result = bindingManager.ParseBindingExpression(request, DefaultMetadata);
-            result.Count().ShouldEqual(1);
+            result.Iterator().Count.ShouldEqual(1);
             result.Item.ShouldEqual(expression);
             invokeCount.ShouldEqual(count);
         }

@@ -410,7 +410,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(MethodInvokerInstance.Method4);
             var members = new[]
             {
-                new MethodMemberInfo(memberName, typeof(MethodInvokerInstance).GetMethod(memberName), false, typeof(MethodInvokerInstance), null, null)
+                new MethodMemberInfo(memberName, typeof(MethodInvokerInstance).GetMethod(memberName)!, false, typeof(MethodInvokerInstance), null, null)
             };
             var instance = new MethodInvokerInstance();
             var ctx = new TestExpressionBuilderContext();
@@ -562,7 +562,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(MethodInvokerInstance.Method4);
             var members = new[]
             {
-                new MethodMemberInfo(memberName, typeof(MethodInvokerStatic).GetMethod(memberName), false, typeof(MethodInvokerInstance), null, null)
+                new MethodMemberInfo(memberName, typeof(MethodInvokerStatic).GetMethod(memberName)!, false, typeof(MethodInvokerInstance), null, null)
             };
             var ctx = new TestExpressionBuilderContext();
             var metadata = ctx.Metadata;

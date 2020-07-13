@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Core.Components
                 _cache[s] = value;
             }
 
-            return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(value);
+            return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(value, true);
         }
 
         #endregion

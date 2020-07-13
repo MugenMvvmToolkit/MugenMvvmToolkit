@@ -73,27 +73,27 @@ namespace MugenMvvm.Extensions
             object? target, IReadOnlyCollection<MetadataContextValue>? values = null)
         {
             return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextManager
-                       .DefaultIfNull()
-                       .GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values)));
+                .DefaultIfNull()
+                .GetMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values)));
         }
 
         public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextManager? metadataContextManager = null)
         {
             if (metadata is IMetadataContext m)
                 return m;
-            return metadataContextManager.DefaultIfNull().GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(metadata));
+            return metadataContextManager.DefaultIfNull().GetMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(metadata));
         }
 
         public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<MetadataContextValue>? values)
         {
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            return metadataContextManager.GetReadOnlyMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
+            return metadataContextManager.GetReadOnlyMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
         }
 
         public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<MetadataContextValue>? values)
         {
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            return metadataContextManager.GetMetadataContext(target, new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
+            return metadataContextManager.GetMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
         }
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)
@@ -121,14 +121,14 @@ namespace MugenMvvm.Extensions
             where T : Delegate?
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Combine(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Combine(currentValue, value)!);
         }
 
         public static void RemoveHandler<T>(this IMetadataContext metadata, IMetadataContextKey<T, T> key, T handler)
             where T : Delegate?
         {
             Should.NotBeNull(metadata, nameof(metadata));
-            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Remove(currentValue, value));
+            metadata.AddOrUpdate(key, handler, (object?)null, (item, value, currentValue, _) => (T)Delegate.Remove(currentValue, value)!);
         }
 
         public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false)] out T value)
@@ -144,7 +144,7 @@ namespace MugenMvvm.Extensions
         }
 
         [return: MaybeNull, NotNullIfNotNull("defaultValue")]
-        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull]T defaultValue)
+        public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key, [AllowNull] T defaultValue)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             metadataContext.TryGet(key, out var value, defaultValue);

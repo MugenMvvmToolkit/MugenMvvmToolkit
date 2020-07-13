@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Navigation;
@@ -28,10 +28,9 @@ namespace MugenMvvm.Extensions
             {
                 if (type != null && entry.NavigationType != type || !(entry.Target is IViewModelBase viewModel))
                     return null;
-                var views = MugenService.ViewManager.GetViews(viewModel, m);
-                for (var i = 0; i < views.Count(); i++)
+                foreach (var t in MugenService.ViewManager.GetViews(viewModel, m).Iterator())
                 {
-                    if (views.Get(i).Target is TView view)
+                    if (t.Target is TView view)
                         return view;
                 }
 
@@ -99,7 +98,7 @@ namespace MugenMvvm.Extensions
             {
                 var tuple =
                     (Tuple<INavigationContext, INavigationDispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool>, Action<INavigationDispatcher, INavigationContext, Exception?, TState>?,
-                        CancellationToken, TState>)st;
+                        CancellationToken, TState>)st!;
                 InvokeCompletedCallback(task, tuple.Item1, tuple.Item6, tuple.Item2, tuple.Item3, tuple.Item4, tuple.Item5);
             }, Tuple.Create(context, dispatcher, completeNavigationCallback, fallback, cancellationToken, state), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -126,20 +125,17 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
-            var entries = dispatcher.GetNavigationEntries(metadata);
-            ItemOrList<Task, List<Task>> tasks = default;
-            for (var i = 0; i < entries.Count(); i++)
+            ItemOrListEditor<Task, List<Task>> tasks = ItemOrListEditor.Get<Task>();
+            foreach (var t in dispatcher.GetNavigationEntries(metadata).Iterator())
             {
-                var callbacks = dispatcher.GetNavigationCallbacks(entries.Get(i), metadata);
-                for (var j = 0; j < callbacks.Count(); j++)
+                foreach (var callback in dispatcher.GetNavigationCallbacks(t, metadata).Iterator())
                 {
-                    var callback = callbacks.Get(j);
                     if (filter(callback, state))
                         tasks.Add(callback.AsTask());
                 }
             }
 
-            return tasks.WhenAll();
+            return tasks.ToItemOrList().WhenAll();
         }
 
         public static Task<INavigationContext> AsTask(this INavigationCallback callback)
@@ -166,7 +162,7 @@ namespace MugenMvvm.Extensions
                 if (task.IsFaulted)
                 {
                     fallback?.Invoke(dispatcher, navigationContext, task.Exception, state);
-                    dispatcher.OnNavigationFailed(navigationContext, task.Exception);
+                    dispatcher.OnNavigationFailed(navigationContext, task.Exception!);
                     return;
                 }
 

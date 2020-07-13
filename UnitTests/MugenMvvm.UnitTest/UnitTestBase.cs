@@ -111,7 +111,7 @@ namespace MugenMvvm.UnitTest
             Exception exception = aggregateException;
             while (aggregateException != null)
             {
-                exception = aggregateException.InnerException;
+                exception = aggregateException.InnerException!;
                 aggregateException = (exception as AggregateException)!;
             }
 

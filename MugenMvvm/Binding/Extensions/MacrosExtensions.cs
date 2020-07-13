@@ -89,7 +89,7 @@ namespace MugenMvvm.Binding.Extensions
             {
                 if (type.Name == typeName)
                     return true;
-                type = type.BaseType;
+                type = type.BaseType!;
             }
 
             return false;

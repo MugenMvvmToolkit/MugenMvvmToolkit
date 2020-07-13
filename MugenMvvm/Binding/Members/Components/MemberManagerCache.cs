@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache[cacheKey] = members;
             }
 
-            return ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>.FromRawValue(members);
+            return ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(members, true);
         }
 
         #endregion
@@ -89,16 +89,16 @@ namespace MugenMvvm.Binding.Members.Components
         {
             if (!TypeChecker.IsValueType<TState>() && state is Type type)
             {
-                ItemOrList<CacheKey, List<CacheKey>> keys = default;
+                ItemOrListEditor<CacheKey, List<CacheKey>> keys = ItemOrListEditor.Get<CacheKey>(key => key.Type == null);
                 foreach (var pair in _cache)
                 {
                     if (pair.Key.Type == type)
-                        keys.Add(pair.Key, key => key.Type == null);
+                        keys.Add(pair.Key);
                 }
 
-                var count = keys.Count(key => key.Type == null);
+                var count = keys.Count;
                 for (var i = 0; i < count; i++)
-                    _cache.Remove(keys.Get(i));
+                    _cache.Remove(keys[i]);
             }
             else
                 _cache.Clear();

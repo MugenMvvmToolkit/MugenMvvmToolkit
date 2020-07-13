@@ -38,7 +38,7 @@ namespace MugenMvvm.Binding.Build.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             if (typeof(TExpression) == typeof(BindingBuilderRequest))
             {
@@ -49,7 +49,7 @@ namespace MugenMvvm.Binding.Build.Components
                     _cache[request.OriginalDelegate] = value;
                 }
 
-                return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(value);
+                return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(value, true);
             }
 
             return Components.TryParseBindingExpression(bindingManager, expression, metadata);

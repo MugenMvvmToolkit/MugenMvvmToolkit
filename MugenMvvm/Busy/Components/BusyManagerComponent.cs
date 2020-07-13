@@ -207,9 +207,9 @@ namespace MugenMvvm.Busy.Components
                     {
                         if (!IsCompleted)
                         {
-                            var list = GetListeners();
-                            list.Add(callback);
-                            _listeners = list.GetRawValue();
+                            var editor = GetListeners().Editor();
+                            editor.Add(callback);
+                            _listeners = editor.GetRawValue();
 
                             if (IsSuspended)
                                 callback.OnSuspendChanged(true);
@@ -242,8 +242,9 @@ namespace MugenMvvm.Busy.Components
                     _listeners = this;
                 }
 
-                for (var i = 0; i < listeners.Count(); i++)
-                    listeners.Get(i).OnCompleted(this);
+                foreach (var t in listeners.Iterator())
+                    t.OnCompleted(this);
+
                 Owner.OnBusyInfoChanged();
             }
 
@@ -283,7 +284,7 @@ namespace MugenMvvm.Busy.Components
 
             public ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> GetTokens()
             {
-                ItemOrList<IBusyToken, List<IBusyToken>> tokens = default;
+                ItemOrListEditor<IBusyToken, List<IBusyToken>> tokens = ItemOrListEditor.Get<IBusyToken>();
                 lock (Locker)
                 {
                     var token = Owner._busyTail;
@@ -294,7 +295,7 @@ namespace MugenMvvm.Busy.Components
                     }
                 }
 
-                return tokens.Cast<IReadOnlyList<IBusyToken>>();
+                return tokens.ToItemOrList<IReadOnlyList<IBusyToken>>();
             }
 
             public bool SetSuspended(bool suspended)
@@ -380,9 +381,8 @@ namespace MugenMvvm.Busy.Components
                 var changed = oldValue != IsSuspended;
                 if (changed)
                 {
-                    var listeners = GetListeners();
-                    for (var i = 0; i < listeners.Count(); i++)
-                        listeners.Get(i)?.OnSuspendChanged(suspended);
+                    foreach (var t in GetListeners().Iterator())
+                        t?.OnSuspendChanged(suspended);
                 }
 
                 return changed;
@@ -392,7 +392,7 @@ namespace MugenMvvm.Busy.Components
             {
                 lock (Locker)
                 {
-                    var list = GetListeners();
+                    var list = GetListeners().Editor();
                     list.Remove(callback);
                     _listeners = list.GetRawValue();
                 }
@@ -402,7 +402,7 @@ namespace MugenMvvm.Busy.Components
             {
                 if (IsCompleted)
                     return default;
-                return ItemOrList<IBusyTokenCallback, List<IBusyTokenCallback>>.FromRawValue(_listeners);
+                return ItemOrList.FromRawValue<IBusyTokenCallback, List<IBusyTokenCallback>>(_listeners, true);
             }
 
             #endregion

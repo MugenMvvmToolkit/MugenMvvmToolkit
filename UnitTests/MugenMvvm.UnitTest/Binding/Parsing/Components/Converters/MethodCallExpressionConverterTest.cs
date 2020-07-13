@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         public void TryConvertShouldConvertMethod()
         {
             var target = new TestConverterClass();
-            var method = target.GetType().GetMethod(nameof(target.Method));
+            var method = target.GetType().GetMethod(nameof(target.Method))!;
             var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant(target);
             var argExp = Expression.Constant(null);
@@ -55,7 +55,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         [Fact]
         public void TryConvertShouldConvertMethodStatic()
         {
-            var method = typeof(TestConverterClass).GetMethod(nameof(TestConverterClass.MethodStatic));
+            var method = typeof(TestConverterClass).GetMethod(nameof(TestConverterClass.MethodStatic))!;
             var ctx = new ExpressionConverterContext<Expression>();
             var argExp = Expression.Constant(null);
             var expectedResult = new MethodCallExpressionNode(ConstantExpressionNode.Get<TestConverterClass>(), method.Name, new[]
@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         public void TryConvertShouldConvertTargetResourceMethod()
         {
             var target = new TestConverterClass();
-            var method = target.GetType().GetMethod(nameof(target.Method));
+            var method = target.GetType().GetMethod(nameof(target.Method))!;
             var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant(target);
             var argExp = Expression.Constant(null);
@@ -90,7 +90,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         [Fact]
         public void TryConvertShouldConvertMethodStaticExtension()
         {
-            var method = typeof(TestConverterStaticClass).GetMethod(nameof(TestConverterStaticClass.TestMethod));
+            var method = typeof(TestConverterStaticClass).GetMethod(nameof(TestConverterStaticClass.TestMethod))!;
             var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant("");
             var argExp = Expression.Constant(null);

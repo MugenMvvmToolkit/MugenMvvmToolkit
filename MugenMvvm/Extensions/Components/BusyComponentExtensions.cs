@@ -46,10 +46,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(busyManager, nameof(busyManager));
             if (components.Length == 1)
                 return components[0].TryGetTokens(busyManager, metadata);
-            ItemOrList<IBusyToken, List<IBusyToken>> result = default;
+            ItemOrListEditor<IBusyToken, List<IBusyToken>> result = ItemOrListEditor.Get<IBusyToken>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetTokens(busyManager, metadata));
-            return result.Cast<IReadOnlyList<IBusyToken>>();
+            return result.ToItemOrList<IReadOnlyList<IBusyToken>>();
         }
 
         public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)

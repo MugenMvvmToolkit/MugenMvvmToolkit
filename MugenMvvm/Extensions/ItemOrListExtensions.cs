@@ -12,6 +12,30 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class, IEnumerable<TItem>
+        {
+            return (object?)itemOrList.Item ?? itemOrList.List;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? GetRawValue<TItem, TList>(this ItemOrListEditor<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class, IList<TItem>
+        {
+            return itemOrList.GetRawValueInternal();
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class?
+            where TList : class, IEnumerable<TItem>
+        {
+            return itemOrList.Item == null && itemOrList.List == null;
+        }
+
         public static Task WhenAll<TList>(this ItemOrList<Task, TList> itemOrList) where TList : class, IEnumerable<Task>
         {
             if (itemOrList.Item != null)
@@ -32,286 +56,99 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, ICollection<TItem>
+        public static ReadOnlyListIterator<TItem, TList> Iterator<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
+            where TItem : class
+            where TList : class, IReadOnlyList<TItem>
         {
             if (itemOrList.List != null)
-                return itemOrList.List.Count;
-            return itemOrList.Item == null ? 0 : 1;
+                return new ReadOnlyListIterator<TItem, TList>(itemOrList.List.Count, null, itemOrList.List);
+            return itemOrList.Item == null ? default : new ReadOnlyListIterator<TItem, TList>(1, itemOrList.Item, null);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Count<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
-            where TItem : class?
+        public static ReadOnlyListIterator<TItem, TList> Iterator<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TItem, bool> isEmpty)
+            where TList : class, IReadOnlyList<TItem>
         {
+            Should.NotBeNull(isEmpty, nameof(isEmpty));
             if (itemOrList.List != null)
-                return itemOrList.List.Length;
-            return itemOrList.Item == null ? 0 : 1;
+                return new ReadOnlyListIterator<TItem, TList>(itemOrList.List.Count, default, itemOrList.List);
+            return isEmpty(itemOrList.Item!) ? default : new ReadOnlyListIterator<TItem, TList>(1, itemOrList.Item, null);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static int Count<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TItem, bool> isNullOrEmpty)
-            where TList : class, ICollection<TItem>
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List.Count;
-            return isNullOrEmpty(itemOrList.Item!) ? 0 : 1;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static TItem Get<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, int index)
-            where TList : class, IList<TItem>
-        {
-            if (itemOrList.List != null)
-                return itemOrList.List[index];
-
-            if (index == 0)
-                return itemOrList.Item!;
-
-            ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-            return default;
-        }
-
-        public static void Set<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item, int index)
-            where TList : class, IList<TItem>
-        {
-            if (itemOrList.List != null)
-            {
-                itemOrList.List[index] = item;
-                return;
-            }
-
-            if (index == 0)
-                itemOrList = item!;
-            else
-                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-        }
-
-        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, TItem? item)
+        public static ListIterator<TItem, IList<TItem>> Iterator<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
             where TItem : class
         {
-            itemOrList!.Add(item, i => i == null);
+            if (itemOrList.List != null)
+                return new ListIterator<TItem, IList<TItem>>(itemOrList.List.Count, null, itemOrList.List);
+            return itemOrList.Item == null ? default : new ListIterator<TItem, IList<TItem>>(1, itemOrList.Item, null);
         }
 
-        public static void Add<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, [AllowNull] TItem item, Func<TItem, bool> isNullOrEmpty)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ListIterator<TItem, IList<TItem>> Iterator<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, Func<TItem, bool> isEmpty)
         {
-            itemOrList.Add(item, isNullOrEmpty, () => new List<TItem>());
+            Should.NotBeNull(isEmpty, nameof(isEmpty));
+            if (itemOrList.List != null)
+                return new ListIterator<TItem, IList<TItem>>(itemOrList.List.Count, default, itemOrList.List);
+            return isEmpty(itemOrList.Item!) ? default : new ListIterator<TItem, IList<TItem>>(1, itemOrList.Item, null);
         }
 
-        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, TItem? item)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ListIterator<TItem, List<TItem>> Iterator<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
             where TItem : class
         {
-            itemOrList!.Add(item, i => i == null);
-        }
-
-        public static void Add<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, [AllowNull] TItem item, Func<TItem, bool> isNullOrEmpty)
-        {
-            itemOrList.Add(item, isNullOrEmpty, () => new List<TItem>());
-        }
-
-        public static void Add<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, [AllowNull] TItem item, Func<TItem, bool> isNullOrEmpty, Func<TList> getNewList)
-            where TList : class, ICollection<TItem>
-        {
-            if (isNullOrEmpty(item!))
-                return;
             if (itemOrList.List != null)
-                itemOrList.List.Add(item!);
-            else if (isNullOrEmpty(itemOrList.Item!))
-                itemOrList = item!;
-            else
-            {
-                var list = getNewList();
-                list.Add(itemOrList.Item!);
-                list.Add(item!);
-                itemOrList = list;
-            }
-        }
-
-        public static void AddRange<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value)
-            where TItem : class?
-        {
-            itemOrList.AddRange(value, item => item == null, () => new List<TItem>());
-        }
-
-        public static void AddRange<TItem>(this ref ItemOrList<TItem, IList<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value, Func<TItem, bool> isNullOrEmpty)
-        {
-            itemOrList.AddRange(value, isNullOrEmpty, () => new List<TItem>());
-        }
-
-        public static void AddRange<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value)
-            where TItem : class?
-        {
-            itemOrList.AddRange(value, item => item == null, () => new List<TItem>());
-        }
-
-        public static void AddRange<TItem>(this ref ItemOrList<TItem, List<TItem>> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value, Func<TItem, bool> isNullOrEmpty)
-        {
-            itemOrList.AddRange(value, isNullOrEmpty, () => new List<TItem>());
-        }
-
-        public static void AddRange<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, ItemOrList<TItem, IReadOnlyList<TItem>> value, Func<TItem, bool> isNullOrEmpty, Func<TList> getNewList)
-            where TList : class, ICollection<TItem>
-        {
-            if (isNullOrEmpty(value.Item!) && value.List == null)
-                return;
-
-            var items = itemOrList.List;
-            if (items == null)
-            {
-                if (isNullOrEmpty(itemOrList.Item!))
-                {
-                    if (value.List == null)
-                        itemOrList = value.Item!;
-                    else
-                    {
-                        items = getNewList();
-                        items.AddRange(value.List);
-                        itemOrList = items;
-                    }
-
-                    return;
-                }
-
-                items = getNewList();
-                items.Add(itemOrList.Item!);
-            }
-
-            if (value.List == null)
-                items.Add(value.Item!);
-            else
-                items.AddRange(value.List);
-
-            itemOrList = items;
-        }
-
-        public static bool Remove<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, TItem item)
-            where TList : class, ICollection<TItem>
-        {
-            if (itemOrList.List != null)
-            {
-                itemOrList.List.Remove(item);
-                itemOrList = itemOrList.List;
-                return true;
-            }
-
-            if (EqualityComparer<TItem>.Default.Equals(itemOrList.Item!, item))
-            {
-                itemOrList = default;
-                return true;
-            }
-
-            return false;
-        }
-
-        public static void RemoveAt<TItem, TList>(this ref ItemOrList<TItem, TList> itemOrList, int index)
-            where TList : class, IList<TItem>
-        {
-            if (itemOrList.List != null)
-            {
-                itemOrList.List.RemoveAt(index);
-                itemOrList = itemOrList.List;
-                return;
-            }
-
-            if (index == 0)
-                itemOrList = default;
-            else
-                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
-        }
-
-        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return itemOrList.ToArray(item => item == null);
-        }
-
-        public static TItem[] ToArray<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TItem, bool> isNullOrEmpty)
-            where TList : class, IEnumerable<TItem>
-        {
-            var list = itemOrList.List;
-            if (list != null)
-                return list.ToArray();
-
-            if (isNullOrEmpty(itemOrList.Item!))
-                return Default.Array<TItem>();
-            return new[] { itemOrList.Item! };
-        }
-
-        public static List<TItem> ToList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return itemOrList.ToList(item => item == null);
-        }
-
-        public static List<TItem> ToList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList, Func<TItem, bool> isNullOrEmpty)
-            where TList : class, IEnumerable<TItem>
-        {
-            var list = itemOrList.List;
-            if (list != null)
-                return list.ToList();
-
-            if (isNullOrEmpty(itemOrList.Item!))
-                return new List<TItem>();
-            return new List<TItem> { itemOrList.Item! };
+                return new ListIterator<TItem, List<TItem>>(itemOrList.List.Count, null, itemOrList.List);
+            return itemOrList.Item == null ? default : new ListIterator<TItem, List<TItem>>(1, itemOrList.Item, null);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static object? GetRawValue<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
+        public static ListIterator<TItem, List<TItem>> Iterator<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, Func<TItem, bool> isEmpty)
         {
-            return (object?)itemOrList.Item ?? itemOrList.List;
+            Should.NotBeNull(isEmpty, nameof(isEmpty));
+            if (itemOrList.List != null)
+                return new ListIterator<TItem, List<TItem>>(itemOrList.List.Count, default, itemOrList.List);
+            return isEmpty(itemOrList.Item!) ? default : new ListIterator<TItem, List<TItem>>(1, itemOrList.Item, null);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool IsNullOrEmpty<TItem, TList>(this ItemOrList<TItem, TList> itemOrList)
-            where TItem : class?
-            where TList : class, IEnumerable<TItem>
-        {
-            return itemOrList.Item == null && itemOrList.List == null;
-        }
-
-        public static IList<T> AsList<T>(this ItemOrList<T, IList<T>> itemOrList) where T : class?
-        {
-            return itemOrList.AsList(arg => arg == null);
-        }
-
-        public static IList<T> AsList<T>(this ItemOrList<T, IList<T>> itemOrList, Func<T, bool> isNullOrEmpty)
-        {
-            return itemOrList.AsList(isNullOrEmpty, () => Default.Array<T>(), arg => new[] { arg });
-        }
-
-        public static IReadOnlyList<T> AsList<T>(this ItemOrList<T, IReadOnlyList<T>> itemOrList) where T : class?
-        {
-            return itemOrList.AsList(arg => arg == null);
-        }
-
-        public static IReadOnlyList<T> AsList<T>(this ItemOrList<T, IReadOnlyList<T>> itemOrList, Func<T, bool> isNullOrEmpty)
-        {
-            return itemOrList.AsList(isNullOrEmpty, () => Default.Array<T>(), arg => new[] { arg });
-        }
-
-        public static T[] AsList<T>(this ItemOrList<T, T[]> itemOrList, Func<T, bool> isNullOrEmpty)
-        {
-            return itemOrList.AsList(isNullOrEmpty, () => Default.Array<T>(), arg => new[] { arg });
-        }
-
-        public static T[] AsList<T>(this ItemOrList<T, T[]> itemOrList) where T : class?
-        {
-            return itemOrList.AsList(arg => arg == null);
-        }
-
-        public static TList AsList<T, TList>(this ItemOrList<T, TList> itemOrList, Func<T, bool> isNullOrEmpty, Func<TList> getDefaultList, Func<T, TList> getItemList)
-            where TList : class, IEnumerable<T>
+        public static ArrayIterator<TItem> Iterator<TItem>(this ItemOrList<TItem, TItem[]> itemOrList)
+            where TItem : class
         {
             if (itemOrList.List != null)
-                return itemOrList.List;
-            if (isNullOrEmpty(itemOrList.Item!))
-                return getDefaultList();
-            return getItemList(itemOrList.Item!);
+                return new ArrayIterator<TItem>(itemOrList.List.Length, null, itemOrList.List);
+            return itemOrList.Item == null ? default : new ArrayIterator<TItem>(1, itemOrList.Item, null);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ArrayIterator<TItem> Iterator<TItem>(this ItemOrList<TItem, TItem[]> itemOrList, Func<TItem, bool> isEmpty)
+        {
+            Should.NotBeNull(isEmpty, nameof(isEmpty));
+            if (itemOrList.List != null)
+                return new ArrayIterator<TItem>(itemOrList.List.Length, default, itemOrList.List);
+            return isEmpty(itemOrList.Item!) ? default : new ArrayIterator<TItem>(1, itemOrList.Item, null);
+        }
+
+        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList)
+            where TItem : class
+        {
+            return itemOrList.Editor(item => item == null);
+        }
+
+        public static ItemOrListEditor<TItem, IList<TItem>> Editor<TItem>(this ItemOrList<TItem, IList<TItem>> itemOrList, Func<TItem, bool> isEmpty)
+        {
+            return new ItemOrListEditor<TItem, IList<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
+        }
+
+        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList)
+            where TItem : class
+        {
+            return itemOrList.Editor(item => item == null);
+        }
+
+        public static ItemOrListEditor<TItem, List<TItem>> Editor<TItem>(this ItemOrList<TItem, List<TItem>> itemOrList, Func<TItem, bool> isEmpty)
+        {
+            return new ItemOrListEditor<TItem, List<TItem>>(itemOrList.Item, itemOrList.List, isEmpty, () => new List<TItem>());
         }
 
         #endregion

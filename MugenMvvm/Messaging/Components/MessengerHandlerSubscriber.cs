@@ -92,35 +92,35 @@ namespace MugenMvvm.Messaging.Components
 
         public ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrList<MessengerHandler, List<MessengerHandler>> result = default;
-            ItemOrList<HandlerSubscriber, List<HandlerSubscriber>> toRemove = default;
+            var result = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
+            var toRemove = ItemOrListEditor.Get<HandlerSubscriber>(subscriber => subscriber.Subscriber == null);
             lock (this)
             {
                 if (Count == 0)
-                    return null;
+                    return default;
 
                 foreach (var handler in this)
                 {
                     var subscriber = handler.GetSubscriber();
                     if (subscriber == null)
                     {
-                        toRemove.Add(handler, h => h.Subscriber == null);
+                        toRemove.Add(handler);
                         continue;
                     }
 
                     var action = GetHandler(_reflectionManager, subscriber.GetType(), messageType);
                     if (action != null)
-                        result.Add(new MessengerHandler(HandlerDelegate, handler.Subscriber, handler.ExecutionMode, action), h => h.IsEmpty);
+                        result.Add(new MessengerHandler(HandlerDelegate, handler.Subscriber, handler.ExecutionMode, action));
                     if (subscriber is IMessengerHandlerRaw handlerRaw && handlerRaw.CanHandle(messageType))
-                        result.Add(new MessengerHandler(HandlerRawDelegate, handler.Subscriber, handler.ExecutionMode), h => h.IsEmpty);
+                        result.Add(new MessengerHandler(HandlerRawDelegate, handler.Subscriber, handler.ExecutionMode));
                 }
             }
 
-            var count = toRemove.Count(h => h.Subscriber == null);
+            var count = toRemove.Count;
             for (var i = 0; i < count; i++)
-                messenger.TryUnsubscribe(toRemove.Get(i), metadata);
+                messenger.TryUnsubscribe(toRemove[i], metadata);
 
-            return result.Cast<IReadOnlyList<MessengerHandler>>();
+            return result.ToItemOrList<IReadOnlyList<MessengerHandler>>();
         }
 
         public ItemOrList<MessengerSubscriberInfo, IReadOnlyList<MessengerSubscriberInfo>> TryGetSubscribers(IMessenger messenger, IReadOnlyMetadataContext? metadata)
@@ -128,14 +128,14 @@ namespace MugenMvvm.Messaging.Components
             lock (this)
             {
                 if (Count == 0)
-                    return null;
+                    return default;
                 if (Count == 1)
                 {
                     var subscriber = this.FirstOrDefault();
                     return new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode);
                 }
 
-                return this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode));
+                return ItemOrList.FromListToReadOnly(this.ToArray(subscriber => new MessengerSubscriberInfo(subscriber.Subscriber, subscriber.ExecutionMode)));
             }
         }
 

@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(nameof(Event2))]
         public void ConstructorShouldInitializeMember(string eventName)
         {
-            var eventInfo = GetType().GetEvent(eventName);
+            var eventInfo = GetType().GetEvent(eventName)!;
             eventInfo.ShouldNotBeNull();
             var name = eventName + "t";
             var testEventListener = new TestWeakEventListener();

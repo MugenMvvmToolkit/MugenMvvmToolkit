@@ -398,9 +398,9 @@ namespace MugenMvvm.UnitTest.Collections
             var itr = ((IEnumerable)_dictionary).GetEnumerator();
             while (itr.MoveNext())
             {
-                var o = itr.Current;
+                var o = itr.Current!;
                 typeof(KeyValuePair<string, object>).ShouldEqual(o.GetType(), "Current should return a type of KeyValuePair");
-                var entry = (KeyValuePair<string, object>)itr.Current;
+                var entry = (KeyValuePair<string, object>)itr.Current!;
             }
 
             "value4".ShouldEqual(_dictionary["key4"].ToString(), "");
@@ -439,7 +439,7 @@ namespace MugenMvvm.UnitTest.Collections
             4.ShouldEqual(i, "fail1: foreach entry failed!");
 
             i = 0;
-            foreach (KeyValuePair<string, object> entry in (IEnumerable)_dictionary)
+            foreach (var entry in (IEnumerable)_dictionary)
                 i++;
             4.ShouldEqual(i, "fail2: foreach entry failed!");
         }
@@ -469,7 +469,7 @@ namespace MugenMvvm.UnitTest.Collections
             _dictionary["foo"] = "bar";
             IEnumerator<KeyValuePair<string, object>> enumerator = _dictionary.GetEnumerator();
             enumerator.MoveNext().ShouldBeTrue("#1");
-            typeof(KeyValuePair<string, object>).ShouldEqual(((IEnumerator)enumerator).Current.GetType(), "#2");
+            typeof(KeyValuePair<string, object>).ShouldEqual(((IEnumerator)enumerator).Current!.GetType(), "#2");
             typeof(KeyValuePair<string, object>).ShouldEqual(((object)enumerator.Current).GetType(), "#5");
         }
 
@@ -638,7 +638,7 @@ namespace MugenMvvm.UnitTest.Collections
                 return Value + _b;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 if (!(obj is MyClass))
                     return false;
@@ -674,7 +674,7 @@ namespace MugenMvvm.UnitTest.Collections
                 return Name.GetHashCode() ^ RollNo;
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
                 var myt = obj as MyTest;
                 return myt!.Name.Equals(Name) &&

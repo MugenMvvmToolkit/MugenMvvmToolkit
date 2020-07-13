@@ -112,7 +112,9 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         public ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>> GetListeners()
         {
-            return ItemOrList<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>>.FromRawValue(_listeners);
+            if (IsDisposed)
+                return default;
+            return ItemOrList.FromRawValue<IMemberPathObserverListener, IReadOnlyList<IMemberPathObserverListener>>(_listeners, true);
         }
 
         public abstract MemberPathMembers GetMembers(IReadOnlyMetadataContext? metadata = null);
@@ -239,7 +241,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             }
             else if (MugenExtensions.Remove(ref items, listener))
             {
-                _listeners = items;
+                _listeners = items.Length == 0 ? null : items;
                 return true;
             }
 

@@ -2,7 +2,6 @@
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Components;
@@ -51,7 +50,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
             }
 
             var result = memberManager.TryGetMembers(type, memberType, memberFlags, request, DefaultMetadata);
-            result.Count().ShouldEqual(1);
+            result.Iterator().Count.ShouldEqual(1);
             result.Item.ShouldEqual(member);
             invokeCount.ShouldEqual(count);
         }

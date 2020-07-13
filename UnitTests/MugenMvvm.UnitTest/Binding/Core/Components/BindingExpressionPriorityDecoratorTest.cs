@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(decorator);
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (_, o, type, arg3) => ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result)
+                TryParseBindingExpression = (_, o, type, arg3) => ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(result)
             });
 
             var bindingExpressions = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();

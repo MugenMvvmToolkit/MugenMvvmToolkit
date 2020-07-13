@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public override string ToString()
         {
-            return Path ?? base.ToString();
+            return Path ?? base.ToString()!;
         }
 
         #endregion

@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
             {
                 ConstantExpressionNode.Get(1),
                 ConstantExpressionNode.Get(2)
-            }, new[] {typeof(int).AssemblyQualifiedName});
+            }, new[] {typeof(int).AssemblyQualifiedName!});
 
             component.TryConvert(ctx, Expression.NewArrayInit(typeof(int), arg1, arg2)).ShouldEqual(expectedResult);
         }

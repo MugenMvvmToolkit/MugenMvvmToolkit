@@ -189,7 +189,10 @@ namespace MugenMvvm.UnitTest
 
         public static TList AsList<TItem, TList>(this ItemOrList<TItem, TList> itemOrList) where TList : class, IEnumerable<TItem>
         {
-            return itemOrList.AsList(item => EqualityComparer<TItem>.Default.Equals(item, default!), () => (TList)(object)Default.Array<TItem>(), item => (TList)(object)new[] { item });
+            return (TList)(object)itemOrList
+                .Cast<IReadOnlyList<TItem>>()
+                .Iterator(item => EqualityComparer<TItem>.Default.Equals(item, default!))
+                .AsList(() => Default.Array<TItem>(), item => new[] { item });
         }
 
         #endregion
@@ -214,12 +217,12 @@ namespace MugenMvvm.UnitTest
 
             #region Implementation of interfaces
 
-            public bool Equals(IExpressionNode x, IExpressionNode y)
+            public bool Equals(IExpressionNode? x, IExpressionNode? y)
             {
                 return x.EqualsEx(y);
             }
 
-            public int GetHashCode(IExpressionNode obj)
+            public int GetHashCode(IExpressionNode? obj)
             {
                 return 0;
             }

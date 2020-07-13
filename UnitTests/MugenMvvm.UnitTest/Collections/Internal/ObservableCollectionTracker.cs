@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         private static void OnAddEvent(List<TItem> items, IList newItems, int index)
         {
-            foreach (TItem newItem in newItems)
+            foreach (TItem newItem in newItems.Cast<TItem>())
             {
                 items.Insert(index, newItem);
                 index++;
@@ -107,7 +107,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
             items[oldIndex]!.ShouldEqual(oldItems[0]);
             items.RemoveAt(oldIndex);
-            items.Insert(newIndex, (TItem) oldItems[0]);
+            items.Insert(newIndex, (TItem) oldItems[0]!);
         }
 
         private static void OnReplaceEvent(List<TItem> items, IList oldItems, IList newItems, int index)
@@ -115,7 +115,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             if (oldItems.Count > 1 || newItems.Count > 1)
                 throw new NotSupportedException();
             items[index]!.ShouldEqual(oldItems[0]);
-            items[index] = (TItem) newItems[0];
+            items[index] = (TItem) newItems[0]!;
         }
 
         private void OnReset<T>(List<TItem> items, IEnumerable<T> resetItems)

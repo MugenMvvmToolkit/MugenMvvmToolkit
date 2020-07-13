@@ -30,7 +30,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(nameof(Field2))]
         public void ConstructorShouldInitializeMember(string fieldName)
         {
-            var fieldInfo = GetType().GetField(fieldName);
+            var fieldInfo = GetType().GetField(fieldName)!;
             fieldInfo.ShouldNotBeNull();
             var reflectedType = typeof(object);
             var name = fieldName + "t";
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(nameof(Field2Static))]
         public void ConstructorShouldInitializeStaticMember(string fieldName)
         {
-            var fieldInfo = GetType().GetField(fieldName);
+            var fieldInfo = GetType().GetField(fieldName)!;
             fieldInfo.ShouldNotBeNull();
             var reflectedType = typeof(object);
             var name = fieldName + "t";

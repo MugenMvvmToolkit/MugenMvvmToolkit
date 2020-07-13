@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (!_registeredMembers.TryGetValue(name, out var members))
                 return default;
 
-            ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
+            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result = ItemOrListEditor.Get<IMemberInfo>();
             for (var index = 0; index < members.Count; index++)
             {
                 var memberInfo = members[index];
@@ -54,15 +54,15 @@ namespace MugenMvvm.Binding.Members.Components
                     result.Add(memberInfo);
             }
 
-            return result.Cast<IReadOnlyList<IMemberInfo>>();
+            return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
         }
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> GetAttachedMembers(IReadOnlyMetadataContext? metadata)
         {
-            ItemOrList<IMemberInfo, List<IMemberInfo>> members = default;
+            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> members = ItemOrListEditor.Get<IMemberInfo>();
             foreach (var keyValuePair in _registeredMembers)
-                members.AddRange(keyValuePair.Value);
-            return members.Cast<IReadOnlyList<IMemberInfo>>();
+                members.AddRange(ItemOrList.FromList(keyValuePair.Value));
+            return members.ToItemOrList<IReadOnlyList<IMemberInfo>>();
         }
 
         public void Register(IMemberInfo member, string? name = null)

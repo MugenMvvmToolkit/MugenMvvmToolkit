@@ -72,6 +72,7 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(short value)
         {
             if (value < 0)
@@ -93,6 +94,7 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(int value)
         {
             if (value < 0)
@@ -106,6 +108,7 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(ulong value)
         {
             if (value < CacheSize)
@@ -113,6 +116,7 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object Box(long value)
         {
             if (value < 0)
@@ -146,6 +150,7 @@ namespace MugenMvvm.Extensions
             return Cache<byte>.Items[value.Value];
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         public static object? Box(sbyte? value)
         {
@@ -154,6 +159,7 @@ namespace MugenMvvm.Extensions
             return Box(value.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         public static object? Box(ushort? value)
         {
@@ -162,6 +168,7 @@ namespace MugenMvvm.Extensions
             return Box(value.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         public static object? Box(short? value)
         {
@@ -179,6 +186,7 @@ namespace MugenMvvm.Extensions
             return Box(value.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         public static object? Box(int? value)
         {
@@ -187,6 +195,7 @@ namespace MugenMvvm.Extensions
             return Box(value.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         public static object? Box(ulong? value)
         {
@@ -195,6 +204,7 @@ namespace MugenMvvm.Extensions
             return Box(value.Value);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
         public static object? Box(long? value)
         {
@@ -203,8 +213,8 @@ namespace MugenMvvm.Extensions
             return Box(value.Value);
         }
 
-        [return: NotNullIfNotNull("value")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [return: NotNullIfNotNull("value")]
         public static object? Box<T>([AllowNull] T value)
         {
             if (BoxingTypeChecker<T>.IsBoxRequired)
@@ -219,11 +229,13 @@ namespace MugenMvvm.Extensions
             BoxingTypeChecker<T>.IsBoxRequired = true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanBox<T>()
         {
             return BoxingTypeChecker<T>.IsBoxRequired;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanBox(Type type)
         {
             Should.NotBeNull(type, nameof(type));

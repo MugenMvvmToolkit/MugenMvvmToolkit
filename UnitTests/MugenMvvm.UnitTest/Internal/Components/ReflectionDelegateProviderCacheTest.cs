@@ -13,8 +13,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
     {
         #region Fields
 
-        public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(GetHashCode));
-        public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0]);
+        public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(GetHashCode))!;
+        public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0])!;
 
         #endregion
 

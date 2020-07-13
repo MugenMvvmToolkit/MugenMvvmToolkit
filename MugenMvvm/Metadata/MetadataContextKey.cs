@@ -34,7 +34,7 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public bool Equals(IMetadataContextKey other)
+        public bool Equals(IMetadataContextKey? other)
         {
             return EqualsInternal(other);
         }
@@ -63,7 +63,7 @@ namespace MugenMvvm.Metadata
         {
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNullOrEmpty(fieldOrPropertyName, nameof(fieldOrPropertyName));
-            var key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName + declaredType.AssemblyQualifiedName.Length.ToString(CultureInfo.InvariantCulture);
+            var key = declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName + declaredType.AssemblyQualifiedName!.Length.ToString(CultureInfo.InvariantCulture);
             if (serializable)
             {
                 return new SerializableMetadataContextKey<TGet, TSet>(key, contextKey => StaticMemberMemento.Create(contextKey, declaredType, fieldOrPropertyName), metadata)
@@ -85,7 +85,7 @@ namespace MugenMvvm.Metadata
             Should.NotBeNull(declaredType, nameof(declaredType));
             Should.NotBeNull(fieldOrPropertyName, nameof(fieldOrPropertyName));
             if (string.IsNullOrEmpty(key))
-                key = declaredType.Name + declaredType.FullName.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
+                key = declaredType.Name + declaredType.FullName!.Length.ToString(CultureInfo.InvariantCulture) + fieldOrPropertyName;
             return Create<TGet, TSet>(key!, declaredType, fieldOrPropertyName);
         }
 
@@ -103,7 +103,7 @@ namespace MugenMvvm.Metadata
             return builder;
         }
 
-        public sealed override bool Equals(object obj)
+        public sealed override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -120,7 +120,7 @@ namespace MugenMvvm.Metadata
             return Id;
         }
 
-        protected virtual bool EqualsInternal(IMetadataContextKey other)
+        protected virtual bool EqualsInternal(IMetadataContextKey? other)
         {
             if (ReferenceEquals(other, this))
                 return true;

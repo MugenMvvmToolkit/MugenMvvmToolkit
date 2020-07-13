@@ -52,19 +52,21 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 return default;
 
             expression.Accept(this, metadata);
-            if (_members.Count == 0)
-                return Default.Array<IBindingMemberExpressionNode>();
+            if (_members.Count > 1)
+            {
+                var list = ItemOrList.FromList(_members.ToArray());
+                _members.Clear();
+                return list;
+            }
 
             if (_members.Count == 1)
             {
-                var r = new ItemOrList<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]>(_members[0]);
+                var result = ItemOrList.FromItem<IBindingMemberExpressionNode, IBindingMemberExpressionNode[]>(_members[0]);
                 _members.Clear();
-                return r;
+                return result;
             }
 
-            var expressions = _members.ToArray();
-            _members.Clear();
-            return expressions;
+            return default;
         }
 
         #endregion

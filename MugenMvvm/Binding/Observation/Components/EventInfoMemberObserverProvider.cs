@@ -70,7 +70,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
             var listenerInternal = _attachedValueManager
                 .DefaultIfNull()
-                .GetOrAdd(target ?? eventInfo.DeclaringType, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
+                .GetOrAdd(target ?? eventInfo.DeclaringType!, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private MemberObserver TryGetMemberObserver(EventInfo member)
         {
-            if (member.EventHandlerType == typeof(EventHandler) || member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager))
+            if (member.EventHandlerType == typeof(EventHandler) || (member.EventHandlerType != null && member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager)))
                 return new MemberObserver(_memberObserverHandler, member);
             return default;
         }
@@ -88,7 +88,7 @@ namespace MugenMvvm.Binding.Observation.Components
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)
-                : eventInfo.EventHandlerType.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionManager);
+                : eventInfo.EventHandlerType!.TryCreateDelegate(listenerInternal, RaiseMethod, _reflectionManager);
 
             if (handler == null)
                 return null;

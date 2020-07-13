@@ -270,7 +270,7 @@ namespace MugenMvvm.UnitTest.Threading.Components
                 State = null;
             }
 
-            public override void Post(SendOrPostCallback d, object state)
+            public override void Post(SendOrPostCallback d, object? state)
             {
                 Callback = d;
                 State = state;

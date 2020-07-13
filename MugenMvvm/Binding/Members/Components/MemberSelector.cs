@@ -69,12 +69,12 @@ namespace MugenMvvm.Binding.Members.Components
             if (_selectorDictionary.Count == 0)
                 return default;
             if (_selectorDictionary.Count == 1)
-                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(_selectorDictionary.FirstOrDefault.Value.GetBestMember());
+                return ItemOrList.FromItem(_selectorDictionary.FirstOrDefault.Value.GetBestMember());
             var result = new IMemberInfo[_selectorDictionary.Count];
             var index = 0;
             foreach (var pair in _selectorDictionary)
                 result[index++] = pair.Value.GetBestMember();
-            return result;
+            return ItemOrList.FromListToReadOnly(result);
         }
 
         #endregion

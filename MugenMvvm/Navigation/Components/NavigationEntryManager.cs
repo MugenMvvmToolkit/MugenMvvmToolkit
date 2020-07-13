@@ -97,15 +97,15 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
-            ItemOrList<INavigationEntry, List<INavigationEntry>> result = default;
+            ItemOrListEditor<INavigationEntry, List<INavigationEntry>> result = ItemOrListEditor.Get<INavigationEntry>();
             lock (_navigationEntries)
             {
 
                 foreach (var t in _navigationEntries)
-                    result.AddRange(t.Value);
+                    result.AddRange(ItemOrList.FromList(t.Value));
             }
 
-            return result.Cast<IReadOnlyList<INavigationEntry>>();
+            return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
         #endregion

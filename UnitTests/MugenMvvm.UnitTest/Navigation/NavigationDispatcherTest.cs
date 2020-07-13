@@ -228,7 +228,7 @@ namespace MugenMvvm.UnitTest.Navigation
             callbacks.Last().TrySetException(ex);
             result.IsCompleted.ShouldBeTrue();
             result.IsFaulted.ShouldBeTrue();
-            result.Exception.InnerExceptions.Contains(ex).ShouldBeTrue();
+            result.Exception!.InnerExceptions.Contains(ex).ShouldBeTrue();
             navigatingCount.ShouldEqual(0);
         }
 

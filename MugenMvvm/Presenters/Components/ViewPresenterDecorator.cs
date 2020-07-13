@@ -6,7 +6,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -59,14 +58,10 @@ namespace MugenMvvm.Presenters.Components
             var result = Components.TryShow(presenter, new ViewModelViewRequest(viewModel, view), cancellationToken, metadata);
             if (DisposeViewModelOnClose)
             {
-                for (var i = 0; i < result.Count(); i++)
+                foreach (var presenterResult in result.Iterator())
                 {
-                    var callbacks = _navigationDispatcher
-                        .DefaultIfNull()
-                        .GetNavigationCallbacks(result.Get(i), metadata);
-                    for (var j = 0; j < callbacks.Count(); j++)
+                    foreach (var callback in _navigationDispatcher.DefaultIfNull().GetNavigationCallbacks(presenterResult, metadata).Iterator())
                     {
-                        var callback = callbacks.Get(j);
                         if (callback.CallbackType == NavigationCallbackType.Close)
                         {
                             callback.AddCallback(NavigationCallbackDelegateListener.DisposeTargetCallback);

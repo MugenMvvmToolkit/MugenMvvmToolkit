@@ -70,10 +70,10 @@ namespace MugenMvvm.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetErrors(validator, memberName, metadata);
 
-            ItemOrList<object, List<object>> result = default;
+            ItemOrListEditor<object, List<object>> result = ItemOrListEditor.Get<object>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetErrors(validator, memberName, metadata));
-            return result.Cast<IReadOnlyList<object>>();
+            return result.ToItemOrList<IReadOnlyList<object>>();
         }
 
         public static IReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>? TryGetErrors(this IValidatorComponent[] components, IValidator validator, IReadOnlyMetadataContext? metadata)
@@ -99,9 +99,9 @@ namespace MugenMvvm.Extensions.Components
                         errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
 
                     errors.TryGetValue(keyValuePair.Key, out var list);
-                    var editableList = list.Cast<List<object>>();
+                    var editableList = list.Cast<List<object>>().Editor();
                     editableList.AddRange(keyValuePair.Value);
-                    errors[keyValuePair.Key] = editableList.Cast<IReadOnlyList<object>>();
+                    errors[keyValuePair.Key] = editableList.ToItemOrList<IReadOnlyList<object>>();
                 }
             }
 
@@ -116,10 +116,10 @@ namespace MugenMvvm.Extensions.Components
                 return null;
             if (components.Length == 1)
                 return components[0].TryValidateAsync(validator, memberName, cancellationToken, metadata);
-            ItemOrList<Task, List<Task>> tasks = default;
+            ItemOrListEditor<Task, List<Task>> tasks = ItemOrListEditor.Get<Task>();
             for (var i = 0; i < components.Length; i++)
                 tasks.Add(components[i].TryValidateAsync(validator, memberName, cancellationToken, metadata));
-            return tasks.WhenAll();
+            return tasks.ToItemOrList().WhenAll();
         }
 
         public static void ClearErrors(this IValidatorComponent[] components, IValidator validator, string? memberName, IReadOnlyMetadataContext? metadata)

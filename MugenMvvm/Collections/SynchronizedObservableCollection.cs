@@ -65,10 +65,10 @@ namespace MugenMvvm.Collections
 
         public bool IsReadOnly => false;
 
-        object IList.this[int index]
+        object? IList.this[int index]
         {
             get => BoxingExtensions.Box(this[index])!;
-            set => this[index] = (T)value;
+            set => this[index] = (T)value!;
         }
 
         public T this[int index]
@@ -106,38 +106,38 @@ namespace MugenMvvm.Collections
             }
         }
 
-        int IList.Add(object value)
+        int IList.Add(object? value)
         {
             lock (Locker)
             {
-                InsertInternal(GetCountInternal(), (T)value, true);
+                InsertInternal(GetCountInternal(), (T)value!, true);
                 return GetCountInternal() - 1;
             }
         }
 
-        bool IList.Contains(object value)
+        bool IList.Contains(object? value)
         {
             if (IsCompatibleObject(value))
-                return Contains((T)value);
+                return Contains((T)value!);
             return false;
         }
 
-        int IList.IndexOf(object value)
+        int IList.IndexOf(object? value)
         {
-            if (IsCompatibleObject(value))
-                return IndexOf((T)value);
+            if (IsCompatibleObject(value!))
+                return IndexOf((T)value!);
             return -1;
         }
 
-        void IList.Insert(int index, object value)
+        void IList.Insert(int index, object? value)
         {
-            Insert(index, (T)value);
+            Insert(index, (T)value!);
         }
 
-        void IList.Remove(object value)
+        void IList.Remove(object? value)
         {
-            if (IsCompatibleObject(value))
-                Remove((T)value);
+            if (IsCompatibleObject(value!))
+                Remove((T)value!);
         }
 
         public void RemoveAt(int index)
@@ -383,7 +383,7 @@ namespace MugenMvvm.Collections
             GetComponents<ICollectionChangedListener>().OnReplaced(this, oldItem, item, index);
         }
 
-        protected static bool IsCompatibleObject(object value)
+        protected static bool IsCompatibleObject(object? value)
         {
             if (value is T)
                 return true;

@@ -84,7 +84,7 @@ namespace MugenMvvm.Commands.Components
                 command.RaiseCanExecuteChanged();
                 executionTask.ContinueWith((t, o) =>
                 {
-                    var component = (DelegateExecutorCommandComponent<T>)o;
+                    var component = (DelegateExecutorCommandComponent<T>)o!;
                     var cmd = component._executingCommand;
                     component._executingCommand = null;
                     cmd?.RaiseCanExecuteChanged();

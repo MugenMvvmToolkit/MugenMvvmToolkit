@@ -30,7 +30,7 @@ namespace MugenMvvm.Threading.Components
             if (isOnMainThread)
                 _mainThreadId = Thread.CurrentThread.ManagedThreadId;
             else
-                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
         #endregion
@@ -75,25 +75,25 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                ThreadPool.QueueUserWorkItem(o => ((Action)o).Invoke(), handler);
+                ThreadPool.QueueUserWorkItem(o => ((Action)o!).Invoke(), handler);
                 return true;
             }
 
             if (handler is IThreadDispatcherHandler)
             {
-                ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler)o).Execute(), handler);
+                ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler)o!).Execute(), handler);
                 return true;
             }
 
             if (handler is Action<TState> action)
             {
-                ThreadPool.QueueUserWorkItem(action.Invoke, state);
+                ThreadPool.QueueUserWorkItem(action.Invoke!, state);
                 return true;
             }
 
             if (handler is IThreadDispatcherHandler<TState> handlerState)
             {
-                ThreadPool.QueueUserWorkItem(handlerState.Execute, state);
+                ThreadPool.QueueUserWorkItem(handlerState.Execute!, state);
                 return true;
             }
 
@@ -110,25 +110,25 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                _synchronizationContext.Post(o => ((Action)o).Invoke(), handler);
+                _synchronizationContext.Post(o => ((Action)o!).Invoke(), handler);
                 return true;
             }
 
             if (handler is IThreadDispatcherHandler)
             {
-                _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o).Execute(), handler);
+                _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o!).Execute(), handler);
                 return true;
             }
 
             if (handler is Action<TState> action)
             {
-                _synchronizationContext.Post(action.Invoke, state);
+                _synchronizationContext.Post(action.Invoke!, state);
                 return true;
             }
 
             if (handler is IThreadDispatcherHandler<TState> handlerState)
             {
-                _synchronizationContext.Post(handlerState.Execute, state);
+                _synchronizationContext.Post(handlerState.Execute!, state);
                 return true;
             }
 

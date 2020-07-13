@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
 
             var invokeCount = 0;
             var targetType = typeof(string);
-            var member = typeof(EventMemberObserverProviderTest).GetMethod(nameof(TryGetMemberObserverShouldUseEventFinder1));
+            var member = typeof(EventMemberObserverProviderTest).GetMethod(nameof(TryGetMemberObserverShouldUseEventFinder1))!;
             var result = new TestEventInfo
             {
                 TryObserve = (o, l, arg3) =>
@@ -165,7 +165,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
         public void TryGetMemberObserverShouldUseMemberManager2()
         {
             const string memberName = nameof(TryGetMemberObserverShouldUseMemberManager2);
-            var member = typeof(EventMemberObserverProviderTest).GetMethod(memberName);
+            var member = typeof(EventMemberObserverProviderTest).GetMethod(memberName)!;
             var set = new HashSet<string>();
             var flags = MemberFlags.InstanceAll;
             var target = new object();

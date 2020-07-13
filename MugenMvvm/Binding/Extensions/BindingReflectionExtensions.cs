@@ -423,7 +423,7 @@ namespace MugenMvvm.Binding.Extensions
             while (type != null)
             {
                 types.Add(type);
-                type = type.BaseType;
+                type = type.BaseType!;
             }
         }
 

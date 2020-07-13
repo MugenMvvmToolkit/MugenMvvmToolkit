@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MugenMvvm.Busy;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -39,16 +38,15 @@ namespace MugenMvvm.Extensions
             if (millisecondsDelay == 0 && message is IHasBusyDelayMessage hasBusyDelay)
                 millisecondsDelay = hasBusyDelay.Delay;
             var token = busyManager.BeginBusy(new DelayBusyRequest(message, millisecondsDelay), metadata);
-            task.ContinueWith((t, o) => ((IDisposable)o).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
+            task.ContinueWith((t, o) => ((IDisposable)o!).Dispose(), token, TaskContinuationOptions.ExecuteSynchronously);
             return task;
         }
 
         public static void ClearBusy(this IBusyManager provider)
         {
             Should.NotBeNull(provider, nameof(provider));
-            var tokens = provider.GetTokens();
-            for (var i = 0; i < tokens.Count(); i++)
-                tokens.Get(i).Dispose();
+            foreach (var t in provider.GetTokens().Iterator())
+                t.Dispose();
         }
 
         #endregion

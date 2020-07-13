@@ -152,12 +152,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions
             if (Value == null)
                 return "null";
             if (Value is bool)
-                return Value.ToString().ToLowerInvariant();
+                return Value.ToString()!.ToLowerInvariant();
             if (Value is string v)
                 return $"\"{v}\"";
             if (Value is char)
                 return $"'{Value}'";
-            return Value.ToString();
+            return Value.ToString()!;
         }
 
         #endregion

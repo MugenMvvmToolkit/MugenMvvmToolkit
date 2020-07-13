@@ -36,7 +36,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         public void TryConvertShouldConvertMember()
         {
             var target = new TestConverterClass();
-            var propertyInfo = target.GetType().GetProperty(nameof(target.Property));
+            var propertyInfo = target.GetType().GetProperty(nameof(target.Property))!;
             var ctx = new ExpressionConverterContext<Expression>();
             var targetExp = Expression.Constant(target);
 
@@ -50,7 +50,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         [Fact]
         public void TryConvertShouldConvertStaticMember()
         {
-            var propertyInfo = typeof(TestConverterClass).GetProperty(nameof(TestConverterClass.PropertyStatic));
+            var propertyInfo = typeof(TestConverterClass).GetProperty(nameof(TestConverterClass.PropertyStatic))!;
             var ctx = new ExpressionConverterContext<Expression>();
 
             var expectedResult = new MemberExpressionNode(ConstantExpressionNode.Get<TestConverterClass>(), propertyInfo.Name);
@@ -62,7 +62,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Components.Converters
         public void TryConvertShouldConvertTargetResourceMember()
         {
             var target = new TestResourceExtensionClass();
-            var propertyInfo = target.GetType().GetProperty(nameof(target.Property));
+            var propertyInfo = target.GetType().GetProperty(nameof(target.Property))!;
             var ctx = new ExpressionConverterContext<Expression>();
             var component = new MemberExpressionConverter();
             var expressionNode = component.TryConvert(ctx, Expression.Property(Expression.Constant(target), propertyInfo));

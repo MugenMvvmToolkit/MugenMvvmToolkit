@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             var expressions = Components.TryParseBindingExpression(bindingManager, expression, metadata);
             var list = expressions.List;
@@ -63,15 +63,15 @@ namespace MugenMvvm.Binding.Core.Components
             {
                 var result = list.ToArray();
                 Array.Sort(result, this);
-                return result;
+                return ItemOrList.FromListToReadOnly(result);
             }
 
             return expressions;
         }
 
-        int IComparer<IBindingBuilder>.Compare(IBindingBuilder x, IBindingBuilder y)
+        int IComparer<IBindingBuilder>.Compare([AllowNull] IBindingBuilder x, [AllowNull] IBindingBuilder y)
         {
-            return TryGetPriority(y).CompareTo(TryGetPriority(x));
+            return TryGetPriority(y!).CompareTo(TryGetPriority(x!));
         }
 
         #endregion

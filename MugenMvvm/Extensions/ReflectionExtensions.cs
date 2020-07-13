@@ -5,7 +5,6 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Collections.Internal;
-using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 
@@ -15,6 +14,7 @@ namespace MugenMvvm.Extensions
     {
         #region Fields
 
+        private static TypeLightDictionary<MethodInfo>? _boxMethods;
         private static Action<object, PropertyChangedEventHandler>? _unsubscribePropertyChangedDelegate;
         private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler>? _createPropertyChangedHandlerDelegate;
         private static readonly TypeLightDictionary<bool> HasClosureDictionary = new TypeLightDictionary<bool>(47);
@@ -89,14 +89,14 @@ namespace MugenMvvm.Extensions
             return method;
         }
 
-        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object, TArg> invokeAction,
+        public static IWeakEventHandler<TArg> CreateWeakEventHandler<TTarget, TArg>(TTarget target, Action<TTarget, object?, TArg> invokeAction,
             Action<object, IWeakEventHandler<TArg>>? unsubscribeAction = null)
             where TTarget : class
         {
             return new WeakEventHandler<TTarget, TArg, object>(target, invokeAction, unsubscribeAction);
         }
 
-        public static TResult CreateWeakDelegate<TTarget, TArg, TResult>(TTarget target, Action<TTarget, object, TArg> invokeAction, Action<object, TResult>? unsubscribeAction,
+        public static TResult CreateWeakDelegate<TTarget, TArg, TResult>(TTarget target, Action<TTarget, object?, TArg> invokeAction, Action<object, TResult>? unsubscribeAction,
             Func<IWeakEventHandler<TArg>, TResult> createHandler)
             where TTarget : class
             where TResult : class
@@ -110,7 +110,7 @@ namespace MugenMvvm.Extensions
             return handler;
         }
 
-        public static PropertyChangedEventHandler MakeWeakPropertyChangedHandler<TTarget>(TTarget target, Action<TTarget, object, PropertyChangedEventArgs> invokeAction)
+        public static PropertyChangedEventHandler MakeWeakPropertyChangedHandler<TTarget>(TTarget target, Action<TTarget, object?, PropertyChangedEventArgs> invokeAction)
             where TTarget : class
         {
             if (_unsubscribePropertyChangedDelegate == null)
@@ -237,8 +237,10 @@ namespace MugenMvvm.Extensions
         }
 
         [return: NotNullIfNotNull("expression")]
-        public static Expression? ConvertIfNeed(this Expression? expression, Type type, bool exactly)
+        public static Expression? ConvertIfNeed(this Expression? expression, Type? type, bool exactly)
         {
+            if (type == null)
+                return expression;
             if (expression == null)
                 return null;
             if (type == typeof(void) || type == expression.Type)
@@ -250,13 +252,35 @@ namespace MugenMvvm.Extensions
             if (type.IsByRef && expression is ParameterExpression parameterExpression && parameterExpression.IsByRef && parameterExpression.Type == type.GetElementType())
                 return expression;
             if (type == typeof(object) && BoxingExtensions.CanBox(expression.Type))
-                return Expression.Call(null, BoxingExtensions.GenericBoxMethodInfo.MakeGenericMethod(expression.Type), expression);
+            {
+                if (_boxMethods == null)
+                {
+                    var boxMethods = new TypeLightDictionary<MethodInfo>(19);
+                    var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
+                    for (int i = 0; i < methods.Length; i++)
+                    {
+                        var method = methods[i];
+                        if (method.Name == nameof(BoxingExtensions.Box) && method.IsGenericMethod)
+                        {
+                            var parameters = method.GetParameters();
+                            if (parameters.Length == 1)
+                                boxMethods[parameters[0].ParameterType] = method;
+                        }
+                    }
+
+                    _boxMethods = boxMethods;
+                }
+
+                if (!_boxMethods.TryGetValue(expression.Type, out var m))
+                    m = BoxingExtensions.GenericBoxMethodInfo.MakeGenericMethod(expression.Type);
+                return Expression.Call(null, m, expression);
+            }
             return Expression.Convert(expression, type);
         }
 
         private static bool DefaultClosureDetector(Delegate d)
         {
-            var key = d.Target.GetType();
+            var key = d.Target!.GetType();
             lock (HasClosureDictionary)
             {
                 if (!HasClosureDictionary.TryGetValue(key, out var value))
@@ -287,7 +311,7 @@ namespace MugenMvvm.Extensions
 
         public interface IWeakEventHandler<in TArg>
         {
-            void Handle(object sender, TArg arg);
+            void Handle(object? sender, TArg arg);
         }
 
         private sealed class WeakEventHandler<TTarget, TArg, TDelegate> : IWeakEventHandler<TArg>
@@ -296,7 +320,7 @@ namespace MugenMvvm.Extensions
         {
             #region Fields
 
-            private readonly Action<TTarget, object, TArg> _invokeAction;
+            private readonly Action<TTarget, object?, TArg> _invokeAction;
             private readonly IWeakReference _targetReference;
             private readonly Delegate? _unsubscribeAction;
 
@@ -306,7 +330,7 @@ namespace MugenMvvm.Extensions
 
             #region Constructors
 
-            public WeakEventHandler(TTarget target, Action<TTarget, object, TArg> invokeAction, Delegate? unsubscribeAction)
+            public WeakEventHandler(TTarget target, Action<TTarget, object?, TArg> invokeAction, Delegate? unsubscribeAction)
             {
                 Should.NotBeNull(target, nameof(target));
                 Should.NotBeNull(invokeAction, nameof(invokeAction));
@@ -319,12 +343,12 @@ namespace MugenMvvm.Extensions
 
             #region Implementation of interfaces
 
-            public void Handle(object sender, TArg arg)
+            public void Handle(object? sender, TArg arg)
             {
                 var target = (TTarget?)_targetReference.Target;
                 if (target == null)
                 {
-                    if (_unsubscribeAction != null)
+                    if (_unsubscribeAction != null && sender != null)
                     {
                         if (_unsubscribeAction is Action<object, TDelegate> action)
                             action.Invoke(sender, HandlerDelegate!);

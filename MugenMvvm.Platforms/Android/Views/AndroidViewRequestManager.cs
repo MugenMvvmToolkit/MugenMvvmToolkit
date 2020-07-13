@@ -10,7 +10,6 @@ using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -63,11 +62,9 @@ namespace MugenMvvm.Android.Views
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
             IAndroidViewMapping? viewMapping = null;
-            var mappings = viewManager.GetMappings(viewRequest.ViewModel, metadata);
-            var count = mappings.Count();
-            for (var i = 0; i < count; i++)
+            foreach (var t in viewManager.GetMappings(viewRequest.ViewModel, metadata).Iterator())
             {
-                if (mappings.Get(i) is IAndroidViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
+                if (t is IAndroidViewMapping m && (viewRequest.ResourceId == 0 || m.ResourceId == viewRequest.ResourceId))
                 {
                     viewMapping = m;
                     break;
@@ -98,12 +95,10 @@ namespace MugenMvvm.Android.Views
             if (viewRequest.ResourceId == 0)
                 return result;
 
-            var count = result.Count();
-            for (var i = 0; i < count; i++)
+            foreach (var view in result.Iterator())
             {
-                var view = result.Get(i);
                 if (view.Mapping is IAndroidViewMapping mapping && mapping.ResourceId == viewRequest.ResourceId)
-                    return new ItemOrList<IView, IReadOnlyList<IView>>(view);
+                    return ItemOrList.FromItem(view);
             }
 
             return default;

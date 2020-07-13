@@ -31,7 +31,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         {
             var reflectedType = typeof(string);
             string name = "Test";
-            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method1));
+            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method1))!;
             MethodMemberInfo? memberInfo = null;
 
             var testEventListener = new TestWeakEventListener();
@@ -91,9 +91,9 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void ConstructorShouldInitializeMember2()
         {
-            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method2));
+            var methodInfo = typeof(MethodMemberInfoTest).GetMethod(nameof(Method2))!;
 
-            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, false, methodInfo.ReflectedType, null, null);
+            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, false, methodInfo.ReflectedType!, null, null);
             memberInfo.Name.ShouldEqual(methodInfo.Name);
             memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
             memberInfo.DeclaringType.ShouldEqual(methodInfo.DeclaringType);
@@ -123,7 +123,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         {
             var methodInfo = typeof(Enumerable).GetMethods().FirstOrDefault(info => info.Name == nameof(Enumerable.FirstOrDefault) && info.GetParameters().Length == 1);
 
-            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, true, methodInfo.ReflectedType, null, null);
+            var memberInfo = new MethodMemberInfo(methodInfo.Name, methodInfo, true, methodInfo.ReflectedType!, null, null);
             memberInfo.Name.ShouldEqual(methodInfo.Name);
             memberInfo.Type.ShouldEqual(methodInfo.ReturnType);
             memberInfo.DeclaringType.ShouldEqual(methodInfo.GetParameters()[0].ParameterType);

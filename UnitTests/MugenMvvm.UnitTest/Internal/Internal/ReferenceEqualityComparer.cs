@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace MugenMvvm.UnitTest.Internal.Internal
 {
-    public class ReferenceEqualityComparer : IEqualityComparer<object>
+    public class ReferenceEqualityComparer : IEqualityComparer<object?>
     {
         #region Fields
 
@@ -26,12 +26,12 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of IEqualityComparer<in object>
 
-        bool IEqualityComparer<object>.Equals(object x, object y)
+        bool IEqualityComparer<object?>.Equals(object? x, object? y)
         {
             return ReferenceEquals(x, y);
         }
 
-        int IEqualityComparer<object>.GetHashCode(object obj)
+        int IEqualityComparer<object?>.GetHashCode(object? obj)
         {
             if (obj == null)
                 return 0;

@@ -92,10 +92,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messenger, nameof(messenger));
             if (components.Length == 1)
                 return components[0].TryGetSubscribers(messenger, metadata);
-            ItemOrList<MessengerSubscriberInfo, List<MessengerSubscriberInfo>> subscribers = default;
+            ItemOrListEditor<MessengerSubscriberInfo, List<MessengerSubscriberInfo>> subscribers = ItemOrListEditor.Get<MessengerSubscriberInfo>(info => info.IsEmpty);
             for (var i = 0; i < components.Length; i++)
-                subscribers.AddRange(components[i].TryGetSubscribers(messenger, metadata), info => info.IsEmpty);
-            return subscribers.Cast<IReadOnlyList<MessengerSubscriberInfo>>();
+                subscribers.AddRange(components[i].TryGetSubscribers(messenger, metadata));
+            return subscribers.ToItemOrList<IReadOnlyList<MessengerSubscriberInfo>>();
         }
 
         public static ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(this IMessengerSubscriberComponent[] components, IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
@@ -105,10 +105,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(messageType, nameof(messageType));
             if (components.Length == 1)
                 return components[0].TryGetMessengerHandlers(messenger, messageType, metadata);
-            ItemOrList<MessengerHandler, List<MessengerHandler>> handlers = default;
+            ItemOrListEditor<MessengerHandler, List<MessengerHandler>> handlers = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
             for (var i = 0; i < components.Length; i++)
-                handlers.AddRange(components[i].TryGetMessengerHandlers(messenger, messageType, metadata), handler => handler.IsEmpty);
-            return handlers.Cast<IReadOnlyList<MessengerHandler>>();
+                handlers.AddRange(components[i].TryGetMessengerHandlers(messenger, messageType, metadata));
+            return handlers.ToItemOrList<IReadOnlyList<MessengerHandler>>();
         }
 
         #endregion

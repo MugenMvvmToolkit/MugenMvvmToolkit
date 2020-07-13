@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -56,7 +57,9 @@ namespace MugenMvvm.Navigation
         {
             lock (this)
             {
-                return ItemOrList<INavigationCallbackListener, IReadOnlyList<INavigationCallbackListener>>.FromRawValue(_callbacks);
+                if (_callbacks is IReadOnlyList<INavigationCallbackListener> callbacks)
+                    return ItemOrList.FromListToReadOnly(callbacks.ToArray());
+                return ItemOrList.FromItem((INavigationCallbackListener)_callbacks!);
             }
         }
 
@@ -69,9 +72,9 @@ namespace MugenMvvm.Navigation
                 {
                     if (!IsCompleted)
                     {
-                        var list = GetCallbacksRaw();
-                        list.Add(callback);
-                        _callbacks = list.GetRawValue();
+                        var editor = GetCallbacksRaw().Editor();
+                        editor.Add(callback);
+                        _callbacks = editor.GetRawValue();
                         return;
                     }
                 }
@@ -84,7 +87,7 @@ namespace MugenMvvm.Navigation
         {
             lock (this)
             {
-                var list = GetCallbacksRaw();
+                var list = GetCallbacksRaw().Editor();
                 list.Remove(callback);
                 _callbacks = list.GetRawValue();
             }
@@ -150,8 +153,8 @@ namespace MugenMvvm.Navigation
 
             if (completed)
             {
-                for (var i = 0; i < callbacks.Count(); i++)
-                    InvokeCallback(callbacks.Get(i));
+                foreach (var listener in callbacks.Iterator())
+                    InvokeCallback(listener);
                 return true;
             }
 
@@ -178,7 +181,7 @@ namespace MugenMvvm.Navigation
 
         private ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>> GetCallbacksRaw()
         {
-            return ItemOrList<INavigationCallbackListener, List<INavigationCallbackListener>>.FromRawValue(_callbacks);
+            return ItemOrList.FromRawValue<INavigationCallbackListener, List<INavigationCallbackListener>>(_callbacks, true);
         }
 
         #endregion

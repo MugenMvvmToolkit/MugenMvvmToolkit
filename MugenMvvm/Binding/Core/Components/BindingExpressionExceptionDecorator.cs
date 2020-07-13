@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Core.Components
                     var expressions = new IBindingBuilder[items.Count];
                     for (var i = 0; i < expressions.Length; i++)
                         expressions[i] = ExceptionWrapperBindingBuilder.Wrap(items[i]);
-                    return expressions;
+                    return ItemOrList.FromListToReadOnly(expressions);
                 }
 
                 BindingExceptionManager.ThrowCannotParseExpression(expression);

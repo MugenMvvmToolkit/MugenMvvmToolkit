@@ -178,7 +178,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
         [Fact]
         public void MetadataShouldReturnBindingAndMultiBinding()
         {
-            var binding = new MultiBinding(EmptyPathObserver.Empty, ItemOrList<object?, object?[]>.FromRawValue(null), new TestCompiledExpression());
+            var binding = new MultiBinding(EmptyPathObserver.Empty, ItemOrList.FromRawValue<object?, object?[]>(null), new TestCompiledExpression());
             var context = (IReadOnlyMetadataContext)binding;
             context.Count.ShouldEqual(2);
             context.Contains(BindingMetadata.Binding).ShouldBeTrue();

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -53,15 +54,15 @@ namespace MugenMvvm.Components
 
         #region Implementation of interfaces
 
-        int IComparer<IComponentCollectionDecorator>.Compare(IComponentCollectionDecorator x, IComponentCollectionDecorator y)
+        int IComparer<IComponentCollectionDecorator>.Compare([AllowNull] IComponentCollectionDecorator x, [AllowNull] IComponentCollectionDecorator y)
         {
-            var result = MugenExtensions.GetComponentPriority(x, this).CompareTo(MugenExtensions.GetComponentPriority(y, this));
+            var result = MugenExtensions.GetComponentPriority(x!, this).CompareTo(MugenExtensions.GetComponentPriority(y!, this));
             if (result == 0)
             {
                 lock (_items)
                 {
-                    var xIndex = _items.IndexOf(x);
-                    var yIndex = _items.IndexOf(y);
+                    var xIndex = _items.IndexOf(x!);
+                    var yIndex = _items.IndexOf(y!);
                     return yIndex.CompareTo(xIndex);
                 }
             }
@@ -69,9 +70,9 @@ namespace MugenMvvm.Components
             return result;
         }
 
-        int IComparer<object>.Compare(object x, object y)
+        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y)
         {
-            return MugenExtensions.GetComponentPriority(y, Owner).CompareTo(MugenExtensions.GetComponentPriority(x, Owner));
+            return MugenExtensions.GetComponentPriority(y!, Owner).CompareTo(MugenExtensions.GetComponentPriority(x!, Owner));
         }
 
         public bool Add(object component, IReadOnlyMetadataContext? metadata = null)

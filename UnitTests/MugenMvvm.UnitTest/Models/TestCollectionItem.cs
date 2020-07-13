@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 
 namespace MugenMvvm.UnitTest.Models
@@ -49,7 +50,7 @@ namespace MugenMvvm.UnitTest.Models
         {
             #region Implementation of interfaces
 
-            public bool Equals(TestCollectionItem x, TestCollectionItem y)
+            public bool Equals([AllowNull] TestCollectionItem x, [AllowNull] TestCollectionItem y)
             {
                 if (ReferenceEquals(x, y)) return true;
                 if (ReferenceEquals(x, null)) return false;
@@ -58,9 +59,9 @@ namespace MugenMvvm.UnitTest.Models
                 return x.Id == y.Id;
             }
 
-            public int GetHashCode(TestCollectionItem obj)
+            public int GetHashCode([AllowNull]TestCollectionItem obj)
             {
-                return obj.Id;
+                return obj!.Id;
             }
 
             #endregion

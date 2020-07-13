@@ -86,14 +86,14 @@ namespace MugenMvvm.Validation.Components
 
                 if (string.IsNullOrEmpty(memberName))
                 {
-                    ItemOrList<object, List<object>> errors = default;
+                    ItemOrListEditor<object, List<object>> errors = ItemOrListEditor.Get<object>();
                     foreach (var error in _errors)
-                        errors.AddRange(ItemOrList<object, IReadOnlyList<object>>.FromRawValue(error.Value));
-                    return errors.Cast<IReadOnlyList<object>>();
+                        errors.AddRange(ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value, true));
+                    return errors.ToItemOrList<IReadOnlyList<object>>();
                 }
 
                 if (_errors.TryGetValue(memberName!, out var value))
-                    return ItemOrList<object, IReadOnlyList<object>>.FromRawValue(value);
+                    return ItemOrList.FromRawValue<object, IReadOnlyList<object>>(value, true);
             }
 
             return default;
@@ -107,7 +107,7 @@ namespace MugenMvvm.Validation.Components
                     return Default.ReadOnlyDictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
                 var errors = new Dictionary<string, ItemOrList<object, IReadOnlyList<object>>>();
                 foreach (var error in _errors)
-                    errors[error.Key] = ItemOrList<object, IReadOnlyList<object>>.FromRawValue(error.Value);
+                    errors[error.Key] = ItemOrList.FromRawValue<object, IReadOnlyList<object>>(error.Value, true);
                 return errors;
             }
         }
@@ -149,16 +149,16 @@ namespace MugenMvvm.Validation.Components
                 return;
             if (string.IsNullOrEmpty(memberName))
             {
-                ItemOrList<string, List<string>> keys = default;
+                ItemOrListEditor<string, List<string>> keys = ItemOrListEditor.Get<string>();
                 lock (_errors)
                 {
                     foreach (var error in _errors)
                         keys.Add(error.Key);
                 }
 
-                var count = keys.Count();
+                var count = keys.Count;
                 for (var index = 0; index < count; index++)
-                    UpdateErrors(keys.Get(index), default, true, metadata);
+                    UpdateErrors(keys[index], default, true, metadata);
             }
             else
                 UpdateErrors(memberName!, default, true, metadata);
@@ -213,7 +213,7 @@ namespace MugenMvvm.Validation.Components
                 .AsTask()
                 .ContinueWith((t, state) =>
                 {
-                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state;
+                    var tuple = (Tuple<ValidatorComponentBase<TTarget>, string>)state!;
                     tuple.Item1.OnValidationCompleted(tuple.Item2, t.Result);
                 }, Tuple.Create(this, memberName), cancellationToken, TaskContinuationOptions.ExecuteSynchronously, TaskScheduler.Current);
         }

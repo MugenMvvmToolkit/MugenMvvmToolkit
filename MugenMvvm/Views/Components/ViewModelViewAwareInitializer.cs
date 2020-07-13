@@ -126,9 +126,8 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            var list = ItemOrList<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>.FromRawValue(delegates);
-            for (var i = 0; i < list.Count(); i++)
-                list.Get(i).Invoke(this, view, clear, metadata);
+            foreach (var t in ItemOrList.FromRawValue<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>, List<Action<ViewModelViewAwareInitializer, IView, bool, IReadOnlyMetadataContext?>>>(delegates, true).Iterator())
+                t.Invoke(this, view, clear, metadata);
         }
 
         private void TryUpdateViewModel(object view, IViewModelBase? viewModel)
@@ -144,14 +143,13 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            var list = ItemOrList<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>, List<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>>.FromRawValue(delegates);
-            for (var i = 0; i < list.Count(); i++)
-                list.Get(i).Invoke(this, view, viewModel);
+            foreach (var t in ItemOrList.FromRawValue<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>, List<Action<ViewModelViewAwareInitializer, object, IViewModelBase?>>>(delegates, true).Iterator())
+                t.Invoke(this, view, viewModel);
         }
 
         private ItemOrList<TInvoker, List<TInvoker>> GetDelegates<TInvoker>(Type targetType, Type interfaceType, string propertyName, MethodInfo method) where TInvoker : Delegate
         {
-            ItemOrList<TInvoker, List<TInvoker>> result = default;
+            ItemOrListEditor<TInvoker, List<TInvoker>> result = ItemOrListEditor.Get<TInvoker>();
             var interfaces = targetType.GetInterfaces();
             for (var index = 0; index < interfaces.Length; index++)
             {
@@ -166,7 +164,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            return result;
+            return result.ToItemOrList();
         }
 
         #endregion

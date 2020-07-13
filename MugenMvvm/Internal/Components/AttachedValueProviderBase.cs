@@ -19,7 +19,7 @@ namespace MugenMvvm.Internal.Components
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
             if (dictionary == null)
-                return Default.Array<KeyValuePair<string, object?>>();
+                return default;
             lock (dictionary)
             {
                 if (predicate == null)
@@ -28,17 +28,17 @@ namespace MugenMvvm.Internal.Components
                         return default;
                     if (dictionary.Count == 1)
                         return dictionary.FirstOrDefault;
-                    return new List<KeyValuePair<string, object?>>(dictionary);
+                    return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
                 }
 
-                ItemOrList<KeyValuePair<string, object?>, List<KeyValuePair<string, object?>>> result = default;
+                ItemOrListEditor<KeyValuePair<string, object?>, List<KeyValuePair<string, object?>>> result = ItemOrListEditor.Get<KeyValuePair<string, object?>>(pair => pair.Key == null);
                 foreach (var keyValue in dictionary)
                 {
                     if (predicate(item, keyValue, state))
-                        result.Add(keyValue, pair => pair.Key == null);
+                        result.Add(keyValue);
                 }
 
-                return result.Cast<IReadOnlyList<KeyValuePair<string, object?>>>();
+                return result.ToItemOrList<IReadOnlyList<KeyValuePair<string, object?>>>();
             }
         }
 

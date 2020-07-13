@@ -1,8 +1,8 @@
 ﻿using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
@@ -23,19 +23,11 @@ namespace MugenMvvm.Views.Components
         public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (view is IView)
-            {
-                Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
-                return;
-            }
-
-            var list = Owner.GetViews(view, metadata);
-            var count = list.Count();
-            if (count == 0)
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
             else
             {
-                for (var i = 0; i < count; i++)
-                    Components.OnLifecycleChanged(viewManager, list.Get(i), lifecycleState, state, metadata);
+                foreach (var v in Owner.GetViews(view, metadata).Iterator())
+                    Components.OnLifecycleChanged(viewManager, v, lifecycleState, state, metadata);
             }
         }
 

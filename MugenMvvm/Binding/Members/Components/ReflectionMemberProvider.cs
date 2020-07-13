@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Members.Components
             var hasProperty = !memberTypes.HasFlagEx(MemberType.Accessor);
             var hasField = hasProperty;
             var hasEvent = !memberTypes.HasFlagEx(MemberType.Event);
-            ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
+            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result = ItemOrListEditor.Get<IMemberInfo>();
             var types = MugenBindingExtensions.SelfAndBaseTypes(type, types: _types);
             foreach (var t in types)
             {
@@ -83,14 +83,14 @@ namespace MugenMvvm.Binding.Members.Components
                 }
             }
 
-            return result.Cast<IReadOnlyList<IMemberInfo>>();
+            return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
         }
 
         #endregion
 
         #region Methods
 
-        private bool AddEvents(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result, IReadOnlyMetadataContext? metadata)
+        private bool AddEvents(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result, IReadOnlyMetadataContext? metadata)
         {
             var eventInfo = t.GetEvent(name, BindingFlagsEx.All);
             if (eventInfo == null)
@@ -104,7 +104,7 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        private bool AddFields(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result)
+        private static bool AddFields(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result)
         {
             var field = t.GetField(name, BindingFlagsEx.All);
             if (field == null)
@@ -114,7 +114,7 @@ namespace MugenMvvm.Binding.Members.Components
             return true;
         }
 
-        private bool AddProperties(Type requestedType, Type t, string name, ref ItemOrList<IMemberInfo, List<IMemberInfo>> result)
+        private static bool AddProperties(Type requestedType, Type t, string name, ref ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result)
         {
             var property = t.GetProperty(name, BindingFlagsEx.All);
             if (property == null)

@@ -337,22 +337,22 @@ namespace MugenMvvm.Collections
             {
                 case NotifyCollectionChangedAction.Add:
                     if (e.NewItems.Count == 1)
-                        OnAdded((T)e.NewItems[0], e.NewStartingIndex);
+                        OnAdded((T)e.NewItems[0]!, e.NewStartingIndex);
                     else
                     {
                         for (var i = 0; i < e.NewItems.Count; i++)
-                            OnAdded((T)e.NewItems[i], e.NewStartingIndex + i);
+                            OnAdded((T)e.NewItems[i]!, e.NewStartingIndex + i);
                     }
 
                     break;
                 case NotifyCollectionChangedAction.Move:
-                    OnMoved((T)e.OldItems[0], e.OldStartingIndex, e.NewStartingIndex);
+                    OnMoved((T)e.OldItems[0]!, e.OldStartingIndex, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    OnRemoved((T)e.OldItems[0], e.OldStartingIndex);
+                    OnRemoved((T)e.OldItems[0]!, e.OldStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Replace:
-                    OnReplaced((T)e.OldItems[0], (T)e.NewItems[0], e.NewStartingIndex);
+                    OnReplaced((T)e.OldItems[0]!, (T)e.NewItems[0]!, e.NewStartingIndex);
                     break;
                 case NotifyCollectionChangedAction.Reset:
                     OnCleared();

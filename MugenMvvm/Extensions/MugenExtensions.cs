@@ -323,7 +323,7 @@ namespace MugenMvvm.Extensions
                         tcs.TrySetCanceled();
                         break;
                     case TaskStatus.Faulted:
-                        tcs.TrySetException(task.Exception.InnerExceptions);
+                        tcs.TrySetException(task.Exception!.InnerExceptions);
                         break;
                     case TaskStatus.RanToCompletion:
                         var t = task as Task<TResult>;
@@ -332,7 +332,7 @@ namespace MugenMvvm.Extensions
                 }
             }
             else
-                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o).TrySetFromTask(t), tcs, continuationOptions);
+                task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -377,7 +377,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task, TState>>)o;
+                var tuple = (Tuple<TState, Action<Task, TState>>)o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }
@@ -401,7 +401,7 @@ namespace MugenMvvm.Extensions
 
             return task.ContinueWith((t, o) =>
             {
-                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o;
+                var tuple = (Tuple<TState, Action<Task<T>, TState>>)o!;
                 tuple.Item2(t, tuple.Item1);
             }, Tuple.Create(state, execute), TaskContinuationOptions.ExecuteSynchronously);
         }

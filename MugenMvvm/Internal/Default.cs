@@ -75,7 +75,7 @@ namespace MugenMvvm.Internal
             return TypeCache<T1, T2, T3, T4, T5>.Types;
         }
 
-        public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>()
+        public static ReadOnlyDictionary<TKey, TValue> ReadOnlyDictionary<TKey, TValue>() where TKey : notnull
         {
             return EmptyDictionaryImpl<TKey, TValue>.Instance;
         }
@@ -212,7 +212,7 @@ namespace MugenMvvm.Internal
             #endregion
         }
 
-        private static class EmptyDictionaryImpl<TKey, TValue>
+        private static class EmptyDictionaryImpl<TKey, TValue> where TKey : notnull
         {
             #region Fields
 

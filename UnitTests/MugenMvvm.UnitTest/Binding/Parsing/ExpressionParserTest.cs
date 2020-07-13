@@ -346,14 +346,14 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                     {
                         new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Equality, new ParameterExpressionNode("x"), ConstantExpressionNode.Get("test", typeof(string))),
                             new IParameterExpressionNode[] {new ParameterExpressionNode("x")})
-                    }, new[] { typeof(string).AssemblyQualifiedName }), "Aggregate",
+                    }, new[] { typeof(string).AssemblyQualifiedName! }), "Aggregate",
                 new IExpressionNode[]
                 {
                     new MemberExpressionNode(null, nameof(StringProperty)),
                     new LambdaExpressionNode(new BinaryExpressionNode(BinaryTokenType.Addition, new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")),
                         new IParameterExpressionNode[] {new ParameterExpressionNode("s1"), new ParameterExpressionNode("s2")}),
                     new LambdaExpressionNode(new MemberExpressionNode(new ParameterExpressionNode("s1"), "Length"), new IParameterExpressionNode[] {new ParameterExpressionNode("s1")})
-                }, new[] { typeof(string).AssemblyQualifiedName, typeof(string).AssemblyQualifiedName, typeof(int).AssemblyQualifiedName });
+                }, new[] { typeof(string).AssemblyQualifiedName!, typeof(string).AssemblyQualifiedName!, typeof(int).AssemblyQualifiedName! });
             ValidateExpression<ExpressionParserTest, ExpressionParserTest>(nameof(Test), test => test.Test,
                 test => ((string[])test.Test!).Where(x => x == "test").Aggregate(test.StringProperty, (s1, s2) => s1 + s2, s1 => s1!.Length), expectedResult, count, parameterCount);
         }

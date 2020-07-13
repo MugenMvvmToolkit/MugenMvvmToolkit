@@ -5,7 +5,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -38,9 +37,8 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(name, nameof(name));
             for (var i = 0; i < components.Length; i++)
             {
-                var members = components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata);
-                for (var j = 0; j < members.Count(); j++)
-                    result.Add(members.Get(j));
+                foreach (var member in components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata).Iterator())
+                    result.Add(member);
             }
         }
 
@@ -52,10 +50,10 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(name, nameof(name));
             if (components.Length == 1)
                 return components[0].TryGetMembers(memberManager, type, name, memberTypes, metadata);
-            ItemOrList<IMemberInfo, List<IMemberInfo>> result = default;
+            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result = ItemOrListEditor.Get<IMemberInfo>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata));
-            return result.Cast<IReadOnlyList<IMemberInfo>>();
+            return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();
         }
 
         #endregion

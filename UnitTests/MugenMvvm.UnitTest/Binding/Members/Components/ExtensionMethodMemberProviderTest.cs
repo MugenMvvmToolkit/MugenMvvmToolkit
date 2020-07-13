@@ -3,7 +3,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using Should;
 using Xunit;
 
@@ -47,7 +46,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Accessor, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
 
             var members = provider.TryGetMembers(null!, typeof(string), nameof(Enumerable.FirstOrDefault), MemberType.Method, DefaultMetadata);
-            members.Count().ShouldEqual(2);
+            members.Iterator().Count.ShouldEqual(2);
 
             var methodInfos = typeof(Enumerable)
                 .GetMethods()

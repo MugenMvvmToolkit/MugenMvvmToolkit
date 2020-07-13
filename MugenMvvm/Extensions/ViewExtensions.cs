@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
@@ -20,7 +19,7 @@ namespace MugenMvvm.Extensions
             var views = viewManager.GetViews(request, metadata);
             if (views.Item != null)
                 return views.Item;
-            if (views.Count() > 1)
+            if (views.List != null)
                 ExceptionManager.ThrowAmbiguousMappingMatchFound();
             var task = viewManager.InitializeAsync(ViewMapping.Undefined, request, default, metadata);
             return task.Result;//note it's ok here

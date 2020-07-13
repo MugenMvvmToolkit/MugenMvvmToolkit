@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             for (int i = 0; i < results.Length; i++)
             {
                 results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"), new TestBindingMemberExpressionNode("0_"),
-                    ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>.FromRawValue(ConstantExpressionNode.Get(0)));
+                    ItemOrList.FromRawValue<IExpressionNode, IReadOnlyList<IExpressionNode>>(ConstantExpressionNode.Get(0)));
             }
             var parser = new ExpressionParser();
             parser.AddComponent(new TestExpressionParserComponent
@@ -148,9 +148,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                                 return sourceObserver;
                             }
                         };
-                        var itemOrList = context.Parameters;
+                        var itemOrList = context.Parameters.Editor();
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
-                        context.Parameters = itemOrList;
+                        context.Parameters = itemOrList.ToItemOrList();
 
                         if (includeNullComponent)
                             context.BindingComponents[$"{index}null"] = null;
@@ -231,7 +231,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             for (int i = 0; i < results.Length; i++)
             {
                 results[i] = new ExpressionParserResult(new TestBindingMemberExpressionNode("0"),
-                    GetBindingSourceExpression(0, out _, out _), ItemOrList<IExpressionNode, IReadOnlyList<IExpressionNode>>.FromRawValue(ConstantExpressionNode.Get(0)));
+                    GetBindingSourceExpression(0, out _, out _), ItemOrList.FromRawValue<IExpressionNode, IReadOnlyList<IExpressionNode>>(ConstantExpressionNode.Get(0)));
             }
 
             var compiler = new ExpressionCompiler();
@@ -305,9 +305,9 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                             return sourceObserver2;
                         };
 
-                        var itemOrList = context.Parameters;
+                        var itemOrList = context.Parameters.Editor();
                         itemOrList.Add(ConstantExpressionNode.Get(index + 1));
-                        context.Parameters = itemOrList;
+                        context.Parameters = itemOrList.ToItemOrList();
 
                         if (includeNullComponent)
                             context.BindingComponents[$"{index}null"] = null;

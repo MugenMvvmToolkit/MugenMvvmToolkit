@@ -7,7 +7,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -50,12 +49,12 @@ namespace MugenMvvm.Presenters.Components
             using (SuspendNavigation(dispatcher, metadata))
             {
                 var results = Components.TryShow(presenter, request, cancellationToken, metadata);
-                if (results.Count() != 0)
+                var iterator = results.Iterator();
+                if (iterator.Count != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    for (var i = 0; i < results.Count(); i++)
+                    foreach (var result in iterator)
                     {
-                        var result = results.Get(i);
                         components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, result, metadata);
                         components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Close, result, metadata);
                     }
@@ -71,11 +70,12 @@ namespace MugenMvvm.Presenters.Components
             using (SuspendNavigation(dispatcher, metadata))
             {
                 var results = Components.TryClose(presenter, request, cancellationToken, metadata);
-                if (results.Count() != 0)
+                var iterator = results.Iterator();
+                if (iterator.Count != 0)
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
-                    for (var i = 0; i < results.Count(); i++)
-                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Closing, results.Get(i), metadata);
+                    foreach (var t in iterator)
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Closing, t, metadata);
                 }
 
                 return results;

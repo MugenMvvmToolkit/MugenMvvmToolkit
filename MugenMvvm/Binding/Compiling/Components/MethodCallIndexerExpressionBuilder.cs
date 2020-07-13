@@ -18,7 +18,6 @@ using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -315,7 +314,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                         var argType = methodInfo.GetExpectedParameterType(j);
                         var parameterType = parameters[j].ParameterType;
                         if (parameterType.IsByRef)
-                            parameterType = parameterType.GetElementType();
+                            parameterType = parameterType.GetElementType()!;
                         if (parameterType == argType)
                         {
                             ++usageCount;
@@ -388,7 +387,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         private static bool CheckParamsCompatible(int startIndex, int lastIndex, IReadOnlyList<IParameterInfo> parameters, in MethodData method, ref float notExactlyEqual)
         {
             float weight = 0;
-            var elementType = parameters[lastIndex].ParameterType.GetElementType();
+            var elementType = parameters[lastIndex].ParameterType.GetElementType()!;
             for (var i = startIndex; i < method.ExpectedParameterCount; i++)
             {
                 var argType = method.GetExpectedParameterType(i);
@@ -442,7 +441,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
                 if (i == parameters.Count - 1 && hasParams && !args[i].Type.IsCompatibleWith(parameters[i].ParameterType))
                 {
-                    var arrayType = parameters[i].ParameterType.GetElementType();
+                    var arrayType = parameters[i].ParameterType.GetElementType()!;
                     var arrayArgs = new Expression[args.Length - i];
                     for (var j = i; j < args.Length; j++)
                         arrayArgs[j - i] = args[j].ConvertIfNeed(arrayType, false);
@@ -544,13 +543,14 @@ namespace MugenMvvm.Binding.Compiling.Components
         {
             var members = _memberManager
                 .DefaultIfNull()
-                .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata);
+                .TryGetMembers(type, MemberType.Method, MemberFlags.SetInstanceOrStaticFlags(isStatic), methodName, metadata)
+                .Iterator();
 
-            var methods = new MethodData[members.Count()];
+            var methods = new MethodData[members.Count];
             var count = 0;
             for (int i = 0; i < methods.Length; i++)
             {
-                if (members.Get(i) is IMethodMemberInfo method)
+                if (members[i] is IMethodMemberInfo method)
                 {
                     var m = typeArgs == null || typeArgs.Length == 0 ? method : ApplyTypeArgs(method, typeArgs);
                     if (m != null)

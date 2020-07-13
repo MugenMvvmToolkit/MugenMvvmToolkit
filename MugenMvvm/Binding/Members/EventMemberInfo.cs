@@ -28,7 +28,7 @@ namespace MugenMvvm.Binding.Members
             _eventInfo = eventInfo;
             _observer = observer;
             Name = name;
-            Type = _eventInfo.EventHandlerType;
+            Type = _eventInfo.EventHandlerType ?? typeof(EventHandler);
             AccessModifiers = _eventInfo.GetAccessModifiers();
         }
 

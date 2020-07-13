@@ -14,8 +14,8 @@ namespace MugenMvvm.UnitTest.Internal
     {
         #region Fields
 
-        public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(CanCreateDelegateShouldReturnFalseNoComponents));
-        public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0]);
+        public static readonly MethodInfo TestMethod = typeof(ReflectionManagerTest).GetMethod(nameof(CanCreateDelegateShouldReturnFalseNoComponents))!;
+        public static readonly ConstructorInfo TestConstructor = typeof(ReflectionManagerTest).GetConstructor(new Type[0])!;
 
         #endregion
 

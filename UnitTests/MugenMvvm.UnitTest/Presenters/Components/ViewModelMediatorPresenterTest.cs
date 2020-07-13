@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             {
                 GetService = type =>
                 {
-                    var instance = (TestViewModelPresenterMediator)Activator.CreateInstance(type);
+                    var instance = (TestViewModelPresenterMediator)Activator.CreateInstance(type)!;
                     instance.Initialize = (vm, viewMapping, m) =>
                     {
                         ++initializeCount;

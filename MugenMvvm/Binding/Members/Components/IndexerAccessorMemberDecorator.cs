@@ -157,12 +157,12 @@ namespace MugenMvvm.Binding.Members.Components
             {
                 var memberInfo = _members[0];
                 _members.Clear();
-                return new ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>(memberInfo);
+                return ItemOrList.FromItem(memberInfo);
             }
 
             var result = _members.ToArray();
             _members.Clear();
-            return result;
+            return ItemOrList.FromListToReadOnly(result);
         }
 
         #endregion

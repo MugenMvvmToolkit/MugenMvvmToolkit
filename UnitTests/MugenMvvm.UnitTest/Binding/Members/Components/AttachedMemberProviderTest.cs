@@ -4,7 +4,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
@@ -47,15 +46,15 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             component.Register(member, name);
             invalidateCount.ShouldEqual(1);
 
-            var members = component.TryGetMembers(null!, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata);
-            members.Count().ShouldEqual(1);
-            members.Get(0).ShouldEqual(member);
+            var members = component.TryGetMembers(null!, requestType, name ?? memberName, MemberType.Accessor, DefaultMetadata).Iterator();
+            members.Count.ShouldEqual(1);
+            members[0].ShouldEqual(member);
 
             component.TryGetMembers(null!, requestType, name ?? memberName, MemberType.Method, DefaultMetadata).IsNullOrEmpty().ShouldBeTrue();
 
-            members = component.GetAttachedMembers(DefaultMetadata);
-            members.Count().ShouldEqual(1);
-            members.Get(0).ShouldEqual(member);
+            members = component.GetAttachedMembers(DefaultMetadata).Iterator();
+            members.Count.ShouldEqual(1);
+            members[0].ShouldEqual(member);
 
             invalidateCount = 0;
             if (clear)

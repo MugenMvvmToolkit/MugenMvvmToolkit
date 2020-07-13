@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Members
 
         public object? UnderlyingParameter => _parameterInfo;
 
-        public string Name => _parameterInfo.Name;
+        public string Name => _parameterInfo.Name ?? "";
 
         public Type ParameterType => _parameterInfo.ParameterType;
 

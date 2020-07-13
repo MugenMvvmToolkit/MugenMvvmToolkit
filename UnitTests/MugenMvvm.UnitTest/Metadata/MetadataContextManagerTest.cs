@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = DefaultMetadata;
             var contextProvider = new MetadataContextManager();
-            var items = new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
+            var items = ItemOrList.FromRawValue<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -65,7 +65,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = new MetadataContext();
             var contextProvider = new MetadataContextManager();
-            var items = new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
+            var items = ItemOrList.FromRawValue<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {

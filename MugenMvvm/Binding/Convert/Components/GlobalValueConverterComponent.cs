@@ -40,7 +40,7 @@ namespace MugenMvvm.Binding.Convert.Components
 
             if (targetType.IsEnum)
             {
-                value = Enum.Parse(targetType, value.ToString());
+                value = Enum.Parse(targetType, value.ToString()!);
                 return true;
             }
 

@@ -54,8 +54,8 @@ namespace MugenMvvm.UnitTest.Binding.Internal
             if (value is Type type)
                 return $"typeof({type.Name})";
             if (value is bool)
-                return value.ToString().ToLowerInvariant();
-            return value.ToString();
+                return value.ToString()!.ToLowerInvariant();
+            return value.ToString()!;
         }
 
         private static string ToCode(BinaryTokenType token)

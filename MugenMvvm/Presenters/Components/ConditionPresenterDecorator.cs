@@ -26,29 +26,29 @@ namespace MugenMvvm.Presenters.Components
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
-            ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
+            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
                 var presenterComponent = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, presenterComponent, result.Cast<IReadOnlyList<IPresenterResult>>(), request, metadata))
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanShow(presenter, presenterComponent, result.ToItemOrList<IReadOnlyList<IPresenterResult>>(), request, metadata))
                     result.AddRange(presenterComponent.TryShow(presenter, request, cancellationToken, metadata));
             }
 
-            return result.Cast<IReadOnlyList<IPresenterResult>>();
+            return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
         }
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var components = Components;
-            ItemOrList<IPresenterResult, List<IPresenterResult>> result = default;
+            ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
             for (var i = 0; i < components.Length; i++)
             {
                 var presenterComponent = components[i];
-                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, presenterComponent, result.Cast<IReadOnlyList<IPresenterResult>>(), request, metadata))
+                if (Owner.GetComponents<IConditionPresenterComponent>().CanClose(presenter, presenterComponent, result.ToItemOrList<IReadOnlyList<IPresenterResult>>(), request, metadata))
                     result.AddRange(presenterComponent.TryClose(presenter, request, cancellationToken, metadata));
             }
 
-            return result.Cast<IReadOnlyList<IPresenterResult>>();
+            return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
         }
 
         #endregion

@@ -44,7 +44,7 @@ namespace MugenMvvm.Metadata
         }
 
         public MetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null)
-            : this(new ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values))
+            : this(ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values))
         {
         }
 
@@ -92,18 +92,19 @@ namespace MugenMvvm.Metadata
                 if (components.Length == 0)
                     return ((IEnumerable<MetadataContextValue>)_dictionary.ToArray(MetadataContextValue.CreateDelegate)).GetEnumerator();
 
-                ItemOrList<MetadataContextValue, List<MetadataContextValue>> contextValues = default;
+                var contextValues = ItemOrListEditor.Get<MetadataContextValue>(value => value.IsEmpty);
                 foreach (var keyValuePair in _dictionary)
-                    contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
+                    contextValues.Add(MetadataContextValue.Create(keyValuePair));
                 for (var i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues(this))
-                        contextValues.Add(MetadataContextValue.Create(keyValuePair), v => v.IsEmpty);
+                        contextValues.Add(MetadataContextValue.Create(keyValuePair));
                 }
 
-                if (!contextValues.Item.IsEmpty)
-                    return Default.SingleValueEnumerator(contextValues.Item);
-                return contextValues.List?.GetEnumerator() ?? Enumerable.Empty<MetadataContextValue>().GetEnumerator();
+                var v = contextValues.ToItemOrList();
+                if (!v.Item.IsEmpty)
+                    return Default.SingleValueEnumerator(v.Item);
+                return v.List?.GetEnumerator() ?? Enumerable.Empty<MetadataContextValue>().GetEnumerator();
             }
         }
 
@@ -344,27 +345,26 @@ namespace MugenMvvm.Metadata
                 return;
             }
 
-            ItemOrList<KeyValuePair<IMetadataContextKey, object?>, List<KeyValuePair<IMetadataContextKey, object?>>> oldValues = default;
+            var oldValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(pair => pair.Key == null);
             lock (_dictionary)
             {
                 foreach (var pair in _dictionary)
-                    oldValues.Add(pair, p => p.Key == null);
+                    oldValues.Add(pair);
                 for (var i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues(this))
-                        oldValues.Add(keyValuePair, p => p.Key == null);
+                        oldValues.Add(keyValuePair);
                 }
 
                 _dictionary.Clear();
                 components.Clear(this);
             }
 
-            var count = oldValues.Count(p => p.Key == null);
-            if (count != 0)
+            if (oldValues.Count != 0)
             {
-                for (var i = 0; i < count; i++)
+                for (var i = 0; i < oldValues.Count; i++)
                 {
-                    var pair = oldValues.Get(i);
+                    var pair = oldValues[i];
                     listeners.OnRemoved(this, pair.Key, pair.Value);
                 }
             }

@@ -67,10 +67,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             if (components.Length == 1)
                 return components[0].TryGetNavigationCallbacks(navigationDispatcher, request, metadata);
-            ItemOrList<INavigationCallback, List<INavigationCallback>> result = default;
+            ItemOrListEditor<INavigationCallback, List<INavigationCallback>> result = ItemOrListEditor.Get<INavigationCallback>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationCallbacks(navigationDispatcher, request, metadata));
-            return result.Cast<IReadOnlyList<INavigationCallback>>();
+            return result.ToItemOrList<IReadOnlyList<INavigationCallback>>();
         }
 
         public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext)
@@ -147,10 +147,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             if (components.Length == 1)
                 return components[0].TryGetNavigationEntries(navigationDispatcher, metadata);
-            ItemOrList<INavigationEntry, List<INavigationEntry>> result = default;
+            ItemOrListEditor<INavigationEntry, List<INavigationEntry>> result = ItemOrListEditor.Get<INavigationEntry>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetNavigationEntries(navigationDispatcher, metadata));
-            return result.Cast<IReadOnlyList<INavigationEntry>>();
+            return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
         public static Task<bool> OnNavigatingAsync(this IConditionNavigationDispatcherComponent[] components, INavigationDispatcherNavigatingListener[] listeners,
@@ -267,7 +267,7 @@ namespace MugenMvvm.Extensions.Components
                     if (resultTask == null)
                         OnExecuted(Default.TrueTask);
                     else
-                        resultTask.ContinueWith((t, state) => ((NavigatingResult)state).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
+                        resultTask.ContinueWith((t, state) => ((NavigatingResult)state!).OnExecuted(t), this, TaskContinuationOptions.ExecuteSynchronously);
                 }
                 catch (Exception e)
                 {

@@ -7,7 +7,6 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -102,18 +101,18 @@ namespace MugenMvvm.Binding.Build
 
         public void Build(IReadOnlyMetadataContext? metadata = null)
         {
-            ItemOrList<IBinding, List<IBinding>> list = default;
+            var list = ItemOrListEditor.Get<IBinding>();
             BuildInternal(false, ref list, metadata);
         }
 
         public ItemOrList<IBinding, IReadOnlyList<IBinding>> BuildIncludeBindings(IReadOnlyMetadataContext? metadata = null)
         {
-            ItemOrList<IBinding, List<IBinding>> list = default;
+            ItemOrListEditor<IBinding, List<IBinding>> list = ItemOrListEditor.Get<IBinding>();
             BuildInternal(true, ref list, metadata);
-            return list.Cast<IReadOnlyList<IBinding>>();
+            return list.ToItemOrList<IReadOnlyList<IBinding>>();
         }
 
-        private void BuildInternal(bool includeBindings, ref ItemOrList<IBinding, List<IBinding>> bindings, IReadOnlyMetadataContext? metadata = null)
+        private void BuildInternal(bool includeBindings, ref ItemOrListEditor<IBinding, List<IBinding>> bindings, IReadOnlyMetadataContext? metadata = null)
         {
             foreach (var builder in Builders)
             {
@@ -128,11 +127,11 @@ namespace MugenMvvm.Binding.Build
                     //note post handler sorting expressions if need
                     var expressions = BindingManager.TryParseBindingExpression(builder.Value!, metadata);
                     if (expressions.IsNullOrEmpty())
-                        expressions = ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(builder.Value);
-                    var count = expressions.Count();
-                    for (var i = 0; i < count; i++)
+                        expressions = ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builder.Value, true);
+
+                    foreach (var exp in expressions.Iterator())
                     {
-                        var binding = expressions.Get(i).Build(builder.Key.Item1, builder.Key.Item2, metadata);
+                        var binding = exp.Build(builder.Key.Item1, builder.Key.Item2, metadata);
                         if (includeBindings)
                             bindings.Add(binding);
                     }
@@ -147,7 +146,7 @@ namespace MugenMvvm.Binding.Build
             Should.NotBeNull(target, nameof(target));
             var key = (target, source);
             Builders.TryGetValue(key, out var value);
-            var list = ItemOrList<IBindingBuilder, List<IBindingBuilder>>.FromRawValue(value);
+            var list = ItemOrList.FromRawValue<IBindingBuilder, List<IBindingBuilder>>(value, true).Editor();
             list.AddRange(expressions);
             Builders[key] = list.GetRawValue();
         }

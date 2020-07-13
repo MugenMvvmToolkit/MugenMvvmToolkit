@@ -62,24 +62,16 @@ namespace MugenMvvm.Extensions
             var locker = c.SyncRoot;
             Monitor.Enter(locker, ref taken);
             if (taken)
-                return new ActionToken((o, _) => Monitor.Exit(o), locker);
+                return new ActionToken((o, _) => Monitor.Exit(o!), locker);
             return default;
         }
 
-        public static void AddRange<T>(this ICollection<T> items, IReadOnlyList<T> value)
+        public static void AddRange<T>(this ICollection<T> items, IEnumerable<T> value)
         {
             Should.NotBeNull(items, nameof(items));
             Should.NotBeNull(value, nameof(value));
-            for (int i = 0; i < value.Count; i++)
-                items.Add(value[i]);
-        }
-
-        public static void AddRange<T>(this ICollection<T> items, IList<T> value)
-        {
-            Should.NotBeNull(items, nameof(items));
-            Should.NotBeNull(value, nameof(value));
-            for (int i = 0; i < value.Count; i++)
-                items.Add(value[i]);
+            foreach (var item in value)
+                items.Add(item);
         }
 
         public static T[] ToArray<T>(this T[] array)

@@ -7,7 +7,6 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -49,16 +48,16 @@ namespace MugenMvvm.Binding.Core.Components
                 ? _attachedValueManager.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
                 : _attachedValueManager.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
-            var count = values.Count(pair => pair.Key == null);
-            if (count == 0)
+            var iterator = values.Iterator(pair => pair.Key == null);
+            if (iterator.Count == 0)
                 return default;
-            if (count == 1)
-                return new ItemOrList<IBinding, IReadOnlyList<IBinding>>((IBinding)values.Item.Value!);
+            if (iterator.Count == 1)
+                return ItemOrList.FromItem((IBinding) values.Item.Value!);
 
-            var bindings = new IBinding[count];
+            var bindings = new IBinding[iterator.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding)values.Get(i).Value!;
-            return bindings;
+                bindings[i] = (IBinding)iterator[i].Value!;
+            return ItemOrList.FromListToReadOnly(bindings);
         }
 
         public bool TryRegister(IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)

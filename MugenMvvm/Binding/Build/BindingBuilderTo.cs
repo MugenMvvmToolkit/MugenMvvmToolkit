@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Build
         #region Fields
 
         private readonly BindingBuilderFrom<TTarget, TSource> _fromBuilder;
-        private ItemOrList<KeyValuePair<string?, object>, List<KeyValuePair<string?, object>>> _parameters;
+        private ItemOrListEditor<KeyValuePair<string?, object>, List<KeyValuePair<string?, object>>> _parameters;
         private readonly object _pathOrExpression;
 
         #endregion
@@ -26,7 +26,7 @@ namespace MugenMvvm.Binding.Build
             Should.NotBeNull(pathOrExpression, nameof(pathOrExpression));
             _fromBuilder = from;
             _pathOrExpression = pathOrExpression;
-            _parameters = parameters;
+            _parameters = parameters.Editor(pair => pair.Value == null);
         }
 
         #endregion
@@ -36,15 +36,13 @@ namespace MugenMvvm.Binding.Build
         public BindingBuilderTo<TTarget, TSource> BindingParameter(string? parameterName, object value)
         {
             Should.NotBeNull(value, nameof(value));
-            var list = _parameters;
-            list.Add(new KeyValuePair<string?, object>(parameterName, value), pair => pair.Value == null);
-            _parameters = list;
+            _parameters.Add(new KeyValuePair<string?, object>(parameterName, value));
             return this;
         }
 
         public static implicit operator BindingExpressionRequest(BindingBuilderTo<TTarget, TSource> builder)
         {
-            return new BindingExpressionRequest(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.Cast<IReadOnlyList<KeyValuePair<string?, object>>>());
+            return new BindingExpressionRequest(builder._fromBuilder.PathOrExpression, builder._pathOrExpression, builder._parameters.ToItemOrList<IReadOnlyList<KeyValuePair<string?, object>>>());
         }
 
         #endregion

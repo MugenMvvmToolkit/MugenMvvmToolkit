@@ -104,7 +104,7 @@ namespace MugenMvvm.Views.Components
             if (request is IViewModelBase viewModel)
             {
                 if (viewModel is IComponentOwner componentOwner)
-                    return componentOwner.GetComponents<IView>();
+                    return ItemOrList.FromListToReadOnly(componentOwner.GetComponents<IView>());
 
                 return GetViews(viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey));
             }
@@ -122,10 +122,10 @@ namespace MugenMvvm.Views.Components
         {
             if (views == null)
                 return default;
-            ItemOrList<IView, List<IView>> result = default;
+            ItemOrListEditor<IView, List<IView>> result = ItemOrListEditor.Get<IView>();
             for (var i = 0; i < views.Count; i++)
                 result.Add(views[i]);
-            return result.Cast<IReadOnlyList<IView>>();
+            return result.ToItemOrList<IReadOnlyList<IView>>();
         }
 
         private IView InitializeView<TList>(IViewManager viewManager, IViewMapping mapping, IViewModelBase viewModel, object rawView,

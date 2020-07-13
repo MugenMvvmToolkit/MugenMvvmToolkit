@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Parsing.Components
                 var result = new ExpressionParserResult[expressions.Count];
                 for (var i = 0; i < result.Length; i++)
                     result[i] = Parse(expressions[i], metadata).Item;
-                return result;
+                return ItemOrList.FromListToReadOnly(result);
             }
 
             return default;
@@ -94,7 +94,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             var source = Convert(expression.Source, metadata);
 
             var list = expression.Parameters.List;
-            ItemOrList<IExpressionNode, List<IExpressionNode>> parameters = default;
+            ItemOrListEditor<IExpressionNode, List<IExpressionNode>> parameters = ItemOrListEditor.Get<IExpressionNode>();
             if (list != null)
             {
                 for (var i = 0; i < list.Count; i++)
@@ -103,7 +103,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             else
                 AddParameter(expression.Parameters.Item, ref parameters, metadata);
 
-            return new ExpressionParserResult(target, source, parameters.Cast<IReadOnlyList<IExpressionNode>>());
+            return new ExpressionParserResult(target, source, parameters.ToItemOrList<IReadOnlyList<IExpressionNode>>());
         }
 
         private IExpressionNode Convert(object? expression, IReadOnlyMetadataContext? metadata = null)
@@ -145,7 +145,7 @@ namespace MugenMvvm.Binding.Parsing.Components
             return null!;
         }
 
-        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrList<IExpressionNode, List<IExpressionNode>> result, IReadOnlyMetadataContext? metadata)
+        private void AddParameter(KeyValuePair<string?, object> parameter, ref ItemOrListEditor<IExpressionNode, List<IExpressionNode>> result, IReadOnlyMetadataContext? metadata)
         {
             if (parameter.Key != null)
                 result.Add(new BinaryExpressionNode(BinaryTokenType.Assignment, MemberExpressionNode.Get(null, parameter.Key), Convert(parameter.Value, metadata)));

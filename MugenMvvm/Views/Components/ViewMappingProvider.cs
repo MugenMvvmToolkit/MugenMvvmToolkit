@@ -45,7 +45,7 @@ namespace MugenMvvm.Views.Components
             var type = view as Type;
             var id = view as string;
 
-            ItemOrList<IViewMapping, List<IViewMapping>> mappings = default;
+            ItemOrListEditor<IViewMapping, List<IViewMapping>> mappings = ItemOrListEditor.Get<IViewMapping>();
             lock (_mappings)
             {
                 for (var i = 0; i < _mappings.Count; i++)
@@ -79,7 +79,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            return mappings.Cast<IReadOnlyList<IViewMapping>>();
+            return mappings.ToItemOrList<IReadOnlyList<IViewMapping>>();
         }
 
         #endregion

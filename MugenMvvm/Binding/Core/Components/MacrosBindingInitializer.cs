@@ -51,15 +51,15 @@ namespace MugenMvvm.Binding.Core.Components
 
             if (ParameterVisitors.Count != 0)
             {
-                var parameters = context.Parameters;
+                var parameters = context.Parameters.Editor();
                 for (var i = 0; i < ParameterVisitors.Count; i++)
                 {
                     var visitor = ParameterVisitors[i];
-                    for (var j = 0; j < parameters.Count(); j++)
-                        parameters.Set(parameters.Get(j).Accept(visitor, metadata), j);
+                    for (var j = 0; j < parameters.Count; j++)
+                        parameters[j] = parameters[j].Accept(visitor, metadata);
                 }
 
-                context.Parameters = parameters;
+                context.Parameters = parameters.ToItemOrList();
             }
         }
 

@@ -22,7 +22,7 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (TypeChecker.IsValueType<TExpression>() || !(expression is IReadOnlyList<IBindingBuilder> result))
                 return default;
-            return ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>.FromRawValue(result);
+            return ItemOrList.FromList(result);
         }
 
         #endregion

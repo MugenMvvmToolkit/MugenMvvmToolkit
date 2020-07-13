@@ -26,7 +26,6 @@ using MugenMvvm.Binding.Observation.Observers;
 using MugenMvvm.Binding.Parsing.Visitors;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -109,10 +108,8 @@ namespace MugenMvvm.Binding.Extensions
         {
             if (target == null)
                 return;
-            var bindings = MugenBindingService.BindingManager.GetBindings(target);
-            var count = bindings.Count();
-            for (int i = 0; i < count; i++)
-                bindings.Get(i).Dispose();
+            foreach (var binding in MugenBindingService.BindingManager.GetBindings(target).Iterator())
+                binding.Dispose();
             if (clearAttachedValues)
                 MugenService.AttachedValueManager.Clear(target);
         }
@@ -155,7 +152,7 @@ namespace MugenMvvm.Binding.Extensions
                         if (j == parameters.Count - 1 && hasParams)
                         {
                             ArraySize[0] = 0;
-                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType(), ArraySize);
+                            result[j] = Array.CreateInstance(parameter.ParameterType.GetElementType()!, ArraySize);
                             flags |= ArgumentFlags.EmptyParamArray;
                         }
                         else
@@ -181,7 +178,7 @@ namespace MugenMvvm.Binding.Extensions
                 {
                     flags |= ArgumentFlags.ParamArray;
                     ArraySize[0] = argsLength - i;
-                    var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType(), ArraySize);
+                    var array = Array.CreateInstance(parameterInfo.ParameterType.GetElementType()!, ArraySize);
                     for (var j = i; j < argsLength; j++)
                     {
                         ArraySize[0] = j - i;
@@ -216,7 +213,7 @@ namespace MugenMvvm.Binding.Extensions
                 return converter.TryGetInvokeArgs(parameters, (args, converter.DefaultIfNull(), metadata), args.Length,
                     (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
-                        var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType() : parameter.ParameterType;
+                        var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);
                     }, null, out flags);
             }
@@ -308,7 +305,7 @@ namespace MugenMvvm.Binding.Extensions
                     expressionValues[i] = expressionValue;
                 }
 
-                values = expressionValues;
+                values = ItemOrList.FromList(expressionValues);
             }
             else
             {

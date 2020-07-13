@@ -310,7 +310,7 @@ namespace MugenMvvm.Binding.Extensions.Components
         }
 
         public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(this IBindingExpressionParserComponent[] components,
-            IBindingManager bindingManager, [DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata)
+            IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -340,10 +340,10 @@ namespace MugenMvvm.Binding.Extensions.Components
             if (components.Length == 1)
                 return components[0].TryGetBindings(bindingManager, target, path, metadata);
 
-            ItemOrList<IBinding, List<IBinding>> result = default;
+            ItemOrListEditor<IBinding, List<IBinding>> result = ItemOrListEditor.Get<IBinding>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetBindings(bindingManager, target, path, metadata));
-            return result.Cast<IReadOnlyList<IBinding>>();
+            return result.ToItemOrList<IReadOnlyList<IBinding>>();
         }
 
         public static bool TryRegister(this IBindingHolderComponent[] components, IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
@@ -393,7 +393,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(binding, nameof(binding));
             Should.NotBeNull(target, nameof(target));
             if (bindingComponents!.Length == 1)
-                return new ItemOrList<IComponent<IBinding>?, IComponent<IBinding>?[]>(TryGetBindingComponent(bindingComponents[0], binding, target, source, metadata));
+                return ItemOrList.FromItem<IComponent<IBinding>?, IComponent<IBinding>?[]>(TryGetBindingComponent(bindingComponents[0], binding, target, source, metadata));
             if (bindingComponents.Length != 0)
             {
                 var components = new IComponent<IBinding>?[bindingComponents.Length];
@@ -405,7 +405,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                         MugenExtensions.AddOrdered(components!, component, size++, comparer);
                 }
 
-                return components;
+                return ItemOrList.FromList(components);
             }
 
             return default;

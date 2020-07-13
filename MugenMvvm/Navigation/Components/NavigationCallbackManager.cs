@@ -92,7 +92,7 @@ namespace MugenMvvm.Navigation.Components
             if (callbacks == null)
                 return false;
 
-            ItemOrList<NavigationCallback, List<NavigationCallback>> toInvoke = default;
+            ItemOrListEditor<NavigationCallback, List<NavigationCallback>> toInvoke = ItemOrListEditor.Get<NavigationCallback>();
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
@@ -107,12 +107,12 @@ namespace MugenMvvm.Navigation.Components
                 }
             }
 
-            if (toInvoke.IsNullOrEmpty())
+            if (toInvoke.IsNullOrEmpty)
                 return false;
 
-            for (var i = 0; i < toInvoke.Count(); i++)
+            for (var i = 0; i < toInvoke.Count; i++)
             {
-                var callback = toInvoke.Get(i);
+                var callback = toInvoke[i];
                 if (exception != null)
                     callback.SetException(navigationContext, exception);
                 else if (canceled)
@@ -164,24 +164,24 @@ namespace MugenMvvm.Navigation.Components
         private static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext? metadata, IHasTarget<object?>? hasTarget)
         {
             var canMoveNext = true;
-            ItemOrList<INavigationCallback, List<INavigationCallback>> list = default;
+            ItemOrListEditor<INavigationCallback, List<INavigationCallback>> list = ItemOrListEditor.Get<INavigationCallback>();
             while (true)
             {
                 AddCallbacks(ShowingCallbacks, metadata, ref list);
                 AddCallbacks(ClosingCallbacks, metadata, ref list);
                 AddCallbacks(CloseCallbacks, metadata, ref list);
 
-                if (!list.IsNullOrEmpty() || !canMoveNext)
+                if (!list.IsNullOrEmpty || !canMoveNext)
                     break;
-                if (list.IsNullOrEmpty() && hasTarget != null && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner)
+                if (list.IsNullOrEmpty && hasTarget != null && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner)
                     metadata = targetOwner.GetMetadataOrDefault();
                 canMoveNext = false;
             }
 
-            return list.Cast<IReadOnlyList<INavigationCallback>>();
+            return list.ToItemOrList<IReadOnlyList<INavigationCallback>>();
         }
 
-        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext? metadata, ref ItemOrList<INavigationCallback, List<INavigationCallback>> list)
+        private static void AddCallbacks(IReadOnlyMetadataContextKey<List<NavigationCallback?>> key, IReadOnlyMetadataContext? metadata, ref ItemOrListEditor<INavigationCallback, List<INavigationCallback>> list)
         {
             var callbacks = metadata?.Get(key);
             if (callbacks == null)

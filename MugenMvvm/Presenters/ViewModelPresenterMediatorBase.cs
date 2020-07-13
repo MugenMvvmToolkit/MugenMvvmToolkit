@@ -327,7 +327,7 @@ namespace MugenMvvm.Presenters
                 {
                     state.Item1.ViewManager
                         .InitializeAsync(state.Item1.Mapping, new ViewModelViewRequest(state.Item1.ViewModel, state.Item2), state.Item3, context.Metadata)
-                        .ContinueWith(state.Item1.OnViewInitializedShowCallback, context, TaskContinuationOptions.ExecuteSynchronously);
+                        .ContinueWith(state.Item1.OnViewInitializedShowCallback!, context, TaskContinuationOptions.ExecuteSynchronously);
                     return false;
                 }, (dispatcher, context, ex, state) => state.Item1._showingContext = null, cancellationToken);
             }
@@ -339,7 +339,7 @@ namespace MugenMvvm.Presenters
                 {
                     ViewManager
                         .InitializeAsync(Mapping, new ViewModelViewRequest(ViewModel, view), cancellationToken, metadata)
-                        .ContinueWith(view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>)OnViewInitializedRefreshCallback, navigationContext, TaskContinuationOptions.ExecuteSynchronously);
+                        .ContinueWith((view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>)OnViewInitializedRefreshCallback)!, navigationContext, TaskContinuationOptions.ExecuteSynchronously);
                 }
             }
         }

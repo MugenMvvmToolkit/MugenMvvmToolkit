@@ -6,7 +6,6 @@ using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Messaging;
@@ -129,15 +128,17 @@ namespace MugenMvvm.Messaging.Components
 
         private static ThreadExecutionModeDictionary? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode, IReadOnlyMetadataContext? metadata)
         {
-            var handlers = messenger.GetComponents<IMessengerSubscriberComponent>().TryGetMessengerHandlers(messenger, messageType, metadata);
-            var count = handlers.Count(h => h.IsEmpty);
-            if (count == 0)
+            var handlers = messenger
+                .GetComponents<IMessengerSubscriberComponent>()
+                .TryGetMessengerHandlers(messenger, messageType, metadata)
+                .Iterator(handler => handler.IsEmpty);
+
+            if (handlers.Count == 0)
                 return null;
 
             var dictionary = new ThreadExecutionModeDictionary();
-            for (var index = 0; index < count; index++)
+            foreach (var subscriber in handlers)
             {
-                var subscriber = handlers.Get(index);
                 var mode = subscriber.ExecutionMode ?? defaultMode;
                 if (!dictionary.TryGetValue(mode, out var value))
                 {

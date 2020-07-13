@@ -5,7 +5,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Parsing.Visitors;
-using MugenMvvm.Extensions.Internal;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Binding.Core.Components
@@ -41,18 +41,17 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (context.BindingComponents.ContainsKey(BindingParameterNameConstant.EventHandler)
                 || context.BindingComponents.ContainsKey(BindingParameterNameConstant.Mode)
-                || !MugenMvvm.Extensions.MugenExtensions.IsNullOrEmpty(context.Parameters))
+                || !context.Parameters.IsNullOrEmpty())
                 return;
 
-            var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression);
-            var count = collect.Count();
-            var canInline = count == 0;
+            var collect = _memberExpressionCollectorVisitor.Collect(context.SourceExpression).Iterator();
+            var canInline = collect.Count == 0;
             if (!canInline && UseOneTimeModeForStaticMembersImplicit)
             {
                 canInline = true;
-                for (var i = 0; i < count; i++)
+                foreach (var parameter in collect)
                 {
-                    if (!collect.Get(i).MemberFlags.HasFlagEx(MemberFlags.Static))
+                    if (!parameter.MemberFlags.HasFlagEx(MemberFlags.Static))
                     {
                         canInline = false;
                         break;

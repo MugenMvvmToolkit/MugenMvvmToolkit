@@ -99,7 +99,7 @@ namespace MugenMvvm.Binding.Core
 
         public IMemberPathObserver Target { get; private set; }
 
-        public ItemOrList<object?, object?[]> Source => ItemOrList<object?, object?[]>.FromRawValue(SourceRaw);
+        public ItemOrList<object?, object?[]> Source => ItemOrList.FromRawValue<object?, object?[]>(SourceRaw, true);
 
         protected object? SourceRaw { get; private set; }
 
@@ -126,7 +126,7 @@ namespace MugenMvvm.Binding.Core
 
         public ItemOrList<object, object[]> GetComponents()
         {
-            return ItemOrList<object, object[]>.FromRawValue(_components);
+            return ItemOrList.FromRawValue<object, object[]>(_components, true);
         }
 
         public void UpdateTarget()
@@ -183,9 +183,9 @@ namespace MugenMvvm.Binding.Core
             }
         }
 
-        int IComparer<object>.Compare(object x, object y)
+        int IComparer<object>.Compare([AllowNull] object x, [AllowNull] object y)
         {
-            return MugenExtensions.GetComponentPriority(y, this).CompareTo(MugenExtensions.GetComponentPriority(x, this));
+            return MugenExtensions.GetComponentPriority(y!, this).CompareTo(MugenExtensions.GetComponentPriority(x!, this));
         }
 
         bool IComponentCollection.Add(object component, IReadOnlyMetadataContext? metadata)

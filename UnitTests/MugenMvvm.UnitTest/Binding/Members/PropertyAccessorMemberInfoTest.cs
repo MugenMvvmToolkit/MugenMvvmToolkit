@@ -49,7 +49,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(nameof(WriteOnlyProperty))]
         public void ConstructorShouldInitializeMember(string fieldName)
         {
-            var propertyInfo = GetType().GetProperty(fieldName);
+            var propertyInfo = GetType().GetProperty(fieldName)!;
             propertyInfo.ShouldNotBeNull();
             var reflectedType = typeof(object);
             var name = fieldName + "t";
@@ -135,7 +135,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [InlineData(nameof(WriteOnlyPropertyStatic))]
         public void ConstructorShouldInitializeStaticMember(string fieldName)
         {
-            var propertyInfo = GetType().GetProperty(fieldName);
+            var propertyInfo = GetType().GetProperty(fieldName)!;
             propertyInfo.ShouldNotBeNull();
             var reflectedType = typeof(object);
             var name = fieldName + "t";

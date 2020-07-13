@@ -9,7 +9,6 @@ using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Extensions;
-using MugenMvvm.Extensions.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -178,7 +177,7 @@ namespace MugenMvvm.Binding.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static TReturn? SingleOrDefault<TReturn>(this ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> itemOrList) where TReturn : class, IMemberInfo
         {
-            if (itemOrList.Count() > 1)
+            if (itemOrList.List != null)
                 BindingExceptionManager.ThrowAmbiguousMatchFound();
             return (TReturn?)itemOrList.Item;
         }
