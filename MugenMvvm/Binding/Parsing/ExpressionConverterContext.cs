@@ -1,9 +1,8 @@
-﻿using MugenMvvm.Binding.Extensions;
+﻿using System.Collections.Generic;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -15,7 +14,7 @@ namespace MugenMvvm.Binding.Parsing
     {
         #region Fields
 
-        private readonly ExpressionDictionary _expressions;
+        private readonly Dictionary<TExpression, IExpressionNode?> _expressions;
         private IExpressionConverterComponent<TExpression>[] _converters;
 
         #endregion
@@ -24,7 +23,7 @@ namespace MugenMvvm.Binding.Parsing
 
         public ExpressionConverterContext(IMetadataContextManager? metadataContextManager = null) : base(null, metadataContextManager)
         {
-            _expressions = new ExpressionDictionary();
+            _expressions = new Dictionary<TExpression, IExpressionNode?>();
             _converters = Default.Array<IExpressionConverterComponent<TExpression>>();
         }
 
@@ -81,35 +80,6 @@ namespace MugenMvvm.Binding.Parsing
             MetadataRaw?.Clear();
             if (!metadata.IsNullOrEmpty())
                 Metadata.Merge(metadata!);
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class ExpressionDictionary : LightDictionary<TExpression, IExpressionNode?>
-        {
-            #region Constructors
-
-            public ExpressionDictionary() : base(3)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override int GetHashCode(TExpression key)
-            {
-                return key.GetHashCode();
-            }
-
-            protected override bool Equals(TExpression x, TExpression y)
-            {
-                return x.Equals(y);
-            }
-
-            #endregion
         }
 
         #endregion

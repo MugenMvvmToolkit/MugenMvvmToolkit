@@ -56,12 +56,7 @@ namespace MugenMvvm.App
 
         public IDeviceInfo DeviceInfo
         {
-            get
-            {
-                if (_deviceInfo == null)
-                    _deviceInfo = new DeviceInfo(PlatformType.Unknown, PlatformIdiom.Unknown, "0", new MetadataContext());
-                return _deviceInfo;
-            }
+            get => _deviceInfo ??= new DeviceInfo(PlatformType.Unknown, PlatformIdiom.Unknown, "0", new MetadataContext());
             private set => _deviceInfo = value;
         }
 

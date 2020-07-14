@@ -1,10 +1,10 @@
-﻿using Android.Runtime;
-using MugenMvvm.Collections;
+﻿using System.Collections.Generic;
+using Android.Runtime;
 using MugenMvvm.Interfaces.Internal;
 
 namespace MugenMvvm.Android.Native.Views
 {
-    public partial class ActivityWrapper : IWeakReference, IValueHolder<LightDictionary<string, object?>>
+    public partial class ActivityWrapper : IWeakReference, IValueHolder<IDictionary<string, object?>>
     {
         #region Fields
 
@@ -27,7 +27,7 @@ namespace MugenMvvm.Android.Native.Views
         }
 
         [Preserve(Conditional = true)]
-        LightDictionary<string, object?>? IValueHolder<LightDictionary<string, object?>>.Value { get; set; }
+        IDictionary<string, object?>? IValueHolder<IDictionary<string, object?>>.Value { get; set; }
 
         #endregion
 
@@ -36,7 +36,7 @@ namespace MugenMvvm.Android.Native.Views
         void IWeakReference.Release()
         {
             _isAlive = false;
-            ((IValueHolder<LightDictionary<string, object?>>)this).Value?.Clear();
+            ((IValueHolder<IDictionary<string, object?>>) this).Value?.Clear();
         }
 
         #endregion

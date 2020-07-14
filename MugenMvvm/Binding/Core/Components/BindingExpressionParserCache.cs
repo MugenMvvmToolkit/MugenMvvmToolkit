@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -17,7 +17,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<object?> _cache;
+        private readonly Dictionary<string, object?> _cache;
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         public BindingExpressionParserCache()
         {
-            _cache = new StringOrdinalLightDictionary<object?>(59);
+            _cache = new Dictionary<string, object?>(59, StringComparer.Ordinal);
         }
 
         #endregion

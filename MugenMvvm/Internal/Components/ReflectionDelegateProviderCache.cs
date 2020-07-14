@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions.Components;
@@ -22,12 +19,12 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private readonly MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>?> _activatorCache;
-        private readonly MemberInfoDelegateCache<Delegate?> _activatorCacheDelegate;
-        private readonly MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>?> _invokeMethodCache;
-        private readonly MemberInfoDelegateCache<Delegate?> _invokeMethodCacheDelegate;
-        private readonly MemberInfoDelegateCache<Delegate?> _memberGetterCache;
-        private readonly MemberInfoDelegateCache<Delegate?> _memberSetterCache;
+        private readonly Dictionary<ConstructorInfo, Func<object?[], object>?> _activatorCache;
+        private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _activatorCacheDelegate;
+        private readonly Dictionary<MethodInfo, Func<object?, object?[], object?>?> _invokeMethodCache;
+        private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _invokeMethodCacheDelegate;
+        private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _memberGetterCache;
+        private readonly Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?> _memberSetterCache;
 
         private IMemberReflectionDelegateProviderComponent[] _memberComponents;
         private IMethodReflectionDelegateProviderComponent[] _methodComponents;
@@ -41,12 +38,12 @@ namespace MugenMvvm.Internal.Components
         {
             _memberComponents = Default.Array<IMemberReflectionDelegateProviderComponent>();
             _methodComponents = Default.Array<IMethodReflectionDelegateProviderComponent>();
-            _activatorCache = new MemberInfoLightDictionary<ConstructorInfo, Func<object?[], object>?>(59);
-            _activatorCacheDelegate = new MemberInfoDelegateCache<Delegate?>();
-            _invokeMethodCache = new MemberInfoLightDictionary<MethodInfo, Func<object?, object?[], object?>?>(59);
-            _invokeMethodCacheDelegate = new MemberInfoDelegateCache<Delegate?>();
-            _memberGetterCache = new MemberInfoDelegateCache<Delegate?>();
-            _memberSetterCache = new MemberInfoDelegateCache<Delegate?>();
+            _activatorCache = new Dictionary<ConstructorInfo, Func<object?[], object>?>(59, InternalComparer.MemberInfo);
+            _activatorCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
+            _invokeMethodCache = new Dictionary<MethodInfo, Func<object?, object?[], object?>?>(59, InternalComparer.MemberInfo);
+            _invokeMethodCacheDelegate = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
+            _memberGetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
+            _memberSetterCache = new Dictionary<KeyValuePair<Type, MemberInfo>, Delegate?>(23, InternalComparer.TypeMember);
         }
 
         #endregion
@@ -75,7 +72,7 @@ namespace MugenMvvm.Internal.Components
 
         public Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
         {
-            var cacheKey = new MemberInfoDelegateCacheKey(constructor, delegateType);
+            var cacheKey = new KeyValuePair<Type, MemberInfo>(delegateType, constructor);
             lock (_activatorCacheDelegate)
             {
                 if (!_activatorCacheDelegate.TryGetValue(cacheKey, out var value))
@@ -105,7 +102,7 @@ namespace MugenMvvm.Internal.Components
 
         public Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType)
         {
-            var key = new MemberInfoDelegateCacheKey(member, delegateType);
+            var key = new KeyValuePair<Type, MemberInfo>(delegateType, member);
             lock (_memberGetterCache)
             {
                 if (!_memberGetterCache.TryGetValue(key, out var value))
@@ -120,7 +117,7 @@ namespace MugenMvvm.Internal.Components
 
         public Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType)
         {
-            var key = new MemberInfoDelegateCacheKey(member, delegateType);
+            var key = new KeyValuePair<Type, MemberInfo>(delegateType, member);
             lock (_memberSetterCache)
             {
                 if (!_memberSetterCache.TryGetValue(key, out var value))
@@ -149,7 +146,7 @@ namespace MugenMvvm.Internal.Components
 
         public Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType)
         {
-            var cacheKey = new MemberInfoDelegateCacheKey(method, delegateType);
+            var cacheKey = new KeyValuePair<Type, MemberInfo>(delegateType, method);
             lock (_invokeMethodCacheDelegate)
             {
                 if (!_invokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
@@ -221,56 +218,6 @@ namespace MugenMvvm.Internal.Components
                     _memberGetterCache.Clear();
                 }
             }
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class MemberInfoDelegateCache<TValue> : LightDictionary<MemberInfoDelegateCacheKey, TValue>
-        {
-            #region Constructors
-
-            public MemberInfoDelegateCache() : base(59)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(MemberInfoDelegateCacheKey x, MemberInfoDelegateCacheKey y)
-            {
-                return x.DelegateType == y.DelegateType && x.Member == y.Member;
-            }
-
-            protected override int GetHashCode(MemberInfoDelegateCacheKey key)
-            {
-                return HashCode.Combine(key.DelegateType, key.Member);
-            }
-
-            #endregion
-        }
-
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct MemberInfoDelegateCacheKey
-        {
-            #region Fields
-
-            public readonly MemberInfo Member;
-            public readonly Type DelegateType;
-
-            #endregion
-
-            #region Constructors
-
-            public MemberInfoDelegateCacheKey(MemberInfo member, Type delegateType)
-            {
-                Member = member;
-                DelegateType = delegateType;
-            }
-
-            #endregion
         }
 
         #endregion

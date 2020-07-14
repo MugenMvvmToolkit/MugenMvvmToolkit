@@ -11,7 +11,6 @@ using MugenMvvm.Binding.Interfaces.Convert;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Binding.Interfaces.Observation;
-using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
@@ -20,13 +19,14 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class IndexerAccessorMemberDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority
+    public sealed class IndexerAccessorMemberDecorator : ComponentDecoratorBase<IMemberManager, IMemberProviderComponent>, IMemberProviderComponent, IHasPriority,
+        IEqualityComparer<IndexerAccessorMemberDecorator.MemberKey>
     {
         #region Fields
 
         private readonly IGlobalValueConverter? _globalValueConverter;
         private readonly List<IMemberInfo> _members;
-        private readonly MemberDictionary _membersDictionary;
+        private readonly Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)> _membersDictionary;
         private readonly IObservationManager? _observationManager;
 
         #endregion
@@ -39,7 +39,7 @@ namespace MugenMvvm.Binding.Members.Components
             _globalValueConverter = globalValueConverter;
             _observationManager = observationManager;
             _members = new List<IMemberInfo>();
-            _membersDictionary = new MemberDictionary();
+            _membersDictionary = new Dictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)>(this);
         }
 
         #endregion
@@ -51,6 +51,29 @@ namespace MugenMvvm.Binding.Members.Components
         #endregion
 
         #region Implementation of interfaces
+
+        bool IEqualityComparer<MemberKey>.Equals(MemberKey x, MemberKey y)
+        {
+            if (x.Type != y.Type || x.ReturnType != y.ReturnType)
+                return false;
+
+            var xCount = x.ParametersCount;
+            if (xCount != y.ParametersCount)
+                return false;
+
+            for (var i = 0; i < xCount; i++)
+            {
+                if (x.Parameters[i].ParameterType != y.Parameters[i].ParameterType)
+                    return false;
+            }
+
+            return true;
+        }
+
+        int IEqualityComparer<MemberKey>.GetHashCode(MemberKey key)
+        {
+            return HashCode.Combine(key.Type, key.ReturnType, key.ParametersCount);
+        }
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
@@ -170,7 +193,7 @@ namespace MugenMvvm.Binding.Members.Components
         #region Nested types
 
         [StructLayout(LayoutKind.Auto)]
-        private readonly struct MemberKey
+        internal readonly struct MemberKey
         {
             #region Fields
 
@@ -197,44 +220,6 @@ namespace MugenMvvm.Binding.Members.Components
             #region Properties
 
             public int ParametersCount => Setter ? Parameters.Count - 1 : Parameters.Count;
-
-            #endregion
-        }
-
-        private sealed class MemberDictionary : LightDictionary<MemberKey, (List<IMethodMemberInfo>? getters, List<IMethodMemberInfo>? setters, object?[] args, ArgumentFlags flags)>
-        {
-            #region Constructors
-
-            public MemberDictionary() : base(3)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(MemberKey x, MemberKey y)
-            {
-                if (x.Type != y.Type || x.ReturnType != y.ReturnType)
-                    return false;
-
-                var xCount = x.ParametersCount;
-                if (xCount != y.ParametersCount)
-                    return false;
-
-                for (var i = 0; i < xCount; i++)
-                {
-                    if (x.Parameters[i].ParameterType != y.Parameters[i].ParameterType)
-                        return false;
-                }
-
-                return true;
-            }
-
-            protected override int GetHashCode(MemberKey key)
-            {
-                return HashCode.Combine(key.Type, key.ReturnType, key.ParametersCount);
-            }
 
             #endregion
         }

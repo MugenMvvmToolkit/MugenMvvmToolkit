@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -17,7 +16,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<ConstantMemberInfo> _cache;
+        private readonly Dictionary<string, ConstantMemberInfo> _cache;
 
         public const char FakeMemberPrefixSymbol = '#';
         public const string FakeMemberPrefix = "Fake";
@@ -29,7 +28,7 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public FakeMemberProvider()
         {
-            _cache = new StringOrdinalLightDictionary<ConstantMemberInfo>(7);
+            _cache = new Dictionary<string, ConstantMemberInfo>(7, StringComparer.Ordinal);
         }
 
         #endregion

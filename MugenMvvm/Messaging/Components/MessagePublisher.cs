@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -13,14 +12,15 @@ using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Messaging.Components
 {
-    public sealed class MessagePublisher : LightDictionary<Type, MessagePublisher.ThreadExecutionModeDictionary?>, IMessagePublisherComponent, IHasPriority,
-        IAttachableComponent, IDetachableComponent, IComponentCollectionChangedListener, IHasCache
+    public sealed class MessagePublisher : IMessagePublisherComponent, IHasPriority, IAttachableComponent, IDetachableComponent, IComponentCollectionChangedListener, IHasCache
     {
         #region Fields
 
+        private readonly Dictionary<Type, Dictionary<ThreadExecutionMode, MessageThreadExecutor>?> _cache;
         private readonly IThreadDispatcher? _threadDispatcher;
         private IMessenger? _owner;
 
@@ -29,10 +29,11 @@ namespace MugenMvvm.Messaging.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public MessagePublisher(IThreadDispatcher? threadDispatcher = null) : base(3)
+        public MessagePublisher(IThreadDispatcher? threadDispatcher = null)
         {
             _threadDispatcher = threadDispatcher;
             DefaultExecutionMode = ThreadExecutionMode.Current;
+            _cache = new Dictionary<Type, Dictionary<ThreadExecutionMode, MessageThreadExecutor>?>(InternalComparer.Type);
         }
 
         #endregion
@@ -66,6 +67,18 @@ namespace MugenMvvm.Messaging.Components
             }
         }
 
+        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IMessengerSubscriberComponent)
+                Invalidate<object?>(null, metadata);
+        }
+
+        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
+        {
+            if (component is IMessengerSubscriberComponent)
+                Invalidate<object?>(null, metadata);
+        }
+
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
         {
             return true;
@@ -81,37 +94,25 @@ namespace MugenMvvm.Messaging.Components
             }
         }
 
-        void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is IMessengerSubscriberComponent)
-                Invalidate<object?>(null, metadata);
-        }
-
-        void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
-        {
-            if (component is IMessengerSubscriberComponent)
-                Invalidate<object?>(null, metadata);
-        }
-
         public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
         {
-            lock (this)
+            lock (_cache)
             {
-                Clear();
+                _cache.Clear();
             }
         }
 
         public bool TryPublish(IMessenger messenger, IMessageContext messageContext)
         {
             var threadDispatcher = _threadDispatcher.DefaultIfNull();
-            ThreadExecutionModeDictionary? dictionary;
-            lock (this)
+            Dictionary<ThreadExecutionMode, MessageThreadExecutor>? dictionary;
+            lock (_cache)
             {
                 var key = messageContext.Message.GetType();
-                if (!TryGetValue(key, out dictionary))
+                if (!_cache.TryGetValue(key, out dictionary))
                 {
                     dictionary = GetHandlers(messenger, key, DefaultExecutionMode, messageContext.GetMetadataOrDefault());
-                    this[key] = dictionary;
+                    _cache[key] = dictionary;
                 }
             }
 
@@ -126,7 +127,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Methods
 
-        private static ThreadExecutionModeDictionary? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode, IReadOnlyMetadataContext? metadata)
+        private static Dictionary<ThreadExecutionMode, MessageThreadExecutor>? GetHandlers(IMessenger messenger, Type messageType, ThreadExecutionMode defaultMode, IReadOnlyMetadataContext? metadata)
         {
             var handlers = messenger
                 .GetComponents<IMessengerSubscriberComponent>()
@@ -136,7 +137,7 @@ namespace MugenMvvm.Messaging.Components
             if (handlers.Count == 0)
                 return null;
 
-            var dictionary = new ThreadExecutionModeDictionary();
+            var dictionary = new Dictionary<ThreadExecutionMode, MessageThreadExecutor>(InternalComparer.ThreadExecutionMode);
             foreach (var subscriber in handlers)
             {
                 var mode = subscriber.ExecutionMode ?? defaultMode;
@@ -152,46 +153,11 @@ namespace MugenMvvm.Messaging.Components
             return dictionary;
         }
 
-        protected override bool Equals(Type x, Type y)
-        {
-            return x == y;
-        }
-
-        protected override int GetHashCode(Type key)
-        {
-            return key.GetHashCode();
-        }
-
         #endregion
 
         #region Nested types
 
-        public sealed class ThreadExecutionModeDictionary : LightDictionary<ThreadExecutionMode, MessageThreadExecutor>
-        {
-            #region Constructors
-
-            public ThreadExecutionModeDictionary() : base(3)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(ThreadExecutionMode x, ThreadExecutionMode y)
-            {
-                return x == y;
-            }
-
-            protected override int GetHashCode(ThreadExecutionMode key)
-            {
-                return key.GetHashCode();
-            }
-
-            #endregion
-        }
-
-        public sealed class MessageThreadExecutor : List<MessengerHandler>, IThreadDispatcherHandler<IMessageContext>, IValueHolder<Delegate>
+        private sealed class MessageThreadExecutor : List<MessengerHandler>, IThreadDispatcherHandler<IMessageContext>, IValueHolder<Delegate>
         {
             #region Fields
 

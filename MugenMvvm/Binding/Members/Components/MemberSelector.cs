@@ -1,23 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Collections;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Components
 {
-    public sealed class MemberSelector : IMemberManagerComponent, IHasPriority
+    public sealed class MemberSelector : IMemberManagerComponent, IHasPriority, IEqualityComparer<IMemberInfo>
     {
         #region Fields
 
-        private readonly SelectorDictionary _selectorDictionary;
+        private readonly Dictionary<IMemberInfo, MemberList> _selectorDictionary;
 
         private const int AttachedPriority = 1000000;
         private const int InstancePriority = 100000;
@@ -32,7 +33,7 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public MemberSelector()
         {
-            _selectorDictionary = new SelectorDictionary();
+            _selectorDictionary = new Dictionary<IMemberInfo, MemberList>(17, this);
         }
 
         #endregion
@@ -45,7 +46,40 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, in TRequest request, IReadOnlyMetadataContext? metadata)
+        int IEqualityComparer<IMemberInfo>.GetHashCode([AllowNull] IMemberInfo key)
+        {
+            if (key is IMethodMemberInfo method)
+                return HashCode.Combine((int) key.MemberType, method.GetParameters().Count);
+            return HashCode.Combine((int) key!.MemberType);
+        }
+
+        bool IEqualityComparer<IMemberInfo>.Equals([AllowNull] IMemberInfo x, [AllowNull] IMemberInfo y)
+        {
+            if (ReferenceEquals(x, y))
+                return true;
+
+            if (x!.MemberType != y!.MemberType)
+                return false;
+
+            if (x.MemberType != MemberType.Method)
+                return true;
+
+            var xM = ((IMethodMemberInfo) x).GetParameters();
+            var yM = ((IMethodMemberInfo) y).GetParameters();
+            if (xM.Count != yM.Count)
+                return false;
+
+            for (var i = 0; i < xM.Count; i++)
+            {
+                if (xM[i].ParameterType != yM[i].ParameterType)
+                    return false;
+            }
+
+            return true;
+        }
+
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, in TRequest request,
+            IReadOnlyMetadataContext? metadata)
         {
             if (TypeChecker.IsValueType<TRequest>() || !(request is IReadOnlyList<IMemberInfo> members))
                 return default;
@@ -69,7 +103,7 @@ namespace MugenMvvm.Binding.Members.Components
             if (_selectorDictionary.Count == 0)
                 return default;
             if (_selectorDictionary.Count == 1)
-                return ItemOrList.FromItem(_selectorDictionary.FirstOrDefault.Value.GetBestMember());
+                return ItemOrList.FromItem(_selectorDictionary.FirstOrDefault().Value.GetBestMember());
             var result = new IMemberInfo[_selectorDictionary.Count];
             var index = 0;
             foreach (var pair in _selectorDictionary)
@@ -156,14 +190,14 @@ namespace MugenMvvm.Binding.Members.Components
                 else if (_members is List<IMemberInfo> list)
                     list.Add(member);
                 else
-                    _members = new List<IMemberInfo> { (IMemberInfo)_members, member };
+                    _members = new List<IMemberInfo> {(IMemberInfo) _members, member};
                 return true;
             }
 
             public IMemberInfo GetBestMember()
             {
                 if (!(_members is List<IMemberInfo> members))
-                    return (IMemberInfo)_members!;
+                    return (IMemberInfo) _members!;
 
                 for (var i = 0; i < members.Count; i++)
                 {
@@ -191,53 +225,6 @@ namespace MugenMvvm.Binding.Members.Components
                 }
 
                 return members[0];
-            }
-
-            #endregion
-        }
-
-        private sealed class SelectorDictionary : LightDictionary<IMemberInfo, MemberList>
-        {
-            #region Constructors
-
-            public SelectorDictionary() : base(17)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override int GetHashCode(IMemberInfo key)
-            {
-                if (key is IMethodMemberInfo method)
-                    return HashCode.Combine((int)key.MemberType, method.GetParameters().Count);
-                return HashCode.Combine((int)key.MemberType);
-            }
-
-            protected override bool Equals(IMemberInfo x, IMemberInfo y)
-            {
-                if (ReferenceEquals(x, y))
-                    return true;
-
-                if (x.MemberType != y.MemberType)
-                    return false;
-
-                if (x.MemberType != MemberType.Method)
-                    return true;
-
-                var xM = ((IMethodMemberInfo)x).GetParameters();
-                var yM = ((IMethodMemberInfo)y).GetParameters();
-                if (xM.Count != yM.Count)
-                    return false;
-
-                for (var i = 0; i < xM.Count; i++)
-                {
-                    if (xM[i].ParameterType != yM[i].ParameterType)
-                        return false;
-                }
-
-                return true;
             }
 
             #endregion

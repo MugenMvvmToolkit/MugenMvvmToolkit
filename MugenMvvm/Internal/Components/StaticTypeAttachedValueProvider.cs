@@ -1,6 +1,5 @@
 ﻿using System;
-using MugenMvvm.Collections;
-using MugenMvvm.Collections.Internal;
+using System.Collections.Generic;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -11,7 +10,7 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private readonly MemberInfoLightDictionary<Type, LightDictionary<string, object?>> _attachedValues;
+        private readonly Dictionary<Type, SortedList<string, object?>> _attachedValues;
 
         #endregion
 
@@ -19,7 +18,7 @@ namespace MugenMvvm.Internal.Components
 
         public StaticTypeAttachedValueProvider()
         {
-            _attachedValues = new MemberInfoLightDictionary<Type, LightDictionary<string, object?>>(7);
+            _attachedValues = new Dictionary<Type, SortedList<string, object?>>(7, InternalComparer.Type);
         }
 
         #endregion
@@ -34,15 +33,15 @@ namespace MugenMvvm.Internal.Components
 
         public override bool IsSupported(object item, IReadOnlyMetadataContext? metadata) => item is Type;
 
-        protected override LightDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
+        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
-            var type = (Type) item;
+            var type = (Type)item;
             lock (_attachedValues)
             {
                 if (_attachedValues.TryGetValue(type, out var result) || optional)
                     return result;
 
-                result = new LightDictionary<string, object?>();
+                result = new SortedList<string, object?>(StringComparer.Ordinal);
                 _attachedValues[type] = result;
                 return result;
             }
@@ -52,7 +51,7 @@ namespace MugenMvvm.Internal.Components
         {
             lock (_attachedValues)
             {
-                return _attachedValues.Remove((Type) item);
+                return _attachedValues.Remove((Type)item);
             }
         }
 

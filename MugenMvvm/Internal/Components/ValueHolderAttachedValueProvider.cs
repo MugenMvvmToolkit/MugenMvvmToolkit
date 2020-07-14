@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Collections;
-using MugenMvvm.Collections.Internal;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,19 +19,19 @@ namespace MugenMvvm.Internal.Components
 
         public override bool IsSupported(object item, IReadOnlyMetadataContext? metadata)
         {
-            return item is IValueHolder<LightDictionary<string, object?>>;
+            return item is IValueHolder<IDictionary<string, object?>>;
         }
 
-        protected override LightDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
+        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
-            var holder = (IValueHolder<LightDictionary<string, object?>>) item;
+            var holder = (IValueHolder<IDictionary<string, object?>>) item;
             if (optional || holder.Value != null)
                 return holder.Value;
 
             lock (holder)
             {
                 if (holder.Value == null)
-                    holder.Value = new StringOrdinalLightDictionary<object?>(3);
+                    holder.Value = new SortedList<string, object?>(StringComparer.Ordinal);
             }
 
             return holder.Value;
@@ -39,7 +39,7 @@ namespace MugenMvvm.Internal.Components
 
         protected override bool ClearInternal(object item)
         {
-            ((IValueHolder<LightDictionary<string, object?>>) item).Value = null;
+            ((IValueHolder<IDictionary<string, object?>>) item).Value = null;
             return true;
         }
 

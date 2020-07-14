@@ -371,9 +371,7 @@ namespace MugenMvvm.Metadata
 
             public IMemento? GetMemento()
             {
-                if (_memento == null)
-                    _memento = _getMementoFunc(this);
-                return _memento;
+                return _memento ??= _getMementoFunc(this);
             }
 
             public bool CanSerialize(object? item, ISerializationContext serializationContext)

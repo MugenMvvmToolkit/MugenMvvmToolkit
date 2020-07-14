@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
@@ -18,7 +17,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private readonly MetadataContextLightDictionary _dictionary;
+        private readonly Dictionary<IMetadataContextKey, object?> _dictionary;
         private IComponentCollection? _components;
 
         #endregion
@@ -31,13 +30,13 @@ namespace MugenMvvm.Metadata
             var list = values.List;
             if (list == null)
             {
-                _dictionary = new MetadataContextLightDictionary(3);
+                _dictionary = new Dictionary<IMetadataContextKey, object?>(3, InternalComparer.MetadataContextKey);
                 if (!item.IsEmpty)
                     _dictionary[item.ContextKey] = item.Value;
             }
             else
             {
-                _dictionary = new MetadataContextLightDictionary(list.Count);
+                _dictionary = new Dictionary<IMetadataContextKey, object?>(list.Count, InternalComparer.MetadataContextKey);
                 foreach (var contextValue in list)
                     _dictionary[contextValue.ContextKey] = contextValue.Value;
             }

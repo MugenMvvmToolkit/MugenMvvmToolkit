@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
 {
@@ -14,10 +15,10 @@ namespace MugenMvvm.Extensions
     {
         #region Fields
 
-        private static TypeLightDictionary<MethodInfo>? _boxMethods;
+        private static Dictionary<Type, MethodInfo>? _boxMethods;
         private static Action<object, PropertyChangedEventHandler>? _unsubscribePropertyChangedDelegate;
         private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler>? _createPropertyChangedHandlerDelegate;
-        private static readonly TypeLightDictionary<bool> HasClosureDictionary = new TypeLightDictionary<bool>(47);
+        private static readonly Dictionary<Type, bool> HasClosureDictionary = new Dictionary<Type, bool>(47, InternalComparer.Type);
 
         #endregion
 
@@ -255,7 +256,7 @@ namespace MugenMvvm.Extensions
             {
                 if (_boxMethods == null)
                 {
-                    var boxMethods = new TypeLightDictionary<MethodInfo>(19);
+                    var boxMethods = new Dictionary<Type, MethodInfo>(19, InternalComparer.Type);
                     var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
                     for (int i = 0; i < methods.Length; i++)
                     {

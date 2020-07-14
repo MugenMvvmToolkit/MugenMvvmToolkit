@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -19,7 +18,7 @@ namespace MugenMvvm.Binding.Members.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<List<IMemberInfo>> _registeredMembers;
+        private readonly Dictionary<string, List<IMemberInfo>> _registeredMembers;
 
         #endregion
 
@@ -28,7 +27,7 @@ namespace MugenMvvm.Binding.Members.Components
         [Preserve(Conditional = true)]
         public AttachedMemberProvider()
         {
-            _registeredMembers = new StringOrdinalLightDictionary<List<IMemberInfo>>(59);
+            _registeredMembers = new Dictionary<string, List<IMemberInfo>>(59, StringComparer.Ordinal);
         }
 
         #endregion

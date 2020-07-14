@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -17,7 +16,7 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private static readonly MethodDelegateCache CacheMethodDelegates = new MethodDelegateCache(17);
+        private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?>(17, InternalComparer.TypeMethod);
 
         #endregion
 
@@ -204,10 +203,10 @@ namespace MugenMvvm.Internal.Components
                 if (delegateParameters.Length == 0)
                 {
                     expression = Expression.Lambda(delegateType, Expression
-                       .MakeMemberAccess(null, member)
-                       .ConvertIfNeed(delegateMethod.ReturnType, false));
+                        .MakeMemberAccess(null, member)
+                        .ConvertIfNeed(delegateMethod.ReturnType, false));
                 }
-                else if (delegateParameters.Length == 1)//ignoring first parameter
+                else if (delegateParameters.Length == 1) //ignoring first parameter
                 {
                     var parameter = Expression.Parameter(delegateParameters[0].ParameterType);
                     expression = Expression.Lambda(delegateType, Expression
@@ -226,6 +225,7 @@ namespace MugenMvvm.Internal.Components
                     .MakeMemberAccess(targetParameter.ConvertIfNeed(member.DeclaringType, false), member)
                     .ConvertIfNeed(delegateMethod.ReturnType, false), targetParameter);
             }
+
             return expression.CompileEx();
         }
 
@@ -240,7 +240,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (delegateParameters.Length == 1)
                     targetParameter = null;
-                else if (delegateParameters.Length == 2)//ignoring first parameter
+                else if (delegateParameters.Length == 2) //ignoring first parameter
                     targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
                 else
                     return null;
@@ -251,6 +251,7 @@ namespace MugenMvvm.Internal.Components
                     return null;
                 targetParameter = Expression.Parameter(delegateParameters[0].ParameterType);
             }
+
             var valueParameter = Expression.Parameter(delegateParameters[targetParameter == null ? 0 : 1].ParameterType);
             if (member is FieldInfo fieldInfo)
             {
@@ -271,6 +272,7 @@ namespace MugenMvvm.Internal.Components
                     .Lambda(delegateType, expression, valueParameter)
                     .CompileEx();
             }
+
             return Expression
                 .Lambda(delegateType, expression, targetParameter, valueParameter)
                 .CompileEx();
@@ -328,35 +330,6 @@ namespace MugenMvvm.Internal.Components
             }
 
             return method;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class MethodDelegateCache : LightDictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?>
-        {
-            #region Constructors
-
-            public MethodDelegateCache(int capacity) : base(capacity)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(KeyValuePair<Type, MethodInfo> x, KeyValuePair<Type, MethodInfo> y)
-            {
-                return x.Key == y.Key && x.Value == y.Value;
-            }
-
-            protected override int GetHashCode(KeyValuePair<Type, MethodInfo> key)
-            {
-                return HashCode.Combine(key.Key, key.Value);
-            }
-
-            #endregion
         }
 
         #endregion

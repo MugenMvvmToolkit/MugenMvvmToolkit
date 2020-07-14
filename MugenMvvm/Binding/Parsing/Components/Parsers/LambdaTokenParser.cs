@@ -1,10 +1,11 @@
-﻿using MugenMvvm.Binding.Constants;
+﻿using System;
+using System.Collections.Generic;
+using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
@@ -15,7 +16,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<IParameterExpressionNode> _currentParameters;
+        private readonly Dictionary<string, IParameterExpressionNode> _currentParameters;
 
         #endregion
 
@@ -23,7 +24,7 @@ namespace MugenMvvm.Binding.Parsing.Components.Parsers
 
         public LambdaTokenParser()
         {
-            _currentParameters = new StringOrdinalLightDictionary<IParameterExpressionNode>(3);
+            _currentParameters = new Dictionary<string, IParameterExpressionNode>(StringComparer.Ordinal);
         }
 
         #endregion

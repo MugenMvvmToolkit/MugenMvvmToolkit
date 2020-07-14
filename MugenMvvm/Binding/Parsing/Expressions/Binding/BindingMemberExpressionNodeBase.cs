@@ -65,9 +65,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected IMemberPath GetMemberPath(IReadOnlyMetadataContext? metadata)
         {
-            if (_memberPath == null)
-                _memberPath = ObservationManager.DefaultIfNull().GetMemberPath(Path, metadata);
-            return _memberPath;
+            return _memberPath ??= ObservationManager.DefaultIfNull().GetMemberPath(Path, metadata);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

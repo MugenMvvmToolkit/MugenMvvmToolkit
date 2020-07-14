@@ -12,8 +12,8 @@
 
   <PropertyGroup Condition=" $(TargetFramework.StartsWith('monoandroid')) ">
     <AssemblyName>MugenMvvm.Android</AssemblyName>
-    <!-- <AndroidClassParser>class-parse</AndroidClassParser> -->
-    <!-- <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget> -->
+    <AndroidClassParser>class-parse</AndroidClassParser>
+    <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
     <IsBindingProject>true</IsBindingProject>
   </PropertyGroup>
 

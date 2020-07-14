@@ -49,12 +49,7 @@ namespace MugenMvvm.Enums
         [DataMember(Name = "_d")]
         public string Name
         {
-            get
-            {
-                if (_name == null)
-                    _name = Value?.ToString() ?? string.Empty;
-                return _name;
-            }
+            get => _name ??= Value?.ToString() ?? string.Empty;
             internal set => _name = value;
         }
 

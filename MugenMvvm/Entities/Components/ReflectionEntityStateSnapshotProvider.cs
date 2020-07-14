@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
-using MugenMvvm.Collections;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Entities;
@@ -14,11 +12,11 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Entities.Components
 {
-    public sealed class ReflectionEntityStateSnapshotProvider : IEntityStateSnapshotProviderComponent, IHasPriority
+    public sealed class ReflectionEntityStateSnapshotProvider : IEntityStateSnapshotProviderComponent, IHasPriority, IEqualityComparer<object?>
     {
         #region Fields
 
-        private readonly MemberInfoLightDictionary<Type, EntityMemberAccessor[]> _cache;
+        private readonly Dictionary<Type, EntityMemberAccessor[]> _cache;
         private readonly IReflectionManager? _reflectionManager;
 
         private Func<PropertyInfo, bool>? _memberFilter;
@@ -31,7 +29,7 @@ namespace MugenMvvm.Entities.Components
         public ReflectionEntityStateSnapshotProvider(IReflectionManager? reflectionManager = null)
         {
             _reflectionManager = reflectionManager;
-            _cache = new MemberInfoLightDictionary<Type, EntityMemberAccessor[]>(7);
+            _cache = new Dictionary<Type, EntityMemberAccessor[]>(7, InternalComparer.Type);
         }
 
         #endregion
@@ -83,7 +81,17 @@ namespace MugenMvvm.Entities.Components
 
             if (value.Length == 0)
                 return null;
-            return EntityStateSnapshot.Get(entity, value);
+            return new EntityStateSnapshot(entity, value, this);
+        }
+
+        bool IEqualityComparer<object?>.Equals(object? x, object? y)
+        {
+            return Equals(GetUnderlyingValue(x!), GetUnderlyingValue(y!));
+        }
+
+        int IEqualityComparer<object?>.GetHashCode(object? key)
+        {
+            return GetUnderlyingValue(key!).GetHashCode();
         }
 
         #endregion
@@ -116,15 +124,23 @@ namespace MugenMvvm.Entities.Components
             return list.List?.ToArray() ?? Default.Array<EntityMemberAccessor>();
         }
 
+        private static object GetUnderlyingValue(object key)
+        {
+            if (key is MemberInfo m)
+                return m.Name;
+            return key;
+        }
+
         #endregion
 
         #region Nested types
 
-        private sealed class EntityStateSnapshot : LightDictionary<object, MemberState>, IEntityStateSnapshot
+        private sealed class EntityStateSnapshot : Dictionary<object, MemberState>, IEntityStateSnapshot
         {
             #region Constructors
 
-            private EntityStateSnapshot(object entity, IReadOnlyList<EntityMemberAccessor> accessors) : base(accessors.Count)
+            public EntityStateSnapshot(object entity, IReadOnlyList<EntityMemberAccessor> accessors, IEqualityComparer<object> comparer)
+                : base(accessors.Count, comparer)
             {
                 Should.NotBeNull(entity, nameof(entity));
                 Should.NotBeNull(accessors, nameof(accessors));
@@ -150,11 +166,11 @@ namespace MugenMvvm.Entities.Components
             {
                 Should.BeOfType(entity, nameof(entity), EntityType);
                 if (member != null)
-                    return TryGetValue(member, out var value) && !object.Equals(value.GetValue(entity), value.Value);
+                    return TryGetValue(member, out var value) && !Equals(value.GetValue(entity), value.Value);
 
                 foreach (var pair in this)
                 {
-                    if (!object.Equals(pair.Value.GetValue(entity), pair.Value.Value))
+                    if (!Equals(pair.Value.GetValue(entity), pair.Value.Value))
                         return true;
                 }
 
@@ -176,32 +192,6 @@ namespace MugenMvvm.Entities.Components
                 foreach (var pair in this)
                     values[index++] = new EntityStateValue(pair.Key, pair.Value.Value, pair.Value.GetValue(entity));
                 return values;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public static IEntityStateSnapshot Get(object entity, IReadOnlyList<EntityMemberAccessor> accessors)
-            {
-                return new EntityStateSnapshot(entity, accessors);
-            }
-
-            protected override bool Equals(object x, object y)
-            {
-                return object.Equals(GetUnderlyingValue(x), GetUnderlyingValue(y));
-            }
-
-            protected override int GetHashCode(object key)
-            {
-                return GetUnderlyingValue(key).GetHashCode();
-            }
-
-            private static object GetUnderlyingValue(object key)
-            {
-                if (key is MemberInfo m)
-                    return m.Name;
-                return key;
             }
 
             #endregion

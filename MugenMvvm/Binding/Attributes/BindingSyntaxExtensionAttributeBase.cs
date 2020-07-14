@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
-using MugenMvvm.Collections.Internal;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Attributes
 {
@@ -12,7 +13,7 @@ namespace MugenMvvm.Binding.Attributes
     {
         #region Fields
 
-        private static readonly MemberInfoLightDictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?> Cache = new MemberInfoLightDictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?>(23);
+        private static readonly Dictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?> Cache = new Dictionary<MemberInfo, BindingSyntaxExtensionAttributeBase?>(23, InternalComparer.MemberInfo);
 
         #endregion
 

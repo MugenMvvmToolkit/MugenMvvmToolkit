@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Extensions;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Extensions
 {
@@ -15,7 +15,7 @@ namespace MugenMvvm.Binding.Extensions
     {
         #region Fields
 
-        private static readonly TypeLightDictionary<object?> DefaultValueCache = new TypeLightDictionary<object?>(23);
+        private static readonly Dictionary<Type, object?> DefaultValueCache = new Dictionary<Type, object?>(23, InternalComparer.Type);
 
         #endregion
 

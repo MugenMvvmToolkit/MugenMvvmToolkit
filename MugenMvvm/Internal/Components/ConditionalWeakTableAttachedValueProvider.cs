@@ -1,7 +1,7 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -12,7 +12,7 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
-        private readonly ConditionalWeakTable<object, StringOrdinalLightDictionary<object?>> _weakTable;
+        private readonly ConditionalWeakTable<object, SortedList<string, object?>> _weakTable;
 
         #endregion
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Internal.Components
         [Preserve(Conditional = true)]
         public ConditionalWeakTableAttachedValueProvider()
         {
-            _weakTable = new ConditionalWeakTable<object, StringOrdinalLightDictionary<object?>>();
+            _weakTable = new ConditionalWeakTable<object, SortedList<string, object?>>();
         }
 
         #endregion
@@ -39,7 +39,7 @@ namespace MugenMvvm.Internal.Components
             return true;
         }
 
-        protected override LightDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
+        protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
             if (optional)
             {
@@ -47,7 +47,7 @@ namespace MugenMvvm.Internal.Components
                 return value;
             }
 
-            return _weakTable.GetValue(item, key => new StringOrdinalLightDictionary<object?>(3));
+            return _weakTable.GetValue(item, key => new SortedList<string, object?>(StringComparer.Ordinal));
         }
 
         protected override bool ClearInternal(object item)

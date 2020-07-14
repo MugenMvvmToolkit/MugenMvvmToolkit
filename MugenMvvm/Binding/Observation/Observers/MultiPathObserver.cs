@@ -31,9 +31,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         protected IEventListener GetLastMemberListener()
         {
-            if (_lastMemberListener == null)
-                _lastMemberListener = new LastMemberListener(this.ToWeakReference());
-            return _lastMemberListener;
+            return _lastMemberListener ??= new LastMemberListener(this.ToWeakReference());
         }
 
         protected override void OnListenersAdded()

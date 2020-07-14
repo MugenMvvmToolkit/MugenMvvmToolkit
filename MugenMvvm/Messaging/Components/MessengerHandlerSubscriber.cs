@@ -4,7 +4,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
-using MugenMvvm.Collections;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -22,7 +21,9 @@ namespace MugenMvvm.Messaging.Components
         #region Fields
 
         private readonly IReflectionManager? _reflectionManager;
-        private static readonly CacheDictionary Cache = new CacheDictionary();
+
+        private static readonly Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?> Cache =
+            new Dictionary<KeyValuePair<Type, Type>, Action<object?, object?, IMessageContext>?>(59, InternalComparer.TypeType);
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerDelegate = Handle;
         private static readonly Func<object, IMessageContext, object?, MessengerResult> HandlerRawDelegate = HandleRaw;
 
@@ -202,12 +203,12 @@ namespace MugenMvvm.Messaging.Components
 
         private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
         {
-            var key = new CacheKey(handlerType, messageType);
+            var key = new KeyValuePair<Type, Type>(handlerType, messageType);
             lock (Cache)
             {
                 if (!Cache.TryGetValue(key, out var action))
                 {
-                    var interfaces = key.HandlerType.GetInterfaces();
+                    var interfaces = key.Key.GetInterfaces();
                     for (var index = 0; index < interfaces.Length; index++)
                     {
                         var @interface = interfaces[index];
@@ -215,7 +216,7 @@ namespace MugenMvvm.Messaging.Components
                             continue;
                         var typeMessage = @interface.GetGenericArguments()[0];
                         var method = @interface.GetMethod(nameof(IMessengerHandler<object>.Handle), BindingFlagsEx.InstancePublic);
-                        if (method != null && typeMessage.IsAssignableFrom(key.MessageType))
+                        if (method != null && typeMessage.IsAssignableFrom(key.Value))
                             action += method.GetMethodInvoker<Action<object?, object?, IMessageContext>>(reflectionManager);
                     }
 
@@ -229,37 +230,6 @@ namespace MugenMvvm.Messaging.Components
         #endregion
 
         #region Nested types
-
-        private sealed class HandlerSubscriberEqualityComparer : IEqualityComparer<HandlerSubscriber>
-        {
-            #region Fields
-
-            public static readonly IEqualityComparer<HandlerSubscriber> Instance = new HandlerSubscriberEqualityComparer();
-
-            #endregion
-
-            #region Constructors
-
-            private HandlerSubscriberEqualityComparer()
-            {
-            }
-
-            #endregion
-
-            #region Implementation of interfaces
-
-            public bool Equals(HandlerSubscriber x, HandlerSubscriber y)
-            {
-                return ReferenceEquals(x.Subscriber, y.Subscriber) || ReferenceEquals(x.GetSubscriber(), y.GetSubscriber());
-            }
-
-            public int GetHashCode(HandlerSubscriber obj)
-            {
-                return obj.Hash;
-            }
-
-            #endregion
-        }
 
         [StructLayout(LayoutKind.Auto)]
         public readonly struct HandlerSubscriber
@@ -295,47 +265,32 @@ namespace MugenMvvm.Messaging.Components
             #endregion
         }
 
-        [StructLayout(LayoutKind.Auto)]
-        private readonly struct CacheKey
+        private sealed class HandlerSubscriberEqualityComparer : IEqualityComparer<HandlerSubscriber>
         {
             #region Fields
 
-            public readonly Type HandlerType;
-            public readonly Type MessageType;
+            public static readonly IEqualityComparer<HandlerSubscriber> Instance = new HandlerSubscriberEqualityComparer();
 
             #endregion
 
             #region Constructors
 
-            public CacheKey(Type handlerType, Type messageType)
-            {
-                HandlerType = handlerType;
-                MessageType = messageType;
-            }
-
-            #endregion
-        }
-
-        private sealed class CacheDictionary : LightDictionary<CacheKey, Action<object?, object?, IMessageContext>?>
-        {
-            #region Constructors
-
-            public CacheDictionary() : base(59)
+            private HandlerSubscriberEqualityComparer()
             {
             }
 
             #endregion
 
-            #region Methods
+            #region Implementation of interfaces
 
-            protected override int GetHashCode(CacheKey key)
+            public bool Equals(HandlerSubscriber x, HandlerSubscriber y)
             {
-                return HashCode.Combine(key.HandlerType, key.MessageType);
+                return ReferenceEquals(x.Subscriber, y.Subscriber) || ReferenceEquals(x.GetSubscriber(), y.GetSubscriber());
             }
 
-            protected override bool Equals(CacheKey x, CacheKey y)
+            public int GetHashCode(HandlerSubscriber obj)
             {
-                return x.HandlerType == y.HandlerType && x.MessageType == y.MessageType;
+                return obj.Hash;
             }
 
             #endregion

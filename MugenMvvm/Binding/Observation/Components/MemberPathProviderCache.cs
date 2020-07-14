@@ -1,8 +1,9 @@
-﻿using MugenMvvm.Attributes;
+﻿using System;
+using System.Collections.Generic;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Observation.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
@@ -15,7 +16,7 @@ namespace MugenMvvm.Binding.Observation.Components
     {
         #region Fields
 
-        private readonly StringOrdinalLightDictionary<IMemberPath?> _cache;
+        private readonly Dictionary<string, IMemberPath?> _cache;
 
         #endregion
 
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Observation.Components
         [Preserve(Conditional = true)]
         public MemberPathProviderCache()
         {
-            _cache = new StringOrdinalLightDictionary<IMemberPath?>(59);
+            _cache = new Dictionary<string, IMemberPath?>(59, StringComparer.Ordinal);
         }
 
         #endregion

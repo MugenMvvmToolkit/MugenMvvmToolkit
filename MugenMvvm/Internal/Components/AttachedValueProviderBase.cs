@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Collections;
+using System.Linq;
 using MugenMvvm.Delegates;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -27,7 +27,7 @@ namespace MugenMvvm.Internal.Components
                     if (dictionary.Count == 0)
                         return default;
                     if (dictionary.Count == 1)
-                        return dictionary.FirstOrDefault;
+                        return dictionary.FirstOrDefault();
                     return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
                 }
 
@@ -158,7 +158,8 @@ namespace MugenMvvm.Internal.Components
             var dictionary = GetAttachedDictionary(item, false)!;
             lock (dictionary)
             {
-                dictionary.Set(path, BoxingExtensions.Box(value), out oldValue);
+                dictionary.TryGetValue(path, out oldValue);
+                dictionary[path] = BoxingExtensions.Box(value);
             }
         }
 
@@ -177,7 +178,7 @@ namespace MugenMvvm.Internal.Components
             bool removed;
             lock (dictionary)
             {
-                removed = dictionary.Remove(path!, out oldValue);
+                removed = dictionary.TryGetValue(path!, out oldValue) && dictionary.Remove(path!);
                 clear = removed && dictionary.Count == 0;
             }
 
@@ -196,7 +197,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        protected abstract LightDictionary<string, object?>? GetAttachedDictionary(object item, bool optional);
+        protected abstract IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional);
 
         protected abstract bool ClearInternal(object item);
 

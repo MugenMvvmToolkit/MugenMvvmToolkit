@@ -3,7 +3,6 @@ using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
@@ -17,7 +16,7 @@ namespace MugenMvvm.Binding.Build.Components
     {
         #region Fields
 
-        private readonly ReferenceLightDictionary<object?> _cache;
+        private readonly Dictionary<object, object?> _cache;
 
         #endregion
 
@@ -25,7 +24,7 @@ namespace MugenMvvm.Binding.Build.Components
 
         public BindingBuilderRequestExpressionParser()
         {
-            _cache = new ReferenceLightDictionary<object?>(47);
+            _cache = new Dictionary<object, object?>(47, InternalComparer.Reference);
         }
 
         #endregion

@@ -1,4 +1,4 @@
-﻿using MugenMvvm.Collections;
+﻿using System.Collections.Generic;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.UnitTest.Internal.Internal;
@@ -11,7 +11,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
 
         protected override object GetSupportedItem()
         {
-            return new TestValueHolder<LightDictionary<string, object?>>();
+            return new TestValueHolder<IDictionary<string, object?>>();
         }
 
         protected override IAttachedValueProviderComponent GetComponent()

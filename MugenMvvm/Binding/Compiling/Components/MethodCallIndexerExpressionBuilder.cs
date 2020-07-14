@@ -15,7 +15,6 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Metadata;
-using MugenMvvm.Collections;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -566,7 +565,7 @@ namespace MugenMvvm.Binding.Compiling.Components
         #region Nested types
 
         [Preserve(AllMembers = true, Conditional = true)]
-        private sealed class MethodInvoker : LightDictionary<Type[], MethodData>
+        private sealed class MethodInvoker : Dictionary<Type[], MethodData>
         {
             #region Fields
 
@@ -577,7 +576,7 @@ namespace MugenMvvm.Binding.Compiling.Components
 
             #region Constructors
 
-            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3)
+            public MethodInvoker(MethodCallIndexerExpressionBuilder component) : base(3, InternalComparer.TypeArray)
             {
                 _component = component;
             }
@@ -619,30 +618,6 @@ namespace MugenMvvm.Binding.Compiling.Components
                 }
 
                 return result;
-            }
-
-            protected override bool Equals(Type[] x, Type[] y)
-            {
-                if (ReferenceEquals(x, y))
-                    return true;
-
-                if (x.Length != y.Length)
-                    return false;
-                for (var i = 0; i < x.Length; i++)
-                {
-                    if (x[i] != y[i])
-                        return false;
-                }
-
-                return true;
-            }
-
-            protected override int GetHashCode(Type[] key)
-            {
-                var hashCode = new HashCode();
-                for (var index = 0; index < key.Length; index++)
-                    hashCode.Add(key[index]);
-                return hashCode.ToHashCode();
             }
 
             #endregion

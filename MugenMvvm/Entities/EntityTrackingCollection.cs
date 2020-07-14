@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using MugenMvvm.Collections;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -18,7 +17,7 @@ namespace MugenMvvm.Entities
     {
         #region Fields
 
-        private readonly EntityStateDictionary _dictionary;
+        private readonly Dictionary<object, EntityState> _dictionary;
 
         #endregion
 
@@ -26,7 +25,7 @@ namespace MugenMvvm.Entities
 
         public EntityTrackingCollection(IEqualityComparer<object>? comparer = null, IComponentCollectionManager? componentCollectionManager = null) : base(componentCollectionManager)
         {
-            _dictionary = new EntityStateDictionary(comparer ?? EqualityComparer<object>.Default);
+            _dictionary = new Dictionary<object, EntityState>(comparer ?? EqualityComparer<object>.Default);
         }
 
         #endregion
@@ -141,42 +140,6 @@ namespace MugenMvvm.Entities
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class EntityStateDictionary : LightDictionary<object, EntityState>
-        {
-            #region Fields
-
-            public readonly IEqualityComparer<object> Comparer;
-
-            #endregion
-
-            #region Constructors
-
-            public EntityStateDictionary(IEqualityComparer<object> comparer)
-            {
-                Comparer = comparer;
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override int GetHashCode(object key)
-            {
-                return Comparer.GetHashCode(key);
-            }
-
-            protected override bool Equals(object x, object y)
-            {
-                return Comparer.Equals(x, y);
-            }
-
-            #endregion
         }
 
         #endregion

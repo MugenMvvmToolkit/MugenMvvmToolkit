@@ -1,8 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -16,7 +16,7 @@ namespace MugenMvvm.Extensions
         public static readonly object FalseObject = false;
         public static readonly MethodInfo GenericBoxMethodInfo = GetBoxMethodInfo();
 
-        private static readonly TypeLightDictionary<Delegate> BoxingDelegates = new TypeLightDictionary<Delegate>(9)
+        private static readonly Dictionary<Type, Delegate> BoxingDelegates = new Dictionary<Type, Delegate>(19, InternalComparer.Type)
         {
             {typeof(bool), new BoxingDelegate<bool>(Box)},
             {typeof(byte), new BoxingDelegate<byte>(Box)},

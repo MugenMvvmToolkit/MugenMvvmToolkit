@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Collections;
+﻿using System.Collections.Generic;
+using MugenMvvm.Android.Interfaces;
 
 namespace MugenMvvm.Android.Binding
 {
@@ -8,7 +8,7 @@ namespace MugenMvvm.Android.Binding
         #region Fields
 
         private readonly int _templateId;
-        private static readonly TemplateDictionary Cache = new TemplateDictionary();
+        private static readonly Dictionary<int, SingleDataTemplateSelector> Cache = new Dictionary<int, SingleDataTemplateSelector>();
 
         #endregion
 
@@ -44,29 +44,6 @@ namespace MugenMvvm.Android.Binding
             }
 
             return value;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class TemplateDictionary : LightDictionary<int, SingleDataTemplateSelector>
-        {
-            #region Constructors
-
-            public TemplateDictionary() : base(3)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override int GetHashCode(int key) => key;
-
-            protected override bool Equals(int x, int y) => x == y;
-
-            #endregion
         }
 
         #endregion

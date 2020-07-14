@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
@@ -11,7 +11,7 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private readonly MetadataContextLightDictionary _dictionary;
+        private readonly Dictionary<IMetadataContextKey, object?> _dictionary;
 
         #endregion
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Metadata
         public ReadOnlyMetadataContext(IReadOnlyCollection<MetadataContextValue> values)
         {
             Should.NotBeNull(values, nameof(values));
-            _dictionary = new MetadataContextLightDictionary(values.Count);
+            _dictionary = new Dictionary<IMetadataContextKey, object?>(values.Count, InternalComparer.MetadataContextKey);
             foreach (var contextValue in values)
                 _dictionary[contextValue.ContextKey] = contextValue.Value;
         }

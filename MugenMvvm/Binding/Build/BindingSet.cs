@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -20,7 +18,7 @@ namespace MugenMvvm.Binding.Build
 
         private readonly TSource? _source;
         private IBindingManager? _bindingManager;
-        private TargetSourceDictionary? _builders;
+        private Dictionary<(object, object?), object?>? _builders;
 
         #endregion
 
@@ -41,25 +39,9 @@ namespace MugenMvvm.Binding.Build
 
         #region Properties
 
-        private IBindingManager BindingManager
-        {
-            get
-            {
-                if (_bindingManager == null)
-                    _bindingManager = _bindingManager.DefaultIfNull();
-                return _bindingManager;
-            }
-        }
+        private IBindingManager BindingManager => _bindingManager ??= _bindingManager.DefaultIfNull();
 
-        private TargetSourceDictionary Builders
-        {
-            get
-            {
-                if (_builders == null)
-                    _builders = new TargetSourceDictionary();
-                return _builders;
-            }
-        }
+        private Dictionary<(object, object?), object?> Builders => _builders ??= new Dictionary<(object, object?), object?>(InternalComparer.ValueTupleReference);
 
         #endregion
 
@@ -149,29 +131,6 @@ namespace MugenMvvm.Binding.Build
             var list = ItemOrList.FromRawValue<IBindingBuilder, List<IBindingBuilder>>(value, true).Editor();
             list.AddRange(expressions);
             Builders[key] = list.GetRawValue();
-        }
-
-        #endregion
-
-        #region Nested types
-
-        private sealed class TargetSourceDictionary : LightDictionary<(object, object?), object?>
-        {
-            #region Methods
-
-            protected override bool Equals((object, object?) x, (object, object?) y)
-            {
-                return ReferenceEquals(x.Item1, y.Item1) && ReferenceEquals(x.Item2, y.Item2);
-            }
-
-            protected override int GetHashCode((object, object?) key)
-            {
-                if (key.Item2 == null)
-                    return RuntimeHelpers.GetHashCode(key.Item1);
-                return HashCode.Combine(RuntimeHelpers.GetHashCode(key.Item1), RuntimeHelpers.GetHashCode(key.Item2));
-            }
-
-            #endregion
         }
 
         #endregion

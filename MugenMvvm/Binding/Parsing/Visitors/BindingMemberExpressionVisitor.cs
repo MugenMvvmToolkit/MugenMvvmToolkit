@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,21 +14,19 @@ using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing.Expressions.Binding;
-using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Binding.Parsing.Visitors
 {
-    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor
+    public sealed class BindingMemberExpressionVisitor : IExpressionVisitor, IEqualityComparer<BindingMemberExpressionVisitor.CacheKey>
     {
         #region Fields
 
         private readonly Func<IExpressionNode, bool> _condition;
-
         private readonly StringBuilder _memberBuilder;
         private readonly IMemberManager? _memberManager;
-        private readonly MemberDictionary _members;
+        private readonly Dictionary<CacheKey, IExpressionNode> _members;
         private readonly IObservationManager? _observationManager;
         private readonly IResourceResolver? _resourceResolver;
 
@@ -40,7 +39,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             _observationManager = observationManager;
             _resourceResolver = resourceResolver;
             _memberManager = memberManager;
-            _members = new MemberDictionary();
+            _members = new Dictionary<CacheKey, IExpressionNode>(this);
             _memberBuilder = new StringBuilder();
             _condition = Condition;
         }
@@ -62,6 +61,16 @@ namespace MugenMvvm.Binding.Parsing.Visitors
         #endregion
 
         #region Implementation of interfaces
+
+        bool IEqualityComparer<CacheKey>.Equals(CacheKey x, CacheKey y)
+        {
+            return x.MemberFlags == y.MemberFlags && x.MemberType == y.MemberType && x.Path == y.Path && x.MethodName == y.MethodName && Equals(x.Target, y.Target);
+        }
+
+        int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key)
+        {
+            return HashCode.Combine(key.Path, key.MethodName, (int) key.MemberFlags, (int) key.MemberType, key.Target);
+        }
 
         IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
@@ -219,7 +228,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
             }
 
-            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType)type);
+            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType) type);
             if (!_members.TryGetValue(key, out var node))
             {
                 node = new BindingMemberExpressionNode(key.Path, _observationManager)
@@ -292,33 +301,8 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         #region Nested types
 
-        private sealed class MemberDictionary : LightDictionary<CacheKey, IExpressionNode>
-        {
-            #region Constructors
-
-            public MemberDictionary() : base(3)
-            {
-            }
-
-            #endregion
-
-            #region Methods
-
-            protected override bool Equals(CacheKey x, CacheKey y)
-            {
-                return x.MemberFlags == y.MemberFlags && x.MemberType == y.MemberType && x.Path == y.Path && x.MethodName == y.MethodName && Equals(x.Target, y.Target);
-            }
-
-            protected override int GetHashCode(CacheKey key)
-            {
-                return HashCode.Combine(key.Path, key.MethodName, (int)key.MemberFlags, (int)key.MemberType, key.Target);
-            }
-
-            #endregion
-        }
-
         [StructLayout(LayoutKind.Auto)]
-        private readonly struct CacheKey
+        internal readonly struct CacheKey
         {
             #region Fields
 
@@ -344,7 +328,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
             #endregion
         }
 
-        private enum BindingMemberType : byte
+        internal enum BindingMemberType : byte
         {
             Resource = 3,
             Instance = 4,

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Reflection;
 using System.Windows.Input;
-using MugenMvvm.Collections.Internal;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -26,7 +25,7 @@ namespace MugenMvvm.ViewModels.Components
         private readonly IReflectionManager? _reflectionManager;
         private readonly IViewManager? _viewManager;
 
-        private static readonly TypeLightDictionary<object?> TypesToCommandsProperties = new TypeLightDictionary<object?>(59);
+        private static readonly Dictionary<Type, object?> TypesToCommandsProperties = new Dictionary<Type, object?>(59, InternalComparer.Type);
 
         #endregion
 
