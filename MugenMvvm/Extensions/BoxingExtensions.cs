@@ -14,29 +14,10 @@ namespace MugenMvvm.Extensions
         public const int CacheSize = 50;
         public static readonly object TrueObject = true;
         public static readonly object FalseObject = false;
-        public static readonly MethodInfo GenericBoxMethodInfo = GetBoxMethodInfo();
-
-        private static readonly Dictionary<Type, Delegate> BoxingDelegates = new Dictionary<Type, Delegate>(19, InternalComparer.Type)
-        {
-            {typeof(bool), new BoxingDelegate<bool>(Box)},
-            {typeof(byte), new BoxingDelegate<byte>(Box)},
-            {typeof(sbyte), new BoxingDelegate<sbyte>(Box)},
-            {typeof(ushort), new BoxingDelegate<ushort>(Box)},
-            {typeof(short), new BoxingDelegate<short>(Box)},
-            {typeof(uint), new BoxingDelegate<uint>(Box)},
-            {typeof(int), new BoxingDelegate<int>(Box)},
-            {typeof(ulong), new BoxingDelegate<ulong>(Box)},
-            {typeof(long), new BoxingDelegate<long>(Box)},
-            {typeof(bool?), new BoxingDelegate<bool?>(Box)},
-            {typeof(byte?), new BoxingDelegate<byte?>(Box)},
-            {typeof(sbyte?), new BoxingDelegate<sbyte?>(Box)},
-            {typeof(ushort?), new BoxingDelegate<ushort?>(Box)},
-            {typeof(short?), new BoxingDelegate<short?>(Box)},
-            {typeof(uint?), new BoxingDelegate<uint?>(Box)},
-            {typeof(int?), new BoxingDelegate<int?>(Box)},
-            {typeof(ulong?), new BoxingDelegate<ulong?>(Box)},
-            {typeof(long?), new BoxingDelegate<long?>(Box)}
-        };
+        private static readonly MethodInfo GenericBoxMethodInfo = Initialize(out CanBoxMethodInfo);
+        private static readonly MethodInfo? CanBoxMethodInfo;
+        private static readonly Dictionary<Type, Func<bool>> CanBoxCache = new Dictionary<Type, Func<bool>>(InternalComparer.Type);
+        private static Dictionary<Type, MethodInfo>? _boxMethods;
 
         #endregion
 
@@ -217,39 +198,103 @@ namespace MugenMvvm.Extensions
         [return: NotNullIfNotNull("value")]
         public static object? Box<T>([AllowNull] T value)
         {
-            if (BoxingTypeChecker<T>.IsBoxRequired)
-                return ((BoxingDelegate<T>)BoxingDelegates[typeof(T)]).Invoke(value!);
-            return value;
-        }
-
-        public static void AddBoxHandler<T>(BoxingDelegate<T> handler) where T : struct
-        {
-            Should.NotBeNull(handler, nameof(handler));
-            BoxingDelegates[typeof(T)] = handler;
-            BoxingTypeChecker<T>.IsBoxRequired = true;
+            var box = BoxingType<T>.BoxDelegate;
+            if (box == null)
+                return value;
+            return box(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanBox<T>()
         {
-            return BoxingTypeChecker<T>.IsBoxRequired;
+            return BoxingType<T>.BoxDelegate != null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static bool CanBox(Type type)
+        public static bool CanBox(Type? type)
+        {
+            if (type == null || !type.IsValueType)
+                return false;
+            Func<bool>? value;
+            lock (CanBoxCache)
+            {
+                if (!CanBoxCache.TryGetValue(type, out value))
+                {
+                    value = CanBoxMethodInfo!.MakeGenericMethod(type).GetMethodInvoker<Func<bool>>();
+                    CanBoxCache[type] = value;
+                }
+            }
+
+            return value();
+        }
+
+        public static void RegisterBoxHandler<T>(BoxingDelegate<T> handler)
+        {
+            Should.NotBeNull(handler, nameof(handler));
+            BoxingType<T>.BoxDelegate = handler;
+        }
+
+        public static MethodInfo GetBoxMethodInfo(Type type)
         {
             Should.NotBeNull(type, nameof(type));
-            return BoxingDelegates.ContainsKey(type);
+            if (_boxMethods == null)
+            {
+                var boxMethods = new Dictionary<Type, MethodInfo>(19, InternalComparer.Type);
+                var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
+                for (int i = 0; i < methods.Length; i++)
+                {
+                    var method = methods[i];
+                    if (method.Name == nameof(Box) && method.IsGenericMethod)
+                    {
+                        var parameters = method.GetParameters();
+                        if (parameters.Length == 1)
+                            boxMethods[parameters[0].ParameterType] = method;
+                    }
+                }
+
+                _boxMethods = boxMethods;
+            }
+
+            if (_boxMethods.TryGetValue(type, out var m))
+                return m;
+            return GenericBoxMethodInfo.MakeGenericMethod(type);
         }
 
-        private static MethodInfo GetBoxMethodInfo()
+        private static MethodInfo Initialize(out MethodInfo canBoxMethodInfo)
         {
+            RegisterBoxHandler<bool>(Box);
+            RegisterBoxHandler<byte>(Box);
+            RegisterBoxHandler<sbyte>(Box);
+            RegisterBoxHandler<ushort>(Box);
+            RegisterBoxHandler<short>(Box);
+            RegisterBoxHandler<uint>(Box);
+            RegisterBoxHandler<int>(Box);
+            RegisterBoxHandler<ulong>(Box);
+            RegisterBoxHandler<long>(Box);
+            RegisterBoxHandler<bool?>(Box);
+            RegisterBoxHandler<byte?>(Box);
+            RegisterBoxHandler<sbyte?>(Box);
+            RegisterBoxHandler<ushort?>(Box);
+            RegisterBoxHandler<short?>(Box);
+            RegisterBoxHandler<uint?>(Box);
+            RegisterBoxHandler<int?>(Box);
+            RegisterBoxHandler<ulong?>(Box);
+            RegisterBoxHandler<long?>(Box);
+
+            canBoxMethodInfo = null!;
+            MethodInfo? boxMethodInfo = null;
             var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Static | BindingFlags.Public);
             for (int i = 0; i < methods.Length; i++)
             {
                 var method = methods[i];
-                if (method.Name == nameof(Box) && method.IsGenericMethod)
-                    return method;
+                if (!method.IsGenericMethod)
+                    continue;
+
+                if (method.Name == nameof(Box))
+                    boxMethodInfo = method;
+                else if (method.Name == nameof(CanBox))
+                    canBoxMethodInfo = method;
+                if (boxMethodInfo != null && canBoxMethodInfo != null)
+                    return boxMethodInfo;
             }
 
             Should.BeSupported(false, typeof(BoxingExtensions).Name + "." + nameof(Box));
@@ -260,13 +305,13 @@ namespace MugenMvvm.Extensions
 
         #region Nested types
 
-        public delegate object? BoxingDelegate<T>(T value);
+        public delegate object? BoxingDelegate<T>([AllowNull] T value);
 
-        private static class BoxingTypeChecker<T>
+        private static class BoxingType<T>
         {
             #region Fields
 
-            public static bool IsBoxRequired = BoxingDelegates.ContainsKey(typeof(T));
+            public static BoxingDelegate<T>? BoxDelegate;
 
             #endregion
         }

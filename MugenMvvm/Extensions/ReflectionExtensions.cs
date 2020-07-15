@@ -15,7 +15,6 @@ namespace MugenMvvm.Extensions
     {
         #region Fields
 
-        private static Dictionary<Type, MethodInfo>? _boxMethods;
         private static Action<object, PropertyChangedEventHandler>? _unsubscribePropertyChangedDelegate;
         private static Func<IWeakEventHandler<PropertyChangedEventArgs>, PropertyChangedEventHandler>? _createPropertyChangedHandlerDelegate;
         private static readonly Dictionary<Type, bool> HasClosureDictionary = new Dictionary<Type, bool>(47, InternalComparer.Type);
@@ -253,29 +252,7 @@ namespace MugenMvvm.Extensions
             if (type.IsByRef && expression is ParameterExpression parameterExpression && parameterExpression.IsByRef && parameterExpression.Type == type.GetElementType())
                 return expression;
             if (type == typeof(object) && BoxingExtensions.CanBox(expression.Type))
-            {
-                if (_boxMethods == null)
-                {
-                    var boxMethods = new Dictionary<Type, MethodInfo>(19, InternalComparer.Type);
-                    var methods = typeof(BoxingExtensions).GetMethods(BindingFlags.Public | BindingFlags.Static);
-                    for (int i = 0; i < methods.Length; i++)
-                    {
-                        var method = methods[i];
-                        if (method.Name == nameof(BoxingExtensions.Box) && method.IsGenericMethod)
-                        {
-                            var parameters = method.GetParameters();
-                            if (parameters.Length == 1)
-                                boxMethods[parameters[0].ParameterType] = method;
-                        }
-                    }
-
-                    _boxMethods = boxMethods;
-                }
-
-                if (!_boxMethods.TryGetValue(expression.Type, out var m))
-                    m = BoxingExtensions.GenericBoxMethodInfo.MakeGenericMethod(expression.Type);
-                return Expression.Call(null, m, expression);
-            }
+                return Expression.Call(null, BoxingExtensions.GetBoxMethodInfo(expression.Type), expression);
             return Expression.Convert(expression, type);
         }
 
