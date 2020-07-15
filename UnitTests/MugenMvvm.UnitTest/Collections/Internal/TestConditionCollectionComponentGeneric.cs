@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
 using MugenMvvm.Interfaces.Models;
@@ -8,7 +7,7 @@ using Should;
 
 namespace MugenMvvm.UnitTest.Collections.Internal
 {
-    public class TestConditionCollectionComponent<T> : IConditionCollectionComponent, IHasPriority
+    public class TestConditionCollectionComponentGeneric<T> : IConditionCollectionComponent<T>, IHasPriority
     {
         #region Fields
 
@@ -18,7 +17,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Constructors
 
-        public TestConditionCollectionComponent(IObservableCollection<T> collection)
+        public TestConditionCollectionComponentGeneric(IObservableCollection<T> collection)
         {
             _collection = collection;
         }
@@ -47,47 +46,47 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Implementation of interfaces
 
-        bool IConditionCollectionComponent.CanAdd(IObservableCollection collection, object? item, int index)
+        bool IConditionCollectionComponent<T>.CanAdd(IObservableCollection<T> collection, T item, int index)
         {
             _collection.ShouldEqual(collection);
             if (CanAdd == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanAdd?.Invoke((T)item!, index) ?? true;
+            return CanAdd?.Invoke(item!, index) ?? true;
         }
 
-        bool IConditionCollectionComponent.CanReplace(IObservableCollection collection, object? oldItem, object? newItem, int index)
+        bool IConditionCollectionComponent<T>.CanReplace(IObservableCollection<T> collection, T oldItem, T newItem, int index)
         {
             _collection.ShouldEqual(collection);
             if (CanReplace == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanReplace?.Invoke((T)oldItem!, (T)newItem!, index) ?? true;
+            return CanReplace?.Invoke(oldItem!, newItem!, index) ?? true;
         }
 
-        bool IConditionCollectionComponent.CanMove(IObservableCollection collection, object? item, int oldIndex, int newIndex)
+        bool IConditionCollectionComponent<T>.CanMove(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
         {
             _collection.ShouldEqual(collection);
             if (CanMove == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanMove?.Invoke((T)item!, oldIndex, newIndex) ?? true;
+            return CanMove?.Invoke(item!, oldIndex, newIndex) ?? true;
         }
 
-        bool IConditionCollectionComponent.CanRemove(IObservableCollection collection, object? item, int index)
+        bool IConditionCollectionComponent<T>.CanRemove(IObservableCollection<T> collection, T item, int index)
         {
             _collection.ShouldEqual(collection);
             if (CanRemove == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanRemove?.Invoke((T)item!, index) ?? true;
+            return CanRemove?.Invoke(item!, index) ?? true;
         }
 
-        bool IConditionCollectionComponent.CanReset(IObservableCollection collection, IEnumerable<object?> items)
+        bool IConditionCollectionComponent<T>.CanReset(IObservableCollection<T> collection, IEnumerable<T> items)
         {
             _collection.ShouldEqual(collection);
             if (CanReset == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            return CanReset?.Invoke(items.Cast<T>()) ?? true;
+            return CanReset?.Invoke(items) ?? true;
         }
 
-        bool IConditionCollectionComponent.CanClear(IObservableCollection collection)
+        bool IConditionCollectionComponent<T>.CanClear(IObservableCollection<T> collection)
         {
             _collection.ShouldEqual(collection);
             if (CanClear == null && ThrowErrorNullDelegate)

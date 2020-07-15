@@ -6,18 +6,34 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Internal.Internal;
+using Should;
 
 namespace MugenMvvm.UnitTest.Busy.Internal
 {
     public sealed class TestBusyManagerComponent : TestSuspendableComponent, IBusyManagerComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IBusyManager? _owner;
+
+        #endregion
+
+        #region Constructors
+
+        public TestBusyManagerComponent(IBusyManager? owner = null)
+        {
+            _owner = owner;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Func<IBusyManager, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryBeginBusy { get; set; }
+        public Func<object?, IReadOnlyMetadataContext?, IBusyToken?>? TryBeginBusy { get; set; }
 
-        public Func<IBusyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool>, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryGetToken { get; set; }
+        public Func<Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool>, object?, IReadOnlyMetadataContext?, IBusyToken?>? TryGetToken { get; set; }
 
-        public Func<IBusyManager, IReadOnlyMetadataContext?, ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>>>? TryGetTokens { get; set; }
+        public Func<IReadOnlyMetadataContext?, ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>>>? TryGetTokens { get; set; }
 
         public int Priority { get; set; }
 
@@ -27,17 +43,20 @@ namespace MugenMvvm.UnitTest.Busy.Internal
 
         IBusyToken? IBusyManagerComponent.TryBeginBusy(IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
-            return TryBeginBusy?.Invoke(busyManager, request, metadata);
+            _owner?.ShouldEqual(busyManager);
+            return TryBeginBusy?.Invoke(request, metadata);
         }
 
         IBusyToken? IBusyManagerComponent.TryGetToken(IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetToken?.Invoke(busyManager, filter, state, metadata);
+            _owner?.ShouldEqual(busyManager);
+            return TryGetToken?.Invoke(filter, state, metadata);
         }
 
         ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> IBusyManagerComponent.TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetTokens?.Invoke(busyManager, metadata) ?? default;
+            _owner?.ShouldEqual(busyManager);
+            return TryGetTokens?.Invoke(metadata) ?? default;
         }
 
         #endregion

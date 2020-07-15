@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Navigation.Components;
 
 namespace MugenMvvm.UnitTest.Navigation.Internal
 {
-    public class TestConditionNavigationDispatcherComponent : IConditionNavigationDispatcherComponent, IHasPriority
+    public class TestConditionNavigationDispatcherComponent : IConditionNavigationDispatcherComponent, IHasPriority//todo remove navigation dispatcher
     {
         #region Properties
 

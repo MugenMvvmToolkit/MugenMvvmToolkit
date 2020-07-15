@@ -5,16 +5,16 @@ namespace MugenMvvm.Interfaces.Collections.Components
 {
     public interface IConditionCollectionComponent : IComponent<IObservableCollection>
     {
-        bool CanAdd<T>(IObservableCollection<T> collection, T item, int index);
+        bool CanAdd(IObservableCollection collection, object? item, int index);
 
-        bool CanReplace<T>(IObservableCollection<T> collection, T oldItem, T newItem, int index);
+        bool CanReplace(IObservableCollection collection, object? oldItem, object? newItem, int index);
 
-        bool CanMove<T>(IObservableCollection<T> collection, T item, int oldIndex, int newIndex);
+        bool CanMove(IObservableCollection collection, object? item, int oldIndex, int newIndex);
 
-        bool CanRemove<T>(IObservableCollection<T> collection, T item, int index);
+        bool CanRemove(IObservableCollection collection, object? item, int index);
 
-        bool CanReset<T>(IObservableCollection<T> collection, IEnumerable<T> items);
+        bool CanReset(IObservableCollection collection, IEnumerable<object?> items);
 
-        bool CanClear<T>(IObservableCollection<T> collection);
+        bool CanClear(IObservableCollection collection);
     }
 }

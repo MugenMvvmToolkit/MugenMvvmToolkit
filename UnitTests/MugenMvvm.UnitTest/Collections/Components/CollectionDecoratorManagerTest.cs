@@ -259,9 +259,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnAdded = (items, item, index) =>
+                    OnAdded = (item, index) =>
                     {
-                        items.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++added;
@@ -298,9 +297,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnAdded = (items, item, index) =>
+                    OnAdded = (item, index) =>
                     {
-                        items.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++added;
@@ -339,9 +337,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReplaced = (items, oldItem, newItem, index) =>
+                    OnReplaced = (oldItem, newItem, index) =>
                     {
-                        items.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         oldItem.ShouldEqual(expectedOldItem);
                         newItem.ShouldEqual(expectedNewItem);
@@ -383,9 +380,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnMoved = (items, item, oldIndex, newIndex) =>
+                    OnMoved = (item, oldIndex, newIndex) =>
                     {
-                        items.ShouldEqual(collection);
                         oldIndex.ShouldEqual(expectedOldIndex);
                         newIndex.ShouldEqual(expectedNewIndex);
                         expectedItem.ShouldEqual(item);
@@ -426,9 +422,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnRemoved = (items, item, index) =>
+                    OnRemoved = (item, index) =>
                     {
-                        items.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removed;
@@ -467,9 +462,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnRemoved = (items, item, index) =>
+                    OnRemoved = (item, index) =>
                     {
-                        items.ShouldEqual(collection);
                         expectedIndex.ShouldEqual(index);
                         expectedItem.ShouldEqual(item);
                         ++removed;
@@ -507,9 +501,8 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnReset = (items, enumerable) =>
+                    OnReset = (enumerable) =>
                     {
-                        items.ShouldEqual(collection);
                         expectedItem.SequenceEqual(enumerable).ShouldBeTrue();
                         ++reset;
                     }
@@ -544,12 +537,11 @@ namespace MugenMvvm.UnitTest.Collections.Components
                 var changedListener = new TestCollectionDecoratorListener<TestCollectionItem>(collection)
                 {
                     ThrowErrorNullDelegate = true,
-                    OnCleared = items =>
+                    OnCleared = () =>
                     {
-                        items.ShouldEqual(collection);
                         ++clear;
                     },
-                    OnAdded = (items, item, arg3) => { }
+                    OnAdded = (item, arg3) => { }
                 };
                 collection.AddComponent(changedListener);
             }

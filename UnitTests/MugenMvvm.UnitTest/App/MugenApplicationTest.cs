@@ -35,28 +35,27 @@ namespace MugenMvvm.UnitTest.App
         [InlineData(10)]
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
-            var manager = new MugenApplication();
+            var application = new MugenApplication();
             var invokeCount = 0;
             var state = "state";
             var lifecycleState = ApplicationLifecycleState.Initialized;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestApplicationLifecycleDispatcherComponent
+                var component = new TestApplicationLifecycleDispatcherComponent(application)
                 {
-                    OnLifecycleChanged = (app, viewModelLifecycleState, st, metadata) =>
+                    OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
-                        app.ShouldEqual(manager);
                         st.ShouldEqual(state);
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
                     Priority = i
                 };
-                manager.AddComponent(component);
+                application.AddComponent(component);
             }
 
-            manager.OnLifecycleChanged(lifecycleState, state, DefaultMetadata);
+            application.OnLifecycleChanged(lifecycleState, state, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
 
@@ -67,12 +66,11 @@ namespace MugenMvvm.UnitTest.App
             var states = new List<ApplicationLifecycleState>();
             var device = new DeviceInfo(PlatformType.UnitTest, PlatformIdiom.Phone, "00", new MetadataContext());
             var application = new MugenApplication();
-            application.AddComponent(new TestApplicationLifecycleDispatcherComponent
+            application.AddComponent(new TestApplicationLifecycleDispatcherComponent(application)
             {
-                OnLifecycleChanged = (app, viewModelLifecycleState, st, metadata) =>
+                OnLifecycleChanged = (viewModelLifecycleState, st, metadata) =>
                 {
                     states.Add(viewModelLifecycleState);
-                    app.ShouldEqual(application);
                     st.ShouldEqual(state);
                     metadata.ShouldEqual(DefaultMetadata);
                 }

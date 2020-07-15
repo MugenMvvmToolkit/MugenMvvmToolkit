@@ -277,7 +277,7 @@ namespace MugenMvvm.Collections.Components
                 _keys[i] += value;
         }
 
-        private int Add<TItem>(int key, TItem value)
+        private int Add(int key, object? value)
         {
             var num = Array.BinarySearch(_keys, 0, _size, key);
             if (num >= 0)
@@ -308,12 +308,12 @@ namespace MugenMvvm.Collections.Components
             return _values[index];
         }
 
-        private void SetValue<TItem>(int index, TItem value)
+        private void SetValue(int index, object? value)
         {
             if (index >= _size)
                 ExceptionManager.ThrowIntOutOfRangeCollection("index");
 
-            _values[index] = BoxingExtensions.Box(value);
+            _values[index] = value;
         }
 
         private void RemoveAt(int index)
@@ -340,7 +340,7 @@ namespace MugenMvvm.Collections.Components
             SetCapacity(num);
         }
 
-        private int Insert<TItem>(int index, int key, TItem value)
+        private int Insert(int index, int key, object? value)
         {
             if (_size == _keys.Length)
                 EnsureCapacity(_size + 1);
@@ -351,7 +351,7 @@ namespace MugenMvvm.Collections.Components
             }
 
             _keys[index] = key;
-            _values[index] = BoxingExtensions.Box(value);
+            _values[index] = value;
             ++_size;
             return index;
         }

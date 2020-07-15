@@ -34,39 +34,39 @@ namespace MugenMvvm.Collections.Components
 
         #region Implementation of interfaces
 
-        void ICollectionChangedListener.OnItemChanged<T>(IObservableCollection<T> collection, T item, int index, object? args)
+        void ICollectionChangedListenerBase.OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
         {
-            OnItemChanged((IObservableCollection)collection, null, BoxingExtensions.Box(item), index, args);
+            OnItemChanged(collection, null, item, index, args);
         }
 
-        void ICollectionChangedListener.OnAdded<T>(IObservableCollection<T> collection, T item, int index)
+        void ICollectionChangedListenerBase.OnAdded(IObservableCollection collection, object? item, int index)
         {
-            OnAdded((IObservableCollection)collection, null, BoxingExtensions.Box(item), index);
+            OnAdded(collection, null, item, index);
         }
 
-        void ICollectionChangedListener.OnReplaced<T>(IObservableCollection<T> collection, T oldItem, T newItem, int index)
+        void ICollectionChangedListenerBase.OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index)
         {
-            OnReplaced((IObservableCollection)collection, null, BoxingExtensions.Box(oldItem), BoxingExtensions.Box(newItem), index);
+            OnReplaced(collection, null, oldItem, newItem, index);
         }
 
-        void ICollectionChangedListener.OnMoved<T>(IObservableCollection<T> collection, T item, int oldIndex, int newIndex)
+        void ICollectionChangedListenerBase.OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex)
         {
-            OnMoved((IObservableCollection)collection, null, BoxingExtensions.Box(item), oldIndex, newIndex);
+            OnMoved(collection, null, item, oldIndex, newIndex);
         }
 
-        void ICollectionChangedListener.OnRemoved<T>(IObservableCollection<T> collection, T item, int index)
+        void ICollectionChangedListenerBase.OnRemoved(IObservableCollection collection, object? item, int index)
         {
-            OnRemoved((IObservableCollection)collection, null, BoxingExtensions.Box(item), index);
+            OnRemoved(collection, null, item, index);
         }
 
-        void ICollectionChangedListener.OnReset<T>(IObservableCollection<T> collection, IEnumerable<T> items)
+        void ICollectionChangedListenerBase.OnReset(IObservableCollection collection, IEnumerable<object?> items)
         {
-            OnReset((IObservableCollection)collection, null, items as IEnumerable<object?> ?? items.OfType<object>());
+            OnReset(collection, null, items);
         }
 
-        void ICollectionChangedListener.OnCleared<T>(IObservableCollection<T> collection)
+        void ICollectionChangedListenerBase.OnCleared(IObservableCollection collection)
         {
-            OnCleared((IObservableCollection)collection, null);
+            OnCleared(collection, null);
         }
 
         public IEnumerable<object?> DecorateItems(IObservableCollection collection, ICollectionDecorator? decorator = null)

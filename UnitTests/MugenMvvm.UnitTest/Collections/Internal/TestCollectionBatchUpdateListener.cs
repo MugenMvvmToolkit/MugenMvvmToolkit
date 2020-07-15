@@ -24,9 +24,9 @@ namespace MugenMvvm.UnitTest.Collections.Internal
 
         #region Properties
 
-        public Action<IObservableCollection>? OnBeginBatchUpdate { get; set; }
+        public Action? OnBeginBatchUpdate { get; set; }
 
-        public Action<IObservableCollection>? OnEndBatchUpdate { get; set; }
+        public Action? OnEndBatchUpdate { get; set; }
 
         public bool ThrowErrorNullDelegate { get; set; }
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnBeginBatchUpdate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnBeginBatchUpdate?.Invoke(collection);
+            OnBeginBatchUpdate?.Invoke();
         }
 
         void ICollectionBatchUpdateListener.OnEndBatchUpdate(IObservableCollection collection)
@@ -47,7 +47,7 @@ namespace MugenMvvm.UnitTest.Collections.Internal
             _collection.ShouldEqual(collection);
             if (OnEndBatchUpdate == null && ThrowErrorNullDelegate)
                 throw new NotSupportedException();
-            OnEndBatchUpdate?.Invoke(collection);
+            OnEndBatchUpdate?.Invoke();
         }
 
         #endregion

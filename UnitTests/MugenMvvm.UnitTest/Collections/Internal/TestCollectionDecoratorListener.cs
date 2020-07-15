@@ -1,104 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using MugenMvvm.Interfaces.Collections;
+﻿using MugenMvvm.Interfaces.Collections;
 using MugenMvvm.Interfaces.Collections.Components;
-using MugenMvvm.Interfaces.Models;
-using Should;
 
 namespace MugenMvvm.UnitTest.Collections.Internal
 {
-    public class TestCollectionDecoratorListener<T> : ICollectionDecoratorListener, IHasPriority
+    public class TestCollectionDecoratorListener<T> : TestCollectionChangedListenerBase<T>, ICollectionDecoratorListener
     {
-        #region Fields
-
-        private readonly IObservableCollection _collection;
-
-        #endregion
-
         #region Constructors
 
-        public TestCollectionDecoratorListener(IObservableCollection<T> collection)
+        public TestCollectionDecoratorListener(IObservableCollection<T> collection) : base(collection)
         {
-            _collection = (IObservableCollection)collection;
-        }
-
-        #endregion
-
-        #region Properties
-
-        public Action<IObservableCollection<T>, T, int>? OnAdded { get; set; }
-
-        public Action<IObservableCollection<T>, T, T, int>? OnReplaced { get; set; }
-
-        public Action<IObservableCollection<T>, T, int, int>? OnMoved { get; set; }
-
-        public Action<IObservableCollection<T>, T, int>? OnRemoved { get; set; }
-
-        public Action<IObservableCollection<T>, T, int, object?>? OnItemChanged { get; set; }
-
-        public Action<IObservableCollection<T>, IEnumerable<T>>? OnReset { get; set; }
-
-        public Action<IObservableCollection<T>>? OnCleared { get; set; }
-
-        public bool ThrowErrorNullDelegate { get; set; }
-
-        public int Priority { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void ICollectionDecoratorListener.OnItemChanged(IObservableCollection collection, object? item, int index, object? args)
-        {
-            OnItemChanged?.Invoke((IObservableCollection<T>)collection, (T)item!, index, args);
-        }
-
-        void ICollectionDecoratorListener.OnAdded(IObservableCollection collection, object? item, int index)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnAdded == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnAdded?.Invoke((IObservableCollection<T>)collection, (T)item!, index);
-        }
-
-        void ICollectionDecoratorListener.OnReplaced(IObservableCollection collection, object? oldItem, object? newItem, int index)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnReplaced == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnReplaced?.Invoke((IObservableCollection<T>)collection, (T)oldItem!, (T)newItem!, index);
-        }
-
-        void ICollectionDecoratorListener.OnMoved(IObservableCollection collection, object? item, int oldIndex, int newIndex)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnMoved == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnMoved?.Invoke((IObservableCollection<T>)collection, (T)item!, oldIndex, newIndex);
-        }
-
-        void ICollectionDecoratorListener.OnRemoved(IObservableCollection collection, object? item, int index)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnRemoved == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnRemoved?.Invoke((IObservableCollection<T>)collection, (T)item!, index);
-        }
-
-        void ICollectionDecoratorListener.OnReset(IObservableCollection collection, IEnumerable<object?> items)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnReset == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnReset?.Invoke((IObservableCollection<T>)collection, (IEnumerable<T>) items);
-        }
-
-        void ICollectionDecoratorListener.OnCleared(IObservableCollection collection)
-        {
-            _collection.ShouldEqual(collection);
-            if (OnCleared == null && ThrowErrorNullDelegate)
-                throw new NotSupportedException();
-            OnCleared?.Invoke((IObservableCollection<T>)collection);
         }
 
         #endregion

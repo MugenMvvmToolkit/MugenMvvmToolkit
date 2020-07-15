@@ -2,16 +2,32 @@
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Metadata;
+using Should;
 
 namespace MugenMvvm.UnitTest.Busy.Internal
 {
     public sealed class TestBusyManagerListener : IBusyManagerListener
     {
+        #region Fields
+
+        private readonly IBusyManager? _owner;
+
+        #endregion
+
+        #region Constructors
+
+        public TestBusyManagerListener(IBusyManager? owner = null)
+        {
+            _owner = owner;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Action<IBusyManager, IBusyToken, IReadOnlyMetadataContext?>? OnBeginBusy { get; set; }
+        public Action<IBusyToken, IReadOnlyMetadataContext?>? OnBeginBusy { get; set; }
 
-        public Action<IBusyManager, IReadOnlyMetadataContext?>? OnBusyChanged { get; set; }
+        public Action<IReadOnlyMetadataContext?>? OnBusyChanged { get; set; }
 
         #endregion
 
@@ -19,12 +35,14 @@ namespace MugenMvvm.UnitTest.Busy.Internal
 
         void IBusyManagerListener.OnBeginBusy(IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
-            OnBeginBusy?.Invoke(busyManager, busyToken, metadata);
+            _owner?.ShouldEqual(busyManager);
+            OnBeginBusy?.Invoke(busyToken, metadata);
         }
 
         void IBusyManagerListener.OnBusyChanged(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
-            OnBusyChanged?.Invoke(busyManager, metadata);
+            _owner?.ShouldEqual(busyManager);
+            OnBusyChanged?.Invoke(metadata);
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Busy.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -11,6 +12,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IBusyToken? TryBeginBusy(this IBusyManagerComponent[] components, IBusyManager busyManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -25,6 +27,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IBusyToken? TryGetToken(this IBusyManagerComponent[] components, IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -40,6 +43,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> TryGetTokens(this IBusyManagerComponent[] components, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -52,6 +56,7 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IBusyToken>>();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnBeginBusy(this IBusyManagerListener[] listeners, IBusyManager busyManager, IBusyToken busyToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -61,6 +66,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnBeginBusy(busyManager, busyToken, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnBusyChanged(this IBusyManagerListener[] listeners, IBusyManager busyManager, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));

@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Extensions;
+﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -43,6 +44,7 @@ namespace MugenMvvm.Components
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected TComponent[] GetComponents<TComponent>(IReadOnlyMetadataContext? metadata = null)
             where TComponent : class
         {
