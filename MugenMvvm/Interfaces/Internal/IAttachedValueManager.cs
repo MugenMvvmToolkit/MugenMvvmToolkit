@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Delegates;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Internal;
@@ -13,7 +12,7 @@ namespace MugenMvvm.Interfaces.Internal
             Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
             where TItem : class;
 
-        bool TryGet<TValue>(object item, string path, [MaybeNullWhen(false)] out TValue value);
+        bool TryGet(object item, string path, out object? value);
 
         bool Contains(object item, string path);
 
@@ -28,7 +27,7 @@ namespace MugenMvvm.Interfaces.Internal
         TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)
             where TItem : class;
 
-        void Set<TValue>(object item, string path, TValue value, out object? oldValue);
+        void Set(object item, string path, object? value, out object? oldValue);
 
         bool Clear(object item, string path, out object? oldValue);
 

@@ -27,7 +27,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.AddComponent(GetComponent());
 
             manager.Contains(item, TestPath).ShouldBeFalse();
-            manager.TryGet(item, TestPath, out AttachedValueProviderTestBase? value).ShouldBeFalse();
+            manager.TryGet(item, TestPath, out var value).ShouldBeFalse();
             value.ShouldBeNull();
 
             manager.Set(item, TestPath, this, out var old);
@@ -224,7 +224,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
 
             for (var i = 0; i < count; i++)
             {
-                manager.TryGet(item, TestPath + i, out int v).ShouldBeTrue();
+                manager.TryGet(item, TestPath + i, out var v).ShouldBeTrue();
                 v.ShouldEqual(i + 1);
 
                 manager.Clear(item, TestPath + i, out var old).ShouldBeTrue();
@@ -252,7 +252,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.Clear(item);
             for (var i = 0; i < count; i++)
             {
-                manager.TryGet(item, TestPath + i, out int v).ShouldBeFalse();
+                manager.TryGet(item, TestPath + i, out var v).ShouldBeFalse();
                 v.ShouldNotEqual(i + 1);
             }
         }

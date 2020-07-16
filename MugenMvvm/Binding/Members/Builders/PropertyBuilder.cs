@@ -371,8 +371,8 @@ namespace MugenMvvm.Binding.Members.Builders
                     TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)> member, IReadOnlyMetadataContext? metadata)
             {
                 var attachedValueManager = MugenService.AttachedValueManager;
-                if (attachedValueManager.TryGet<InheritedProperty>(target!, member.State.id, out var value))
-                    return value;
+                if (attachedValueManager.TryGet(target!, member.State.id, out var value))
+                    return (InheritedProperty)value!;
 #pragma warning disable 8634
                 return attachedValueManager.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
                 {
@@ -483,8 +483,8 @@ namespace MugenMvvm.Binding.Members.Builders
             {
                 var attachedValueManager = MugenService.AttachedValueManager;
                 var key = member.GetTarget(target);
-                if (attachedValueManager.TryGet<AutoProperty>(key, member.State.id, out var value))
-                    return value;
+                if (attachedValueManager.TryGet(key, member.State.id, out var value))
+                    return (AutoProperty)value!;
 #pragma warning disable 8634
                 return attachedValueManager.GetOrAdd(key, member.State.id, (member, metadata), (t, s) =>
                 {

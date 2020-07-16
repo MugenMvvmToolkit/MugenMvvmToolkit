@@ -29,7 +29,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void TryGetShouldReturnEmptyNoComponents()
         {
-            new AttachedValueManager().TryGet(this, TestPath, out int value).ShouldBeFalse();
+            new AttachedValueManager().TryGet(this, TestPath, out var value).ShouldBeFalse();
             value.ShouldEqual(0);
         }
 
@@ -135,19 +135,18 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    TryGet = (o, s, arg3) =>
+                    TryGet = (o, s) =>
                     {
                         ++methodExecuted;
                         s.ShouldEqual(TestPath);
                         o.ShouldEqual(this);
-                        arg3.ShouldEqual(typeof(int));
                         return result;
                     }
                 };
                 attachedValueManager.AddComponent(component);
             }
 
-            attachedValueManager.TryGet(this, TestPath, out int r).ShouldBeTrue();
+            attachedValueManager.TryGet(this, TestPath, out var r).ShouldBeTrue();
             r.ShouldEqual(result);
             methodExecuted.ShouldEqual(1);
         }
@@ -351,12 +350,11 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    Set = (object item, string path, object value, Type type, out object? oldValue) =>
+                    Set = (object item, string path, object value, out object? oldValue) =>
                     {
                         item.ShouldEqual(this);
                         path.ShouldEqual(TestPath);
                         value.ShouldEqual(valueToSet);
-                        type.ShouldEqual(valueToSet.GetType());
                         oldValue = oldV;
                         ++methodExecuted;
                     }

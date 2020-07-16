@@ -197,7 +197,7 @@ namespace MugenMvvm.Extensions
             return attachedValueManager.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
         }
 
-        public static void Set<TValue>(this IAttachedValueManager attachedValueManager, object item, string path, TValue value)
+        public static void Set(this IAttachedValueManager attachedValueManager, object item, string path, object? value)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
             attachedValueManager.Set(item, path, value, out _);

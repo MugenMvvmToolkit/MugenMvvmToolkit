@@ -78,7 +78,8 @@ namespace MugenMvvm.Views.Components
         {
             try
             {
-                if (!_attachedValueManager.DefaultIfNull().TryGet<List<IView>>(view.Target, InternalConstant.ViewsValueKey, out var value) || !value.Contains(view))
+                if (!_attachedValueManager.DefaultIfNull().TryGet(view.Target, InternalConstant.ViewsValueKey, out var v)
+                    || !(v is List<IView> value) || !value.Contains(view))
                     return null;
 
                 CleanupAsync(viewManager, view, request, value, (list, v, m) =>
@@ -109,8 +110,8 @@ namespace MugenMvvm.Views.Components
                 return GetViews(viewModel.GetMetadataOrDefault().Get(ViewsMetadataKey));
             }
 
-            if (_attachedValueManager.DefaultIfNull().TryGet<List<IView>>(request, InternalConstant.ViewsValueKey, out var value))
-                return GetViews(value);
+            if (_attachedValueManager.DefaultIfNull().TryGet(request, InternalConstant.ViewsValueKey, out var value))
+                return GetViews((List<IView>?)value);
             return default;
         }
 
@@ -158,8 +159,8 @@ namespace MugenMvvm.Views.Components
         {
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Clearing, request, metadata);
             removeAction(collection, view, metadata);
-            if (_attachedValueManager.DefaultIfNull().TryGet<List<IView>>(view.Target, InternalConstant.ViewsValueKey, out var value))
-                value.Remove(view);
+            if (_attachedValueManager.DefaultIfNull().TryGet(view.Target, InternalConstant.ViewsValueKey, out var value))
+                (value as List<IView>)?.Remove(view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Cleared, request, metadata);
         }
 

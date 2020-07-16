@@ -42,7 +42,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual bool TryGet<TValue>(object item, string path, out TValue value)
+        public virtual bool TryGet(object item, string path, out object? value)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -57,7 +57,7 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var result))
                 {
-                    value = (TValue)result!;
+                    value = result;
                     return true;
                 }
 
@@ -151,7 +151,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual void Set<TValue>(object item, string path, TValue value, out object? oldValue)
+        public virtual void Set(object item, string path, object? value, out object? oldValue)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -159,7 +159,7 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 dictionary.TryGetValue(path, out oldValue);
-                dictionary[path] = BoxingExtensions.Box(value);
+                dictionary[path] = value;
             }
         }
 

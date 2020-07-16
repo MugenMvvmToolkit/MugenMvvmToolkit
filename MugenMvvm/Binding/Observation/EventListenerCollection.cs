@@ -37,8 +37,8 @@ namespace MugenMvvm.Binding.Observation
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
-            attachedValueManager.DefaultIfNull().TryGet(target, path, out EventListenerCollection? collection);
-            collection?.Raise(target, message, metadata);
+            if (attachedValueManager.DefaultIfNull().TryGet(target, path, out var collection))
+                ((EventListenerCollection)collection!).Raise(target, message, metadata);
         }
 
         public void Raise<TArg>(object? sender, in TArg args, IReadOnlyMetadataContext? metadata)

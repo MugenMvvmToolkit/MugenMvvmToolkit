@@ -35,7 +35,7 @@ namespace MugenMvvm.Internal
             return GetComponentOptional(item)?.TryGetValues(item, state, predicate) ?? default;
         }
 
-        public bool TryGet<TValue>(object item, string path, out TValue value)
+        public bool TryGet(object item, string path, out object? value)
         {
             var component = GetComponentOptional(item);
             if (component == null)
@@ -73,7 +73,7 @@ namespace MugenMvvm.Internal
             return GetComponent(item).GetOrAdd(item, path, state, valueFactory);
         }
 
-        public void Set<TValue>(object item, string path, TValue value, out object? oldValue)
+        public void Set(object item, string path, object? value, out object? oldValue)
         {
             GetComponent(item).Set(item, path, value, out oldValue);
         }
