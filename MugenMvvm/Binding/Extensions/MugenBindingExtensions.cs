@@ -131,8 +131,8 @@ namespace MugenMvvm.Binding.Extensions
             return typeArgs;
         }
 
-        public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, in TState state, int argsLength,
-            FuncIn<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out ArgumentFlags flags)
+        public static object?[]? TryGetInvokeArgs<TState>(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, TState state, int argsLength,
+            Func<TState, int, IParameterInfo, object?> getValue, object?[]? arguments, out ArgumentFlags flags)
         {
             flags = 0;
             var hasParams = parameters.LastOrDefault()?.IsParamArray() ?? false;
@@ -200,7 +200,7 @@ namespace MugenMvvm.Binding.Extensions
 
         public static object?[]? TryGetInvokeArgs(this IGlobalValueConverter? converter, IReadOnlyList<IParameterInfo> parameters, object?[] args, IReadOnlyMetadataContext? metadata)
         {
-            args = converter.TryGetInvokeArgs(parameters, args, args.Length, (in object?[] objects, int i, IParameterInfo _) => objects[i], args, out var flags)!;
+            args = converter.TryGetInvokeArgs(parameters, args, args.Length, (objects, i, _) => objects[i], args, out var flags)!;
             if (args != null && flags.HasFlagEx(ArgumentFlags.Metadata))
                 args[args.Length - 1] = metadata;
             return args;
@@ -211,7 +211,7 @@ namespace MugenMvvm.Binding.Extensions
             try
             {
                 return converter.TryGetInvokeArgs(parameters, (args, converter.DefaultIfNull(), metadata), args.Length,
-                    (in (string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
+                    ((string[] args, IGlobalValueConverter globalValueConverter, IReadOnlyMetadataContext? metadata) tuple, int i, IParameterInfo parameter) =>
                     {
                         var targetType = parameter.IsParamArray() ? parameter.ParameterType.GetElementType()! : parameter.ParameterType;
                         return tuple.globalValueConverter.Convert(tuple.args[i], targetType, parameter, tuple.metadata);

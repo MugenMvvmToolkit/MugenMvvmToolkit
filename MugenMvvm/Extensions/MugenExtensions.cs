@@ -261,7 +261,7 @@ namespace MugenMvvm.Extensions
         public static TTo CastGeneric<TFrom, TTo>(in TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
-                return ((FuncIn<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
+                return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);
             return (TTo)(object)value!;
         }
 
@@ -523,7 +523,7 @@ namespace MugenMvvm.Extensions
         {
             #region Fields
 
-            public static readonly FuncIn<T, T> Cast = (in T arg1) => arg1;
+            public static readonly Func<T, T> Cast = arg1 => arg1;
 
             #endregion
         }

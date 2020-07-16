@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var source = new object();
             var result = OneTimeBindingMode.Instance;
 
-            var provider = new DelegateBindingComponentProvider<string>((in string s, IBinding b, object arg3, object? arg4, IReadOnlyMetadataContext? arg5) =>
+            var provider = new DelegateBindingComponentProvider<string>((s, b, arg3, arg4, arg5) =>
             {
                 s.ShouldEqual(state);
                 b.ShouldEqual(binding);

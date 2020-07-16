@@ -1,5 +1,5 @@
-﻿using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Delegates;
+﻿using System;
+using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -9,14 +9,14 @@ namespace MugenMvvm.Binding.Core
     {
         #region Fields
 
-        private readonly FuncIn<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _componentFactory;
+        private readonly Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> _componentFactory;
         private readonly TState _state;
 
         #endregion
 
         #region Constructors
 
-        public DelegateBindingComponentProvider(FuncIn<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> componentFactory, in TState state)
+        public DelegateBindingComponentProvider(Func<TState, IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> componentFactory, TState state)
         {
             Should.NotBeNull(componentFactory, nameof(componentFactory));
             _componentFactory = componentFactory;

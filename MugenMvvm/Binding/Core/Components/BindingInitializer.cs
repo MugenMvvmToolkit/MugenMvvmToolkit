@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Attributes;
+﻿using System;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Enums;
@@ -23,7 +24,7 @@ namespace MugenMvvm.Binding.Core.Components
     {
         #region Fields
 
-        private static readonly FuncIn<(BindingParameterExpression, bool, bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> GetEventHandlerDelegate = GetEventHandlerComponent;
+        private static readonly Func<(BindingParameterExpression, bool, bool), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?> GetEventHandlerDelegate = GetEventHandlerComponent;
         private readonly IExpressionCompiler? _compiler;
         private readonly BindingMemberExpressionCollectorVisitor _memberExpressionCollectorVisitor;
         private readonly BindingMemberExpressionVisitor _memberExpressionVisitor;
@@ -134,7 +135,7 @@ namespace MugenMvvm.Binding.Core.Components
             return false;
         }
 
-        private static IComponent<IBinding> GetEventHandlerComponent(in (BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static IComponent<IBinding> GetEventHandlerComponent((BindingParameterExpression value, bool toggle, bool isOneTime) state, IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             return EventHandlerBindingComponent.Get(state.value.ToBindingParameter(target, source, metadata), state.toggle, state.isOneTime || binding.GetMetadataOrDefault().Get(BindingMetadata.IsMultiBinding));
         }

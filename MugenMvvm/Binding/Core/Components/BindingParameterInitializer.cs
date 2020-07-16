@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Attributes;
+﻿using System;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core.Components.Binding;
 using MugenMvvm.Binding.Enums;
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Core.Components
         private readonly BindingMemberExpressionVisitor _memberExpressionVisitor;
 
         private static readonly
-            FuncIn<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?>
+            Func<(BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression), IBinding, object, object?, IReadOnlyMetadataContext?, IComponent<IBinding>?>
             GetParametersComponentDelegate = GetParametersComponent;
 
         #endregion
@@ -85,7 +86,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Methods
 
-        private static IComponent<IBinding> GetParametersComponent(in (BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression) state,
+        private static IComponent<IBinding> GetParametersComponent((BindingParameterExpression, BindingParameterExpression, BindingParameterExpression, BindingParameterExpression) state,
             IBinding binding, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             var (converter, converterParameter, fallback, targetNullValue) = state;

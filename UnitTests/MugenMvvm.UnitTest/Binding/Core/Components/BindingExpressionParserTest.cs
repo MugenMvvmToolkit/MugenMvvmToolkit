@@ -158,7 +158,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         if (includeFactoryComponent)
                         {
                             context.BindingComponents[$"{index}_2"] =
-                                new DelegateBindingComponentProvider<object?>((in object? o, IBinding b, object arg3, object? arg4, IReadOnlyMetadataContext? arg5) =>
+                                new DelegateBindingComponentProvider<object?>((o, b, arg3, arg4, arg5) =>
                                 {
                                     b.ShouldNotBeNull();
                                     arg3.ShouldEqual(target);
@@ -315,7 +315,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                         if (includeFactoryComponent)
                         {
                             context.BindingComponents[$"{index}_2"] =
-                                new DelegateBindingComponentProvider<object?>((in object? o, IBinding b, object arg3, object? arg4, IReadOnlyMetadataContext? arg5) =>
+                                new DelegateBindingComponentProvider<object?>((o, b, arg3, arg4, arg5) =>
                                 {
                                     b.ShouldNotBeNull();
                                     arg3.ShouldEqual(target);
