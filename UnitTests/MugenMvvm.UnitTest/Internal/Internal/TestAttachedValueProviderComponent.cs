@@ -14,7 +14,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         public Func<object, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
-        public Func<object?, Type, object?, Type, Func<object, KeyValuePair<string, object?>, object, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues
+        public Func<object, object?, Func<object, KeyValuePair<string, object?>, object?, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues
         {
             get;
             set;
@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             set;
         }
 
-        public Func<object, string, object?, Type, object?>? GetOrAdd { get; set; }
+        public Func<object, string, object?, object?>? GetOrAdd { get; set; }
 
         public Func<object?, Type, string, object?, Type, Type, Func<object?, object?, object?>, object?>? GetOrAdd1 { get; set; }
 
@@ -53,11 +53,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return IsSupported?.Invoke(item, metadata) ?? false;
         }
 
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.TryGetValues<TItem, TState>(TItem item, in TState state,
-            Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
-            return TryGetValues!.Invoke(item, typeof(TItem), state, typeof(TState),
-                predicate == null ? (Func<object, KeyValuePair<string, object?>, object, bool>?)null : (o, pair, arg3) => predicate!((TItem)o, pair, (TState)arg3));
+            return TryGetValues!.Invoke(item, state, predicate);
         }
 
         bool IAttachedValueProviderComponent.TryGet(object item, string path, out object? value)
@@ -92,9 +90,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
                 (o, value, currentValue, state1) => { return updateValueFactory((TItem)o!, addValueFactory, (TValue)currentValue!, (TState)state1!); })!;
         }
 
-        TValue IAttachedValueProviderComponent.GetOrAdd<TValue>(object item, string path, TValue value)
+        object? IAttachedValueProviderComponent.GetOrAdd(object item, string path, object? value)
         {
-            return (TValue)GetOrAdd!.Invoke(item, path, value, typeof(TValue))!;
+            return GetOrAdd!.Invoke(item, path, value);
         }
 
         TValue IAttachedValueProviderComponent.GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)

@@ -23,14 +23,14 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void GetValuesShouldReturnEmptyNoComponents()
         {
-            new AttachedValueManager().GetValues(this, this, (test, pair, arg3) => true).AsList().ShouldBeEmpty();
+            new AttachedValueManager().GetValues(this, (test, pair, arg3) => true, this).AsList().ShouldBeEmpty();
         }
 
         [Fact]
         public void TryGetShouldReturnEmptyNoComponents()
         {
             new AttachedValueManager().TryGet(this, TestPath, out var value).ShouldBeFalse();
-            value.ShouldEqual(0);
+            value.ShouldEqual(null);
         }
 
         [Fact]
@@ -98,13 +98,11 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    TryGetValues = (o, type, arg3, arg4, arg5) =>
+                    TryGetValues = (o, arg3, arg5) =>
                     {
                         ++methodExecuted;
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(attachedValueManager);
-                        arg4.ShouldEqual(typeof(AttachedValueManager));
                         if (hasFilter)
                             arg5!.Invoke(o!, default, arg3!).ShouldBeTrue();
                         else
@@ -115,8 +113,8 @@ namespace MugenMvvm.UnitTest.Internal
                 attachedValueManager.AddComponent(component);
             }
 
-            Func<AttachedValueManagerTest, KeyValuePair<string, object?>, AttachedValueManager, bool> func = (test, pair, arg3) => ++filterExecuted != -1;
-            attachedValueManager.GetValues(this, attachedValueManager, hasFilter ? func : null).ShouldEqual(result);
+            Func<object, KeyValuePair<string, object?>, object?, bool> func = (test, pair, arg3) => ++filterExecuted != -1;
+            attachedValueManager.GetValues(this, hasFilter ? func : null, attachedValueManager).ShouldEqual(result);
             filterExecuted.ShouldEqual(hasFilter ? 1 : 0);
             methodExecuted.ShouldEqual(1);
         }
@@ -277,12 +275,11 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    GetOrAdd = (o, s, v, t) =>
+                    GetOrAdd = (o, s, v) =>
                     {
                         o.ShouldEqual(this);
                         s.ShouldEqual(TestPath);
                         v.ShouldEqual(valueToSet);
-                        t.ShouldEqual(valueToSet.GetType());
                         ++methodExecuted;
                         return v;
                     }

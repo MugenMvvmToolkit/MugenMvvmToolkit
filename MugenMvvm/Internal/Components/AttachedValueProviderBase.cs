@@ -14,7 +14,7 @@ namespace MugenMvvm.Internal.Components
 
         public abstract bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
 
-        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> TryGetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate) where TItem : class
+        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
@@ -22,10 +22,11 @@ namespace MugenMvvm.Internal.Components
                 return default;
             lock (dictionary)
             {
+                if (dictionary.Count == 0)
+                    return default;
+
                 if (predicate == null)
                 {
-                    if (dictionary.Count == 0)
-                        return default;
                     if (dictionary.Count == 1)
                         return dictionary.FirstOrDefault();
                     return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
@@ -121,20 +122,6 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue GetOrAdd<TValue>(object item, string path, TValue value)
-        {
-            Should.NotBeNull(item, nameof(item));
-            Should.NotBeNull(path, nameof(path));
-            var dictionary = GetAttachedDictionary(item, false)!;
-            lock (dictionary)
-            {
-                if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue!;
-                dictionary.Add(path, BoxingExtensions.Box(value));
-                return value;
-            }
-        }
-
         public virtual TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
         {
             Should.NotBeNull(item, nameof(item));
@@ -148,6 +135,21 @@ namespace MugenMvvm.Internal.Components
                 oldValue = BoxingExtensions.Box(valueFactory(item, state));
                 dictionary.Add(path, oldValue);
                 return (TValue)oldValue!;
+            }
+        }
+
+
+        public virtual object? GetOrAdd(object item, string path, object? value)
+        {
+            Should.NotBeNull(item, nameof(item));
+            Should.NotBeNull(path, nameof(path));
+            var dictionary = GetAttachedDictionary(item, false)!;
+            lock (dictionary)
+            {
+                if (dictionary.TryGetValue(path, out var oldValue))
+                    return oldValue;
+                dictionary.Add(path, value);
+                return value;
             }
         }
 

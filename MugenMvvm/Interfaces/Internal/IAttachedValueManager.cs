@@ -8,9 +8,7 @@ namespace MugenMvvm.Interfaces.Internal
 {
     public interface IAttachedValueManager : IComponentOwner<IAttachedValueManager>
     {
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, in TState state,
-            Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null)
-            where TItem : class;
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate = null, object? state = null);
 
         bool TryGet(object item, string path, out object? value);
 
@@ -22,10 +20,10 @@ namespace MugenMvvm.Interfaces.Internal
         TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
             where TItem : class;
 
-        TValue GetOrAdd<TValue>(object item, string path, TValue value);
-
         TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)
             where TItem : class;
+
+        object? GetOrAdd(object item, string path, object? value);
 
         void Set(object item, string path, object? value, out object? oldValue);
 

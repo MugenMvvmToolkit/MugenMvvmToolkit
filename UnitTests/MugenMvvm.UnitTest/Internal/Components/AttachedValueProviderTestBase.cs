@@ -57,15 +57,15 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 values.Add(pair);
             }
 
-            manager.GetValues(item, this, (o, pair, arg3) =>
-            {
-                o.ShouldEqual(item);
-                arg3.ShouldEqual(this);
-                hashSet.Remove(pair);
-                return false;
-            }).AsList().ShouldBeEmpty();
+            manager.GetValues(item, (o, pair, arg3) =>
+           {
+               o.ShouldEqual(item);
+               arg3.ShouldEqual(this);
+               hashSet.Remove(pair);
+               return false;
+           }, this).AsList().ShouldBeEmpty();
             hashSet.Count.ShouldEqual(0);
-            manager.GetValues(item, this, (o, pair, arg3) => true).AsList().SequenceEqual(values).ShouldBeTrue();
+            manager.GetValues(item, (o, pair, arg3) => true, this).AsList().SequenceEqual(values).ShouldBeTrue();
         }
 
         [Fact]

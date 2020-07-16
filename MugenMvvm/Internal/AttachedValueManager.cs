@@ -30,9 +30,9 @@ namespace MugenMvvm.Internal
 
         #region Implementation of interfaces
 
-        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues<TItem, TState>(TItem item, in TState state, Func<TItem, KeyValuePair<string, object?>, TState, bool>? predicate = null) where TItem : class
+        public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
-            return GetComponentOptional(item)?.TryGetValues(item, state, predicate) ?? default;
+            return GetComponentOptional(item)?.GetValues(item, predicate, state) ?? default;
         }
 
         public bool TryGet(object item, string path, out object? value)
@@ -63,14 +63,14 @@ namespace MugenMvvm.Internal
             return GetComponent(item).AddOrUpdate(item, path, state, addValueFactory, updateValueFactory);
         }
 
-        public TValue GetOrAdd<TValue>(object item, string path, TValue value)
-        {
-            return GetComponent(item).GetOrAdd(item, path, value);
-        }
-
         public TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
         {
             return GetComponent(item).GetOrAdd(item, path, state, valueFactory);
+        }
+
+        public object? GetOrAdd(object item, string path, object? value)
+        {
+            return GetComponent(item).GetOrAdd(item, path, value);
         }
 
         public void Set(object item, string path, object? value, out object? oldValue)

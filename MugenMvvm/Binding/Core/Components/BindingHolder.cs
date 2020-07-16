@@ -45,14 +45,14 @@ namespace MugenMvvm.Binding.Core.Components
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? _attachedValueManager.DefaultIfNull().GetValues(target, target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
-                : _attachedValueManager.DefaultIfNull().GetValues(target, path, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
+                ? _attachedValueManager.DefaultIfNull().GetValues(target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                : _attachedValueManager.DefaultIfNull().GetValues(target, (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith((string)state!, StringComparison.Ordinal), path);
 
             var iterator = values.Iterator(pair => pair.Key == null);
             if (iterator.Count == 0)
                 return default;
             if (iterator.Count == 1)
-                return ItemOrList.FromItem((IBinding) values.Item.Value!);
+                return ItemOrList.FromItem((IBinding)values.Item.Value!);
 
             var bindings = new IBinding[iterator.Count];
             for (var i = 0; i < bindings.Length; i++)
