@@ -3,7 +3,6 @@ using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Metadata;
 using Should;
 using Xunit;
 
@@ -31,7 +30,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
         [Fact]
         public void TryGetCommandShouldReturnNullNotSupportedType()
         {
-            _component.TryGetCommand(new CommandManager(), _component, DefaultMetadata).ShouldBeNull();
+            _component.TryGetCommand<object>(new CommandManager(), _component, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -43,17 +42,15 @@ namespace MugenMvvm.UnitTest.Commands.Components
             var executedCount = 0;
             var canExecuteValue = true;
             Action execute = () => { ++executedCount; };
-            var canExecute = hasCanExecute ? () => { return canExecuteValue; } : (Func<bool>?)null;
+            var canExecute = hasCanExecute ? () => { return canExecuteValue; } : (Func<bool>?) null;
             var threadMode = hasThreadExecutionMode ? ThreadExecutionMode.Background : null;
-            var notifiers = addNotifiers ? new[] { new object() } : null;
+            var notifiers = addNotifiers ? new[] {new object()} : null;
             var canNotify = GetHasCanNotify(hasCanNotify);
             var metadata = hasMetadata ? DefaultMetadata : null;
 
-            var request = new DelegateCommandRequest(
-                (in DelegateCommandRequest commandRequest, DelegateCommandRequest.IProvider provider, IReadOnlyMetadataContext? arg3) => { return provider.TryGetCommand<object>(commandRequest, arg3); }, execute,
-                canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
+            var request = DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, threadMode, notifiers, canNotify);
 
-            var command = _component.TryGetCommand(new CommandManager(), request, metadata)!;
+            var command = _component.TryGetCommand<object>(new CommandManager(), request, metadata)!;
             command.ShouldNotBeNull();
 
             var component = command.GetComponent<DelegateExecutorCommandComponent<object>>();
@@ -64,7 +61,7 @@ namespace MugenMvvm.UnitTest.Commands.Components
                 component.CanExecute(command, null).ShouldEqual(canExecuteValue);
                 canExecuteValue = false;
                 command.CanExecute(null).ShouldEqual(canExecuteValue);
-                if (request.Notifiers != null)
+                if (notifiers != null)
                     command.GetComponent<ConditionEventCommandComponent>().ShouldNotBeNull();
             }
         }

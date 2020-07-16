@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Commands;
@@ -23,11 +22,11 @@ namespace MugenMvvm.Commands
 
         #region Implementation of interfaces
 
-        public ICompositeCommand? TryGetCommand<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ICompositeCommand? TryGetCommand<TParameter>(object request, IReadOnlyMetadataContext? metadata = null)
         {
-            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand(this, request, metadata);
+            var result = GetComponents<ICommandProviderComponent>(metadata).TryGetCommand<TParameter>(this, request, metadata);
             if (result != null)
-                GetComponents<ICommandManagerListener>(metadata).OnCommandCreated(this, result, request, metadata);
+                GetComponents<ICommandManagerListener>(metadata).OnCommandCreated<TParameter>(this, result, request, metadata);
             return result;
         }
 

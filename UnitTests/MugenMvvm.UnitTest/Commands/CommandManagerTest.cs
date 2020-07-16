@@ -24,14 +24,12 @@ namespace MugenMvvm.UnitTest.Commands
             var count = 0;
             for (int i = 0; i < componentCount; i++)
             {
-                var component = new TestCommandProviderComponent
+                var component = new TestCommandProviderComponent(commandManager)
                 {
-                    TryGetCommand = (m, o, type, arg3) =>
+                    TryGetCommand = (o, arg3) =>
                     {
                         ++count;
-                        m.ShouldEqual(commandManager);
                         o.ShouldEqual(commandManager);
-                        type.ShouldEqual(typeof(ICommandManager));
                         arg3.ShouldEqual(DefaultMetadata);
                         return command;
                     }
@@ -39,7 +37,7 @@ namespace MugenMvvm.UnitTest.Commands
                 commandManager.AddComponent(component);
             }
 
-            var compositeCommand = commandManager.GetCommand(commandManager, DefaultMetadata);
+            var compositeCommand = commandManager.GetCommand<int>(commandManager, DefaultMetadata);
             compositeCommand.ShouldEqual(command);
             count.ShouldEqual(1);
         }
@@ -51,22 +49,20 @@ namespace MugenMvvm.UnitTest.Commands
         {
             var commandManager = GetComponentOwner();
             ICompositeCommand command = new CompositeCommand();
-            var component = new TestCommandProviderComponent
+            var component = new TestCommandProviderComponent(commandManager)
             {
-                TryGetCommand = (m, o, type, arg3) => command
+                TryGetCommand = (o, arg3) => command
             };
             commandManager.AddComponent(component);
 
             var count = 0;
             for (int i = 0; i < componentCount; i++)
             {
-                var listener = new TestCommandManagerListener
+                var listener = new TestCommandManagerListener(commandManager)
                 {
-                    OnCommandCreated = (provider, o, arg3, arg4, arg5) =>
+                    OnCommandCreated = (o, arg4, arg5) =>
                     {
-                        provider.ShouldEqual(commandManager);
                         o.ShouldEqual(commandManager);
-                        arg3.ShouldEqual(typeof(ICommandManager));
                         arg4.ShouldEqual(command);
                         arg5.ShouldEqual(DefaultMetadata);
                         ++count;
@@ -75,7 +71,7 @@ namespace MugenMvvm.UnitTest.Commands
                 commandManager.AddComponent(listener);
             }
 
-            commandManager.GetCommand(commandManager, DefaultMetadata);
+            commandManager.GetCommand<string>(commandManager, DefaultMetadata);
             count.ShouldEqual(componentCount);
         }
 
@@ -83,7 +79,7 @@ namespace MugenMvvm.UnitTest.Commands
         public void GetCommandShouldThrowNoComponents()
         {
             var commandManager = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => commandManager.GetCommand(commandManager, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => commandManager.GetCommand<string>(commandManager, DefaultMetadata));
         }
 
         protected override ICommandManager GetComponentOwner(IComponentCollectionManager? collectionProvider = null)

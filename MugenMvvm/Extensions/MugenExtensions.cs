@@ -190,57 +190,57 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueManager valueProvider, TItem item, string path, Func<TItem, TValue> valueFactory)
+        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueManager attachedValueManager, TItem item, string path, Func<TItem, TValue> valueFactory)
             where TItem : class
         {
-            Should.NotBeNull(valueProvider, nameof(valueProvider));
-            return valueProvider.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
+            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
+            return attachedValueManager.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
         }
 
-        public static void Set<TValue>(this IAttachedValueManager valueProvider, object item, string path, TValue value)
+        public static void Set<TValue>(this IAttachedValueManager attachedValueManager, object item, string path, TValue value)
         {
-            Should.NotBeNull(valueProvider, nameof(valueProvider));
-            valueProvider.Set(item, path, value, out _);
+            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
+            attachedValueManager.Set(item, path, value, out _);
         }
 
-        public static bool Clear(this IAttachedValueManager valueProvider, object item, string path)
+        public static bool Clear(this IAttachedValueManager attachedValueManager, object item, string path)
         {
-            Should.NotBeNull(valueProvider, nameof(valueProvider));
-            return valueProvider.Clear(item, path, out _);
+            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
+            return attachedValueManager.Clear(item, path, out _);
         }
 
-        public static ICompositeCommand GetCommand(this ICommandManager? mediatorProvider, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return GetCommandInternal<object>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
+            return commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
         }
 
-        public static ICompositeCommand GetCommand<T>(this ICommandManager? mediatorProvider, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, Action<T> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
+            return commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
         }
 
-        public static ICompositeCommand GetCommand(this ICommandManager? mediatorProvider, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Func<Task> execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return GetCommandInternal<object>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
+            return commandManager.DefaultIfNull().GetCommand<object>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
         }
 
-        public static ICompositeCommand GetCommand<T>(this ICommandManager? mediatorProvider, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
+        public static ICompositeCommand GetCommand<T>(this ICommandManager? commandManager, Func<T, Task> execute, Func<T, bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)
         {
-            return GetCommandInternal<T>(mediatorProvider, execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify, metadata);
+            return commandManager.DefaultIfNull().GetCommand<T>(DelegateCommandRequest.Get(execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify), metadata);
         }
 
-        public static ICompositeCommand GetCommand<TRequest>(this ICommandManager commandManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static ICompositeCommand GetCommand<TParameter>(this ICommandManager commandManager, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(commandManager, nameof(commandManager));
-            var result = commandManager.TryGetCommand(request, metadata);
+            var result = commandManager.TryGetCommand<TParameter>(request, metadata);
             if (result == null)
                 ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(commandManager);
             return result;
@@ -435,14 +435,6 @@ namespace MugenMvvm.Extensions
         internal static SpanSplitEnumerator<char> Split(this ReadOnlySpan<char> span, char separator)
             => new SpanSplitEnumerator<char>(span, separator);
 #endif
-
-        private static ICompositeCommand GetCommandInternal<T>(ICommandManager? mediatorProvider, Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
-            ThreadExecutionMode? eventThreadMode, IReadOnlyList<object>? notifiers, Func<object, bool>? canNotify, IReadOnlyMetadataContext? metadata)
-        {
-            var request = new DelegateCommandRequest((in DelegateCommandRequest r, DelegateCommandRequest.IProvider provider, IReadOnlyMetadataContext? m) => provider.TryGetCommand<T>(r, m),
-                execute, canExecute, allowMultipleExecution, executionMode, eventThreadMode, notifiers, canNotify);
-            return mediatorProvider.DefaultIfNull().GetCommand(request, metadata);
-        }
 
         #endregion
 

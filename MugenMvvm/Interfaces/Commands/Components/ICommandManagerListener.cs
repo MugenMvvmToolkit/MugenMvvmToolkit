@@ -1,11 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Interfaces.Components;
+﻿using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Interfaces.Commands.Components
 {
     public interface ICommandManagerListener : IComponent<ICommandManager>
     {
-        void OnCommandCreated<TRequest>(ICommandManager provider, ICompositeCommand command, [DisallowNull]in TRequest request, IReadOnlyMetadataContext? metadata);
+        void OnCommandCreated<TParameter>(ICommandManager provider, ICompositeCommand command, object request, IReadOnlyMetadataContext? metadata);
     }
 }
