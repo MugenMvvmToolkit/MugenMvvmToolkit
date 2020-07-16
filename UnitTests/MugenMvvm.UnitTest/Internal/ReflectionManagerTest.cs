@@ -80,7 +80,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestReflectionDelegateProviderComponent();
+                var component = new TestReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.CanCreateDelegate = (type, info) =>
                 {
@@ -108,7 +108,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestReflectionDelegateProviderComponent();
+                var component = new TestReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryCreateDelegate = (type, target, info) =>
                 {
@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestActivatorReflectionDelegateProviderComponent();
+                var component = new TestActivatorReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryGetActivator = info =>
                 {
@@ -168,7 +168,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestActivatorReflectionDelegateProviderComponent();
+                var component = new TestActivatorReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryGetActivator1 = (info, type) =>
                 {
@@ -198,7 +198,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestMethodReflectionDelegateProviderComponent();
+                var component = new TestMethodReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryGetMethodInvoker = info =>
                 {
@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestMethodReflectionDelegateProviderComponent();
+                var component = new TestMethodReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryGetMethodInvoker1 = (info, t) =>
                 {
@@ -257,7 +257,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestMemberReflectionDelegateProviderComponent();
+                var component = new TestMemberReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryGetMemberGetter = (info, t) =>
                 {
@@ -287,7 +287,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canCreate = count - 1 == i;
-                var component = new TestMemberReflectionDelegateProviderComponent();
+                var component = new TestMemberReflectionDelegateProviderComponent(delegateProvider);
                 component.Priority = -i;
                 component.TryGetMemberSetter = (info, t) =>
                 {

@@ -31,7 +31,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(viewManager, nameof(viewManager));
             var task = viewManager.TryInitializeAsync(mapping, request, cancellationToken, metadata);
             if (task == null)
-                ExceptionManager.ThrowObjectNotInitialized<IViewManagerComponent>(viewManager);
+                ExceptionManager.ThrowRequestNotSupported<IViewManagerComponent>(viewManager, request, metadata);
             return task;
         }
 

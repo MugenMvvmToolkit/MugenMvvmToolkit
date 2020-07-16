@@ -52,7 +52,7 @@ namespace MugenMvvm.Binding.Extensions
             Should.NotBeNull(observationManager, nameof(observationManager));
             var result = observationManager.TryGetMemberPath(path, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberPathProviderComponent>(observationManager);
+                ExceptionManager.ThrowRequestNotSupported<IMemberPathProviderComponent>(observationManager, path, metadata);
             return result;
         }
 
@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Extensions
             Should.NotBeNull(observationManager, nameof(observationManager));
             var result = observationManager.TryGetMemberPathObserver(target, request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberPathObserverProviderComponent>(observationManager);
+                ExceptionManager.ThrowRequestNotSupported<IMemberPathObserverProviderComponent>(observationManager, request, metadata);
             return result;
         }
 

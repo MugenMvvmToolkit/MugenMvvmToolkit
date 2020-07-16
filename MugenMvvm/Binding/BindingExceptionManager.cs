@@ -37,12 +37,6 @@ namespace MugenMvvm.Binding
         }
 
         [DoesNotReturn]
-        public static void ThrowUnexpectedExpressionNode(IExpressionNode node, Type type)
-        {
-            throw new InvalidOperationException(UnexpectedExpressionTyperFormat3.Format(node.ExpressionType, type.Name, node));
-        }
-
-        [DoesNotReturn]
         public static void ThrowCannotParseExpression<T>(in T expression, string? hint = null)
         {
             throw new InvalidOperationException(CannotParseExpressionFormat2.Format(expression!.ToString(), hint));
@@ -58,12 +52,6 @@ namespace MugenMvvm.Binding
         public static void ThrowCannotUseExpressionExpected(IExpressionNode expression, Type expectedType)
         {
             throw new InvalidOperationException(CannotUseExpressionExpected.Format(expression, expectedType));
-        }
-
-        [DoesNotReturn]
-        public static void ThrowDuplicateLambdaParameter(string parameterName)
-        {
-            throw new InvalidOperationException(DuplicateLambdaParameterFormat1.Format(parameterName));
         }
 
         [DoesNotReturn]

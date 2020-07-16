@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         public void TryGetActivatorShouldGenerateCorrectDelegate1()
         {
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var activator = component.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>())!)!;
+            var activator = component.TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>())!)!;
             var o = (TestConstructorReflectionClass)activator(Default.Array<object>());
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldBeNull();
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             const string value = "Test";
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var activator = component.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string) })!)!;
+            var activator = component.TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string) })!)!;
             var o = (TestConstructorReflectionClass)activator(new[] { value });
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldEqual(value);
@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const string value1 = "Test";
             const int value2 = 2;
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            var activator = component.TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string), typeof(int) })!)!;
+            var activator = component.TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string), typeof(int) })!)!;
             var o = (TestConstructorReflectionClass)activator(new object[] { value1, value2 });
             o.ConstructorIntValue.ShouldEqual(value2);
             o.ConstructorStringValue.ShouldEqual(value1);
@@ -51,7 +51,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var activator = (Func<TestConstructorReflectionClass>)component
-                .TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>())!, typeof(Func<TestConstructorReflectionClass>))!;
+                .TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(Default.Array<Type>())!, typeof(Func<TestConstructorReflectionClass>))!;
             var o = activator();
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldBeNull();
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const string value = "Test";
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var activator = (Func<string, TestConstructorReflectionClass>)component
-                .TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string) })!, typeof(Func<string, TestConstructorReflectionClass>))!;
+                .TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string) })!, typeof(Func<string, TestConstructorReflectionClass>))!;
             var o = activator(value);
             o.ConstructorIntValue.ShouldEqual(0);
             o.ConstructorStringValue.ShouldEqual(value);
@@ -76,7 +76,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const int value2 = 2;
             IActivatorReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var activator = (Func<string, int, TestConstructorReflectionClass>)component
-                .TryGetActivator(typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string), typeof(int) })!, typeof(Func<string, int, TestConstructorReflectionClass>))!;
+                .TryGetActivator(null!, typeof(TestConstructorReflectionClass).GetConstructor(new[] { typeof(string), typeof(int) })!, typeof(Func<string, int, TestConstructorReflectionClass>))!;
             var o = activator(value1, value2);
             o.ConstructorIntValue.ShouldEqual(value2);
             o.ConstructorStringValue.ShouldEqual(value1);
@@ -89,8 +89,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMemberGetterSetter();
             var field = target.GetType().GetField(nameof(target.Field), BindingFlags.Instance | BindingFlags.Public)!;
-            var getter = (Func<TestMemberGetterSetter, string>)component.TryGetMemberGetter(field, typeof(Func<TestMemberGetterSetter, string>))!;
-            var setter = (Action<TestMemberGetterSetter, string>)component.TryGetMemberSetter(field, typeof(Action<TestMemberGetterSetter, string>))!;
+            var getter = (Func<TestMemberGetterSetter, string>)component.TryGetMemberGetter(null!, field, typeof(Func<TestMemberGetterSetter, string>))!;
+            var setter = (Action<TestMemberGetterSetter, string>)component.TryGetMemberSetter(null!, field, typeof(Action<TestMemberGetterSetter, string>))!;
             getter(target).ShouldEqual(target.Field);
 
             setter.Invoke(target, value);
@@ -105,8 +105,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMemberGetterSetterValue();
             var field = target.GetType().GetField(nameof(target.Field), BindingFlags.Instance | BindingFlags.Public)!;
-            var getter = (RefGetter<TestMemberGetterSetterValue, string>)component.TryGetMemberGetter(field, typeof(RefGetter<TestMemberGetterSetterValue, string>))!;
-            var setter = (RefSetter<TestMemberGetterSetterValue, string>)component.TryGetMemberSetter(field, typeof(RefSetter<TestMemberGetterSetterValue, string>))!;
+            var getter = (RefGetter<TestMemberGetterSetterValue, string>)component.TryGetMemberGetter(null!, field, typeof(RefGetter<TestMemberGetterSetterValue, string>))!;
+            var setter = (RefSetter<TestMemberGetterSetterValue, string>)component.TryGetMemberSetter(null!, field, typeof(RefSetter<TestMemberGetterSetterValue, string>))!;
             getter(ref target).ShouldEqual(target.Field);
 
             setter.Invoke(ref target, value);
@@ -120,8 +120,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const string value = "Test";
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var field = typeof(TestMemberGetterSetter).GetField(nameof(TestMemberGetterSetter.FieldStatic), BindingFlags.Static | BindingFlags.Public)!;
-            var getter = (Func<string>)component.TryGetMemberGetter(field, typeof(Func<string>))!;
-            var setter = (Action<string>)component.TryGetMemberSetter(field, typeof(Action<string>))!;
+            var getter = (Func<string>)component.TryGetMemberGetter(null!, field, typeof(Func<string>))!;
+            var setter = (Action<string>)component.TryGetMemberSetter(null!, field, typeof(Action<string>))!;
             getter().ShouldEqual(TestMemberGetterSetter.FieldStatic);
 
             setter.Invoke(value);
@@ -136,8 +136,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const string value = "Test";
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var field = typeof(TestMemberGetterSetter).GetField(nameof(TestMemberGetterSetter.FieldStatic), BindingFlags.Static | BindingFlags.Public)!;
-            var getter = (Func<object?, string>)component.TryGetMemberGetter(field, typeof(Func<object?, string>))!;
-            var setter = (Action<object?, string>)component.TryGetMemberSetter(field, typeof(Action<object?, string>))!;
+            var getter = (Func<object?, string>)component.TryGetMemberGetter(null!, field, typeof(Func<object?, string>))!;
+            var setter = (Action<object?, string>)component.TryGetMemberSetter(null!, field, typeof(Action<object?, string>))!;
             getter(null).ShouldEqual(TestMemberGetterSetter.FieldStatic);
 
             setter.Invoke(null, value);
@@ -151,8 +151,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const string value = "Test";
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public)!;
-            var getter = (Func<string>)component.TryGetMemberGetter(property, typeof(Func<string>))!;
-            var setter = (Action<string>)component.TryGetMemberSetter(property, typeof(Action<string>))!;
+            var getter = (Func<string>)component.TryGetMemberGetter(null!, property, typeof(Func<string>))!;
+            var setter = (Action<string>)component.TryGetMemberSetter(null!, property, typeof(Action<string>))!;
             getter().ShouldEqual(TestMemberGetterSetter.PropertyStatic);
 
             setter.Invoke(value);
@@ -166,8 +166,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             const string value = "Test";
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var property = typeof(TestMemberGetterSetter).GetProperty(nameof(TestMemberGetterSetter.PropertyStatic), BindingFlags.Static | BindingFlags.Public)!;
-            var getter = (Func<object?, string>)component.TryGetMemberGetter(property, typeof(Func<object?, string>))!;
-            var setter = (Action<object?, string>)component.TryGetMemberSetter(property, typeof(Action<object?, string>))!;
+            var getter = (Func<object?, string>)component.TryGetMemberGetter(null!, property, typeof(Func<object?, string>))!;
+            var setter = (Action<object?, string>)component.TryGetMemberSetter(null!, property, typeof(Action<object?, string>))!;
             getter(null).ShouldEqual(TestMemberGetterSetter.PropertyStatic);
 
             setter.Invoke(null, value);
@@ -182,8 +182,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMemberGetterSetter();
             var property = target.GetType().GetProperty(nameof(target.Property), BindingFlags.Instance | BindingFlags.Public)!;
-            var getter = (Func<TestMemberGetterSetter, string>)component.TryGetMemberGetter(property, typeof(Func<TestMemberGetterSetter, string>))!;
-            var setter = (Action<TestMemberGetterSetter, string>)component.TryGetMemberSetter(property, typeof(Action<TestMemberGetterSetter, string>))!;
+            var getter = (Func<TestMemberGetterSetter, string>)component.TryGetMemberGetter(null!, property, typeof(Func<TestMemberGetterSetter, string>))!;
+            var setter = (Action<TestMemberGetterSetter, string>)component.TryGetMemberSetter(null!, property, typeof(Action<TestMemberGetterSetter, string>))!;
             getter(target).ShouldEqual(target.Property);
 
             setter.Invoke(target, value);
@@ -198,8 +198,8 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMemberReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMemberGetterSetterValue();
             var property = target.GetType().GetProperty(nameof(target.Property), BindingFlags.Instance | BindingFlags.Public)!;
-            var getter = (RefGetter<TestMemberGetterSetterValue, string>)component.TryGetMemberGetter(property, typeof(RefGetter<TestMemberGetterSetterValue, string>))!;
-            var setter = (RefSetter<TestMemberGetterSetterValue, string>)component.TryGetMemberSetter(property, typeof(RefSetter<TestMemberGetterSetterValue, string>))!;
+            var getter = (RefGetter<TestMemberGetterSetterValue, string>)component.TryGetMemberGetter(null!, property, typeof(RefGetter<TestMemberGetterSetterValue, string>))!;
+            var setter = (RefSetter<TestMemberGetterSetterValue, string>)component.TryGetMemberSetter(null!, property, typeof(RefSetter<TestMemberGetterSetterValue, string>))!;
             getter(ref target).ShouldEqual(target.Property);
 
             setter.Invoke(ref target, value);
@@ -213,7 +213,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMethodClass();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.NoArgs))!;
-            var invoker = component.TryGetMethodInvoker(method)!;
+            var invoker = component.TryGetMethodInvoker(null!, method)!;
 
             target.IsNoArgsInvoked.ShouldBeFalse();
             invoker.Invoke(target, Default.Array<object>()).ShouldBeNull();
@@ -225,7 +225,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.NoArgsStatic))!;
-            var invoker = component.TryGetMethodInvoker(method)!;
+            var invoker = component.TryGetMethodInvoker(null!, method)!;
 
             TestMethodClass.IsNoArgsStaticInvoked = false;
             invoker.Invoke(null, Default.Array<object>()).ShouldBeNull();
@@ -238,7 +238,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMethodClass();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.NoArgs))!;
-            var invoker = (Action<object>)component.TryGetMethodInvoker(method, typeof(Action<object>))!;
+            var invoker = (Action<object>)component.TryGetMethodInvoker(null!, method, typeof(Action<object>))!;
 
             target.IsNoArgsInvoked.ShouldBeFalse();
             invoker.Invoke(target);
@@ -250,7 +250,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.NoArgsStatic))!;
-            var invoker = (Action)component.TryGetMethodInvoker(method, typeof(Action))!;
+            var invoker = (Action)component.TryGetMethodInvoker(null!, method, typeof(Action))!;
 
             TestMethodClass.IsNoArgsStaticInvoked = false;
             invoker.Invoke();
@@ -263,7 +263,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMethodClass();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!;
-            var invoker = component.TryGetMethodInvoker(method)!;
+            var invoker = component.TryGetMethodInvoker(null!, method)!;
 
             var args = new object[] { 1, "test" };
             invoker.Invoke(target, args).ShouldEqual(args[1]);
@@ -275,7 +275,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgsStatic))!;
-            var invoker = component.TryGetMethodInvoker(method)!;
+            var invoker = component.TryGetMethodInvoker(null!, method)!;
 
             var args = new object[] { 1, "test" };
             invoker.Invoke(null, args).ShouldEqual(args[1]);
@@ -288,7 +288,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMethodClass();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!;
-            var invoker = (Func<TestMethodClass, int, string, string>)component.TryGetMethodInvoker(method, typeof(Func<TestMethodClass, int, string, string>))!;
+            var invoker = (Func<TestMethodClass, int, string, string>)component.TryGetMethodInvoker(null!, method, typeof(Func<TestMethodClass, int, string, string>))!;
 
             var args = new object[] { 1, "test" };
             invoker.Invoke(target, (int)args[0], (string)args[1]).ShouldEqual(args[1]);
@@ -300,7 +300,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgsStatic))!;
-            var invoker = (Func<int, string, string>)component.TryGetMethodInvoker(method, typeof(Func<int, string, string>))!;
+            var invoker = (Func<int, string, string>)component.TryGetMethodInvoker(null!, method, typeof(Func<int, string, string>))!;
 
             var args = new object[] { 1, "test" };
             invoker.Invoke((int)args[0], (string)args[1]).ShouldEqual(args[1]);
@@ -313,7 +313,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             IMethodReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMethodClass();
             var method = typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.RefMethod))!;
-            var invoker = (RefInvoker<TestMethodClass, int>)component.TryGetMethodInvoker(method, typeof(RefInvoker<TestMethodClass, int>))!;
+            var invoker = (RefInvoker<TestMethodClass, int>)component.TryGetMethodInvoker(null!, method, typeof(RefInvoker<TestMethodClass, int>))!;
 
             int value = 0;
             int resultValue = 10;
@@ -325,10 +325,10 @@ namespace MugenMvvm.UnitTest.Internal.Components
         public void CanCreateDelegateTest()
         {
             IReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
-            component.CanCreateDelegate(typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!).ShouldBeTrue();
-            component.CanCreateDelegate(typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!).ShouldBeTrue();
-            component.CanCreateDelegate(typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!).ShouldBeTrue();
-            component.CanCreateDelegate(typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeFalse();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!).ShouldBeTrue();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!).ShouldBeTrue();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!).ShouldBeTrue();
+            component.CanCreateDelegate(null!, typeof(EventHandler), typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeFalse();
         }
 
         [Fact]
@@ -336,23 +336,23 @@ namespace MugenMvvm.UnitTest.Internal.Components
         {
             IReflectionDelegateProviderComponent component = new ExpressionReflectionDelegateProvider();
             var target = new TestMethodClass();
-            var handler = (EventHandler)component.TryCreateDelegate(typeof(EventHandler), target, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!)!;
+            var handler = (EventHandler)component.TryCreateDelegate(null!, typeof(EventHandler), target, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethod))!)!;
             handler.Invoke(this, EventArgs.Empty);
             target.Args![0].ShouldEqual(this);
             target.Args![1].ShouldEqual(EventArgs.Empty);
 
             target.Args = null;
-            handler = (EventHandler)component.TryCreateDelegate(typeof(EventHandler), target, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!)!;
+            handler = (EventHandler)component.TryCreateDelegate(null!, typeof(EventHandler), target, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodGeneric))!)!;
             handler.Invoke(this, EventArgs.Empty);
             target.Args![0].ShouldEqual(this);
             target.Args![1].ShouldEqual(EventArgs.Empty);
 
-            handler = (EventHandler)component.TryCreateDelegate(typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!)!;
+            handler = (EventHandler)component.TryCreateDelegate(null!, typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.HandleMethodStatic))!)!;
             handler.Invoke(this, EventArgs.Empty);
             TestMethodClass.ArgsStatic![0].ShouldEqual(this);
             TestMethodClass.ArgsStatic![1].ShouldEqual(EventArgs.Empty);
 
-            component.TryCreateDelegate(typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeNull();
+            component.TryCreateDelegate(null!, typeof(EventHandler), null, typeof(TestMethodClass).GetMethod(nameof(TestMethodClass.MethodWithArgs))!).ShouldBeNull();
         }
 
         #endregion

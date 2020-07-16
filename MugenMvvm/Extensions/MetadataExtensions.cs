@@ -48,7 +48,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             var result = metadataContextManager.TryGetReadOnlyMetadataContext(target, values);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMetadataContextProviderComponent>(metadataContextManager);
+                ExceptionManager.ThrowRequestNotSupported<IMetadataContextProviderComponent>(metadataContextManager, target, null);
             return result;
         }
 
@@ -57,7 +57,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             var result = metadataContextManager.TryGetMetadataContext(target, values);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMetadataContextProviderComponent>(metadataContextManager);
+                ExceptionManager.ThrowRequestNotSupported<IMetadataContextProviderComponent>(metadataContextManager, target, null);
             return result;
         }
 

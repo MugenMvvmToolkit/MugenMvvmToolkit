@@ -125,7 +125,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetActivator(constructor);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionManager);
+                ExceptionManager.ThrowRequestNotSupported<IActivatorReflectionDelegateProviderComponent>(reflectionManager, constructor, null);
             return result;
         }
 
@@ -134,7 +134,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetActivator(constructor, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IActivatorReflectionDelegateProviderComponent>(reflectionManager);
+                ExceptionManager.ThrowRequestNotSupported<IActivatorReflectionDelegateProviderComponent>(reflectionManager, delegateType, null);
             return result;
         }
 
@@ -143,7 +143,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetMethodInvoker(method);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionManager);
+                ExceptionManager.ThrowRequestNotSupported<IMethodReflectionDelegateProviderComponent>(reflectionManager, method, null);
             return result;
         }
 
@@ -152,7 +152,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetMethodInvoker(method, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMethodReflectionDelegateProviderComponent>(reflectionManager);
+                ExceptionManager.ThrowRequestNotSupported<IMethodReflectionDelegateProviderComponent>(reflectionManager, delegateType, null);
             return result;
         }
 
@@ -161,7 +161,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetMemberGetter(member, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionManager);
+                ExceptionManager.ThrowRequestNotSupported<IMemberReflectionDelegateProviderComponent>(reflectionManager, delegateType, null);
             return result;
         }
 
@@ -170,7 +170,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(reflectionManager, nameof(reflectionManager));
             var result = reflectionManager.TryGetMemberSetter(member, delegateType);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IMemberReflectionDelegateProviderComponent>(reflectionManager);
+                ExceptionManager.ThrowRequestNotSupported<IMemberReflectionDelegateProviderComponent>(reflectionManager, delegateType, null);
             return result;
         }
 

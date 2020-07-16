@@ -104,13 +104,12 @@ namespace MugenMvvm.Extensions
         }
 
         public static INavigationContext GetNavigationContext(this INavigationDispatcher dispatcher, object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType,
-            NavigationMode navigationMode,
-            IReadOnlyMetadataContext? metadata = null)
+            NavigationMode navigationMode, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             var result = dispatcher.TryGetNavigationContext(target, navigationProvider, navigationId, navigationType, navigationMode, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<INavigationContextProviderComponent>(dispatcher);
+                ExceptionManager.ThrowRequestNotSupported<INavigationContextProviderComponent>(dispatcher, target, metadata);
             return result;
         }
 

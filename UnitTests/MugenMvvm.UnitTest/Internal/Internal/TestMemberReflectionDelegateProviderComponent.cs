@@ -1,12 +1,29 @@
 ﻿using System;
 using System.Reflection;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Models;
+using Should;
 
 namespace MugenMvvm.UnitTest.Internal.Internal
 {
     public class TestMemberReflectionDelegateProviderComponent : IMemberReflectionDelegateProviderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IReflectionManager? _reflectionManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestMemberReflectionDelegateProviderComponent(IReflectionManager? reflectionManager)
+        {
+            _reflectionManager = reflectionManager;
+        }
+
+        #endregion
+
         #region Properties
 
         public Func<MemberInfo, Type, Delegate?>? TryGetMemberGetter { get; set; }
@@ -19,13 +36,15 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberGetter(MemberInfo member, Type delegateType)
+        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
+            _reflectionManager?.ShouldEqual(reflectionManager);
             return TryGetMemberGetter?.Invoke(member, delegateType);
         }
 
-        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(MemberInfo member, Type delegateType)
+        Delegate? IMemberReflectionDelegateProviderComponent.TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
+            _reflectionManager?.ShouldEqual(reflectionManager);
             return TryGetMemberSetter?.Invoke(member, delegateType);
         }
 

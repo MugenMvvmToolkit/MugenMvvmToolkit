@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Internal.Components
 {
     public interface IMethodReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
-        Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method);
+        Func<object?, object?[], object?>? TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method);
 
-        Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType);
+        Delegate? TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method, Type delegateType);
     }
 }

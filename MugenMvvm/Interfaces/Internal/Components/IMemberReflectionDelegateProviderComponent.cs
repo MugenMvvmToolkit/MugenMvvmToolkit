@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Internal.Components
 {
     public interface IMemberReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
-        Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType);
+        Delegate? TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType);
 
-        Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType);
+        Delegate? TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType);
     }
 }

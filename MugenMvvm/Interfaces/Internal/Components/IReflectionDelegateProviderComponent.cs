@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Internal.Components
 {
     public interface IReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
-        bool CanCreateDelegate(Type delegateType, MethodInfo method);
+        bool CanCreateDelegate(IReflectionManager reflectionManager, Type delegateType, MethodInfo method);
 
-        Delegate? TryCreateDelegate(Type delegateType, object? target, MethodInfo method);
+        Delegate? TryCreateDelegate(IReflectionManager reflectionManager, Type delegateType, object? target, MethodInfo method);
     }
 }

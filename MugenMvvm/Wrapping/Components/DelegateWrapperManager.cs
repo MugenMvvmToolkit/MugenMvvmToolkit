@@ -14,9 +14,9 @@ namespace MugenMvvm.Wrapping.Components
     {
         #region Fields
 
-        private readonly Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> _condition;
         [AllowNull]
         private readonly TState _state;
+        private readonly Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> _condition;
         private readonly Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> _wrapperFactory;
 
         #endregion
@@ -24,7 +24,7 @@ namespace MugenMvvm.Wrapping.Components
         #region Constructors
 
         public DelegateWrapperManager(Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> condition,
-            Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, [AllowNull]in TState state)
+            Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, [AllowNull] TState state)
         {
             Should.NotBeNull(condition, nameof(condition));
             Should.NotBeNull(wrapperFactory, nameof(wrapperFactory));

@@ -18,16 +18,16 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public IWeakReference? TryGetWeakReference(object item, IReadOnlyMetadataContext? metadata)
+        public IWeakReference? TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {
             if (item is IValueHolder<IWeakReference> holder)
             {
                 if (holder.Value == null)
-                    holder.Value = Components.TryGetWeakReference(item, metadata);
+                    holder.Value = Components.TryGetWeakReference(weakReferenceManager, item, metadata);
                 return holder.Value;
             }
 
-            return Components.TryGetWeakReference(item, metadata);
+            return Components.TryGetWeakReference(weakReferenceManager, item, metadata);
         }
 
         #endregion

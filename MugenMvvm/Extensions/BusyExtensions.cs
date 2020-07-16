@@ -12,11 +12,11 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IBusyToken BeginBusy<TRequest>(this IBusyManager provider, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IBusyToken BeginBusy(this IBusyManager provider, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
             var token = provider.TryBeginBusy(request, metadata);
             if (token == null)
-                ExceptionManager.ThrowObjectNotInitialized<IBusyManagerComponent>(provider);
+                ExceptionManager.ThrowRequestNotSupported<IBusyManagerComponent>(provider, request, metadata);
             return token;
         }
 

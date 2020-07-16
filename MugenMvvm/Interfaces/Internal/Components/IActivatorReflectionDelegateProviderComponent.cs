@@ -6,8 +6,8 @@ namespace MugenMvvm.Interfaces.Internal.Components
 {
     public interface IActivatorReflectionDelegateProviderComponent : IComponent<IReflectionManager>
     {
-        Func<object?[], object>? TryGetActivator(ConstructorInfo constructor);
+        Func<object?[], object>? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor);
 
-        Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType);
+        Delegate? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType);
     }
 }

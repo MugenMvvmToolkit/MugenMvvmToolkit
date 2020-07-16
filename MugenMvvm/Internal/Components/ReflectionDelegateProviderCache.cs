@@ -56,13 +56,13 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public Func<object?[], object>? TryGetActivator(ConstructorInfo constructor)
+        public Func<object?[], object>? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor)
         {
             lock (_activatorCache)
             {
                 if (!_activatorCache.TryGetValue(constructor, out var value))
                 {
-                    value = Components.TryGetActivator(constructor);
+                    value = Components.TryGetActivator(reflectionManager, constructor);
                     _activatorCache[constructor] = value;
                 }
 
@@ -70,14 +70,14 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
+        public Delegate? TryGetActivator(IReflectionManager reflectionManager, ConstructorInfo constructor, Type delegateType)
         {
             var cacheKey = new KeyValuePair<Type, MemberInfo>(delegateType, constructor);
             lock (_activatorCacheDelegate)
             {
                 if (!_activatorCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    value = Components.TryGetActivator(constructor, delegateType);
+                    value = Components.TryGetActivator(reflectionManager, constructor, delegateType);
                     _activatorCacheDelegate[cacheKey] = value;
                 }
 
@@ -100,14 +100,14 @@ namespace MugenMvvm.Internal.Components
             Invalidate(true, true, true);
         }
 
-        public Delegate? TryGetMemberGetter(MemberInfo member, Type delegateType)
+        public Delegate? TryGetMemberGetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
             var key = new KeyValuePair<Type, MemberInfo>(delegateType, member);
             lock (_memberGetterCache)
             {
                 if (!_memberGetterCache.TryGetValue(key, out var value))
                 {
-                    value = _memberComponents.TryGetMemberGetter(member, delegateType);
+                    value = _memberComponents.TryGetMemberGetter(reflectionManager, member, delegateType);
                     _memberGetterCache[key] = value;
                 }
 
@@ -115,14 +115,14 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Delegate? TryGetMemberSetter(MemberInfo member, Type delegateType)
+        public Delegate? TryGetMemberSetter(IReflectionManager reflectionManager, MemberInfo member, Type delegateType)
         {
             var key = new KeyValuePair<Type, MemberInfo>(delegateType, member);
             lock (_memberSetterCache)
             {
                 if (!_memberSetterCache.TryGetValue(key, out var value))
                 {
-                    value = _memberComponents.TryGetMemberSetter(member, delegateType);
+                    value = _memberComponents.TryGetMemberSetter(reflectionManager, member, delegateType);
                     _memberSetterCache[key] = value;
                 }
 
@@ -130,13 +130,13 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Func<object?, object?[], object?>? TryGetMethodInvoker(MethodInfo method)
+        public Func<object?, object?[], object?>? TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method)
         {
             lock (_invokeMethodCache)
             {
                 if (!_invokeMethodCache.TryGetValue(method, out var value))
                 {
-                    value = _methodComponents.TryGetMethodInvoker(method);
+                    value = _methodComponents.TryGetMethodInvoker(reflectionManager, method);
                     _invokeMethodCache[method] = value;
                 }
 
@@ -144,14 +144,14 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public Delegate? TryGetMethodInvoker(MethodInfo method, Type delegateType)
+        public Delegate? TryGetMethodInvoker(IReflectionManager reflectionManager, MethodInfo method, Type delegateType)
         {
             var cacheKey = new KeyValuePair<Type, MemberInfo>(delegateType, method);
             lock (_invokeMethodCacheDelegate)
             {
                 if (!_invokeMethodCacheDelegate.TryGetValue(cacheKey, out var value))
                 {
-                    value = _methodComponents.TryGetMethodInvoker(method, delegateType);
+                    value = _methodComponents.TryGetMethodInvoker(reflectionManager, method, delegateType);
                     _invokeMethodCacheDelegate[cacheKey] = value;
                 }
 

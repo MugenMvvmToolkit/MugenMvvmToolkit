@@ -38,15 +38,17 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var canReturn = i == count - 1;
-                var component = new TestWeakReferenceProviderComponent();
-                component.Priority = -i;
-                component.TryGetWeakReference = (o, context) =>
+                var component = new TestWeakReferenceProviderComponent(weakReferenceManager)
                 {
-                    ++invokeCount;
-                    context.ShouldEqual(DefaultMetadata);
-                    if (canReturn)
-                        return result;
-                    return null;
+                    Priority = -i,
+                    TryGetWeakReference = (o, context) =>
+                    {
+                        ++invokeCount;
+                        context.ShouldEqual(DefaultMetadata);
+                        if (canReturn)
+                            return result;
+                        return null;
+                    }
                 };
                 weakReferenceManager.AddComponent(component);
             }

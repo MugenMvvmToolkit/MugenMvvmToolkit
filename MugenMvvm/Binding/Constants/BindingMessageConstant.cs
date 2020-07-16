@@ -29,13 +29,11 @@
         public const string CannotCompileUnaryExpressionFormat2 = "Cannot compile unary expression '{0}' '{1}' operator is not supported";
         public const string CannotCompileLambdaExpressionDelegateFormat1 = "Cannot compile lambda expression '{0}' cannot get delegate type";
         public const string CannotCompileLambdaExpressionParameterCountFormat2 = "Cannot compile lambda expression '{0}' wrong parameter count '{1}'";
-        public const string CannotCompileLambdaExpressionParameterNotAssignableFormat3 = "Cannot compile lambda expression '{0}' parameter '{1}' is not assignable from '{2}'";
         public const string CannotCompileIndexerMethodExpressionNullTargetFormat1 = "Cannot compile indexer/method expression '{0}' with null target";
 
         public const string BindingMemberMustBeWritableFormat4 = "The binding member must be writable, if it uses the SetValue method, path '{0}', type '{1}', member type '{2}', underlying member '{3}'";
         public const string BindingMemberMustBeReadableFormat4 = "The binding member must be readable, if it uses the GetValue method, path '{0}', type '{1}', member type '{2}', underlying member '{3}'";
         public const string InvalidBindingMemberFormat2 = "The binding member cannot be obtained from the path '{0}' on the '{1}'.";
-        public const string UnexpectedExpressionTyperFormat3 = "Unexpected expression type '{0}', expected '{1}', node: '{2}'";
         public const string CannotParseExpressionFormat2 = "Cannot parse expression '{0}' {1}";
         public const string CannotCompileExpressionFormat2 = "Cannot compile expression '{0}' {1}";
         public const string DuplicateLambdaParameterFormat1 = "The lambda parameter '{0}' is defined more than once";

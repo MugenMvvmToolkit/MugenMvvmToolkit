@@ -37,12 +37,12 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IEntityTrackingCollection GetTrackingCollection<TRequest>(this IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IEntityTrackingCollection GetTrackingCollection(this IEntityManager entityManager, object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(entityManager, nameof(entityManager));
             var collection = entityManager.TryGetTrackingCollection(request, metadata);
             if (collection == null)
-                ExceptionManager.ThrowObjectNotInitialized<IEntityTrackingCollectionProviderComponent>(entityManager);
+                ExceptionManager.ThrowRequestNotSupported<IEntityTrackingCollectionProviderComponent>(entityManager, request, metadata);
             return collection;
         }
 
@@ -51,7 +51,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(entityManager, nameof(entityManager));
             var snapshot = entityManager.TryGetSnapshot(entity, metadata);
             if (snapshot == null)
-                ExceptionManager.ThrowObjectNotInitialized<IEntityStateSnapshotProviderComponent>(entityManager);
+                ExceptionManager.ThrowRequestNotSupported<IEntityStateSnapshotProviderComponent>(entityManager, entity, metadata);
             return snapshot;
         }
 
@@ -59,14 +59,14 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(serializer, nameof(serializer));
             if (!serializer.TrySerialize(stream, request, metadata))
-                ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
+                ExceptionManager.ThrowRequestNotSupported<ISerializerComponent>(serializer, request, metadata);
         }
 
         public static object? Deserialize(this ISerializer serializer, Stream stream, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
             if (!serializer.TryDeserialize(stream, metadata, out var result))
-                ExceptionManager.ThrowObjectNotInitialized<ISerializerComponent>(serializer);
+                ExceptionManager.ThrowRequestNotSupported<ISerializerComponent>(serializer, stream, metadata);
             return result;
         }
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             var result = validatorProvider.TryGetValidator(request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IValidatorProviderComponent>(validatorProvider);
+                ExceptionManager.ThrowRequestNotSupported<IValidatorProviderComponent>(validatorProvider, request, metadata);
             return result;
         }
 
@@ -94,7 +94,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(weakReferenceManager, nameof(weakReferenceManager));
             var result = weakReferenceManager.TryGetWeakReference(item, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<IWeakReferenceProviderComponent>(weakReferenceManager);
+                ExceptionManager.ThrowRequestNotSupported<IWeakReferenceProviderComponent>(weakReferenceManager, item, metadata);
             return result;
         }
 
@@ -104,7 +104,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(owner, nameof(owner));
             var collection = provider.TryGetComponentCollection(owner, metadata);
             if (collection == null)
-                ExceptionManager.ThrowObjectNotInitialized<IComponentCollectionProviderComponent>(provider);
+                ExceptionManager.ThrowRequestNotSupported<IComponentCollectionProviderComponent>(provider, owner, metadata);
             return collection;
         }
 
@@ -136,7 +136,7 @@ namespace MugenMvvm.Extensions
         public static void Execute<THandler, TState>(IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, [DisallowNull] in THandler genericHandler, in TState state, IReadOnlyMetadataContext? metadata)
         {
             if (!threadDispatcher.DefaultIfNull().TryExecute(executionMode, genericHandler, state, metadata))
-                ExceptionManager.ThrowObjectNotInitialized<IThreadDispatcherComponent>(threadDispatcher.DefaultIfNull());
+                ExceptionManager.ThrowRequestNotSupported<IThreadDispatcherComponent>(threadDispatcher.DefaultIfNull(), genericHandler, metadata);
         }
 
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null)
@@ -235,7 +235,7 @@ namespace MugenMvvm.Extensions
             Should.NotBeNull(commandManager, nameof(commandManager));
             var result = commandManager.TryGetCommand<TParameter>(request, metadata);
             if (result == null)
-                ExceptionManager.ThrowObjectNotInitialized<ICommandProviderComponent>(commandManager);
+                ExceptionManager.ThrowRequestNotSupported<ICommandProviderComponent>(commandManager, request, metadata);
             return result;
         }
 

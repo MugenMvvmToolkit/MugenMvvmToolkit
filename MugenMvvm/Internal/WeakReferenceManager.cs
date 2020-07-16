@@ -36,7 +36,7 @@ namespace MugenMvvm.Internal
                 return Default.WeakReference;
             if (_components == null)
                 _componentTracker.Attach(this, metadata);
-            return _components!.TryGetWeakReference(item, metadata);
+            return _components!.TryGetWeakReference(this, item, metadata);
         }
 
         #endregion

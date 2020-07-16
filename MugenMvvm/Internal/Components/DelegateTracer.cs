@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -36,12 +37,12 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public bool CanTrace(TraceLevel level, IReadOnlyMetadataContext? metadata)
+        public bool CanTrace(ITracer tracer, TraceLevel level, IReadOnlyMetadataContext? metadata)
         {
             return _canTrace(level, metadata);
         }
 
-        public void Trace(TraceLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
+        public void Trace(ITracer tracer, TraceLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {
             if (_canTrace(level, metadata))
                 _trace(level, message, exception, metadata);

@@ -105,7 +105,7 @@ namespace MugenMvvm.Internal
                 _componentTracker.Attach(this);
             var provider = _components!.TryGetProvider(this, item, null);
             if (provider == null)
-                ExceptionManager.ThrowObjectNotInitialized(this, _components);
+                ExceptionManager.ThrowRequestNotSupported(this, _components, item, null);
             return provider;
         }
 

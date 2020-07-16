@@ -218,7 +218,7 @@ namespace MugenMvvm.Busy.Components
 
             #region Methods
 
-            public IBusyToken? TryGetToken<TState>(Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, in TState state, IReadOnlyMetadataContext? metadata)
+            public IBusyToken? TryGetToken(Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
             {
                 Should.NotBeNull(filter, nameof(filter));
                 lock (Locker)

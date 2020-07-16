@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Extensions;
@@ -73,12 +72,6 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowWrapperTypeShouldBeNonAbstract(Type wrapperType)
-        {
-            throw new ArgumentException(WrapperTypeShouldBeNonAbstractFormat1.Format(wrapperType), nameof(wrapperType));
-        }
-
-        [DoesNotReturn]
         public static void ThrowWrapperTypeNotSupported(Type wrapperType)
         {
             throw new ArgumentException(WrapperTypeNotSupportedFormat1.Format(wrapperType), nameof(wrapperType));
@@ -94,12 +87,6 @@ namespace MugenMvvm
         public static void ThrowPresenterCannotShowRequest<TRequest>(TRequest request, IReadOnlyMetadataContext? metadata)
         {
             throw new InvalidOperationException(PresenterCannotShowRequestFormat2.Format(request, metadata.Dump()));
-        }
-
-        [DoesNotReturn]
-        public static void ThrowCannotFindConstructor(Type service)
-        {
-            throw new InvalidOperationException(CannotFindConstructorFormat1.Format(service));
         }
 
         [DoesNotReturn]
@@ -121,15 +108,15 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized<T>(object obj, T[]? _)
+        public static void ThrowRequestNotSupported<T>(object obj, T[]? _, object? request, IReadOnlyMetadataContext? metadata)
         {
-            ThrowObjectNotInitialized<T>(obj);
+            ThrowRequestNotSupported<T>(obj, request, metadata);
         }
 
         [DoesNotReturn]
-        public static void ThrowObjectNotInitialized<T>(object obj)
+        public static void ThrowRequestNotSupported<T>(object obj, object? request, IReadOnlyMetadataContext? metadata)
         {
-            ThrowObjectNotInitialized(obj, typeof(T).Name);
+            throw new InvalidOperationException(ObjectNotInitializedOrRequestNotSupportedFormat4.Format(obj, typeof(T).Name, request, metadata.Dump()));
         }
 
         [DoesNotReturn]
@@ -148,18 +135,6 @@ namespace MugenMvvm
         public static void ThrowNotSupported(string msg)
         {
             throw new NotSupportedException(msg);
-        }
-
-        [DoesNotReturn]
-        public static void ThrowDuplicateKey()
-        {
-            throw new ArgumentException(DuplicateKeyException);
-        }
-
-        [DoesNotReturn]
-        public static void ThrowKeyNotFound()
-        {
-            throw new KeyNotFoundException();
         }
 
         #endregion

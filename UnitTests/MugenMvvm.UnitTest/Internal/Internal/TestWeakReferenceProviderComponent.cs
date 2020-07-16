@@ -3,11 +3,27 @@ using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using Should;
 
 namespace MugenMvvm.UnitTest.Internal.Internal
 {
     public class TestWeakReferenceProviderComponent : IWeakReferenceProviderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IWeakReferenceManager? _weakReferenceManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestWeakReferenceProviderComponent(IWeakReferenceManager? weakReferenceManager)
+        {
+            _weakReferenceManager = weakReferenceManager;
+        }
+
+        #endregion
+
         #region Properties
 
         public Func<object, IReadOnlyMetadataContext?, IWeakReference?>? TryGetWeakReference { get; set; }
@@ -18,8 +34,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        IWeakReference? IWeakReferenceProviderComponent.TryGetWeakReference(object item, IReadOnlyMetadataContext? metadata)
+        IWeakReference? IWeakReferenceProviderComponent.TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {
+            _weakReferenceManager?.ShouldEqual(weakReferenceManager);
             return TryGetWeakReference?.Invoke(item, metadata);
         }
 

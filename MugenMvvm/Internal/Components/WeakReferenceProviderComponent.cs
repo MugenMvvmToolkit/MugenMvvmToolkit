@@ -18,7 +18,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Implementation of interfaces
 
-        public IWeakReference? TryGetWeakReference(object item, IReadOnlyMetadataContext? metadata)
+        public IWeakReference? TryGetWeakReference(IWeakReferenceManager weakReferenceManager, object item, IReadOnlyMetadataContext? metadata)
         {
             return new WeakReferenceImpl(item, TrackResurrection);
         }

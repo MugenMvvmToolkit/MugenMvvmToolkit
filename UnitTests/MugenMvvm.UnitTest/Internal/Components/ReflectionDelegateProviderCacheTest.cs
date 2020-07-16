@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
             var manager = new ReflectionManager();
-            manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent
+            manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent(manager)
             {
                 TryGetActivator = info =>
                 {
@@ -54,7 +54,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
             var manager = new ReflectionManager();
-            manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent
+            manager.AddComponent(new TestActivatorReflectionDelegateProviderComponent(manager)
             {
                 TryGetActivator1 = (info, t) =>
                 {
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
             var manager = new ReflectionManager();
-            manager.AddComponent(new TestMemberReflectionDelegateProviderComponent
+            manager.AddComponent(new TestMemberReflectionDelegateProviderComponent(manager)
             {
                 TryGetMemberGetter = (info, t) =>
                 {
@@ -112,7 +112,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invokeCount = 0;
             Func<object?[], object> result = objects => objects;
             var manager = new ReflectionManager();
-            manager.AddComponent(new TestMemberReflectionDelegateProviderComponent
+            manager.AddComponent(new TestMemberReflectionDelegateProviderComponent(manager)
             {
                 TryGetMemberSetter = (info, t) =>
                 {
@@ -141,7 +141,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invokeCount = 0;
             Func<object?, object?[], object?> result = (o, objects) => o;
             var manager = new ReflectionManager();
-            manager.AddComponent(new TestMethodReflectionDelegateProviderComponent
+            manager.AddComponent(new TestMethodReflectionDelegateProviderComponent(manager)
             {
                 TryGetMethodInvoker = info =>
                 {
@@ -169,7 +169,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var invokeCount = 0;
             Func<object?, object?[], object?> result = (o, objects) => o;
             var manager = new ReflectionManager();
-            manager.AddComponent(new TestMethodReflectionDelegateProviderComponent
+            manager.AddComponent(new TestMethodReflectionDelegateProviderComponent(manager)
             {
                 TryGetMethodInvoker1 = (info, t) =>
                 {
