@@ -122,7 +122,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
+        public virtual object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -131,10 +131,10 @@ namespace MugenMvvm.Internal.Components
             lock (dictionary)
             {
                 if (dictionary.TryGetValue(path, out var oldValue))
-                    return (TValue)oldValue!;
-                oldValue = BoxingExtensions.Box(valueFactory(item, state));
+                    return oldValue;
+                oldValue = valueFactory(item, state);
                 dictionary.Add(path, oldValue);
-                return (TValue)oldValue!;
+                return oldValue;
             }
         }
 

@@ -190,13 +190,6 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static TValue GetOrAdd<TItem, TValue>(this IAttachedValueManager attachedValueManager, TItem item, string path, Func<TItem, TValue> valueFactory)
-            where TItem : class
-        {
-            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
-            return attachedValueManager.GetOrAdd(item, path, valueFactory, (it, s) => s(it));
-        }
-
         public static void Set(this IAttachedValueManager attachedValueManager, object item, string path, object? value)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));

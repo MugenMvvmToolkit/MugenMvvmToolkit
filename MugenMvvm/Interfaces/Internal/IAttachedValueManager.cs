@@ -20,8 +20,7 @@ namespace MugenMvvm.Interfaces.Internal
         TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
             where TItem : class;
 
-        TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)
-            where TItem : class;
+        object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state = null);
 
         object? GetOrAdd(object item, string path, object? value);
 

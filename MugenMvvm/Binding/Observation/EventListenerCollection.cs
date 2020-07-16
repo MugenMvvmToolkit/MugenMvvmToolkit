@@ -30,7 +30,7 @@ namespace MugenMvvm.Binding.Observation
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
-            return attachedValueManager.DefaultIfNull().GetOrAdd(target, path, (object?)null, (_, __) => new EventListenerCollection());
+            return (EventListenerCollection)attachedValueManager.DefaultIfNull().GetOrAdd(target, path, (_, __) => new EventListenerCollection())!;
         }
 
         public static void Raise<T>(object target, string path, in T message, IReadOnlyMetadataContext? metadata, IAttachedValueManager? attachedValueManager = null)

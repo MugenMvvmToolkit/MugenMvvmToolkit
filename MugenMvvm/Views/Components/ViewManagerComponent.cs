@@ -82,13 +82,13 @@ namespace MugenMvvm.Views.Components
                     || !(v is List<IView> value) || !value.Contains(view))
                     return null;
 
-                CleanupAsync(viewManager, view, request, value, (list, v, m) =>
+                CleanupAsync(viewManager, view, request, value, (list, item, m) =>
                 {
-                    list.Remove(v);
-                    if (v.ViewModel is IComponentOwner componentOwner)
-                        componentOwner.Components.Remove(v, m);
+                    list.Remove(item);
+                    if (item.ViewModel is IComponentOwner componentOwner)
+                        componentOwner.Components.Remove(item, m);
                     else
-                        v.ViewModel.Metadata.Get(ViewsMetadataKey)?.Remove(v);
+                        item.ViewModel.Metadata.Get(ViewsMetadataKey)?.Remove(item);
                 }, metadata);
                 return Task.CompletedTask;
             }
@@ -147,10 +147,7 @@ namespace MugenMvvm.Views.Components
             var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager, _metadataContextManager);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
             addAction(collection, view, metadata);
-            _attachedValueManager
-                .DefaultIfNull()
-                .GetOrAdd(rawView, InternalConstant.ViewsValueKey, rawView, (_, __) => new List<IView>())
-                .Add(view);
+            ((List<IView>)_attachedValueManager.DefaultIfNull().GetOrAdd(rawView, InternalConstant.ViewsValueKey, (_, __) => new List<IView>())!).Add(view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initialized, viewModel, metadata);
             return view;
         }

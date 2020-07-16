@@ -60,7 +60,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void GetOrAddShouldThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().GetOrAdd(this, TestPath, test => this));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().GetOrAdd(this, TestPath, (test, s) => this));
         }
 
         [Fact]
@@ -309,26 +309,23 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    GetOrAdd1 = (o, type, arg3, arg4, arg5, arg6, arg7) =>
+                    GetOrAdd1 = (o, arg3, arg4, arg7) =>
                     {
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(attachedValueManager);
-                        arg5.ShouldEqual(typeof(AttachedValueManager));
-                        arg6.ShouldEqual(valueToSet.GetType());
                         ++methodExecuted;
-                        return arg7(null, null);
+                        return arg7(o, null);
                     }
                 };
                 attachedValueManager.AddComponent(component);
             }
 
-            attachedValueManager.GetOrAdd(this, TestPath, attachedValueManager, (test, provider) => this).ShouldEqual(valueToSet);
+            attachedValueManager.GetOrAdd(this, TestPath, (test, provider) => this, attachedValueManager).ShouldEqual(valueToSet);
             methodExecuted.ShouldEqual(1);
 
             valueToSet = 1;
-            attachedValueManager.GetOrAdd(this, TestPath, attachedValueManager, (test, provider) => 1).ShouldEqual(valueToSet);
+            attachedValueManager.GetOrAdd(this, TestPath, (test, provider) => 1, attachedValueManager).ShouldEqual(valueToSet);
             methodExecuted.ShouldEqual(2);
         }
 
@@ -347,7 +344,7 @@ namespace MugenMvvm.UnitTest.Internal
                 var component = new TestAttachedValueProviderComponent
                 {
                     IsSupported = (o, context) => isSupported,
-                    Set = (object item, string path, object value, out object? oldValue) =>
+                    Set = (object item, string path, object? value, out object? oldValue) =>
                     {
                         item.ShouldEqual(this);
                         path.ShouldEqual(TestPath);

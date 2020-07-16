@@ -258,13 +258,18 @@ namespace MugenMvvm.Binding.Members.Builders
             public static MemberWrapper GetOrAdd(object target, string key, string wrapMemberName, MemberFlags flags, IReadOnlyMetadataContext? metadata)
             {
                 Should.NotBeNull(target, nameof(target));
-                return MugenService.AttachedValueManager.GetOrAdd(target, key, (wrapMemberName, flags, metadata), (o, tuple) =>
+                var attachedValueManager = MugenService.AttachedValueManager;
+                if (attachedValueManager.TryGet(target, key, out var value))
+                    return (MemberWrapper)value!;
+
+                return (MemberWrapper)attachedValueManager.GetOrAdd(target, key, (o, s) =>
                 {
+                    var state = (Tuple<string, MemberFlags, IReadOnlyMetadataContext?>)s!;
                     var member = MugenBindingService
                         .MemberManager
-                        .TryGetMember(tuple.flags.GetTargetType(ref o!), MemberType.Accessor, tuple.flags, tuple.wrapMemberName, tuple.metadata) as IAccessorMemberInfo;
+                        .TryGetMember(state.Item2.GetTargetType(ref o!), MemberType.Accessor, state.Item2, state.Item1, state.Item3) as IAccessorMemberInfo;
                     return new MemberWrapper(member);
-                });
+                }, Tuple.Create(wrapMemberName, flags, metadata))!;
             }
 
             public TValue GetValue(TTarget target, IReadOnlyMetadataContext? metadata)
@@ -335,7 +340,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 _targetRef = target.ToWeakReference();
                 _member = member;
                 Value = member.State.GetDefaultValue == null ? member.State.DefaultValueField : member.State.GetDefaultValue((IAccessorMemberInfo)member, target);
-                InvalidateParent(target, metadata);
+                InvalidateParent(target!, metadata);
             }
 
             #endregion
@@ -374,11 +379,14 @@ namespace MugenMvvm.Binding.Members.Builders
                 if (attachedValueManager.TryGet(target!, member.State.id, out var value))
                     return (InheritedProperty)value!;
 #pragma warning disable 8634
-                return attachedValueManager.GetOrAdd(target!, member.State.id, (member, metadata), (t, s) =>
-                {
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, t, s.metadata);
-                    return new InheritedProperty(t, s.member, s.metadata);
-                });
+                return (InheritedProperty)attachedValueManager.GetOrAdd(target!, member.State.id, (t, s) =>
+               {
+                   var state =
+                       (Tuple<DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>?
+                           PropertyChanged, TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)>, IReadOnlyMetadataContext?>)s!;
+                   state.Item1.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)state.Item1, (TTarget)t, state.Item2);
+                   return new InheritedProperty((TTarget)t, state.Item1, state.Item2);
+               }, Tuple.Create(member, metadata))!;
 #pragma warning restore 8634
             }
 
@@ -486,14 +494,17 @@ namespace MugenMvvm.Binding.Members.Builders
                 if (attachedValueManager.TryGet(key, member.State.id, out var value))
                     return (AutoProperty)value!;
 #pragma warning disable 8634
-                return attachedValueManager.GetOrAdd(key, member.State.id, (member, metadata), (t, s) =>
-                {
-                    if (s.member.AccessModifiers.HasFlagEx(MemberFlags.Static))
-                        t = null!;
-                    s.member.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)s.member, (TTarget)t, s.metadata);
-                    return new AutoProperty(s.member.State.PropertyChanged,
-                        s.member.State.GetDefaultValue == null ? s.member.State.DefaultValueField : s.member.State.GetDefaultValue((IAccessorMemberInfo)s.member, (TTarget)t));
-                });
+                return (AutoProperty)attachedValueManager.GetOrAdd(key, member.State.id, (t, s) =>
+               {
+                   var state =
+                       (Tuple<DelegateObservableMemberInfo<TTarget, (string id, MemberAttachedDelegate<IAccessorMemberInfo, TTarget>? AttachedHandlerField, ValueChangedDelegate<IAccessorMemberInfo, TTarget, TValue>?
+                           PropertyChanged, TValue DefaultValueField, Func<IAccessorMemberInfo, TTarget, TValue>? GetDefaultValue)>, IReadOnlyMetadataContext?>)s!;
+                   if (state.Item1.AccessModifiers.HasFlagEx(MemberFlags.Static))
+                       t = null!;
+                   state.Item1.State.AttachedHandlerField?.Invoke((IAccessorMemberInfo)state.Item1, (TTarget)t, state.Item2);
+                   return new AutoProperty(state.Item1.State.PropertyChanged,
+                       state.Item1.State.GetDefaultValue == null ? state.Item1.State.DefaultValueField : state.Item1.State.GetDefaultValue((IAccessorMemberInfo)state.Item1, (TTarget)t));
+               }, Tuple.Create(member, metadata))!;
 #pragma warning restore 8634
             }
 

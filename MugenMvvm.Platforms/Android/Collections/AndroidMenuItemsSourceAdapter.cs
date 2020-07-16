@@ -31,7 +31,9 @@ namespace MugenMvvm.Android.Collections
         {
             Should.NotBeNull(menu, nameof(menu));
             Should.NotBeNull(template, nameof(template));
-            return MugenService.AttachedValueManager.GetOrAdd(menu, AndroidInternalConstant.MenuItemsSource, template, (m, t) => new AndroidMenuItemsSourceAdapter(m, t));
+            return (AndroidMenuItemsSourceAdapter)MugenService
+                .AttachedValueManager
+                .GetOrAdd(menu, AndroidInternalConstant.MenuItemsSource, (m, t) => new AndroidMenuItemsSourceAdapter((IMenu)m, (IMenuItemTemplate)t!), template)!;
         }
 
         protected override void OnAdded(object? item, int index, bool batch)

@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observation.Components
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
-        private static readonly Func<INotifyPropertyChanged, object?, MemberListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
+        private static readonly Func<object, object?, object?> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
 
@@ -66,10 +66,9 @@ namespace MugenMvvm.Binding.Observation.Components
         {
             if (target == null)
                 return default;
-            return _attachedValueManager
+            return ((MemberListenerCollection) _attachedValueManager
                 .DefaultIfNull()
-                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
-                .Add(listener, (string)member);
+                .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstant.PropertyChangedObserverMember, CreateWeakPropertyListenerDelegate)!).Add(listener, (string) member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)
@@ -79,10 +78,10 @@ namespace MugenMvvm.Binding.Observation.Components
             return default;
         }
 
-        private static MemberListenerCollection CreateWeakPropertyListener(INotifyPropertyChanged propertyChanged, object? _)
+        private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
         {
             var listener = new MemberListenerCollection();
-            propertyChanged.PropertyChanged += listener.RaisePropertyChanged;
+            ((INotifyPropertyChanged) item).PropertyChanged += listener.RaisePropertyChanged;
             return listener;
         }
 

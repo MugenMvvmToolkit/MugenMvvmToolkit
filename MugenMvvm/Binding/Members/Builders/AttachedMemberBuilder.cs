@@ -97,11 +97,12 @@ namespace MugenMvvm.Binding.Members.Builders
             if (!attachedValueManager.Contains(key, id))
             {
 #pragma warning disable 8634
-                attachedValueManager.GetOrAdd(key, id, (member, handler, metadata), (t, state) =>
+                attachedValueManager.GetOrAdd(key, id, (t, s) =>
                 {
-                    state.handler(state.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, state.metadata);
+                    var state = (Tuple<TMember, MemberAttachedDelegate<TMember, TTarget>, IReadOnlyMetadataContext?>)s!;
+                    state.Item2(state.Item1, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, state.Item3);
                     return (object?)null;
-                });
+                }, Tuple.Create(member, handler, metadata));
 #pragma warning restore 8634
             }
         }

@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         public Func<object, string, object?, object?>? GetOrAdd { get; set; }
 
-        public Func<object?, Type, string, object?, Type, Type, Func<object?, object?, object?>, object?>? GetOrAdd1 { get; set; }
+        public Func<object, string, object?, Func<object, object?, object?>, object?>? GetOrAdd1 { get; set; }
 
         public SetDelegate? Set { get; set; }
 
@@ -95,9 +95,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return GetOrAdd!.Invoke(item, path, value);
         }
 
-        TValue IAttachedValueProviderComponent.GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory)
+        object? IAttachedValueProviderComponent.GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state)
         {
-            return (TValue)GetOrAdd1!.Invoke(item, typeof(TItem), path, state, typeof(TState), typeof(TValue), (o, o1) => valueFactory((TItem)o!, (TState)o1!))!;
+            return GetOrAdd1!.Invoke(item, path, state, valueFactory)!;
         }
 
         void IAttachedValueProviderComponent.Set(object item, string path, object? value, out object? oldValue)

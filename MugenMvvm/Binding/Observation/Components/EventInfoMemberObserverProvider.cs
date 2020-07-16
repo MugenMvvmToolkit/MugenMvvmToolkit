@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
+        private readonly Func<object, object?, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionManager? _reflectionManager;
 
@@ -68,9 +68,9 @@ namespace MugenMvvm.Binding.Observation.Components
             if (target == null && !eventInfo.IsStatic())
                 return default;
 
-            var listenerInternal = _attachedValueManager
+            var listenerInternal = (EventListenerCollection?)_attachedValueManager
                 .DefaultIfNull()
-                .GetOrAdd(target ?? eventInfo.DeclaringType!, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, eventInfo, _createWeakListenerDelegate);
+                .GetOrAdd(target ?? eventInfo.DeclaringType!, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, _createWeakListenerDelegate, eventInfo);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
@@ -83,8 +83,9 @@ namespace MugenMvvm.Binding.Observation.Components
             return default;
         }
 
-        private EventListenerCollection? CreateWeakListener(object? target, EventInfo eventInfo)
+        private EventListenerCollection? CreateWeakListener(object? target, object? state)
         {
+            var eventInfo = (EventInfo)state!;
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)

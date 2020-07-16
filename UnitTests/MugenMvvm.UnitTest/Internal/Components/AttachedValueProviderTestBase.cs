@@ -169,13 +169,13 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var item = GetSupportedItem();
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
-            manager.GetOrAdd(item, TestPath, manager, (o, providerComponent) =>
-            {
-                ++invokeCount;
-                o.ShouldEqual(item);
-                providerComponent.ShouldEqual(manager);
-                return this;
-            }).ShouldEqual(this);
+            manager.GetOrAdd(item, TestPath, (o, providerComponent) =>
+           {
+               ++invokeCount;
+               o.ShouldEqual(item);
+               providerComponent.ShouldEqual(manager);
+               return this;
+           }, manager).ShouldEqual(this);
             manager.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
             invokeCount.ShouldEqual(1);
@@ -203,7 +203,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
             manager.Set(item, TestPath, oldValue, out _);
-            manager.GetOrAdd<object, object, object>(item, TestPath, this, (_, __) => throw new NotSupportedException()).ShouldEqual(oldValue);
+            manager.GetOrAdd(item, TestPath, (_, __) => throw new NotSupportedException()).ShouldEqual(oldValue);
             manager.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(oldValue);
         }

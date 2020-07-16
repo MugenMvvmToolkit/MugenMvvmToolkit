@@ -63,9 +63,9 @@ namespace MugenMvvm.Internal
             return GetComponent(item).AddOrUpdate(item, path, state, addValueFactory, updateValueFactory);
         }
 
-        public TValue GetOrAdd<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> valueFactory) where TItem : class
+        public object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state = null)
         {
-            return GetComponent(item).GetOrAdd(item, path, state, valueFactory);
+            return GetComponent(item).GetOrAdd(item, path, valueFactory, state);
         }
 
         public object? GetOrAdd(object item, string path, object? value)
