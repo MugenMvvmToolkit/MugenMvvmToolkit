@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using MugenMvvm.Delegates;
-using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -12,9 +12,9 @@ namespace MugenMvvm.Internal.Components
     {
         #region Implementation of interfaces
 
-        public abstract bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
+        public abstract bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata);
 
-        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
+        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(IAttachedValueManager attachedValueManager, object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
@@ -43,7 +43,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual bool TryGet(object item, string path, out object? value)
+        public virtual bool TryGet(IAttachedValueManager attachedValueManager, object item, string path, out object? value)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -67,7 +67,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual bool Contains(object item, string path)
+        public virtual bool Contains(IAttachedValueManager attachedValueManager, object item, string path)
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
@@ -79,7 +79,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public virtual object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, object? addValue, UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -89,18 +89,17 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValue, (TValue)value!, state));
+                    value = updateValueFactory(item, addValue, value!, state);
                     dictionary[path] = value;
-                    return (TValue)value!;
+                    return value;
                 }
 
-                dictionary.Add(path, BoxingExtensions.Box(addValue));
+                dictionary.Add(path, addValue);
                 return addValue;
             }
         }
 
-        public virtual TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public virtual object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> addValueFactory, UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -111,18 +110,18 @@ namespace MugenMvvm.Internal.Components
             {
                 if (dictionary.TryGetValue(path, out var value))
                 {
-                    value = BoxingExtensions.Box(updateValueFactory(item, addValueFactory, (TValue)value!, state));
+                    value = updateValueFactory(item, addValueFactory, value, state);
                     dictionary[path] = value;
-                    return (TValue)value!;
+                    return value!;
                 }
 
-                value = BoxingExtensions.Box(addValueFactory(item, state));
+                value = addValueFactory(item, state);
                 dictionary.Add(path, value);
-                return (TValue)value!;
+                return value;
             }
         }
 
-        public virtual object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state)
+        public virtual object? GetOrAdd(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> valueFactory, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -139,7 +138,7 @@ namespace MugenMvvm.Internal.Components
         }
 
 
-        public virtual object? GetOrAdd(object item, string path, object? value)
+        public virtual object? GetOrAdd(IAttachedValueManager attachedValueManager, object item, string path, object? value)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -153,7 +152,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual void Set(object item, string path, object? value, out object? oldValue)
+        public virtual void Set(IAttachedValueManager attachedValueManager, object item, string path, object? value, out object? oldValue)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -165,7 +164,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual bool Clear(object item, string path, out object? oldValue)
+        public virtual bool Clear(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -189,7 +188,7 @@ namespace MugenMvvm.Internal.Components
             return removed;
         }
 
-        public virtual bool Clear(object item)
+        public virtual bool Clear(IAttachedValueManager attachedValueManager, object item)
         {
             Should.NotBeNull(item, nameof(item));
             return ClearInternal(item);

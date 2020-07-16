@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Constants;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -31,7 +32,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        public override bool IsSupported(object item, IReadOnlyMetadataContext? metadata) => item is Type;
+        public override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Type;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {

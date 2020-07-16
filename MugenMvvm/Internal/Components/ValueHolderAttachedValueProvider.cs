@@ -17,14 +17,14 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        public override bool IsSupported(object item, IReadOnlyMetadataContext? metadata)
+        public override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             return item is IValueHolder<IDictionary<string, object?>>;
         }
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {
-            var holder = (IValueHolder<IDictionary<string, object?>>) item;
+            var holder = (IValueHolder<IDictionary<string, object?>>)item;
             if (optional || holder.Value != null)
                 return holder.Value;
 
@@ -39,7 +39,7 @@ namespace MugenMvvm.Internal.Components
 
         protected override bool ClearInternal(object item)
         {
-            ((IValueHolder<IDictionary<string, object?>>) item).Value = null;
+            ((IValueHolder<IDictionary<string, object?>>)item).Value = null;
             return true;
         }
 

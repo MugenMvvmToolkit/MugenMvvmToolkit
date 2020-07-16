@@ -74,7 +74,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var item = GetSupportedItem();
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
-            manager.AddOrUpdate(item, TestPath, this, this, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(this);
+            manager.AddOrUpdate(item, TestPath, this, (_, __, ___, ____) => throw new NotSupportedException(), this).ShouldEqual(this);
             manager.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
         }
@@ -86,13 +86,13 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var item = GetSupportedItem();
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
-            manager.AddOrUpdate(item, TestPath, this, (i, state) =>
-            {
-                ++invokeCount;
-                i.ShouldEqual(item);
-                state.ShouldEqual(this);
-                return this;
-            }, (_, __, ___, ____) => throw new NotSupportedException()).ShouldEqual(this);
+            manager.AddOrUpdate(item, TestPath, (i, state) =>
+           {
+               ++invokeCount;
+               i.ShouldEqual(item);
+               state.ShouldEqual(this);
+               return this;
+           }, (_, __, ___, ____) => throw new NotSupportedException(), this).ShouldEqual(this);
             manager.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(this);
             invokeCount.ShouldEqual(1);
@@ -108,15 +108,15 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
             manager.Set(item, TestPath, oldValue, out _);
-            manager.AddOrUpdate(item, TestPath, newValue, this, (o, value, currentValue, state) =>
-            {
-                ++invokeCount;
-                o.ShouldEqual(item);
-                value.ShouldEqual(newValue);
-                currentValue.ShouldEqual(oldValue);
-                state.ShouldEqual(this);
-                return newValue;
-            }).ShouldEqual(newValue);
+            manager.AddOrUpdate(item, TestPath, newValue, (o, value, currentValue, state) =>
+           {
+               ++invokeCount;
+               o.ShouldEqual(item);
+               value.ShouldEqual(newValue);
+               currentValue.ShouldEqual(oldValue);
+               state.ShouldEqual(this);
+               return newValue;
+           }, this).ShouldEqual(newValue);
             manager.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(newValue);
             invokeCount.ShouldEqual(1);
@@ -132,7 +132,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var manager = new AttachedValueManager();
             manager.AddComponent(GetComponent());
             manager.Set(item, TestPath, oldValue, out _);
-            manager.AddOrUpdate(item, TestPath, this, (it, state) =>
+            manager.AddOrUpdate(item, TestPath, (it, state) =>
             {
                 it.ShouldEqual(item);
                 state.ShouldEqual(this);
@@ -145,7 +145,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 currentValue.ShouldEqual(oldValue);
                 state.ShouldEqual(this);
                 return value(o, state);
-            }).ShouldEqual(newValue);
+            }, this).ShouldEqual(newValue);
             manager.TryGet(item, TestPath, out object? v).ShouldBeTrue();
             v.ShouldEqual(newValue);
             invokeCount.ShouldEqual(1);

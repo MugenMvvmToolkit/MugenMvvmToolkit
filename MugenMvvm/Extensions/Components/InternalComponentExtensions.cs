@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
@@ -11,20 +12,23 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IAttachedValueProviderComponent? TryGetProvider(this IAttachedValueProviderComponent[] components, object item, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IAttachedValueProviderComponent? TryGetProvider(this IAttachedValueProviderComponent[] components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
+            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(item, nameof(item));
             for (var i = 0; i < components.Length; i++)
             {
                 var provider = components[i];
-                if (provider.IsSupported(item, metadata))
+                if (provider.IsSupported(attachedValueManager, item, metadata))
                     return provider;
             }
 
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<object?[], object>? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, ConstructorInfo constructor)
         {
             Should.NotBeNull(components, nameof(components));
@@ -39,6 +43,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Delegate? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, ConstructorInfo constructor, Type delegateType)
         {
             Should.NotBeNull(components, nameof(components));
@@ -54,6 +59,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Delegate? TryGetMemberGetter(this IMemberReflectionDelegateProviderComponent[] components, MemberInfo member, Type delegateType)
         {
             Should.NotBeNull(components, nameof(components));
@@ -69,6 +75,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Delegate? TryGetMemberSetter(this IMemberReflectionDelegateProviderComponent[] components, MemberInfo member, Type delegateType)
         {
             Should.NotBeNull(components, nameof(components));
@@ -84,6 +91,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<object?, object?[], object?>? TryGetMethodInvoker(this IMethodReflectionDelegateProviderComponent[] components, MethodInfo method)
         {
             Should.NotBeNull(components, nameof(components));
@@ -113,6 +121,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanCreateDelegate(this IReflectionDelegateProviderComponent[] components, Type delegateType, MethodInfo method)
         {
             Should.NotBeNull(components, nameof(components));
@@ -127,6 +136,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Delegate? TryCreateDelegate(this IReflectionDelegateProviderComponent[] components, Type delegateType, object? target, MethodInfo method)
         {
             Should.NotBeNull(components, nameof(components));
@@ -142,6 +152,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanTrace(this ITracerComponent[] components, TraceLevel level, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -155,6 +166,7 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Trace(this ITracerComponent[] components, TraceLevel level, string message, Exception? exception, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -164,7 +176,7 @@ namespace MugenMvvm.Extensions.Components
                 components[i].Trace(level, message, exception, metadata);
         }
 
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IWeakReference? TryGetWeakReference(this IWeakReferenceProviderComponent[] components, object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

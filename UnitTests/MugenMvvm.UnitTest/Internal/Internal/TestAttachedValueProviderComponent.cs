@@ -1,36 +1,45 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Delegates;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
+using Should;
 
 namespace MugenMvvm.UnitTest.Internal.Internal
 {
     public class TestAttachedValueProviderComponent : IAttachedValueProviderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IAttachedValueManager? _manager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestAttachedValueProviderComponent(IAttachedValueManager? manager)
+        {
+            _manager = manager;
+        }
+
+        #endregion
+
         #region Properties
 
         public Func<object, IReadOnlyMetadataContext?, bool>? IsSupported { get; set; }
 
-        public Func<object, object?, Func<object, KeyValuePair<string, object?>, object?, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues
-        {
-            get;
-            set;
-        }
+        public Func<object, object?, Func<object, KeyValuePair<string, object?>, object?, bool>?, ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>>>? TryGetValues { get; set; }
 
         public Func<object, string, object?>? TryGet { get; set; }
 
         public Func<object, string, bool>? Contains { get; set; }
 
-        public Func<object?, Type, string, object?, Type, object?, Type, UpdateValueDelegate<object?, object?, object?, object?, object?>, object?>? AddOrUpdate { get; set; }
+        public Func<object?, string, object?, object?, UpdateValueDelegate<object, object?, object?, object?, object?>, object?>? AddOrUpdate { get; set; }
 
-        public Func<object?, Type, string, object?, Type, Func<object?, object?, object?>, Type, UpdateValueDelegate<object?, Func<object?, object?, object?>, object?, object?, object?>, object?>? AddOrUpdate1
-        {
-            get;
-            set;
-        }
+        public Func<object?, string, object?, Func<object, object?, object?>, UpdateValueDelegate<object, object?, object?, object?>, object?>? AddOrUpdate1 { get; set; }
 
         public Func<object, string, object?, object?>? GetOrAdd { get; set; }
 
@@ -48,18 +57,22 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         #region Implementation of interfaces
 
-        bool IAttachedValueProviderComponent.IsSupported(object item, IReadOnlyMetadataContext? metadata)
+        bool IAttachedValueProviderComponent.IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return IsSupported?.Invoke(item, metadata) ?? false;
         }
 
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> IAttachedValueProviderComponent.GetValues(IAttachedValueManager attachedValueManager, object item,
+            Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return TryGetValues!.Invoke(item, state, predicate);
         }
 
-        bool IAttachedValueProviderComponent.TryGet(object item, string path, out object? value)
+        bool IAttachedValueProviderComponent.TryGet(IAttachedValueManager attachedValueManager, object item, string path, out object? value)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             var result = TryGet!.Invoke(item, path);
             if (result == null)
             {
@@ -71,47 +84,53 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             return true;
         }
 
-        bool IAttachedValueProviderComponent.Contains(object item, string path)
+        bool IAttachedValueProviderComponent.Contains(IAttachedValueManager attachedValueManager, object item, string path)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return Contains!.Invoke(item, path);
         }
 
-        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
+        object? IAttachedValueProviderComponent.AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, object? addValue,
+            UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory, object? state)
         {
-            return (TValue)AddOrUpdate!.Invoke(item, typeof(TItem), path, addValue, typeof(TValue), state, typeof(TState),
-                (o, value, currentValue, state1) => updateValueFactory((TItem)o!, (TValue)value!, (TValue)currentValue!, (TState)state1!))!;
+            _manager?.ShouldEqual(attachedValueManager);
+            return AddOrUpdate!.Invoke(item, path, addValue, state, updateValueFactory);
         }
 
-        TValue IAttachedValueProviderComponent.AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory,
-            UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
+        object? IAttachedValueProviderComponent.AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> addValueFactory,
+            UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state)
         {
-            Func<object?, object?, object?> func = (o, o1) => addValueFactory((TItem)o!, (TState)o1!);
-            return (TValue)AddOrUpdate1!.Invoke(item, typeof(TItem), path, state, typeof(TState), func, typeof(TValue),
-                (o, value, currentValue, state1) => { return updateValueFactory((TItem)o!, addValueFactory, (TValue)currentValue!, (TState)state1!); })!;
+            _manager?.ShouldEqual(attachedValueManager);
+            return AddOrUpdate1!.Invoke(item, path, state, addValueFactory, updateValueFactory);
         }
 
-        object? IAttachedValueProviderComponent.GetOrAdd(object item, string path, object? value)
+        object? IAttachedValueProviderComponent.GetOrAdd(IAttachedValueManager attachedValueManager, object item, string path, object? value)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return GetOrAdd!.Invoke(item, path, value);
         }
 
-        object? IAttachedValueProviderComponent.GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state)
+        object? IAttachedValueProviderComponent.GetOrAdd(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> valueFactory, object? state)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return GetOrAdd1!.Invoke(item, path, state, valueFactory)!;
         }
 
-        void IAttachedValueProviderComponent.Set(object item, string path, object? value, out object? oldValue)
+        void IAttachedValueProviderComponent.Set(IAttachedValueManager attachedValueManager, object item, string path, object? value, out object? oldValue)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             Set!.Invoke(item, path, value!, out oldValue);
         }
 
-        bool IAttachedValueProviderComponent.Clear(object item, string path, out object? oldValue)
+        bool IAttachedValueProviderComponent.Clear(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return ClearKey!.Invoke(item, path, out oldValue);
         }
 
-        bool IAttachedValueProviderComponent.Clear(object item)
+        bool IAttachedValueProviderComponent.Clear(IAttachedValueManager attachedValueManager, object item)
         {
+            _manager?.ShouldEqual(attachedValueManager);
             return Clear!.Invoke(item);
         }
 

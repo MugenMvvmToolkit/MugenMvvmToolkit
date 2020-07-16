@@ -42,13 +42,13 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void AddOrUpdateThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().AddOrUpdate(this, TestPath, this, this, (item, value, currentValue, state) => currentValue));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().AddOrUpdate(this, TestPath, this, (item, value, currentValue, state) => currentValue));
         }
 
         [Fact]
         public void AddOrUpdateThrowNoComponents2()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().AddOrUpdate(this, TestPath, this, (test, providerTest) => test, (item, value, currentValue, state) => currentValue));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().AddOrUpdate(this, TestPath, (test, providerTest) => test, (item, value, currentValue, state) => currentValue));
         }
 
         [Fact]
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     TryGetValues = (o, arg3, arg5) =>
@@ -130,7 +130,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     TryGet = (o, s) =>
@@ -160,7 +160,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     Contains = (o, s) =>
@@ -192,19 +192,16 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
-                    AddOrUpdate = (o, type, arg3, arg4, arg5, arg6, arg7, arg8) =>
+                    AddOrUpdate = (o, arg3, arg4, arg6, arg8) =>
                     {
                         ++methodExecuted;
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(valueToSet);
-                        arg5.ShouldEqual(valueToSet.GetType());
                         arg6.ShouldEqual(attachedValueManager);
-                        arg7.ShouldEqual(typeof(AttachedValueManager));
                         return arg8(o, arg4, arg4, arg6);
                     }
                 };
@@ -212,11 +209,11 @@ namespace MugenMvvm.UnitTest.Internal
             }
 
             valueToSet = this;
-            attachedValueManager.AddOrUpdate(this, TestPath, this, attachedValueManager, (item, value, currentValue, state) =>
+            attachedValueManager.AddOrUpdate(this, TestPath, this, (item, value, currentValue, state) =>
             {
                 ++delExecuted;
                 return this;
-            }).ShouldEqual(this);
+            }, attachedValueManager).ShouldEqual(this);
             delExecuted.ShouldEqual(1);
             methodExecuted.ShouldEqual(1);
         }
@@ -233,18 +230,15 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
-                    AddOrUpdate1 = (o, type, arg3, arg4, arg5, arg6, arg7, arg8) =>
+                    AddOrUpdate1 = (o, arg3, arg4, arg6, arg8) =>
                     {
                         ++methodExecuted;
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(AttachedValueManagerTest));
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(attachedValueManager);
-                        arg5.ShouldEqual(typeof(AttachedValueManager));
-                        arg7.ShouldEqual(typeof(AttachedValueManagerTest));
                         return arg8(o, arg6, arg6(null, null), arg4);
                     }
                 };
@@ -252,11 +246,11 @@ namespace MugenMvvm.UnitTest.Internal
             }
 
             valueToSet = this;
-            attachedValueManager.AddOrUpdate(this, TestPath, attachedValueManager, (test, provider) => this, (item, value, currentValue, state) =>
+            attachedValueManager.AddOrUpdate(this, TestPath, (test, provider) => this, (item, value, currentValue, state) =>
             {
                 ++delExecuted;
                 return this;
-            }).ShouldEqual(this);
+            }, attachedValueManager).ShouldEqual(this);
             delExecuted.ShouldEqual(1);
             methodExecuted.ShouldEqual(1);
         }
@@ -272,7 +266,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     GetOrAdd = (o, s, v) =>
@@ -306,7 +300,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     GetOrAdd1 = (o, arg3, arg4, arg7) =>
@@ -341,7 +335,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     Set = (object item, string path, object? value, out object? oldValue) =>
@@ -378,7 +372,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     ClearKey = (object item, string path, out object? value) =>
@@ -412,7 +406,7 @@ namespace MugenMvvm.UnitTest.Internal
             for (var i = 0; i < count; i++)
             {
                 var isSupported = count - 1 == i;
-                var component = new TestAttachedValueProviderComponent
+                var component = new TestAttachedValueProviderComponent(attachedValueManager)
                 {
                     IsSupported = (o, context) => isSupported,
                     Clear = item =>

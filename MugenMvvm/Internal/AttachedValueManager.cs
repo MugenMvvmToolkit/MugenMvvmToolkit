@@ -32,7 +32,7 @@ namespace MugenMvvm.Internal
 
         public ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
-            return GetComponentOptional(item)?.GetValues(item, predicate, state) ?? default;
+            return GetComponentOptional(item)?.GetValues(this, item, predicate, state) ?? default;
         }
 
         public bool TryGet(object item, string path, out object? value)
@@ -44,48 +44,48 @@ namespace MugenMvvm.Internal
                 return false;
             }
 
-            return component.TryGet(item, path, out value!);
+            return component.TryGet(this, item, path, out value!);
         }
 
         public bool Contains(object item, string path)
         {
             var component = GetComponentOptional(item);
-            return component != null && component.Contains(item, path);
+            return component != null && component.Contains(this, item, path);
         }
 
-        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public object? AddOrUpdate(object item, string path, object? addValue, UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory, object? state = null)
         {
-            return GetComponent(item).AddOrUpdate(item, path, addValue, state, updateValueFactory);
+            return GetComponent(item).AddOrUpdate(this, item, path, addValue, updateValueFactory, state);
         }
 
-        public TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory) where TItem : class
+        public object? AddOrUpdate(object item, string path, Func<object, object?, object?> addValueFactory, UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state = null)
         {
-            return GetComponent(item).AddOrUpdate(item, path, state, addValueFactory, updateValueFactory);
+            return GetComponent(item).AddOrUpdate(this, item, path, addValueFactory, updateValueFactory, state);
         }
 
         public object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state = null)
         {
-            return GetComponent(item).GetOrAdd(item, path, valueFactory, state);
+            return GetComponent(item).GetOrAdd(this, item, path, valueFactory, state);
         }
 
         public object? GetOrAdd(object item, string path, object? value)
         {
-            return GetComponent(item).GetOrAdd(item, path, value);
+            return GetComponent(item).GetOrAdd(this, item, path, value);
         }
 
         public void Set(object item, string path, object? value, out object? oldValue)
         {
-            GetComponent(item).Set(item, path, value, out oldValue);
+            GetComponent(item).Set(this, item, path, value, out oldValue);
         }
 
         public bool Clear(object item, string path, out object? oldValue)
         {
-            return GetComponent(item).Clear(item, path, out oldValue);
+            return GetComponent(item).Clear(this, item, path, out oldValue);
         }
 
         public bool Clear(object item)
         {
-            return GetComponent(item).Clear(item);
+            return GetComponent(item).Clear(this, item);
         }
 
         #endregion
@@ -96,14 +96,14 @@ namespace MugenMvvm.Internal
         {
             if (_components == null)
                 _componentTracker.Attach(this);
-            return _components!.TryGetProvider(item, null);
+            return _components!.TryGetProvider(this, item, null);
         }
 
         private IAttachedValueProviderComponent GetComponent(object item)
         {
             if (_components == null)
                 _componentTracker.Attach(this);
-            var provider = _components!.TryGetProvider(item, null);
+            var provider = _components!.TryGetProvider(this, item, null);
             if (provider == null)
                 ExceptionManager.ThrowObjectNotInitialized(this, _components);
             return provider;

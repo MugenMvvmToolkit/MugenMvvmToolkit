@@ -14,11 +14,9 @@ namespace MugenMvvm.Interfaces.Internal
 
         bool Contains(object item, string path);
 
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
-            where TItem : class;
+        object? AddOrUpdate(object item, string path, object? addValue, UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory, object? state = null);
 
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
-            where TItem : class;
+        object? AddOrUpdate(object item, string path, Func<object, object?, object?> addValueFactory, UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state = null);
 
         object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state = null);
 

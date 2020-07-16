@@ -7,30 +7,28 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Interfaces.Internal.Components
 {
-    public interface IAttachedValueProviderComponent : IComponent<IAttachedValueManager> //todo first parameter
+    public interface IAttachedValueProviderComponent : IComponent<IAttachedValueManager>
     {
-        bool IsSupported(object item, IReadOnlyMetadataContext? metadata);
+        bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state);
+        ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(IAttachedValueManager attachedValueManager, object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state);
 
-        bool TryGet(object item, string path, out object? value);
+        bool TryGet(IAttachedValueManager attachedValueManager, object item, string path, out object? value);
 
-        bool Contains(object item, string path);
+        bool Contains(IAttachedValueManager attachedValueManager, object item, string path);
 
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, TValue addValue, in TState state, UpdateValueDelegate<TItem, TValue, TValue, TState, TValue> updateValueFactory)
-            where TItem : class;
+        object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, object? addValue, UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory, object? state);
 
-        TValue AddOrUpdate<TItem, TValue, TState>(TItem item, string path, in TState state, Func<TItem, TState, TValue> addValueFactory, UpdateValueDelegate<TItem, TValue, TState, TValue> updateValueFactory)
-            where TItem : class;
+        object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> addValueFactory, UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state);
 
-        object? GetOrAdd(object item, string path, Func<object, object?, object?> valueFactory, object? state);
+        object? GetOrAdd(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> valueFactory, object? state);
 
-        object? GetOrAdd(object item, string path, object? value);
+        object? GetOrAdd(IAttachedValueManager attachedValueManager, object item, string path, object? value);
 
-        void Set(object item, string path, object? value, out object? oldValue);
+        void Set(IAttachedValueManager attachedValueManager, object item, string path, object? value, out object? oldValue);
 
-        bool Clear(object item, string path, out object? oldValue);
+        bool Clear(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue);
 
-        bool Clear(object item);
+        bool Clear(IAttachedValueManager attachedValueManager, object item);
     }
 }
