@@ -2,16 +2,32 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.Models;
+using Should;
 
 namespace MugenMvvm.UnitTest.Metadata.Internal
 {
     public class TestMetadataContextManagerListener : IMetadataContextManagerListener, IHasPriority
     {
+        #region Fields
+
+        private readonly IMetadataContextManager? _metadataContextManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestMetadataContextManagerListener(IMetadataContextManager? metadataContextManager)
+        {
+            _metadataContextManager = metadataContextManager;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Action<IMetadataContextManager, IReadOnlyMetadataContext, object?>? OnReadOnlyContextCreated { get; set; }
+        public Action<IReadOnlyMetadataContext, object?>? OnReadOnlyContextCreated { get; set; }
 
-        public Action<IMetadataContextManager, IMetadataContext, object?>? OnContextCreated { get; set; }
+        public Action<IMetadataContext, object?>? OnContextCreated { get; set; }
 
         public int Priority { get; set; }
 
@@ -21,12 +37,14 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
 
         void IMetadataContextManagerListener.OnReadOnlyContextCreated(IMetadataContextManager metadataContextManager, IReadOnlyMetadataContext metadataContext, object? target)
         {
-            OnReadOnlyContextCreated?.Invoke(metadataContextManager, metadataContext, target);
+            _metadataContextManager?.ShouldEqual(metadataContextManager);
+            OnReadOnlyContextCreated?.Invoke(metadataContext, target);
         }
 
         void IMetadataContextManagerListener.OnContextCreated(IMetadataContextManager metadataContextManager, IMetadataContext metadataContext, object? target)
         {
-            OnContextCreated?.Invoke(metadataContextManager, metadataContext, target);
+            _metadataContextManager?.ShouldEqual(metadataContextManager);
+            OnContextCreated?.Invoke(metadataContext, target);
         }
 
         #endregion

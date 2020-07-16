@@ -111,17 +111,16 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) =>
+                    OnAdded = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         arg3.ShouldEqual(int.MaxValue);
                     },
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -142,17 +141,16 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) =>
+                    OnAdded = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         arg3.ShouldEqual(int.MaxValue);
                     },
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -182,18 +180,17 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnChanged = (metadataContext, key, oldV, newV) =>
+                    OnChanged = (key, oldV, newV) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         oldV.ShouldEqual(oldValue);
                         newV.ShouldEqual(newValue);
                     },
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -225,18 +222,17 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnChanged = (metadataContext, key, oldV, newV) =>
+                    OnChanged = (key, oldV, newV) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         oldV.ShouldEqual(oldValue);
                         newV.ShouldEqual(newValue);
                     },
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -269,17 +265,16 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) =>
+                    OnAdded = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         arg3.ShouldEqual(int.MaxValue);
                     },
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -300,17 +295,16 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) =>
+                    OnAdded = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         arg3.ShouldEqual(int.MaxValue);
                     },
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -337,11 +331,11 @@ namespace MugenMvvm.UnitTest.Metadata
             context.Set(TestKey, int.MinValue);
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -359,11 +353,11 @@ namespace MugenMvvm.UnitTest.Metadata
             context.Set(TestKey, int.MinValue);
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -381,17 +375,16 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) =>
+                    OnAdded = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         arg3.ShouldEqual(int.MinValue);
                     },
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -405,18 +398,17 @@ namespace MugenMvvm.UnitTest.Metadata
                 listenerInvokedCount.ShouldEqual(1);
                 listenerInvokedCount = 0;
                 context.ClearComponents<IMetadataContextListener>();
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnChanged = (metadataContext, key, oldV, newV) =>
+                    OnChanged = (key, oldV, newV) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         key.ShouldEqual(TestKey);
                         oldV.ShouldEqual(int.MinValue);
                         newV.ShouldEqual(int.MaxValue);
                     },
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -440,17 +432,16 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnAdded = (metadataContext, key, arg3) =>
+                    OnAdded = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         keyValues.Any(tuple => tuple.Item1.Equals(key)).ShouldBeTrue();
                         keyValues.Any(tuple => arg3!.Equals(tuple.Item2)).ShouldBeTrue();
                     },
-                    OnChanged = (metadataContext, key, arg3, arg4) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnChanged = (key, arg3, arg4) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -474,18 +465,17 @@ namespace MugenMvvm.UnitTest.Metadata
                 listenerInvokedCount.ShouldEqual(count);
                 listenerInvokedCount = 0;
                 context.ClearComponents<IMetadataContextListener>();
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnChanged = (metadataContext, key, oldV, newV) =>
+                    OnChanged = (key, oldV, newV) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         keyValues.Any(tuple => tuple.Item1.Equals(key)).ShouldBeTrue();
                         oldValues.Any(tuple => oldV!.Equals(tuple.Item2)).ShouldBeTrue();
                         keyValues.Any(tuple => newV!.Equals(tuple.Item2)).ShouldBeTrue();
                     },
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) => throw new NotSupportedException()
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) => throw new NotSupportedException()
                 });
             }
 
@@ -528,14 +518,13 @@ namespace MugenMvvm.UnitTest.Metadata
             (IMetadataContextKey<int, int>, int) currentValue = default;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnChanged = (metadataContext, key, arg3, nV) => throw new NotSupportedException(),
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) =>
+                    OnChanged = (key, arg3, nV) => throw new NotSupportedException(),
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         currentValue.Item1.ShouldEqual(key);
                         arg3.ShouldEqual(currentValue.Item2);
                     }
@@ -582,14 +571,13 @@ namespace MugenMvvm.UnitTest.Metadata
             var listenerInvokedCount = 0;
             if (addListener)
             {
-                context.AddComponent(new TestMetadataContextListener
+                context.AddComponent(new TestMetadataContextListener(context)
                 {
-                    OnChanged = (metadataContext, key, arg3, nV) => throw new NotSupportedException(),
-                    OnAdded = (metadataContext, key, arg3) => throw new NotSupportedException(),
-                    OnRemoved = (metadataContext, key, arg3) =>
+                    OnChanged = (key, arg3, nV) => throw new NotSupportedException(),
+                    OnAdded = (key, arg3) => throw new NotSupportedException(),
+                    OnRemoved = (key, arg3) =>
                     {
                         ++listenerInvokedCount;
-                        metadataContext.ShouldEqual(context);
                         keyValues.Any(tuple => tuple.Item1.Equals(key)).ShouldBeTrue();
                         keyValues.Any(tuple => arg3!.Equals(tuple.Item2)).ShouldBeTrue();
                     }

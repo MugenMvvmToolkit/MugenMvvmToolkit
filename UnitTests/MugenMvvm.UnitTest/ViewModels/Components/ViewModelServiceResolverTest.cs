@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             var metadataProvider = new MetadataContextManager();
             metadataProvider.AddComponent(new TestMetadataContextProviderComponent
             {
-                TryGetMetadataContext = (m, o, list) => context
+                TryGetMetadataContext = (o, list) => context
             });
 
             var component = new ViewModelServiceResolver(metadataContextManager: metadataProvider);

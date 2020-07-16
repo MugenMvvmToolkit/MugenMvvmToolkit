@@ -2,18 +2,34 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Interfaces.Models;
+using Should;
 
 namespace MugenMvvm.UnitTest.Metadata.Internal
 {
     public class TestMetadataContextListener : IMetadataContextListener, IHasPriority
     {
+        #region Fields
+
+        private readonly IMetadataContext? _metadataContext;
+
+        #endregion
+
+        #region Constructors
+
+        public TestMetadataContextListener(IMetadataContext? metadataContext)
+        {
+            _metadataContext = metadataContext;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Action<IMetadataContext, IMetadataContextKey, object?>? OnAdded { get; set; }
+        public Action<IMetadataContextKey, object?>? OnAdded { get; set; }
 
-        public Action<IMetadataContext, IMetadataContextKey, object?, object?>? OnChanged { get; set; }
+        public Action<IMetadataContextKey, object?, object?>? OnChanged { get; set; }
 
-        public Action<IMetadataContext, IMetadataContextKey, object?>? OnRemoved { get; set; }
+        public Action<IMetadataContextKey, object?>? OnRemoved { get; set; }
 
         public int Priority { get; set; }
 
@@ -23,17 +39,20 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
 
         void IMetadataContextListener.OnAdded(IMetadataContext metadataContext, IMetadataContextKey key, object? newValue)
         {
-            OnAdded?.Invoke(metadataContext, key, newValue);
+            _metadataContext?.ShouldEqual(metadataContext);
+            OnAdded?.Invoke(key, newValue);
         }
 
         void IMetadataContextListener.OnChanged(IMetadataContext metadataContext, IMetadataContextKey key, object? oldValue, object? newValue)
         {
-            OnChanged?.Invoke(metadataContext, key, oldValue, newValue);
+            _metadataContext?.ShouldEqual(metadataContext);
+            OnChanged?.Invoke(key, oldValue, newValue);
         }
 
         void IMetadataContextListener.OnRemoved(IMetadataContext metadataContext, IMetadataContextKey key, object? oldValue)
         {
-            OnRemoved?.Invoke(metadataContext, key, oldValue);
+            _metadataContext?.ShouldEqual(metadataContext);
+            OnRemoved?.Invoke(key, oldValue);
         }
 
         #endregion

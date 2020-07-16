@@ -40,7 +40,7 @@ namespace MugenMvvm.UnitTest.Messaging
 
             var metadataContext = new MetadataContext();
             var contextProviderComponent = new TestMetadataContextProviderComponent();
-            contextProviderComponent.TryGetMetadataContext = (m, o, list) => metadataContext;
+            contextProviderComponent.TryGetMetadataContext = (o, list) => metadataContext;
             using var s = TestComponentSubscriber.Subscribe(contextProvider, contextProviderComponent);
 
             var sender = new object();

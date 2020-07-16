@@ -39,17 +39,18 @@ namespace MugenMvvm.UnitTest.Metadata
             for (var i = 0; i < count; i++)
             {
                 var canReturn = i == count - 1;
-                var component = new TestMetadataContextProviderComponent();
-                component.Priority = -i;
-                component.TryGetReadOnlyMetadataContext = (m, o, context) =>
+                var component = new TestMetadataContextProviderComponent(contextProvider)
                 {
-                    ++invokeCount;
-                    m.ShouldEqual(contextProvider);
-                    o.ShouldEqual(this);
-                    context.ShouldEqual(items);
-                    if (canReturn)
-                        return result;
-                    return null;
+                    Priority = -i,
+                    TryGetReadOnlyMetadataContext = (o, context) =>
+                    {
+                        ++invokeCount;
+                        o.ShouldEqual(this);
+                        context.ShouldEqual(items);
+                        if (canReturn)
+                            return result;
+                        return null;
+                    }
                 };
                 contextProvider.AddComponent(component);
             }
@@ -70,17 +71,18 @@ namespace MugenMvvm.UnitTest.Metadata
             for (var i = 0; i < count; i++)
             {
                 var canReturn = i == count - 1;
-                var component = new TestMetadataContextProviderComponent();
-                component.Priority = -i;
-                component.TryGetMetadataContext = (m, o, context) =>
+                var component = new TestMetadataContextProviderComponent(contextProvider)
                 {
-                    ++invokeCount;
-                    m.ShouldEqual(contextProvider);
-                    o.ShouldEqual(this);
-                    context.ShouldEqual(items);
-                    if (canReturn)
-                        return result;
-                    return null;
+                    Priority = -i,
+                    TryGetMetadataContext = (o, context) =>
+                    {
+                        ++invokeCount;
+                        o.ShouldEqual(this);
+                        context.ShouldEqual(items);
+                        if (canReturn)
+                            return result;
+                        return null;
+                    }
                 };
                 contextProvider.AddComponent(component);
             }
@@ -96,18 +98,17 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = DefaultMetadata;
             var contextProvider = new MetadataContextManager();
-            var component = new TestMetadataContextProviderComponent { TryGetReadOnlyMetadataContext = (m, o, context) => result };
+            var component = new TestMetadataContextProviderComponent(contextProvider) { TryGetReadOnlyMetadataContext = (o, context) => result };
             contextProvider.AddComponent(component);
             var invokeCount = 0;
 
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestMetadataContextManagerListener
+                var listener = new TestMetadataContextManagerListener(contextProvider)
                 {
-                    OnReadOnlyContextCreated = (provider, context, arg3) =>
+                    OnReadOnlyContextCreated = (context, arg3) =>
                     {
                         ++invokeCount;
-                        provider.ShouldEqual(contextProvider);
                         context.ShouldEqual(result);
                         arg3.ShouldEqual(this);
                     }
@@ -126,18 +127,17 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = new MetadataContext();
             var contextProvider = new MetadataContextManager();
-            var component = new TestMetadataContextProviderComponent { TryGetMetadataContext = (m, o, context) => result };
+            var component = new TestMetadataContextProviderComponent(contextProvider) { TryGetMetadataContext = (o, context) => result };
             contextProvider.AddComponent(component);
             var invokeCount = 0;
 
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestMetadataContextManagerListener
+                var listener = new TestMetadataContextManagerListener(contextProvider)
                 {
-                    OnContextCreated = (provider, context, arg3) =>
+                    OnContextCreated = (context, arg3) =>
                     {
                         ++invokeCount;
-                        provider.ShouldEqual(contextProvider);
                         context.ShouldEqual(result);
                         arg3.ShouldEqual(this);
                     }
