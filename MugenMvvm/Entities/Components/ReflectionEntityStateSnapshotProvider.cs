@@ -66,7 +66,7 @@ namespace MugenMvvm.Entities.Components
 
         #region Implementation of interfaces
 
-        public IEntityStateSnapshot? TryGetSnapshot<TState>(IEntityManager entityManager, object entity, in TState state, IReadOnlyMetadataContext? metadata)
+        public IEntityStateSnapshot? TryGetSnapshot(IEntityManager entityManager, object entity, IReadOnlyMetadataContext? metadata)
         {
             var type = entity.GetType();
             EntityMemberAccessor[]? value;

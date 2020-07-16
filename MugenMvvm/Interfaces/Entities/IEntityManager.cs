@@ -5,8 +5,8 @@ namespace MugenMvvm.Interfaces.Entities
 {
     public interface IEntityManager : IComponentOwner<IEntityManager>
     {
-        IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        IEntityTrackingCollection? TryGetTrackingCollection(object? request = null, IReadOnlyMetadataContext? metadata = null);
 
-        IEntityStateSnapshot? TryGetSnapshot<TState>(object entity, in TState state, IReadOnlyMetadataContext? metadata = null);
+        IEntityStateSnapshot? TryGetSnapshot(object entity, IReadOnlyMetadataContext? metadata = null);
     }
 }

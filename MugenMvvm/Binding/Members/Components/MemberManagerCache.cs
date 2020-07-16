@@ -60,7 +60,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key)
         {
-            return HashCode.Combine(key.Key, key.Type, (int) key.MemberType, (int) key.MemberFlags, key.Types.Length);
+            return HashCode.Combine(key.Key, key.Type, (int)key.MemberType, (int)key.MemberFlags, key.Types.Length);
         }
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request,
@@ -105,9 +105,9 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Methods
 
-        public override void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
-            if (!TypeChecker.IsValueType<TState>() && state is Type type)
+            if (state is Type type)
             {
                 var keys = ItemOrListEditor.Get<CacheKey>(key => key.Type == null);
                 foreach (var pair in _cache)
@@ -126,12 +126,12 @@ namespace MugenMvvm.Binding.Members.Components
 
         protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate<object?>(null, metadata);
+            Invalidate(null, metadata);
         }
 
         protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate<object?>(null, metadata);
+            Invalidate(null, metadata);
         }
 
         #endregion

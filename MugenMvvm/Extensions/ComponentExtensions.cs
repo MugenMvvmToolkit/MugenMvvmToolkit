@@ -26,12 +26,7 @@ namespace MugenMvvm.Extensions
             return component ?? MugenService.Instance<T>();
         }
 
-        public static void TryInvalidateCache(this IComponentOwner? owner, IReadOnlyMetadataContext? metadata = null)
-        {
-            owner.TryInvalidateCache<object?>(null, metadata);
-        }
-
-        public static void TryInvalidateCache<TState>(this IComponentOwner? owner, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public static void TryInvalidateCache(this IComponentOwner? owner, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (owner == null)
                 return;

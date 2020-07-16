@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var entitySnapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
+            var entitySnapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
 
             stateModel.Int = int.MaxValue;
             stateModel.Int.ShouldEqual(int.MaxValue);
@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel, nameof(stateModel.Guid)).ShouldBeFalse();
             snapshot.HasChanges(stateModel, nameof(stateModel.String)).ShouldBeFalse();
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
 
             snapshot.HasChanges(stateModel).ShouldBeFalse();
 
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
         {
             var manager = new ReflectionEntityStateSnapshotProvider();
             var stateModel = GetModel();
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(3);
@@ -147,7 +147,7 @@ namespace MugenMvvm.UnitTest.Entities.Components
                 MemberFlags = BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
                 MemberFilter = info => info.Name == nameof(stateModel.Guid)
             };
-            var snapshot = manager.TryGetSnapshot(null!, stateModel, this, DefaultMetadata)!;
+            var snapshot = manager.TryGetSnapshot(null!, stateModel, DefaultMetadata)!;
 
             var values = snapshot.Dump(stateModel, DefaultMetadata);
             values.Count.ShouldEqual(1);

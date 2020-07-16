@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System.Runtime.CompilerServices;
+using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,13 +10,14 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IEntityStateSnapshot? TryGetSnapshot<TState>(this IEntityStateSnapshotProviderComponent[] components, IEntityManager entityManager, object entity, in TState state, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEntityStateSnapshot? TryGetSnapshot(this IEntityStateSnapshotProviderComponent[] components, IEntityManager entityManager, object entity, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(entity, nameof(entity));
             for (var i = 0; i < components.Length; i++)
             {
-                var snapshot = components[i].TryGetSnapshot(entityManager, entity, state, metadata);
+                var snapshot = components[i].TryGetSnapshot(entityManager, entity, metadata);
                 if (snapshot != null)
                     return snapshot;
             }
@@ -23,7 +25,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(this IEntityTrackingCollectionProviderComponent[] components, IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IEntityTrackingCollection? TryGetTrackingCollection(this IEntityTrackingCollectionProviderComponent[] components, IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             for (var i = 0; i < components.Length; i++)
@@ -36,19 +39,19 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static void OnSnapshotCreated<TState>(this IEntityManagerListener[] listeners, IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, in TState state,
-            IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void OnSnapshotCreated(this IEntityManagerListener[] listeners, IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(entityManager, nameof(entityManager));
             Should.NotBeNull(snapshot, nameof(snapshot));
             Should.NotBeNull(entity, nameof(entity));
             for (var i = 0; i < listeners.Length; i++)
-                listeners[i].OnSnapshotCreated(entityManager, snapshot, entity, state, metadata);
+                listeners[i].OnSnapshotCreated(entityManager, snapshot, entity, metadata);
         }
 
-        public static void OnTrackingCollectionCreated<TRequest>(this IEntityManagerListener[] listeners, IEntityManager entityManager, IEntityTrackingCollection collection, in TRequest request,
-            IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void OnTrackingCollectionCreated(this IEntityManagerListener[] listeners, IEntityManager entityManager, IEntityTrackingCollection collection, object? request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
             Should.NotBeNull(entityManager, nameof(entityManager));
@@ -57,6 +60,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnTrackingCollectionCreated(entityManager, collection, request, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static EntityState OnEntityStateChanging(this IEntityStateChangingListener[] listeners, IEntityTrackingCollection collection, object entity, EntityState from, EntityState to,
             IReadOnlyMetadataContext? metadata)
         {
@@ -69,6 +73,7 @@ namespace MugenMvvm.Extensions.Components
             return to;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnEntityStateChanged(this IEntityStateChangedListener[] listeners, IEntityTrackingCollection collection, object entity, EntityState from, EntityState to,
             IReadOnlyMetadataContext? metadata)
         {

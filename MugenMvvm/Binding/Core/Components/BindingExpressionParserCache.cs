@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Methods
 
-        public override void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             _cache.Clear();
         }

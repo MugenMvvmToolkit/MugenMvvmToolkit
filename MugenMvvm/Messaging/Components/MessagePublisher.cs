@@ -63,20 +63,20 @@ namespace MugenMvvm.Messaging.Components
             if (_owner != null)
             {
                 _owner.Components.AddComponent(this, metadata);
-                Invalidate<object?>(null, metadata);
+                Invalidate(null, metadata);
             }
         }
 
         void IComponentCollectionChangedListener.OnAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IMessengerSubscriberComponent)
-                Invalidate<object?>(null, metadata);
+                Invalidate(null, metadata);
         }
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is IMessengerSubscriberComponent)
-                Invalidate<object?>(null, metadata);
+                Invalidate(null, metadata);
         }
 
         bool IDetachableComponent.OnDetaching(object owner, IReadOnlyMetadataContext? metadata)
@@ -90,11 +90,11 @@ namespace MugenMvvm.Messaging.Components
             {
                 _owner?.Components.RemoveComponent(this, metadata);
                 _owner = null;
-                Invalidate<object?>(null, metadata);
+                Invalidate(null, metadata);
             }
         }
 
-        public void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             lock (_cache)
             {

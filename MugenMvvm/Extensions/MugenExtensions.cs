@@ -46,10 +46,10 @@ namespace MugenMvvm.Extensions
             return collection;
         }
 
-        public static IEntityStateSnapshot GetSnapshot<TState>(this IEntityManager entityManager, object entity, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public static IEntityStateSnapshot GetSnapshot(this IEntityManager entityManager, object entity, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(entityManager, nameof(entityManager));
-            var snapshot = entityManager.TryGetSnapshot(entity, state, metadata);
+            var snapshot = entityManager.TryGetSnapshot(entity, metadata);
             if (snapshot == null)
                 ExceptionManager.ThrowObjectNotInitialized<IEntityStateSnapshotProviderComponent>(entityManager);
             return snapshot;

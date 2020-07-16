@@ -8,15 +8,15 @@ namespace MugenMvvm.UnitTest.Internal.Internal
     {
         #region Properties
 
-        public Action<object?, Type, IReadOnlyMetadataContext?>? Invalidate { get; set; }
+        public Action<object?, IReadOnlyMetadataContext?>? Invalidate { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IHasCache.Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        void IHasCache.Invalidate(object? state, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate?.Invoke(state, typeof(TState), metadata);
+            Invalidate?.Invoke(state, metadata);
         }
 
         #endregion

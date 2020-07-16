@@ -3,31 +3,49 @@ using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
+using Should;
 
 namespace MugenMvvm.UnitTest.Entities.Internal
 {
     public class TestEntityManagerListener : IEntityManagerListener, IHasPriority
     {
+        #region Fields
+
+        private readonly IEntityManager? _entityManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestEntityManagerListener(IEntityManager? entityManager)
+        {
+            _entityManager = entityManager;
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }
 
-        public Action<IEntityManager, IEntityStateSnapshot, object, object?, Type, IReadOnlyMetadataContext?>? OnSnapshotCreated { get; set; }
+        public Action<IEntityStateSnapshot, object, IReadOnlyMetadataContext?>? OnSnapshotCreated { get; set; }
 
-        public Action<IEntityManager, IEntityTrackingCollection, object?, Type, IReadOnlyMetadataContext?>? OnTrackingCollectionCreated { get; set; }
+        public Action<IEntityTrackingCollection, object?, IReadOnlyMetadataContext?>? OnTrackingCollectionCreated { get; set; }
 
         #endregion
 
-        #region Implementation of interfaces
+        #region Methods
 
-        void IEntityManagerListener.OnSnapshotCreated<TState>(IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, in TState state, IReadOnlyMetadataContext? metadata)
+        void IEntityManagerListener.OnSnapshotCreated(IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, IReadOnlyMetadataContext? metadata)
         {
-            OnSnapshotCreated?.Invoke(entityManager, snapshot, entity, state!, typeof(TState), metadata);
+            _entityManager?.ShouldEqual(entityManager);
+            OnSnapshotCreated?.Invoke(snapshot, entity, metadata);
         }
 
-        void IEntityManagerListener.OnTrackingCollectionCreated<TRequest>(IEntityManager entityManager, IEntityTrackingCollection collection, in TRequest request, IReadOnlyMetadataContext? metadata)
+        void IEntityManagerListener.OnTrackingCollectionCreated(IEntityManager entityManager, IEntityTrackingCollection collection, object? request, IReadOnlyMetadataContext? metadata)
         {
-            OnTrackingCollectionCreated?.Invoke(entityManager, collection, request!, typeof(TRequest), metadata);
+            _entityManager?.ShouldEqual(entityManager);
+            OnTrackingCollectionCreated?.Invoke(collection, request, metadata);
         }
 
         #endregion

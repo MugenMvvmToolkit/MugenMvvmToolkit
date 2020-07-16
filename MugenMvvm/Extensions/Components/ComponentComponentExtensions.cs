@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
@@ -9,6 +10,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IComponentCollection? TryGetComponentCollection(this IComponentCollectionProviderComponent[] components, IComponentCollectionManager collectionManager, object owner, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -24,6 +26,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnComponentCollectionCreated(this IComponentCollectionManagerListener[] listeners, IComponentCollectionManager collectionManager, IComponentCollection collection, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -115,6 +118,7 @@ namespace MugenMvvm.Extensions.Components
                 (components as IComponentCollectionChangedListener)?.OnRemoved(collection, component, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool OnAdding(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -129,6 +133,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnAdded(this IComponentCollectionChangedListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -138,6 +143,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnAdded(collection, component, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool OnRemoving(this IComponentCollectionChangingListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -152,6 +158,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnRemoved(this IComponentCollectionChangedListener[] listeners, IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -161,6 +168,7 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnRemoved(collection, component, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator[] decorators, IComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
@@ -174,6 +182,7 @@ namespace MugenMvvm.Extensions.Components
             return components.ToArray();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static TComponent[] Decorate<TComponent>(this IComponentCollectionDecorator<TComponent>[] decorators, IComponentCollection collection, List<TComponent> components, IReadOnlyMetadataContext? metadata) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
@@ -183,6 +192,7 @@ namespace MugenMvvm.Extensions.Components
             return components.ToArray();
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasDecorators<TComponent>(this IComponentCollectionDecorator[] decorators) where TComponent : class
         {
             Should.NotBeNull(decorators, nameof(decorators));
@@ -224,6 +234,7 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
@@ -234,6 +245,7 @@ namespace MugenMvvm.Extensions.Components
             (collection.Owner as IHasAddedCallbackComponentOwner)?.OnComponentAdded(collection, component, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
@@ -244,6 +256,7 @@ namespace MugenMvvm.Extensions.Components
             (collection.Owner as IHasRemovedCallbackComponentOwner)?.OnComponentRemoved(collection, component, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool OnComponentAdding(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));
@@ -256,6 +269,7 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool OnComponentRemoving(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(collection, nameof(collection));

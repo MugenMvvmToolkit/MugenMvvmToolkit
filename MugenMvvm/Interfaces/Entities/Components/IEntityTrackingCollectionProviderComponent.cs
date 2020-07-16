@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Entities.Components
 {
     public interface IEntityTrackingCollectionProviderComponent : IComponent<IEntityManager>
     {
-        IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata);
+        IEntityTrackingCollection? TryGetTrackingCollection(IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata);
     }
 }

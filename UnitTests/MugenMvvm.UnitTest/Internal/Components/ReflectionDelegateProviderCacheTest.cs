@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.TryGetActivator(TestConstructor).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             manager.TryGetActivator(TestConstructor).ShouldEqual(result);
             manager.TryGetActivator(TestConstructor).ShouldEqual(result);
@@ -70,7 +70,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
             manager.TryGetActivator(TestConstructor, result.GetType()).ShouldEqual(result);
@@ -99,7 +99,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
             manager.TryGetMemberGetter(TestMethod, result.GetType()).ShouldEqual(result);
@@ -128,7 +128,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
             manager.TryGetMemberSetter(TestMethod, result.GetType()).ShouldEqual(result);
@@ -156,7 +156,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
             manager.TryGetMethodInvoker(TestMethod).ShouldEqual(result);
@@ -185,7 +185,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
 
-            manager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            manager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);
             manager.TryGetMethodInvoker(TestMethod, result.GetType()).ShouldEqual(result);

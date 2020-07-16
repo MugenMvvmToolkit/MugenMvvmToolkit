@@ -20,7 +20,7 @@ namespace MugenMvvm.Components
             OnComponentRemoved(collection, component, metadata);
         }
 
-        public abstract void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata);
+        public abstract void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null);
 
         #endregion
 
@@ -29,25 +29,25 @@ namespace MugenMvvm.Components
         protected override void OnAttached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnAttached(owner, metadata);
-            Invalidate<object?>(null, metadata);
+            Invalidate(null, metadata);
         }
 
         protected override void OnDetached(T owner, IReadOnlyMetadataContext? metadata)
         {
             base.OnDetached(owner, metadata);
-            Invalidate<object?>(null, metadata);
+            Invalidate(null, metadata);
         }
 
         protected virtual void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate<object?>(null, metadata);
+                Invalidate(null, metadata);
         }
 
         protected virtual void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
             if (component is TComponent)
-                Invalidate<object?>(null, metadata);
+                Invalidate(null, metadata);
         }
 
         #endregion

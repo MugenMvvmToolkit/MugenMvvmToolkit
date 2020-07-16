@@ -20,7 +20,7 @@ namespace MugenMvvm.Entities
 
         #region Implementation of interfaces
 
-        public IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IEntityTrackingCollection? TryGetTrackingCollection(object? request = null, IReadOnlyMetadataContext? metadata = null)
         {
             var collection = GetComponents<IEntityTrackingCollectionProviderComponent>().TryGetTrackingCollection(this, request, metadata);
             if (collection != null)
@@ -28,11 +28,11 @@ namespace MugenMvvm.Entities
             return collection;
         }
 
-        public IEntityStateSnapshot? TryGetSnapshot<TState>(object entity, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public IEntityStateSnapshot? TryGetSnapshot(object entity, IReadOnlyMetadataContext? metadata = null)
         {
-            var snapshot = GetComponents<IEntityStateSnapshotProviderComponent>().TryGetSnapshot(this, entity, state, metadata);
+            var snapshot = GetComponents<IEntityStateSnapshotProviderComponent>().TryGetSnapshot(this, entity, metadata);
             if (snapshot != null)
-                GetComponents<IEntityManagerListener>().OnSnapshotCreated(this, snapshot, entity, state, metadata);
+                GetComponents<IEntityManagerListener>().OnSnapshotCreated(this, snapshot, entity, metadata);
             return snapshot;
         }
 

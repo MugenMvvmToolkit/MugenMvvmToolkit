@@ -23,14 +23,12 @@ namespace MugenMvvm.UnitTest.Entities
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestEntityTrackingCollectionProviderComponent
+                var component = new TestEntityTrackingCollectionProviderComponent(entityManager)
                 {
-                    TryGetTrackingCollection = (m, o, type, arg3) =>
+                    TryGetTrackingCollection = (o, arg3) =>
                     {
                         ++count;
-                        m.ShouldEqual(entityManager);
                         o.ShouldEqual(entityManager);
-                        type.ShouldEqual(typeof(EntityManager));
                         arg3.ShouldEqual(DefaultMetadata);
                         return collection;
                     }
@@ -54,15 +52,12 @@ namespace MugenMvvm.UnitTest.Entities
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestEntityStateSnapshotProviderComponent
+                var component = new TestEntityStateSnapshotProviderComponent(entityManager)
                 {
-                    TryGetSnapshot = (m, e, o, type, arg3) =>
+                    TryGetSnapshot = (e, arg3) =>
                     {
                         ++count;
-                        m.ShouldEqual(entityManager);
                         e.ShouldEqual(entity);
-                        o.ShouldEqual(entityManager);
-                        type.ShouldEqual(typeof(EntityManager));
                         arg3.ShouldEqual(DefaultMetadata);
                         return snapshot;
                     }
@@ -70,7 +65,7 @@ namespace MugenMvvm.UnitTest.Entities
                 entityManager.AddComponent(component);
             }
 
-            var stateSnapshot = entityManager.TryGetSnapshot(entity, entityManager, DefaultMetadata);
+            var stateSnapshot = entityManager.TryGetSnapshot(entity, DefaultMetadata);
             stateSnapshot.ShouldEqual(snapshot);
             count.ShouldEqual(1);
         }
@@ -82,23 +77,21 @@ namespace MugenMvvm.UnitTest.Entities
         {
             var entityManager = GetComponentOwner();
             var collection = new EntityTrackingCollection();
-            var component = new TestEntityTrackingCollectionProviderComponent
+            var component = new TestEntityTrackingCollectionProviderComponent(entityManager)
             {
-                TryGetTrackingCollection = (m, o, type, arg3) => collection
+                TryGetTrackingCollection = (o, arg3) => collection
             };
             entityManager.AddComponent(component);
 
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestEntityManagerListener
+                var listener = new TestEntityManagerListener(entityManager)
                 {
-                    OnTrackingCollectionCreated = (manager, o, arg3, arg4, arg5) =>
+                    OnTrackingCollectionCreated = (o, arg3, arg5) =>
                     {
-                        manager.ShouldEqual(entityManager);
                         o.ShouldEqual(collection);
                         arg3.ShouldEqual(entityManager);
-                        arg4.ShouldEqual(typeof(EntityManager));
                         arg5.ShouldEqual(DefaultMetadata);
                         ++count;
                     }
@@ -118,24 +111,21 @@ namespace MugenMvvm.UnitTest.Entities
             var entity = new object();
             var entityManager = GetComponentOwner();
             var snapshot = new TestEntityStateSnapshot();
-            var component = new TestEntityStateSnapshotProviderComponent
+            var component = new TestEntityStateSnapshotProviderComponent(entityManager)
             {
-                TryGetSnapshot = (m, e, o, type, arg3) => snapshot
+                TryGetSnapshot = (e, arg3) => snapshot
             };
             entityManager.AddComponent(component);
 
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var listener = new TestEntityManagerListener
+                var listener = new TestEntityManagerListener(entityManager)
                 {
-                    OnSnapshotCreated = (manager, o, e, arg3, arg4, arg5) =>
+                    OnSnapshotCreated = (o, e, arg5) =>
                     {
-                        manager.ShouldEqual(entityManager);
                         o.ShouldEqual(snapshot);
                         e.ShouldEqual(entity);
-                        arg3.ShouldEqual(entityManager);
-                        arg4.ShouldEqual(typeof(EntityManager));
                         arg5.ShouldEqual(DefaultMetadata);
                         ++count;
                     }
@@ -143,7 +133,7 @@ namespace MugenMvvm.UnitTest.Entities
                 entityManager.AddComponent(listener);
             }
 
-            entityManager.TryGetSnapshot(entity, entityManager, DefaultMetadata);
+            entityManager.TryGetSnapshot(entity, DefaultMetadata);
             count.ShouldEqual(componentCount);
         }
 
@@ -151,7 +141,7 @@ namespace MugenMvvm.UnitTest.Entities
         public void GetSnapshotShouldThrowNoComponents()
         {
             var entityManager = GetComponentOwner();
-            ShouldThrow<InvalidOperationException>(() => entityManager.GetSnapshot(this, entityManager, DefaultMetadata));
+            ShouldThrow<InvalidOperationException>(() => entityManager.GetSnapshot(this, DefaultMetadata));
         }
 
 

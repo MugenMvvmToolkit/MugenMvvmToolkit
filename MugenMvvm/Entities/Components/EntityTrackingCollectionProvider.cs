@@ -6,7 +6,6 @@ using MugenMvvm.Interfaces.Entities;
 using MugenMvvm.Interfaces.Entities.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Entities.Components
 {
@@ -35,14 +34,9 @@ namespace MugenMvvm.Entities.Components
 
         #region Implementation of interfaces
 
-        public IEntityTrackingCollection? TryGetTrackingCollection<TRequest>(IEntityManager entityManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IEntityTrackingCollection? TryGetTrackingCollection(IEntityManager entityManager, object? request, IReadOnlyMetadataContext? metadata)
         {
-            IEqualityComparer<object>? comparer;
-            if (TypeChecker.IsValueType<TRequest>())
-                comparer = null;
-            else
-                comparer = request as IEqualityComparer<object>;
-            var collection = new EntityTrackingCollection(comparer, _componentCollectionManager);
+            var collection = new EntityTrackingCollection(request as IEqualityComparer<object>, _componentCollectionManager);
             collection.AddComponent(EntityStateTransitionManager.Instance);
             return collection;
         }

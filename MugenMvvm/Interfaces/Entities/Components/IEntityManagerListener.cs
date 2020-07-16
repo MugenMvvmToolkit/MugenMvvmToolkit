@@ -5,8 +5,8 @@ namespace MugenMvvm.Interfaces.Entities.Components
 {
     public interface IEntityManagerListener : IComponent<IEntityManager>
     {
-        void OnSnapshotCreated<TState>(IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, in TState state, IReadOnlyMetadataContext? metadata);
+        void OnSnapshotCreated(IEntityManager entityManager, IEntityStateSnapshot snapshot, object entity, IReadOnlyMetadataContext? metadata);
 
-        void OnTrackingCollectionCreated<TRequest>(IEntityManager entityManager, IEntityTrackingCollection collection, in TRequest request, IReadOnlyMetadataContext? metadata);
+        void OnTrackingCollectionCreated(IEntityManager entityManager, IEntityTrackingCollection collection, object? request, IReadOnlyMetadataContext? metadata);
     }
 }

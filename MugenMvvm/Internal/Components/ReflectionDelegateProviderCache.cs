@@ -95,7 +95,7 @@ namespace MugenMvvm.Internal.Components
             _methodComponents = this.Decorate(components);
         }
 
-        public override void Invalidate<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+        public override void Invalidate(object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             Invalidate(true, true, true);
         }
@@ -165,15 +165,15 @@ namespace MugenMvvm.Internal.Components
 
         protected override void OnComponentAdded(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate(component);
+            InvalidateComponent(component);
         }
 
         protected override void OnComponentRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            Invalidate(component);
+            InvalidateComponent(component);
         }
 
-        private void Invalidate(object component)
+        private void InvalidateComponent(object component)
         {
             Invalidate(component is IActivatorReflectionDelegateProviderComponent, component is IMethodReflectionDelegateProviderComponent, component is IMemberReflectionDelegateProviderComponent);
         }

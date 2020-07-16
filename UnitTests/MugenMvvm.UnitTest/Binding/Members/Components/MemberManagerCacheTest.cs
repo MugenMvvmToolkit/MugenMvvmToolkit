@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
-            memberManager.TryInvalidateCache<object?>(null, DefaultMetadata);
+            memberManager.TryInvalidateCache(null, DefaultMetadata);
             invokeCount = 0;
             memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
             memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
@@ -147,7 +147,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             memberManager.TryGetMembers(type2, memberType, memberFlags, request2, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(2);
 
-            memberManager.TryInvalidateCache<object?>(type1, DefaultMetadata);
+            memberManager.TryInvalidateCache(type1, DefaultMetadata);
             invokeCount = 0;
             memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
             memberManager.TryGetMembers(type1, memberType, memberFlags, request1, DefaultMetadata).ShouldEqual(result);
