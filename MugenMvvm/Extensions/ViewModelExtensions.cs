@@ -24,14 +24,14 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static bool TrySubscribe<T>(this IViewModelBase viewModel, [DisallowNull] in T subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public static bool TrySubscribe(this IViewModelBase viewModel, object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var service = viewModel.TryGetService<IMessenger>();
             return service != null && service.TrySubscribe(subscriber, executionMode, metadata);
         }
 
-        public static bool TryUnsubscribe<T>(this IViewModelBase viewModel, [DisallowNull] in T subscriber, IReadOnlyMetadataContext? metadata = null)
+        public static bool TryUnsubscribe(this IViewModelBase viewModel, object subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             var service = viewModel.TryGetService<IMessenger>();

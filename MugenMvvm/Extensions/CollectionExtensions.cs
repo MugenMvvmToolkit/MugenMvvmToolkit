@@ -155,7 +155,15 @@ namespace MugenMvvm.Extensions
                 items = array;
             return array != null;
         }
-        
+
+        internal static TValue FirstOrDefault<TValue>(this HashSet<TValue> hashSet)
+        {
+            // ReSharper disable once GenericEnumeratorNotDisposed
+            var enumerator = hashSet.GetEnumerator();
+            enumerator.MoveNext();
+            return enumerator.Current;
+        }
+
         internal static KeyValuePair<TKey, TValue> FirstOrDefault<TKey, TValue>(this Dictionary<TKey, TValue> dictionary) where TKey : notnull
         {
             // ReSharper disable once GenericEnumeratorNotDisposed

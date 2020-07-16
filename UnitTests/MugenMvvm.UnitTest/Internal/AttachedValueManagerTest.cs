@@ -239,7 +239,7 @@ namespace MugenMvvm.UnitTest.Internal
                         o.ShouldEqual(this);
                         arg3.ShouldEqual(TestPath);
                         arg4.ShouldEqual(attachedValueManager);
-                        return arg8(o, arg6, arg6(null, null), arg4);
+                        return arg8(o, arg6, arg6(null!, null), arg4);
                     }
                 };
                 attachedValueManager.AddComponent(component);

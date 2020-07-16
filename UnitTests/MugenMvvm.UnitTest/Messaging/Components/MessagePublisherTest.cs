@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var messageContext = new MessageContext(new object(), this, DefaultMetadata);
             var component = new MessagePublisher();
             var messenger = new Messenger();
-            var subscriberComponent = new TestMessengerSubscriberComponent();
+            var subscriberComponent = new TestMessengerSubscriberComponent(messenger);
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
 
@@ -42,9 +42,8 @@ namespace MugenMvvm.UnitTest.Messaging.Components
                 }, this, ThreadExecutionMode.Current);
             }
 
-            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
             {
-                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
@@ -103,12 +102,11 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             };
             using var subscriber = TestComponentSubscriber.Subscribe(threadDispatcher, testThreadDispatcherComponent);
             var messenger = new Messenger();
-            var subscriberComponent = new TestMessengerSubscriberComponent();
+            var subscriberComponent = new TestMessengerSubscriberComponent(messenger);
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
-            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
             {
-                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
@@ -134,22 +132,19 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var messageContext = new MessageContext(new object(), this, DefaultMetadata);
             var component = new MessagePublisher();
             var messenger = new Messenger();
-            var subscriberComponent = new TestMessengerSubscriberComponent();
+            var subscriberComponent = new TestMessengerSubscriberComponent(messenger);
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
-            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
             {
-                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;
             };
-            subscriberComponent.TryUnsubscribe = (m, o, type, arg3) =>
+            subscriberComponent.TryUnsubscribe = (o, arg3) =>
             {
                 ++invokedCount;
-                m.ShouldEqual(messenger);
-                o.ShouldEqual(handler);
-                type.ShouldEqual(handler.GetType());
+                o.ShouldEqual(handler.Subscriber);
                 return true;
             };
 
@@ -174,13 +169,12 @@ namespace MugenMvvm.UnitTest.Messaging.Components
             var messageContext = new MessageContext(new object(), this, DefaultMetadata);
             var component = new MessagePublisher();
             var messenger = new Messenger();
-            var subscriberComponent = new TestMessengerSubscriberComponent();
+            var subscriberComponent = new TestMessengerSubscriberComponent(messenger);
             messenger.AddComponent(component);
             messenger.AddComponent(subscriberComponent);
-            subscriberComponent.TryGetMessengerHandlers = (m, type, context) =>
+            subscriberComponent.TryGetMessengerHandlers = (type, context) =>
             {
                 ++tryGetMessengerHandlersCount;
-                m.ShouldEqual(messenger);
                 type.ShouldEqual(messageContext.Message.GetType());
                 context.ShouldEqual(DefaultMetadata);
                 return messengerHandlers;

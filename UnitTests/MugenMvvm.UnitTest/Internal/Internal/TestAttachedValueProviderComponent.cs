@@ -37,9 +37,9 @@ namespace MugenMvvm.UnitTest.Internal.Internal
 
         public Func<object, string, bool>? Contains { get; set; }
 
-        public Func<object?, string, object?, object?, UpdateValueDelegate<object, object?, object?, object?, object?>, object?>? AddOrUpdate { get; set; }
+        public Func<object, string, object?, object?, UpdateValueDelegate<object, object?, object?, object?, object?>, object?>? AddOrUpdate { get; set; }
 
-        public Func<object?, string, object?, Func<object, object?, object?>, UpdateValueDelegate<object, object?, object?, object?>, object?>? AddOrUpdate1 { get; set; }
+        public Func<object, string, object?, Func<object, object?, object?>, UpdateValueDelegate<object, object?, object?, object?>, object?>? AddOrUpdate1 { get; set; }
 
         public Func<object, string, object?, object?>? GetOrAdd { get; set; }
 

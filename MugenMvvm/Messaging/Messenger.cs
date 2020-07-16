@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -42,7 +41,7 @@ namespace MugenMvvm.Messaging
             return GetComponents<IMessagePublisherComponent>().TryPublish(this, messageContext);
         }
 
-        public bool TrySubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
+        public bool TrySubscribe(object subscriber, ThreadExecutionMode? executionMode = null, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<IMessengerSubscriberComponent>().TrySubscribe(this, subscriber, executionMode, metadata);
             if (result)
@@ -50,7 +49,7 @@ namespace MugenMvvm.Messaging
             return result;
         }
 
-        public bool TryUnsubscribe<TSubscriber>([DisallowNull]in TSubscriber subscriber, IReadOnlyMetadataContext? metadata = null)
+        public bool TryUnsubscribe(object subscriber, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<IMessengerSubscriberComponent>().TryUnsubscribe(this, subscriber, metadata);
             if (result)

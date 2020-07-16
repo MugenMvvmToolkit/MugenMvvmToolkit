@@ -187,7 +187,7 @@ namespace MugenMvvm.Messaging.Components
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)
-                        _messenger.TryUnsubscribe(this[i], messageContext.GetMetadataOrDefault());
+                        _messenger.TryUnsubscribe(this[i].Subscriber, messageContext.GetMetadataOrDefault());
                 }
             }
 

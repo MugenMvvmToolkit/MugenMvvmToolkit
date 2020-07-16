@@ -64,13 +64,12 @@ namespace MugenMvvm.UnitTest.Messaging
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestMessageContextProviderComponent
+                var component = new TestMessageContextProviderComponent(messenger)
                 {
                     Priority = -i,
-                    TryGetMessageContext = (m, o, o1, arg3) =>
+                    TryGetMessageContext = (o, o1, arg3) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(messenger);
                         o.ShouldEqual(sender);
                         o1.ShouldEqual(message);
                         arg3.ShouldEqual(DefaultMetadata);
@@ -97,13 +96,12 @@ namespace MugenMvvm.UnitTest.Messaging
             var messenger = new Messenger();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestMessagePublisherComponent
+                var component = new TestMessagePublisherComponent(messenger)
                 {
                     Priority = -i,
-                    TryPublish = (m, messageContext) =>
+                    TryPublish = (messageContext) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(messenger);
                         messageContext.ShouldEqual(ctx);
                         return result;
                     }
@@ -133,15 +131,13 @@ namespace MugenMvvm.UnitTest.Messaging
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestMessengerSubscriberComponent
+                var component = new TestMessengerSubscriberComponent(messenger)
                 {
                     Priority = -i,
-                    TrySubscribe = (m, o, type, arg3, arg4) =>
+                    TrySubscribe = (o, arg3, arg4) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(messenger);
                         o.ShouldEqual(messenger);
-                        type.ShouldEqual(messenger.GetType());
                         arg3.ShouldEqual(threadMode);
                         arg4.ShouldEqual(DefaultMetadata);
                         return result;
@@ -169,15 +165,13 @@ namespace MugenMvvm.UnitTest.Messaging
             var result = false;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestMessengerSubscriberComponent
+                var component = new TestMessengerSubscriberComponent(messenger)
                 {
                     Priority = -i,
-                    TryUnsubscribe = (m, o, type, arg3) =>
+                    TryUnsubscribe = (o, arg3) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(messenger);
                         o.ShouldEqual(messenger);
-                        type.ShouldEqual(messenger.GetType());
                         arg3.ShouldEqual(DefaultMetadata);
                         return result;
                     }
@@ -204,13 +198,12 @@ namespace MugenMvvm.UnitTest.Messaging
             var messenger = new Messenger();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestMessengerSubscriberComponent
+                var component = new TestMessengerSubscriberComponent(messenger)
                 {
                     Priority = -i,
-                    TryUnsubscribeAll = (m, arg3) =>
+                    TryUnsubscribeAll = (arg3) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(messenger);
                         arg3.ShouldEqual(DefaultMetadata);
                         return result;
                     }
@@ -246,10 +239,10 @@ namespace MugenMvvm.UnitTest.Messaging
             for (var i = 0; i < count; i++)
             {
                 var info = subscribers.ElementAt(i);
-                var component = new TestMessengerSubscriberComponent
+                var component = new TestMessengerSubscriberComponent(messenger)
                 {
                     Priority = -i,
-                    TryGetSubscribers = (m, arg3) =>
+                    TryGetSubscribers = (arg3) =>
                     {
                         arg3.ShouldEqual(DefaultMetadata);
                         return new[] { info };

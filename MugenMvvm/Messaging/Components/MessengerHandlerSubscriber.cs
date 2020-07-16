@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
@@ -48,10 +47,8 @@ namespace MugenMvvm.Messaging.Components
 
         #region Implementation of interfaces
 
-        public bool TrySubscribe<TSubscriber>(IMessenger messenger, in TSubscriber subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
+        public bool TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TSubscriber>())
-                return false;
             if (subscriber is IWeakReference weakReference && weakReference.Target is IMessengerHandler handler)
                 return Add(new HandlerSubscriber(weakReference, RuntimeHelpers.GetHashCode(handler), executionMode));
             if (subscriber is IMessengerHandler)
@@ -59,12 +56,8 @@ namespace MugenMvvm.Messaging.Components
             return false;
         }
 
-        public bool TryUnsubscribe<TSubscriber>(IMessenger messenger, in TSubscriber subscriber, IReadOnlyMetadataContext? metadata)
+        public bool TryUnsubscribe(IMessenger messenger, object subscriber, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TSubscriber) == typeof(HandlerSubscriber))
-                return Remove(MugenExtensions.CastGeneric<TSubscriber, HandlerSubscriber>(subscriber));
-            if (TypeChecker.IsValueType<TSubscriber>())
-                return false;
             if (subscriber is IWeakReference weakReference)
             {
                 var target = weakReference.Target;
@@ -94,7 +87,7 @@ namespace MugenMvvm.Messaging.Components
         public ItemOrList<MessengerHandler, IReadOnlyList<MessengerHandler>> TryGetMessengerHandlers(IMessenger messenger, Type messageType, IReadOnlyMetadataContext? metadata)
         {
             var result = ItemOrListEditor.Get<MessengerHandler>(handler => handler.IsEmpty);
-            var toRemove = ItemOrListEditor.Get<HandlerSubscriber>(subscriber => subscriber.Subscriber == null);
+            var toRemove = ItemOrListEditor.Get<object>();
             lock (this)
             {
                 if (Count == 0)
@@ -105,7 +98,7 @@ namespace MugenMvvm.Messaging.Components
                     var subscriber = handler.GetSubscriber();
                     if (subscriber == null)
                     {
-                        toRemove.Add(handler);
+                        toRemove.Add(handler.Subscriber);
                         continue;
                     }
 
@@ -182,23 +175,16 @@ namespace MugenMvvm.Messaging.Components
 
         private bool Remove(IWeakReference subscriber)
         {
-            bool result;
             lock (this)
             {
-                HandlerSubscriber handler = default;
                 foreach (var item in this)
                 {
                     if (ReferenceEquals(item.Subscriber, subscriber))
-                    {
-                        handler = item;
-                        break;
-                    }
+                        return Remove(item);
                 }
-
-                result = Remove(handler);
             }
 
-            return result;
+            return false;
         }
 
         private static Action<object?, object?, IMessageContext>? GetHandler(IReflectionManager? reflectionManager, Type handlerType, Type messageType)
