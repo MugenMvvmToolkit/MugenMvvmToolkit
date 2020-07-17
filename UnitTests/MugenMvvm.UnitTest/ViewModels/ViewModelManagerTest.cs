@@ -20,21 +20,19 @@ namespace MugenMvvm.UnitTest.ViewModels
         public void OnLifecycleChangedShouldBeHandledByComponents(int count)
         {
             var manager = new ViewModelManager();
-            int invokeCount = 0;
+            var invokeCount = 0;
             var state = "state";
             var viewModel = new TestViewModel();
             var lifecycleState = ViewModelLifecycleState.Created;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestViewModelLifecycleDispatcherComponent
+                var component = new TestViewModelLifecycleDispatcherComponent(manager)
                 {
-                    OnLifecycleChanged = (m, vm, viewModelLifecycleState, st, stateType, metadata) =>
+                    OnLifecycleChanged = (vm, viewModelLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(manager);
                         vm.ShouldEqual(viewModel);
                         st.ShouldEqual(state);
-                        stateType.ShouldEqual(state.GetType());
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
@@ -67,15 +65,13 @@ namespace MugenMvvm.UnitTest.ViewModels
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestViewModelServiceResolverComponent
+                var component = new TestViewModelServiceResolverComponent(manager)
                 {
-                    TryGetService = (m, vm, r, t, ctx) =>
+                    TryGetService = (vm, r, ctx) =>
                     {
                         ++executeCount;
-                        m.ShouldEqual(manager);
                         vm.ShouldEqual(viewModel);
                         r.ShouldEqual(serviceType);
-                        t.ShouldEqual(typeof(Type));
                         ctx.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return service;
@@ -103,12 +99,10 @@ namespace MugenMvvm.UnitTest.ViewModels
                 var isLast = i == count - 1;
                 var component = new TestViewModelProviderComponent
                 {
-                    TryGetViewModel = (m, o, type, arg3) =>
+                    TryGetViewModel = (o, arg3) =>
                     {
                         ++executeCount;
-                        m.ShouldEqual(manager);
                         o.ShouldEqual(this);
-                        type.ShouldEqual(GetType());
                         arg3.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return viewModel;

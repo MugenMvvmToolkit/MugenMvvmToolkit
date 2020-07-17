@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.ViewModels;
@@ -10,8 +10,9 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged<TState>(this IViewModelLifecycleDispatcherComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
-            in TState state, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void OnLifecycleChanged(this IViewModelLifecycleDispatcherComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
+            object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
@@ -21,11 +22,13 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
         }
 
-        public static object? TryGetService<TRequest>(this IViewModelServiceResolverComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static object? TryGetService(this IViewModelServiceResolverComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
             Should.NotBeNull(viewModel, nameof(viewModel));
+            Should.NotBeNull(request, nameof(request));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryGetService(viewModelManager, viewModel, request, metadata);
@@ -36,7 +39,8 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IViewModelBase? TryGetViewModel<TRequest>(this IViewModelProviderComponent[] components, IViewModelManager viewModelManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static IViewModelBase? TryGetViewModel(this IViewModelProviderComponent[] components, IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));

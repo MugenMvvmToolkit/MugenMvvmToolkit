@@ -65,10 +65,9 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewModelManager = new ViewModelManager();
             viewModelManager.AddComponent(new TestViewModelProviderComponent
             {
-                TryGetViewModel = (m, o, type, arg3) =>
+                TryGetViewModel = (o, arg3) =>
                 {
                     o.ShouldEqual(viewModelType);
-                    type.ShouldEqual(typeof(Type));
                     return viewModel;
                 }
             });

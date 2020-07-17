@@ -41,7 +41,7 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == ViewModelLifecycleState.Created)
             {
@@ -63,12 +63,11 @@ namespace MugenMvvm.ViewModels.Components
                 Remove(viewModel.Metadata.Get(ViewModelMetadata.Id));
         }
 
-        public IViewModelBase? TryGetViewModel<TRequest>(IViewModelManager viewModelManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) != typeof(Guid))
+            if (!(request is Guid id))
                 return null;
 
-            var id = MugenExtensions.CastGeneric<TRequest, Guid>(request);
             object? value;
             lock (_viewModelsCache)
             {

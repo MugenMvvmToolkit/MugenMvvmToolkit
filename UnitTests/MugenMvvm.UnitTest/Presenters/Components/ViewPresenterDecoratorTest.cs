@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var viewModelManager = new ViewModelManager();
             viewModelManager.AddComponent(new TestViewModelProviderComponent
             {
-                TryGetViewModel = (manager, o, arg3, arg4) =>
+                TryGetViewModel = (o, arg4) =>
                 {
                     o.ShouldEqual(mapping.ViewModelType);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             {
                 TryShow = (o, arg4, arg5) =>
                 {
-                    var viewRequest = (ViewModelViewRequest) o;
+                    var viewRequest = (ViewModelViewRequest)o;
                     viewRequest.ViewModel.ShouldEqual(viewModel);
                     viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);

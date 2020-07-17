@@ -7,7 +7,6 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.ViewModels.Components
 {
@@ -37,9 +36,9 @@ namespace MugenMvvm.ViewModels.Components
 
         #region Implementation of interfaces
 
-        public IViewModelBase? TryGetViewModel<TRequest>(IViewModelManager viewModelManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IViewModelBase? TryGetViewModel(IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TRequest>() || !(request is Type type))
+            if (!(request is Type type))
                 return null;
 
             var viewModel = (IViewModelBase) _serviceProvider.DefaultIfNull().GetService(type);

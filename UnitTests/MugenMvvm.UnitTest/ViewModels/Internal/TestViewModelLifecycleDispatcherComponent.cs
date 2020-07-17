@@ -4,14 +4,30 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
+using Should;
 
 namespace MugenMvvm.UnitTest.ViewModels.Internal
 {
     public class TestViewModelLifecycleDispatcherComponent : IViewModelLifecycleDispatcherComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IViewModelManager? _viewModelManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestViewModelLifecycleDispatcherComponent(IViewModelManager? viewModelManager = null)
+        {
+            _viewModelManager = viewModelManager;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Action<IViewModelManager, IViewModelBase, ViewModelLifecycleState, object?, Type, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
+        public Action<IViewModelBase, ViewModelLifecycleState, object?, IReadOnlyMetadataContext?>? OnLifecycleChanged { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,9 +35,11 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         #region Implementation of interfaces
 
-        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged<TState>(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        void IViewModelLifecycleDispatcherComponent.OnLifecycleChanged(IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
-            OnLifecycleChanged?.Invoke(viewModelManager, viewModel, lifecycleState, state, typeof(TState), metadata);
+            _viewModelManager?.ShouldEqual(viewModelManager);
+            OnLifecycleChanged?.Invoke(viewModel, lifecycleState, state, metadata);
         }
 
         #endregion

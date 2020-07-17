@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Attributes;
+﻿using MugenMvvm.Attributes;
 using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
@@ -24,17 +23,17 @@ namespace MugenMvvm.ViewModels
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null)
         {
             GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(this, viewModel, lifecycleState, state, metadata);
         }
 
-        public object? TryGetService<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public object? TryGetService(IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IViewModelServiceResolverComponent>(metadata).TryGetService(this, viewModel, request, metadata);
         }
 
-        public IViewModelBase? TryGetViewModel<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IViewModelBase? TryGetViewModel(object request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IViewModelProviderComponent>(metadata).TryGetViewModel(this, request, metadata);
         }
