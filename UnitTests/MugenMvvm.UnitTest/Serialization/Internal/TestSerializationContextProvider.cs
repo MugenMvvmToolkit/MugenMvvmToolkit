@@ -3,31 +3,49 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
+using Should;
 
 namespace MugenMvvm.UnitTest.Serialization.Internal
 {
     public class TestSerializationContextProvider : ISerializationContextProviderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly ISerializer? _serializer;
+
+        #endregion
+
+        #region Constructors
+
+        public TestSerializationContextProvider(ISerializer? serializer = null)
+        {
+            _serializer = serializer;
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }
 
-        public Func<ISerializer, object, Type, IReadOnlyMetadataContext?, ISerializationContext?>? TryGetSerializationContext { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ISerializationContext?>? TryGetSerializationContext { get; set; }
 
-        public Func<ISerializer, IReadOnlyMetadataContext?, ISerializationContext?>? TryGetDeserializationContext { get; set; }
+        public Func<IReadOnlyMetadataContext?, ISerializationContext?>? TryGetDeserializationContext { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ISerializationContext? ISerializationContextProviderComponent.TryGetSerializationContext<TRequest>(ISerializer serializer, in TRequest request, IReadOnlyMetadataContext? metadata)
+        ISerializationContext? ISerializationContextProviderComponent.TryGetSerializationContext(ISerializer serializer, object request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetSerializationContext?.Invoke(serializer, request!, typeof(TRequest), metadata);
+            _serializer?.ShouldEqual(serializer);
+            return TryGetSerializationContext?.Invoke(request!, metadata);
         }
 
         ISerializationContext? ISerializationContextProviderComponent.TryGetDeserializationContext(ISerializer serializer, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetDeserializationContext?.Invoke(serializer, metadata);
+            _serializer?.ShouldEqual(serializer);
+            return TryGetDeserializationContext?.Invoke(metadata);
         }
 
         #endregion

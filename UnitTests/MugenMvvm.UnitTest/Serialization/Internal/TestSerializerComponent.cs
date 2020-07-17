@@ -1,19 +1,34 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Serialization;
 using MugenMvvm.Interfaces.Serialization.Components;
+using Should;
 
 namespace MugenMvvm.UnitTest.Serialization.Internal
 {
     public class TestSerializerComponent : ISerializerComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly ISerializer? _serializer;
+
+        #endregion
+
+        #region Constructors
+
+        public TestSerializerComponent(ISerializer? serializer = null)
+        {
+            _serializer = serializer;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Func<ISerializer, Stream, object, Type, ISerializationContext, bool>? TrySerialize { get; set; }
+        public Func<Stream, object, ISerializationContext, bool>? TrySerialize { get; set; }
 
-        public Func<ISerializer, Stream, ISerializationContext, object?>? TryDeserialize { get; set; }
+        public Func<Stream, ISerializationContext, object?>? TryDeserialize { get; set; }
 
         public int Priority { get; set; }
 
@@ -21,14 +36,16 @@ namespace MugenMvvm.UnitTest.Serialization.Internal
 
         #region Implementation of interfaces
 
-        bool ISerializerComponent.TrySerialize<TRequest>(ISerializer serializer, Stream stream, [DisallowNull] in TRequest request, ISerializationContext serializationContext)
+        bool ISerializerComponent.TrySerialize(ISerializer serializer, Stream stream, object request, ISerializationContext serializationContext)
         {
-            return TrySerialize?.Invoke(serializer, stream, request, typeof(TRequest), serializationContext) ?? false;
+            _serializer?.ShouldEqual(serializer);
+            return TrySerialize?.Invoke(stream, request, serializationContext) ?? false;
         }
 
         bool ISerializerComponent.TryDeserialize(ISerializer serializer, Stream stream, ISerializationContext serializationContext, out object? value)
         {
-            value = TryDeserialize?.Invoke(serializer, stream, serializationContext);
+            _serializer?.ShouldEqual(serializer);
+            value = TryDeserialize?.Invoke(stream, serializationContext);
             return value != null;
         }
 

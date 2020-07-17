@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.IO;
+﻿using System.IO;
 using MugenMvvm.Components;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -29,7 +28,7 @@ namespace MugenMvvm.Serialization
 
         #region Implementation of interfaces
 
-        public bool TrySerialize<TRequest>(Stream stream, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public bool TrySerialize(Stream stream, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(stream, nameof(stream));
             using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
