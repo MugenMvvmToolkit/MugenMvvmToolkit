@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Wrapping.Components
 {
@@ -43,17 +41,17 @@ namespace MugenMvvm.Wrapping.Components
 
         #region Implementation of interfaces
 
-        public bool CanWrap<TRequest>(IWrapperManager wrapperManager, Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public bool CanWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) == typeof(TConditionRequest) || !TypeChecker.IsValueType<TRequest>() && request is TConditionRequest)
-                return _condition.Invoke(wrapperType, MugenExtensions.CastGeneric<TRequest, TConditionRequest>(request), _state, metadata);
+            if (request is TConditionRequest conditionRequest)
+                return _condition.Invoke(wrapperType, conditionRequest, _state, metadata);
             return false;
         }
 
-        public object? TryWrap<TRequest>(IWrapperManager wrapperManager, Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public object? TryWrap(IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) == typeof(TWrapRequest) || !TypeChecker.IsValueType<TRequest>() && request is TWrapRequest)
-                return _wrapperFactory.Invoke(wrapperType, MugenExtensions.CastGeneric<TRequest, TWrapRequest>(request), _state, metadata);
+            if (request is TWrapRequest wrapRequest)
+                return _wrapperFactory.Invoke(wrapperType, wrapRequest, _state, metadata);
             return null;
         }
 

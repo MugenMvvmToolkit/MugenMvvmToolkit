@@ -37,7 +37,7 @@ namespace MugenMvvm.Requests
         [return: NotNullIfNotNull("request")]
         [return: NotNullIfNotNull("viewModel")]
         [return: NotNullIfNotNull("view")]
-        public static object? GetRequestOrRaw(object? request, IViewModelBase? viewModel, object? view) //todo review
+        public static object? GetRequestOrRaw(object? request, IViewModelBase? viewModel, object? view)
         {
             if (request is ViewModelViewRequest viewModelViewRequest)
             {

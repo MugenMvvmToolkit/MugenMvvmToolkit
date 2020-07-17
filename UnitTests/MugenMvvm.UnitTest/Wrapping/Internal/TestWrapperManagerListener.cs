@@ -2,22 +2,39 @@
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
 using MugenMvvm.Interfaces.Wrapping.Components;
+using Should;
 
 namespace MugenMvvm.UnitTest.Wrapping.Internal
 {
     public class TestWrapperManagerListener : IWrapperManagerListener
     {
+        #region Fields
+
+        private readonly IWrapperManager? _wrapperManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestWrapperManagerListener(IWrapperManager? wrapperManager = null)
+        {
+            _wrapperManager = wrapperManager;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Action<IWrapperManager, object, object, Type, IReadOnlyMetadataContext?>? OnWrapped { get; set; }
+        public Action<object, object, IReadOnlyMetadataContext?>? OnWrapped { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IWrapperManagerListener.OnWrapped<TRequest>(IWrapperManager wrapperManager, object wrapper, in TRequest request, IReadOnlyMetadataContext? metadata)
+        void IWrapperManagerListener.OnWrapped(IWrapperManager wrapperManager, object wrapper, object request, IReadOnlyMetadataContext? metadata)
         {
-            OnWrapped?.Invoke(wrapperManager, wrapper, request!, typeof(TRequest), metadata);
+            _wrapperManager?.ShouldEqual(wrapperManager);
+            OnWrapped?.Invoke(wrapper, request, metadata);
         }
 
         #endregion

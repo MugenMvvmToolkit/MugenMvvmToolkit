@@ -86,15 +86,13 @@ namespace MugenMvvm.UnitTest.Wrapping
                     Priority = -i
                 };
                 manager.AddComponent(component);
-                manager.AddComponent(new TestWrapperManagerListener
+                manager.AddComponent(new TestWrapperManagerListener(manager)
                 {
-                    OnWrapped = (wrapperManager, wrapper, item, wrapperType, metadata) =>
+                    OnWrapped = (wrapper, item, metadata) =>
                     {
                         ++listenerExecuteCount;
-                        wrapperManager.ShouldEqual(manager);
                         wrapper.ShouldEqual(result);
                         item.ShouldEqual(manager);
-                        wrapperType.ShouldEqual(manager.GetType());
                         metadata.ShouldEqual(DefaultMetadata);
                     }
                 });
