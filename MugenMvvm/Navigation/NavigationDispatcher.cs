@@ -41,7 +41,7 @@ namespace MugenMvvm.Navigation
             return GetComponents<INavigationEntryProviderComponent>(metadata).TryGetNavigationEntries(this, metadata);
         }
 
-        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks<TRequest>([DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(this, request, metadata);
         }

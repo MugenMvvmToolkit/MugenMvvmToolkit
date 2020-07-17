@@ -31,9 +31,9 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public INavigationCallback? TryAddNavigationCallback<TRequest>(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TRequest>() || !(request is IHasNavigationInfo hasNavigationInfo))
+            if (!(request is IHasNavigationInfo hasNavigationInfo))
                 return null;
 
             var key = GetKeyByCallback(callbackType);
@@ -56,10 +56,8 @@ namespace MugenMvvm.Navigation.Components
             return null;
         }
 
-        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(INavigationDispatcher navigationDispatcher, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TRequest>())
-                return default;
             return GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), request as IHasTarget<object?>);
         }
 

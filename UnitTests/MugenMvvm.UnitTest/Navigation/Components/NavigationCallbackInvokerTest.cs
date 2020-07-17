@@ -28,9 +28,9 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             var dispatcher = new NavigationDispatcher();
             dispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryInvokeCanceledNavigationCallbacks = (d, callbackType, ctx, ct) => throw new NotSupportedException(),
-                TryInvokeExceptionNavigationCallbacks = (d, callbackType, ctx, ex) => throw new NotSupportedException(),
-                TryInvokeNavigationCallbacks = (d, callbackType, ctx) =>
+                TryInvokeCanceledNavigationCallbacks = (callbackType, ctx, ct) => throw new NotSupportedException(),
+                TryInvokeExceptionNavigationCallbacks = (callbackType, ctx, ex) => throw new NotSupportedException(),
+                TryInvokeNavigationCallbacks = (callbackType, ctx) =>
                 {
                     callbackTypes.Add(callbackType);
                     ctx.ShouldEqual(navigationContext);
@@ -72,16 +72,15 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             var dispatcher = new NavigationDispatcher();
             dispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryInvokeCanceledNavigationCallbacks = (d, callbackType, ctx, ct) => throw new NotSupportedException(),
-                TryInvokeExceptionNavigationCallbacks = (d, callbackType, ctx, ex) =>
+                TryInvokeCanceledNavigationCallbacks = (callbackType, ctx, ct) => throw new NotSupportedException(),
+                TryInvokeExceptionNavigationCallbacks = (callbackType, ctx, ex) =>
                 {
-                    d.ShouldEqual(dispatcher);
                     callbackTypes.Add(callbackType);
                     ctx.ShouldEqual(navigationContext);
                     ex.ShouldEqual(exception);
                     return true;
                 },
-                TryInvokeNavigationCallbacks = (d, callbackType, ctx) => throw new NotSupportedException()
+                TryInvokeNavigationCallbacks = (callbackType, ctx) => throw new NotSupportedException()
             });
             var callbackInvoker = new NavigationCallbackInvoker();
             callbackInvoker.IsSuspended.ShouldBeFalse();
@@ -110,16 +109,15 @@ namespace MugenMvvm.UnitTest.Navigation.Components
             var dispatcher = new NavigationDispatcher();
             dispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryInvokeCanceledNavigationCallbacks = (d, callbackType, ctx, ct) =>
+                TryInvokeCanceledNavigationCallbacks = (callbackType, ctx, ct) =>
                 {
-                    d.ShouldEqual(dispatcher);
                     callbackTypes.Add(callbackType);
                     ctx.ShouldEqual(navigationContext);
                     ct.ShouldEqual(token);
                     return true;
                 },
-                TryInvokeExceptionNavigationCallbacks = (d, callbackType, ctx, e) => throw new NotSupportedException(),
-                TryInvokeNavigationCallbacks = (d, callbackType, ctx) => throw new NotSupportedException()
+                TryInvokeExceptionNavigationCallbacks = (callbackType, ctx, e) => throw new NotSupportedException(),
+                TryInvokeNavigationCallbacks = (callbackType, ctx) => throw new NotSupportedException()
             });
             var callbackInvoker = new NavigationCallbackInvoker();
             callbackInvoker.IsSuspended.ShouldBeFalse();

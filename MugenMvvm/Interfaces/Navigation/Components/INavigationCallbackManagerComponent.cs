@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
@@ -11,9 +10,9 @@ namespace MugenMvvm.Interfaces.Navigation.Components
 {
     public interface INavigationCallbackManagerComponent : IComponent<INavigationDispatcher>
     {
-        INavigationCallback? TryAddNavigationCallback<TRequest>(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
+        INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, object request, IReadOnlyMetadataContext? metadata);
 
-        ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks<TRequest>(INavigationDispatcher navigationDispatcher, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata);
+        ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata);
 
         bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext);
 

@@ -38,20 +38,19 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             for (int i = 0; i < count; i++)
             {
-                var listener = new TestNavigationDispatcherEntryListener
+                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
                 {
-                    OnNavigationEntryAdded = (navigationDispatcher, entry, arg3) =>
+                    OnNavigationEntryAdded = (entry, arg3) =>
                     {
                         ++invokedCount;
-                        navigationDispatcher.ShouldEqual(dispatcher);
                         arg3.ShouldEqual(ctx);
                         entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
                         entry.NavigationType.ShouldEqual(arg3!.NavigationType);
                         entry.NavigationId.ShouldEqual(arg3!.NavigationId);
                         entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
                     },
-                    OnNavigationEntryRemoved = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
-                    OnNavigationEntryUpdated = (navigationDispatcher, entry, arg3) => throw new NotSupportedException()
+                    OnNavigationEntryRemoved = (entry, arg3) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (entry, arg3) => throw new NotSupportedException()
                 };
                 dispatcher.AddComponent(listener);
             }
@@ -102,14 +101,13 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
             for (int i = 0; i < count; i++)
             {
-                var listener = new TestNavigationDispatcherEntryListener
+                var listener = new TestNavigationDispatcherEntryListener(dispatcher)
                 {
-                    OnNavigationEntryAdded = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
-                    OnNavigationEntryRemoved = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
-                    OnNavigationEntryUpdated = (navigationDispatcher, entry, arg3) =>
+                    OnNavigationEntryAdded = (entry, arg3) => throw new NotSupportedException(),
+                    OnNavigationEntryRemoved = (entry, arg3) => throw new NotSupportedException(),
+                    OnNavigationEntryUpdated = (entry, arg3) =>
                     {
                         ++invokedCount;
-                        navigationDispatcher.ShouldEqual(dispatcher);
                         arg3!.ShouldEqual(ctx);
                         entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
                         entry.NavigationType.ShouldEqual(arg3!.NavigationType);
@@ -161,20 +159,19 @@ namespace MugenMvvm.UnitTest.Navigation.Components
 
                 for (int i = 0; i < count; i++)
                 {
-                    var listener = new TestNavigationDispatcherEntryListener
+                    var listener = new TestNavigationDispatcherEntryListener(dispatcher)
                     {
-                        OnNavigationEntryAdded = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
-                        OnNavigationEntryRemoved = (navigationDispatcher, entry, arg3) =>
+                        OnNavigationEntryAdded = (entry, arg3) => throw new NotSupportedException(),
+                        OnNavigationEntryRemoved = (entry, arg3) =>
                         {
                             ++invokedCount;
-                            navigationDispatcher.ShouldEqual(dispatcher);
                             arg3.ShouldEqual(ctx);
                             entry.NavigationProvider.ShouldEqual(arg3!.NavigationProvider);
                             entry.NavigationType.ShouldEqual(arg3!.NavigationType);
                             entry.NavigationId.ShouldEqual(arg3!.NavigationId);
                             entry.Metadata.Get(Key).ShouldEqual(entry.Metadata.Get(Key));
                         },
-                        OnNavigationEntryUpdated = (navigationDispatcher, entry, arg3) => throw new NotSupportedException(),
+                        OnNavigationEntryUpdated = (entry, arg3) => throw new NotSupportedException(),
                     };
                     dispatcher.AddComponent(listener);
                 }

@@ -2,14 +2,30 @@
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Navigation.Components;
+using Should;
 
 namespace MugenMvvm.UnitTest.Navigation.Internal
 {
     public class TestNavigationDispatcherNavigatingListener : INavigationDispatcherNavigatingListener, IHasPriority
     {
+        #region Fields
+
+        private readonly INavigationDispatcher? _navigationDispatcher;
+
+        #endregion
+
+        #region Constructors
+
+        public TestNavigationDispatcherNavigatingListener(INavigationDispatcher? navigationDispatcher = null)
+        {
+            _navigationDispatcher = navigationDispatcher;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Action<INavigationDispatcher, INavigationContext>? OnNavigating { get; set; }
+        public Action<INavigationContext>? OnNavigating { get; set; }
 
         public int Priority { get; set; }
 
@@ -19,7 +35,8 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         void INavigationDispatcherNavigatingListener.OnNavigating(INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
-            OnNavigating?.Invoke(navigationDispatcher, navigationContext);
+            _navigationDispatcher?.ShouldEqual(navigationDispatcher);
+            OnNavigating?.Invoke(navigationContext);
         }
 
         #endregion

@@ -114,7 +114,7 @@ namespace MugenMvvm.UnitTest.Presenters
             mediator.ShowViewHandler = context => mediator.OnViewShown();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (d, o, provider, nId, type, mode, m) =>
+                TryGetNavigationContext = (o, provider, nId, type, mode, m) =>
                 {
                     ++contextCount;
                     o.ShouldEqual(vm);
@@ -128,27 +128,24 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
             {
-                OnNavigationCanceled = (dispatcher, context, arg3) =>
+                OnNavigationCanceled = (context, arg3) =>
                 {
                     ++cancelCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     arg3.ShouldEqual(cts.Token);
                 },
-                OnNavigationFailed = (dispatcher, context, arg3) =>
+                OnNavigationFailed = (context, arg3) =>
                 {
                     ++errorCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     arg3.ShouldEqual(exception);
                 }
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
-                OnNavigated = (dispatcher, context) =>
+                OnNavigated = (context) =>
                 {
                     ++navigatedCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                 }
             });
@@ -492,7 +489,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 };
                 navigationDispatcher.AddComponent(new TestNavigationEntryProviderComponent
                 {
-                    TryGetNavigationEntries = (d, context) =>
+                    TryGetNavigationEntries = (context) =>
                     {
                         context.ShouldEqual(DefaultMetadata);
                         return entries;
@@ -500,7 +497,7 @@ namespace MugenMvvm.UnitTest.Presenters
                 });
                 navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
                 {
-                    TryGetNavigationCallbacks = (d, o, type, arg3) => callbacks
+                    TryGetNavigationCallbacks = (o, arg3) => callbacks
                 });
                 invoke = () => callbacks[0].SetResult(new NavigationContext(this, Default.NavigationProvider, "t", mediator.NavigationType, NavigationMode.New));
             }
@@ -539,13 +536,12 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
+                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
             navigationDispatcher.AddComponent(new TestConditionNavigationDispatcherComponent
             {
-                CanNavigateAsync = (dispatcher, context, t) =>
+                CanNavigateAsync = (context, t) =>
                 {
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     t.ShouldEqual(cts);
                     return tcs.Task;
@@ -553,10 +549,9 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
             {
-                OnNavigationCanceled = (dispatcher, context, t) =>
+                OnNavigationCanceled = (context, t) =>
                 {
                     ++cancelCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     t.ShouldEqual(cts);
                 }
@@ -652,13 +647,12 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
+                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
             navigationDispatcher.AddComponent(new TestConditionNavigationDispatcherComponent
             {
-                CanNavigateAsync = (dispatcher, context, t) =>
+                CanNavigateAsync = (context, t) =>
                 {
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     t.ShouldEqual(cts);
                     if (canClose)
@@ -668,10 +662,9 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
             {
-                OnNavigationCanceled = (dispatcher, context, t) =>
+                OnNavigationCanceled = (context, t) =>
                 {
                     ++cancelCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     t.ShouldEqual(cts);
                 }
@@ -721,13 +714,12 @@ namespace MugenMvvm.UnitTest.Presenters
             var navigationDispatcher = new NavigationDispatcher();
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (d, o, provider, arg3, arg4, arg5, arg6) => navigationContext
+                TryGetNavigationContext = (o, provider, arg3, arg4, arg5, arg6) => navigationContext
             });
             navigationDispatcher.AddComponent(new TestConditionNavigationDispatcherComponent
             {
-                CanNavigateAsync = (dispatcher, context, t) =>
+                CanNavigateAsync = (context, t) =>
                 {
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     if (canClose)
                         return Task.FromResult(true);
@@ -794,7 +786,7 @@ namespace MugenMvvm.UnitTest.Presenters
             };
             navigationDispatcher.AddComponent(new TestNavigationContextProviderComponent
             {
-                TryGetNavigationContext = (d, o, provider, nId, type, mode, m) =>
+                TryGetNavigationContext = (o, provider, nId, type, mode, m) =>
                 {
                     ++contextCount;
                     o.ShouldEqual(vm);
@@ -809,27 +801,24 @@ namespace MugenMvvm.UnitTest.Presenters
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherErrorListener
             {
-                OnNavigationCanceled = (dispatcher, context, arg3) =>
+                OnNavigationCanceled = (context, arg3) =>
                 {
                     ++cancelCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     arg3.ShouldEqual(cts.Token);
                 },
-                OnNavigationFailed = (dispatcher, context, arg3) =>
+                OnNavigationFailed = (context, arg3) =>
                 {
                     ++errorCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                     arg3.ShouldEqual(exception);
                 }
             });
             navigationDispatcher.AddComponent(new TestNavigationDispatcherNavigatedListener
             {
-                OnNavigated = (dispatcher, context) =>
+                OnNavigated = (context) =>
                 {
                     ++navigatedCount;
-                    dispatcher.ShouldEqual(navigationDispatcher);
                     context.ShouldEqual(navigationContext);
                 }
             });

@@ -37,13 +37,12 @@ namespace MugenMvvm.UnitTest.Navigation
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestNavigationContextProviderComponent
+                var component = new TestNavigationContextProviderComponent(dispatcher)
                 {
                     Priority = -i,
-                    TryGetNavigationContext = (d, t, provider, s, arg3, arg4, arg5) =>
+                    TryGetNavigationContext = (t, provider, s, arg3, arg4, arg5) =>
                     {
                         ++invokeCount;
-                        d.ShouldEqual(dispatcher);
                         t.ShouldEqual(this);
                         provider.ShouldEqual(context.NavigationProvider);
                         s.ShouldEqual(context.NavigationId);
@@ -80,12 +79,11 @@ namespace MugenMvvm.UnitTest.Navigation
             for (var i = 0; i < count; i++)
             {
                 var info = entries.ElementAt(i);
-                var component = new TestNavigationEntryProviderComponent
+                var component = new TestNavigationEntryProviderComponent(dispatcher)
                 {
                     Priority = -i,
-                    TryGetNavigationEntries = (d, ctx) =>
+                    TryGetNavigationEntries = (ctx) =>
                     {
-                        d.ShouldEqual(dispatcher);
                         ctx.ShouldEqual(DefaultMetadata);
                         return new[] { info };
                     }
@@ -119,14 +117,12 @@ namespace MugenMvvm.UnitTest.Navigation
             for (var i = 0; i < count; i++)
             {
                 var info = callbacks.ElementAt(i);
-                var component = new TestNavigationCallbackManagerComponent
+                var component = new TestNavigationCallbackManagerComponent(dispatcher)
                 {
                     Priority = -i,
-                    TryGetNavigationCallbacks = (d, entry, t, ctx) =>
+                    TryGetNavigationCallbacks = (entry, ctx) =>
                     {
-                        d.ShouldEqual(dispatcher);
                         entry.ShouldEqual(navEntry);
-                        t.ShouldEqual(navEntry.GetType());
                         ctx.ShouldEqual(DefaultMetadata);
                         return new[] { info };
                     }
@@ -172,24 +168,22 @@ namespace MugenMvvm.UnitTest.Navigation
             for (var i = 0; i < count; i++)
             {
                 var source = callbacks.ElementAt(i);
-                var component = new TestConditionNavigationDispatcherComponent
+                var component = new TestConditionNavigationDispatcherComponent(dispatcher)
                 {
                     Priority = -i,
-                    CanNavigateAsync = (navigationDispatcher, context, arg3) =>
+                    CanNavigateAsync = (context, arg3) =>
                     {
-                        navigationDispatcher.ShouldEqual(dispatcher);
                         context.ShouldEqual(navigationContext);
                         arg3.ShouldEqual(token);
                         return source.Task;
                     }
                 };
                 dispatcher.AddComponent(component);
-                dispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener
+                dispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener(dispatcher)
                 {
-                    OnNavigating = (navigationDispatcher, context) =>
+                    OnNavigating = (context) =>
                     {
                         ++navigatingCount;
-                        navigationDispatcher.ShouldEqual(dispatcher);
                         context.ShouldEqual(navigationContext);
                     }
                 });
@@ -242,13 +236,12 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherNavigatedListener
+                var component = new TestNavigationDispatcherNavigatedListener(dispatcher)
                 {
                     Priority = -i,
-                    OnNavigated = (d, ctx) =>
+                    OnNavigated = (ctx) =>
                     {
                         ++invokeCount;
-                        d.ShouldEqual(dispatcher);
                         ctx.ShouldEqual(navigationContext);
                     }
                 };
@@ -270,12 +263,11 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherErrorListener
+                var component = new TestNavigationDispatcherErrorListener(dispatcher)
                 {
-                    OnNavigationFailed = (d, ctx, e) =>
+                    OnNavigationFailed = (ctx, e) =>
                     {
                         ++invokeCount;
-                        d.ShouldEqual(dispatcher);
                         ctx.ShouldEqual(navigationContext);
                         e.ShouldEqual(exception);
                     }
@@ -298,12 +290,11 @@ namespace MugenMvvm.UnitTest.Navigation
             var dispatcher = new NavigationDispatcher();
             for (var i = 0; i < count; i++)
             {
-                var component = new TestNavigationDispatcherErrorListener
+                var component = new TestNavigationDispatcherErrorListener(dispatcher)
                 {
-                    OnNavigationCanceled = (d, ctx, token) =>
+                    OnNavigationCanceled = (ctx, token) =>
                     {
                         ++invokeCount;
-                        d.ShouldEqual(dispatcher);
                         ctx.ShouldEqual(navigationContext);
                         token.ShouldEqual(cancellationToken);
                     }

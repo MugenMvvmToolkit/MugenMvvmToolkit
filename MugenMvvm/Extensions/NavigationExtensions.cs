@@ -49,7 +49,7 @@ namespace MugenMvvm.Extensions
             }, metadata);
         }
 
-        public static TResult? GetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, in TState state, Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate,
+        public static TResult? GetTopNavigation<TResult, TState>(this INavigationDispatcher navigationDispatcher, TState state, Func<INavigationEntry, TState, IReadOnlyMetadataContext?, TResult?> predicate,
             IReadOnlyMetadataContext? metadata = null)
             where TResult : class
         {
@@ -88,7 +88,7 @@ namespace MugenMvvm.Extensions
             return $"{navigationProvider.Id}/{viewModel.Metadata.Get(ViewModelMetadata.Id):N}";
         }
 
-        public static void OnNavigating<TState>(this INavigationDispatcher dispatcher, INavigationContext context, in TState state,
+        public static void OnNavigating<TState>(this INavigationDispatcher dispatcher, INavigationContext context, TState state,
             Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
             Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback = null, CancellationToken cancellationToken = default)
         {
@@ -120,7 +120,7 @@ namespace MugenMvvm.Extensions
             return dispatcher.GetNavigationContext(target, navigationProvider, navigationProvider.GetNavigationId(target), navigationType, navigationMode, metadata);
         }
 
-        public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, in TState state, Func<INavigationCallback, TState, bool> filter, IReadOnlyMetadataContext? metadata = null)
+        public static Task WaitNavigationAsync<TState>(this INavigationDispatcher dispatcher, TState state, Func<INavigationCallback, TState, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(dispatcher, nameof(dispatcher));
             Should.NotBeNull(filter, nameof(filter));
@@ -145,7 +145,7 @@ namespace MugenMvvm.Extensions
             return result.Task;
         }
 
-        private static void InvokeCompletedCallback<TState>(Task<bool> task, INavigationContext navigationContext, in TState state,
+        private static void InvokeCompletedCallback<TState>(Task<bool> task, INavigationContext navigationContext, TState state,
             INavigationDispatcher dispatcher, Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
             Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback, CancellationToken cancellationToken)
         {

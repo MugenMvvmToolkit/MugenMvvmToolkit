@@ -34,11 +34,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryAddNavigationCallback = (d, callbackType, target, type, m) =>
+                TryAddNavigationCallback = (callbackType, target, m) =>
                 {
                     suspended.ShouldBeTrue();
                     addedCallbacks.Add(((IPresenterResult)target, callbackType));
-                    type.ShouldEqual(typeof(IPresenterResult));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
                 }
@@ -80,11 +79,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryAddNavigationCallback = (d, callbackType, target, type, m) =>
+                TryAddNavigationCallback = (callbackType, target, m) =>
                 {
                     suspended.ShouldBeTrue();
                     addedCallbacks.Add(((IPresenterResult)target, callbackType));
-                    type.ShouldEqual(typeof(IPresenterResult));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
                 }
