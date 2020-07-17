@@ -48,15 +48,14 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
             if (dispatcher.CanExecuteInline(InitializeExecutionMode, metadata))
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
             var tcs = new TaskCompletionSource<IView>();
-            var valueTuple = (this, viewManager, tcs, mapping, request, cancellationToken, metadata);
-            dispatcher.Execute(InitializeExecutionMode, valueTuple, state =>
+            dispatcher.Execute(InitializeExecutionMode, (this, viewManager, tcs, mapping, request, cancellationToken, metadata), state =>
             {
                 try
                 {
@@ -79,15 +78,14 @@ namespace MugenMvvm.Views.Components
             return tcs.Task;
         }
 
-        public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var dispatcher = _threadDispatcher.DefaultIfNull();
             if (dispatcher.CanExecuteInline(CleanupExecutionMode, metadata))
-                return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
+                return Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
             var tcs = new TaskCompletionSource<object?>();
-            var valueTuple = (this, viewManager, tcs, view, request, cancellationToken, metadata);
-            dispatcher.Execute(CleanupExecutionMode, valueTuple, state =>
+            dispatcher.Execute(CleanupExecutionMode, (this, viewManager, tcs, view, state, cancellationToken, metadata), state =>
             {
                 try
                 {
@@ -97,7 +95,7 @@ namespace MugenMvvm.Views.Components
                         return;
                     }
 
-                    var task = state.Item1.Components.TryCleanupAsync(state.viewManager, state.view, state.request, state.cancellationToken, state.metadata);
+                    var task = state.Item1.Components.TryCleanupAsync(state.viewManager, state.view, state.state, state.cancellationToken, state.metadata);
                     if (task == null)
                         ExceptionManager.ThrowObjectNotInitialized(state.Item1);
                     state.tcs.TrySetFromTask(task);

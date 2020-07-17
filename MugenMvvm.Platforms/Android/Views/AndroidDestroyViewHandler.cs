@@ -18,7 +18,7 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState == AndroidViewLifecycleState.Destroyed && view is IView v)
                 viewManager.TryCleanupAsync(v, state, default, metadata);

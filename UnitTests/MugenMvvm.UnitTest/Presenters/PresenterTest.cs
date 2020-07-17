@@ -32,14 +32,12 @@ namespace MugenMvvm.UnitTest.Presenters
             {
                 var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
                 results.Add(result);
-                var component = new TestPresenterComponent
+                var component = new TestPresenterComponent(presenter)
                 {
-                    TryShow = (p, o, type, arg3, arg4) =>
+                    TryShow = (o, arg3, arg4) =>
                     {
                         ++invokeCount;
-                        p.ShouldEqual(presenter);
                         o.ShouldEqual(request);
-                        type.ShouldEqual(request.GetType());
                         arg3.ShouldEqual(DefaultMetadata);
                         arg4.ShouldEqual(cancellationToken);
                         return new[] { result };
@@ -67,14 +65,12 @@ namespace MugenMvvm.UnitTest.Presenters
             {
                 var result = new PresenterResult(this, i.ToString(), new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
                 results.Add(result);
-                var component = new TestPresenterComponent
+                var component = new TestPresenterComponent(presenter)
                 {
-                    TryClose = (p, o, type, arg3, arg4) =>
+                    TryClose = (o, arg3, arg4) =>
                     {
                         ++invokeCount;
-                        p.ShouldEqual(presenter);
                         o.ShouldEqual(request);
-                        type.ShouldEqual(request.GetType());
                         arg3.ShouldEqual(DefaultMetadata);
                         arg4.ShouldEqual(cancellationToken);
                         return new[] { result };

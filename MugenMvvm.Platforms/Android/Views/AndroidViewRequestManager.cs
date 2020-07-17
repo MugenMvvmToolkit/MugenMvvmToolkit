@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Java.Lang;
@@ -52,13 +51,9 @@ namespace MugenMvvm.Android.Views
             _viewProviders = this.Decorate(components);
         }
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(AndroidViewRequest) != typeof(TRequest) || mapping != ViewMapping.Undefined)
-                return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
-
-            var viewRequest = MugenExtensions.CastGeneric<TRequest, AndroidViewRequest>(request);
-            if (!(viewRequest.Container is Object container))
+            if (mapping != ViewMapping.Undefined || !(request is AndroidViewRequest viewRequest) || viewRequest.ViewModel == null || !(viewRequest.Container is Object container))
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
             IAndroidViewMapping? viewMapping = null;
@@ -77,20 +72,19 @@ namespace MugenMvvm.Android.Views
             var view = MugenAndroidNativeService.GetView(container, viewMapping?.ResourceId ?? viewRequest.ResourceId);
             viewMapping ??= new AndroidViewMapping(viewRequest.ResourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
 
-            return Components.TryInitializeAsync(viewManager, viewMapping, new ViewModelViewRequest(viewRequest.ViewModel, view), cancellationToken, metadata);
+            return Components.TryInitializeAsync(viewManager, viewMapping, ViewModelViewRequest.GetRequestOrRaw(request, viewRequest.ViewModel, view), cancellationToken, metadata);
         }
 
-        public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
+            return Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
         }
 
-        public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews<TRequest>(IViewManager viewManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(AndroidViewRequest) != typeof(TRequest))
+            if (!(request is AndroidViewRequest viewRequest) || viewRequest.ViewModel == null)
                 return _viewProviders.TryGetViews(viewManager, request, metadata);
 
-            var viewRequest = MugenExtensions.CastGeneric<TRequest, AndroidViewRequest>(request);
             var result = _viewProviders.TryGetViews(viewManager, viewRequest.ViewModel, metadata);
             if (viewRequest.ResourceId == 0)
                 return result;

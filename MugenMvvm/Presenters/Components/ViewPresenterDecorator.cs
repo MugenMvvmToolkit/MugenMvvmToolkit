@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -50,12 +49,12 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = TryGetViewModel(request, cancellationToken, metadata, out var view);
             if (viewModel == null)
                 return Components.TryShow(presenter, request, cancellationToken, metadata);
-            var result = Components.TryShow(presenter, new ViewModelViewRequest(viewModel, view), cancellationToken, metadata);
+            var result = Components.TryShow(presenter, ViewModelViewRequest.GetRequestOrRaw(request, viewModel, view), cancellationToken, metadata);
             if (DisposeViewModelOnClose)
             {
                 foreach (var presenterResult in result.Iterator())
@@ -74,7 +73,7 @@ namespace MugenMvvm.Presenters.Components
             return result;
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return Components.TryClose(presenter, request, cancellationToken, metadata);
         }
@@ -83,7 +82,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        private IViewModelBase? TryGetViewModel<TRequest>([DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, out object? view)
+        private IViewModelBase? TryGetViewModel(object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, out object? view)
         {
             view = null;
             if (cancellationToken.IsCancellationRequested)

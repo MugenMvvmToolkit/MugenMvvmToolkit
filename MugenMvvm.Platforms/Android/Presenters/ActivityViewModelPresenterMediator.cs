@@ -1,15 +1,12 @@
 ﻿using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Android.Content;
-using Android.Runtime;
 using Java.Lang;
 using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
-using MugenMvvm.Android.Views;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -20,11 +17,9 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
 using MugenMvvm.Interfaces.Requests;
 using MugenMvvm.Interfaces.Threading;
-using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Interfaces.Wrapping;
-using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.Presenters;
 using MugenMvvm.Requests;
@@ -218,7 +213,7 @@ namespace MugenMvvm.Android.Presenters
 
             #region Implementation of interfaces
 
-            public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+            public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
             {
                 if (view is IView v)
                     view = v.Target;
@@ -246,12 +241,12 @@ namespace MugenMvvm.Android.Presenters
                     _mediator.OnFinished(metadata);
                 else if (lifecycleState == AndroidViewLifecycleState.Finishing || lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition)
                 {
-                    if (!TypeChecker.IsValueType<TState>() && state is ICancelableRequest cancelableRequest)
+                    if (state is ICancelableRequest cancelableRequest)
                         _mediator.OnFinishing(cancelableRequest, metadata);
                 }
             }
 
-            public Task<IView>? TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
                 if (_viewTask == null || !ReferenceEquals(viewModel, _mediator.ViewModel) || view != null)
@@ -269,9 +264,9 @@ namespace MugenMvvm.Android.Presenters
                 return tcs.Task;
             }
 
-            public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+            public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
-                return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
+                return Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
             }
 
             #endregion

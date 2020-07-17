@@ -23,23 +23,21 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             presenter.AddComponent(new ConditionPresenterDecorator());
 
             var invoked = 0;
-            var presenterComponent = new TestPresenterComponent
+            var presenterComponent = new TestPresenterComponent(presenter)
             {
-                TryShow = (p, o, type, arg3, arg4) =>
+                TryShow = (o, arg3, arg4) =>
                 {
                     ++invoked;
-                    p.ShouldEqual(presenter);
                     return new[] { result };
                 }
             };
             presenter.AddComponent(presenterComponent);
 
             var canExecute = false;
-            var component = new TestConditionPresenterComponent
+            var component = new TestConditionPresenterComponent(presenter)
             {
-                CanShow = (p, c, results, r, t, m) =>
+                CanShow = (c, results, r, m) =>
                 {
-                    p.ShouldEqual(presenter);
                     c.ShouldEqual(presenterComponent);
                     results.AsList().ShouldBeEmpty();
                     r.ShouldEqual(presenter);
@@ -65,12 +63,11 @@ namespace MugenMvvm.UnitTest.Presenters.Components
 
             var result = new PresenterResult(this, "2", new TestNavigationProvider(), NavigationType.Alert, DefaultMetadata);
             var invoked = 0;
-            var presenterComponent = new TestPresenterComponent
+            var presenterComponent = new TestPresenterComponent(presenter)
             {
-                TryClose = (p, o, type, arg3, arg4) =>
+                TryClose = (o, arg3, arg4) =>
                 {
                     ++invoked;
-                    p.ShouldEqual(presenter);
                     return new[] { result };
                 }
             };
@@ -79,9 +76,8 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var canExecute = false;
             var component = new TestConditionPresenterComponent
             {
-                CanClose = (p, c, results, r, t, m) =>
+                CanClose = (c, results, r, m) =>
                 {
-                    p.ShouldEqual(presenter);
                     c.ShouldEqual(presenterComponent);
                     results.AsList().ShouldBeEmpty();
                     r.ShouldEqual(presenter);

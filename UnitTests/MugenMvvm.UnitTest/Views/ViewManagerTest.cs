@@ -32,15 +32,13 @@ namespace MugenMvvm.UnitTest.Views
             var lifecycleState = ViewLifecycleState.Initializing;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestViewLifecycleDispatcherComponent
+                var component = new TestViewLifecycleDispatcherComponent(manager)
                 {
-                    OnLifecycleChanged = (m, v, viewLifecycleState, st, stateType, metadata) =>
+                    OnLifecycleChanged = (v, viewLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(manager);
                         v.ShouldEqual(view);
                         st.ShouldEqual(state);
-                        stateType.ShouldEqual(state.GetType());
                         viewLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
@@ -65,13 +63,11 @@ namespace MugenMvvm.UnitTest.Views
             {
                 var view = new View(new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata), this, new TestViewModel());
                 views.Add(view);
-                var component = new TestViewProviderComponent
+                var component = new TestViewProviderComponent(viewManager)
                 {
-                    TryGetViews = (m, r, t, context) =>
+                    TryGetViews = (r, context) =>
                     {
-                        m.ShouldEqual(viewManager);
                         r.ShouldEqual(viewModel);
-                        t.ShouldEqual(typeof(TestViewModel));
                         context.ShouldEqual(DefaultMetadata);
                         return new[] { view };
                     },
@@ -95,13 +91,11 @@ namespace MugenMvvm.UnitTest.Views
             {
                 var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
                 mappings.Add(mapping);
-                var component = new TestViewMappingProviderComponent
+                var component = new TestViewMappingProviderComponent(viewManager)
                 {
-                    TryGetMappings = (m, r, t, context) =>
+                    TryGetMappings = (r, context) =>
                     {
-                        m.ShouldEqual(viewManager);
                         r.ShouldEqual(view);
-                        t.ShouldEqual(typeof(object));
                         context.ShouldEqual(DefaultMetadata);
                         return new[] { mapping };
                     },
@@ -134,15 +128,13 @@ namespace MugenMvvm.UnitTest.Views
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestViewManagerComponent
+                var component = new TestViewManagerComponent(manager)
                 {
-                    TryInitializeAsync = (m, viewMapping, r, t, meta, token) =>
+                    TryInitializeAsync = (viewMapping, r, meta, token) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(manager);
                         viewMapping.ShouldEqual(mapping);
                         r.ShouldEqual(viewModel);
-                        t.ShouldEqual(typeof(TestViewModel));
                         meta.ShouldEqual(DefaultMetadata);
                         token.ShouldEqual(cancellationToken);
                         if (isLast)
@@ -173,15 +165,13 @@ namespace MugenMvvm.UnitTest.Views
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestViewManagerComponent
+                var component = new TestViewManagerComponent(manager)
                 {
-                    TryCleanupAsync = (m, v, r, t, meta, token) =>
+                    TryCleanupAsync = (v, r, meta, token) =>
                     {
                         ++invokeCount;
-                        m.ShouldEqual(manager);
                         v.ShouldEqual(view);
                         r.ShouldEqual(viewModel);
-                        t.ShouldEqual(typeof(TestViewModel));
                         meta.ShouldEqual(DefaultMetadata);
                         token.ShouldEqual(cancellationToken);
                         if (isLast)

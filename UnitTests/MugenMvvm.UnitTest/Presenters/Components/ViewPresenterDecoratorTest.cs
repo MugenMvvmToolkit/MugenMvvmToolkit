@@ -30,9 +30,9 @@ namespace MugenMvvm.UnitTest.Presenters.Components
 
             var presenter = new Presenter();
             presenter.AddComponent(new ViewPresenterDecorator());
-            presenter.AddComponent(new TestPresenterComponent
+            presenter.AddComponent(new TestPresenterComponent(presenter)
             {
-                TryShow = (p, o, arg3, arg4, arg5) =>
+                TryShow = (o, arg4, arg5) =>
                 {
                     o.ShouldEqual(request);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -59,7 +59,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewMappingProviderComponent
             {
-                TryGetMappings = (manager, o, arg3, arg4) =>
+                TryGetMappings = (o, arg4) =>
                 {
                     o.ShouldEqual(request);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -68,7 +68,7 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (manager, viewMapping, arg3, arg4, arg5, arg6) =>
+                TryInitializeAsync = (viewMapping, arg3, arg5, arg6) =>
                 {
                     viewMapping.ShouldEqual(mapping);
                     arg3.ShouldEqual(new ViewModelViewRequest(viewModel, view));
@@ -99,11 +99,13 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             var presenter = new Presenter();
             presenter.AddComponent(new ViewPresenterDecorator(viewManager, viewModelManager, dispatcher) { DisposeViewModelOnClose = disposeViewModel });
-            presenter.AddComponent(new TestPresenterComponent
+            presenter.AddComponent(new TestPresenterComponent(presenter)
             {
-                TryShow = (p, o, arg3, arg4, arg5) =>
+                TryShow = (o, arg4, arg5) =>
                 {
-                    o.ShouldEqual(new ViewModelViewRequest(viewModel, view));
+                    var viewRequest = (ViewModelViewRequest) o;
+                    viewRequest.ViewModel.ShouldEqual(viewModel);
+                    viewRequest.View.ShouldEqual(view);
                     arg4.ShouldEqual(DefaultMetadata);
                     return presenterResult;
                 }

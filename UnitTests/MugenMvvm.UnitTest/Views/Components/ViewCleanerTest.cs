@@ -79,23 +79,19 @@ namespace MugenMvvm.UnitTest.Views.Components
             int componentInvokeCount = 0;
             var rawView = new TestCleanableView
             {
-                Cleanup = (o, type, arg3) =>
+                Cleanup = (o, arg3) =>
                 {
                     invokeCount++;
                     o.ShouldEqual(state);
-                    if (state != null)
-                        type.ShouldEqual(state.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
             var componentView = new TestCleanableView
             {
-                Cleanup = (o, type, arg3) =>
+                Cleanup = (o, arg3) =>
                 {
                     componentInvokeCount++;
                     o.ShouldEqual(state);
-                    if (state != null)
-                        type.ShouldEqual(state.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
@@ -151,15 +147,15 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             #region Properties
 
-            public Action<object?, Type, IReadOnlyMetadataContext?>? Cleanup { get; set; }
+            public Action<object?, IReadOnlyMetadataContext?>? Cleanup { get; set; }
 
             #endregion
 
             #region Implementation of interfaces
 
-            void ICleanableView.Cleanup<TState>(in TState state, IReadOnlyMetadataContext? metadata)
+            void ICleanableView.Cleanup(object? state, IReadOnlyMetadataContext? metadata)
             {
-                Cleanup?.Invoke(state, typeof(TState), metadata);
+                Cleanup?.Invoke(state, metadata);
             }
 
             #endregion

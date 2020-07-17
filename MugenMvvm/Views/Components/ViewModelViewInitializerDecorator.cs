@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
@@ -44,7 +43,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public Task<IView>? TryInitializeAsync<TRequest>(IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             try
             {
@@ -52,7 +51,7 @@ namespace MugenMvvm.Views.Components
                 {
                     var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
                     if (viewModel == null || view == null)
-                        return Components.TryInitializeAsync(viewManager, mapping, ToViewModelViewRequest(mapping, viewModel, view, metadata), cancellationToken, metadata);
+                        return Components.TryInitializeAsync(viewManager, mapping, ToViewModelViewRequest(mapping, request, viewModel, view, metadata), cancellationToken, metadata);
                 }
 
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
@@ -63,7 +62,7 @@ namespace MugenMvvm.Views.Components
             }
         }
 
-        public Task? TryCleanupAsync<TRequest>(IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public Task? TryCleanupAsync(IViewManager viewManager, IView view, object? request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return Components.TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
         }
@@ -72,9 +71,9 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        private ViewModelViewRequest ToViewModelViewRequest(IViewMapping mapping, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata)
+        private object ToViewModelViewRequest(IViewMapping mapping, object request, IViewModelBase? viewModel, object? view, IReadOnlyMetadataContext? metadata)
         {
-            return new ViewModelViewRequest(viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
+            return ViewModelViewRequest.GetRequestOrRaw(request, viewModel ?? _viewModelManager.DefaultIfNull().TryGetViewModel(mapping.ViewModelType, metadata),
                 view ?? _serviceProvider.DefaultIfNull().GetService(mapping.ViewType));
         }
 

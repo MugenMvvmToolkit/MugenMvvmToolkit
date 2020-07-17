@@ -39,7 +39,7 @@ namespace MugenMvvm.Views.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(IViewManager viewManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             var vm = MugenExtensions.TryGetViewModelView(request, out object? view);
             var type = view as Type;

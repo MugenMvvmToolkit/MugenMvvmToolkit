@@ -43,14 +43,12 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewManagerComponent
+            manager.AddComponent(new TestViewManagerComponent(manager)
             {
-                TryInitializeAsync = (m, viewMapping, r, t, meta, token) =>
+                TryInitializeAsync = (viewMapping, r, meta, token) =>
                 {
-                    m.ShouldEqual(manager);
                     viewMapping.ShouldEqual(mapping);
                     r.ShouldEqual(viewModel);
-                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;
@@ -94,12 +92,10 @@ namespace MugenMvvm.UnitTest.Views.Components
             manager.AddComponent(component);
             manager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (m, viewMapping, r, t, meta, token) =>
+                TryInitializeAsync = (viewMapping, r, meta, token) =>
                 {
-                    m.ShouldEqual(manager);
                     viewMapping.ShouldEqual(mapping);
                     r.ShouldEqual(viewModel);
-                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)
@@ -154,14 +150,12 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewManagerComponent
+            manager.AddComponent(new TestViewManagerComponent(manager)
             {
-                TryCleanupAsync = (m, v, r, t, meta, token) =>
+                TryCleanupAsync = (v, r, meta, token) =>
                 {
-                    m.ShouldEqual(manager);
                     v.ShouldEqual(view);
                     r.ShouldEqual(viewModel);
-                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;
@@ -203,14 +197,12 @@ namespace MugenMvvm.UnitTest.Views.Components
             });
             var manager = new ViewManager();
             manager.AddComponent(component);
-            manager.AddComponent(new TestViewManagerComponent
+            manager.AddComponent(new TestViewManagerComponent(manager)
             {
-                TryCleanupAsync = (m, v, r, t, meta, token) =>
+                TryCleanupAsync = (v, r, meta, token) =>
                 {
-                    m.ShouldEqual(manager);
                     v.ShouldEqual(view);
                     r.ShouldEqual(viewModel);
-                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     if (state == 2)

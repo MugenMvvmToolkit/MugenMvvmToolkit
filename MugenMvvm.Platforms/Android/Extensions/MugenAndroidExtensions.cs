@@ -47,7 +47,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new AndroidDestroyViewHandler())
                 .WithComponent(new AndroidViewMappingDecorator());
 
-            var mediatorPresenter = configuration.ServiceConfiguration<IPresenter>().Service().GetOrAddComponent(ctx => new ViewModelMediatorPresenter());
+            var mediatorPresenter = configuration.ServiceConfiguration<IPresenter>().Service().GetOrAddComponent(ctx => new ViewModelPresenter());
             mediatorPresenter.RegisterMediator<ActivityViewModelPresenterMediator, IActivityView>();
 
             return configuration;

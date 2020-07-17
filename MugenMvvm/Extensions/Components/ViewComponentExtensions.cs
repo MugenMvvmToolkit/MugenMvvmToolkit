@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Enums;
@@ -14,7 +14,8 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static void OnLifecycleChanged<TState>(this IViewLifecycleDispatcherComponent[] components, IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void OnLifecycleChanged(this IViewLifecycleDispatcherComponent[] components, IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(view, nameof(view));
@@ -24,10 +25,12 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
         }
 
-        public static ItemOrList<IView, IReadOnlyList<IView>> TryGetViews<TRequest>(this IViewProviderComponent[] components, IViewManager viewManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(this IViewProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryGetViews(viewManager, request, metadata);
 
@@ -37,10 +40,12 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IView>>();
         }
 
-        public static ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings<TRequest>(this IViewMappingProviderComponent[] components, IViewManager viewManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(this IViewMappingProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
+            Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryGetMappings(viewManager, request, metadata);
 
@@ -50,12 +55,13 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IViewMapping>>();
         }
 
-        public static Task<IView>? TryInitializeAsync<TRequest>(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping,
-            [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task<IView>? TryInitializeAsync(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(mapping, nameof(mapping));
+            Should.NotBeNull(request, nameof(request));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
@@ -66,17 +72,18 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static Task? TryCleanupAsync<TRequest>(this IViewManagerComponent[] components, IViewManager viewManager, IView view, TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Task? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(viewManager, nameof(viewManager));
             Should.NotBeNull(view, nameof(view));
             if (components.Length == 0)
-                return components[0].TryCleanupAsync(viewManager, view, request, cancellationToken, metadata);
+                return components[0].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
             ItemOrListEditor<Task, List<Task>> result = ItemOrListEditor.Get<Task>();
             for (var i = 0; i < components.Length; i++)
-                result.Add(components[i].TryCleanupAsync(viewManager, view, request, cancellationToken, metadata));
+                result.Add(components[i].TryCleanupAsync(viewManager, view, state, cancellationToken, metadata));
             return result.ToItemOrList().WhenAll();
         }
 

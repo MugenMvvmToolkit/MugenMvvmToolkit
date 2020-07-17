@@ -4,16 +4,32 @@ using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Presenters.Components;
 using MugenMvvm.Internal;
+using Should;
 
 namespace MugenMvvm.UnitTest.Presenters.Internal
 {
     public class TestConditionPresenterComponent : IConditionPresenterComponent
     {
+        #region Fields
+
+        private readonly IPresenter? _presenter;
+
+        #endregion
+
+        #region Constructors
+
+        public TestConditionPresenterComponent(IPresenter? presenter = null)
+        {
+            _presenter = presenter;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Func<IPresenter, IPresenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>>, object, Type, IReadOnlyMetadataContext?, bool>? CanClose { get; set; }
+        public Func<IPresenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>>, object, IReadOnlyMetadataContext?, bool>? CanClose { get; set; }
 
-        public Func<IPresenter, IPresenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>>, object, Type, IReadOnlyMetadataContext?, bool>? CanShow { get; set; }
+        public Func<IPresenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>>, object, IReadOnlyMetadataContext?, bool>? CanShow { get; set; }
 
         public int Priority { get; set; }
 
@@ -21,14 +37,18 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
 
         #region Implementation of interfaces
 
-        bool IConditionPresenterComponent.CanShow<TRequest>(IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results, in TRequest request, IReadOnlyMetadataContext? metadata)
+        bool IConditionPresenterComponent.CanShow(IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results, object request,
+            IReadOnlyMetadataContext? metadata)
         {
-            return CanShow?.Invoke(presenter, presenterComponent, results, request!, typeof(TRequest), metadata) ?? false;
+            _presenter?.ShouldEqual(presenter);
+            return CanShow?.Invoke(presenterComponent, results, request!, metadata) ?? false;
         }
 
-        bool IConditionPresenterComponent.CanClose<TRequest>(IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results, in TRequest request, IReadOnlyMetadataContext? metadata)
+        bool IConditionPresenterComponent.CanClose(IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results, object request,
+            IReadOnlyMetadataContext? metadata)
         {
-            return CanClose?.Invoke(presenter, presenterComponent, results, request!, typeof(TRequest), metadata) ?? false;
+            _presenter?.ShouldEqual(presenter);
+            return CanClose?.Invoke(presenterComponent, results, request!, metadata) ?? false;
         }
 
         #endregion

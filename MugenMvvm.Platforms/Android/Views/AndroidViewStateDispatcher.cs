@@ -51,11 +51,8 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TState>())
-                return;
-
             if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && state is ICancelableRequest cancelableRequest
                 && !cancelableRequest.Cancel && cancelableRequest.State is Bundle bundle)
                 PreserveState(viewManager, v, bundle, metadata);

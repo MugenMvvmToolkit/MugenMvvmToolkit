@@ -17,7 +17,7 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Presenters.Components
 {
-    public sealed class ViewModelMediatorPresenter : IPresenterComponent, IHasPriority
+    public sealed class ViewModelPresenter : IPresenterComponent, IHasPriority
     {
         #region Fields
 
@@ -27,14 +27,14 @@ namespace MugenMvvm.Presenters.Components
         private readonly IWrapperManager? _wrapperManager;
 
         private static readonly IMetadataContextKey<Dictionary<string, IViewModelPresenterMediator>, Dictionary<string, IViewModelPresenterMediator>> Mediators
-            = MetadataContextKey.FromMember<Dictionary<string, IViewModelPresenterMediator>, Dictionary<string, IViewModelPresenterMediator>>(typeof(ViewModelMediatorPresenter), nameof(Mediators));
+            = MetadataContextKey.FromMember<Dictionary<string, IViewModelPresenterMediator>, Dictionary<string, IViewModelPresenterMediator>>(typeof(ViewModelPresenter), nameof(Mediators));
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewModelMediatorPresenter(IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, IServiceProvider? serviceProvider = null)
+        public ViewModelPresenter(IViewManager? viewManager = null, IWrapperManager? wrapperManager = null, IServiceProvider? serviceProvider = null)
         {
             _mediators = new List<MediatorRegistration>();
             _viewManager = viewManager;
@@ -52,7 +52,7 @@ namespace MugenMvvm.Presenters.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
             if (viewModel == null)
@@ -65,7 +65,7 @@ namespace MugenMvvm.Presenters.Components
             return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
         }
 
-        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             var viewModel = MugenExtensions.TryGetViewModelView(request, out object? _);
             if (viewModel == null)
@@ -115,7 +115,7 @@ namespace MugenMvvm.Presenters.Components
             }, _mediators, registration);
         }
 
-        private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators<TRequest>(IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        private ItemOrList<IViewModelPresenterMediator, List<IViewModelPresenterMediator>> TryGetMediators(IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
             if (viewModel == null)
                 return default;

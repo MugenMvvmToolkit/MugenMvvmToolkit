@@ -29,10 +29,10 @@ namespace MugenMvvm.Views.Components
 
         void IComponentCollectionChangedListener.OnRemoved(IComponentCollection collection, object component, IReadOnlyMetadataContext? metadata)
         {
-            (component as ICleanableView)?.Cleanup<object?>(null, metadata);
+            (component as ICleanableView)?.Cleanup(null, metadata);
         }
 
-        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (!(view is IView viewImp))
                 return;
@@ -47,12 +47,12 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        protected virtual void Initialize<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
+        protected virtual void Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata)
         {
             view.Components.AddComponent(this);
         }
 
-        protected virtual void Cleanup<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
+        protected virtual void Cleanup(IView view, object? state, IReadOnlyMetadataContext? metadata)
         {
             view.ViewModel.TryUnsubscribe(view.Target, metadata);
             (view.Target as ICleanableView)?.Cleanup(state, metadata);

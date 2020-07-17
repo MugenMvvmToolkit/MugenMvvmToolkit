@@ -60,7 +60,7 @@ namespace MugenMvvm.Views.Components
             TryUpdateViewModel(component, null);
         }
 
-        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (!(view is IView viewImp))
                 return;

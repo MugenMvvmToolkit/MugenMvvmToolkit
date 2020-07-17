@@ -24,7 +24,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             var mapping = new ViewMapping("id", typeof(object), typeof(TestViewModel), DefaultMetadata);
             var component = new ViewManagerComponent();
-            component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(), CancellationToken.None, DefaultMetadata).ShouldBeNull();
+            component.TryInitializeAsync(null!, mapping, new ViewModelViewRequest(null, null), CancellationToken.None, DefaultMetadata).ShouldBeNull();
         }
 
         [Theory]
@@ -94,9 +94,8 @@ namespace MugenMvvm.UnitTest.Views.Components
             {
                 var listener = new TestViewLifecycleDispatcherComponent
                 {
-                    OnLifecycleChanged = (mm, v, s, st, t, m) =>
+                    OnLifecycleChanged = (v, s, st, m) =>
                     {
-                        mm.ShouldEqual(manager);
                         if (!states.TryGetValue(s, out var list))
                         {
                             list = new List<ViewLifecycleState>();
@@ -105,7 +104,6 @@ namespace MugenMvvm.UnitTest.Views.Components
                         list.Add(s);
                         v.ShouldEqual(expectedView);
                         st.ShouldEqual(viewModel);
-                        t.ShouldEqual(typeof(TestViewModel));
                         m.ShouldEqual(DefaultMetadata);
                     }
                 };
@@ -144,9 +142,8 @@ namespace MugenMvvm.UnitTest.Views.Components
             {
                 var listener = new TestViewLifecycleDispatcherComponent
                 {
-                    OnLifecycleChanged = (mm, vRaw, s, st, t, m) =>
+                    OnLifecycleChanged = (vRaw, s, st, m) =>
                     {
-                        mm.ShouldEqual(manager);
                         var v = (IView)vRaw;
                         if (!states.TryGetValue(s, out var list))
                         {

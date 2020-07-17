@@ -33,7 +33,7 @@ using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.Extensions
 {
-    public static partial class MugenExtensions
+    public static partial class MugenExtensions//todo review in usages
     {
         #region Methods
 
@@ -159,19 +159,12 @@ namespace MugenMvvm.Extensions
             Execute(threadDispatcher, executionMode, genericHandler: handler, state, metadata);
         }
 
-        public static IViewModelBase? TryGetViewModelView<TRequest, TView>(in TRequest request, out TView? view) where TView : class
+        public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
         {
-            if (TypeChecker.IsValueType<TRequest>())
+            if (request is ViewModelViewRequest viewModelViewRequest)
             {
-                if (typeof(TRequest) == typeof(ViewModelViewRequest))
-                {
-                    var r = CastGeneric<TRequest, ViewModelViewRequest>(request);
-                    view = r.View as TView;
-                    return r.ViewModel;
-                }
-
-                view = null;
-                return null;
+                view = viewModelViewRequest.View as TView;
+                return viewModelViewRequest.ViewModel;
             }
 
             if (request is IViewModelBase vm)

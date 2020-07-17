@@ -1,6 +1,5 @@
 ﻿using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Native.Interfaces.Views;
-using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -9,7 +8,6 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Presenters;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
-using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Views
 {
@@ -40,7 +38,7 @@ namespace MugenMvvm.Android.Views
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (view is IView)
                 return;
@@ -49,7 +47,7 @@ namespace MugenMvvm.Android.Views
             if (lifecycleState == AndroidViewLifecycleState.Started)
             {
                 if (views.IsNullOrEmpty())
-                    _presenter.DefaultIfNull().TryShow(new ViewModelViewRequest(null, view), default, metadata);
+                    _presenter.DefaultIfNull().TryShow(view, default, metadata);
             }
             else if (lifecycleState == AndroidViewLifecycleState.Resumed && FinishWithoutView && view is IActivityView activityView)
                 activityView.Finish();

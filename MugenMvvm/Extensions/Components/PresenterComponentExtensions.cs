@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Presenters;
@@ -12,11 +13,13 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static bool CanShow<TRequest>(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
-            [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CanShow(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(request, nameof(request));
             Should.NotBeNull(presenterComponent, nameof(presenterComponent));
             for (var i = 0; i < components.Length; i++)
             {
@@ -27,11 +30,13 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static bool CanClose<TRequest>(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
-            [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool CanClose(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(request, nameof(request));
             Should.NotBeNull(presenterComponent, nameof(presenterComponent));
             for (var i = 0; i < components.Length; i++)
             {
@@ -42,11 +47,13 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow<TRequest>(this IPresenterComponent[] components, IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryShow(presenter, request, cancellationToken, metadata);
             ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();
@@ -55,11 +62,13 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
         }
 
-        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose<TRequest>(this IPresenterComponent[] components, IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken,
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(presenter, nameof(presenter));
+            Should.NotBeNull(request, nameof(request));
             if (components.Length == 1)
                 return components[0].TryClose(presenter, request, cancellationToken, metadata);
             ItemOrListEditor<IPresenterResult, List<IPresenterResult>> result = ItemOrListEditor.Get<IPresenterResult>();

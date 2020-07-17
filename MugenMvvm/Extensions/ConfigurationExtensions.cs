@@ -81,7 +81,7 @@ namespace MugenMvvm.Extensions
             configuration.WithAppService(new Presenter())
                 .WithComponent(new ConditionPresenterDecorator())
                 .WithComponent(new NavigationCallbackPresenterDecorator())
-                .WithComponent(new ViewModelMediatorPresenter())
+                .WithComponent(new ViewModelPresenter())
                 .WithComponent(new ViewPresenterDecorator());
 
             configuration.WithAppService(new Serializer());

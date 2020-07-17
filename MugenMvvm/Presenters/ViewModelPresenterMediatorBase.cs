@@ -326,7 +326,7 @@ namespace MugenMvvm.Presenters
                 NavigationDispatcher.OnNavigating(navigationContext, (this, view, cancellationToken), (dispatcher, context, state) =>
                 {
                     state.Item1.ViewManager
-                        .InitializeAsync(state.Item1.Mapping, new ViewModelViewRequest(state.Item1.ViewModel, state.Item2), state.Item3, context.Metadata)
+                        .InitializeAsync(state.Item1.Mapping, ViewModelViewRequest.GetRequestOrRaw(state.Item1.ViewModel, state.Item2), state.Item3, context.Metadata)
                         .ContinueWith(state.Item1.OnViewInitializedShowCallback!, context, TaskContinuationOptions.ExecuteSynchronously);
                     return false;
                 }, (dispatcher, context, ex, state) => state.Item1._showingContext = null, cancellationToken);
@@ -338,7 +338,7 @@ namespace MugenMvvm.Presenters
                 else
                 {
                     ViewManager
-                        .InitializeAsync(Mapping, new ViewModelViewRequest(ViewModel, view), cancellationToken, metadata)
+                        .InitializeAsync(Mapping, ViewModelViewRequest.GetRequestOrRaw(ViewModel, view), cancellationToken, metadata)
                         .ContinueWith((view == null ? OnViewInitializedShowCallback : (Action<Task<IView>, object>)OnViewInitializedRefreshCallback)!, navigationContext, TaskContinuationOptions.ExecuteSynchronously);
                 }
             }

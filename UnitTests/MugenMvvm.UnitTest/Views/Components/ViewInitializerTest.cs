@@ -78,25 +78,21 @@ namespace MugenMvvm.UnitTest.Views.Components
             IView? view = null;
             var rawView = new TestInitializableView
             {
-                Initialize = (v, o, type, arg3) =>
+                Initialize = (v, o, arg3) =>
                 {
                     invokeCount++;
                     v.ShouldEqual(view);
                     o.ShouldEqual(state);
-                    if (state != null)
-                        type.ShouldEqual(state.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
             var componentView = new TestInitializableView
             {
-                Initialize = (v, o, type, arg3) =>
+                Initialize = (v, o, arg3) =>
                 {
                     componentInvokeCount++;
                     v.ShouldEqual(view);
                     o.ShouldEqual(state);
-                    if (state != null)
-                        type.ShouldEqual(state.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                 }
             };
@@ -140,15 +136,15 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             #region Properties
 
-            public Action<IView, object?, Type, IReadOnlyMetadataContext?>? Initialize { get; set; }
+            public Action<IView, object?, IReadOnlyMetadataContext?>? Initialize { get; set; }
 
             #endregion
 
             #region Implementation of interfaces
 
-            void IInitializableView.Initialize<TState>(IView view, in TState state, IReadOnlyMetadataContext? metadata)
+            void IInitializableView.Initialize(IView view, object? state, IReadOnlyMetadataContext? metadata)
             {
-                Initialize?.Invoke(view, state, typeof(TState), metadata);
+                Initialize?.Invoke(view, state, metadata);
             }
 
             #endregion

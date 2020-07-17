@@ -34,14 +34,16 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryInitializeAsync = (mm, viewMapping, r, t, m, token) =>
+                TryInitializeAsync = (viewMapping, r, m, token) =>
                 {
                     ++initializeCount;
-                    mm.ShouldEqual(viewManager);
                     viewManager.ShouldEqual(viewManager);
                     var request = (ViewModelViewRequest)r;
                     if (viewMapping == ViewMapping.Undefined)
-                        request.IsEmpty.ShouldBeTrue();
+                    {
+                        request.ViewModel.ShouldBeNull();
+                        request.View.ShouldBeNull();
+                    }
                     else
                     {
                         request.View.ShouldEqual(view);
@@ -74,7 +76,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var component = new ViewModelViewInitializerDecorator(viewModelManager, testServiceProvider);
             viewManager.AddComponent(component);
 
-            viewManager.InitializeAsync(mapping, new ViewModelViewRequest(), cancellationToken, DefaultMetadata).ShouldEqual(result);
+            viewManager.InitializeAsync(mapping, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result);
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
@@ -86,7 +88,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             initializeCount.ShouldEqual(1);
 
             initializeCount = 0;
-            viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(), cancellationToken, DefaultMetadata).ShouldEqual(result);
+            viewManager.InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(null, null), cancellationToken, DefaultMetadata).ShouldEqual(result);
             initializeCount.ShouldEqual(1);
         }
 
@@ -105,13 +107,11 @@ namespace MugenMvvm.UnitTest.Views.Components
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (m, v, r, t, meta, token) =>
+                TryCleanupAsync = (v, r, meta, token) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(viewManager);
                     v.ShouldEqual(view);
                     r.ShouldEqual(viewModel);
-                    t.ShouldEqual(viewModel.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     token.ShouldEqual(cancellationToken);
                     return result;

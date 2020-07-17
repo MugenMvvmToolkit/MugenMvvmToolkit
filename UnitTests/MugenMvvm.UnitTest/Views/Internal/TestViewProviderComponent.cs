@@ -5,14 +5,30 @@ using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Internal;
+using Should;
 
 namespace MugenMvvm.UnitTest.Views.Internal
 {
     public class TestViewProviderComponent : IViewProviderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IViewManager? _viewManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestViewProviderComponent(IViewManager? viewManager = null)
+        {
+            _viewManager = viewManager;
+        }
+
+        #endregion
+
         #region Properties
 
-        public Func<IViewManager, object, Type, IReadOnlyMetadataContext?, ItemOrList<IView, IReadOnlyList<IView>>>? TryGetViews { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrList<IView, IReadOnlyList<IView>>>? TryGetViews { get; set; }
 
         public int Priority { get; set; }
 
@@ -20,9 +36,10 @@ namespace MugenMvvm.UnitTest.Views.Internal
 
         #region Implementation of interfaces
 
-        ItemOrList<IView, IReadOnlyList<IView>> IViewProviderComponent.TryGetViews<TRequest>(IViewManager viewManager, in TRequest request, IReadOnlyMetadataContext? metadata)
+        ItemOrList<IView, IReadOnlyList<IView>> IViewProviderComponent.TryGetViews(IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetViews?.Invoke(viewManager, request!, typeof(TRequest), metadata) ?? default;
+            _viewManager?.ShouldEqual(viewManager);
+            return TryGetViews?.Invoke(request!, metadata) ?? default;
         }
 
         #endregion

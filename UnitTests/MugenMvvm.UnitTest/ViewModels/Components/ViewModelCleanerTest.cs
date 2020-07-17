@@ -116,7 +116,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             var viewManager = new ViewManager();
             viewManager.AddComponent(new TestViewProviderComponent
             {
-                TryGetViews = (_, o, type, arg3) =>
+                TryGetViews = (o, arg3) =>
                 {
                     o.ShouldEqual(viewModel);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -126,7 +126,7 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
             int cleanupCount = 0;
             viewManager.AddComponent(new TestViewManagerComponent
             {
-                TryCleanupAsync = (_, v, o, arg3, arg4, arg5) =>
+                TryCleanupAsync = (v, o, arg4, arg5) =>
                 {
                     ++cleanupCount;
                     v.ShouldEqual(view);
