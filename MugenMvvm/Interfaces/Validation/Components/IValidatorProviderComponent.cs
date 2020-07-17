@@ -5,6 +5,6 @@ namespace MugenMvvm.Interfaces.Validation.Components
 {
     public interface IValidatorProviderComponent : IComponent<IValidationManager>
     {
-        IValidator? TryGetValidator<TRequest>(IValidationManager validationManager, in TRequest request, IReadOnlyMetadataContext? metadata);
+        IValidator? TryGetValidator(IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata);
     }
 }

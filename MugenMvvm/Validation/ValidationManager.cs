@@ -22,7 +22,7 @@ namespace MugenMvvm.Validation
 
         #region Implementation of interfaces
 
-        public IValidator? TryGetValidator<TRequest>(in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IValidator? TryGetValidator(object? request, IReadOnlyMetadataContext? metadata = null)
         {
             var result = GetComponents<IValidatorProviderComponent>(metadata).TryGetValidator(this, request, metadata);
             if (result != null)

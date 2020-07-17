@@ -25,14 +25,12 @@ namespace MugenMvvm.UnitTest.Validation
             for (var i = 0; i < componentCount; i++)
             {
                 var isLast = i == componentCount - 1;
-                var component = new TestValidatorProviderComponent
+                var component = new TestValidatorProviderComponent(provider)
                 {
-                    TryGetValidator = (m, o, type, meta) =>
+                    TryGetValidator = (o, meta) =>
                     {
                         ++count;
-                        m.ShouldEqual(provider);
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(ValidationManagerTest));
                         meta.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return validator;
@@ -41,14 +39,13 @@ namespace MugenMvvm.UnitTest.Validation
                     Priority = -i
                 };
                 provider.AddComponent(component);
-                provider.AddComponent(new TestValidatorProviderListener
+                provider.AddComponent(new TestValidatorProviderListener(provider)
                 {
-                    OnValidatorCreated = (validatorProvider, v, o, type, meta) =>
+                    OnValidatorCreated = (v, o, meta) =>
                     {
                         ++listenerCount;
                         v.ShouldEqual(validator);
                         o.ShouldEqual(this);
-                        type.ShouldEqual(typeof(ValidationManagerTest));
                         meta.ShouldEqual(DefaultMetadata);
                     }
                 });
