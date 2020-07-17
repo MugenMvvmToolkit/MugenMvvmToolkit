@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MugenMvvm.Attributes;
@@ -55,26 +54,27 @@ namespace MugenMvvm.Views.Components
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
             var tcs = new TaskCompletionSource<IView>();
-            dispatcher.Execute(InitializeExecutionMode, (this, viewManager, tcs, mapping, request, cancellationToken, metadata), state =>
+            dispatcher.Execute(InitializeExecutionMode, s =>
             {
+                var state = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<IView>, IViewMapping, object, CancellationToken, IReadOnlyMetadataContext?>)s!;
                 try
                 {
-                    if (state.cancellationToken.IsCancellationRequested)
+                    if (state.Item6.IsCancellationRequested)
                     {
-                        state.tcs.TrySetCanceled(state.cancellationToken);
+                        state.Item3.TrySetCanceled(state.Item6);
                         return;
                     }
 
-                    var task = state.Item1.Components.TryInitializeAsync(state.viewManager, state.mapping, state.request!, state.cancellationToken, state.metadata);
+                    var task = state.Item1.Components.TryInitializeAsync(state.Item2, state.Item4, state.Item5, state.Item6, state.Item7);
                     if (task == null)
                         ExceptionManager.ThrowObjectNotInitialized(state.Item1.Components);
-                    state.tcs.TrySetFromTask(task);
+                    state.Item3.TrySetFromTask(task);
                 }
                 catch (Exception e)
                 {
-                    state.tcs.TrySetException(e);
+                    state.Item3.TrySetException(e);
                 }
-            }, metadata);
+            }, Tuple.Create(this, viewManager, tcs, mapping, request, cancellationToken, metadata), metadata);
             return tcs.Task;
         }
 
@@ -85,26 +85,27 @@ namespace MugenMvvm.Views.Components
                 return Components.TryCleanupAsync(viewManager, view, state, cancellationToken, metadata);
 
             var tcs = new TaskCompletionSource<object?>();
-            dispatcher.Execute(CleanupExecutionMode, (this, viewManager, tcs, view, state, cancellationToken, metadata), state =>
+            dispatcher.Execute(CleanupExecutionMode, s =>
             {
+                var state = (Tuple<ExecutionModeViewManagerDecorator, IViewManager, TaskCompletionSource<object?>, IView, object?, CancellationToken, IReadOnlyMetadataContext?>)s!;
                 try
                 {
-                    if (state.cancellationToken.IsCancellationRequested)
+                    if (state.Item6.IsCancellationRequested)
                     {
-                        state.tcs.TrySetCanceled(state.cancellationToken);
+                        state.Item3.TrySetCanceled(state.Item6);
                         return;
                     }
 
-                    var task = state.Item1.Components.TryCleanupAsync(state.viewManager, state.view, state.state, state.cancellationToken, state.metadata);
+                    var task = state.Item1.Components.TryCleanupAsync(state.Item2, state.Item4, state.Item5, state.Item6, state.Item7);
                     if (task == null)
                         ExceptionManager.ThrowObjectNotInitialized(state.Item1);
-                    state.tcs.TrySetFromTask(task);
+                    state.Item3.TrySetFromTask(task);
                 }
                 catch (Exception e)
                 {
-                    state.tcs.TrySetException(e);
+                    state.Item3.TrySetException(e);
                 }
-            }, metadata);
+            }, Tuple.Create(this, viewManager, tcs, view, state, cancellationToken, metadata), metadata);
             return tcs.Task;
         }
 

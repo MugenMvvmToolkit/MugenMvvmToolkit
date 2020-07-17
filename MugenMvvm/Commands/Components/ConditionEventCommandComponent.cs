@@ -100,7 +100,7 @@ namespace MugenMvvm.Commands.Components
                 return;
             }
 
-            _threadDispatcher.DefaultIfNull().Execute(_eventExecutionMode, this);
+            _threadDispatcher.DefaultIfNull().Execute(_eventExecutionMode, this, null);
         }
 
         public void Dispose()
@@ -116,7 +116,7 @@ namespace MugenMvvm.Commands.Components
             return new ActionToken((o, _) => ((ConditionEventCommandComponent)o!).EndSuspendNotifications(), this);
         }
 
-        void IThreadDispatcherHandler.Execute()
+        void IThreadDispatcherHandler.Execute(object? _)
         {
             _canExecuteChanged?.Invoke(Owner, EventArgs.Empty);
         }

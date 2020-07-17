@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using MugenMvvm.Components;
+﻿using MugenMvvm.Components;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
@@ -37,7 +36,7 @@ namespace MugenMvvm.Threading
             return _components!.CanExecuteInline(this, executionMode, metadata);
         }
 
-        public bool TryExecute<THandler, TState>(ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public bool TryExecute(ThreadExecutionMode executionMode, object handler, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);

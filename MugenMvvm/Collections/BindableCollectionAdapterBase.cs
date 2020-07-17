@@ -21,8 +21,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Collections
 {
-    public abstract class BindableCollectionAdapterBase<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged,
-        IThreadDispatcherHandler<BindableCollectionAdapterBase<T>.CollectionChangedEvent>, IValueHolder<Delegate>
+    public abstract class BindableCollectionAdapterBase<T> : Collection<T>, INotifyCollectionChanged, INotifyPropertyChanged, IThreadDispatcherHandler, IValueHolder<Delegate>
     {
         #region Fields
 
@@ -80,9 +79,21 @@ namespace MugenMvvm.Collections
 
         #region Implementation of interfaces
 
-        void IThreadDispatcherHandler<CollectionChangedEvent>.Execute(in CollectionChangedEvent state)
+        void IThreadDispatcherHandler.Execute(object? state)
         {
-            AddOrRaiseEvent(state);
+            if (state == null)
+            {
+                OnBeginBatchUpdateImpl();
+                return;
+            }
+
+            if (ReferenceEquals(state, this))
+            {
+                OnEndBatchUpdateImpl();
+                return;
+            }
+
+            AddOrRaiseEvent((CollectionChangedEvent)state!);
         }
 
         #endregion
@@ -101,12 +112,12 @@ namespace MugenMvvm.Collections
 
         protected void BeginBatchUpdate()
         {
-            ThreadDispatcher.Execute(ExecutionMode, this, o => o.OnBeginBatchUpdateImpl());
+            ThreadDispatcher.Execute(ExecutionMode, this, null);
         }
 
         protected void EndBatchUpdate()
         {
-            ThreadDispatcher.Execute(ExecutionMode, this, o => o.OnEndBatchUpdateImpl());
+            ThreadDispatcher.Execute(ExecutionMode, this, this);
         }
 
         protected void OnItemChanged(T item, int index, object? args)

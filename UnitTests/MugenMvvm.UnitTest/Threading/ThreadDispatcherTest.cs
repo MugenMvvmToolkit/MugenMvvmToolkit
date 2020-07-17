@@ -59,8 +59,8 @@ namespace MugenMvvm.UnitTest.Threading
         public void ExecuteShouldThrowNoComponents()
         {
             var dispatcher = new ThreadDispatcher();
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, dispatcher, t => { }));
-            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler<object>(), dispatcher));
+            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, t => { }, dispatcher));
+            ShouldThrow<InvalidOperationException>(() => dispatcher.Execute(ThreadExecutionMode.Background, new TestThreadDispatcherHandler(), dispatcher));
         }
 
         [Theory]
@@ -77,13 +77,12 @@ namespace MugenMvvm.UnitTest.Threading
                 var isLast = i == count - 1;
                 var component = new TestThreadDispatcherComponent(dispatcher)
                 {
-                    TryExecute = (m, h, state, stateType, meta) =>
+                    TryExecute = (m, h, state, meta) =>
                     {
                         ++executeCount;
                         h.ShouldEqual(handler);
                         mode.ShouldEqual(m);
                         state.ShouldEqual(dispatcher);
-                        stateType.ShouldEqual(dispatcher.GetType());
                         meta.ShouldEqual(DefaultMetadata);
                         return isLast;
                     },
@@ -97,7 +96,7 @@ namespace MugenMvvm.UnitTest.Threading
             executeCount.ShouldEqual(count);
 
             executeCount = 0;
-            handler = new TestThreadDispatcherHandler<ThreadDispatcher>();
+            handler = new TestThreadDispatcherHandler();
             dispatcher.TryExecute(mode, handler, dispatcher, DefaultMetadata);
             executeCount.ShouldEqual(count);
         }

@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
 using MugenMvvm.Interfaces.Threading.Components;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Threading.Components
 {
@@ -30,7 +27,7 @@ namespace MugenMvvm.Threading.Components
             if (isOnMainThread)
                 _mainThreadId = Thread.CurrentThread.ManagedThreadId;
             else
-                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher)state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
+                synchronizationContext.Post(state => ((SynchronizationContextThreadDispatcher) state!)._mainThreadId = Thread.CurrentThread.ManagedThreadId, this);
         }
 
         #endregion
@@ -48,10 +45,8 @@ namespace MugenMvvm.Threading.Components
             return executionMode == ThreadExecutionMode.Current || executionMode == ThreadExecutionMode.Main && IsOnMainThread();
         }
 
-        public bool TryExecute<THandler, TState>(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, [DisallowNull] in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
+        public bool TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<THandler>())
-                return false;
             if (CanExecuteInline(threadDispatcher, executionMode, metadata))
                 return ExecuteInline(handler, state);
             if (executionMode == ThreadExecutionMode.Main || executionMode == ThreadExecutionMode.MainAsync)
@@ -65,8 +60,17 @@ namespace MugenMvvm.Threading.Components
 
         #region Methods
 
-        protected virtual bool ExecuteBackground<TState>(object handler, in TState state)
+        protected virtual bool ExecuteBackground(object handler, object? state)
         {
+            if (handler is IThreadDispatcherHandler h)
+            {
+                if (state == null)
+                    ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler) o!).Execute(null), handler);
+                else
+                    ThreadPool.QueueUserWorkItem(h.Execute, state);
+                return true;
+            }
+
             if (handler is WaitCallback waitCallback)
             {
                 ThreadPool.QueueUserWorkItem(waitCallback, state);
@@ -75,32 +79,20 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                ThreadPool.QueueUserWorkItem(o => ((Action)o!).Invoke(), handler);
+                ThreadPool.QueueUserWorkItem(o => ((Action) o!).Invoke(), handler);
                 return true;
             }
 
-            if (handler is IThreadDispatcherHandler)
+            if (handler is Action<object?> action)
             {
-                ThreadPool.QueueUserWorkItem(o => ((IThreadDispatcherHandler)o!).Execute(), handler);
-                return true;
-            }
-
-            if (handler is Action<TState> action)
-            {
-                ThreadPool.QueueUserWorkItem(action.Invoke!, state);
-                return true;
-            }
-
-            if (handler is IThreadDispatcherHandler<TState> handlerState)
-            {
-                ThreadPool.QueueUserWorkItem(handlerState.Execute!, state);
+                ThreadPool.QueueUserWorkItem(action.Invoke, state);
                 return true;
             }
 
             return false;
         }
 
-        protected virtual bool ExecuteMainThread<TState>(object handler, in TState state)
+        protected virtual bool ExecuteMainThread(object handler, object? state)
         {
             if (handler is SendOrPostCallback callback)
             {
@@ -110,54 +102,45 @@ namespace MugenMvvm.Threading.Components
 
             if (handler is Action)
             {
-                _synchronizationContext.Post(o => ((Action)o!).Invoke(), handler);
+                _synchronizationContext.Post(o => ((Action) o!).Invoke(), handler);
                 return true;
             }
 
-            if (handler is IThreadDispatcherHandler)
+            if (handler is IThreadDispatcherHandler h)
             {
-                _synchronizationContext.Post(o => ((IThreadDispatcherHandler)o!).Execute(), handler);
+                if (state == null)
+                    _synchronizationContext.Post(o => ((IThreadDispatcherHandler) o!).Execute(null), handler);
+                else
+                    _synchronizationContext.Post(h.Execute, state);
                 return true;
             }
 
-            if (handler is Action<TState> action)
+            if (handler is Action<object?> action)
             {
-                _synchronizationContext.Post(action.Invoke!, state);
-                return true;
-            }
-
-            if (handler is IThreadDispatcherHandler<TState> handlerState)
-            {
-                _synchronizationContext.Post(handlerState.Execute!, state);
+                _synchronizationContext.Post(action.Invoke, state);
                 return true;
             }
 
             return false;
         }
 
-        protected virtual bool ExecuteInline<TState>(object handler, in TState state)
+        protected virtual bool ExecuteInline(object handler, object? state)
         {
+            if (handler is IThreadDispatcherHandler h)
+            {
+                h.Execute(state);
+                return true;
+            }
+
             if (handler is Action action)
             {
                 action.Invoke();
                 return true;
             }
 
-            if (handler is Action<TState> actionState)
+            if (handler is Action<object?> actionState)
             {
                 actionState(state);
-                return true;
-            }
-
-            if (handler is IThreadDispatcherHandler h)
-            {
-                h.Execute();
-                return true;
-            }
-
-            if (handler is IThreadDispatcherHandler<TState> handlerState)
-            {
-                handlerState.Execute(state);
                 return true;
             }
 

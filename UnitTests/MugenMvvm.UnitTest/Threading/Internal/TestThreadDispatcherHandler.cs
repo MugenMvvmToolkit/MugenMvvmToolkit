@@ -7,33 +7,15 @@ namespace MugenMvvm.UnitTest.Threading.Internal
     {
         #region Properties
 
-        public Action? Execute { get; set; }
+        public Action<object>? Execute { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        void IThreadDispatcherHandler.Execute()
+        void IThreadDispatcherHandler.Execute(object? state)
         {
-            Execute?.Invoke();
-        }
-
-        #endregion
-    }
-
-    public class TestThreadDispatcherHandler<T> : IThreadDispatcherHandler<T>
-    {
-        #region Properties
-
-        public Action<object, Type>? Execute { get; set; }
-
-        #endregion
-
-        #region Implementation of interfaces
-
-        void IThreadDispatcherHandler<T>.Execute(in T state)
-        {
-            Execute?.Invoke(state!, typeof(T));
+            Execute?.Invoke(state!);
         }
 
         #endregion

@@ -55,7 +55,7 @@ namespace MugenMvvm.Extensions
             return snapshot;
         }
 
-        public static void Serialize<TRequest>(this ISerializer serializer, Stream stream, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static void Serialize(this ISerializer serializer, Stream stream, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(serializer, nameof(serializer));
             if (!serializer.TrySerialize(stream, request, metadata))
@@ -70,7 +70,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IValidator GetValidator<TRequest>(this IValidationManager validatorProvider, in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IValidator GetValidator(this IValidationManager validatorProvider, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(validatorProvider, nameof(validatorProvider));
             var result = validatorProvider.TryGetValidator(request, metadata);
@@ -79,7 +79,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show<TRequest>(this IPresenter presenter, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+        public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> Show(this IPresenter presenter, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(presenter, nameof(presenter));
@@ -133,30 +133,25 @@ namespace MugenMvvm.Extensions
             component.SetErrors(memberName, errors, metadata);
         }
 
-        public static void Execute<THandler, TState>(IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, [DisallowNull] in THandler genericHandler, in TState state, IReadOnlyMetadataContext? metadata)
+        public static void ExecuteRaw(IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
         {
-            if (!threadDispatcher.DefaultIfNull().TryExecute(executionMode, genericHandler, state, metadata))
-                ExceptionManager.ThrowRequestNotSupported<IThreadDispatcherComponent>(threadDispatcher.DefaultIfNull(), genericHandler, metadata);
+            if (!threadDispatcher.DefaultIfNull().TryExecute(executionMode, handler, state, metadata))
+                ExceptionManager.ThrowRequestNotSupported<IThreadDispatcherComponent>(threadDispatcher.DefaultIfNull(), handler, metadata);
         }
 
         public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action action, IReadOnlyMetadataContext? metadata = null)
         {
-            Execute(threadDispatcher, executionMode, action, (object?)null, metadata);
+            ExecuteRaw(threadDispatcher, executionMode, action, null, metadata);
         }
 
-        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, in TState state, Action<TState> action, IReadOnlyMetadataContext? metadata = null)
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, Action<object?> action, object? state, IReadOnlyMetadataContext? metadata = null)
         {
-            Execute(threadDispatcher, executionMode, action, state, metadata);
+            ExecuteRaw(threadDispatcher, executionMode, action, state, metadata);
         }
 
-        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, IReadOnlyMetadataContext? metadata = null)
+        public static void Execute(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler handler, object? state, IReadOnlyMetadataContext? metadata = null)
         {
-            Execute(threadDispatcher, executionMode, handler, (object?)null, metadata);
-        }
-
-        public static void Execute<TState>(this IThreadDispatcher? threadDispatcher, ThreadExecutionMode executionMode, IThreadDispatcherHandler<TState> handler, TState state, IReadOnlyMetadataContext? metadata = null)
-        {
-            Execute(threadDispatcher, executionMode, genericHandler: handler, state, metadata);
+            ExecuteRaw(threadDispatcher, executionMode, handler, state, metadata);
         }
 
         public static IViewModelBase? TryGetViewModelView<TView>(object request, out TView? view) where TView : class
@@ -319,18 +314,6 @@ namespace MugenMvvm.Extensions
             }
             else
                 task.ContinueWith((t, o) => ((TaskCompletionSource<TResult>)o!).TrySetFromTask(t), tcs, continuationOptions);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Execute<TState>(this IThreadDispatcherHandler<TState> handler, object state)
-        {
-            handler.Execute((TState)state);
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static void Invoke<TState>(this Action<TState> handler, object state)
-        {
-            handler.Invoke((TState)state);
         }
 
         internal static void ReleaseWeakReference(this IValueHolder<IWeakReference>? valueHolder)

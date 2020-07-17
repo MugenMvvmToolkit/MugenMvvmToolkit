@@ -84,15 +84,14 @@ namespace MugenMvvm.UnitTest.Threading.Components
             };
             var handler = new TestThreadDispatcherHandler
             {
-                Execute = () => ++executed
+                Execute = (_) => ++executed
             };
-            var handlerWithState = new TestThreadDispatcherHandler<object?>
+            var handlerWithState = new TestThreadDispatcherHandler
             {
-                Execute = (o, type) =>
+                Execute = (o) =>
                 {
                     ++executed;
                     o.ShouldEqual(state);
-                    type.ShouldEqual(state.GetType());
                 }
             };
 
@@ -129,15 +128,14 @@ namespace MugenMvvm.UnitTest.Threading.Components
             };
             var handler = new TestThreadDispatcherHandler
             {
-                Execute = () => ++executed
+                Execute = (_) => ++executed
             };
-            var handlerWithState = new TestThreadDispatcherHandler<object?>
+            var handlerWithState = new TestThreadDispatcherHandler
             {
-                Execute = (o, type) =>
+                Execute = (o) =>
                 {
                     ++executed;
                     o.ShouldEqual(state);
-                    type.ShouldEqual(state.GetType());
                 }
             };
             SendOrPostCallback callback = o =>
@@ -194,15 +192,14 @@ namespace MugenMvvm.UnitTest.Threading.Components
             };
             var handler = new TestThreadDispatcherHandler
             {
-                Execute = () => ++executed
+                Execute = (_) => ++executed
             };
-            var handlerWithState = new TestThreadDispatcherHandler<object?>
+            var handlerWithState = new TestThreadDispatcherHandler
             {
-                Execute = (o, type) =>
+                Execute = (o) =>
                 {
                     ++executed;
                     o.ShouldEqual(state);
-                    type.ShouldEqual(state.GetType());
                 }
             };
             WaitCallback callback = o =>
@@ -239,7 +236,7 @@ namespace MugenMvvm.UnitTest.Threading.Components
             component.TryExecute(null!, ThreadExecutionMode.Background, component, component, DefaultMetadata).ShouldBeFalse();
         }
 
-        private void WaitThreadPool()
+        private static void WaitThreadPool()
         {
             var taskCompletionSource = new TaskCompletionSource<object?>();
             ThreadPool.QueueUserWorkItem(state => taskCompletionSource.SetResult(null));

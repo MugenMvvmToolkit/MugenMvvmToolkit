@@ -1,7 +1,6 @@
 ﻿using System;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Threading;
@@ -12,18 +11,26 @@ namespace MugenMvvm.UnitTest.Threading.Internal
 {
     public sealed class TestThreadDispatcherComponent : IThreadDispatcherComponent, IHasPriority
     {
+        #region Fields
+
         private readonly IThreadDispatcher? _dispatcher;
 
-        #region Properties
+        #endregion
+
+        #region Constructors
 
         public TestThreadDispatcherComponent(IThreadDispatcher? dispatcher = null)
         {
             _dispatcher = dispatcher;
         }
 
+        #endregion
+
+        #region Properties
+
         public Func<ThreadExecutionMode, IReadOnlyMetadataContext?, bool>? CanExecuteInline { get; set; }
 
-        public Func<ThreadExecutionMode, object, object?, Type, IReadOnlyMetadataContext?, bool>? TryExecute { get; set; }
+        public Func<ThreadExecutionMode, object, object?, IReadOnlyMetadataContext?, bool>? TryExecute { get; set; }
 
         public Func<Action<object?>, ThreadExecutionMode, object?, IReadOnlyMetadataContext?, bool> Execute { get; set; } = (action, _, state, ___) =>
         {
@@ -43,20 +50,18 @@ namespace MugenMvvm.UnitTest.Threading.Internal
             return CanExecuteInline?.Invoke(executionMode, metadata) ?? true;
         }
 
-        bool IThreadDispatcherComponent.TryExecute<THandler, TState>(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
+        bool IThreadDispatcherComponent.TryExecute(IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state, IReadOnlyMetadataContext? metadata)
         {
             _dispatcher?.ShouldEqual(threadDispatcher);
             if (TryExecute != null)
-                return TryExecute(executionMode, handler!, state, typeof(TState), metadata);
+                return TryExecute(executionMode, handler!, state, metadata);
             Action<object?> del;
             if (handler is Action action)
                 del = o => action();
-            else if (handler is Action<TState> actionState)
+            else if (handler is Action<object?> actionState)
                 del = actionState.Invoke!;
             else if (handler is IThreadDispatcherHandler h)
-                del = o => h.Execute();
-            else if (handler is IThreadDispatcherHandler<TState> handlerState)
-                del = handlerState.Execute!;
+                del = h.Execute;
             else
                 return false;
             return Execute(del, executionMode, state, metadata);

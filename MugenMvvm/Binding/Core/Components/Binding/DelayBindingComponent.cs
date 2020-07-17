@@ -72,7 +72,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
             _binding = null;
         }
 
-        void IThreadDispatcherHandler.Execute()
+        void IThreadDispatcherHandler.Execute(object? state)
         {
             try
             {
@@ -120,7 +120,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         private static void Callback(object? state)
         {
-            MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler)state!);
+            MugenService.ThreadDispatcher.Execute(ExecutionMode, (IThreadDispatcherHandler)state!, null);
         }
 
         #endregion

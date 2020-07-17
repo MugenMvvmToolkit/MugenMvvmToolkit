@@ -157,7 +157,7 @@ namespace MugenMvvm.Messaging.Components
 
         #region Nested types
 
-        private sealed class MessageThreadExecutor : List<MessengerHandler>, IThreadDispatcherHandler<IMessageContext>, IValueHolder<Delegate>
+        private sealed class MessageThreadExecutor : List<MessengerHandler>, IThreadDispatcherHandler, IValueHolder<Delegate>
         {
             #region Fields
 
@@ -182,8 +182,9 @@ namespace MugenMvvm.Messaging.Components
 
             #region Implementation of interfaces
 
-            public void Execute(in IMessageContext messageContext)
+            public void Execute(object? state)
             {
+                var messageContext = (IMessageContext)state!;
                 for (var i = 0; i < Count; i++)
                 {
                     if (this[i].Handle(messageContext) == MessengerResult.Invalid)

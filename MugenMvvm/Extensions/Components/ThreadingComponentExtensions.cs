@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Runtime.CompilerServices;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Threading;
@@ -10,6 +10,7 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanExecuteInline(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -24,11 +25,14 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        public static bool TryExecute<THandler, TState>(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, [DisallowNull]in THandler handler, in TState state, IReadOnlyMetadataContext? metadata)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryExecute(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(threadDispatcher, nameof(threadDispatcher));
             Should.NotBeNull(executionMode, nameof(executionMode));
+            Should.NotBeNull(handler, nameof(handler));
             for (var i = 0; i < components.Length; i++)
             {
                 if (components[i].TryExecute(threadDispatcher, executionMode, handler, state, metadata))
