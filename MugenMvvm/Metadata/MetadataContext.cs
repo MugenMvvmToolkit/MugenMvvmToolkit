@@ -107,25 +107,14 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+        public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
-            object? obj;
-            bool hasValue;
             var components = GetComponents();
             lock (_dictionary)
             {
-                hasValue = TryGet(components, contextKey, out obj);
+                return TryGet(components, contextKey, out value);
             }
-
-            if (hasValue)
-            {
-                value = contextKey.GetValue(this, obj);
-                return true;
-            }
-
-            value = contextKey.GetDefaultValue(this, defaultValue);
-            return false;
         }
 
         public bool Contains(IMetadataContextKey contextKey)

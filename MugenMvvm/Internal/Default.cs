@@ -185,9 +185,9 @@ namespace MugenMvvm.Internal
                 return GetEnumerator();
             }
 
-            public bool TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+            public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)
             {
-                value = contextKey.GetDefaultValue(this, defaultValue);
+                value = null;
                 return false;
             }
 

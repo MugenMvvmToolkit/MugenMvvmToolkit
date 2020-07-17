@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 using Should;
@@ -76,6 +77,9 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             context.TryGet(key, out var value, default!).ShouldBeTrue();
             value!.ShouldEqual(expectedValue);
+
+            context.TryGetRaw(key, out object? rawValue).ShouldBeTrue();
+            key.GetValue(context, rawValue).ShouldEqual(expectedValue);
         }
 
         public void TryGetGetterTest(IReadOnlyMetadataContext metadataContext)

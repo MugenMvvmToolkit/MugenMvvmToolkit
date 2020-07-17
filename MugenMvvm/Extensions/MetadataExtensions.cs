@@ -151,6 +151,20 @@ namespace MugenMvvm.Extensions
             return value;
         }
 
+        public static bool TryGet<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> contextKey, [MaybeNullWhen(false), NotNullIfNotNull("defaultValue")]
+            out T value, [AllowNull] T defaultValue)
+        {
+            Should.NotBeNull(metadataContext, nameof(metadataContext));
+            if (metadataContext.TryGetRaw(contextKey, out var obj))
+            {
+                value = contextKey.GetValue(metadataContext, obj);
+                return true;
+            }
+
+            value = contextKey.GetDefaultValue(metadataContext, defaultValue);
+            return false;
+        }
+
         public static MetadataContextKey.Builder<TGet, TSet> NotNull<TGet, TSet>(this MetadataContextKey.Builder<TGet, TSet> builder)
             where TSet : class
         {

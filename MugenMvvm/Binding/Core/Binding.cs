@@ -283,9 +283,9 @@ namespace MugenMvvm.Binding.Core
             return GetMetadataEnumerator();
         }
 
-        bool IReadOnlyMetadataContext.TryGet<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+        bool IReadOnlyMetadataContext.TryGetRaw(IMetadataContextKey contextKey, out object? value)
         {
-            return TryGetMetadata(contextKey, out value, defaultValue);
+            return TryGetMetadata(contextKey, out value);
         }
 
         bool IReadOnlyMetadataContext.Contains(IMetadataContextKey contextKey)
@@ -417,15 +417,15 @@ namespace MugenMvvm.Binding.Core
             return Default.SingleValueEnumerator(MetadataContextValue.Create(BindingMetadata.Binding, this));
         }
 
-        protected virtual bool TryGetMetadata<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+        protected virtual bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {
             if (BindingMetadata.Binding.Equals(contextKey))
             {
-                value = (T)(object)this;
+                value = this;
                 return true;
             }
 
-            value = contextKey.GetDefaultValue(this, defaultValue);
+            value = null;
             return false;
         }
 

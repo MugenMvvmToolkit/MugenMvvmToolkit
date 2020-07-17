@@ -81,15 +81,15 @@ namespace MugenMvvm.Binding.Core
             return base.ContainsMetadata(contextKey) || BindingMetadata.IsMultiBinding.Equals(contextKey);
         }
 
-        protected override bool TryGetMetadata<T>(IReadOnlyMetadataContextKey<T> contextKey, out T value, [AllowNull] T defaultValue)
+        protected override bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)
         {
             if (BindingMetadata.IsMultiBinding.Equals(contextKey))
             {
-                value = MugenExtensions.CastGeneric<bool, T>(true);
+                value = BoxingExtensions.TrueObject;
                 return true;
             }
 
-            return base.TryGetMetadata(contextKey, out value, defaultValue);
+            return base.TryGetMetadata(contextKey, out value);
         }
 
         protected override void OnDispose()
