@@ -42,13 +42,13 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged<TState>(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (metadata != null && metadata.TryGet(BindingMetadata.SuppressHolderRegistration, out var v, false) && v)
                 return;
 
             if (lifecycleState == BindingLifecycleState.Initialized)
-                _components.TryRegister(bindingManager, typeof(TState) == typeof(BindingTargetSourceState) ? MugenExtensions.CastGeneric<TState, BindingTargetSourceState>(state).Target : binding.Target.Target, binding, metadata);
+                _components.TryRegister(bindingManager, binding.Target.Target, binding, metadata);
             else if (lifecycleState == BindingLifecycleState.Disposed)
                 _components.TryUnregister(bindingManager, binding.Target.Target, binding, metadata);
         }

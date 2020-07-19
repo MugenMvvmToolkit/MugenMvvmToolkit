@@ -51,7 +51,7 @@ namespace MugenMvvm.Binding.Extensions
 
             configuration.WithAppService(new BindingManager()).WithComponent(macrosBindingInitializer)
                 .WithComponent(new BindingBuilderListExpressionParser())
-                .WithComponent(new BindingBuilderRequestExpressionParser())
+                .WithComponent(new BindingBuilderDelegateExpressionParser())
                 .WithComponent(new BindingCleaner())
                 .WithComponent(new BindingExpressionExceptionDecorator())
                 .WithComponent(new BindingExpressionParser())

@@ -20,13 +20,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var exception = new Exception();
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent(bindingManager)
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
-                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
-                    type.ShouldEqual(request.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                     throw exception;
                 }
@@ -66,7 +64,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             bindingManager.AddComponent(new BindingExpressionExceptionDecorator());
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (_, o, type, arg3) => expressions
+                TryParseBindingExpression = (o, arg3) => expressions
             });
 
             var result = bindingManager.TryParseBindingExpression("", DefaultMetadata).AsList();

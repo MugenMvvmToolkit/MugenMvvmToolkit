@@ -40,9 +40,9 @@ namespace MugenMvvm.Binding.Parsing.Components
 
         #region Implementation of interfaces
 
-        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(IExpressionParser parser, in TExpression expression, IReadOnlyMetadataContext? metadata)
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
         {
-            if (!TypeChecker.IsValueType<TExpression>() && expression is string stringExpression)
+            if (expression is string stringExpression)
             {
                 _parserContext.Initialize(stringExpression, metadata);
                 return _parserContext.ParseExpression();

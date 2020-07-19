@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Delegates;
@@ -28,20 +27,20 @@ namespace MugenMvvm.Binding.Build
         {
             return bindingManager
                 .DefaultIfNull()
-                .ParseBindingExpression(BindingBuilderRequest.Get(getBuilder), metadata);
+                .ParseBindingExpression(expression: getBuilder, metadata);
         }
 
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget>(this TTarget target, BindingBuilderDelegate<TTarget, object> getBuilder, IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
             where TTarget : class
         {
-            return bindingManager.BindInternal(BindingBuilderRequest.Get(getBuilder), target, null, metadata);
+            return bindingManager.BindInternal(getBuilder, target, null, metadata);
         }
 
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget, TSource>(this TTarget target, TSource? source, BindingBuilderDelegate<TTarget, TSource> getBuilder, IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
             where TTarget : class
             where TSource : class
         {
-            return bindingManager.BindInternal(BindingBuilderRequest.Get(getBuilder), target, source, metadata);
+            return bindingManager.BindInternal(getBuilder, target, source, metadata);
         }
 
         public static ItemOrList<IBinding, IReadOnlyList<IBinding>> Bind<TTarget>(this TTarget target, string expression, object? source = null, IReadOnlyMetadataContext? metadata = null, IBindingManager? bindingManager = null)
@@ -236,14 +235,14 @@ namespace MugenMvvm.Binding.Build
             return builder.BindingParameter(BindingParameterNameConstant.TargetNullValue, ConstantExpressionNode.Get(value));
         }
 
-        private static void BindInternalWithoutBindings<TRequest>(this IBindingManager? bindingManager, [DisallowNull] in TRequest request, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static void BindInternalWithoutBindings(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             foreach (var bindingBuilder in bindingManager.DefaultIfNull().ParseBindingExpression(request, metadata).Iterator())
                 bindingBuilder.Build(target, source, metadata);
         }
 
-        private static ItemOrList<IBinding, IReadOnlyList<IBinding>> BindInternal<TRequest>(this IBindingManager? bindingManager, [DisallowNull] in TRequest request, object target, object? source, IReadOnlyMetadataContext? metadata)
+        private static ItemOrList<IBinding, IReadOnlyList<IBinding>> BindInternal(this IBindingManager? bindingManager, object request, object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(target, nameof(target));
             var expressions = bindingManager

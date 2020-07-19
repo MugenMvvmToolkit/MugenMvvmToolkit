@@ -28,16 +28,16 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Internal
 
         public int Priority { get; set; }
 
-        public Func<string, object?, Type, IReadOnlyMetadataContext?, IResourceValue?>? TryGetResourceValue { get; set; }
+        public Func<string, object?, IReadOnlyMetadataContext?, IResourceValue?>? TryGetResourceValue { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        IResourceValue? IResourceResolverComponent.TryGetResourceValue<TState>(IResourceResolver resourceResolver, string name, in TState state, IReadOnlyMetadataContext? metadata)
+        IResourceValue? IResourceResolverComponent.TryGetResourceValue(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             _resourceResolver?.ShouldEqual(resourceResolver);
-            return TryGetResourceValue?.Invoke(name, state, typeof(TState), metadata);
+            return TryGetResourceValue?.Invoke(name, state, metadata);
         }
 
         #endregion

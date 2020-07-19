@@ -47,7 +47,7 @@ namespace MugenMvvm.Binding.Extensions
 
         #region Methods
 
-        public static IMemberPath GetMemberPath<TPath>(this IObservationManager observationManager, [DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPath GetMemberPath(this IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(observationManager, nameof(observationManager));
             var result = observationManager.TryGetMemberPath(path, metadata);
@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static IMemberPathObserver GetMemberPathObserver<TRequest>(this IObservationManager observationManager, object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IMemberPathObserver GetMemberPathObserver(this IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(observationManager, nameof(observationManager));
             var result = observationManager.TryGetMemberPathObserver(target, request, metadata);
@@ -65,8 +65,7 @@ namespace MugenMvvm.Binding.Extensions
             return result;
         }
 
-        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> ParseBindingExpression<TExpression>(this IBindingManager bindingManager, [DisallowNull] in TExpression expression,
-            IReadOnlyMetadataContext? metadata = null)
+        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> ParseBindingExpression(this IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(bindingManager, nameof(bindingManager));
             var result = bindingManager.TryParseBindingExpression(expression, metadata);
@@ -122,7 +121,7 @@ namespace MugenMvvm.Binding.Extensions
             var typeArgs = new Type[types.Count];
             for (var i = 0; i < types.Count; i++)
             {
-                var type = resourceResolver.TryGetType<object?>(types[i], null, metadata);
+                var type = resourceResolver.TryGetType(types[i], null, metadata);
                 if (type == null)
                     BindingExceptionManager.ThrowCannotResolveType(types[i]);
                 typeArgs[i] = type;
@@ -278,7 +277,7 @@ namespace MugenMvvm.Binding.Extensions
         [Preserve(Conditional = true)]
         public static void Raise<TArg>(this EventListenerCollection collection, object? sender, TArg args)
         {
-            collection.Raise(sender, in args, null);
+            collection.Raise(sender, args, null);
         }
 
         [Preserve(Conditional = true)]
@@ -532,7 +531,7 @@ namespace MugenMvvm.Binding.Extensions
             return new WeakEventListener(listener);
         }
 
-        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, in TState state)
+        public static WeakEventListener<TState> ToWeak<TState>(this IEventListener listener, TState state)
         {
             return new WeakEventListener<TState>(listener, state);
         }
@@ -583,7 +582,12 @@ namespace MugenMvvm.Binding.Extensions
 
         public static Type GetTargetType<T>(this MemberFlags flags, ref T? target) where T : class
         {
-            if (flags.HasFlagEx(MemberFlags.Static))
+            return GetTargetType(flags.HasFlagEx(MemberFlags.Static), ref target);
+        }
+
+        public static Type GetTargetType<T>(bool isStatic, ref T? target) where T : class
+        {
+            if (isStatic)
             {
                 Should.NotBeNull(target, nameof(target));
                 var t = target;
@@ -618,6 +622,7 @@ namespace MugenMvvm.Binding.Extensions
             return (value & flag) == flag;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static BindingMemberExpressionFlags SetTargetFlags(this BindingMemberExpressionFlags flags, bool isTarget)
         {
             return isTarget ? flags | BindingMemberExpressionFlags.Target : flags & ~BindingMemberExpressionFlags.Target;
@@ -729,7 +734,7 @@ namespace MugenMvvm.Binding.Extensions
 
         private static object? GetValue(this IMemberManager memberManager, Type type, object? target, string path, MemberFlags flags, IReadOnlyMetadataContext? metadata)
         {
-            var member = memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata) as IAccessorMemberInfo;
+            var member = (IAccessorMemberInfo?)memberManager.TryGetMember(type, MemberType.Accessor, flags, path, metadata);
             if (member == null)
                 BindingExceptionManager.ThrowInvalidBindingMember(type, path);
             return member.GetValue(target, metadata);

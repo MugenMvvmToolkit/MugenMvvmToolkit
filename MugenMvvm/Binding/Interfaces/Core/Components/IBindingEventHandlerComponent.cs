@@ -6,10 +6,10 @@ namespace MugenMvvm.Binding.Interfaces.Core.Components
 {
     public interface IBindingEventHandlerComponent : IComponent<IBindingManager>
     {
-        void OnBeginEvent<T>(IBindingManager bindingManager, object? sender, in T message, IReadOnlyMetadataContext? metadata);
+        void OnBeginEvent(IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata);
 
-        void OnEndEvent<T>(IBindingManager bindingManager, object? sender, in T message, IReadOnlyMetadataContext? metadata);
+        void OnEndEvent(IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata);
 
-        void OnEventError<T>(IBindingManager bindingManager, Exception exception, object? sender, in T message, IReadOnlyMetadataContext? metadata);
+        void OnEventError(IBindingManager bindingManager, Exception exception, object? sender, object? message, IReadOnlyMetadataContext? metadata);
     }
 }

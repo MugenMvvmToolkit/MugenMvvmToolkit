@@ -5,24 +5,41 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
+using Should;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Internal
 {
     public class TestBindingExpressionParserComponent : IBindingExpressionParserComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IBindingManager? _bindingManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestBindingExpressionParserComponent(IBindingManager? bindingManager = null)
+        {
+            _bindingManager = bindingManager;
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }
 
-        public Func<IBindingManager, object, Type, IReadOnlyMetadataContext?, ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>>? TryParseBindingExpression { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>>>? TryParseBindingExpression { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> IBindingExpressionParserComponent.TryParseBindingExpression<TExpression>(IBindingManager bindingManager, in TExpression expression, IReadOnlyMetadataContext? metadata)
+        ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> IBindingExpressionParserComponent.TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
-            return TryParseBindingExpression?.Invoke(bindingManager, expression!, typeof(TExpression), metadata) ?? default;
+            _bindingManager?.ShouldEqual(bindingManager);
+            return TryParseBindingExpression?.Invoke(expression, metadata) ?? default;
         }
 
         #endregion

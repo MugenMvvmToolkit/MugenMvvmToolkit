@@ -1,20 +1,10 @@
 ﻿using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Parsing
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct BindingExpressionRequest
+    public class BindingExpressionRequest
     {
-        #region Fields
-
-        public readonly ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> Parameters;
-        public readonly object? Source;
-        public readonly object Target;
-
-        #endregion
-
         #region Constructors
 
         public BindingExpressionRequest(object target, object? source, ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> parameters)
@@ -29,7 +19,11 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Properties
 
-        public bool IsEmpty => Target == null;
+        public ItemOrList<KeyValuePair<string?, object>, IReadOnlyList<KeyValuePair<string?, object>>> Parameters { get; protected set; }
+
+        public object? Source { get; protected set; }
+
+        public object Target { get; protected set; }
 
         #endregion
     }

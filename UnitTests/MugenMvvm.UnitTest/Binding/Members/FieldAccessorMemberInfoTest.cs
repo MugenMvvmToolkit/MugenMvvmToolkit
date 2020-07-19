@@ -52,11 +52,10 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var observerRequestCount = 0;
             using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3, arg4) =>
+                TryGetMemberObserver = (type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(typeof(FieldAccessorMemberInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;
@@ -117,11 +116,10 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var observerRequestCount = 0;
             using var subscribe = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3, arg4) =>
+                TryGetMemberObserver = (type, o,  arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(typeof(FieldAccessorMemberInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;

@@ -1,24 +1,10 @@
-﻿using System.Runtime.InteropServices;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Observation;
 
 namespace MugenMvvm.Binding.Observation
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct MemberPathObserverRequest
+    public class MemberPathObserverRequest
     {
-        #region Fields
-
-        public readonly string? ObservableMethodName;
-        public readonly IMemberPath Path;
-
-        public readonly MemberFlags MemberFlags;
-        public readonly bool HasStablePath;
-        public readonly bool Observable;
-        public readonly bool Optional;
-
-        #endregion
-
         #region Constructors
 
         public MemberPathObserverRequest(IMemberPath path, MemberFlags memberFlags, string? observableMethodName,
@@ -37,7 +23,17 @@ namespace MugenMvvm.Binding.Observation
 
         #region Properties
 
-        public bool IsEmpty => Path == null;
+        public bool HasStablePath { get; protected set; }
+
+        public MemberFlags MemberFlags { get; protected set; }
+
+        public bool Observable { get; protected set; }
+
+        public string? ObservableMethodName { get; protected set; }
+
+        public bool Optional { get; protected set; }
+
+        public IMemberPath Path { get; protected set; }
 
         #endregion
     }

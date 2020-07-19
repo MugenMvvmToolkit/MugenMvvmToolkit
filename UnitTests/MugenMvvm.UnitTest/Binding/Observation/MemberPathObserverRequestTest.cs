@@ -12,12 +12,6 @@ namespace MugenMvvm.UnitTest.Binding.Observation
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(MemberPathObserverRequest).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
         public void ConstructorShouldInitializeValues1()
         {
             var hasStablePath = true;
@@ -28,7 +22,6 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             IMemberPath path = EmptyMemberPath.Instance;
 
             var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional);
-            request.IsEmpty.ShouldBeFalse();
             request.HasStablePath.ShouldEqual(hasStablePath);
             request.MemberFlags.ShouldEqual(memberFlags);
             request.Observable.ShouldEqual(observable);
@@ -48,7 +41,6 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             IMemberPath path = EmptyMemberPath.Instance;
 
             var request = new MemberPathObserverRequest(path, memberFlags, observableMethodName, hasStablePath, observable, optional);
-            request.IsEmpty.ShouldBeFalse();
             request.HasStablePath.ShouldEqual(hasStablePath);
             request.MemberFlags.ShouldEqual(memberFlags);
             request.Observable.ShouldEqual(observable);

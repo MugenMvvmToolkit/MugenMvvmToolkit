@@ -20,12 +20,12 @@ namespace MugenMvvm.Binding.Resources
 
         #region Implementation of interfaces
 
-        public IResourceValue? TryGetResourceValue<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public IResourceValue? TryGetResourceValue(string name, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IResourceResolverComponent>(metadata).TryGetResourceValue(this, name, state, metadata);
         }
 
-        public Type? TryGetType<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public Type? TryGetType(string name, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<ITypeResolverComponent>(metadata).TryGetType(this, name, state, metadata);
         }

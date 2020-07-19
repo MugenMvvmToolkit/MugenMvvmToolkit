@@ -4,7 +4,6 @@ using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Observation.Components;
 using MugenMvvm.Binding.Observation.Observers;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 
@@ -31,12 +30,11 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Implementation of interfaces
 
-        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(IObservationManager observationManager, object target, in TRequest request, IReadOnlyMetadataContext? metadata)
+        public IMemberPathObserver? TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (typeof(TRequest) != typeof(MemberPathObserverRequest))
+            if (!(request is MemberPathObserverRequest observerRequest))
                 return null;
 
-            var observerRequest = MugenExtensions.CastGeneric<TRequest, MemberPathObserverRequest>(request);
             var memberFlags = observerRequest.MemberFlags;
             var path = observerRequest.Path;
             var observableMethod = observerRequest.ObservableMethodName;

@@ -182,7 +182,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     meta.ShouldEqual(context.GetMetadataOrDefault());
                     if (r.Equals(targetPath.Members[0]))
@@ -259,7 +259,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                     cmdParameter = new TestMemberPathObserver();
                     compiler.AddComponent(new TestExpressionCompilerComponent
                     {
-                        TryCompile = (_, node, m) =>
+                        TryCompile = (node, m) =>
                         {
                             node.ShouldEqual(cmdParameterNode);
                             m.ShouldEqual(context.GetMetadataOrDefault());

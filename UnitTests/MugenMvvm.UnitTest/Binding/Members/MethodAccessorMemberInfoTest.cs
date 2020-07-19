@@ -106,11 +106,10 @@ namespace MugenMvvm.UnitTest.Binding.Members
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3, arg4) =>
+                TryGetMemberObserver = (type, o, arg4) =>
                 {
                     ++observerRequestCount;
                     o.ShouldEqual(memberInfo);
-                    arg3.ShouldEqual(typeof(MethodAccessorMemberInfo));
                     arg4.ShouldEqual(DefaultMetadata);
                     type.ShouldEqual(reflectedType);
                     return memberObserver;

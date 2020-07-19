@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
@@ -36,7 +35,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata = null)
         {
             if (_components == null)
                 _componentTracker.Attach(this, metadata);

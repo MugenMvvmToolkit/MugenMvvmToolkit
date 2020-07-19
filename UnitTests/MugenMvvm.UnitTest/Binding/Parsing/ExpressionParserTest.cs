@@ -63,11 +63,10 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
                 var component = new TestExpressionParserComponent(parser)
                 {
                     Priority = -i,
-                    TryParse = (o, arg3, arg4) =>
+                    TryParse = (o, arg4) =>
                     {
                         ++invokeCount;
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(request.GetType());
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
@@ -575,7 +574,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             return expressionParser;
         }
 
-        private static Expression<Func<T, TResult>> GetExpression<T, TResult>([AllowNull]T t, Expression<Func<T, TResult>> expression)
+        private static Expression<Func<T, TResult>> GetExpression<T, TResult>([AllowNull] T t, Expression<Func<T, TResult>> expression)
         {
             return expression;
         }

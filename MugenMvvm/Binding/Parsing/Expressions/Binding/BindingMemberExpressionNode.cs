@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -13,6 +14,8 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         #region Fields
 
         private IMemberPath? _dataContextMemberPath;
+        private MemberPathObserverRequest? _dataContextRequest;
+        private MemberPathObserverRequest? _request;
 
         #endregion
 
@@ -48,10 +51,22 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
             if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target))
-                return GetObserver(target, GetMemberPath(metadata), metadata);
+                return GetObserver(target, metadata);
             if (source == null)
-                return GetObserver(target, GetDataContextPath(metadata), metadata);
-            return GetObserver(source, GetMemberPath(metadata), metadata);
+                return GetDataContextObserver(target, metadata);
+            return GetObserver(source, metadata);
+        }
+
+        private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata)
+        {
+            _request ??= GetObserverRequest(GetMemberPath(metadata));
+            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, _request, metadata);
+        }
+
+        private IMemberPathObserver GetDataContextObserver(object target, IReadOnlyMetadataContext? metadata)
+        {
+            _dataContextRequest ??= GetObserverRequest(GetDataContextPath(metadata));
+            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, _dataContextRequest, metadata);
         }
 
         private IMemberPath GetDataContextPath(IReadOnlyMetadataContext? metadata)

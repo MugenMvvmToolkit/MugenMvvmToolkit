@@ -512,7 +512,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             int invokeCount = 0;
             TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
+                TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
                 {
                     ++invokeCount;
                     type.ShouldEqual(isStatic ? typeof(object) : target!.GetType());
@@ -587,7 +587,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             };
             using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
+                TryGetMembers = (type, memberType, arg3, arg4, arg6) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;

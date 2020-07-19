@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Interfaces.Resources.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -9,7 +10,7 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static IResourceValue? TryGetResourceValue<TState>(this IResourceResolverComponent[] components, IResourceResolver resourceResolver, string name, in TState state, IReadOnlyMetadataContext? metadata)
+        public static IResourceValue? TryGetResourceValue(this IResourceResolverComponent[] components, IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(resourceResolver, nameof(resourceResolver));
@@ -24,7 +25,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             return null;
         }
 
-        public static Type? TryGetType<TState>(this ITypeResolverComponent[] components, IResourceResolver resourceResolver, string name, in TState state, IReadOnlyMetadataContext? metadata)
+        public static Type? TryGetType(this ITypeResolverComponent[] components, IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(resourceResolver, nameof(resourceResolver));

@@ -1,18 +1,9 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 
 namespace MugenMvvm.Binding.Members
 {
-    [StructLayout(LayoutKind.Auto)]
-    public readonly struct MemberTypesRequest
+    public class MemberTypesRequest
     {
-        #region Fields
-
-        public readonly string Name;
-        public readonly Type[] Types;
-
-        #endregion
-
         #region Constructors
 
         public MemberTypesRequest(string name, Type[] types)
@@ -27,7 +18,9 @@ namespace MugenMvvm.Binding.Members
 
         #region Properties
 
-        public bool IsEmpty => Name == null;
+        public string Name { get; protected set; }
+
+        public Type[] Types { get; protected set; }
 
         #endregion
     }

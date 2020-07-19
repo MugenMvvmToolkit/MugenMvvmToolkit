@@ -1,5 +1,6 @@
 ﻿using System;
 using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Internal;
@@ -85,7 +86,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, Action>(name, Default.Array<Type>());
+            var request = new MemberTypesRequest(name, Default.Array<Type>());
+            BindableMethodDescriptor<AttachedMemberBuilderTest, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             build.MemberType.ShouldEqual(MemberType.Method);
             build.Name.ShouldEqual(name);
@@ -99,7 +101,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action>(name);
+            var request = new MemberTypesRequest(name, new[] { typeof(int) });
+            BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, int, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
             parameters.Count.ShouldEqual(1);
@@ -116,7 +119,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action>(name);
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char) });
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
             parameters.Count.ShouldEqual(2);
@@ -134,7 +138,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action>(name);
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char), typeof(short) });
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
             parameters.Count.ShouldEqual(3);
@@ -153,7 +158,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action>(name);
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char), typeof(short), typeof(int) });
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
             parameters.Count.ShouldEqual(4);
@@ -173,7 +179,8 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             string name = "t";
             Type declaredType = GetType();
             var memberType = typeof(Action);
-            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action>(name);
+            var request = new MemberTypesRequest(name, new[] { typeof(byte), typeof(char), typeof(short), typeof(int), typeof(long) });
+            BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action> descriptor = new BindableMethodDescriptor<AttachedMemberBuilderTest, byte, char, short, int, long, Action>(request);
             var build = descriptor.GetBuilder().InvokeHandler((member, target, args, metadata) => null!).Build();
             var parameters = build.GetParameters();
             parameters.Count.ShouldEqual(5);

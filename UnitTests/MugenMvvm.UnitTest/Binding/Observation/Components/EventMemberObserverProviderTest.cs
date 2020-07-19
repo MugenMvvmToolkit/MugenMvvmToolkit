@@ -139,7 +139,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     set.Add((string)r);
                     if (r.Equals(memberName + BindingInternalConstant.ChangeEventPostfix))
@@ -189,7 +189,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     f.ShouldEqual(flags);
                     set.Add((string)r);
@@ -240,7 +240,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     f.ShouldEqual(flags);
                     set.Add((string)r);

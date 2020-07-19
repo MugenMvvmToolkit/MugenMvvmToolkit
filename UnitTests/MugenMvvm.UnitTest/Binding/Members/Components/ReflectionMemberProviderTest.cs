@@ -89,7 +89,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3, arg4) =>
+                TryGetMemberObserver = (type, o, arg4) =>
                 {
                     if (canObserve)
                         return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);
@@ -146,7 +146,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberObserverProviderComponent
             {
-                TryGetMemberObserver = (type, o, arg3, arg4) =>
+                TryGetMemberObserver = (type, o, arg4) =>
                 {
                     if (canObserve)
                         return new MemberObserver((o1, o2, listener, context) => new ActionToken(), this);

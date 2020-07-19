@@ -24,21 +24,19 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             var registerCount = 0;
             var unregisterCount = 0;
-            var holder = new TestBindingHolderComponent
+            var holder = new TestBindingHolderComponent(manager)
             {
-                TryRegister = (m, o, b, arg3) =>
+                TryRegister = (o, b, arg3) =>
                 {
                     ++registerCount;
-                    m.ShouldEqual(manager);
                     o.ShouldEqual(target);
                     b.ShouldEqual(binding);
                     arg3.ShouldEqual(DefaultMetadata);
                     return true;
                 },
-                TryUnregister = (m, o, b, arg3) =>
+                TryUnregister = (o, b, arg3) =>
                 {
                     ++unregisterCount;
-                    m.ShouldEqual(manager);
                     o.ShouldEqual(target);
                     b.ShouldEqual(binding);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -49,25 +47,21 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             manager.AddComponent(holder);
             manager.AddComponent(new BindingHolderLifecycleDispatcher());
 
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, new BindingTargetSourceState(target, null), DefaultMetadata);
+            binding.Target = new TestMemberPathObserver { Target = target };
+            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(0);
 
-            binding.Target = new TestMemberPathObserver { Target = target };
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, DefaultMetadata);
-            registerCount.ShouldEqual(2);
-            unregisterCount.ShouldEqual(0);
-
             manager.OnLifecycleChanged(binding, BindingLifecycleState.Disposed, this, DefaultMetadata);
-            registerCount.ShouldEqual(2);
+            registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 
             manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, MetadataContextValue.Create(BindingMetadata.SuppressHolderRegistration, true).ToContext());
-            registerCount.ShouldEqual(2);
+            registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 
             manager.OnLifecycleChanged(binding, BindingLifecycleState.Disposed, this, MetadataContextValue.Create(BindingMetadata.SuppressHolderRegistration, true).ToContext());
-            registerCount.ShouldEqual(2);
+            registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
         }
 

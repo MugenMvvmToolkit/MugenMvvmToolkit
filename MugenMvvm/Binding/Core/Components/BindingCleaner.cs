@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Methods
 
-        public void OnLifecycleChanged<TState>(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public void OnLifecycleChanged(IBindingManager bindingManager, IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             if (lifecycleState != BindingLifecycleState.Disposed)
                 return;

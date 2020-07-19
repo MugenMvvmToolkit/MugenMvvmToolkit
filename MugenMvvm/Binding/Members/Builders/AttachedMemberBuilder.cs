@@ -56,34 +56,43 @@ namespace MugenMvvm.Binding.Members.Builders
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor) where TTarget : class
         {
             Should.BeSupported(!descriptor.IsStatic, nameof(descriptor.IsStatic));
-            return Method<TTarget, TReturn>(descriptor.Name, typeof(TTarget), typeof(TReturn));
+            var m = Method<TTarget, TReturn>(descriptor.Request.Name, typeof(TTarget), typeof(TReturn));
+            var types = descriptor.Request.Types;
+            if (types.Length != 0)
+            {
+                var parameters = new IParameterInfo[types.Length];
+                for (int i = 0; i < types.Length; i++)
+                    parameters[i] = Parameter("", types[i]).Build();
+                m = m.WithParameters(parameters);
+            }
+
+            return m;
         }
 
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TReturn> descriptor) where TTarget : class
         {
-            return descriptor.RawMethod.GetBuilder().WithParameters(Parameter<TArg1>("p1").Build());
+            return descriptor.RawMethod.GetBuilder();
         }
 
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TReturn> descriptor) where TTarget : class
         {
-            return descriptor.RawMethod.GetBuilder().WithParameters(Parameter<TArg1>("p1").Build(), Parameter<TArg2>("p2").Build());
+            return descriptor.RawMethod.GetBuilder();
         }
 
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TReturn> descriptor) where TTarget : class
         {
-            return descriptor.RawMethod.GetBuilder().WithParameters(Parameter<TArg1>("p1").Build(), Parameter<TArg2>("p2").Build(), Parameter<TArg3>("p3").Build());
+            return descriptor.RawMethod.GetBuilder();
         }
 
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TReturn> descriptor) where TTarget : class
         {
-            return descriptor.RawMethod.GetBuilder().WithParameters(Parameter<TArg1>("p1").Build(), Parameter<TArg2>("p2").Build(), Parameter<TArg3>("p3").Build(), Parameter<TArg4>("p4").Build());
+            return descriptor.RawMethod.GetBuilder();
         }
 
         public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(this BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> descriptor)
             where TTarget : class
         {
-            return descriptor.RawMethod.GetBuilder().WithParameters(Parameter<TArg1>("p1").Build(), Parameter<TArg2>("p2").Build(), Parameter<TArg3>("p3").Build(), Parameter<TArg4>("p4").Build(),
-                Parameter<TArg5>("p5").Build());
+            return descriptor.RawMethod.GetBuilder();
         }
 
         internal static void RaiseMemberAttached<TTarget, TMember>(string id, TTarget target, TMember member, MemberAttachedDelegate<TMember, TTarget> handler, IReadOnlyMetadataContext? metadata)

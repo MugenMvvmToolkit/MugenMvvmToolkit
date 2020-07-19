@@ -4,7 +4,6 @@ using MugenMvvm.Binding.Interfaces.Observation.Components;
 using MugenMvvm.Binding.Observation.Paths;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Observation.Components
 {
@@ -18,9 +17,9 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Implementation of interfaces
 
-        public IMemberPath? TryGetMemberPath<TPath>(IObservationManager observationManager, in TPath path, IReadOnlyMetadataContext? metadata)
+        public IMemberPath? TryGetMemberPath(IObservationManager observationManager, object path, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TPath>() || !(path is string stringPath))
+            if (!(path is string stringPath))
                 return null;
 
             if (stringPath.Length == 0)

@@ -28,12 +28,11 @@ namespace MugenMvvm.UnitTest.Binding.Resources
                 var component = new TestResourceResolverComponent(resolver)
                 {
                     Priority = -i,
-                    TryGetResourceValue = (s, o, arg3, arg4) =>
+                    TryGetResourceValue = (s, o, arg4) =>
                     {
                         ++invokeCount;
                         s.ShouldEqual(name);
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(request.GetType());
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
@@ -63,12 +62,11 @@ namespace MugenMvvm.UnitTest.Binding.Resources
                 var component = new TestTypeResolverComponent(resolver)
                 {
                     Priority = -i,
-                    TryGetType = (s, o, arg3, arg4) =>
+                    TryGetType = (s, o, arg4) =>
                     {
                         ++invokeCount;
                         s.ShouldEqual(name);
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(request.GetType());
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;

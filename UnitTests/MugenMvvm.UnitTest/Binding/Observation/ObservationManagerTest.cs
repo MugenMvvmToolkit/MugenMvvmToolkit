@@ -40,11 +40,10 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 var component = new TestMemberPathProviderComponent(provider)
                 {
                     Priority = -i,
-                    TryGetMemberPath = (o, arg3, arg4) =>
+                    TryGetMemberPath = (o, arg4) =>
                     {
                         ++invokeCount;
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(request.GetType());
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
@@ -81,12 +80,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 var component = new TestMemberObserverProviderComponent(provider)
                 {
                     Priority = -i,
-                    TryGetMemberObserver = (t, o, arg3, arg4) =>
+                    TryGetMemberObserver = (t, o, arg4) =>
                     {
                         ++invokeCount;
                         t.ShouldEqual(type);
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(request.GetType());
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
@@ -123,12 +121,11 @@ namespace MugenMvvm.UnitTest.Binding.Observation
                 var component = new TestMemberPathObserverProviderComponent(provider)
                 {
                     Priority = -i,
-                    TryGetMemberPathObserver = (t, o, arg3, arg4) =>
+                    TryGetMemberPathObserver = (t, o, arg4) =>
                     {
                         ++invokeCount;
                         t.ShouldEqual(target);
                         o.ShouldEqual(request);
-                        arg3.ShouldEqual(request.GetType());
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;

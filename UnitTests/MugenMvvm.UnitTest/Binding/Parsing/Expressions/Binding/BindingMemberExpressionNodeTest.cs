@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             var observationManager = new ObservationManager();
             var component = new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) =>
+                TryGetMemberPath = (o, arg3) =>
                 {
                     o.ShouldEqual(expectedPath);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
 
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) =>
+                TryGetMemberPath = (o, arg3) =>
                 {
                     o.ShouldEqual(expectedPath);
                     arg3.ShouldEqual(DefaultMetadata);
@@ -104,7 +104,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             });
             observationManager.AddComponent(new TestMemberPathObserverProviderComponent
             {
-                TryGetMemberPathObserver = (target, req, arg3, arg4) =>
+                TryGetMemberPathObserver = (target, req, arg4) =>
                 {
                     target.ShouldEqual(expectedTarget);
                     var request = (MemberPathObserverRequest)req;

@@ -12,9 +12,11 @@ namespace MugenMvvm.Binding.Observation
         #region Fields
 
         private WeakEventListener<string>[] _listeners;
+        private bool _raising;
         private ushort _removedSize;
         private ushort _size;
-        private bool _raising;
+        private const int MinValueTrim = 3;
+        private const int MaxValueTrim = 100;
 
         #endregion
 
@@ -56,7 +58,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Methods
 
-        public void Raise<T>(object? sender, in T message, string memberName, IReadOnlyMetadataContext? metadata)
+        public void Raise(object? sender, object? message, string memberName, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
                 return;
@@ -81,16 +83,19 @@ namespace MugenMvvm.Binding.Observation
             {
                 _raising = raising;
             }
-
         }
 
         public ActionToken Add(IEventListener target, string memberName)
         {
+            if (_size > MaxValueTrim && _removedSize == 0 && _listeners.Length == _size)
+                ClearDeadReferences();
+
             var weakItem = target.ToWeak(memberName);
             if (_removedSize == 0)
             {
                 if (_size == _listeners.Length)
-                    Array.Resize(ref _listeners, _size + 2);
+                    Array.Resize(ref _listeners, EventListenerCollection.GetCapacity(_size));
+
                 _listeners[_size++] = weakItem;
             }
             else
@@ -138,20 +143,44 @@ namespace MugenMvvm.Binding.Observation
         {
         }
 
+        private void ClearDeadReferences()
+        {
+            bool trim = false;
+            for (int i = 0; i < _listeners.Length; i++)
+            {
+                var listener = _listeners[i];
+                if (!listener.IsEmpty && !listener.IsAlive)
+                {
+                    RemoveAtInternal(_listeners, i, listener);
+                    trim = true;
+                }
+            }
+
+            if (trim)
+                TrimIfNeed(false);
+        }
+
         private bool RemoveAt(WeakEventListener<string>[] listeners, int index)
         {
             if (!ReferenceEquals(listeners, _listeners))
                 return false;
 
             var listener = listeners[index];
-            if (!listener.IsEmpty)
-                OnListenerRemoved(listener.State);
+            if (listener.IsEmpty)
+                return false;
+
+            RemoveAtInternal(listeners, index, listener);
+            return true;
+        }
+
+        private void RemoveAtInternal(WeakEventListener<string>[] listeners, int index, WeakEventListener<string> listener)
+        {
+            OnListenerRemoved(listener.State);
             listeners[index] = default;
             if (index == _size - 1)
                 --_size;
             else
                 ++_removedSize;
-            return true;
         }
 
         private void TrimIfNeed(bool fromRaise)
@@ -164,6 +193,9 @@ namespace MugenMvvm.Binding.Observation
 
         private void TrimIfNeedInternal()
         {
+            if (_listeners.Length <= MinValueTrim)
+                return;
+
             if (_size == _removedSize)
             {
                 _size = 0;
@@ -172,10 +204,7 @@ namespace MugenMvvm.Binding.Observation
                 return;
             }
 
-            if (_listeners.Length <= 3)
-                return;
-
-            if (_listeners.Length / (float)(_size - _removedSize) <= 2)
+            if (EventListenerCollection.GetCapacity(_size - _removedSize) + 1 >= _listeners.Length)
                 return;
 
             var size = _size;
@@ -195,7 +224,7 @@ namespace MugenMvvm.Binding.Observation
                 _listeners = Default.Array<WeakEventListener<string>>();
             else
             {
-                var capacity = _size + 1;
+                var capacity = EventListenerCollection.GetCapacity(_size);
                 if (size != capacity)
                     Array.Resize(ref _listeners, capacity);
             }

@@ -66,7 +66,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 },
                 Type = typeof(string)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -94,7 +94,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -119,7 +119,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             TestAccessorMemberInfo? result = null;
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -158,7 +158,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
             TestAccessorMemberInfo? result = null;
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -190,7 +190,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
                 },
                 Type = typeof(string)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -218,7 +218,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             {
                 UnderlyingMember = GetType().GetProperty(memberName)
             };
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);
@@ -242,7 +242,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling.Components
             const string memberName = nameof(StaticProperty);
             var ctx = new TestExpressionBuilderContext();
             var metadataContext = ctx.Metadata;
-            _memberManagerComponent.TryGetMembers = (t, m, f, r, tt, meta) =>
+            _memberManagerComponent.TryGetMembers = (t, m, f, r, meta) =>
             {
                 t.ShouldEqual(GetType());
                 r.ShouldEqual(memberName);

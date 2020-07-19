@@ -16,7 +16,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Constructors
 
-        public WeakEventListener(IEventListener listener, in TState state)
+        public WeakEventListener(IEventListener listener, TState state)
         {
             Target = WeakEventListener.GetTarget(listener);
             State = state;
@@ -36,7 +36,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Methods
 
-        public bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             return WeakEventListener.TryHandle(Target, sender, message, metadata);
         }

@@ -59,12 +59,11 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var count = 0;
             for (var i = 0; i < componentCount; i++)
             {
-                var component = new TestExpressionCompilerComponent
+                var component = new TestExpressionCompilerComponent(compiler)
                 {
-                    TryCompile = (c, node, metadata) =>
+                    TryCompile = (node, metadata) =>
                     {
                         ++count;
-                        c.ShouldEqual(compiler);
                         node.ShouldEqual(expressionNode);
                         metadata.ShouldEqual(DefaultMetadata);
                         return compiledExpression;

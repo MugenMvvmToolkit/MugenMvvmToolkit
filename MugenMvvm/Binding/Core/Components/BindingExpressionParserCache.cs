@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
@@ -38,9 +37,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TExpression>() || !(expression is string s))
+            if (!(expression is string s))
                 return Components.TryParseBindingExpression(bindingManager, expression, metadata);
 
             if (!_cache.TryGetValue(s, out var value))
@@ -49,7 +48,7 @@ namespace MugenMvvm.Binding.Core.Components
                 _cache[s] = value;
             }
 
-            return ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(value, true);
+            return ItemOrList.FromRawValueReadonly<IBindingBuilder>(value, true);
         }
 
         #endregion

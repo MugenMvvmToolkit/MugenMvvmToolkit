@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -281,7 +280,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             }
         }
 
-        public static void OnBeginEvent<T>(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public static void OnBeginEvent(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -290,7 +289,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnBeginEvent(bindingManager, sender, message, metadata);
         }
 
-        public static void OnEndEvent<T>(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public static void OnEndEvent(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -299,7 +298,7 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnEndEvent(bindingManager, sender, message, metadata);
         }
 
-        public static void OnEventError<T>(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, Exception exception, object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        public static void OnEventError(this IBindingEventHandlerComponent[] components, IBindingManager bindingManager, Exception exception, object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
@@ -309,11 +308,12 @@ namespace MugenMvvm.Binding.Extensions.Components
                 components[i].OnEventError(bindingManager, exception, sender, message, metadata);
         }
 
-        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(this IBindingExpressionParserComponent[] components,
-            IBindingManager bindingManager, [DisallowNull] in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(this IBindingExpressionParserComponent[] components,
+            IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));
+            Should.NotBeNull(expression, nameof(expression));
             for (var i = 0; i < components.Length; i++)
             {
                 var result = components[i].TryParseBindingExpression(bindingManager, expression, metadata);
@@ -374,8 +374,8 @@ namespace MugenMvvm.Binding.Extensions.Components
             return false;
         }
 
-        public static void OnLifecycleChanged<TState>(this IBindingLifecycleDispatcherComponent[] components, IBindingManager bindingManager, IBinding binding,
-            BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata)
+        public static void OnLifecycleChanged(this IBindingLifecycleDispatcherComponent[] components, IBindingManager bindingManager, IBinding binding,
+            BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(bindingManager, nameof(bindingManager));

@@ -1,8 +1,8 @@
-﻿using MugenMvvm.Binding.Core;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Resources;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 
@@ -13,6 +13,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         #region Fields
 
         private readonly IResourceResolver? _resourceResolver;
+        private MemberPathObserverRequest? _request;
 
         #endregion
 
@@ -40,23 +41,27 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         {
             path = GetMemberPath(metadata);
             memberFlags = MemberFlags;
-            return GetResource(target, source, metadata);
+            return GetResource(target, metadata);
         }
 
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = GetResource(target, source, metadata);
+            var resourceValue = GetResource(target, metadata);
             var memberPath = GetMemberPath(metadata);
             if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target) || !resourceValue.IsStatic)
-                return GetObserver(resourceValue, memberPath, metadata);
+            {
+                _request ??= GetObserverRequest(memberPath);
+                return ObservationManager.DefaultIfNull().GetMemberPathObserver(resourceValue, _request, metadata);
+            }
+
             if (resourceValue.Value == null)
                 return null;
             return memberPath.GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags, 1, metadata);
         }
 
-        private IResourceValue GetResource(object target, object? source, IReadOnlyMetadataContext? metadata)
+        private IResourceValue GetResource(object target, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, new BindingTargetSourceState(target, source), metadata);
+            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, target, metadata);
             if (resourceValue == null)
                 BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
             return resourceValue;

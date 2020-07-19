@@ -15,6 +15,8 @@ namespace MugenMvvm.Binding.Observation
         private ushort _removedSize;
         private ushort _size;
         private bool _raising;
+        private const int MinValueTrim = 3;
+        private const int MaxValueTrim = 100;
 
         #endregion
 
@@ -33,7 +35,7 @@ namespace MugenMvvm.Binding.Observation
             return (EventListenerCollection)attachedValueManager.DefaultIfNull().GetOrAdd(target, path, (_, __) => new EventListenerCollection())!;
         }
 
-        public static void Raise<T>(object target, string path, in T message, IReadOnlyMetadataContext? metadata, IAttachedValueManager? attachedValueManager = null)
+        public static void Raise(object target, string path, object? message, IReadOnlyMetadataContext? metadata, IAttachedValueManager? attachedValueManager = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
@@ -41,7 +43,7 @@ namespace MugenMvvm.Binding.Observation
                 ((EventListenerCollection)collection!).Raise(target, message, metadata);
         }
 
-        public void Raise<TArg>(object? sender, in TArg args, IReadOnlyMetadataContext? metadata)
+        public void Raise(object? sender, object? args, IReadOnlyMetadataContext? metadata)
         {
             if (Count == 0)
                 return;
@@ -79,6 +81,9 @@ namespace MugenMvvm.Binding.Observation
 
         public ActionToken Add(IEventListener listener)
         {
+            if (_size > MaxValueTrim && _removedSize == 0 && _listeners is object?[] l && l.Length == _size)
+                ClearDeadReferences(l);
+
             var target = WeakEventListener.GetTarget(listener);
             if (_listeners == null)
             {
@@ -94,7 +99,7 @@ namespace MugenMvvm.Binding.Observation
                     {
                         if (_size == listeners.Length)
                         {
-                            Array.Resize(ref listeners, _size + 2);
+                            Array.Resize(ref listeners, GetCapacity(_size));
                             _listeners = listeners;
                         }
 
@@ -199,17 +204,39 @@ namespace MugenMvvm.Binding.Observation
             }
         }
 
+        private void ClearDeadReferences(object?[] listeners)
+        {
+            bool trim = false;
+            for (int i = 0; i < listeners.Length; i++)
+            {
+                var listener = listeners[i];
+                if (listener != null && !WeakEventListener.GetIsAlive(listener))
+                {
+                    RemoveAtInternal(listeners, i);
+                    trim = true;
+                }
+            }
+
+            if (trim)
+                TrimIfNeed(listeners, false);
+        }
+
         private bool RemoveAt(object?[] listeners, int index)
         {
             if (!ReferenceEquals(listeners, _listeners) || listeners[index] == null)
                 return false;
 
+            RemoveAtInternal(listeners, index);
+            return true;
+        }
+
+        private void RemoveAtInternal(object?[] listeners, int index)
+        {
             listeners[index] = null;
             if (index == _size - 1)
                 --_size;
             else
                 ++_removedSize;
-            return true;
         }
 
         private void TrimIfNeed(object?[] listeners, bool fromRaise)
@@ -222,6 +249,9 @@ namespace MugenMvvm.Binding.Observation
 
         private void TrimIfNeedInternal(object?[] listeners)
         {
+            if (listeners.Length <= MinValueTrim)
+                return;
+
             if (_size == _removedSize)
             {
                 _size = 0;
@@ -230,10 +260,7 @@ namespace MugenMvvm.Binding.Observation
                 return;
             }
 
-            if (listeners.Length <= 3)
-                return;
-
-            if (listeners.Length / (float)(_size - _removedSize) <= 2)
+            if (GetCapacity(_size - _removedSize) + 1 >= listeners.Length)
                 return;
 
             var size = _size;
@@ -253,12 +280,21 @@ namespace MugenMvvm.Binding.Observation
                 return;
             }
 
-            var capacity = _size + 1;
+            var capacity = GetCapacity(_size);
             if (size != capacity)
             {
                 Array.Resize(ref listeners, capacity);
                 _listeners = listeners;
             }
+        }
+
+        internal static int GetCapacity(int size)
+        {
+            if(size == ushort.MaxValue)
+                ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
+            if (size < 6)
+                return size + 2;
+            return Math.Min((int)(size * 1.43f), ushort.MaxValue);
         }
 
         #endregion

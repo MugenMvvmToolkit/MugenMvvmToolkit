@@ -28,16 +28,16 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Internal
 
         public int Priority { get; set; }
 
-        public Func<object, object, Type, IReadOnlyMetadataContext?, IMemberPathObserver?>? TryGetMemberPathObserver { get; set; }
+        public Func<object, object, IReadOnlyMetadataContext?, IMemberPathObserver?>? TryGetMemberPathObserver { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        IMemberPathObserver? IMemberPathObserverProviderComponent.TryGetMemberPathObserver<TRequest>(IObservationManager observationManager, object target, in TRequest request, IReadOnlyMetadataContext? metadata)
+        IMemberPathObserver? IMemberPathObserverProviderComponent.TryGetMemberPathObserver(IObservationManager observationManager, object target, object request, IReadOnlyMetadataContext? metadata)
         {
             _observationManager?.ShouldEqual(observationManager);
-            return TryGetMemberPathObserver?.Invoke(target, request!, typeof(TRequest), metadata);
+            return TryGetMemberPathObserver?.Invoke(target, request, metadata);
         }
 
         #endregion

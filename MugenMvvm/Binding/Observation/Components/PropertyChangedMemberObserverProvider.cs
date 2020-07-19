@@ -46,11 +46,8 @@ namespace MugenMvvm.Binding.Observation.Components
 
         #region Implementation of interfaces
 
-        public MemberObserver TryGetMemberObserver<TMember>(IObservationManager observationManager, Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        public MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TMember>())
-                return default;
-
             if (member is PropertyInfo p && !p.IsStatic())
                 return TryGetMemberObserver(p.Name, type);
             if (member is IAccessorMemberInfo accessor && !accessor.AccessModifiers.HasFlagEx(MemberFlags.Static))
@@ -66,9 +63,9 @@ namespace MugenMvvm.Binding.Observation.Components
         {
             if (target == null)
                 return default;
-            return ((MemberListenerCollection) _attachedValueManager
+            return ((MemberListenerCollection)_attachedValueManager
                 .DefaultIfNull()
-                .GetOrAdd((INotifyPropertyChanged) target, BindingInternalConstant.PropertyChangedObserverMember, CreateWeakPropertyListenerDelegate)!).Add(listener, (string) member);
+                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstant.PropertyChangedObserverMember, CreateWeakPropertyListenerDelegate)!).Add(listener, (string)member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)
@@ -81,7 +78,7 @@ namespace MugenMvvm.Binding.Observation.Components
         private static MemberListenerCollection CreateWeakPropertyListener(object item, object? _)
         {
             var listener = new MemberListenerCollection();
-            ((INotifyPropertyChanged) item).PropertyChanged += listener.RaisePropertyChanged;
+            ((INotifyPropertyChanged)item).PropertyChanged += listener.RaisePropertyChanged;
             return listener;
         }
 

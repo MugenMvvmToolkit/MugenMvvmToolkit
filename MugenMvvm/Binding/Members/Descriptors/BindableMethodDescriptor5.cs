@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using MugenMvvm.Internal;
 
 namespace MugenMvvm.Binding.Members.Descriptors
 {
@@ -10,44 +10,54 @@ namespace MugenMvvm.Binding.Members.Descriptors
     {
         #region Fields
 
-        public readonly string Name;
+        public readonly MemberTypesRequest Request;
 
         #endregion
 
         #region Constructors
 
-        public BindableMethodDescriptor(string name)
+        public BindableMethodDescriptor(MemberTypesRequest request)
         {
-            Should.NotBeNull(name, nameof(name));
-            Name = name;
+            Should.NotBeNull(request, nameof(request));
+            Request = request;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsStatic => typeof(TTarget) == typeof(Type);
+        public bool IsStatic
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => typeof(TTarget) == typeof(Type);
+        }
 
-        public BindableMethodDescriptor<TTarget, TReturn> RawMethod => this;
-
-        public Type[] Types => Default.Types<TArg1, TArg2, TArg3, TArg4, TArg5>();
+        public BindableMethodDescriptor<TTarget, TReturn> RawMethod
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => this;
+        }
 
         #endregion
 
         #region Methods
 
         [Pure]
-        public BindableMethodDescriptor<TNewTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> Override<TNewTarget>() where TNewTarget : class => Name;
+        public BindableMethodDescriptor<TNewTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> Override<TNewTarget>() where TNewTarget : class => Request;
 
-        public static implicit operator BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(string name) =>
-            new BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(name);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(MemberTypesRequest request) => new BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn>(request);
 
-        public static implicit operator string(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => member.Name;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator MemberTypesRequest(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => member.Request;
 
-        public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) =>
-            new BindableMethodDescriptor<TTarget, TReturn>(member.Name, member.Types);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator string(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => member.Request?.Name ?? "";
 
-        public override string ToString() => Name;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator BindableMethodDescriptor<TTarget, TReturn>(BindableMethodDescriptor<TTarget, TArg1, TArg2, TArg3, TArg4, TArg5, TReturn> member) => new BindableMethodDescriptor<TTarget, TReturn>(member.Request);
+
+        public override string ToString() => Request?.ToString() ?? "";
 
         #endregion
     }

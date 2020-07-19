@@ -62,19 +62,16 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return this;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected IMemberPath GetMemberPath(IReadOnlyMetadataContext? metadata)
         {
             return _memberPath ??= ObservationManager.DefaultIfNull().GetMemberPath(Path, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        protected IMemberPathObserver GetObserver(object target, IMemberPath memberPath, IReadOnlyMetadataContext? metadata)
+        protected MemberPathObserverRequest GetObserverRequest(IMemberPath memberPath)
         {
-            var request = new MemberPathObserverRequest(memberPath, MemberFlags,
+            return new MemberPathObserverRequest(memberPath, MemberFlags,
                 Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, request, metadata);
         }
 
         public override string ToString()

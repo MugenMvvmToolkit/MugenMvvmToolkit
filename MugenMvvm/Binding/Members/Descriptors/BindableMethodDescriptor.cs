@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 
@@ -9,37 +10,39 @@ namespace MugenMvvm.Binding.Members.Descriptors
     {
         #region Fields
 
-        public readonly string Name;
-        public readonly Type[] Types;
+        public readonly MemberTypesRequest Request;
 
         #endregion
 
         #region Constructors
 
-        public BindableMethodDescriptor(string name, Type[] types)
+        public BindableMethodDescriptor(MemberTypesRequest request)
         {
-            Should.NotBeNull(name, nameof(name));
-            Should.NotBeNull(types, nameof(types));
-            Name = name;
-            Types = types;
+            Should.NotBeNull(request, nameof(request));
+            Request = request;
         }
 
         #endregion
 
         #region Properties
 
-        public bool IsStatic => typeof(TTarget) == typeof(Type);
+        public bool IsStatic
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => typeof(TTarget) == typeof(Type);
+        }
 
         #endregion
 
         #region Methods
 
         [Pure]
-        public BindableMethodDescriptor<TNewTarget, TReturn> Override<TNewTarget>() where TNewTarget : class => new BindableMethodDescriptor<TNewTarget, TReturn>(Name, Types);
+        public BindableMethodDescriptor<TNewTarget, TReturn> Override<TNewTarget>() where TNewTarget : class => new BindableMethodDescriptor<TNewTarget, TReturn>(Request);
 
-        public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member) => member.Name;
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static implicit operator string(BindableMethodDescriptor<TTarget, TReturn> member) => member.Request?.Name ?? "";
 
-        public override string ToString() => Name;
+        public override string ToString() => Request?.ToString() ?? "";
 
         #endregion
     }

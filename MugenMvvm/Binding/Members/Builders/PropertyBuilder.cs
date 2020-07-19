@@ -245,7 +245,7 @@ namespace MugenMvvm.Binding.Members.Builders
 
             #region Implementation of interfaces
 
-            bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+            bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
                 Raise(sender, message, metadata);
                 return true;
@@ -355,12 +355,12 @@ namespace MugenMvvm.Binding.Members.Builders
 
             #region Implementation of interfaces
 
-            bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+            bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
                 var target = (TTarget)_targetRef.Target;
                 if (target == null)
                     return false;
-                if (!TypeChecker.IsValueType<T>() && message is InheritedProperty inheritedProperty)
+                if (message is InheritedProperty inheritedProperty)
                     ApplyValues(target, inheritedProperty, metadata);
                 else
                     InvalidateParent(target, metadata);

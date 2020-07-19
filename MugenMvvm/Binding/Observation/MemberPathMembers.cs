@@ -38,7 +38,11 @@ namespace MugenMvvm.Binding.Observation
 
         #region Properties
 
-        public bool IsAvailable => _members != null;
+        public bool IsAvailable
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _members != null;
+        }
 
         public Exception? Error
         {
@@ -52,6 +56,7 @@ namespace MugenMvvm.Binding.Observation
 
         public object? Target
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_members == null)
@@ -60,7 +65,11 @@ namespace MugenMvvm.Binding.Observation
             }
         }
 
-        public IReadOnlyList<IMemberInfo> Members => _members ?? ConstantMemberInfo.UnsetArray;
+        public IReadOnlyList<IMemberInfo> Members
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _members ?? ConstantMemberInfo.UnsetArray;
+        }
 
         #endregion
 

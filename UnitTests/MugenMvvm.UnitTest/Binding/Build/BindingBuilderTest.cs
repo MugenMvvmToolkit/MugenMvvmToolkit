@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using MugenMvvm.Binding.Build;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Build;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
@@ -22,6 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
         #region Fields
 
         private static readonly BindingExpressionRequest ConverterRequest = new BindingExpressionRequest("", null, null);
+        private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
         #endregion
 
@@ -30,26 +32,22 @@ namespace MugenMvvm.UnitTest.Binding.Build
         [Fact]
         public void ParseBindingExpressionShouldUseBindingBuilderRequest()
         {
-            BindingBuilderRequest request = default;
             var testBuilder = new TestBindingBuilder();
             var bindingManager = new BindingManager();
             var invokeCount = 0;
-            bindingManager.AddComponent(new TestBindingExpressionParserComponent
+            bindingManager.AddComponent(new TestBindingExpressionParserComponent(bindingManager)
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
-                    request = (BindingBuilderRequest)o;
-                    type.ShouldEqual(typeof(BindingBuilderRequest));
+                    o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
             });
 
-            bindingManager.ParseBindingExpression<object, object>(target => ConverterRequest, DefaultMetadata).Item.ShouldEqual(testBuilder);
+            bindingManager.ParseBindingExpression(Delegate, DefaultMetadata).Item.ShouldEqual(testBuilder);
             invokeCount.ShouldEqual(1);
-            request.ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
         }
 
         [Fact]
@@ -72,24 +70,23 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
-                    ((BindingBuilderRequest)o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
-                    type.ShouldEqual(typeof(BindingBuilderRequest));
+                    o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
             });
 
-            target.Bind(builderTarget => ConverterRequest, DefaultMetadata, bindingManager).Item.ShouldEqual(binding);
+            target.Bind(Delegate, DefaultMetadata, bindingManager).Item.ShouldEqual(binding);
             invokeCount.ShouldEqual(1);
         }
 
         [Fact]
         public void BindShouldBuildBinding2()
         {
+            var del = new BindingBuilderDelegate<BindingBuilderTest, string>(builderTarget => ConverterRequest);
             var target = this;
             var source = "";
             var binding = new TestBinding();
@@ -107,18 +104,16 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
-                    ((BindingBuilderRequest)o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
-                    type.ShouldEqual(typeof(BindingBuilderRequest));
+                    o.ShouldEqual(del);
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
             });
 
-            target.Bind(source, builderTarget => ConverterRequest, DefaultMetadata, bindingManager).Item.ShouldEqual(binding);
+            target.Bind(source, del, DefaultMetadata, bindingManager).Item.ShouldEqual(binding);
             invokeCount.ShouldEqual(1);
         }
 
@@ -143,12 +138,10 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
-                    type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
                     return new[] { testBuilder, testBuilder };
                 }
@@ -184,12 +177,10 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
-                    type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
                     return new[] { testBuilder, testBuilder };
                 }

@@ -32,14 +32,13 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 var component = new TestMemberManagerComponent(memberManager)
                 {
                     Priority = -i,
-                    TryGetMembers = ( t, m, f, r, tt, meta) =>
+                    TryGetMembers = (t, m, f, r, meta) =>
                     {
                         ++invokeCount;
                         t.ShouldEqual(type);
                         m.ShouldEqual(memberType);
                         f.ShouldEqual(memberFlags);
                         r.ShouldEqual(request);
-                        tt.ShouldEqual(request.GetType());
                         meta.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return member;

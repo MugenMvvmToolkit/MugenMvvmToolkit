@@ -22,11 +22,10 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             var decorator = new MemberPathProviderCache();
             var testPathProvider = new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) =>
+                TryGetMemberPath = (o, arg3) =>
                 {
                     ++invokeCount;
                     o.ShouldEqual(path.Path);
-                    type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
                     return path;
                 }

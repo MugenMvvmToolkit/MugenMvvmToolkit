@@ -6,8 +6,8 @@ namespace MugenMvvm.Binding.Interfaces.Resources
 {
     public interface IResourceResolver : IComponentOwner<IResourceResolver>
     {
-        IResourceValue? TryGetResourceValue<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata = null);
+        IResourceValue? TryGetResourceValue(string name, object? state = null, IReadOnlyMetadataContext? metadata = null);
 
-        Type? TryGetType<TState>(string name, in TState state, IReadOnlyMetadataContext? metadata = null);
+        Type? TryGetType(string name, object? state = null, IReadOnlyMetadataContext? metadata = null);
     }
 }

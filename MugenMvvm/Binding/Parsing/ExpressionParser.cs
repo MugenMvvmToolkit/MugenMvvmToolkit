@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Components;
@@ -23,7 +22,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Implementation of interfaces
 
-        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> TryParse(object expression, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IExpressionParserComponent>(metadata).TryParse(this, expression, metadata);
         }

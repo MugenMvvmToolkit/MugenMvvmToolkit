@@ -11,12 +11,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
         #region Methods
 
         [Fact]
-        public void DefaultShouldBeEmpty()
-        {
-            default(BindingExpressionRequest).IsEmpty.ShouldBeTrue();
-        }
-
-        [Fact]
         public void ConstructorShouldInitializeValues()
         {
             var target = Expression.Constant("1");
@@ -25,7 +19,6 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             var memberManagerRequest = new BindingExpressionRequest(target, source, parameter);
             memberManagerRequest.Target.ShouldEqual(target);
             memberManagerRequest.Source.ShouldEqual(source);
-            memberManagerRequest.IsEmpty.ShouldBeFalse();
             memberManagerRequest.Parameters.ShouldEqual(parameter);
         }
 

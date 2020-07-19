@@ -5,20 +5,36 @@ using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Internal;
+using Should;
 
 namespace MugenMvvm.UnitTest.Binding.Core.Internal
 {
     public class TestBindingHolderComponent : IBindingHolderComponent, IHasPriority
     {
+        #region Fields
+
+        private readonly IBindingManager? _bindingManager;
+
+        #endregion
+
+        #region Constructors
+
+        public TestBindingHolderComponent(IBindingManager? bindingManager = null)
+        {
+            _bindingManager = bindingManager;
+        }
+
+        #endregion
+
         #region Properties
 
         public int Priority { get; set; }
 
-        public Func<IBindingManager, object, string?, IReadOnlyMetadataContext?, ItemOrList<IBinding, IReadOnlyList<IBinding>>>? TryGetBindings { get; set; }
+        public Func<object, string?, IReadOnlyMetadataContext?, ItemOrList<IBinding, IReadOnlyList<IBinding>>>? TryGetBindings { get; set; }
 
-        public Func<IBindingManager, object?, IBinding, IReadOnlyMetadataContext?, bool>? TryRegister { get; set; }
+        public Func<object?, IBinding, IReadOnlyMetadataContext?, bool>? TryRegister { get; set; }
 
-        public Func<IBindingManager, object?, IBinding, IReadOnlyMetadataContext?, bool>? TryUnregister { get; set; }
+        public Func<object?, IBinding, IReadOnlyMetadataContext?, bool>? TryUnregister { get; set; }
 
         #endregion
 
@@ -26,17 +42,20 @@ namespace MugenMvvm.UnitTest.Binding.Core.Internal
 
         ItemOrList<IBinding, IReadOnlyList<IBinding>> IBindingHolderComponent.TryGetBindings(IBindingManager bindingManager, object target, string? path, IReadOnlyMetadataContext? metadata)
         {
-            return TryGetBindings?.Invoke(bindingManager, target, path, metadata) ?? default;
+            _bindingManager?.ShouldEqual(bindingManager);
+            return TryGetBindings?.Invoke(target, path, metadata) ?? default;
         }
 
         bool IBindingHolderComponent.TryRegister(IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
-            return TryRegister?.Invoke(bindingManager, target, binding, metadata) ?? default;
+            _bindingManager?.ShouldEqual(bindingManager);
+            return TryRegister?.Invoke(target, binding, metadata) ?? default;
         }
 
         bool IBindingHolderComponent.TryUnregister(IBindingManager bindingManager, object? target, IBinding binding, IReadOnlyMetadataContext? metadata)
         {
-            return TryUnregister?.Invoke(bindingManager, target, binding, metadata) ?? default;
+            _bindingManager?.ShouldEqual(bindingManager);
+            return TryUnregister?.Invoke(target, binding, metadata) ?? default;
         }
 
         #endregion

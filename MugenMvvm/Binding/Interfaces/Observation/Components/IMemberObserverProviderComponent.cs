@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -8,6 +7,6 @@ namespace MugenMvvm.Binding.Interfaces.Observation.Components
 {
     public interface IMemberObserverProviderComponent : IComponent<IObservationManager>
     {
-        MemberObserver TryGetMemberObserver<TMember>(IObservationManager observationManager, Type type, [DisallowNull]in TMember member, IReadOnlyMetadataContext? metadata);
+        MemberObserver TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata);
     }
 }

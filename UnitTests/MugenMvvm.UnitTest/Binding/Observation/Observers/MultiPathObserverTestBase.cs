@@ -87,7 +87,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
 
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++getMembersCount;
                     if (t == target2.GetType())
@@ -204,7 +204,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
 
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++getMembersCount;
                     if (t == target2.GetType())
@@ -275,7 +275,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) => throw error
+                TryGetMembers = (t, m, f, r, meta) => throw error
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -298,7 +298,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             var path = DefaultPath;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) => throw error
+                TryGetMembers = (t, m, f, r, meta) => throw error
             };
 
             using var _ = TestComponentSubscriber.Subscribe(component);
@@ -336,7 +336,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             var accessorInfo3 = new TestAccessorMemberInfo();
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (t == target2.GetType())
                         return accessorInfo3;
@@ -387,7 +387,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (t == target2.GetType())
                         return accessorInfo3;
@@ -412,7 +412,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             IEventListener? currentListener = null;
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) => default
+                TryGetMembers = (t, m, f, r, meta) => default
             };
             using var _ = TestComponentSubscriber.Subscribe(component);
 

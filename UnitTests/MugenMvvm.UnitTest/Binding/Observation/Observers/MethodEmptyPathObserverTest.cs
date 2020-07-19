@@ -61,7 +61,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Observers
             };
             var component = new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     if (r.Equals(MethodName))
                     {

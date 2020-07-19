@@ -6,6 +6,6 @@ namespace MugenMvvm.Binding.Interfaces.Resources.Components
 {
     public interface ITypeResolverComponent : IComponent<IResourceResolver>
     {
-        Type? TryGetType<TState>(IResourceResolver resourceResolver, string name, in TState state, IReadOnlyMetadataContext? metadata);
+        Type? TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata);
     }
 }

@@ -309,7 +309,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var resolver = new ResourceResolver();
             resolver.AddComponent(new TestTypeResolverComponent
             {
-                TryGetType = (s, o, arg3, arg4) =>
+                TryGetType = (s, o, arg4) =>
                 {
                     s.ShouldEqual(TypeName);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -370,7 +370,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var resolver = new ResourceResolver();
             resolver.AddComponent(new TestTypeResolverComponent
             {
-                TryGetType = (s, o, arg3, arg4) =>
+                TryGetType = (s, o, arg4) =>
                 {
                     s.ShouldEqual(TypeName);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -381,7 +381,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     m.ShouldEqual(MemberType.Accessor);
                     if (r.Equals(MemberName))
@@ -405,7 +405,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) =>
+                TryGetMemberPath = (o, arg3) =>
                 {
                     var path = (string)o!;
                     if (path == "")
@@ -467,7 +467,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var resolver = new ResourceResolver();
             resolver.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResourceValue = (s, o, arg3, arg4) =>
+                TryGetResourceValue = (s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     arg4.ShouldEqual(DefaultMetadata);
@@ -489,7 +489,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     m.ShouldEqual(MemberType.Accessor);
                     if (r.Equals(MemberName))
@@ -506,7 +506,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) =>
+                TryGetMemberPath = (o, arg3) =>
                 {
                     var path = (string)o!;
                     if (path == "")
@@ -577,7 +577,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var resolver = new ResourceResolver();
             resolver.AddComponent(new TestTypeResolverComponent
             {
-                TryGetType = (s, o, arg3, arg4) => typeof(object)
+                TryGetType = (s, o, arg4) => typeof(object)
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.DynamicExpression, new MemberExpressionNode(null, TypeName)),
@@ -603,12 +603,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var resolver = new ResourceResolver();
             resolver.AddComponent(new TestTypeResolverComponent
             {
-                TryGetType = (s, o, arg3, arg4) => typeof(string)
+                TryGetType = (s, o, arg4) => typeof(string)
             });
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) => EmptyMemberPath.Instance
+                TryGetMemberPath = (o, arg3) => EmptyMemberPath.Instance
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, TypeName)),
@@ -624,12 +624,12 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Visitors
             var resolver = new ResourceResolver();
             resolver.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResourceValue = (s, o, arg3, arg4) => new TestResourceValue()
+                TryGetResourceValue = (s, o, arg4) => new TestResourceValue()
             });
             var observationManager = new ObservationManager();
             observationManager.AddComponent(new TestMemberPathProviderComponent
             {
-                TryGetMemberPath = (o, type, arg3) => EmptyMemberPath.Instance
+                TryGetMemberPath = (o, arg3) => EmptyMemberPath.Instance
             });
 
             var expression = new BinaryExpressionNode(BinaryTokenType.Addition, new UnaryExpressionNode(UnaryTokenType.StaticExpression, new MemberExpressionNode(null, ResourceName)),

@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Internal
 
         #region Properties
 
-        public Func<string, object?, Type, IReadOnlyMetadataContext?, Type?>? TryGetType { get; set; }
+        public Func<string, object?, IReadOnlyMetadataContext?, Type?>? TryGetType { get; set; }
 
         public int Priority { get; set; }
 
@@ -34,10 +34,10 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Internal
 
         #region Implementation of interfaces
 
-        Type? ITypeResolverComponent.TryGetType<TRequest>(IResourceResolver resourceResolver, string name, in TRequest state, IReadOnlyMetadataContext? metadata)
+        Type? ITypeResolverComponent.TryGetType(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             _resourceResolver?.ShouldEqual(resourceResolver);
-            return TryGetType?.Invoke(name, state, typeof(TRequest), metadata);
+            return TryGetType?.Invoke(name, state, metadata);
         }
 
         #endregion

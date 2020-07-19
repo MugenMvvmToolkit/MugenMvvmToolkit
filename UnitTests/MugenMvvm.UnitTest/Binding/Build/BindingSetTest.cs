@@ -2,6 +2,7 @@
 using System.Linq;
 using MugenMvvm.Binding.Build;
 using MugenMvvm.Binding.Core;
+using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Extensions;
@@ -17,6 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
         #region Fields
 
         private static readonly BindingExpressionRequest ConverterRequest = new BindingExpressionRequest("", null, null);
+        private static readonly BindingBuilderDelegate<object, object> Delegate = target => ConverterRequest;
 
         #endregion
 
@@ -42,19 +44,17 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
-                    ((BindingBuilderRequest)o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
-                    type.ShouldEqual(typeof(BindingBuilderRequest));
+                    o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
             });
 
             var bindingSet = new BindingSet<object>(source, bindingManager);
-            bindingSet.Bind(target, builderTarget => ConverterRequest, DefaultMetadata);
+            bindingSet.Bind(target, Delegate, DefaultMetadata);
             bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
             invokeCount.ShouldEqual(1);
         }
@@ -63,7 +63,7 @@ namespace MugenMvvm.UnitTest.Binding.Build
         public void BindShouldBuildBinding2()
         {
             var target = this;
-            var source = "";
+            var source = new object();
             var binding = new TestBinding();
             var testBuilder = new TestBindingBuilder
             {
@@ -79,19 +79,17 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
-                    ((BindingBuilderRequest)o).ToBindingExpressionRequest().ShouldEqual(ConverterRequest);
-                    type.ShouldEqual(typeof(BindingBuilderRequest));
+                    o.ShouldEqual(Delegate);
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
             });
 
             var bindingSet = new BindingSet<object>(bindingManager);
-            bindingSet.Bind(target, source, builderTarget => ConverterRequest, DefaultMetadata);
+            bindingSet.Bind(target, source, Delegate, DefaultMetadata);
             bindingSet.BuildIncludeBindings(DefaultMetadata).Item.ShouldEqual(binding);
             invokeCount.ShouldEqual(1);
         }
@@ -118,12 +116,10 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
-                    type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
@@ -156,12 +152,10 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var invokeCount = 0;
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
-                    type.ShouldEqual(typeof(string));
                     arg3.ShouldEqual(DefaultMetadata);
                     return testBuilder;
                 }
@@ -206,9 +200,8 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
-                    m.ShouldEqual(bindingManager);
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
@@ -270,9 +263,8 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
-                    m.ShouldEqual(bindingManager);
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;
@@ -329,9 +321,8 @@ namespace MugenMvvm.UnitTest.Binding.Build
             var bindingManager = new BindingManager();
             bindingManager.AddComponent(new TestBindingExpressionParserComponent
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
-                    m.ShouldEqual(bindingManager);
                     if (o is IReadOnlyList<IBindingBuilder> builders)
                     {
                         ++sortCount;

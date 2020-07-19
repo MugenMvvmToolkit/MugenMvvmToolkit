@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Core;
@@ -37,7 +36,7 @@ namespace MugenMvvm.Binding.Core
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>([DisallowNull]in TExpression expression, IReadOnlyMetadataContext? metadata = null)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(object expression, IReadOnlyMetadataContext? metadata = null)
         {
             if (_expressionBuilderComponents == null)
                 _componentTracker.Attach(this, metadata);
@@ -51,7 +50,7 @@ namespace MugenMvvm.Binding.Core
             return _holderComponents!.TryGetBindings(this, target, path, metadata);
         }
 
-        public void OnLifecycleChanged<TState>(IBinding binding, BindingLifecycleState lifecycleState, in TState state, IReadOnlyMetadataContext? metadata = null)
+        public void OnLifecycleChanged(IBinding binding, BindingLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null)
         {
             if (_stateDispatcherComponents == null)
                 _componentTracker.Attach(this, metadata);

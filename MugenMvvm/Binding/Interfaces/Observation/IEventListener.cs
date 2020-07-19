@@ -4,6 +4,6 @@ namespace MugenMvvm.Binding.Interfaces.Observation
 {
     public interface IEventListener
     {
-        bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata);
+        bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata);
     }
 }

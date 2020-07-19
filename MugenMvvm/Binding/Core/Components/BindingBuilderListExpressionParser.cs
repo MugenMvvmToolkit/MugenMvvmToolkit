@@ -18,11 +18,9 @@ namespace MugenMvvm.Binding.Core.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression<TExpression>(IBindingManager bindingManager, in TExpression expression, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IBindingBuilder, IReadOnlyList<IBindingBuilder>> TryParseBindingExpression(IBindingManager bindingManager, object expression, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TExpression>() || !(expression is IReadOnlyList<IBindingBuilder> result))
-                return default;
-            return ItemOrList.FromList(result);
+            return expression is IReadOnlyList<IBindingBuilder> result ? ItemOrList.FromList(result) : default;
         }
 
         #endregion

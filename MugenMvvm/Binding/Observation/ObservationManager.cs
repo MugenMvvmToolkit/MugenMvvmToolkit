@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Observation;
@@ -38,21 +37,21 @@ namespace MugenMvvm.Binding.Observation
 
         #region Implementation of interfaces
 
-        public MemberObserver TryGetMemberObserver<TMember>(Type type, [DisallowNull] in TMember member, IReadOnlyMetadataContext? metadata = null)
+        public MemberObserver TryGetMemberObserver(Type type, object member, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberObserverComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _memberObserverComponents!.TryGetMemberObserver(this, type, member, metadata);
         }
 
-        public IMemberPath? TryGetMemberPath<TPath>([DisallowNull] in TPath path, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPath? TryGetMemberPath(object path, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathComponents == null)
                 _componentTracker.Attach(this, metadata);
             return _memberPathComponents!.TryGetMemberPath(this, path, metadata);
         }
 
-        public IMemberPathObserver? TryGetMemberPathObserver<TRequest>(object target, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public IMemberPathObserver? TryGetMemberPathObserver(object target, object request, IReadOnlyMetadataContext? metadata = null)
         {
             if (_memberPathObserverComponents == null)
                 _componentTracker.Attach(this, metadata);

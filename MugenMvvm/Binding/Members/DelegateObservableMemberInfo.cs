@@ -20,7 +20,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Constructors
 
-        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
+        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, TState state,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             Should.NotBeNull(name, nameof(name));
@@ -56,7 +56,7 @@ namespace MugenMvvm.Binding.Members
 
         #region Implementation of interfaces
 
-        public void Raise<T>(object? target, in T message, IReadOnlyMetadataContext? metadata = null)
+        public void Raise(object? target, object? message = null, IReadOnlyMetadataContext? metadata = null)
         {
             _raise?.Invoke(this, (TTarget)target!, message, metadata);
         }

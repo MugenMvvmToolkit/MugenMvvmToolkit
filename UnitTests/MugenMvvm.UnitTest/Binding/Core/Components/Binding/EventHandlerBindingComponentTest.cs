@@ -138,30 +138,27 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             var components = new List<IDisposable>();
             for (var i = 0; i < count; i++)
             {
-                var subscribe = TestComponentSubscriber.Subscribe(new TestBindingEventHandlerComponent
+                var subscribe = TestComponentSubscriber.Subscribe(new TestBindingEventHandlerComponent(MugenBindingService.BindingManager)
                 {
-                    OnBeginEvent = (m, s, msg, metadata) =>
+                    OnBeginEvent = (s, msg, metadata) =>
                     {
                         if (isError)
                             throw exception;
-                        m.ShouldEqual(MugenBindingService.BindingManager);
                         ++beginEventCount;
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
-                    OnEndEvent = (m, s, msg, metadata) =>
+                    OnEndEvent = (s, msg, metadata) =>
                     {
                         ++endEventCount;
-                        m.ShouldEqual(MugenBindingService.BindingManager);
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);
                         metadata.ShouldEqual(DefaultMetadata);
                     },
-                    OnEventError = (m, e, s, msg, metadata) =>
+                    OnEventError = (e, s, msg, metadata) =>
                     {
                         ++errorEventCount;
-                        m.ShouldEqual(MugenBindingService.BindingManager);
                         e.ShouldEqual(exception);
                         s.ShouldEqual(sender);
                         msg.ShouldEqual(message);
@@ -286,7 +283,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
             };
             using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     meta.ShouldEqual(DefaultMetadata);
                     r.ShouldEqual(BindableMembers.For<object>().Enabled().Name);
@@ -363,7 +360,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components.Binding
 
             using var _ = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (t, m, f, r, tt, meta) => enabledMember
+                TryGetMembers = (t, m, f, r, meta) => enabledMember
             });
 
             IEventListener? listener = null;

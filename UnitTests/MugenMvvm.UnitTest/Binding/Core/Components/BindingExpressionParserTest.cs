@@ -33,11 +33,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var st = "";
             var parserComponent = new TestExpressionParserComponent
             {
-                TryParse = (o, type, arg3) =>
+                TryParse = (o, arg3) =>
                 {
                     ++count;
                     o.ShouldEqual(st);
-                    type.ShouldEqual(st.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                     return default;
                 }
@@ -54,7 +53,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             var parserComponent = new TestExpressionParserComponent
             {
-                TryParse = (o, type, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
+                TryParse = (o, arg3) => new ExpressionParserResult(ConstantExpressionNode.Get(0), ConstantExpressionNode.Get(0), default)
             };
             var parser = new ExpressionParser();
             parser.AddComponent(parserComponent);
@@ -99,7 +98,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var parser = new ExpressionParser();
             parser.AddComponent(new TestExpressionParserComponent
             {
-                TryParse = (o, type, arg3) => results
+                TryParse = (o, arg3) => results
             });
             var bindingManager = new BindingManager();
             var builder = new BindingExpressionParser(parser);
@@ -115,10 +114,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 if (includeFactoryComponent)
                     components.Add(factoryComponent);
                 var index = i;
-                bindingManager.AddComponent(new TestBindingExpressionInitializerComponent
+                bindingManager.AddComponent(new TestBindingExpressionInitializerComponent(bindingManager)
                 {
                     Priority = -i,
-                    Initialize = (_, context) =>
+                    Initialize = (context) =>
                     {
                         ++invokeCount;
                         context.Target.ShouldEqual(target);
@@ -237,7 +236,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var compiler = new ExpressionCompiler();
             compiler.AddComponent(new TestExpressionCompilerComponent
             {
-                TryCompile = (_, node, context) =>
+                TryCompile = (node, context) =>
                 {
                     var expected = GetBindingSourceExpression(count, out var n1, out var n2);
                     n1.Index = 0;
@@ -250,7 +249,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             var parser = new ExpressionParser();
             parser.AddComponent(new TestExpressionParserComponent
             {
-                TryParse = (o, type, arg3) => results
+                TryParse = (o, arg3) => results
             });
             var bindingManager = new BindingManager();
             var builder = new BindingExpressionParser(parser, compiler);
@@ -269,7 +268,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 bindingManager.AddComponent(new TestBindingExpressionInitializerComponent
                 {
                     Priority = -i,
-                    Initialize = (m, context) =>
+                    Initialize = (context) =>
                     {
                         ++invokeCount;
                         context.Target.ShouldEqual(target);

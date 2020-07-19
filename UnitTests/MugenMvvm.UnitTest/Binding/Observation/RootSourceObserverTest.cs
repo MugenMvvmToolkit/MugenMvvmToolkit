@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             };
             using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
+                TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation
             };
             using var m = TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) =>
+                TryGetMembers = (type, memberType, arg3, arg4, arg5) =>
                 {
                     if (BindableMembers.For<object>().Parent().Name.Equals(arg4))
                         return parentMember;

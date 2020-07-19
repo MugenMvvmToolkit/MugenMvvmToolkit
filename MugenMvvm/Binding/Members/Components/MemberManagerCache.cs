@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Enums;
@@ -63,30 +62,17 @@ namespace MugenMvvm.Binding.Members.Components
             return HashCode.Combine(key.Key, key.Type, (int)key.MemberType, (int)key.MemberFlags, key.Types.Length);
         }
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request,
-            IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
         {
-            string? name;
+            var name = request as string;
             Type[]? types;
-            if (TypeChecker.IsValueType<TRequest>())
+            if (name == null && request is MemberTypesRequest r)
             {
-                if (typeof(TRequest) == typeof(MemberTypesRequest))
-                {
-                    var methodRequest = MugenExtensions.CastGeneric<TRequest, MemberTypesRequest>(request);
-                    name = methodRequest.Name;
-                    types = methodRequest.Types;
-                }
-                else
-                {
-                    name = null;
-                    types = null;
-                }
+                name = r.Name;
+                types = r.Types;
             }
             else
-            {
-                name = request as string;
                 types = Default.Array<Type>();
-            }
 
             if (name == null)
                 return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
@@ -98,7 +84,7 @@ namespace MugenMvvm.Binding.Members.Components
                 _cache[cacheKey] = members;
             }
 
-            return ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(members, true);
+            return ItemOrList.FromRawValueReadonly<IMemberInfo>(members, true);
         }
 
         #endregion

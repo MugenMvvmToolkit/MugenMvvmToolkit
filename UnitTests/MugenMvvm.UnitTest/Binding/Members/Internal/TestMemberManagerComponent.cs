@@ -18,7 +18,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         public static readonly TestMemberManagerComponent Selector = new TestMemberManagerComponent
         {
-            TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(arg4)
+            TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(arg4)
         };
 
         #endregion
@@ -36,17 +36,17 @@ namespace MugenMvvm.UnitTest.Binding.Members.Internal
 
         public int Priority { get; set; }
 
-        public Func<Type, MemberType, MemberFlags, object, Type, IReadOnlyMetadataContext?, ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>>? TryGetMembers { get; set; }
+        public Func<Type, MemberType, MemberFlags, object, IReadOnlyMetadataContext?, ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>>>? TryGetMembers { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberManagerComponent.TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, in TRequest request,
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> IMemberManagerComponent.TryGetMembers(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request,
             IReadOnlyMetadataContext? metadata)
         {
             _memberManager?.ShouldEqual(memberManager);
-            return TryGetMembers?.Invoke(type, memberTypes, flags, request!, typeof(TRequest), metadata) ?? default;
+            return TryGetMembers?.Invoke(type, memberTypes, flags, request, metadata) ?? default;
         }
 
         #endregion

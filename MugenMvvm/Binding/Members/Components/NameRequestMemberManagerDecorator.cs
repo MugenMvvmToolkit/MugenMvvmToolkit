@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
@@ -8,7 +7,6 @@ using MugenMvvm.Binding.Extensions.Components;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
 using MugenMvvm.Components;
-using MugenMvvm.Constants;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -42,9 +40,9 @@ namespace MugenMvvm.Binding.Members.Components
 
         #region Implementation of interfaces
 
-        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (TypeChecker.IsValueType<TRequest>() || !(request is string name))
+            if (!(request is string name))
                 return Components.TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
             _members.Clear();
             Owner.GetComponents<IMemberProviderComponent>(metadata).TryAddMembers(memberManager, _members, type, name, memberTypes, metadata);

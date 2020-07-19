@@ -36,15 +36,13 @@ namespace MugenMvvm.UnitTest.Binding.Core
             for (var i = 0; i < count; i++)
             {
                 var isLast = i == count - 1;
-                var component = new TestBindingExpressionParserComponent
+                var component = new TestBindingExpressionParserComponent(bindingManager)
                 {
                     Priority = -i,
-                    TryParseBindingExpression = (b, r, t, m) =>
+                    TryParseBindingExpression = (r, m) =>
                     {
                         ++invokeCount;
-                        b.ShouldEqual(bindingManager);
                         r.ShouldEqual(request);
-                        t.ShouldEqual(request.GetType());
                         m.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return expression;
@@ -74,12 +72,11 @@ namespace MugenMvvm.UnitTest.Binding.Core
             {
                 var binding = new TestBinding();
                 list1.Add(binding);
-                var component = new TestBindingHolderComponent
+                var component = new TestBindingHolderComponent(bindingManager)
                 {
                     Priority = -i,
-                    TryGetBindings = (b, t, p, m) =>
+                    TryGetBindings = (t, p, m) =>
                     {
-                        b.ShouldEqual(bindingManager);
                         list2.Add(binding);
                         t.ShouldEqual(target);
                         p.ShouldEqual(path);
@@ -107,15 +104,13 @@ namespace MugenMvvm.UnitTest.Binding.Core
             var lifecycleState = BindingLifecycleState.Disposed;
             for (var i = 0; i < count; i++)
             {
-                var component = new TestBindingStateDispatcherComponent
+                var component = new TestBindingStateDispatcherComponent(manager)
                 {
-                    OnLifecycleChanged = (b, vm, viewModelLifecycleState, st, stateType, metadata) =>
+                    OnLifecycleChanged = (vm, viewModelLifecycleState, st, metadata) =>
                     {
                         ++invokeCount;
-                        b.ShouldEqual(manager);
                         vm.ShouldEqual(binding);
                         st.ShouldEqual(state);
-                        stateType.ShouldEqual(state.GetType());
                         viewModelLifecycleState.ShouldEqual(lifecycleState);
                         metadata.ShouldEqual(DefaultMetadata);
                     },

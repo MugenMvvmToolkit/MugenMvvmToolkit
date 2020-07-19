@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
@@ -10,6 +9,6 @@ namespace MugenMvvm.Binding.Interfaces.Members
 {
     public interface IMemberManager : IComponentOwner<IMemberManager>
     {
-        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null);
+        ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(Type type, MemberType memberTypes, MemberFlags flags, object request, IReadOnlyMetadataContext? metadata = null);
     }
 }

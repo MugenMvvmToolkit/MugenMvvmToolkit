@@ -24,14 +24,13 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
                     t.ShouldEqual(type);
                     m.ShouldEqual(memberType);
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
-                    tt.ShouldEqual(request.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     return result;
                 }
@@ -60,14 +59,13 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
                     t.ShouldEqual(type);
                     m.ShouldEqual(memberType);
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
-                    tt.ShouldEqual(request.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     return result;
                 }
@@ -91,14 +89,13 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
                     t.ShouldEqual(type);
                     m.ShouldEqual(memberType);
                     f.ShouldEqual(memberFlags);
                     r.ShouldEqual(request);
-                    tt.ShouldEqual(request.GetType());
                     meta.ShouldEqual(DefaultMetadata);
                     return result;
                 }
@@ -125,7 +122,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
                     return result;
@@ -171,7 +168,7 @@ namespace MugenMvvm.UnitTest.Binding.Members.Components
             var memberManager = new MemberManager();
             memberManager.AddComponent(new TestMemberManagerComponent(memberManager)
             {
-                TryGetMembers = (t, m, f, r, tt, meta) =>
+                TryGetMembers = (t, m, f, r, meta) =>
                 {
                     ++invokeCount;
                     return result;

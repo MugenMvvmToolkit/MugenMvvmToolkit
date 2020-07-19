@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Members.Components;
@@ -14,10 +14,12 @@ namespace MugenMvvm.Binding.Extensions.Components
     {
         #region Methods
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers<TRequest>(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberManagerComponent[] components, IMemberManager memberManager, Type type, MemberType memberTypes, MemberFlags flags,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(memberManager, nameof(memberManager));
+            Should.NotBeNull(request, nameof(request));
             for (var i = 0; i < components.Length; i++)
             {
                 var members = components[i].TryGetMembers(memberManager, type, memberTypes, flags, request, metadata);
@@ -28,7 +30,8 @@ namespace MugenMvvm.Binding.Extensions.Components
             return default;
         }
 
-        public static void TryAddMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, ICollection<IMemberInfo> result, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public static void TryAddMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, ICollection<IMemberInfo> result, Type type, string name, MemberType memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(memberManager, nameof(memberManager));
@@ -42,7 +45,8 @@ namespace MugenMvvm.Binding.Extensions.Components
             }
         }
 
-        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
+        public static ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(this IMemberProviderComponent[] components, IMemberManager memberManager, Type type, string name, MemberType memberTypes,
+            IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(memberManager, nameof(memberManager));
@@ -50,7 +54,7 @@ namespace MugenMvvm.Binding.Extensions.Components
             Should.NotBeNull(name, nameof(name));
             if (components.Length == 1)
                 return components[0].TryGetMembers(memberManager, type, name, memberTypes, metadata);
-            ItemOrListEditor<IMemberInfo, List<IMemberInfo>> result = ItemOrListEditor.Get<IMemberInfo>();
+            var result = ItemOrListEditor.Get<IMemberInfo>();
             for (var i = 0; i < components.Length; i++)
                 result.AddRange(components[i].TryGetMembers(memberManager, type, name, memberTypes, metadata));
             return result.ToItemOrList<IReadOnlyList<IMemberInfo>>();

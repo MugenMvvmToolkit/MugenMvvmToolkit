@@ -105,7 +105,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
             #region Implementation of interfaces
 
-            public bool TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+            public bool TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
                 var observer = (MultiPathObserver?)_observer.Target;
                 if (observer == null)

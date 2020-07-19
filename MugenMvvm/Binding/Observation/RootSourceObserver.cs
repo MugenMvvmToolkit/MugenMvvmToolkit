@@ -41,18 +41,15 @@ namespace MugenMvvm.Binding.Observation
 
         #region Implementation of interfaces
 
-        bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             var target = _targetRef.Target;
             if (target == null)
                 return false;
-            if (TypeChecker.IsValueType<T>() || !(message is RootSourceObserver))
-            {
-                if (UpdateParent(target, metadata))
-                    Raise(target, this, metadata);
-            }
-            else
+            if (message is RootSourceObserver)
                 Raise(target, message, metadata);
+            else if (UpdateParent(target, metadata))
+                Raise(target, this, metadata);
 
             return true;
         }

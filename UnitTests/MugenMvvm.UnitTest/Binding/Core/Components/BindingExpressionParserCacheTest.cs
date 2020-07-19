@@ -21,14 +21,12 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
 
             var bindingManager = new BindingManager();
             var cache = new BindingExpressionParserCache();
-            var component = new TestBindingExpressionParserComponent
+            var component = new TestBindingExpressionParserComponent(bindingManager)
             {
-                TryParseBindingExpression = (m, o, type, arg3) =>
+                TryParseBindingExpression = (o, arg3) =>
                 {
                     ++invokeCount;
-                    m.ShouldEqual(bindingManager);
                     o.ShouldEqual(request);
-                    type.ShouldEqual(request.GetType());
                     arg3.ShouldEqual(DefaultMetadata);
                     return testExp;
                 }

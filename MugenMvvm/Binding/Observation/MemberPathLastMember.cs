@@ -40,7 +40,11 @@ namespace MugenMvvm.Binding.Observation
 
         #region Properties
 
-        public bool IsAvailable => _member != null;
+        public bool IsAvailable
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get => _member != null;
+        }
 
         public Exception? Error
         {
@@ -54,6 +58,7 @@ namespace MugenMvvm.Binding.Observation
 
         public object? Target
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_member == null)
@@ -64,6 +69,7 @@ namespace MugenMvvm.Binding.Observation
 
         public IMemberInfo Member
         {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
                 if (_member == null)
@@ -76,6 +82,7 @@ namespace MugenMvvm.Binding.Observation
 
         #region Methods
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool ThrowIfError()
         {
             if (_member == null)
@@ -105,6 +112,7 @@ namespace MugenMvvm.Binding.Observation
             return ((IAccessorMemberInfo)_member!).GetValue(_target, metadata);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void TrySetValueWithConvert(object? value, IReadOnlyMetadataContext? metadata = null)
         {
             if (_member is IAccessorMemberInfo member)

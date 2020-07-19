@@ -29,16 +29,16 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Internal
 
         public int Priority { get; set; }
 
-        public Func<Type, object, Type, IReadOnlyMetadataContext?, MemberObserver>? TryGetMemberObserver { get; set; }
+        public Func<Type, object, IReadOnlyMetadataContext?, MemberObserver>? TryGetMemberObserver { get; set; }
 
         #endregion
 
-        #region Methods
+        #region Implementation of interfaces
 
-        MemberObserver IMemberObserverProviderComponent.TryGetMemberObserver<TMember>(IObservationManager observationManager, Type type, in TMember member, IReadOnlyMetadataContext? metadata)
+        MemberObserver IMemberObserverProviderComponent.TryGetMemberObserver(IObservationManager observationManager, Type type, object member, IReadOnlyMetadataContext? metadata)
         {
             _observationManager?.ShouldEqual(observationManager);
-            return TryGetMemberObserver?.Invoke(type, member!, typeof(TMember), metadata) ?? default;
+            return TryGetMemberObserver?.Invoke(type, member, metadata) ?? default;
         }
 
         #endregion

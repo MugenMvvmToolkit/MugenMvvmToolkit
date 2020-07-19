@@ -22,7 +22,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Internal
 
         #region Implementation of interfaces
 
-        bool IEventListener.TryHandle<T>(object? sender, in T message, IReadOnlyMetadataContext? metadata)
+        bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
             ++InvokeCount;
             return TryHandle?.Invoke(sender, message, metadata) ?? TryHandleDefault;

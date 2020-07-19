@@ -31,16 +31,16 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         public int Priority { get; set; }
 
-        public Func<object, Type, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>>? TryParse { get; set; }
+        public Func<object, IReadOnlyMetadataContext?, ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>>>? TryParse { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse<TExpression>(IExpressionParser parser, in TExpression expression, IReadOnlyMetadataContext? metadata)
+        ItemOrList<ExpressionParserResult, IReadOnlyList<ExpressionParserResult>> IExpressionParserComponent.TryParse(IExpressionParser parser, object expression, IReadOnlyMetadataContext? metadata)
         {
             _parser?.ShouldEqual(parser);
-            return TryParse?.Invoke(expression!, typeof(TExpression), metadata) ?? default;
+            return TryParse?.Invoke(expression, metadata) ?? default;
         }
 
         #endregion

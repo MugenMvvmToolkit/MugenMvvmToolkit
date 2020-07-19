@@ -109,7 +109,7 @@ namespace MugenMvvm.Binding.Build
                     //note post handler sorting expressions if need
                     var expressions = BindingManager.TryParseBindingExpression(builder.Value!, metadata);
                     if (expressions.IsNullOrEmpty())
-                        expressions = ItemOrList.FromRawValue<IBindingBuilder, IReadOnlyList<IBindingBuilder>>(builder.Value, true);
+                        expressions = ItemOrList.FromRawValueReadonly<IBindingBuilder>(builder.Value, true);
 
                     foreach (var exp in expressions.Iterator())
                     {
