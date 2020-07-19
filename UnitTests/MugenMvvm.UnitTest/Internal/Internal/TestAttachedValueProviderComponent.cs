@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Internal.Internal
             Set!.Invoke(item, path, value!, out oldValue);
         }
 
-        bool IAttachedValueProviderComponent.Clear(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue)
+        bool IAttachedValueProviderComponent.Remove(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue)
         {
             _manager?.ShouldEqual(attachedValueManager);
             return ClearKey!.Invoke(item, path, out oldValue);

@@ -302,7 +302,7 @@ namespace MugenMvvm.Metadata
             }
         }
 
-        public bool Clear(IMetadataContextKey contextKey, out object? oldValue)
+        public bool Remove(IMetadataContextKey contextKey, out object? oldValue)
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             var components = GetComponents();

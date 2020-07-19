@@ -227,7 +227,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
                 manager.TryGet(item, TestPath + i, out var v).ShouldBeTrue();
                 v.ShouldEqual(i + 1);
 
-                manager.Clear(item, TestPath + i, out var old).ShouldBeTrue();
+                manager.Remove(item, TestPath + i, out var old).ShouldBeTrue();
                 old.ShouldEqual(i + 1);
 
                 manager.TryGet(item, TestPath + i, out v).ShouldBeFalse();
@@ -269,7 +269,7 @@ namespace MugenMvvm.UnitTest.Internal.Components
             var weakReference = new WeakReference(value);
             manager.Set(item, TestPath, value, out _);
 
-            manager.Clear(item, TestPath, out _);
+            manager.Remove(item, TestPath, out _);
             GC.Collect();
             GC.WaitForPendingFinalizers();
             GC.Collect();

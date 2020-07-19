@@ -72,7 +72,7 @@ namespace MugenMvvm.UnitTest.Internal
         [Fact]
         public void ClearThrowNoComponents1()
         {
-            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().Clear(this, TestPath, out _));
+            ShouldThrow<InvalidOperationException>(() => new AttachedValueManager().Remove(this, TestPath, out _));
         }
 
         [Fact]
@@ -387,10 +387,10 @@ namespace MugenMvvm.UnitTest.Internal
                 attachedValueManager.AddComponent(component);
             }
 
-            attachedValueManager.Clear(this, TestPath, out var old).ShouldBeTrue();
+            attachedValueManager.Remove(this, TestPath, out var old).ShouldBeTrue();
             old.ShouldEqual(oldV);
             result = false;
-            attachedValueManager.Clear(this, TestPath, out old).ShouldBeFalse();
+            attachedValueManager.Remove(this, TestPath, out old).ShouldBeFalse();
             old.ShouldEqual(oldV);
             methodExecuted.ShouldEqual(2);
         }

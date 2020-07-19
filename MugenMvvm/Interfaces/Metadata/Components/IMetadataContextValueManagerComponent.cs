@@ -15,7 +15,7 @@ namespace MugenMvvm.Interfaces.Metadata.Components
 
         bool TrySetValue(IMetadataContext context, IMetadataContextKey contextKey, object? rawValue);
 
-        bool TryClear(IMetadataContext context, IMetadataContextKey contextKey);
+        bool TryRemove(IMetadataContext context, IMetadataContextKey contextKey);
 
         void Clear(IMetadataContext context);
     }

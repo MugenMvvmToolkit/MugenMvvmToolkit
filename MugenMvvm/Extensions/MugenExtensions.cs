@@ -184,10 +184,10 @@ namespace MugenMvvm.Extensions
             attachedValueManager.Set(item, path, value, out _);
         }
 
-        public static bool Clear(this IAttachedValueManager attachedValueManager, object item, string path)
+        public static bool Remove(this IAttachedValueManager attachedValueManager, object item, string path)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
-            return attachedValueManager.Clear(item, path, out _);
+            return attachedValueManager.Remove(item, path, out _);
         }
 
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,

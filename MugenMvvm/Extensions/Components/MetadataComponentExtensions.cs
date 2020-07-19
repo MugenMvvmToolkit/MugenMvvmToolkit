@@ -98,7 +98,7 @@ namespace MugenMvvm.Extensions.Components
             bool clear = false;
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].TryClear(context, contextKey))
+                if (components[i].TryRemove(context, contextKey))
                     clear = true;
             }
 

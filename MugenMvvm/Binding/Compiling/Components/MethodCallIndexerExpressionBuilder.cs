@@ -227,7 +227,7 @@ namespace MugenMvvm.Binding.Compiling.Components
                             finally
                             {
                                 if (oldLambdaParameter == null)
-                                    context.Metadata.Clear(CompilingMetadata.LambdaParameter, out _);
+                                    context.Metadata.Remove(CompilingMetadata.LambdaParameter, out _);
                                 else
                                     context.Metadata.Set(CompilingMetadata.LambdaParameter, oldLambdaParameter, out _);
                             }

@@ -27,7 +27,7 @@ namespace MugenMvvm.Interfaces.Internal.Components
 
         void Set(IAttachedValueManager attachedValueManager, object item, string path, object? value, out object? oldValue);
 
-        bool Clear(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue);
+        bool Remove(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue);
 
         bool Clear(IAttachedValueManager attachedValueManager, object item);
     }

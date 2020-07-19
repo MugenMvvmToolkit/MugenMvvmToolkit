@@ -78,7 +78,7 @@ namespace MugenMvvm.Binding.Core.Components
             Should.NotBeNull(binding, nameof(binding));
             if (target == null)
                 return false;
-            return _attachedValueManager.DefaultIfNull().Clear(target, GetPath(binding.Target.Path), out _);
+            return _attachedValueManager.DefaultIfNull().Remove(target, GetPath(binding.Target.Path), out _);
         }
 
         #endregion

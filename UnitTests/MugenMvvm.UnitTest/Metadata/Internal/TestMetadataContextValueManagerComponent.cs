@@ -85,7 +85,7 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
             return TrySetValue?.Invoke(contextKey, rawValue) ?? false;
         }
 
-        bool IMetadataContextValueManagerComponent.TryClear(IMetadataContext context, IMetadataContextKey contextKey)
+        bool IMetadataContextValueManagerComponent.TryRemove(IMetadataContext context, IMetadataContextKey contextKey)
         {
             ReferenceEquals(_context, context).ShouldBeTrue();
             context.ShouldEqual(_context);

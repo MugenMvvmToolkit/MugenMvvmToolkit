@@ -24,7 +24,7 @@ namespace MugenMvvm.Interfaces.Internal
 
         void Set(object item, string path, object? value, out object? oldValue);
 
-        bool Clear(object item, string path, out object? oldValue);
+        bool Remove(object item, string path, out object? oldValue);
 
         bool Clear(object item);
     }

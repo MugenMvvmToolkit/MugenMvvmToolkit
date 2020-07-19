@@ -196,10 +196,10 @@ namespace MugenMvvm.Extensions
             metadataContext.Set(contextKey, value, out _);
         }
 
-        public static bool Clear(this IMetadataContext metadataContext, IMetadataContextKey contextKey)
+        public static bool Remove(this IMetadataContext metadataContext, IMetadataContextKey contextKey)
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
-            return metadataContext.Clear(contextKey, out _);
+            return metadataContext.Remove(contextKey, out _);
         }
 
         #endregion

@@ -534,7 +534,7 @@ namespace MugenMvvm.UnitTest.Metadata
             for (var i = 0; i < count; i++)
             {
                 currentValue = keyValues[0];
-                context.Clear(keyValues[0].Item1, out var old).ShouldBeTrue();
+                context.Remove(keyValues[0].Item1, out var old).ShouldBeTrue();
                 old.ShouldEqual(keyValues[0].Item2);
 
                 values.RemoveAt(0);

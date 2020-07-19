@@ -21,7 +21,7 @@ namespace MugenMvvm.Interfaces.Metadata
 
         void Merge(IEnumerable<MetadataContextValue> items);
 
-        bool Clear(IMetadataContextKey contextKey, out object? oldValue);
+        bool Remove(IMetadataContextKey contextKey, out object? oldValue);
 
         void Clear();
     }

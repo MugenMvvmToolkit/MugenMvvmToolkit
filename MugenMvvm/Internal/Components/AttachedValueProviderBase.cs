@@ -173,7 +173,7 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual bool Clear(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue)
+        public virtual bool Remove(IAttachedValueManager attachedValueManager, object item, string path, out object? oldValue)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));

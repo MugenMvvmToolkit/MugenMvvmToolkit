@@ -78,9 +78,9 @@ namespace MugenMvvm.Internal
             GetComponent(item).Set(this, item, path, value, out oldValue);
         }
 
-        public bool Clear(object item, string path, out object? oldValue)
+        public bool Remove(object item, string path, out object? oldValue)
         {
-            return GetComponent(item).Clear(this, item, path, out oldValue);
+            return GetComponent(item).Remove(this, item, path, out oldValue);
         }
 
         public bool Clear(object item)

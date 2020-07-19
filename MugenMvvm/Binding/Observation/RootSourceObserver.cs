@@ -71,7 +71,7 @@ namespace MugenMvvm.Binding.Observation
 
         public static void Clear(object target)
         {
-            if (MugenService.AttachedValueManager.Clear(target, BindingInternalConstant.RootObserver, out var value))
+            if (MugenService.AttachedValueManager.Remove(target, BindingInternalConstant.RootObserver, out var value))
                 (value as RootSourceObserver)?.Dispose();
         }
 
