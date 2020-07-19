@@ -23,7 +23,7 @@ namespace MugenMvvm.ViewModels
 
         #region Implementation of interfaces
 
-        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null)
+        public void OnLifecycleChanged(IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null, IReadOnlyMetadataContext? metadata = null)
         {
             GetComponents<IViewModelLifecycleDispatcherComponent>(metadata).OnLifecycleChanged(this, viewModel, lifecycleState, state, metadata);
         }

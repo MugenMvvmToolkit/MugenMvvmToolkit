@@ -53,7 +53,7 @@ namespace MugenMvvm.Extensions
             return component.DecorateItems((IObservableCollection)collection);
         }
 
-        public static ActionToken TryLock(this IObservableCollectionBase? collection)
+        public static ActionToken TryLock(this IObservableCollectionBase? collection)//todo lockable, add lock struct
         {
             if (!(collection is ICollection c))
                 return default;

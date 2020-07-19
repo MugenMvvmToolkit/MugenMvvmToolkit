@@ -33,7 +33,7 @@ using MugenMvvm.Validation.Components;
 
 namespace MugenMvvm.Extensions
 {
-    public static partial class MugenExtensions//todo review in usages
+    public static partial class MugenExtensions
     {
         #region Methods
 
@@ -239,7 +239,7 @@ namespace MugenMvvm.Extensions
             return (value & flag) == flag;
         }
 
-        public static TTo CastGeneric<TFrom, TTo>(in TFrom value)
+        public static TTo CastGeneric<TFrom, TTo>(TFrom value)
         {
             if (typeof(TFrom) == typeof(TTo))
                 return ((Func<TFrom, TTo>)(object)GenericCaster<TFrom>.Cast).Invoke(value);

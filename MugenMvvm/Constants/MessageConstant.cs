@@ -15,7 +15,6 @@
         public const string ArgumentNotValid = "Argument '{0}' is not valid";
         public const string ArgumentShouldBeOfType = "Type '{0}' should be of type '{1}', but is not";
         public const string WrapperTypeNotSupportedFormat1 = "There are no wrapper type for type '{0}'";
-        public const string IntOutOfRangeCollection = "Index must be within the bounds of the collection";
         public const string ShouldMethodBeSupportedFormat1 = "The method {0} has not been implemented by this class";
         public const string PresenterCannotShowRequestFormat2 = "Presenter cannot show request '{0}'-'{1}'";
         public const string FieldOrPropertyNotFoundFormat2 = "Cannot get field/property by name '{0}' on type '{1}'";

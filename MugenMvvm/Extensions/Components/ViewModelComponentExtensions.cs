@@ -10,7 +10,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnLifecycleChanged(this IViewModelLifecycleDispatcherComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, ViewModelLifecycleState lifecycleState,
             object? state, IReadOnlyMetadataContext? metadata)
         {
@@ -22,7 +21,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(viewModelManager, viewModel, lifecycleState, state, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static object? TryGetService(this IViewModelServiceResolverComponent[] components, IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -39,7 +37,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IViewModelBase? TryGetViewModel(this IViewModelProviderComponent[] components, IViewModelManager viewModelManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

@@ -14,7 +14,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static IView GetOrCreateView<TRequest>(this IViewManager viewManager, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static IView GetOrCreateView(this IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata = null)
         {
             var views = viewManager.GetViews(request, metadata);
             if (views.Item != null)
@@ -25,7 +25,7 @@ namespace MugenMvvm.Extensions
             return task.Result;//note it's ok here
         }
 
-        public static Task<IView> InitializeAsync<TRequest>(this IViewManager viewManager, IViewMapping mapping, [DisallowNull] in TRequest request, CancellationToken cancellationToken = default,
+        public static Task<IView> InitializeAsync(this IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken = default,
             IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewManager, nameof(viewManager));
@@ -35,9 +35,9 @@ namespace MugenMvvm.Extensions
             return task;
         }
 
-        public static Task CleanupAsync<TRequest>(this IViewManager viewManager, IView view, in TRequest request, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
+        public static Task CleanupAsync(this IViewManager viewManager, IView view, object? state = null, CancellationToken cancellationToken = default, IReadOnlyMetadataContext? metadata = null)
         {
-            return viewManager.TryCleanupAsync(view, request, cancellationToken, metadata) ?? Task.CompletedTask;
+            return viewManager.TryCleanupAsync(view, state, cancellationToken, metadata) ?? Task.CompletedTask;
         }
 
         public static TView? TryWrap<TView>(this IView view, IReadOnlyMetadataContext? metadata = null, IWrapperManager? wrapperManager = null)

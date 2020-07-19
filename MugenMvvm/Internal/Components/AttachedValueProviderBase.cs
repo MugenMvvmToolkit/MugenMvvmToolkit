@@ -10,11 +10,18 @@ namespace MugenMvvm.Internal.Components
 {
     public abstract class AttachedValueProviderBase : IAttachedValueProviderComponent
     {
+        #region Properties
+
+        protected virtual bool ClearOnEmpty => false;
+
+        #endregion
+
         #region Implementation of interfaces
 
         public abstract bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata);
 
-        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(IAttachedValueManager attachedValueManager, object item, Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
+        public virtual ItemOrList<KeyValuePair<string, object?>, IReadOnlyList<KeyValuePair<string, object?>>> GetValues(IAttachedValueManager attachedValueManager, object item,
+            Func<object, KeyValuePair<string, object?>, object?, bool>? predicate, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             var dictionary = GetAttachedDictionary(item, true);
@@ -32,7 +39,7 @@ namespace MugenMvvm.Internal.Components
                     return ItemOrList.FromListToReadOnly(new List<KeyValuePair<string, object?>>(dictionary));
                 }
 
-                ItemOrListEditor<KeyValuePair<string, object?>, List<KeyValuePair<string, object?>>> result = ItemOrListEditor.Get<KeyValuePair<string, object?>>(pair => pair.Key == null);
+                var result = ItemOrListEditor.Get<KeyValuePair<string, object?>>(pair => pair.Key == null);
                 foreach (var keyValue in dictionary)
                 {
                     if (predicate(item, keyValue, state))
@@ -79,7 +86,8 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, object? addValue, UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory, object? state)
+        public virtual object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, object? addValue, UpdateValueDelegate<object, object?, object?, object?, object?> updateValueFactory,
+            object? state)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -99,7 +107,8 @@ namespace MugenMvvm.Internal.Components
             }
         }
 
-        public virtual object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> addValueFactory, UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state)
+        public virtual object? AddOrUpdate(IAttachedValueManager attachedValueManager, object item, string path, Func<object, object?, object?> addValueFactory,
+            UpdateValueDelegate<object, object?, object?, object?> updateValueFactory, object? state)
         {
             Should.NotBeNull(item, nameof(item));
             Should.NotBeNull(path, nameof(path));
@@ -183,7 +192,7 @@ namespace MugenMvvm.Internal.Components
                 clear = removed && dictionary.Count == 0;
             }
 
-            if (clear)
+            if (clear && ClearOnEmpty)
                 return ClearInternal(item);
             return removed;
         }

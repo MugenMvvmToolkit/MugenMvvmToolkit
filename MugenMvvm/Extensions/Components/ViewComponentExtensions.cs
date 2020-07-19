@@ -14,7 +14,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnLifecycleChanged(this IViewLifecycleDispatcherComponent[] components, IViewManager viewManager, object view, ViewLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -25,7 +24,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<IView, IReadOnlyList<IView>> TryGetViews(this IViewProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -40,7 +38,6 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IView>>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<IViewMapping, IReadOnlyList<IViewMapping>> TryGetMappings(this IViewMappingProviderComponent[] components, IViewManager viewManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -55,7 +52,6 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IViewMapping>>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<IView>? TryInitializeAsync(this IViewManagerComponent[] components, IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -72,7 +68,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task? TryCleanupAsync(this IViewManagerComponent[] components, IViewManager viewManager, IView view, object? state, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

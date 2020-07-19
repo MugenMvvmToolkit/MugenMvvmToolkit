@@ -11,7 +11,7 @@ namespace MugenMvvm.Interfaces.Entities
     {
         bool HasChanges { get; }
 
-        IReadOnlyList<TrackingEntity> GetChanges<TState>(in TState state, Func<TrackingEntity, TState, bool> predicate);
+        IReadOnlyList<TrackingEntity> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate);//todo review
 
         EntityState GetState(object entity, IReadOnlyMetadataContext? metadata = null);
 

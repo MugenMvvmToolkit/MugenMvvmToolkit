@@ -49,7 +49,6 @@ namespace MugenMvvm.Internal
 
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TItem[] ToArray()
         {
             if (Count == 0)
@@ -60,7 +59,6 @@ namespace MugenMvvm.Internal
             return items;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public TList AsList(Func<TList> getDefaultList, Func<TItem, TList> getItemList)
         {
             Should.NotBeNull(getDefaultList, nameof(getItemList));

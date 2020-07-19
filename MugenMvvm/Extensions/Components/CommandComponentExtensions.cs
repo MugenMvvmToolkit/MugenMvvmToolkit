@@ -11,7 +11,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ICompositeCommand? TryGetCommand<TParameter>(this ICommandProviderComponent[] components, ICommandManager commandManager, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -27,7 +26,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnCommandCreated<TParameter>(this ICommandManagerListener[] listeners, ICommandManager commandManager, ICompositeCommand command, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -37,7 +35,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnCommandCreated<TParameter>(commandManager, command, request, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool HasCanExecute(this IConditionCommandComponent[] components, ICompositeCommand command)
         {
             Should.NotBeNull(components, nameof(components));
@@ -51,7 +48,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanExecute(this IConditionCommandComponent[] components, ICompositeCommand command, object? parameter)
         {
             Should.NotBeNull(components, nameof(components));
@@ -65,7 +61,6 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void AddCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler handler)
         {
             Should.NotBeNull(components, nameof(components));
@@ -75,7 +70,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].AddCanExecuteChanged(command, handler);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RemoveCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command, EventHandler handler)
         {
             Should.NotBeNull(components, nameof(components));
@@ -85,7 +79,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].RemoveCanExecuteChanged(command, handler);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void RaiseCanExecuteChanged(this IConditionEventCommandComponent[] components, ICompositeCommand command)
         {
             Should.NotBeNull(components, nameof(components));
@@ -94,7 +87,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].RaiseCanExecuteChanged(command);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task ExecuteAsync(this IExecutorCommandComponent[] components, ICompositeCommand command, object? parameter)
         {
             Should.NotBeNull(components, nameof(components));

@@ -21,6 +21,11 @@ namespace MugenMvvm.Extensions
             return ParameterExpressionCache<TType>.Parameter;
         }
 
+        public static ParameterExpression[] GetParametersExpression<TType>()
+        {
+            return ParameterExpressionCache<TType>.Parameters;
+        }
+
         public static ConstantExpression GetConstantExpression(byte value)
         {
             return ExpressionCache<byte>.Items[value];
@@ -117,6 +122,7 @@ namespace MugenMvvm.Extensions
             #region Fields
 
             public static readonly ParameterExpression Parameter = Expression.Parameter(typeof(TType));
+            public static readonly ParameterExpression[] Parameters = new[] { Parameter };
 
             #endregion
         }

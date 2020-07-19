@@ -12,7 +12,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnSerializing(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -22,7 +21,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnSerializing(serializer, instance, serializationContext!);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnSerialized(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -32,7 +30,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnSerialized(serializer, instance, serializationContext!);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnDeserializing(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -42,7 +39,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnDeserializing(serializer, instance, serializationContext!);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnDeserialized(this ISerializerListener[] listeners, ISerializer serializer, object? instance, ISerializationContext serializationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -52,7 +48,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnDeserialized(serializer, instance, serializationContext!);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ISurrogateProvider? TryGetSurrogateProvider(this ISurrogateProviderComponent[] components, ISerializer serializer, Type type, ISerializationContext? serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
@@ -68,7 +63,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Type? TryResolveType(this ITypeResolverComponent[] components, ISerializer serializer, string assemblyName, string typeName, ISerializationContext? serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
@@ -85,7 +79,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryResolveName(this ITypeResolverComponent[] components, ISerializer serializer, Type serializedType, ISerializationContext? serializationContext, out string? assemblyName, out string? typeName)
         {
             Should.NotBeNull(components, nameof(components));
@@ -102,7 +95,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ISerializationContext? TryGetSerializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -118,7 +110,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ISerializationContext? TryGetDeserializationContext(this ISerializationContextProviderComponent[] components, ISerializer serializer, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -133,7 +124,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TrySerialize(this ISerializerComponent[] components, ISerializer serializer, Stream stream, object request, ISerializationContext serializationContext)
         {
             Should.NotBeNull(components, nameof(components));
@@ -150,7 +140,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryDeserialize(this ISerializerComponent[] components, ISerializer serializer, Stream stream, ISerializationContext serializationContext, out object? value)
         {
             Should.NotBeNull(components, nameof(components));

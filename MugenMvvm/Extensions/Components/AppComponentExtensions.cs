@@ -10,7 +10,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnLifecycleChanged(this IApplicationLifecycleDispatcherComponent[] components, IMugenApplication application, ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));

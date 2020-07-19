@@ -13,7 +13,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanShow(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
             object request, IReadOnlyMetadataContext? metadata)
         {
@@ -30,7 +29,6 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanClose(this IConditionPresenterComponent[] components, IPresenter presenter, IPresenterComponent presenterComponent, ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> results,
             object request, IReadOnlyMetadataContext? metadata)
         {
@@ -47,7 +45,6 @@ namespace MugenMvvm.Extensions.Components
             return true;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {
@@ -62,7 +59,6 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<IPresenterResult>>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryClose(this IPresenterComponent[] components, IPresenter presenter, object request, CancellationToken cancellationToken,
             IReadOnlyMetadataContext? metadata)
         {

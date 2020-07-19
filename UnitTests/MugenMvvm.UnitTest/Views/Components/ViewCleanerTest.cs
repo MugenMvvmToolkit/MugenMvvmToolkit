@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Views.Components
             var accessorMemberInfo = BindableMembers.For<object>().DataContext().GetBuilder().Build();
             TestComponentSubscriber.Subscribe(new TestMemberManagerComponent
             {
-                TryGetMembers = (type, memberType, arg3, arg4, arg5, arg6) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(accessorMemberInfo)
+                TryGetMembers = (type, memberType, arg3, arg4, arg6) => ItemOrList.FromRawValue<IMemberInfo, IReadOnlyList<IMemberInfo>>(accessorMemberInfo)
             });
 
 

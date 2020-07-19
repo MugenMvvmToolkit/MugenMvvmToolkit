@@ -11,7 +11,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Invalidate(this IHasCache[] components, object? state, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -19,7 +18,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].Invalidate(state, metadata);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Dispose(object? components)
         {
             if (components is object[] c)
@@ -31,7 +29,6 @@ namespace MugenMvvm.Extensions.Components
                 (components as IDisposable)?.Dispose();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Dispose(this IDisposable[] components)
         {
             Should.NotBeNull(components, nameof(components));
@@ -39,7 +36,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].Dispose();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool IsSuspended(this ISuspendable[] components)
         {
             Should.NotBeNull(components, nameof(components));

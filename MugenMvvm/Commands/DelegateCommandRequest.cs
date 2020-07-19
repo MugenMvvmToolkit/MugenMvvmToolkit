@@ -1,24 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using MugenMvvm.Enums;
-using MugenMvvm.Interfaces.Metadata;
 
 namespace MugenMvvm.Commands
 {
     public class DelegateCommandRequest
     {
-        #region Fields
-
-        public readonly bool? AllowMultipleExecution;
-        public readonly Delegate? CanExecute;
-        public readonly Func<object, bool>? CanNotify;
-        public readonly ThreadExecutionMode? EventThreadMode;
-        public readonly Delegate Execute;
-        public readonly CommandExecutionMode? ExecutionMode;
-        public readonly IReadOnlyList<object>? Notifiers;
-
-        #endregion
-
         #region Constructors
 
         public DelegateCommandRequest(Delegate execute, Delegate? canExecute, bool? allowMultipleExecution, CommandExecutionMode? executionMode,
@@ -33,6 +20,24 @@ namespace MugenMvvm.Commands
             Notifiers = notifiers;
             CanNotify = canNotify;
         }
+
+        #endregion
+
+        #region Properties
+
+        public bool? AllowMultipleExecution { get; protected set; }
+
+        public Delegate? CanExecute { get; protected set; }
+
+        public Func<object, bool>? CanNotify { get; protected set; }
+
+        public ThreadExecutionMode? EventThreadMode { get; protected set; }
+
+        public Delegate Execute { get; protected set; }
+
+        public CommandExecutionMode? ExecutionMode { get; protected set; }
+
+        public IReadOnlyList<object>? Notifiers { get; protected set; }
 
         #endregion
 

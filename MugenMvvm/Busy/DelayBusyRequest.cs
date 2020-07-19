@@ -2,13 +2,6 @@
 {
     public class DelayBusyRequest
     {
-        #region Fields
-
-        public readonly int Delay;
-        public readonly object? Message;
-
-        #endregion
-
         #region Constructors
 
         public DelayBusyRequest(object? message, int delay)
@@ -16,6 +9,14 @@
             Message = message;
             Delay = delay;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Delay { get; protected set; }
+
+        public object? Message { get; protected set; }
 
         #endregion
     }

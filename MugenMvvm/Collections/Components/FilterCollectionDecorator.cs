@@ -303,7 +303,7 @@ namespace MugenMvvm.Collections.Components
         private object? GetValue(int index)
         {
             if (index >= _size)
-                ExceptionManager.ThrowIntOutOfRangeCollection("index");
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
             return _values[index];
         }
@@ -311,7 +311,7 @@ namespace MugenMvvm.Collections.Components
         private void SetValue(int index, object? value)
         {
             if (index >= _size)
-                ExceptionManager.ThrowIntOutOfRangeCollection("index");
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
             _values[index] = value;
         }
@@ -319,7 +319,7 @@ namespace MugenMvvm.Collections.Components
         private void RemoveAt(int index)
         {
             if (index < 0 || index >= _size)
-                ExceptionManager.ThrowIntOutOfRangeCollection("index");
+                ExceptionManager.ThrowIndexOutOfRangeCollection(nameof(index));
 
             --_size;
             if (index < _size)
@@ -361,7 +361,7 @@ namespace MugenMvvm.Collections.Components
             if (value == _keys.Length)
                 return;
             if (value < _size)
-                ExceptionManager.ThrowCapacityLessThanCollection("Capacity");
+                ExceptionManager.ThrowCapacityLessThanCollection(nameof(value));
 
             if (value > 0)
             {

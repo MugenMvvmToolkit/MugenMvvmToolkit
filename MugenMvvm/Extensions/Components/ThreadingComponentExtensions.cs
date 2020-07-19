@@ -10,7 +10,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool CanExecuteInline(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -25,7 +24,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryExecute(this IThreadDispatcherComponent[] components, IThreadDispatcher threadDispatcher, ThreadExecutionMode executionMode, object handler, object? state,
             IReadOnlyMetadataContext? metadata)
         {

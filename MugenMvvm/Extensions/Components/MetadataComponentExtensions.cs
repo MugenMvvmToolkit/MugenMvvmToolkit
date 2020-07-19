@@ -11,7 +11,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnAdded(this IMetadataContextListener[] listeners, IMetadataContext context, IMetadataContextKey key, object? newValue)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -21,7 +20,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnAdded(context, key, newValue);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnChanged(this IMetadataContextListener[] listeners, IMetadataContext context, IMetadataContextKey key, object? oldValue, object? newValue)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -31,7 +29,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnChanged(context, key, oldValue, newValue);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnRemoved(this IMetadataContextListener[] listeners, IMetadataContext context, IMetadataContextKey key, object? oldValue)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -41,7 +38,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnRemoved(context, key, oldValue);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int GetCount(this IMetadataContextValueManagerComponent[] components, IMetadataContext context)
         {
             Should.NotBeNull(components, nameof(components));
@@ -52,7 +48,6 @@ namespace MugenMvvm.Extensions.Components
             return count;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool Contains(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey)
         {
             Should.NotBeNull(components, nameof(components));
@@ -67,7 +62,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryGetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey, out object? rawValue)
         {
             Should.NotBeNull(components, nameof(components));
@@ -83,7 +77,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TrySetValue(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey, object? rawValue)
         {
             Should.NotBeNull(components, nameof(components));
@@ -97,7 +90,6 @@ namespace MugenMvvm.Extensions.Components
             return false;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryClear(this IMetadataContextValueManagerComponent[] components, IMetadataContext context, IMetadataContextKey contextKey)
         {
             Should.NotBeNull(components, nameof(components));
@@ -113,7 +105,6 @@ namespace MugenMvvm.Extensions.Components
             return clear;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void Clear(this IMetadataContextValueManagerComponent[] components, IMetadataContext context)
         {
             Should.NotBeNull(components, nameof(components));
@@ -122,7 +113,6 @@ namespace MugenMvvm.Extensions.Components
                 components[i].Clear(context);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target,
             ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
@@ -138,7 +128,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static IMetadataContext? TryGetMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
         {
             Should.NotBeNull(components, nameof(components));
@@ -153,7 +142,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnReadOnlyContextCreated(this IMetadataContextManagerListener[] listeners, IMetadataContextManager metadataContextManager, IReadOnlyMetadataContext metadataContext, object? target)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -162,8 +150,7 @@ namespace MugenMvvm.Extensions.Components
             for (var i = 0; i < listeners.Length; i++)
                 listeners[i].OnReadOnlyContextCreated(metadataContextManager, metadataContext, target);
         }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        
         public static void OnContextCreated(this IMetadataContextManagerListener[] listeners, IMetadataContextManager metadataContextManager, IMetadataContext metadataContext, object? target)
         {
             Should.NotBeNull(listeners, nameof(listeners));

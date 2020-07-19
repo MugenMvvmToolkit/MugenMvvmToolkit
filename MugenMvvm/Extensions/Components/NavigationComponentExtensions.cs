@@ -16,7 +16,6 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigationEntryAdded(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -27,7 +26,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryAdded(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigationEntryUpdated(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry,
             INavigationContext? navigationContext)
         {
@@ -38,7 +36,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryUpdated(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigationEntryRemoved(this INavigationDispatcherEntryListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationEntry navigationEntry, INavigationContext? navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -48,7 +45,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationEntryRemoved(navigationDispatcher, navigationEntry, navigationContext);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static INavigationCallback? TryAddNavigationCallback(this INavigationCallbackManagerComponent[] components,
             INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -66,7 +62,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(this INavigationCallbackManagerComponent[] components,
             INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata)
         {
@@ -81,7 +76,6 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<INavigationCallback>>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext)
         {
             Should.NotBeNull(components, nameof(components));
@@ -98,7 +92,6 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(components, nameof(components));
@@ -116,7 +109,6 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool TryInvokeNavigationCallbacks(this INavigationCallbackManagerComponent[] components, INavigationDispatcher navigationDispatcher,
             NavigationCallbackType callbackType, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
@@ -133,7 +125,6 @@ namespace MugenMvvm.Extensions.Components
             return result;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static INavigationContext? TryGetNavigationContext(this INavigationContextProviderComponent[] components, INavigationDispatcher navigationDispatcher,
             object? target, INavigationProvider navigationProvider, string navigationId, NavigationType navigationType, NavigationMode navigationMode, IReadOnlyMetadataContext? metadata)
         {
@@ -153,7 +144,6 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<INavigationEntry, IReadOnlyList<INavigationEntry>> TryGetNavigationEntries(this INavigationEntryProviderComponent[] components, INavigationDispatcher navigationDispatcher, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
@@ -166,7 +156,6 @@ namespace MugenMvvm.Extensions.Components
             return result.ToItemOrList<IReadOnlyList<INavigationEntry>>();
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Task<bool> OnNavigatingAsync(this IConditionNavigationDispatcherComponent[] components, INavigationDispatcherNavigatingListener[] listeners,
             INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
@@ -178,7 +167,6 @@ namespace MugenMvvm.Extensions.Components
             return new NavigatingResult(navigationDispatcher, components, listeners, navigationContext, cancellationToken).Task;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigating(this INavigationDispatcherNavigatingListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -188,7 +176,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigating(navigationDispatcher, navigationContext);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigated(this INavigationDispatcherNavigatedListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -198,7 +185,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigated(navigationDispatcher, navigationContext);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigationFailed(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, Exception exception)
         {
             Should.NotBeNull(listeners, nameof(listeners));
@@ -209,7 +195,6 @@ namespace MugenMvvm.Extensions.Components
                 listeners[i].OnNavigationFailed(navigationDispatcher, navigationContext, exception);
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void OnNavigationCanceled(this INavigationDispatcherErrorListener[] listeners, INavigationDispatcher navigationDispatcher, INavigationContext navigationContext, CancellationToken cancellationToken)
         {
             Should.NotBeNull(listeners, nameof(listeners));

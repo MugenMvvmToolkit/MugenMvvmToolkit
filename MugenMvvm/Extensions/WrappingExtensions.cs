@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Constants;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Wrapping;
@@ -12,7 +11,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static object Wrap<TRequest>(this IWrapperManager wrapperManager, Type wrapperType, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static object Wrap(this IWrapperManager wrapperManager, Type wrapperType, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(wrapperManager, nameof(wrapperManager));
             var wrapper = wrapperManager.TryWrap(wrapperType, request, metadata);
@@ -21,7 +20,7 @@ namespace MugenMvvm.Extensions
             return wrapper;
         }
 
-        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest, TState>(this IWrapperManager wrapperManager, in TState state,
+        public static IWrapperManagerComponent AddWrapper<TConditionRequest, TWrapRequest, TState>(this IWrapperManager wrapperManager, TState state,
             Func<Type, TConditionRequest, TState, IReadOnlyMetadataContext?, bool> condition,
             Func<Type, TWrapRequest, TState, IReadOnlyMetadataContext?, object?> wrapperFactory, int priority = WrappingComponentPriority.WrapperManger, IReadOnlyMetadataContext? metadata = null)
         {

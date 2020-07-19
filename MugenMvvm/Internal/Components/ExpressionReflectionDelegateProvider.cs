@@ -17,6 +17,9 @@ namespace MugenMvvm.Internal.Components
     {
         #region Fields
 
+        public static readonly ParameterExpression TargetParameter = MugenExtensions.GetParameterExpression<object>();
+        private static readonly ParameterExpression[] TargetArgsParameters = { TargetParameter, MugenExtensions.GetParameterExpression<object[]>() };
+        private static readonly ParameterExpression[] ArgsParameters = MugenExtensions.GetParametersExpression<object[]>();
         private static readonly Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?> CacheMethodDelegates = new Dictionary<KeyValuePair<Type, MethodInfo>, MethodInfo?>(17, InternalComparer.TypeMethod);
 
         #endregion
@@ -106,8 +109,9 @@ namespace MugenMvvm.Internal.Components
 
         public static Func<object?[], object> GetActivator(ConstructorInfo constructor)
         {
-            var expressions = GetParametersExpression(constructor, out var parameterExpression);
-            return Expression.Lambda<Func<object?[], object>>(Expression.New(constructor, expressions).ConvertIfNeed(typeof(object), false), parameterExpression).CompileEx();
+            return Expression
+                .Lambda<Func<object?[], object>>(Expression.New(constructor, GetParametersExpression(constructor)).ConvertIfNeed(typeof(object), false), ArgsParameters)
+                .CompileEx();
         }
 
         public static Delegate? TryGetActivator(ConstructorInfo constructor, Type delegateType)
@@ -131,21 +135,18 @@ namespace MugenMvvm.Internal.Components
 
         public static Func<object?, object?[], object?> GetMethodInvoker(MethodInfo method)
         {
-            var expressions = GetParametersExpression(method, out var parameterExpression);
+            var expressions = GetParametersExpression(method);
             if (method.IsStatic)
             {
                 return Expression
                     .Lambda<Func<object?, object?[], object?>>(Expression
-                        .Call(null, method, expressions)
-                        .ConvertIfNeed(typeof(object), false), MugenExtensions.GetParameterExpression<object>(), parameterExpression)
+                        .Call(null, method, expressions).ConvertIfNeed(typeof(object), false), TargetArgsParameters)
                     .CompileEx();
             }
 
-            var target = MugenExtensions.GetParameterExpression<object>();
             return Expression
                 .Lambda<Func<object?, object?[], object?>>(Expression
-                    .Call(target.ConvertIfNeed(method.DeclaringType, false), method, expressions)
-                    .ConvertIfNeed(typeof(object), false), target, parameterExpression)
+                    .Call(TargetParameter.ConvertIfNeed(method.DeclaringType, false), method, expressions).ConvertIfNeed(typeof(object), false), TargetArgsParameters)
                 .CompileEx();
         }
 
@@ -279,9 +280,8 @@ namespace MugenMvvm.Internal.Components
                 .CompileEx();
         }
 
-        private static Expression[] GetParametersExpression(MethodBase methodBase, out ParameterExpression parameterExpression)
+        private static Expression[] GetParametersExpression(MethodBase methodBase)
         {
-            parameterExpression = MugenExtensions.GetParameterExpression<object[]>();
             var paramsInfo = methodBase.GetParameters();
             var argsExp = new Expression[paramsInfo.Length];
             for (var i = 0; i < paramsInfo.Length; i++)

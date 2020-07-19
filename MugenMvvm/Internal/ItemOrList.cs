@@ -87,7 +87,6 @@ namespace MugenMvvm.Internal
             return count == 1 ? new ItemOrList<TItem, List<TItem>>(list[0]) : default;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromList<TItem, TList>(TList? collection)
             where TList : class, IEnumerable<TItem>
         {
@@ -128,13 +127,24 @@ namespace MugenMvvm.Internal
                 return FromList<TItem, TList>(list);
             }
 
-            return new ItemOrList<TItem, TList>((TItem) value!);
+            return new ItemOrList<TItem, TList>((TItem)value!);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static ItemOrList<TItem, TList> FromListRaw<TItem, TList>(TList? list) where TList : class, IEnumerable<TItem>
         {
             return new ItemOrList<TItem, TList>(list);
+        }
+
+        //note because of slow cast for covariant\contravariant types (value is IReadonlyList<T> list), we should use this method, fixed in net5.0
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static ItemOrList<TItem, IReadOnlyList<TItem>> FromRawValueReadonly<TItem>(object? value, bool @unchecked = false)
+        {
+            if (value is TItem item)
+                return new ItemOrList<TItem, IReadOnlyList<TItem>>(item);
+            if (@unchecked)
+                return new ItemOrList<TItem, IReadOnlyList<TItem>>((IReadOnlyList<TItem>?)value);
+            return FromList((IReadOnlyList<TItem>?)value);
         }
 
         #endregion

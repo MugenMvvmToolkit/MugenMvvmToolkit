@@ -78,12 +78,6 @@ namespace MugenMvvm
         }
 
         [DoesNotReturn]
-        public static void ThrowIntOutOfRangeCollection(string paramName)
-        {
-            throw new ArgumentOutOfRangeException(paramName, IntOutOfRangeCollection);
-        }
-
-        [DoesNotReturn]
         public static void ThrowPresenterCannotShowRequest<TRequest>(TRequest request, IReadOnlyMetadataContext? metadata)
         {
             throw new InvalidOperationException(PresenterCannotShowRequestFormat2.Format(request, metadata.Dump()));

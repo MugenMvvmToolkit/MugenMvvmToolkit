@@ -5,13 +5,6 @@ namespace MugenMvvm.Android.Requests
 {
     public class AndroidViewRequest : ViewModelViewRequest
     {
-        #region Fields
-
-        public readonly object Container;
-        public readonly int ResourceId;
-
-        #endregion
-
         #region Constructors
 
         public AndroidViewRequest(IViewModelBase viewModel, object container, int resourceId)
@@ -22,6 +15,14 @@ namespace MugenMvvm.Android.Requests
             Container = container;
             ResourceId = resourceId;
         }
+
+        #endregion
+
+        #region Properties
+
+        public object Container { get; protected set; }
+
+        public int ResourceId { get; protected set; }
 
         #endregion
     }

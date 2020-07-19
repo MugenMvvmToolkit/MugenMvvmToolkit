@@ -15,7 +15,7 @@ namespace MugenMvvm.Extensions
     {
         #region Methods
 
-        public static object GetService<TRequest>(this IViewModelManager viewModelManager, IViewModelBase viewModel, [DisallowNull] in TRequest request, IReadOnlyMetadataContext? metadata = null)
+        public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(viewModelManager, nameof(viewModelManager));
             var result = viewModelManager.TryGetService(viewModel, request, metadata);
@@ -56,7 +56,7 @@ namespace MugenMvvm.Extensions
             return viewModel.TryGetService<TService>();
         }
 
-        public static void NotifyLifecycleChanged<TState>(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, in TState state,
+        public static void NotifyLifecycleChanged(this IViewModelBase viewModel, ViewModelLifecycleState lifecycleState, object? state = null,
             IReadOnlyMetadataContext? metadata = null, IViewModelManager? manager = null)
         {
             manager.DefaultIfNull().OnLifecycleChanged(viewModel, lifecycleState, state, metadata);

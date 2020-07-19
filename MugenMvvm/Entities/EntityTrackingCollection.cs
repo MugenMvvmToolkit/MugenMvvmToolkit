@@ -66,7 +66,7 @@ namespace MugenMvvm.Entities
 
         #region Implementation of interfaces
 
-        public IReadOnlyList<TrackingEntity> GetChanges<TState>(in TState state, Func<TrackingEntity, TState, bool> predicate)
+        public IReadOnlyList<TrackingEntity> GetChanges<TState>(TState state, Func<TrackingEntity, TState, bool> predicate)
         {
             Should.NotBeNull(predicate, nameof(predicate));
             LazyList<TrackingEntity> list = default;
@@ -80,7 +80,7 @@ namespace MugenMvvm.Entities
                 }
             }
 
-            return (IReadOnlyList<TrackingEntity>?) list.List ?? Default.Array<TrackingEntity>();
+            return (IReadOnlyList<TrackingEntity>?)list.List ?? Default.Array<TrackingEntity>();
         }
 
         public EntityState GetState(object entity, IReadOnlyMetadataContext? metadata = null)
@@ -133,7 +133,7 @@ namespace MugenMvvm.Entities
                 var index = 0;
                 foreach (var pair in _dictionary)
                     entities[index++] = new TrackingEntity(pair.Key, pair.Value);
-                return ((IEnumerable<TrackingEntity>) entities).GetEnumerator();
+                return ((IEnumerable<TrackingEntity>)entities).GetEnumerator();
             }
         }
 
