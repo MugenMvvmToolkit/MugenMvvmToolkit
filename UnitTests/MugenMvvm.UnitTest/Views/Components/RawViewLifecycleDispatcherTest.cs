@@ -15,7 +15,39 @@ namespace MugenMvvm.UnitTest.Views.Components
         #region Methods
 
         [Fact]
-        public void ShouldResendEvent()
+        public void ShouldResendEvent1()
+        {
+            var state = "test";
+            var st = ViewLifecycleState.Initialized;
+            var viewModel = new TestViewModel();
+            var view = new View(new ViewMapping("1", typeof(string), typeof(IViewModelBase)), this, viewModel);
+            var invokeCount = 0;
+
+            var viewManager = new ViewManager();
+            viewManager.AddComponent(new RawViewLifecycleDispatcher());
+            viewManager.AddComponent(new TestViewLifecycleDispatcherComponent
+            {
+                OnLifecycleChanged = (o, lifecycleState, arg3, arg5) =>
+                {
+                    if (o == this)
+                        return;
+                    ++invokeCount;
+                    o.ShouldEqual(view);
+                    lifecycleState.ShouldEqual(st);
+                    arg3.ShouldEqual(state);
+                    arg5.ShouldEqual(DefaultMetadata);
+                }
+            });
+
+            viewManager.OnLifecycleChanged(this, st, state, DefaultMetadata);
+            invokeCount.ShouldEqual(0);
+
+            viewManager.OnLifecycleChanged(view, st, state, DefaultMetadata);
+            invokeCount.ShouldEqual(1);
+        }
+
+        [Fact]
+        public void ShouldResendEvent2()
         {
             var state = "test";
             var st = ViewLifecycleState.Initialized;

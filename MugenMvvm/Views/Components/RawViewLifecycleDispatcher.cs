@@ -26,8 +26,14 @@ namespace MugenMvvm.Views.Components
                 Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
             else
             {
+                bool hasView = false;
                 foreach (var v in Owner.GetViews(view, metadata).Iterator())
+                {
+                    hasView = true;
                     Components.OnLifecycleChanged(viewManager, v, lifecycleState, state, metadata);
+                }
+                if (!hasView)
+                    Components.OnLifecycleChanged(viewManager, view, lifecycleState, state, metadata);
             }
         }
 

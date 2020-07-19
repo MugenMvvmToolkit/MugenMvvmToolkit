@@ -23,5 +23,16 @@ namespace MugenMvvm.Binding.Members
         public Type[] Types { get; protected set; }
 
         #endregion
+
+        #region Methods
+
+        public override string ToString()
+        {
+            if (Types.Length == 0)
+                return Name;
+            return $"{Name}({string.Join(",", (object[])Types)})";
+        }
+
+        #endregion
     }
 }
