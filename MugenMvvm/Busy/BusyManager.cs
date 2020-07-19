@@ -28,7 +28,7 @@ namespace MugenMvvm.Busy
             return GetComponents<IBusyManagerComponent>().TryBeginBusy(this, request, metadata);
         }
 
-        public IBusyToken? TryGetToken(Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state = null, IReadOnlyMetadataContext? metadata = null)
+        public IBusyToken? TryGetToken<TState>(TState state, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, IReadOnlyMetadataContext? metadata = null)
         {
             return GetComponents<IBusyManagerComponent>().TryGetToken(this, filter, state, metadata);
         }

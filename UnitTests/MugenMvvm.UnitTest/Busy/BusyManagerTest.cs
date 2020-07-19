@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Busy
         public void ShouldValidateInputArgs()
         {
             var componentOwner = GetComponentOwner();
-            ShouldThrow<ArgumentNullException>(() => componentOwner.TryGetToken(null!));
+            ShouldThrow<ArgumentNullException>(() => componentOwner.TryGetToken(this, null!));
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Busy
         public void TryGetTokenShouldReturnNullNoComponents()
         {
             var componentOwner = GetComponentOwner();
-            componentOwner.TryGetToken((manager, token, arg3) => true).ShouldBeNull();
+            componentOwner.TryGetToken(this, (manager, token, arg3) => true).ShouldBeNull();
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace MugenMvvm.UnitTest.Busy
             var componentOwner = GetComponentOwner();
             var busyToken = new TestBusyToken();
             var methodCallCount = 0;
-            Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter = (manager, token, arg3) => true;
+            Func<BusyManager, IBusyToken, IReadOnlyMetadataContext?, bool> filter = (manager, token, arg3) => true;
             for (var i = 0; i < componentCount; i++)
             {
                 var i1 = i;
@@ -103,7 +103,7 @@ namespace MugenMvvm.UnitTest.Busy
                 componentOwner.AddComponent(component);
             }
 
-            componentOwner.TryGetToken(filter, componentOwner, DefaultMetadata).ShouldEqual(busyToken);
+            componentOwner.TryGetToken(componentOwner, filter, DefaultMetadata).ShouldEqual(busyToken);
             methodCallCount.ShouldEqual(componentCount);
         }
 
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Busy
                     {
                         ++methodCallCount;
                         context.ShouldEqual(DefaultMetadata);
-                        return new[] {new TestBusyToken(), new TestBusyToken()};
+                        return new[] { new TestBusyToken(), new TestBusyToken() };
                     }
                 };
                 componentOwner.AddComponent(component);

@@ -47,10 +47,10 @@ namespace MugenMvvm.UnitTest.Busy.Internal
             return TryBeginBusy?.Invoke(request, metadata);
         }
 
-        IBusyToken? IBusyManagerComponent.TryGetToken(IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
+        IBusyToken? IBusyManagerComponent.TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
         {
             _owner?.ShouldEqual(busyManager);
-            return TryGetToken?.Invoke(filter, state, metadata);
+            return TryGetToken?.Invoke((o, token, arg3) => filter((TState) o!, token, arg3), state, metadata);
         }
 
         ItemOrList<IBusyToken, IReadOnlyList<IBusyToken>> IBusyManagerComponent.TryGetTokens(IBusyManager busyManager, IReadOnlyMetadataContext? metadata)

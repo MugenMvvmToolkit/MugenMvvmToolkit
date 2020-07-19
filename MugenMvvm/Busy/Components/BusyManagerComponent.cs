@@ -46,7 +46,7 @@ namespace MugenMvvm.Busy.Components
             return BeginBusy(new BusyToken(this, request), delay, metadata);
         }
 
-        public IBusyToken? TryGetToken(IBusyManager busyManager, Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
+        public IBusyToken? TryGetToken<TState>(IBusyManager busyManager, Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
         {
             return _busyTail?.TryGetToken(filter, state, metadata);
         }
@@ -218,7 +218,7 @@ namespace MugenMvvm.Busy.Components
 
             #region Methods
 
-            public IBusyToken? TryGetToken(Func<object?, IBusyToken, IReadOnlyMetadataContext?, bool> filter, object? state, IReadOnlyMetadataContext? metadata)
+            public IBusyToken? TryGetToken<TState>(Func<TState, IBusyToken, IReadOnlyMetadataContext?, bool> filter, TState state, IReadOnlyMetadataContext? metadata)
             {
                 Should.NotBeNull(filter, nameof(filter));
                 lock (Locker)
