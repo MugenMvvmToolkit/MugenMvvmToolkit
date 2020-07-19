@@ -57,6 +57,6 @@ public class ViewPagerWrapper extends ViewWrapper implements IListView {
                 ((MugenPagerAdapter) adapter).detach();
             view.setAdapter(null);
         } else
-            view.setAdapter(new MugenPagerAdapter(view, new NativeContentItemsSourceProviderWrapper(view, provider)));
+            view.setAdapter(new MugenPagerAdapter(view, new NativeContentItemsSourceProviderWrapper(provider)));
     }
 }

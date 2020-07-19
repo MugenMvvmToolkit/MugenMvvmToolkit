@@ -63,6 +63,6 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
             return;
 
         for (Object view : views)
-            MugenService.onLifecycleChanged(view, lifecycle, null);
+            MugenService.onLifecycleChanged(view, LifecycleState.Destroy, null);
     }
 }

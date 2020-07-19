@@ -56,6 +56,6 @@ public class AdapterViewWrapper extends ViewWrapper implements IListView {
                 ((MugenListAdapter) adapter).detach();
             view.setAdapter(null);
         } else
-            view.setAdapter(new MugenListAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper(view, provider)));
+            view.setAdapter(new MugenListAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper(provider)));
     }
 }

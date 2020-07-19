@@ -19,6 +19,11 @@ namespace MugenMvvm.Android.Binding
             view.BindWithoutResult(accessor.Bind);
         }
 
+        public void OnSetView(Object owner, Object view)
+        {
+            view.BindableMembers().SetParent(owner);
+        }
+
         #endregion
     }
 }

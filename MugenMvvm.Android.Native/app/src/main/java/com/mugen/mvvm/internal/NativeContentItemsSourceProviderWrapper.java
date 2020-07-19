@@ -6,10 +6,8 @@ import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 
 public class NativeContentItemsSourceProviderWrapper implements IContentItemsSourceProvider {
     private final IContentItemsSourceProvider _target;
-    private final Object _owner;
 
-    public NativeContentItemsSourceProviderWrapper(Object owner, IContentItemsSourceProvider target) {
-        _owner = owner;
+    public NativeContentItemsSourceProviderWrapper(IContentItemsSourceProvider target) {
         _target = target;
     }
 

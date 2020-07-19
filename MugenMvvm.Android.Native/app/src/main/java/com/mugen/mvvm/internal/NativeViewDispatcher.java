@@ -28,8 +28,12 @@ public class NativeViewDispatcher implements IViewDispatcher {
     }
 
     @Override
+    public void onSettingView(Object owner, View view) {
+        _viewBindCallback.onSetView(MugenExtensions.wrap(owner, true), MugenExtensions.wrap(view, true));
+    }
+
+    @Override
     public void onSetView(Object owner, View view) {
-        MugenExtensions.wrap(view, true).setParent(owner);
     }
 
     @Override

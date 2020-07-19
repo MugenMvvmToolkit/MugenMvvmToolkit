@@ -32,7 +32,7 @@ public class RecyclerViewWrapper extends ViewWrapper implements IListView {
         if (provider == null) {
             view.setAdapter(null);
         } else
-            view.setAdapter(new MugenRecyclerViewAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper(view, (IResourceItemsSourceProvider) provider)));
+            view.setAdapter(new MugenRecyclerViewAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper((IResourceItemsSourceProvider) provider)));
     }
 
     @Override

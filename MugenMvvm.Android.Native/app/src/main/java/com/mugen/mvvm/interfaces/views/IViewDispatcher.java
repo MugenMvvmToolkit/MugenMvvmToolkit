@@ -7,6 +7,8 @@ import android.view.View;
 public interface IViewDispatcher {
     void onParentChanged(View view);
 
+    void onSettingView(Object owner, View view);
+
     void onSetView(Object owner, View view);
 
     void onInflatingView(int resourceId, Context context);

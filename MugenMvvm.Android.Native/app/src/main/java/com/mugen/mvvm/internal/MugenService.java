@@ -144,6 +144,12 @@ public final class MugenService {
         }
     }
 
+    public static void onSettingView(Object owner, View view) {
+        for (int i = 0; i < _viewDispatchers.size(); i++) {
+            _viewDispatchers.get(i).onSettingView(owner, view);
+        }
+    }
+
     public static void onSetView(Object owner, View view) {
         for (int i = 0; i < _viewDispatchers.size(); i++) {
             _viewDispatchers.get(i).onSetView(owner, view);

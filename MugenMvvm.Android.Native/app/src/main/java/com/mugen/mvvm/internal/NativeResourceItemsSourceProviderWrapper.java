@@ -3,14 +3,11 @@ package com.mugen.mvvm.internal;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
-import com.mugen.mvvm.interfaces.views.IAndroidView;
 
 public class NativeResourceItemsSourceProviderWrapper implements IResourceItemsSourceProvider {
     private final IResourceItemsSourceProvider _target;
-    private final Object _owner;
 
-    public NativeResourceItemsSourceProviderWrapper(Object owner, IResourceItemsSourceProvider target) {
-        _owner = owner;
+    public NativeResourceItemsSourceProviderWrapper(IResourceItemsSourceProvider target) {
         _target = target;
     }
 
@@ -45,10 +42,7 @@ public class NativeResourceItemsSourceProviderWrapper implements IResourceItemsS
 
     @Override
     public void onViewCreated(Object view) {
-        Object viewWrapper = MugenExtensions.wrap(view, true);
-        _target.onViewCreated(viewWrapper);
-        if (viewWrapper instanceof IAndroidView)
-            ((IAndroidView) viewWrapper).setParent(_owner);
+        _target.onViewCreated(MugenExtensions.wrap(view, true));
     }
 
     @Override

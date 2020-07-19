@@ -59,12 +59,12 @@ namespace MugenMvvm.Android.Collections
         public void OnBindView(Object view, int position)
         {
             view.BindableMembers().SetDataContext(GetItemAt(position));
-            //todo move parent here?
         }
 
         public void OnViewCreated(Object view)
         {
             view.BindableMembers().SetDataContext(null);
+            view.BindableMembers().SetParent(view);
         }
 
         public void AddObserver(IItemsSourceObserver observer)

@@ -53,15 +53,14 @@ namespace MugenMvvm.Android.Collections
 
         public void DestroyContent(int p0, Object p1)
         {
-            
         }
 
         public Object GetContent(int position)
         {
             var item = GetItemAt(position);
             var content = (Object)_selector.SelectTemplate(_owner, item)!;
-            content.BindableMembers().SetParent(item);
             content.BindableMembers().SetDataContext(item);
+            content.BindableMembers().SetParent(item);
             return content;
         }
 
