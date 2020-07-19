@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using MugenMvvm.Attributes;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions
@@ -196,6 +197,7 @@ namespace MugenMvvm.Extensions
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         [return: NotNullIfNotNull("value")]
+        [Preserve(Conditional = true)]
         public static object? Box<T>([AllowNull] T value)
         {
             var box = BoxingType<T>.BoxDelegate;
@@ -205,6 +207,7 @@ namespace MugenMvvm.Extensions
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [Preserve(Conditional = true)]
         public static bool CanBox<T>()
         {
             return BoxingType<T>.BoxDelegate != null;
