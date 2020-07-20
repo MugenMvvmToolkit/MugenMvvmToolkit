@@ -187,7 +187,7 @@ namespace MugenMvvm.UnitTest.Binding.Core
             context.TryGet(BindingMetadata.IsMultiBinding, out var isMulti).ShouldBeTrue();
             b.ShouldEqual(binding);
             isMulti.ShouldBeTrue();
-            context.ToArray().ShouldEqual(new[] { MetadataContextValue.Create(BindingMetadata.Binding, binding), MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true) });
+            context.ToArray().ShouldEqual(new[] { BindingMetadata.Binding.ToValue(binding), BindingMetadata.IsMultiBinding.ToValue(true) });
         }
 
         #endregion

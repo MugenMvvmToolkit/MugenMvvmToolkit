@@ -61,16 +61,16 @@ namespace MugenMvvm.UnitTest.Metadata
             return SetterValue;
         }
 
-        protected void EnumeratorCountTest(IReadOnlyMetadataContext metadataContext, List<MetadataContextValue> values)
+        protected void EnumeratorCountTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             metadataContext.Count.ShouldEqual(values.Count);
             metadataContext.SequenceEqual(values).ShouldBeTrue();
         }
 
-        public void ContainsTest(IReadOnlyMetadataContext metadataContext, List<MetadataContextValue> values)
+        public void ContainsTest(IReadOnlyMetadataContext metadataContext, List<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             foreach (var metadataContextValue in values)
-                metadataContext.Contains(metadataContextValue.ContextKey);
+                metadataContext.Contains(metadataContextValue.Key);
         }
 
         public void TryGetTest<T>(IReadOnlyMetadataContext context, IReadOnlyMetadataContextKey<T> key, T expectedValue)

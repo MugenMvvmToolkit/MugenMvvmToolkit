@@ -22,7 +22,7 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
+        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(object? target = null, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values = default)
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetReadOnlyMetadataContext(this, target, values);
             if (result != null)
@@ -30,7 +30,7 @@ namespace MugenMvvm.Metadata
             return result;
         }
 
-        public IMetadataContext? TryGetMetadataContext(object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
+        public IMetadataContext? TryGetMetadataContext(object? target = null, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values = default)
         {
             var result = GetComponents<IMetadataContextProviderComponent>().TryGetMetadataContext(this, target, values);
             if (result != null)

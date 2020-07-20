@@ -5,10 +5,10 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata.Components
 {
-    public interface IMetadataContextProviderComponent : IComponent<IMetadataContextManager>
+    public interface IMetadataContextProviderComponent : IComponent<IMetadataContextManager>//todo remove
     {
-        IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values);
+        IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values);
 
-        IMetadataContext? TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values);
+        IMetadataContext? TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values);
     }
 }

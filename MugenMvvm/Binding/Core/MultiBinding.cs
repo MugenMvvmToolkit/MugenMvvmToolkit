@@ -71,9 +71,9 @@ namespace MugenMvvm.Binding.Core
             return 2;
         }
 
-        protected override IEnumerator<MetadataContextValue> GetMetadataEnumerator()
+        protected override IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator()
         {
-            return ((IEnumerable<MetadataContextValue>)new[] { MetadataContextValue.Create(BindingMetadata.Binding, this), MetadataContextValue.Create(BindingMetadata.IsMultiBinding, true) }).GetEnumerator();
+            return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>)new[] { BindingMetadata.Binding.ToValue(this), BindingMetadata.IsMultiBinding.ToValue(true) }).GetEnumerator();
         }
 
         protected override bool ContainsMetadata(IMetadataContextKey contextKey)

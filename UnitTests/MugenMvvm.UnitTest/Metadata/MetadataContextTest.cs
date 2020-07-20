@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void TryGetShouldUseCustomGetter()
         {
-            var context = new MetadataContext(MetadataContextValue.Create(CustomGetterKey, DefaultGetterValue));
+            var context = new MetadataContext(CustomGetterKey.ToValue(DefaultGetterValue));
             TryGetGetterTest(context);
         }
 
@@ -41,12 +41,12 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10)]
         public void ConstructorShouldInitializeContext1(int count)
         {
-            var values = new List<MetadataContextValue>();
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
             var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
             for (var i = 0; i < count; i++)
             {
                 var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
-                var value = MetadataContextValue.Create(contextKey, i);
+                var value = contextKey.ToValue(i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));
             }
@@ -63,17 +63,17 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10)]
         public void ConstructorShouldInitializeContext2(int count)
         {
-            var values = new List<MetadataContextValue>();
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
             var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
             for (var i = 0; i < count; i++)
             {
                 var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
-                var value = MetadataContextValue.Create(contextKey, i);
+                var value = contextKey.ToValue(i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));
             }
 
-            var context = new MetadataContext((ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>)values);
+            var context = new MetadataContext((ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>)values);
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
             foreach (var valueTuple in keyValues)
@@ -83,8 +83,8 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void ConstructorShouldInitializeContext3()
         {
-            var values = new List<MetadataContextValue>();
-            var context = new MetadataContext(default(ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>));
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
+            var context = new MetadataContext(default(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>));
             EnumeratorCountTest(context, values);
             ContainsTest(context, values);
         }
@@ -95,10 +95,10 @@ namespace MugenMvvm.UnitTest.Metadata
         public void ConstructorShouldInitializeContext4(int intValue)
         {
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
-            var value = MetadataContextValue.Create(contextKey, intValue);
+            var value = contextKey.ToValue(intValue);
             var context = new MetadataContext(value);
-            EnumeratorCountTest(context, new List<MetadataContextValue> { value });
-            ContainsTest(context, new List<MetadataContextValue> { value });
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
             TryGetTest(context, contextKey, intValue);
         }
 
@@ -426,7 +426,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public void MergeShouldCorrectMergeValues(int count, bool addListener)
         {
             var context = GetMetadataContext();
-            var values = new List<MetadataContextValue>();
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
             var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
 
             var listenerInvokedCount = 0;
@@ -448,7 +448,7 @@ namespace MugenMvvm.UnitTest.Metadata
             for (var i = 0; i < count; i++)
             {
                 var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
-                var value = MetadataContextValue.Create(contextKey, i);
+                var value = contextKey.ToValue(i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));
             }
@@ -484,7 +484,7 @@ namespace MugenMvvm.UnitTest.Metadata
             for (var i = 0; i < count; i++)
             {
                 var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
-                var value = MetadataContextValue.Create(contextKey, -i);
+                var value = contextKey.ToValue(-i);
                 values.Add(value);
                 keyValues.Add((contextKey, -i));
             }
@@ -503,12 +503,12 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10, false)]
         public void ClearShouldRemoveByKey(int count, bool addListener)
         {
-            var values = new List<MetadataContextValue>();
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
             var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
             for (var i = 0; i < count; i++)
             {
                 var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
-                var value = MetadataContextValue.Create(contextKey, i);
+                var value = contextKey.ToValue(i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));
             }
@@ -557,12 +557,12 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(10, false)]
         public void ClearShouldClearAll(int count, bool addListener)
         {
-            var values = new List<MetadataContextValue>();
+            var values = new List<KeyValuePair<IMetadataContextKey, object?>>();
             var keyValues = new List<(IMetadataContextKey<int, int>, int)>();
             for (var i = 0; i < count; i++)
             {
                 var contextKey = MetadataContextKey.FromKey<int, int>(i.ToString());
-                var value = MetadataContextValue.Create(contextKey, i);
+                var value = contextKey.ToValue(i);
                 values.Add(value);
                 keyValues.Add((contextKey, i));
             }
@@ -714,7 +714,7 @@ namespace MugenMvvm.UnitTest.Metadata
             CurrentSetterOldValue.ShouldEqual(int.MinValue);
         }
 
-        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null)
+        protected virtual MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
         {
             return new MetadataContext(values);
         }

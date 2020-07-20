@@ -37,7 +37,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             };
 
             var member = target.GetType().GetProperty(propertyName);
-            var observer = component.TryGetMemberObserver(null!, target.GetType(), member, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, target.GetType(), member!, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);

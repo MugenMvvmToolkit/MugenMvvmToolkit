@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 using Xunit;
 
@@ -11,14 +13,14 @@ namespace MugenMvvm.UnitTest.Metadata
         [Fact]
         public void TryGetShouldUseCustomGetter()
         {
-            var context = new SingleValueMetadataContext(MetadataContextValue.Create(CustomGetterKey, DefaultGetterValue));
+            var context = new SingleValueMetadataContext(CustomGetterKey.ToValue(DefaultGetterValue));
             TryGetGetterTest(context);
         }
 
         [Fact]
         public void TryGetShouldUseDefaultValues()
         {
-            var context = new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<int, int>("t"), 1));
+            var context = new SingleValueMetadataContext(MetadataContextKey.FromKey<int, int>("t").ToValue(1));
             TryGetDefaultTest(context);
         }
 
@@ -28,10 +30,10 @@ namespace MugenMvvm.UnitTest.Metadata
         public void ConstructorShouldInitializeContext(int intValue)
         {
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
-            var value = MetadataContextValue.Create(contextKey, intValue);
+            var value = contextKey.ToValue(intValue);
             var context = new SingleValueMetadataContext(value);
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value});
-            ContainsTest(context, new List<MetadataContextValue> {value});
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
             TryGetTest(context, contextKey, intValue);
         }
 

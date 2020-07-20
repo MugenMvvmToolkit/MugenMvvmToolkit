@@ -17,18 +17,18 @@ namespace MugenMvvm.Metadata.Components
 
         #region Implementation of interfaces
 
-        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             var list = values.List;
             var item = values.Item;
-            if (list == null && item.IsEmpty)
+            if (list == null && item.Key == null)
                 return Default.Metadata;
             if (list == null)
                 return new SingleValueMetadataContext(item);
             return new ReadOnlyMetadataContext(list);
         }
 
-        public IMetadataContext? TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public IMetadataContext? TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             return new MetadataContext(values);
         }

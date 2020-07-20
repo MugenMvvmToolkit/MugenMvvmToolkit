@@ -22,13 +22,13 @@ namespace MugenMvvm.Extensions
 
         public static IReadOnlyMetadataContext ToContext<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
         {
-            return key.ToContextValue(value).ToContext();
+            return new SingleValueMetadataContext(key.ToValue(value));
         }
 
-        public static MetadataContextValue ToContextValue<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
+        public static KeyValuePair<IMetadataContextKey, object?> ToValue<TGet, TSet>(this IMetadataContextKey<TGet, TSet> key, TSet value)
         {
             Should.NotBeNull(key, nameof(key));
-            return MetadataContextValue.Create(key, value);
+            return new KeyValuePair<IMetadataContextKey, object?>(key, key.SetValue(Default.Metadata, null, value));
         }
 
         public static bool IsNullOrEmpty(this IReadOnlyMetadataContext? metadata)
@@ -43,7 +43,7 @@ namespace MugenMvvm.Extensions
             return defaultValue ?? Default.Metadata;
         }
 
-        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
+        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target = null, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values = default)
         {
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             var result = metadataContextManager.TryGetReadOnlyMetadataContext(target, values);
@@ -52,7 +52,7 @@ namespace MugenMvvm.Extensions
             return result;
         }
 
-        public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target = null, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values = default)
+        public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target = null, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values = default)
         {
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
             var result = metadataContextManager.TryGetMetadataContext(target, values);
@@ -70,30 +70,30 @@ namespace MugenMvvm.Extensions
         }
 
         public static bool LazyInitialize(this IMetadataContextManager? metadataContextManager, [NotNull] ref IMetadataContext? metadataContext,
-            object? target, IReadOnlyCollection<MetadataContextValue>? values = null)
+            object? target, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
         {
             return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextManager
                 .DefaultIfNull()
-                .GetMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values)));
+                .GetMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values)));
         }
 
         public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextManager? metadataContextManager = null)
         {
             if (metadata is IMetadataContext m)
                 return m;
-            return metadataContextManager.DefaultIfNull().GetMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(metadata));
+            return metadataContextManager.DefaultIfNull().GetMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(metadata));
         }
 
-        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<MetadataContextValue>? values)
+        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values)
         {
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            return metadataContextManager.GetReadOnlyMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
+            return metadataContextManager.GetReadOnlyMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values));
         }
 
-        public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<MetadataContextValue>? values)
+        public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values)
         {
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            return metadataContextManager.GetMetadataContext(target, ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values));
+            return metadataContextManager.GetMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values));
         }
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)
@@ -110,7 +110,7 @@ namespace MugenMvvm.Extensions
             for (var index = 0; index < values.Length; index++)
             {
                 var item = values[index];
-                builder.Append(item.ContextKey).Append("=").Append(item.Value).Append(";");
+                builder.Append(item.Key).Append("=").Append(item.Value).Append(";");
             }
 
             builder.Append(")");

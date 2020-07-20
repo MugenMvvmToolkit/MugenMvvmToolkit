@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IReadOnlyMetadataContext : IReadOnlyCollection<MetadataContextValue>
+    public interface IReadOnlyMetadataContext : IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>
     {
         bool Contains(IMetadataContextKey contextKey);
 

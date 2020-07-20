@@ -28,9 +28,9 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
 
         #region Properties
 
-        public Func<object?, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>, IReadOnlyMetadataContext?>? TryGetReadOnlyMetadataContext { get; set; }
+        public Func<object?, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>, IReadOnlyMetadataContext?>? TryGetReadOnlyMetadataContext { get; set; }
 
-        public Func<object?, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>, IMetadataContext?>? TryGetMetadataContext { get; set; }
+        public Func<object?, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>, IMetadataContext?>? TryGetMetadataContext { get; set; }
 
         public int Priority { get; set; }
 
@@ -38,13 +38,13 @@ namespace MugenMvvm.UnitTest.Metadata.Internal
 
         #region Implementation of interfaces
 
-        IReadOnlyMetadataContext? IMetadataContextProviderComponent.TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        IReadOnlyMetadataContext? IMetadataContextProviderComponent.TryGetReadOnlyMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             _metadataContextManager?.ShouldEqual(metadataContextManager);
             return TryGetReadOnlyMetadataContext?.Invoke(target, values);
         }
 
-        IMetadataContext? IMetadataContextProviderComponent.TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        IMetadataContext? IMetadataContextProviderComponent.TryGetMetadataContext(IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             _metadataContextManager?.ShouldEqual(metadataContextManager);
             return TryGetMetadataContext?.Invoke(target, values);

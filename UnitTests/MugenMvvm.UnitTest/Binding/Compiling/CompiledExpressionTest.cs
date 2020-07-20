@@ -262,7 +262,7 @@ namespace MugenMvvm.UnitTest.Binding.Compiling
             var key2 = MetadataContextKey.FromKey<string?, string>("i2");
             var value1 = 1;
             var value2 = "test";
-            var inputMetadata = MetadataContextValue.Create(key1, value1).ToContext();
+            var inputMetadata = key1.ToContext(value1);
             var compiledExpression = new CompiledExpression(new BindingMemberExpressionNode("test1", null) { Index = 0 }, inputMetadata);
             compiledExpression.ExpressionBuilders = new[]
             {

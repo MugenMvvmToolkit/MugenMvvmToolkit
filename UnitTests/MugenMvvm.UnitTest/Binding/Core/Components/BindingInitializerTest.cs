@@ -299,7 +299,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             }
             else
             {
-                binding.Metadata = MetadataContextValue.Create(BindingMetadata.IsMultiBinding, false).ToContext();
+                binding.Metadata = BindingMetadata.IsMultiBinding.ToContext(false);
                 parameters = new[] { new BinaryExpressionNode(BinaryTokenType.Assignment, new MemberExpressionNode(null, BindingParameterNameConstant.CommandParameter), cmdParameterNode) };
                 component.Flags = flags;
                 component.IgnoreIndexMembers = ignoreIndexMembers;

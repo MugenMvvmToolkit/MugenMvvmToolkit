@@ -42,7 +42,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProvider();
 
-            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(target, listener, DefaultMetadata);
@@ -78,7 +78,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProvider();
 
-            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
             observer.IsEmpty.ShouldBeFalse();
 
             var actionToken = observer.TryObserve(null, listener, DefaultMetadata);
@@ -121,7 +121,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
             eventInfo.ShouldNotBeNull();
             var component = new EventInfoMemberObserverProvider(reflectionManager: delegateProvider);
 
-            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
+            var observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
             observer.IsEmpty.ShouldBeTrue();
 
             testDelegateProvider.CanCreateDelegate = (type, info) =>
@@ -129,7 +129,7 @@ namespace MugenMvvm.UnitTest.Binding.Observation.Components
                 type.ShouldEqual(typeof(Action));
                 return true;
             };
-            observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo, DefaultMetadata);
+            observer = component.TryGetMemberObserver(null!, typeof(TestEventClass), eventInfo!, DefaultMetadata);
 
             testDelegateProvider.TryCreateDelegate = (type, o, arg3) =>
             {

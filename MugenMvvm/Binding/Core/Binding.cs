@@ -103,7 +103,7 @@ namespace MugenMvvm.Binding.Core
 
         protected object? SourceRaw { get; private set; }
 
-        int IReadOnlyCollection<MetadataContextValue>.Count => GetMetadataCount();
+        int IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>.Count => GetMetadataCount();
 
         #endregion
 
@@ -273,7 +273,7 @@ namespace MugenMvvm.Binding.Core
                 BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
         }
 
-        IEnumerator<MetadataContextValue> IEnumerable<MetadataContextValue>.GetEnumerator()
+        IEnumerator<KeyValuePair<IMetadataContextKey, object?>> IEnumerable<KeyValuePair<IMetadataContextKey, object?>>.GetEnumerator()
         {
             return GetMetadataEnumerator();
         }
@@ -412,9 +412,9 @@ namespace MugenMvvm.Binding.Core
 
         protected virtual int GetMetadataCount() => 1;
 
-        protected virtual IEnumerator<MetadataContextValue> GetMetadataEnumerator()
+        protected virtual IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetMetadataEnumerator()
         {
-            return Default.SingleValueEnumerator(MetadataContextValue.Create(BindingMetadata.Binding, this));
+            return Default.SingleValueEnumerator(BindingMetadata.Binding.ToValue(this));
         }
 
         protected virtual bool TryGetMetadata(IMetadataContextKey contextKey, out object? value)

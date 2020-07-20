@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
 using Xunit;
@@ -15,10 +16,10 @@ namespace MugenMvvm.UnitTest.Metadata
         public void ToContextShouldCreateSingleValueContext(int intValue)
         {
             var contextKey = MetadataContextKey.FromKey<int, int>(intValue.ToString());
-            var value = MetadataContextValue.Create(contextKey, intValue);
-            var context = value.ToContext();
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value});
-            ContainsTest(context, new List<MetadataContextValue> {value});
+            var value = new KeyValuePair<IMetadataContextKey, object?>(contextKey, intValue);
+            var context = contextKey.ToContext(intValue);
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
             TryGetTest(context, contextKey, intValue);
         }
 
@@ -26,10 +27,10 @@ namespace MugenMvvm.UnitTest.Metadata
         public void CreateShouldCreateMetadataFromKeyValuePair()
         {
             var contextKey = MetadataContextKey.FromKey<int, int>("test");
-            var value = MetadataContextValue.Create(new KeyValuePair<IMetadataContextKey, object?>(contextKey, 1));
-            var context = value.ToContext();
-            EnumeratorCountTest(context, new List<MetadataContextValue> {value});
-            ContainsTest(context, new List<MetadataContextValue> {value});
+            var value = new KeyValuePair<IMetadataContextKey, object?>(contextKey, 1);
+            var context = contextKey.ToContext(1);
+            EnumeratorCountTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
+            ContainsTest(context, new List<KeyValuePair<IMetadataContextKey, object?>> { value });
             TryGetTest(context, contextKey, 1);
         }
 

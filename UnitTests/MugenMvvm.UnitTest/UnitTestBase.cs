@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.Binding.Convert;
 using MugenMvvm.Binding.Convert.Components;
 using MugenMvvm.Binding.Core;
@@ -34,7 +35,7 @@ namespace MugenMvvm.UnitTest
     {
         #region Fields
 
-        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<MetadataContextValue>());
+        protected static readonly IReadOnlyMetadataContext DefaultMetadata = new ReadOnlyMetadataContext(Default.Array<KeyValuePair<IMetadataContextKey, object?>>());
 
         #endregion
 

@@ -56,11 +56,11 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, MetadataContextValue.Create(BindingMetadata.SuppressHolderRegistration, true).ToContext());
+            manager.OnLifecycleChanged(binding, BindingLifecycleState.Initialized, this, BindingMetadata.SuppressHolderRegistration.ToContext(true));
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
 
-            manager.OnLifecycleChanged(binding, BindingLifecycleState.Disposed, this, MetadataContextValue.Create(BindingMetadata.SuppressHolderRegistration, true).ToContext());
+            manager.OnLifecycleChanged(binding, BindingLifecycleState.Disposed, this, BindingMetadata.SuppressHolderRegistration.ToContext(true));
             registerCount.ShouldEqual(1);
             unregisterCount.ShouldEqual(1);
         }

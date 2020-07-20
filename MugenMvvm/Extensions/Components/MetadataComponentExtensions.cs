@@ -114,7 +114,7 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static IReadOnlyMetadataContext? TryGetReadOnlyMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target,
-            ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+            ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
@@ -128,7 +128,7 @@ namespace MugenMvvm.Extensions.Components
             return null;
         }
 
-        public static IMetadataContext? TryGetMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target, ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public static IMetadataContext? TryGetMetadataContext(this IMetadataContextProviderComponent[] components, IMetadataContextManager metadataContextManager, object? target, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));

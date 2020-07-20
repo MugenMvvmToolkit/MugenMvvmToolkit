@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
+using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
@@ -34,7 +35,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = DefaultMetadata;
             var contextProvider = new MetadataContextManager();
-            var items = ItemOrList.FromRawValue<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
+            var items = ItemOrList.FromRawValue<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(DefaultMetadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {
@@ -66,7 +67,7 @@ namespace MugenMvvm.UnitTest.Metadata
         {
             var result = new MetadataContext();
             var contextProvider = new MetadataContextManager();
-            var items = ItemOrList.FromRawValue<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(DefaultMetadata);
+            var items = ItemOrList.FromRawValue<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(DefaultMetadata);
             var invokeCount = 0;
             for (var i = 0; i < count; i++)
             {

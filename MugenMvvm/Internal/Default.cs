@@ -175,9 +175,9 @@ namespace MugenMvvm.Internal
             {
             }
 
-            public IEnumerator<MetadataContextValue> GetEnumerator()
+            public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
             {
-                return Enumerable.Empty<MetadataContextValue>().GetEnumerator();
+                return Enumerable.Empty<KeyValuePair<IMetadataContextKey, object?>>().GetEnumerator();
             }
 
             IEnumerator IEnumerable.GetEnumerator()

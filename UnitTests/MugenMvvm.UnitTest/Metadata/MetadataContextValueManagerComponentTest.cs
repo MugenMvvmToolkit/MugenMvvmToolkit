@@ -10,7 +10,7 @@ namespace MugenMvvm.UnitTest.Metadata
     {
         #region Methods
 
-        protected override MetadataContext GetMetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null)
+        protected override MetadataContext GetMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
         {
             var dict = new Dictionary<IMetadataContextKey, object?>();
             var ctx = base.GetMetadataContext();

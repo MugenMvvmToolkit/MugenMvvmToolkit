@@ -24,26 +24,26 @@ namespace MugenMvvm.Metadata
 
         #region Constructors
 
-        public MetadataContext(ItemOrList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>> values)
+        public MetadataContext(ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values)
         {
             var item = values.Item;
             var list = values.List;
             if (list == null)
             {
                 _dictionary = new Dictionary<IMetadataContextKey, object?>(3, InternalComparer.MetadataContextKey);
-                if (!item.IsEmpty)
-                    _dictionary[item.ContextKey] = item.Value;
+                if (item.Key != null)
+                    _dictionary[item.Key] = item.Value;
             }
             else
             {
                 _dictionary = new Dictionary<IMetadataContextKey, object?>(list.Count, InternalComparer.MetadataContextKey);
-                foreach (var contextValue in list)
-                    _dictionary[contextValue.ContextKey] = contextValue.Value;
+                foreach (var keyValuePair in list)
+                    _dictionary[keyValuePair.Key] = keyValuePair.Value;
             }
         }
 
-        public MetadataContext(IReadOnlyCollection<MetadataContextValue>? values = null)
-            : this(ItemOrList.FromList<MetadataContextValue, IReadOnlyCollection<MetadataContextValue>>(values))
+        public MetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
+            : this(ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values))
         {
         }
 
@@ -83,27 +83,27 @@ namespace MugenMvvm.Metadata
             return GetEnumerator();
         }
 
-        public IEnumerator<MetadataContextValue> GetEnumerator()
+        public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
         {
             var components = GetComponents();
             lock (_dictionary)
             {
                 if (components.Length == 0)
-                    return ((IEnumerable<MetadataContextValue>)_dictionary.ToArray(MetadataContextValue.CreateDelegate)).GetEnumerator();
+                    return ((IEnumerable<KeyValuePair<IMetadataContextKey, object?>>)_dictionary.ToArray()).GetEnumerator();
 
-                var contextValues = ItemOrListEditor.Get<MetadataContextValue>(value => value.IsEmpty);
+                var contextValues = ItemOrListEditor.Get<KeyValuePair<IMetadataContextKey, object?>>(value => value.Key == null);
                 foreach (var keyValuePair in _dictionary)
-                    contextValues.Add(MetadataContextValue.Create(keyValuePair));
+                    contextValues.Add(keyValuePair);
                 for (var i = 0; i < components.Length; i++)
                 {
                     foreach (var keyValuePair in components[i].GetValues(this))
-                        contextValues.Add(MetadataContextValue.Create(keyValuePair));
+                        contextValues.Add(keyValuePair);
                 }
 
                 var v = contextValues.ToItemOrList();
-                if (!v.Item.IsEmpty)
+                if (v.Item.Key != null)
                     return Default.SingleValueEnumerator(v.Item);
-                return v.List?.GetEnumerator() ?? Enumerable.Empty<MetadataContextValue>().GetEnumerator();
+                return v.List?.GetEnumerator() ?? Enumerable.Empty<KeyValuePair<IMetadataContextKey, object?>>().GetEnumerator();
             }
         }
 
@@ -263,7 +263,7 @@ namespace MugenMvvm.Metadata
                 listeners.OnAdded(this, contextKey, newValue);
         }
 
-        public void Merge(IEnumerable<MetadataContextValue> items)
+        public void Merge(IEnumerable<KeyValuePair<IMetadataContextKey, object?>> items)
         {
             Should.NotBeNull(items, nameof(items));
             var components = GetComponents();
@@ -273,22 +273,22 @@ namespace MugenMvvm.Metadata
                 lock (_dictionary)
                 {
                     foreach (var item in items)
-                        Set(components, item.ContextKey, item.Value);
+                        Set(components, item.Key, item.Value);
                 }
 
                 return;
             }
 
-            var values = new List<KeyValuePair<MetadataContextValue, object?>>();
+            var values = new List<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>();
             lock (_dictionary)
             {
                 foreach (var item in items)
                 {
-                    var value = TryGet(components, item.ContextKey, out var oldValue)
-                        ? new KeyValuePair<MetadataContextValue, object?>(item, oldValue)
-                        : new KeyValuePair<MetadataContextValue, object?>(item, this);
+                    var value = TryGet(components, item.Key, out var oldValue)
+                        ? new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, oldValue)
+                        : new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, this);
                     values.Add(value);
-                    Set(components, item.ContextKey, item.Value);
+                    Set(components, item.Key, item.Value);
                 }
             }
 
@@ -296,9 +296,9 @@ namespace MugenMvvm.Metadata
             {
                 var pair = values[index];
                 if (ReferenceEquals(pair.Value, this))
-                    listeners.OnAdded(this, pair.Key.ContextKey, pair.Key.Value);
+                    listeners.OnAdded(this, pair.Key.Key, pair.Key.Value);
                 else
-                    listeners.OnChanged(this, pair.Key.ContextKey, pair.Value, pair.Key.Value);
+                    listeners.OnChanged(this, pair.Key.Key, pair.Value, pair.Key.Value);
             }
         }
 

@@ -16,12 +16,12 @@ namespace MugenMvvm.Metadata
 
         #region Constructors
 
-        public ReadOnlyMetadataContext(IReadOnlyCollection<MetadataContextValue> values)
+        public ReadOnlyMetadataContext(IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>> values)
         {
             Should.NotBeNull(values, nameof(values));
             _dictionary = new Dictionary<IMetadataContextKey, object?>(values.Count, InternalComparer.MetadataContextKey);
             foreach (var contextValue in values)
-                _dictionary[contextValue.ContextKey] = contextValue.Value;
+                _dictionary[contextValue.Key] = contextValue.Value;
         }
 
         #endregion
@@ -39,9 +39,9 @@ namespace MugenMvvm.Metadata
             return GetEnumerator();
         }
 
-        public IEnumerator<MetadataContextValue> GetEnumerator()
+        public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
         {
-            return _dictionary.Select(MetadataContextValue.CreateDelegate).GetEnumerator();
+            return _dictionary.GetEnumerator();
         }
 
         public bool TryGetRaw(IMetadataContextKey contextKey, out object? value)

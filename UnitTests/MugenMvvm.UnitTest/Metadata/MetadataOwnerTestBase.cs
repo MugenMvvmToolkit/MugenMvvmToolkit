@@ -17,7 +17,7 @@ namespace MugenMvvm.UnitTest.Metadata
         [InlineData(false)]
         public virtual void HasMetadataShouldReturnCorrectValue(bool emptyValue)
         {
-            var context = emptyValue ? DefaultMetadata : new SingleValueMetadataContext(MetadataContextValue.Create(MetadataContextKey.FromKey<object?, object>("test"), ""));
+            var context = emptyValue ? DefaultMetadata : new SingleValueMetadataContext(MetadataContextKey.FromKey<object?, object>("test").ToValue(""));
             var owner = GetMetadataOwner(context, null);
             owner.HasMetadata.ShouldEqual(!emptyValue);
         }
@@ -43,7 +43,7 @@ namespace MugenMvvm.UnitTest.Metadata
                 {
                     o.ShouldEqual(owner);
                     list.List.ShouldBeNull();
-                    list.Item.IsEmpty.ShouldBeTrue();
+                    list.Item.Key.ShouldBeNull();
                     return context;
                 }
             };

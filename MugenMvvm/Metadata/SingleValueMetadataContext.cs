@@ -9,15 +9,15 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private readonly MetadataContextValue _value;
+        private readonly KeyValuePair<IMetadataContextKey, object?> _value;
 
         #endregion
 
         #region Constructors
 
-        public SingleValueMetadataContext(MetadataContextValue value)
+        public SingleValueMetadataContext(KeyValuePair<IMetadataContextKey, object?> value)
         {
-            Should.NotBeNull(value.ContextKey, nameof(value));
+            Should.NotBeNull(value.Key, nameof(value));
             _value = value;
         }
 
@@ -31,7 +31,7 @@ namespace MugenMvvm.Metadata
 
         #region Implementation of interfaces
 
-        public IEnumerator<MetadataContextValue> GetEnumerator()
+        public IEnumerator<KeyValuePair<IMetadataContextKey, object?>> GetEnumerator()
         {
             return Default.SingleValueEnumerator(_value);
         }
@@ -55,7 +55,7 @@ namespace MugenMvvm.Metadata
 
         public bool Contains(IMetadataContextKey contextKey)
         {
-            return _value.ContextKey.Equals(contextKey);
+            return _value.Key.Equals(contextKey);
         }
 
         #endregion
