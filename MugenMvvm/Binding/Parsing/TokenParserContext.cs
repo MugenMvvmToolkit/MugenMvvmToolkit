@@ -24,7 +24,7 @@ namespace MugenMvvm.Binding.Parsing
 
         #region Constructors
 
-        public TokenParserContext(IMetadataContextManager? metadataContextManager = null) : base(null, metadataContextManager)
+        public TokenParserContext() : base(null)
         {
             Source = string.Empty;
             _parsers = Default.Array<ITokenParserComponent>();

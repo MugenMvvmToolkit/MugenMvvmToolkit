@@ -18,7 +18,6 @@ namespace MugenMvvm.Validation
     {
         #region Fields
 
-        private readonly IMetadataContextManager? _metadataContextManager;
         private IReadOnlyMetadataContext? _metadata;
         private int _state;
 
@@ -29,11 +28,10 @@ namespace MugenMvvm.Validation
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public Validator(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public Validator(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
             _metadata = metadata;
-            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -42,7 +40,7 @@ namespace MugenMvvm.Validation
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => _metadataContextManager.LazyInitializeNonReadonly(ref _metadata, this);
+        public IMetadataContext Metadata => MugenExtensions.LazyInitialize(ref _metadata);
 
         public bool IsDisposed => _state == DisposedState;
 

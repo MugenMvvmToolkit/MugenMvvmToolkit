@@ -13,18 +13,12 @@ namespace MugenMvvm.Messaging
 {
     public sealed class Messenger : ComponentOwnerBase<IMessenger>, IMessenger
     {
-        #region Fields
-
-        private readonly IMetadataContextManager? _metadataContextManager;
-
-        #endregion
 
         #region Constructors
 
-        public Messenger(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public Messenger(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
-            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -33,7 +27,7 @@ namespace MugenMvvm.Messaging
 
         public IMessageContext GetMessageContext(object? sender, object message, IReadOnlyMetadataContext? metadata = null)
         {
-            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(this, sender, message, metadata) ?? new MessageContext(sender, message, metadata, _metadataContextManager);
+            return GetComponents<IMessageContextProviderComponent>().TryGetMessageContext(this, sender, message, metadata) ?? new MessageContext(sender, message, metadata);
         }
 
         public bool Publish(IMessageContext messageContext)

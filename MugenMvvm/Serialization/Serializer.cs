@@ -10,18 +10,11 @@ namespace MugenMvvm.Serialization
 {
     public sealed class Serializer : ComponentOwnerBase<ISerializer>, ISerializer
     {
-        #region Fields
-
-        private readonly IMetadataContextManager? _metadataContextManager;
-
-        #endregion
-
         #region Constructors
 
-        public Serializer(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public Serializer(IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
-            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -31,14 +24,14 @@ namespace MugenMvvm.Serialization
         public bool TrySerialize(Stream stream, object request, IReadOnlyMetadataContext? metadata = null)
         {
             Should.NotBeNull(stream, nameof(stream));
-            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
+            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetSerializationContext(this, request, metadata) ?? new SerializationContext(metadata);
             return GetComponents<ISerializerComponent>().TrySerialize(this, stream, request, ctx);
         }
 
         public bool TryDeserialize(Stream stream, IReadOnlyMetadataContext? metadata, out object? value)
         {
             Should.NotBeNull(stream, nameof(stream));
-            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, metadata) ?? new SerializationContext(metadata, _metadataContextManager);
+            using var ctx = GetComponents<ISerializationContextProviderComponent>().TryGetDeserializationContext(this, metadata) ?? new SerializationContext(metadata);
             return GetComponents<ISerializerComponent>().TryDeserialize(this, stream, ctx, out value);
         }
 

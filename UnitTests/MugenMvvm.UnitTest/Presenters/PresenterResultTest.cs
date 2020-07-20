@@ -27,9 +27,9 @@ namespace MugenMvvm.UnitTest.Presenters
             presenterResult.Metadata.ShouldEqual(DefaultMetadata);
         }
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
         {
-            return new PresenterResult(this, "1", new TestNavigationProvider(), NavigationType.Alert, metadata, metadataContextManager);
+            return new PresenterResult(this, "1", new TestNavigationProvider(), NavigationType.Alert, metadata);
         }
 
         #endregion

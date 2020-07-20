@@ -20,15 +20,8 @@ namespace MugenMvvm.UnitTest.ViewModels.Components
         [Fact]
         public void TryGetServiceShouldReturnMetadataContext()
         {
-            var context = new MetadataContext();
-            var metadataProvider = new MetadataContextManager();
-            metadataProvider.AddComponent(new TestMetadataContextProviderComponent
-            {
-                TryGetMetadataContext = (o, list) => context
-            });
-
-            var component = new ViewModelServiceResolver(metadataContextManager: metadataProvider);
-            component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldEqual(context);
+            var component = new ViewModelServiceResolver();
+            component.TryGetService(null!, new TestViewModel(), typeof(IMetadataContext), DefaultMetadata).ShouldBeType<MetadataContext>();
         }
 
         [Fact]

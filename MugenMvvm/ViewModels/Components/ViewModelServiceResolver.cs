@@ -3,7 +3,6 @@ using MugenMvvm.Attributes;
 using MugenMvvm.Busy;
 using MugenMvvm.Busy.Components;
 using MugenMvvm.Constants;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Busy;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Internal;
@@ -15,6 +14,7 @@ using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Interfaces.ViewModels.Components;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.ViewModels.Components
 {
@@ -23,7 +23,6 @@ namespace MugenMvvm.ViewModels.Components
         #region Fields
 
         private readonly IComponentCollectionManager? _componentCollectionManager;
-        private readonly IMetadataContextManager? _metadataContextManager;
         private readonly IReflectionManager? _reflectionManager;
         private readonly IThreadDispatcher? _threadDispatcher;
 
@@ -33,11 +32,10 @@ namespace MugenMvvm.ViewModels.Components
 
         [Preserve(Conditional = true)]
         public ViewModelServiceResolver(IReflectionManager? reflectionManager = null, IThreadDispatcher? threadDispatcher = null,
-            IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+            IComponentCollectionManager? componentCollectionManager = null)
         {
             _reflectionManager = reflectionManager;
             _threadDispatcher = threadDispatcher;
-            _metadataContextManager = metadataContextManager;
             _componentCollectionManager = componentCollectionManager;
         }
 
@@ -57,10 +55,10 @@ namespace MugenMvvm.ViewModels.Components
                 return null;
 
             if (service == typeof(IMetadataContext))
-                return _metadataContextManager.DefaultIfNull().GetMetadataContext(viewModel);
+                return new MetadataContext();
             if (service == typeof(IMessenger))
             {
-                var messenger = new Messenger(_componentCollectionManager, _metadataContextManager);
+                var messenger = new Messenger(_componentCollectionManager);
                 messenger.Components.Add(new MessagePublisher(_threadDispatcher), metadata);
                 messenger.Components.Add(new MessengerHandlerSubscriber(_reflectionManager), metadata);
                 return messenger;

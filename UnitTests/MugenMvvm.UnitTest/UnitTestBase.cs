@@ -51,10 +51,6 @@ namespace MugenMvvm.UnitTest
             attachedValueManager.AddComponent(new StaticTypeAttachedValueProvider());
             MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueManager);
 
-            var metadataContextManager = new MugenMvvm.Metadata.MetadataContextManager();
-            metadataContextManager.AddComponent(new MugenMvvm.Metadata.Components.MetadataContextProviderComponent());
-            MugenService.Configuration.InitializeInstance<IMetadataContextManager>(metadataContextManager);
-
             var weakReferenceManager = new WeakReferenceManager();
             weakReferenceManager.AddComponent(new WeakReferenceProviderComponent());
             MugenService.Configuration.InitializeInstance<IWeakReferenceManager>(weakReferenceManager);

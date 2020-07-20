@@ -21,37 +21,6 @@ namespace MugenMvvm.UnitTest.Messaging
         #region Methods
 
         [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public void GetMessageContextShouldReturnDefaultContextNoComponents(bool globalContextProvider)
-        {
-            IMetadataContextManager contextProvider;
-            Messenger messenger;
-            if (globalContextProvider)
-            {
-                messenger = new Messenger();
-                contextProvider = MugenService.MetadataContextManager;
-            }
-            else
-            {
-                contextProvider = new MetadataContextManager();
-                messenger = new Messenger(metadataContextManager: contextProvider);
-            }
-
-            var metadataContext = new MetadataContext();
-            var contextProviderComponent = new TestMetadataContextProviderComponent();
-            contextProviderComponent.TryGetMetadataContext = (o, list) => metadataContext;
-            using var s = TestComponentSubscriber.Subscribe(contextProvider, contextProviderComponent);
-
-            var sender = new object();
-            var message = new object();
-            var messageContext = messenger.GetMessageContext(sender, message, DefaultMetadata);
-            messageContext.Sender.ShouldEqual(sender);
-            messageContext.Message.ShouldEqual(message);
-            messageContext.Metadata.ShouldEqual(metadataContext);
-        }
-
-        [Theory]
         [InlineData(1)]
         [InlineData(10)]
         public void GetMessageContextShouldBeHandledByComponents(int count)

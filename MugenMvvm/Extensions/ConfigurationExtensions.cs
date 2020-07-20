@@ -12,8 +12,6 @@ using MugenMvvm.Internal;
 using MugenMvvm.Internal.Components;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
-using MugenMvvm.Metadata;
-using MugenMvvm.Metadata.Components;
 using MugenMvvm.Navigation;
 using MugenMvvm.Navigation.Components;
 using MugenMvvm.Presenters;
@@ -40,9 +38,6 @@ namespace MugenMvvm.Extensions
             if (serviceProvider != null)
                 MugenService.Configuration.InitializeInstance(serviceProvider);
             configuration.WithAppService(new ComponentCollectionManager());
-
-            configuration.WithAppService(new MetadataContextManager())
-                .WithComponent(new MetadataContextProviderComponent());
 
             configuration.WithAppService(new CommandManager())
                 .WithComponent(new DelegateCommandProvider());

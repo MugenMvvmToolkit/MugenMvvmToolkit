@@ -10,21 +10,6 @@ namespace MugenMvvm.Binding.Compiling.Components
 {
     public sealed class ExpressionCompilerComponent : IExpressionCompilerComponent, IHasPriority
     {
-        #region Fields
-
-        private readonly IMetadataContextManager? _metadataContextManager;
-
-        #endregion
-
-        #region Constructors
-
-        public ExpressionCompilerComponent(IMetadataContextManager? metadataContextManager = null)
-        {
-            _metadataContextManager = metadataContextManager;
-        }
-
-        #endregion
-
         #region Properties
 
         public int Priority { get; set; } = CompilingComponentPriority.LinqCompiler;
@@ -33,9 +18,9 @@ namespace MugenMvvm.Binding.Compiling.Components
 
         #region Implementation of interfaces
 
-        public ICompiledExpression? TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
+        public ICompiledExpression TryCompile(IExpressionCompiler compiler, IExpressionNode expression, IReadOnlyMetadataContext? metadata)
         {
-            return new CompiledExpression(expression, metadata, _metadataContextManager) {ExpressionBuilders = compiler.GetComponents<IExpressionBuilderComponent>()};
+            return new CompiledExpression(expression, metadata) {ExpressionBuilders = compiler.GetComponents<IExpressionBuilderComponent>()};
         }
 
         #endregion

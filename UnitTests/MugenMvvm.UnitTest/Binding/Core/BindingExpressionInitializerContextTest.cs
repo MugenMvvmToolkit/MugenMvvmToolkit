@@ -129,9 +129,9 @@ namespace MugenMvvm.UnitTest.Binding.Core
             ShouldThrow<InvalidOperationException>(() => context.TryGetParameterValue<int>(parameter1));
         }
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
         {
-            var context = new BindingExpressionInitializerContext(this, metadataContextManager);
+            var context = new BindingExpressionInitializerContext(this);
             context.Initialize(this, this, MemberExpressionNode.Empty, MemberExpressionNode.Empty, default, metadata);
             return context;
         }

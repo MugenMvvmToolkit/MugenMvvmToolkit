@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Internal;
@@ -43,57 +44,11 @@ namespace MugenMvvm.Extensions
             return defaultValue ?? Default.Metadata;
         }
 
-        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target = null, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values = default)
-        {
-            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            var result = metadataContextManager.TryGetReadOnlyMetadataContext(target, values);
-            if (result == null)
-                ExceptionManager.ThrowRequestNotSupported<IMetadataContextProviderComponent>(metadataContextManager, target, null);
-            return result;
-        }
-
-        public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target = null, ItemOrList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>> values = default)
-        {
-            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            var result = metadataContextManager.TryGetMetadataContext(target, values);
-            if (result == null)
-                ExceptionManager.ThrowRequestNotSupported<IMetadataContextProviderComponent>(metadataContextManager, target, null);
-            return result;
-        }
-
-        public static IMetadataContext LazyInitializeNonReadonly(this IMetadataContextManager? metadataContextManager, [NotNull] ref IReadOnlyMetadataContext? metadataContext, object? target)
-        {
-            if (metadataContext is IMetadataContext m)
-                return m;
-            metadataContext = metadataContext.ToNonReadonly(target, metadataContextManager);
-            return (IMetadataContext)metadataContext;
-        }
-
-        public static bool LazyInitialize(this IMetadataContextManager? metadataContextManager, [NotNull] ref IMetadataContext? metadataContext,
-            object? target, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values = null)
-        {
-            return metadataContext == null && LazyInitialize(ref metadataContext, metadataContextManager
-                .DefaultIfNull()
-                .GetMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values)));
-        }
-
-        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata, object? target = null, IMetadataContextManager? metadataContextManager = null)
+        public static IMetadataContext ToNonReadonly(this IReadOnlyMetadataContext? metadata)
         {
             if (metadata is IMetadataContext m)
                 return m;
-            return metadataContextManager.DefaultIfNull().GetMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(metadata));
-        }
-
-        public static IReadOnlyMetadataContext GetReadOnlyMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values)
-        {
-            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            return metadataContextManager.GetReadOnlyMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values));
-        }
-
-        public static IMetadataContext GetMetadataContext(this IMetadataContextManager metadataContextManager, object? target, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>? values)
-        {
-            Should.NotBeNull(metadataContextManager, nameof(metadataContextManager));
-            return metadataContextManager.GetMetadataContext(target, ItemOrList.FromList<KeyValuePair<IMetadataContextKey, object?>, IReadOnlyCollection<KeyValuePair<IMetadataContextKey, object?>>>(values));
+            return new MetadataContext(metadata);
         }
 
         public static IReadOnlyMetadataContext DefaultIfNull(this IReadOnlyMetadataContext? metadata)
@@ -200,6 +155,16 @@ namespace MugenMvvm.Extensions
         {
             Should.NotBeNull(metadataContext, nameof(metadataContext));
             return metadataContext.Remove(contextKey, out _);
+        }
+
+        internal static IMetadataContext LazyInitialize(ref IReadOnlyMetadataContext? metadata)
+        {
+            if (metadata is IMetadataContext m)
+                return m;
+
+            var context = metadata;
+            Interlocked.CompareExchange(ref metadata, new MetadataContext(metadata), context);
+            return (IMetadataContext)metadata!;
         }
 
         #endregion

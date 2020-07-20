@@ -15,14 +15,14 @@ namespace MugenMvvm.App
 
         private IComponentCollection? _components;
         private IDeviceInfo? _deviceInfo;
-        private IMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        public MugenApplication()
+        public MugenApplication(IReadOnlyMetadataContext? metadata = null)
         {
+            Metadata = metadata.ToNonReadonly();
             MugenService.Configuration.InitializeInstance<IMugenApplication>(this);
         }
 
@@ -30,19 +30,11 @@ namespace MugenMvvm.App
 
         #region Properties
 
-        public bool HasMetadata => !_metadata.IsNullOrEmpty();
+        public bool HasMetadata => Metadata.Count != 0;
 
         public bool HasComponents => _components != null && _components.Count != 0;
 
-        public IMetadataContext Metadata
-        {
-            get
-            {
-                if (_metadata == null)
-                    MugenService.MetadataContextManager.LazyInitialize(ref _metadata, this);
-                return _metadata;
-            }
-        }
+        public IMetadataContext Metadata { get; }
 
         public IComponentCollection Components
         {

@@ -312,7 +312,7 @@ namespace MugenMvvm.UnitTest.Views.Components
         {
             #region Constructors
 
-            public BaseView() : base(null, null)
+            public BaseView() : base(null)
             {
             }
 

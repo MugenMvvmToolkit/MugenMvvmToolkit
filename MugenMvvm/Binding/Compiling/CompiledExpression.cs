@@ -13,6 +13,7 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Compiling
 {
@@ -24,7 +25,6 @@ namespace MugenMvvm.Binding.Compiling
         private readonly IExpressionNode _expression;
         private readonly Dictionary<IExpressionNode, Expression?> _expressions;
         private readonly IReadOnlyMetadataContext? _inputMetadata;
-        private readonly IMetadataContextManager? _metadataContextManager;
 
         private IExpressionBuilderComponent[] _expressionBuilders;
         private IMetadataContext? _metadata;
@@ -37,10 +37,9 @@ namespace MugenMvvm.Binding.Compiling
 
         #region Constructors
 
-        public CompiledExpression(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
+        public CompiledExpression(IExpressionNode expression, IReadOnlyMetadataContext? metadata = null)
         {
             _inputMetadata = metadata;
-            _metadataContextManager = metadataContextManager;
             _cache = new Dictionary<object, Func<object?[], object?>>(this);
             _expressions = new Dictionary<IExpressionNode, Expression?>(this);
             _expression = expression.Accept(this, metadata);
@@ -60,7 +59,7 @@ namespace MugenMvvm.Binding.Compiling
             get
             {
                 if (_metadata == null)
-                    _metadataContextManager.LazyInitialize(ref _metadata, this, _inputMetadata);
+                    MugenExtensions.LazyInitialize(ref _metadata, new MetadataContext());
                 return _metadata;
             }
         }

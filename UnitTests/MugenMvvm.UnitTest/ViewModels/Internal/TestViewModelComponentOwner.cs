@@ -15,8 +15,8 @@ namespace MugenMvvm.UnitTest.ViewModels.Internal
 
         #region Constructors
 
-        public TestViewModelComponentOwner(IComponentCollection? components = null, IReadOnlyMetadataContext? metadata = null, IMetadataContextManager? metadataContextManager = null)
-            : base(metadata, metadataContextManager)
+        public TestViewModelComponentOwner(IComponentCollection? components = null, IReadOnlyMetadataContext? metadata = null)
+            : base(metadata)
         {
             _components = components;
         }

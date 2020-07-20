@@ -98,7 +98,7 @@ namespace MugenMvvm.UnitTest
             Validate(() => MugenService.ReflectionManager, lastType);
             Validate(() => MugenService.WeakReferenceManager, lastType);
             Validate(() => MugenService.Messenger, lastType);
-            Validate(() => MugenService.MetadataContextManager, lastType);
+            Validate(() => MugenService.EntityManager, lastType);
             Validate(() => MugenService.NavigationDispatcher, lastType);
             Validate(() => MugenService.Presenter, lastType);
             Validate(() => MugenService.Serializer, lastType);

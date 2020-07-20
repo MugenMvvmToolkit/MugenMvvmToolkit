@@ -19,7 +19,6 @@ namespace MugenMvvm.Commands
     {
         #region Fields
 
-        private readonly IMetadataContextManager? _metadataContextManager;
         private IReadOnlyMetadataContext? _metadata;
         private int _state;
 
@@ -29,11 +28,10 @@ namespace MugenMvvm.Commands
 
         #region Constructors
 
-        public CompositeCommand(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public CompositeCommand(IReadOnlyMetadataContext? metadata = null, IComponentCollectionManager? componentCollectionManager = null)
             : base(componentCollectionManager)
         {
             _metadata = metadata;
-            _metadataContextManager = metadataContextManager;
             CanDispose = true;
         }
 
@@ -43,7 +41,7 @@ namespace MugenMvvm.Commands
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => _metadataContextManager.LazyInitializeNonReadonly(ref _metadata, this);
+        public IMetadataContext Metadata => MugenExtensions.LazyInitialize(ref _metadata);
 
         public bool IsSuspended => GetComponents<ISuspendable>().IsSuspended();
 

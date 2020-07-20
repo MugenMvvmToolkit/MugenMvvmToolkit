@@ -13,7 +13,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
-    public sealed class MetadataContext : IMetadataContext
+    public sealed class MetadataContext : IMetadataContext//todo add method
     {
         #region Fields
 

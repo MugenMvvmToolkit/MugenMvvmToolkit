@@ -16,7 +16,6 @@ namespace MugenMvvm.Navigation.Components
     {
         #region Fields
 
-        private readonly IMetadataContextManager? _metadataContextManager;
         private readonly Dictionary<NavigationType, List<INavigationEntry>> _navigationEntries;
 
         #endregion
@@ -24,9 +23,8 @@ namespace MugenMvvm.Navigation.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public NavigationEntryManager(IMetadataContextManager? metadataContextManager = null)
+        public NavigationEntryManager()
         {
-            _metadataContextManager = metadataContextManager;
             _navigationEntries = new Dictionary<NavigationType, List<INavigationEntry>>();
         }
 
@@ -60,7 +58,7 @@ namespace MugenMvvm.Navigation.Components
                     if (updatedEntry == null)
                     {
                         addedEntry = new NavigationEntry(navigationContext.Target, navigationContext.NavigationProvider, navigationContext.NavigationId,
-                            navigationContext.NavigationType, _metadataContextManager.DefaultIfNull().GetMetadataContext(this, navigationContext.GetMetadataOrDefault()));
+                            navigationContext.NavigationType, navigationContext.GetMetadataOrDefault().ToNonReadonly());
                         list.Add(addedEntry);
                     }
                 }

@@ -1,8 +1,6 @@
 ﻿using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTest.Internal.Internal;
-using MugenMvvm.UnitTest.Metadata.Internal;
 using Should;
 using Xunit;
 
@@ -18,7 +16,7 @@ namespace MugenMvvm.UnitTest.Metadata
         public virtual void HasMetadataShouldReturnCorrectValue(bool emptyValue)
         {
             var context = emptyValue ? DefaultMetadata : new SingleValueMetadataContext(MetadataContextKey.FromKey<object?, object>("test").ToValue(""));
-            var owner = GetMetadataOwner(context, null);
+            var owner = GetMetadataOwner(context);
             owner.HasMetadata.ShouldEqual(!emptyValue);
         }
 
@@ -26,42 +24,11 @@ namespace MugenMvvm.UnitTest.Metadata
         public virtual void MetadataShouldReturnInputValue()
         {
             var context = new MetadataContext();
-            var owner = GetMetadataOwner(context, null);
+            var owner = GetMetadataOwner(context);
             owner.Metadata.ShouldEqual(context);
         }
 
-        [Theory]
-        [InlineData(true)]
-        [InlineData(false)]
-        public virtual void MetadataOwnerShouldUseMetadataContextProvider(bool globalValue)
-        {
-            IMetadataOwner<IMetadataContext>? owner = null;
-            var context = new MetadataContext();
-            var component = new TestMetadataContextProviderComponent
-            {
-                TryGetMetadataContext = (o, list) =>
-                {
-                    o.ShouldEqual(owner);
-                    list.List.ShouldBeNull();
-                    list.Item.Key.ShouldBeNull();
-                    return context;
-                }
-            };
-
-            using var subscriber = globalValue ? TestComponentSubscriber.Subscribe(component) : default;
-            if (globalValue)
-                owner = GetMetadataOwner(null, null);
-            else
-            {
-                var provider = new MetadataContextManager();
-                provider.AddComponent(component);
-                owner = GetMetadataOwner(null, provider);
-            }
-
-            owner.Metadata.ShouldEqual(context);
-        }
-
-        protected abstract IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager);
+        protected abstract IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata);
 
         #endregion
     }

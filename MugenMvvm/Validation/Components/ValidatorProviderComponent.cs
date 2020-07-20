@@ -13,17 +13,15 @@ namespace MugenMvvm.Validation.Components
         #region Fields
 
         private readonly IComponentCollectionManager? _componentCollectionManager;
-        private readonly IMetadataContextManager? _metadataContextManager;
 
         #endregion
 
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ValidatorProviderComponent(IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public ValidatorProviderComponent(IComponentCollectionManager? componentCollectionManager = null)
         {
             _componentCollectionManager = componentCollectionManager;
-            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -36,9 +34,9 @@ namespace MugenMvvm.Validation.Components
 
         #region Implementation of interfaces
 
-        public IValidator? TryGetValidator(IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata)
+        public IValidator TryGetValidator(IValidationManager validationManager, object? request, IReadOnlyMetadataContext? metadata)
         {
-            return new Validator(metadata, _componentCollectionManager, _metadataContextManager);
+            return new Validator(metadata, _componentCollectionManager);
         }
 
         #endregion

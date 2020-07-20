@@ -17,7 +17,6 @@ namespace MugenMvvm.Commands.Components
         #region Fields
 
         private readonly IComponentCollectionManager? _componentCollectionManager;
-        private readonly IMetadataContextManager? _metadataContextManager;
         private readonly IThreadDispatcher? _threadDispatcher;
 
         #endregion
@@ -25,10 +24,9 @@ namespace MugenMvvm.Commands.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public DelegateCommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public DelegateCommandProvider(IThreadDispatcher? threadDispatcher = null, IComponentCollectionManager? componentCollectionManager = null)
         {
             _componentCollectionManager = componentCollectionManager;
-            _metadataContextManager = metadataContextManager;
             _threadDispatcher = threadDispatcher;
             CommandExecutionMode = CommandExecutionMode.CanExecuteBeforeExecute;
             EventThreadMode = ThreadExecutionMode.Main;
@@ -61,7 +59,7 @@ namespace MugenMvvm.Commands.Components
 
             if (request is DelegateCommandRequest commandRequest)
             {
-                var command = new CompositeCommand(metadata, _componentCollectionManager, _metadataContextManager);
+                var command = new CompositeCommand(metadata, _componentCollectionManager);
                 command.AddComponent(new DelegateExecutorCommandComponent<TParameter>(commandRequest.Execute, commandRequest.CanExecute, commandRequest.ExecutionMode.GetValueOrDefault(CommandExecutionMode),
                     commandRequest.AllowMultipleExecution.GetValueOrDefault(AllowMultipleExecution)));
                 if (commandRequest.CanExecute != null && commandRequest.Notifiers != null && commandRequest.Notifiers.Count > 0)

@@ -7,17 +7,15 @@ namespace MugenMvvm.Metadata
     {
         #region Fields
 
-        private readonly IMetadataContextManager? _metadataContextManager;
         private IReadOnlyMetadataContext? _metadata;
 
         #endregion
 
         #region Constructors
 
-        protected MetadataOwnerBase(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
+        protected MetadataOwnerBase(IReadOnlyMetadataContext? metadata)
         {
             _metadata = metadata;
-            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -26,7 +24,7 @@ namespace MugenMvvm.Metadata
 
         public bool HasMetadata => !_metadata.IsNullOrEmpty();
 
-        public IMetadataContext Metadata => _metadataContextManager.LazyInitializeNonReadonly(ref _metadata, this);
+        public IMetadataContext Metadata => MugenExtensions.LazyInitialize(ref _metadata);
 
         protected IMetadataContext? MetadataRaw => _metadata as IMetadataContext;
 

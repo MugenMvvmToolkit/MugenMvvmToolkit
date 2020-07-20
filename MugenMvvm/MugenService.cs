@@ -45,8 +45,6 @@ namespace MugenMvvm
 
         public static IMessenger Messenger => Instance<IMessenger>();
 
-        public static IMetadataContextManager MetadataContextManager => Instance<IMetadataContextManager>();
-
         public static INavigationDispatcher NavigationDispatcher => Instance<INavigationDispatcher>();
 
         public static IPresenter Presenter => Instance<IPresenter>();

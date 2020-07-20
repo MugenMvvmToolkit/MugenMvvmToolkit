@@ -19,8 +19,8 @@ namespace MugenMvvm.Views
         #region Constructors
 
         public View(IViewMapping mapping, object view, IViewModelBase viewModel, IReadOnlyMetadataContext? metadata = null,
-            IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
-            : base(metadata, metadataContextManager)
+            IComponentCollectionManager? componentCollectionManager = null)
+            : base(metadata)
         {
             Should.NotBeNull(mapping, nameof(mapping));
             Should.NotBeNull(view, nameof(view));

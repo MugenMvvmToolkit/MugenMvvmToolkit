@@ -25,7 +25,6 @@ namespace MugenMvvm.Views.Components
 
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly IComponentCollectionManager? _componentCollectionManager;
-        private readonly IMetadataContextManager? _metadataContextManager;
 
         private static readonly IMetadataContextKey<List<IView>, List<IView>> ViewsMetadataKey = MetadataContextKey.FromMember(ViewsMetadataKey, typeof(ViewManagerComponent), nameof(ViewsMetadataKey));
 
@@ -34,11 +33,10 @@ namespace MugenMvvm.Views.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ViewManagerComponent(IAttachedValueManager? attachedValueManager = null, IComponentCollectionManager? componentCollectionManager = null, IMetadataContextManager? metadataContextManager = null)
+        public ViewManagerComponent(IAttachedValueManager? attachedValueManager = null, IComponentCollectionManager? componentCollectionManager = null)
         {
             _attachedValueManager = attachedValueManager;
             _componentCollectionManager = componentCollectionManager;
-            _metadataContextManager = metadataContextManager;
         }
 
         #endregion
@@ -144,7 +142,7 @@ namespace MugenMvvm.Views.Components
                 }
             }
 
-            var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager, _metadataContextManager);
+            var view = new View(mapping, rawView, viewModel, metadata, _componentCollectionManager);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Initializing, viewModel, metadata);
             addAction(collection, view, metadata);
             ((List<IView>)_attachedValueManager.DefaultIfNull().GetOrAdd(rawView, InternalConstant.ViewsValueKey, (_, __) => new List<IView>())!).Add(view);

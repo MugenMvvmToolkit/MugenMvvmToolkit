@@ -23,9 +23,9 @@ namespace MugenMvvm.Binding.Parsing.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ExpressionParserComponent(IMetadataContextManager? metadataContextManager = null)
+        public ExpressionParserComponent()
         {
-            _parserContext = new TokenParserContext(metadataContextManager);
+            _parserContext = new TokenParserContext();
             _componentTracker = new ComponentTracker();
             _componentTracker.AddListener<ITokenParserComponent, TokenParserContext>((components, state, _) => state.Parsers = components, _parserContext);
         }

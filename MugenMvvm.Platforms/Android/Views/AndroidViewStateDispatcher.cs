@@ -24,7 +24,6 @@ namespace MugenMvvm.Android.Views
     {
         #region Fields
 
-        private readonly IMetadataContextManager? _metadataContextManager;
         private readonly IPresenter? _presenter;
         private readonly ISerializer? _serializer;
         private readonly IViewModelManager? _viewModelManager;
@@ -33,11 +32,10 @@ namespace MugenMvvm.Android.Views
 
         #region Constructors
 
-        public AndroidViewStateDispatcher(IViewModelManager? viewModelManager = null, IPresenter? presenter = null, ISerializer? serializer = null, IMetadataContextManager? metadataContextManager = null)
+        public AndroidViewStateDispatcher(IViewModelManager? viewModelManager = null, IPresenter? presenter = null, ISerializer? serializer = null)
         {
             _viewModelManager = viewModelManager;
             _presenter = presenter;
-            _metadataContextManager = metadataContextManager;
             _serializer = serializer;
         }
 
@@ -75,7 +73,7 @@ namespace MugenMvvm.Android.Views
             var id = view.ViewModel.Metadata.Get(ViewModelMetadata.Id).ToString("N");
             bundle.PutString(AndroidInternalConstant.BundleVmId, id);
 
-            var request = new StateRequest(false, view, null, _metadataContextManager);
+            var request = new StateRequest(false, view);
             viewManager.OnLifecycleChanged(view, ViewLifecycleState.Preserving, request, metadata);
             if (request.Cancel || !request.HasMetadata)
                 bundle.Remove(AndroidInternalConstant.BundleViewState);
@@ -108,7 +106,7 @@ namespace MugenMvvm.Android.Views
                 if (!_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value) || !(value is IReadOnlyMetadataContext restoredState))
                     return false;
 
-                var request = new StateRequest(false, view, restoredState, _metadataContextManager);
+                var request = new StateRequest(false, view, restoredState);
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restoring, request, metadata);
                 if (request.Cancel)
                     return false;

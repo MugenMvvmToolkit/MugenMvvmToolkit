@@ -112,9 +112,9 @@ namespace MugenMvvm.UnitTest.Binding.Parsing
             context.Metadata.Get(BindingMetadata.EventArgs).ShouldBeNull();
         }
 
-        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata, IMetadataContextManager? metadataContextManager)
+        protected override IMetadataOwner<IMetadataContext> GetMetadataOwner(IReadOnlyMetadataContext? metadata)
         {
-            var ctx = new ExpressionConverterContext<Expression>(metadataContextManager);
+            var ctx = new ExpressionConverterContext<Expression>();
             ctx.Initialize(metadata);
             return ctx;
         }
