@@ -13,7 +13,6 @@ using MugenMvvm.UnitTest.Presenters.Internal;
 using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.UnitTest.Views.Internal;
 using MugenMvvm.Views;
-using MugenMvvm.Views.Components;
 using MugenMvvm.Wrapping;
 using MugenMvvm.Wrapping.Components;
 using Should;

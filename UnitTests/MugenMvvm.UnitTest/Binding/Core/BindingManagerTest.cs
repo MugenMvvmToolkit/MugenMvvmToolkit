@@ -6,7 +6,6 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Extensions;
-using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using Should;
 using Xunit;

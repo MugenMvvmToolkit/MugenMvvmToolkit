@@ -17,7 +17,6 @@ using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Binding.Core
 {

@@ -3,14 +3,11 @@ using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
-using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Components;
 using MugenMvvm.UnitTest.Internal.Internal;
 using MugenMvvm.UnitTest.Messaging.Internal;
-using MugenMvvm.UnitTest.Metadata.Internal;
 using Should;
 using Xunit;
 

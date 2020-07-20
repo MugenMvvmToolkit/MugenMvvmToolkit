@@ -5,7 +5,6 @@ using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Metadata;
 
 namespace MugenMvvm.App
 {
@@ -48,7 +47,7 @@ namespace MugenMvvm.App
 
         public IDeviceInfo DeviceInfo
         {
-            get => _deviceInfo ??= new DeviceInfo(PlatformType.Unknown, PlatformIdiom.Unknown, "0", new MetadataContext());
+            get => _deviceInfo ??= new DeviceInfo(PlatformType.Unknown, PlatformIdiom.Unknown, "0");
             private set => _deviceInfo = value;
         }
 

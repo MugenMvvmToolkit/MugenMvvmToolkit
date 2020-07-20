@@ -5,7 +5,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Messaging;
 using MugenMvvm.Messaging.Components;
-using MugenMvvm.UnitTest.Internal.Internal;
 using MugenMvvm.UnitTest.Messaging.Internal;
 using Should;
 using Xunit;

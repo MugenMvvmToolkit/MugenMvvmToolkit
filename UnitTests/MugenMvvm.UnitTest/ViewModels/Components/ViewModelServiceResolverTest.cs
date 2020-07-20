@@ -5,7 +5,6 @@ using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Messaging.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Metadata;
-using MugenMvvm.UnitTest.Metadata.Internal;
 using MugenMvvm.UnitTest.ViewModels.Internal;
 using MugenMvvm.ViewModels.Components;
 using Should;

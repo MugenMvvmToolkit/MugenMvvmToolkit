@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-using MugenMvvm.Enums;
+﻿using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.App.Components;
 using MugenMvvm.Interfaces.Metadata;

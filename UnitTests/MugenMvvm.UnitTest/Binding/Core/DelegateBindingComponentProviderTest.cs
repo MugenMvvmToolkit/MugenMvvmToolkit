@@ -1,7 +1,5 @@
 ﻿using MugenMvvm.Binding.Core;
 using MugenMvvm.Binding.Core.Components.Binding;
-using MugenMvvm.Binding.Interfaces.Core;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using Should;
 using Xunit;

@@ -1,5 +1,4 @@
 ﻿using System;
-using MugenMvvm.Binding;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;

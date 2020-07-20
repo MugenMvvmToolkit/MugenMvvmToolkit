@@ -3,7 +3,6 @@ using MugenMvvm.Binding.Core.Components;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Metadata;
 using MugenMvvm.Extensions;
-using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
 using Should;

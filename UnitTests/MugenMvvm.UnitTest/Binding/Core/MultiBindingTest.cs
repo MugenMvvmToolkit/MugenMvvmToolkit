@@ -12,7 +12,6 @@ using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
-using MugenMvvm.Metadata;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Core.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;

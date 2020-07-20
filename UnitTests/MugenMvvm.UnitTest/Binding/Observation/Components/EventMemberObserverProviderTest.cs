@@ -2,7 +2,6 @@
 using System.Linq;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
-using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Observation.Components;
 using MugenMvvm.Extensions;

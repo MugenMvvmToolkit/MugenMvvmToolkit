@@ -10,7 +10,6 @@ using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Parsing;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
-using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Compiling.Internal;
 using MugenMvvm.UnitTest.Binding.Core.Internal;

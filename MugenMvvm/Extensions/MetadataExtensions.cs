@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using MugenMvvm.Interfaces.Metadata;
-using MugenMvvm.Interfaces.Metadata.Components;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
 

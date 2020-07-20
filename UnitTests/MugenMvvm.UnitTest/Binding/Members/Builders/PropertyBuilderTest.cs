@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using MugenMvvm.Binding;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
