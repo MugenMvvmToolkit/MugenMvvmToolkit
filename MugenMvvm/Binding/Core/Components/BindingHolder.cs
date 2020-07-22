@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Core.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private static readonly UpdateValueDelegate<object, object?, object?, object?, object?> UpdateBindingDelegate = UpdateBinding;
+        private static readonly UpdateValueDelegate<object, IBinding, IBinding, object?, IBinding> UpdateBindingDelegate = UpdateBinding;
 
         #endregion
 
@@ -45,19 +45,19 @@ namespace MugenMvvm.Binding.Core.Components
         {
             Should.NotBeNull(target, nameof(target));
             var values = path == null
-                ? _attachedValueManager.DefaultIfNull().GetValues(target, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
-                : _attachedValueManager.DefaultIfNull().GetValues(target,
-                    (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith((string) state!, StringComparison.Ordinal), path);
+                ? _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).GetValues<object?>(null, (_, pair, __) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal))
+                : _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).GetValues(path,
+                    (_, pair, state) => pair.Key.StartsWith(BindingInternalConstant.BindPrefix, StringComparison.Ordinal) && pair.Key.EndsWith(state, StringComparison.Ordinal));
 
             var iterator = values.Iterator(pair => pair.Key == null);
             if (iterator.Count == 0)
                 return default;
             if (iterator.Count == 1)
-                return ItemOrList.FromItem((IBinding) values.Item.Value!);
+                return ItemOrList.FromItem((IBinding)values.Item.Value!);
 
             var bindings = new IBinding[iterator.Count];
             for (var i = 0; i < bindings.Length; i++)
-                bindings[i] = (IBinding) iterator[i].Value!;
+                bindings[i] = (IBinding)iterator[i].Value!;
             return ItemOrList.FromListToReadOnly(bindings);
         }
 
@@ -69,7 +69,8 @@ namespace MugenMvvm.Binding.Core.Components
 
             _attachedValueManager
                 .DefaultIfNull()
-                .AddOrUpdate(target, GetPath(binding.Target.Path), binding, UpdateBindingDelegate);
+                .TryGetAttachedValues(target, metadata)
+                .AddOrUpdate(GetPath(binding.Target.Path), binding, null, UpdateBindingDelegate);
             return true;
         }
 
@@ -78,7 +79,7 @@ namespace MugenMvvm.Binding.Core.Components
             Should.NotBeNull(binding, nameof(binding));
             if (target == null)
                 return false;
-            return _attachedValueManager.DefaultIfNull().Remove(target, GetPath(binding.Target.Path), out _);
+            return _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).Remove(GetPath(binding.Target.Path), out _);
         }
 
         #endregion
@@ -97,9 +98,9 @@ namespace MugenMvvm.Binding.Core.Components
             return BindingInternalConstant.BindPrefix + memberPath.Path;
         }
 
-        private static object? UpdateBinding(object item, object? addValue, object? currentValue, object? _)
+        private static IBinding UpdateBinding(object item, IBinding addValue, IBinding? currentValue, object? _)
         {
-            ((IDisposable?) currentValue)?.Dispose();
+            currentValue?.Dispose();
             return addValue;
         }
 

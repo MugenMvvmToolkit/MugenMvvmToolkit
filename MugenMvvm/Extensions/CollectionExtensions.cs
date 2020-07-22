@@ -53,11 +53,11 @@ namespace MugenMvvm.Extensions
             return component.DecorateItems((IObservableCollection)collection);
         }
 
-        public static Locker TryLock(this IObservableCollectionBase? collection)
+        public static MonitorLocker TryLock(this ICollection? collection)
         {
-            if (collection is ICollection c)
-                return Locker.Lock(c.SyncRoot);
-            return default;
+            if (collection == null || !collection.IsSynchronized)
+                return default;
+            return MonitorLocker.Lock(collection.SyncRoot);
         }
 
         public static void AddRange<T>(this ICollection<T> items, IEnumerable<T> value)
@@ -164,47 +164,6 @@ namespace MugenMvvm.Extensions
             var enumerator = dictionary.GetEnumerator();
             enumerator.MoveNext();
             return enumerator.Current;
-        }
-
-        #endregion
-
-        #region Nested types
-
-        public readonly ref struct Locker
-        {
-            #region Fields
-
-            private readonly object _locker;
-
-            #endregion
-
-            #region Constructors
-
-            private Locker(object locker)
-            {
-                _locker = locker;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public static Locker Lock(object locker)
-            {
-                var lockTaken = false;
-                Monitor.Enter(locker, ref lockTaken);
-                if (lockTaken)
-                    return new Locker(locker);
-                return default;
-            }
-
-            public void Dispose()
-            {
-                if (_locker != null)
-                    Monitor.Exit(_locker);
-            }
-
-            #endregion
         }
 
         #endregion

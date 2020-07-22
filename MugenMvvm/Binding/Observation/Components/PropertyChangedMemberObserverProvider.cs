@@ -23,7 +23,7 @@ namespace MugenMvvm.Binding.Observation.Components
         private readonly IAttachedValueManager? _attachedValueManager;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
 
-        private static readonly Func<object, object?, object?> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
+        private static readonly Func<object, object?, MemberListenerCollection> CreateWeakPropertyListenerDelegate = CreateWeakPropertyListener;
 
         #endregion
 
@@ -63,9 +63,11 @@ namespace MugenMvvm.Binding.Observation.Components
         {
             if (target == null)
                 return default;
-            return ((MemberListenerCollection)_attachedValueManager
+            return _attachedValueManager
                 .DefaultIfNull()
-                .GetOrAdd((INotifyPropertyChanged)target, BindingInternalConstant.PropertyChangedObserverMember, CreateWeakPropertyListenerDelegate)!).Add(listener, (string)member);
+                .TryGetAttachedValues((INotifyPropertyChanged)target)
+                .GetOrAdd(BindingInternalConstant.PropertyChangedObserverMember, null, CreateWeakPropertyListenerDelegate)
+                .Add(listener, (string)member);
         }
 
         private MemberObserver TryGetMemberObserver(string member, Type type)

@@ -5,7 +5,7 @@ using MugenMvvm.UnitTest.Internal.Internal;
 
 namespace MugenMvvm.UnitTest.Internal.Components
 {
-    public class ValueHolderAttachedValueProviderTest : AttachedValueProviderTestBase
+    public class ValueHolderAttachedValueStorageTest : AttachedValueStorageProviderTestBase
     {
         #region Methods
 
@@ -14,9 +14,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
             return new TestValueHolder<IDictionary<string, object?>>();
         }
 
-        protected override IAttachedValueProviderComponent GetComponent()
+        protected override IAttachedValueStorageProviderComponent GetComponent()
         {
-            return new ValueHolderAttachedValueProvider();
+            return new ValueHolderAttachedValueStorage();
         }
 
         #endregion

@@ -91,7 +91,7 @@ namespace MugenMvvm.Extensions
             return metadataContext.TryGet(contextKey, out value, default);
         }
 
-        [return: MaybeNull, NotNullIfNotNull("defaultValue")]
+        [return: MaybeNull]
         public static T Get<T>(this IReadOnlyMetadataContext metadataContext, IReadOnlyMetadataContextKey<T> key)
         {
             return metadataContext.Get(key, default);

@@ -177,18 +177,6 @@ namespace MugenMvvm.Extensions
             return null;
         }
 
-        public static void Set(this IAttachedValueManager attachedValueManager, object item, string path, object? value)
-        {
-            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
-            attachedValueManager.Set(item, path, value, out _);
-        }
-
-        public static bool Remove(this IAttachedValueManager attachedValueManager, object item, string path)
-        {
-            Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
-            return attachedValueManager.Remove(item, path, out _);
-        }
-
         public static ICompositeCommand GetCommand(this ICommandManager? commandManager, Action execute, Func<bool>? canExecute = null, bool? allowMultipleExecution = null,
             CommandExecutionMode? executionMode = null, ThreadExecutionMode? eventThreadMode = null, IReadOnlyList<object>? notifiers = null, Func<object, bool>? canNotify = null,
             IReadOnlyMetadataContext? metadata = null)

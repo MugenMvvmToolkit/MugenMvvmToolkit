@@ -5,7 +5,7 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Metadata
 {
-    public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext> //todo review
+    public interface IMetadataContext : IReadOnlyMetadataContext, IComponentOwner<IMetadataContext>
     {
         TGet AddOrUpdate<TGet, TSet, TState>(IMetadataContextKey<TGet, TSet> contextKey, TSet addValue, TState state, UpdateValueDelegate<IMetadataContext, TSet, TGet, TState, TSet> updateValueFactory);
 

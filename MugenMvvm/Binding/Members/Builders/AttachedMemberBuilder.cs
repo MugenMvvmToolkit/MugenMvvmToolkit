@@ -53,12 +53,12 @@ namespace MugenMvvm.Binding.Members.Builders
             return Property<TTarget, TValue>(descriptor.Name);
         }
 
-        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor) where TTarget : class
+        public static MethodBuilder<TTarget, TReturn> GetBuilder<TTarget, TReturn>(this BindableMethodDescriptor<TTarget, TReturn> descriptor, bool addParameters = true) where TTarget : class
         {
             Should.BeSupported(!descriptor.IsStatic, nameof(descriptor.IsStatic));
             var m = Method<TTarget, TReturn>(descriptor.Request.Name, typeof(TTarget), typeof(TReturn));
             var types = descriptor.Request.Types;
-            if (types.Length != 0)
+            if (types.Length != 0 && addParameters)
             {
                 var parameters = new IParameterInfo[types.Length];
                 for (int i = 0; i < types.Length; i++)
@@ -101,18 +101,14 @@ namespace MugenMvvm.Binding.Members.Builders
         {
             Should.NotBeNull(member, nameof(member));
             Should.NotBeNull(handler, nameof(handler));
-            var attachedValueManager = MugenService.AttachedValueManager;
-            var key = member.GetTarget(target);
-            if (!attachedValueManager.Contains(key, id))
+            var attachedValues = MugenService.AttachedValueManager.TryGetAttachedValues(member.GetTarget(target), metadata);
+            if (!attachedValues.Contains(id))
             {
-#pragma warning disable 8634
-                attachedValueManager.GetOrAdd(key, id, (t, s) =>
+                attachedValues.GetOrAdd(id, (member, handler, metadata), (t, s) =>
                 {
-                    var state = (Tuple<TMember, MemberAttachedDelegate<TMember, TTarget>, IReadOnlyMetadataContext?>)s!;
-                    state.Item2(state.Item1, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, state.Item3);
+                    s.handler(s.member, member.AccessModifiers.HasFlagEx(MemberFlags.Static) ? null! : (TTarget)t, s.metadata);
                     return (object?)null;
-                }, Tuple.Create(member, handler, metadata));
-#pragma warning restore 8634
+                });
             }
         }
 

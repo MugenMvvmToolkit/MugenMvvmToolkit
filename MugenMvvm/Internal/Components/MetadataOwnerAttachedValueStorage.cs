@@ -9,11 +9,11 @@ using MugenMvvm.Metadata;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class MetadataOwnerAttachedValueProvider : AttachedValueProviderBase, IHasPriority
+    public sealed class MetadataOwnerAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
     {
         #region Fields
 
-        private static readonly IMetadataContextKey<SortedList<string, object?>, SortedList<string, object?>> Key = MetadataContextKey.FromMember(Key, typeof(MetadataOwnerAttachedValueProvider), nameof(Key));
+        private static readonly IMetadataContextKey<SortedList<string, object?>, SortedList<string, object?>> Key = MetadataContextKey.FromMember(Key, typeof(MetadataOwnerAttachedValueStorage), nameof(Key));
 
         #endregion
 
@@ -25,7 +25,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        public override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             return item is IMetadataOwner<IMetadataContext>;
         }

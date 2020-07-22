@@ -19,7 +19,7 @@ namespace MugenMvvm.Binding.Observation.Components
         #region Fields
 
         private readonly IAttachedValueManager? _attachedValueManager;
-        private readonly Func<object, object?, EventListenerCollection?> _createWeakListenerDelegate;
+        private readonly Func<object, EventInfo, EventListenerCollection?> _createWeakListenerDelegate;
         private readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> _memberObserverHandler;
         private readonly IReflectionManager? _reflectionManager;
 
@@ -62,13 +62,14 @@ namespace MugenMvvm.Binding.Observation.Components
 
         private ActionToken TryObserve(object? target, object member, IEventListener listener, IReadOnlyMetadataContext? metadata)
         {
-            var eventInfo = (EventInfo)member;
-            if (target == null && !eventInfo.IsStatic())
+            var tuple = (Tuple<EventInfo, string>)member;
+            if (target == null && !tuple.Item1.IsStatic())
                 return default;
 
-            var listenerInternal = (EventListenerCollection?)_attachedValueManager
+            var listenerInternal = _attachedValueManager
                 .DefaultIfNull()
-                .GetOrAdd(target ?? eventInfo.DeclaringType!, BindingInternalConstant.EventPrefixObserverMember + eventInfo.Name, _createWeakListenerDelegate, eventInfo);
+                .TryGetAttachedValues(target ?? tuple.Item1.DeclaringType!)
+                .GetOrAdd(tuple.Item2, tuple.Item1, _createWeakListenerDelegate);
             if (listenerInternal == null)
                 return default;
             return listenerInternal.Add(listener);
@@ -77,13 +78,12 @@ namespace MugenMvvm.Binding.Observation.Components
         private MemberObserver TryGetMemberObserver(EventInfo member)
         {
             if (member.EventHandlerType == typeof(EventHandler) || (member.EventHandlerType != null && member.EventHandlerType.CanCreateDelegate(RaiseMethod, _reflectionManager)))
-                return new MemberObserver(_memberObserverHandler, member);
+                return new MemberObserver(_memberObserverHandler, Tuple.Create(member, BindingInternalConstant.EventPrefixObserverMember + member.Name));
             return default;
         }
 
-        private EventListenerCollection? CreateWeakListener(object? target, object? state)
+        private EventListenerCollection? CreateWeakListener(object? target, EventInfo eventInfo)
         {
-            var eventInfo = (EventInfo)state!;
             var listenerInternal = new EventListenerCollection();
             var handler = eventInfo.EventHandlerType == typeof(EventHandler)
                 ? new EventHandler(listenerInternal.Raise)

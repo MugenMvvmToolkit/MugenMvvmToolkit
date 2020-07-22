@@ -6,7 +6,7 @@ using MugenMvvm.UnitTest.Metadata.Internal;
 
 namespace MugenMvvm.UnitTest.Internal.Components
 {
-    public class MetadataOwnerAttachedValueProviderTest : AttachedValueProviderTestBase
+    public class MetadataOwnerAttachedValueStorageTest : AttachedValueStorageProviderTestBase
     {
         #region Methods
 
@@ -19,9 +19,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
             };
         }
 
-        protected override IAttachedValueProviderComponent GetComponent()
+        protected override IAttachedValueStorageProviderComponent GetComponent()
         {
-            return new MetadataOwnerAttachedValueProvider();
+            return new MetadataOwnerAttachedValueStorage();
         }
 
         #endregion

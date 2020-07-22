@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class StaticTypeAttachedValueProvider : AttachedValueProviderBase, IHasPriority
+    public sealed class StaticTypeAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
     {
         #region Fields
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Constructors
 
-        public StaticTypeAttachedValueProvider()
+        public StaticTypeAttachedValueStorage()
         {
             _attachedValues = new Dictionary<Type, SortedList<string, object?>>(7, InternalComparer.Type);
         }
@@ -32,7 +32,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        public override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Type;
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata) => item is Type;
 
         protected override IDictionary<string, object?>? GetAttachedDictionary(object item, bool optional)
         {

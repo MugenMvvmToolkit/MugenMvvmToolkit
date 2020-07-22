@@ -32,14 +32,14 @@ namespace MugenMvvm.Binding.Observation
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
-            return (EventListenerCollection)attachedValueManager.DefaultIfNull().GetOrAdd(target, path, (_, __) => new EventListenerCollection())!;
+            return attachedValueManager.DefaultIfNull().TryGetAttachedValues(target).GetOrAdd(path, target, (_, __) => new EventListenerCollection())!;
         }
 
         public static void Raise(object target, string path, object? message, IReadOnlyMetadataContext? metadata, IAttachedValueManager? attachedValueManager = null)
         {
             Should.NotBeNull(target, nameof(target));
             Should.NotBeNull(path, nameof(path));
-            if (attachedValueManager.DefaultIfNull().TryGet(target, path, out var collection))
+            if (attachedValueManager.DefaultIfNull().TryGetAttachedValues(target, metadata).TryGet(path, out var collection))
                 ((EventListenerCollection)collection!).Raise(target, message, metadata);
         }
 
@@ -290,7 +290,7 @@ namespace MugenMvvm.Binding.Observation
 
         internal static int GetCapacity(int size)
         {
-            if(size == ushort.MaxValue)
+            if (size == ushort.MaxValue)
                 ExceptionManager.ThrowNotSupported("size > " + ushort.MaxValue);
             if (size < 6)
                 return size + 2;

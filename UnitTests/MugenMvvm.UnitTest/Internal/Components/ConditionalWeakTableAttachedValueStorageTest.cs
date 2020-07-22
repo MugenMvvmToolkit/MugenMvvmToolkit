@@ -3,7 +3,7 @@ using MugenMvvm.Internal.Components;
 
 namespace MugenMvvm.UnitTest.Internal.Components
 {
-    public class ConditionalWeakTableAttachedValueProviderTest : AttachedValueProviderTestBase
+    public class ConditionalWeakTableAttachedValueStorageTest : AttachedValueStorageProviderTestBase
     {
         #region Methods
 
@@ -12,9 +12,9 @@ namespace MugenMvvm.UnitTest.Internal.Components
             return new object();
         }
 
-        protected override IAttachedValueProviderComponent GetComponent()
+        protected override IAttachedValueStorageProviderComponent GetComponent()
         {
-            return new ConditionalWeakTableAttachedValueProvider();
+            return new ConditionalWeakTableAttachedValueStorage();
         }
 
         #endregion

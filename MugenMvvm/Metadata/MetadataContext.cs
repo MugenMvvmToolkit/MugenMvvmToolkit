@@ -12,7 +12,7 @@ using MugenMvvm.Internal;
 
 namespace MugenMvvm.Metadata
 {
-    public sealed class MetadataContext : IMetadataContext//todo add method
+    public sealed class MetadataContext : IMetadataContext
     {
         #region Fields
 
@@ -133,7 +133,6 @@ namespace MugenMvvm.Metadata
             object? newValue, oldValue;
             bool added;
             var components = GetComponents();
-            var listeners = GetListeners();
             lock (_dictionary)
             {
                 TSet result;
@@ -153,9 +152,9 @@ namespace MugenMvvm.Metadata
             }
 
             if (added)
-                listeners.OnAdded(this, contextKey, newValue);
+                GetListeners().OnAdded(this, contextKey, newValue);
             else
-                listeners.OnChanged(this, contextKey, oldValue, newValue);
+                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
             return contextKey.GetValue(this, newValue);
         }
 
@@ -167,7 +166,6 @@ namespace MugenMvvm.Metadata
             object? newValue, oldValue;
             bool added;
             var components = GetComponents();
-            var listeners = GetListeners();
             lock (_dictionary)
             {
                 TSet result;
@@ -187,9 +185,9 @@ namespace MugenMvvm.Metadata
             }
 
             if (added)
-                listeners.OnAdded(this, contextKey, newValue);
+                GetListeners().OnAdded(this, contextKey, newValue);
             else
-                listeners.OnChanged(this, contextKey, oldValue, newValue);
+                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
             return contextKey.GetValue(this, newValue);
         }
 
@@ -199,7 +197,6 @@ namespace MugenMvvm.Metadata
             object? rawValue;
             bool added;
             var components = GetComponents();
-            var listeners = GetListeners();
             lock (_dictionary)
             {
                 if (TryGet(components, contextKey, out rawValue))
@@ -213,7 +210,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (added)
-                listeners.OnAdded(this, contextKey, rawValue);
+                GetListeners().OnAdded(this, contextKey, rawValue);
             return contextKey.GetValue(this, rawValue);
         }
 
@@ -224,7 +221,6 @@ namespace MugenMvvm.Metadata
             object? value;
             bool added;
             var components = GetComponents();
-            var listeners = GetListeners();
             lock (_dictionary)
             {
                 if (TryGet(components, contextKey, out value))
@@ -238,7 +234,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (added)
-                listeners.OnAdded(this, contextKey, value);
+                GetListeners().OnAdded(this, contextKey, value);
             return contextKey.GetValue(this, value);
         }
 
@@ -248,7 +244,6 @@ namespace MugenMvvm.Metadata
             object? newValue;
             bool hasOldValue;
             var components = GetComponents();
-            var listeners = GetListeners();
             lock (_dictionary)
             {
                 hasOldValue = TryGet(components, contextKey, out oldValue);
@@ -257,9 +252,9 @@ namespace MugenMvvm.Metadata
             }
 
             if (hasOldValue)
-                listeners.OnChanged(this, contextKey, oldValue, newValue);
+                GetListeners().OnChanged(this, contextKey, oldValue, newValue);
             else
-                listeners.OnAdded(this, contextKey, newValue);
+                GetListeners().OnAdded(this, contextKey, newValue);
         }
 
         public void Merge(IEnumerable<KeyValuePair<IMetadataContextKey, object?>> items)
@@ -274,30 +269,30 @@ namespace MugenMvvm.Metadata
                     foreach (var item in items)
                         Set(components, item.Key, item.Value);
                 }
-
-                return;
             }
-
-            var values = new List<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>();
-            lock (_dictionary)
+            else
             {
-                foreach (var item in items)
+                var values = ItemOrListEditor.Get<KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>>(pair => pair.Key.Key == null);
+                lock (_dictionary)
                 {
-                    var value = TryGet(components, item.Key, out var oldValue)
-                        ? new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, oldValue)
-                        : new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, this);
-                    values.Add(value);
-                    Set(components, item.Key, item.Value);
+                    foreach (var item in items)
+                    {
+                        var value = TryGet(components, item.Key, out var oldValue)
+                            ? new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, oldValue)
+                            : new KeyValuePair<KeyValuePair<IMetadataContextKey, object?>, object?>(item, this);
+                        values.Add(value);
+                        Set(components, item.Key, item.Value);
+                    }
                 }
-            }
 
-            for (var index = 0; index < values.Count; index++)
-            {
-                var pair = values[index];
-                if (ReferenceEquals(pair.Value, this))
-                    listeners.OnAdded(this, pair.Key.Key, pair.Key.Value);
-                else
-                    listeners.OnChanged(this, pair.Key.Key, pair.Value, pair.Key.Value);
+                for (var index = 0; index < values.Count; index++)
+                {
+                    var pair = values[index];
+                    if (ReferenceEquals(pair.Value, this))
+                        listeners.OnAdded(this, pair.Key.Key, pair.Key.Value);
+                    else
+                        listeners.OnChanged(this, pair.Key.Key, pair.Value, pair.Key.Value);
+                }
             }
         }
 
@@ -305,7 +300,6 @@ namespace MugenMvvm.Metadata
         {
             Should.NotBeNull(contextKey, nameof(contextKey));
             var components = GetComponents();
-            var listeners = GetListeners();
             bool changed;
             lock (_dictionary)
             {
@@ -313,7 +307,7 @@ namespace MugenMvvm.Metadata
             }
 
             if (changed)
-                listeners.OnRemoved(this, contextKey, oldValue);
+                GetListeners().OnRemoved(this, contextKey, oldValue);
             return changed;
         }
 
@@ -347,19 +341,21 @@ namespace MugenMvvm.Metadata
                 components.Clear(this);
             }
 
-            if (oldValues.Count != 0)
+            for (var i = 0; i < oldValues.Count; i++)
             {
-                for (var i = 0; i < oldValues.Count; i++)
-                {
-                    var pair = oldValues[i];
-                    listeners.OnRemoved(this, pair.Key, pair.Value);
-                }
+                var pair = oldValues[i];
+                listeners.OnRemoved(this, pair.Key, pair.Value);
             }
         }
 
         #endregion
 
         #region Methods
+
+        public void Add<TGet, TSet>(IMetadataContextKey<TGet, TSet> contextKey, TSet value)
+        {
+            Set(contextKey, value, out _);
+        }
 
         private bool TryGet(IMetadataContextValueManagerComponent[] components, IMetadataContextKey contextKey, out object? rawValue)
         {

@@ -9,7 +9,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ConditionalWeakTableAttachedValueProvider : AttachedValueProviderBase, IHasPriority
+    public sealed class ConditionalWeakTableAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
     {
         #region Fields
 
@@ -20,7 +20,7 @@ namespace MugenMvvm.Internal.Components
         #region Constructors
 
         [Preserve(Conditional = true)]
-        public ConditionalWeakTableAttachedValueProvider()
+        public ConditionalWeakTableAttachedValueStorage()
         {
             _weakTable = new ConditionalWeakTable<object, SortedList<string, object?>>();
         }
@@ -35,7 +35,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        public override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             return true;
         }

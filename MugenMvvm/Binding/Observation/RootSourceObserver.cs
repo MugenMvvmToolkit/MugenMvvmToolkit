@@ -66,12 +66,12 @@ namespace MugenMvvm.Binding.Observation
 
         public static RootSourceObserver GetOrAdd(object target)
         {
-            return (RootSourceObserver)MugenService.AttachedValueManager.GetOrAdd(target, BindingInternalConstant.RootObserver, (o, _) => new RootSourceObserver(o))!;
+            return MugenService.AttachedValueManager.TryGetAttachedValues(target).GetOrAdd(BindingInternalConstant.RootObserver, target, (o, _) => new RootSourceObserver(o));
         }
 
         public static void Clear(object target)
         {
-            if (MugenService.AttachedValueManager.Remove(target, BindingInternalConstant.RootObserver, out var value))
+            if (MugenService.AttachedValueManager.TryGetAttachedValues(target).Remove(BindingInternalConstant.RootObserver, out var value))
                 (value as RootSourceObserver)?.Dispose();
         }
 

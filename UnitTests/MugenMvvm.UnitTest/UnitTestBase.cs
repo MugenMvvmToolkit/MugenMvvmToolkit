@@ -47,8 +47,8 @@ namespace MugenMvvm.UnitTest
             MugenService.Configuration.InitializeInstance<IComponentCollectionManager>(new ComponentCollectionManager());
 
             var attachedValueManager = new AttachedValueManager();
-            attachedValueManager.AddComponent(new ConditionalWeakTableAttachedValueProvider());
-            attachedValueManager.AddComponent(new StaticTypeAttachedValueProvider());
+            attachedValueManager.AddComponent(new ConditionalWeakTableAttachedValueStorage());
+            attachedValueManager.AddComponent(new StaticTypeAttachedValueStorage());
             MugenService.Configuration.InitializeInstance<IAttachedValueManager>(attachedValueManager);
 
             var weakReferenceManager = new WeakReferenceManager();

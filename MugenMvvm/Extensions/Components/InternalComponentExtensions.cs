@@ -4,6 +4,7 @@ using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Internal.Components;
 using MugenMvvm.Interfaces.Metadata;
+using MugenMvvm.Internal;
 
 namespace MugenMvvm.Extensions.Components
 {
@@ -11,19 +12,19 @@ namespace MugenMvvm.Extensions.Components
     {
         #region Methods
 
-        public static IAttachedValueProviderComponent? TryGetProvider(this IAttachedValueProviderComponent[] components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
+        public static AttachedValueStorage TryGetAttachedValues(this IAttachedValueStorageProviderComponent[] components, IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(attachedValueManager, nameof(attachedValueManager));
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(item, nameof(item));
             for (var i = 0; i < components.Length; i++)
             {
-                var provider = components[i];
-                if (provider.IsSupported(attachedValueManager, item, metadata))
-                    return provider;
+                var storage = components[i].TryGetAttachedValues(attachedValueManager, item, metadata);
+                if (!storage.IsEmpty)
+                    return storage;
             }
 
-            return null;
+            return default;
         }
 
         public static Func<object?[], object>? TryGetActivator(this IActivatorReflectionDelegateProviderComponent[] components, IReflectionManager reflectionManager, ConstructorInfo constructor)

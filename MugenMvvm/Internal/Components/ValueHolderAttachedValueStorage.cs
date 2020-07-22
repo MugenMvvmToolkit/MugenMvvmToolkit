@@ -7,7 +7,7 @@ using MugenMvvm.Interfaces.Models;
 
 namespace MugenMvvm.Internal.Components
 {
-    public sealed class ValueHolderAttachedValueProvider : AttachedValueProviderBase, IHasPriority
+    public sealed class ValueHolderAttachedValueStorage : AttachedValueStorageProviderBase, IHasPriority
     {
         #region Properties
 
@@ -17,7 +17,7 @@ namespace MugenMvvm.Internal.Components
 
         #region Methods
 
-        public override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
+        protected override bool IsSupported(IAttachedValueManager attachedValueManager, object item, IReadOnlyMetadataContext? metadata)
         {
             return item is IValueHolder<IDictionary<string, object?>>;
         }

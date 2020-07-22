@@ -50,15 +50,16 @@ namespace MugenMvvm.Android.Binding
 
         public static ActionToken AddListener(IMenuItem menuItem, IEventListener listener)
         {
-            return ((MenuItemClickListener)MugenService
+            return MugenService
                 .AttachedValueManager
-                .GetOrAdd(menuItem, AndroidInternalConstant.MenuClickListener, (key, _) =>
+                .TryGetAttachedValues(menuItem)
+                .GetOrAdd(AndroidInternalConstant.MenuClickListener, menuItem, (key, item) =>
                 {
-                    var item = (IMenuItem)key;
                     var l = new MenuItemClickListener(item);
                     item.SetOnMenuItemClickListener(l);
                     return l;
-                })!).AddListener(listener);
+                })
+                .AddListener(listener);
         }
 
         private ActionToken AddListener(IEventListener listener)

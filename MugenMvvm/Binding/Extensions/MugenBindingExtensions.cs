@@ -108,7 +108,7 @@ namespace MugenMvvm.Binding.Extensions
             foreach (var binding in MugenBindingService.BindingManager.GetBindings(target).Iterator())
                 binding.Dispose();
             if (clearAttachedValues)
-                MugenService.AttachedValueManager.Clear(target);
+                MugenService.AttachedValueManager.TryGetAttachedValues(target).Clear();
         }
 
         public static Type[] GetTypes(this IResourceResolver? resourceResolver, IReadOnlyList<string>? types, IReadOnlyMetadataContext? metadata = null)

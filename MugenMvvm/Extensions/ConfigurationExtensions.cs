@@ -47,10 +47,10 @@ namespace MugenMvvm.Extensions
                 .WithComponent(new ReflectionEntityStateSnapshotProvider());
 
             configuration.WithAppService(new AttachedValueManager())
-                .WithComponent(new ConditionalWeakTableAttachedValueProvider())
-                .WithComponent(new MetadataOwnerAttachedValueProvider())
-                .WithComponent(new StaticTypeAttachedValueProvider())
-                .WithComponent(new ValueHolderAttachedValueProvider());
+                .WithComponent(new ConditionalWeakTableAttachedValueStorage())
+                .WithComponent(new MetadataOwnerAttachedValueStorage())
+                .WithComponent(new StaticTypeAttachedValueStorage())
+                .WithComponent(new ValueHolderAttachedValueStorage());
 
             configuration.WithAppService(new ReflectionManager())
                 .WithComponent(new ExpressionReflectionDelegateProvider())
