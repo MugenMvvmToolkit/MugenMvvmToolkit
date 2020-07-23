@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using MugenMvvm.Attributes;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
@@ -106,6 +107,16 @@ namespace MugenMvvm.Binding.Compiling.Components
                     right.ConvertIfNeed(typeof(object), false));
             }
         }
+
+        [Preserve(Conditional = true)]
+        // ReSharper disable UnusedMember.Local
+        private static void LinkerInclude()
+        {
+            // ReSharper disable ReturnValueOfPureMethodIsNotUsed
+            string.Concat(1, 1);
+            // ReSharper restore ReturnValueOfPureMethodIsNotUsed
+        }
+        // ReSharper restore UnusedMember.Local
 
         #endregion
     }

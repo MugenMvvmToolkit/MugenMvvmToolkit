@@ -64,7 +64,7 @@ namespace MugenMvvm.UnitTest.App
         {
             var state = this;
             var states = new List<ApplicationLifecycleState>();
-            var device = new DeviceInfo(PlatformType.UnitTest, PlatformIdiom.Phone, "00", new MetadataContext());
+            var device = new DeviceInfo(PlatformType.UnitTest, () => PlatformIdiom.Phone, () => "00", new MetadataContext());
             var application = new MugenApplication();
             application.AddComponent(new TestApplicationLifecycleDispatcherComponent(application)
             {

@@ -4,6 +4,7 @@ using Android.OS;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Native.Interfaces.Views;
+using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -42,7 +43,7 @@ namespace MugenMvvm.Android.Views
 
         #region Properties
 
-        public int Priority { get; set; }
+        public int Priority { get; set; } = ViewComponentPriority.StateManager;
 
         #endregion
 

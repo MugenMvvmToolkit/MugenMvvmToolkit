@@ -4,6 +4,13 @@
     {
         #region Fields
 
+        public const string BindingContext = nameof(BindingContext);
+        public const string ItemTemplate = nameof(ItemTemplate);
+        public const string ItemTemplateSelector = nameof(ItemTemplateSelector);
+        public const string ContentTemplate = nameof(ContentTemplate);
+        public const string ContentTemplateSelector = nameof(ContentTemplateSelector);
+        public const string StableIdProvider = nameof(StableIdProvider);
+
         public const string ChangedEventPostfix = "Changed";
         public const string ChangeEventPostfix = "Change";
         public const string PropertyChangedObserverMember = "~p";

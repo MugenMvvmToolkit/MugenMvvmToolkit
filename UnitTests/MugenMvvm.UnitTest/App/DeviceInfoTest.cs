@@ -19,7 +19,7 @@ namespace MugenMvvm.UnitTest.App
             PlatformIdiom idiom = PlatformIdiom.Desktop;
             string version = "v";
             var meta = new MetadataContext();
-            var deviceInfo = new DeviceInfo(type, idiom, version, meta);
+            var deviceInfo = new DeviceInfo(type, () => idiom, () => version, meta);
             deviceInfo.Metadata.ShouldEqual(meta);
             deviceInfo.Idiom.ShouldEqual(idiom);
             deviceInfo.Platform.ShouldEqual(type);
