@@ -1,33 +1,33 @@
 package com.mugen.mvvm.views.support;
 
 import android.view.View;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager2.widget.ViewPager2;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
+import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.interfaces.views.IViewPager;
-import com.mugen.mvvm.internal.NativeContentItemsSourceProviderWrapper;
+import com.mugen.mvvm.internal.NativeResourceItemsSourceProviderWrapper;
 import com.mugen.mvvm.internal.ViewParentObserver;
-import com.mugen.mvvm.internal.support.MugenPagerAdapter;
+import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
 import com.mugen.mvvm.views.ViewWrapper;
 
-public class ViewPagerWrapper extends ViewWrapper implements IViewPager {
+public class ViewPager2Wrapper extends ViewWrapper implements IViewPager {
     private short _selectedIndexChangedCount;
-    private ViewPager.OnPageChangeListener _listener;
+    private Listener _listener;
 
-    public ViewPagerWrapper(Object view) {
+    public ViewPager2Wrapper(Object view) {
         super(view);
         ViewParentObserver.Instance.remove((View) view, true);
     }
 
     @Override
     public int getProviderType() {
-        return ContentProviderType;
+        return ItemSourceProviderType;
     }
 
     @Override
     public IItemsSourceProviderBase getItemsSourceProvider() {
-        ViewPager view = (ViewPager) getView();
+        ViewPager2 view = (ViewPager2) getView();
         if (view == null)
             return null;
         return getProvider(view);
@@ -35,14 +35,18 @@ public class ViewPagerWrapper extends ViewWrapper implements IViewPager {
 
     @Override
     public void setItemsSourceProvider(IItemsSourceProviderBase provider) {
-        ViewPager view = (ViewPager) getView();
-        if (view != null)
-            setItemsSourceProvider(view, (IContentItemsSourceProvider) provider);
+        ViewPager2 view = (ViewPager2) getView();
+        if (view == null || getProvider(view) == provider)
+            return;
+        if (provider == null) {
+            view.setAdapter(null);
+        } else
+            view.setAdapter(new MugenRecyclerViewAdapter(view.getContext(), new NativeResourceItemsSourceProviderWrapper((IResourceItemsSourceProvider) provider)));
     }
 
     @Override
     public int getSelectedIndex() {
-        ViewPager view = (ViewPager) getView();
+        ViewPager2 view = (ViewPager2) getView();
         if (view == null)
             return 0;
         return view.getCurrentItem();
@@ -55,7 +59,7 @@ public class ViewPagerWrapper extends ViewWrapper implements IViewPager {
 
     @Override
     public void setSelectedIndex(int index, boolean smoothScroll) {
-        ViewPager view = (ViewPager) getView();
+        ViewPager2 view = (ViewPager2) getView();
         if (view != null)
             view.setCurrentItem(index, smoothScroll);
     }
@@ -66,7 +70,7 @@ public class ViewPagerWrapper extends ViewWrapper implements IViewPager {
         if (SelectedIndexName.equals(memberName) || SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0) {
             if (_listener == null)
                 _listener = new Listener();
-            ((ViewPager) view).addOnPageChangeListener(_listener);
+            ((ViewPager2) view).registerOnPageChangeCallback(_listener);
         }
     }
 
@@ -74,51 +78,30 @@ public class ViewPagerWrapper extends ViewWrapper implements IViewPager {
     protected void removeMemberListener(View view, String memberName) {
         super.removeMemberListener(view, memberName);
         if (SelectedIndexName.equals(memberName) || SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
-            ((ViewPager) view).removeOnPageChangeListener(_listener);
+            ((ViewPager2) view).unregisterOnPageChangeCallback(_listener);
     }
-
 
     @Override
     protected void onReleased(View target) {
         super.onReleased(target);
-        setItemsSourceProvider((ViewPager) target, null);
+        ((ViewPager2) target).setAdapter(null);
     }
 
-    private IContentItemsSourceProvider getProvider(ViewPager view) {
-        PagerAdapter adapter = view.getAdapter();
-        if (adapter instanceof MugenPagerAdapter) {
-            IContentItemsSourceProvider provider = ((MugenPagerAdapter) adapter).getItemsSourceProvider();
+    private IResourceItemsSourceProvider getProvider(ViewPager2 view) {
+        RecyclerView.Adapter adapter = view.getAdapter();
+        if (adapter instanceof MugenRecyclerViewAdapter) {
+            IResourceItemsSourceProvider provider = ((MugenRecyclerViewAdapter) adapter).getItemsSourceProvider();
             if (provider != null)
-                return ((NativeContentItemsSourceProviderWrapper) provider).getNestedProvider();
+                return ((NativeResourceItemsSourceProviderWrapper) provider).getNestedProvider();
         }
         return null;
     }
 
-    private void setItemsSourceProvider(ViewPager view, IContentItemsSourceProvider provider) {
-        if (getProvider(view) == provider)
-            return;
-        PagerAdapter adapter = view.getAdapter();
-        if (provider == null) {
-            if (adapter instanceof MugenPagerAdapter)
-                ((MugenPagerAdapter) adapter).detach();
-            view.setAdapter(null);
-        } else
-            view.setAdapter(new MugenPagerAdapter(view, new NativeContentItemsSourceProviderWrapper(provider)));
-    }
-
-    private final class Listener implements ViewPager.OnPageChangeListener {
-        @Override
-        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-        }
-
+    private final class Listener extends ViewPager2.OnPageChangeCallback {
         @Override
         public void onPageSelected(int position) {
             onMemberChanged(SelectedIndexName, null);
             onMemberChanged(SelectedIndexEventName, null);
-        }
-
-        @Override
-        public void onPageScrollStateChanged(int state) {
         }
     }
 }

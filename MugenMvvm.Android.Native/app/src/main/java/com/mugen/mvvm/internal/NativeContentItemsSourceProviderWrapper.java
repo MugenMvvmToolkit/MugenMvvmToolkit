@@ -3,6 +3,7 @@ package com.mugen.mvvm.internal;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
+import com.mugen.mvvm.interfaces.views.IAndroidView;
 
 public class NativeContentItemsSourceProviderWrapper implements IContentItemsSourceProvider {
     private final IContentItemsSourceProvider _target;
@@ -22,7 +23,11 @@ public class NativeContentItemsSourceProviderWrapper implements IContentItemsSou
 
     @Override
     public Object getContent(int position) {
-        return _target.getContent(position);
+        //todo add fragments
+        Object content = _target.getContent(position);
+        if (content instanceof IAndroidView)
+            return ((IAndroidView) content).getView();
+        return content;
     }
 
     @Override

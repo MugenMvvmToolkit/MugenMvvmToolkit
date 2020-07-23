@@ -15,9 +15,6 @@ namespace MugenMvvm.Android.Collections
         private readonly object _owner;
         private readonly IContentTemplateSelector _selector;
 
-        public const int PositionNone = -2;
-        public const int PositionUnchanged = -1;
-
         #endregion
 
         #region Constructors
@@ -35,52 +32,52 @@ namespace MugenMvvm.Android.Collections
 
         #region Properties
 
-        public int Count => _collectionAdapter.Count;
+        public virtual int Count => _collectionAdapter.Count;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public void AddObserver(IItemsSourceObserver observer)
+        public virtual void AddObserver(IItemsSourceObserver observer)
         {
             _collectionAdapter.Observers.Add(observer);
         }
 
-        public void RemoveObserver(IItemsSourceObserver observer)
+        public virtual void RemoveObserver(IItemsSourceObserver observer)
         {
             _collectionAdapter.Observers.Remove(observer);
         }
 
-        public void DestroyContent(int p0, Object p1)
+        public virtual void DestroyContent(int position, Object content)
         {
         }
 
-        public Object GetContent(int position)
+        public virtual Object GetContent(int position)
         {
             var item = GetItemAt(position);
             var content = (Object)_selector.SelectTemplate(_owner, item)!;
             content.BindableMembers().SetDataContext(item);
-            content.BindableMembers().SetParent(item);
+            content.BindableMembers().SetParent(_owner);
             return content;
         }
 
-        public int GetContentPosition(Object content)
+        public virtual int GetContentPosition(Object content)
         {
             if (Count == 0)
-                return PositionNone;
+                return ContentItemsSourceProvider.PositionNone;
             var context = content?.BindableMembers().DataContext();
             var index = _collectionAdapter.IndexOf(content);
             if (index < 0)
-                return PositionNone;
+                return ContentItemsSourceProvider.PositionNone;
             return index;
         }
 
-        public ICharSequence GetTitleFormatted(int position)
+        public virtual ICharSequence GetTitleFormatted(int position)
         {
             return null!;
         }
 
-        public void OnPrimaryContentChanged(int p0, Object p1, Object p2)
+        public virtual void OnPrimaryContentChanged(int position, Object oldContent, Object newContent)
         {
         }
 
@@ -88,12 +85,12 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public void SetItemsSource(IEnumerable? items)
+        public virtual void SetItemsSource(IEnumerable? items)
         {
             _collectionAdapter.Attach(items);
         }
 
-        private object? GetItemAt(int position)
+        protected virtual object? GetItemAt(int position)
         {
             return _collectionAdapter[position];
         }

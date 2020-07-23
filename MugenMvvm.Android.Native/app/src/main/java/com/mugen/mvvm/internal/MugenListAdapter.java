@@ -16,13 +16,11 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
     private final boolean _hasStableId;
     private final int _viewTypeCount;
     private final LayoutInflater _inflater;
-    private final Object _owner;
 
     private SparseIntArray _resourceTypeToItemType;
     private int _currentTypeIndex;
 
-    public MugenListAdapter(Object owner, Context context, IResourceItemsSourceProvider provider) {
-        _owner = owner;
+    public MugenListAdapter(Context context, IResourceItemsSourceProvider provider) {
         _inflater = LayoutInflater.from(context);
         _provider = provider;
         _hasStableId = provider.hasStableId();

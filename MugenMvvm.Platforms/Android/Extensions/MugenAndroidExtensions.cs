@@ -174,6 +174,7 @@ namespace MugenMvvm.Android.Extensions
                     if (newValue is IDataTemplateSelector selector)
                         member.SetValue(target, new ContentTemplateResourceSelectorWrapper(selector), metadata);
                 })
+                .NonObservable()
                 .DefaultValue(new DefaultContentTemplate())
                 .Build());
 
@@ -223,6 +224,11 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<IListView>()
                 .ItemTemplateSelector()
                 .GetBuilder()
+                .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
+                {
+                    if (target.ProviderType == ListView.ContentProviderType && newValue is IDataTemplateSelector selector)
+                        member.SetValue(target, new ContentTemplateResourceSelectorWrapper(selector), metadata);
+                })
                 .NonObservable()
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<IListView>()
@@ -230,13 +236,31 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .PropertyChangedHandler((member, target, value, newValue, metadata) =>
                 {
-                    if (!(target.ItemsSourceProvider is AndroidCollectionItemsSourceProvider provider))
+                    if (target.ProviderType == ListView.ContentProviderType)
                     {
-                        provider = new AndroidCollectionItemsSourceProvider(target, (IDataTemplateSelector)target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
-                        target.ItemsSourceProvider = provider;
+                        if (!(target.ItemsSourceProvider is AndroidContentItemsSourceProvider provider))
+                        {
+                            provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector)target.BindableMembers().ItemTemplateSelector()!);
+                            target.ItemsSourceProvider = provider;
+                        }
+                        provider.SetItemsSource(newValue);
                     }
-                    provider.SetItemsSource(newValue);
+                    else
+                    {
+                        if (!(target.ItemsSourceProvider is AndroidCollectionItemsSourceProvider provider))
+                        {
+                            provider = new AndroidCollectionItemsSourceProvider(target, (IDataTemplateSelector)target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
+                            target.ItemsSourceProvider = provider;
+                        }
+                        provider.SetItemsSource(newValue);
+                    }
                 }).Build());
+
+            attachedMemberProvider.Register(BindableMembers.For<IViewPager>()
+                .SelectedIndexChanged()
+                .GetBuilder()
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberObserver.Add(target, listener, member.Name))
+                .Build());
             return configuration;
         }
 

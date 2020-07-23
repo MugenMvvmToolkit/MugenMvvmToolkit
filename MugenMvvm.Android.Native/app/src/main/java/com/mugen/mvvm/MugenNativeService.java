@@ -1,10 +1,12 @@
 package com.mugen.mvvm;
 
 import android.content.Context;
+import android.view.View;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.INativeWeakReferenceCallback;
@@ -116,6 +118,20 @@ public final class MugenNativeService {
         });
     }
 
+    public static void addViewPager2Mapping() {
+        MugenExtensions.addWrapperMapping(ViewPager2.class, new IWrapperFactory() {
+            @Override
+            public Object wrap(Object view) {
+                return new ViewPager2Wrapper(view);
+            }
+
+            @Override
+            public int getPriority() {
+                return 0;
+            }
+        });
+    }
+
     public static Object getView(Object container, int resourceId) {
         Object view = MugenService.getViewFactory().getView(container, resourceId);
         if (MugenService.IsNativeConfiguration)
@@ -125,5 +141,12 @@ public final class MugenNativeService {
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {
         return MugenExtensions.startActivity(activityView, activityClass, resourceId, flags);
+    }
+
+    public static void removeParentObserver(Object target) {
+        if (target instanceof View)
+            ViewParentObserver.Instance.remove((View) target, true);
+        else if (target instanceof IAndroidView)
+            ViewParentObserver.Instance.remove(((IAndroidView) target).getView(), true);
     }
 }

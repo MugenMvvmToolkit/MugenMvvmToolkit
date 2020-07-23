@@ -34,45 +34,45 @@ namespace MugenMvvm.Android.Collections
 
         #region Properties
 
-        public int Count => _collectionAdapter.Count;
+        public virtual int Count => _collectionAdapter.Count;
 
-        public bool HasStableId => _stableIdProvider != null;
+        public virtual bool HasStableId => _stableIdProvider != null;
 
-        public int ViewTypeCount => _selector.TemplateTypeCount;
+        public virtual int ViewTypeCount => _selector.TemplateTypeCount;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public long GetItemId(int position)
+        public virtual long GetItemId(int position)
         {
             if (_stableIdProvider == null)
                 return 0;
             return _stableIdProvider.GetId(GetItemAt(position));
         }
 
-        public int GetItemViewType(int position)
+        public virtual int GetItemViewType(int position)
         {
             return _selector.SelectTemplate(_owner, GetItemAt(position));
         }
 
-        public void OnBindView(Object view, int position)
+        public virtual void OnBindView(Object view, int position)
         {
             view.BindableMembers().SetDataContext(GetItemAt(position));
         }
 
-        public void OnViewCreated(Object view)
+        public virtual void OnViewCreated(Object view)
         {
             view.BindableMembers().SetDataContext(null);
             view.BindableMembers().SetParent(view);
         }
 
-        public void AddObserver(IItemsSourceObserver observer)
+        public virtual void AddObserver(IItemsSourceObserver observer)
         {
             _collectionAdapter.Observers.Add(observer);
         }
 
-        public void RemoveObserver(IItemsSourceObserver observer)
+        public virtual void RemoveObserver(IItemsSourceObserver observer)
         {
             _collectionAdapter.Observers.Remove(observer);
         }
@@ -81,12 +81,12 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public void SetItemsSource(IEnumerable? items)
+        public virtual void SetItemsSource(IEnumerable? items)
         {
             _collectionAdapter.Attach(items);
         }
 
-        private object? GetItemAt(int position)
+        protected virtual object? GetItemAt(int position)
         {
             return _collectionAdapter[position];
         }

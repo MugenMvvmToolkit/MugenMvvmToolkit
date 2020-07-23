@@ -17,6 +17,11 @@ public class RecyclerViewWrapper extends ViewWrapper implements IListView {
     }
 
     @Override
+    public int getProviderType() {
+        return ItemSourceProviderType;
+    }
+
+    @Override
     public IItemsSourceProviderBase getItemsSourceProvider() {
         RecyclerView view = (RecyclerView) getView();
         if (view == null)
@@ -32,7 +37,7 @@ public class RecyclerViewWrapper extends ViewWrapper implements IListView {
         if (provider == null) {
             view.setAdapter(null);
         } else
-            view.setAdapter(new MugenRecyclerViewAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper((IResourceItemsSourceProvider) provider)));
+            view.setAdapter(new MugenRecyclerViewAdapter(view.getContext(), new NativeResourceItemsSourceProviderWrapper((IResourceItemsSourceProvider) provider)));
     }
 
     @Override

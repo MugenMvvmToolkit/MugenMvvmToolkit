@@ -17,6 +17,11 @@ public class AdapterViewWrapper extends ViewWrapper implements IListView {
     }
 
     @Override
+    public int getProviderType() {
+        return ItemSourceProviderType;
+    }
+
+    @Override
     public IItemsSourceProviderBase getItemsSourceProvider() {
         AdapterView view = (AdapterView) getView();
         if (view == null)
@@ -56,6 +61,6 @@ public class AdapterViewWrapper extends ViewWrapper implements IListView {
                 ((MugenListAdapter) adapter).detach();
             view.setAdapter(null);
         } else
-            view.setAdapter(new MugenListAdapter(view, view.getContext(), new NativeResourceItemsSourceProviderWrapper(provider)));
+            view.setAdapter(new MugenListAdapter(view.getContext(), new NativeResourceItemsSourceProviderWrapper(provider)));
     }
 }

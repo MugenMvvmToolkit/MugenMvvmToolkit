@@ -10,7 +10,6 @@ import com.mugen.mvvm.interfaces.views.ITextView;
 public class TextViewWrapper extends ViewWrapper implements TextWatcher, ITextView {
     private short _textChangedListenerCount;
 
-    //todo using Object as type to prevent xamarin linker keep View
     public TextViewWrapper(Object view) {
         super((TextView) view);
     }

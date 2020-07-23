@@ -29,6 +29,8 @@ namespace MugenMvvm.Android.Members
 
         public static BindablePropertyDescriptor<T, object?> ContentTemplateSelector<T>(this BindableMembersDescriptor<T> _) where T : class, IContentView => nameof(ContentTemplateSelector);
 
+        public static BindablePropertyDescriptor<T, int> SelectedIndex<T>(this BindableMembersDescriptor<T> _) where T : class, IViewPager => nameof(SelectedIndex);
+
         public static BindableEventDescriptor<T> Click<T>(this BindableMembersDescriptor<T> _) where T : class, IAndroidView => nameof(Click);
 
         public static BindableEventDescriptor<T> ParentChanged<T>(this BindableMembersDescriptor<T> _) where T : class, IAndroidView => nameof(ParentChanged);
@@ -36,6 +38,8 @@ namespace MugenMvvm.Android.Members
         public static BindableEventDescriptor<T> TextChanged<T>(this BindableMembersDescriptor<T> _) where T : class, ITextView => nameof(TextChanged);
 
         public static BindableEventDescriptor<T> Refreshed<T>(this BindableMembersDescriptor<T> _) where T : class, IRefreshView => nameof(Refreshed);
+
+        public static BindableEventDescriptor<T> SelectedIndexChanged<T>(this BindableMembersDescriptor<T> _) where T : class, IViewPager => nameof(SelectedIndexChanged);
 
 
         [BindingMember(nameof(StableIdProvider))]
@@ -93,6 +97,12 @@ namespace MugenMvvm.Android.Members
 
         public static void SetContentTemplateSelector<T>(this BindableMembersTargetDescriptor<T> descriptor, IContentTemplateSelector? value) where T : class, IContentView =>
             ContentTemplateSelector<T>(_: default).SetValue(descriptor.Target, value);
+
+
+        [BindingMember(nameof(SelectedIndex))]
+        public static int SelectedIndex<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : class, IViewPager => SelectedIndex<T>(_: default).GetValue(descriptor.Target);
+
+        public static void SetSelectedIndex<T>(this BindableMembersTargetDescriptor<T> descriptor, int value) where T : class, IViewPager => SelectedIndex<T>(_: default).SetValue(descriptor.Target, value);
 
 
         public static ActionToken AddClickListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : class, IAndroidView =>
