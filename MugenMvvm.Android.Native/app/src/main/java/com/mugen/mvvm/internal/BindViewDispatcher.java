@@ -5,31 +5,29 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import com.mugen.mvvm.R;
-import com.mugen.mvvm.extensions.MugenExtensions;
-import com.mugen.mvvm.interfaces.views.IAndroidView;
 import com.mugen.mvvm.interfaces.views.IViewBindCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.views.ViewWrapper;
+import com.mugen.mvvm.interfaces.views.IViewParentChangedCallback;
 
-public class NativeViewDispatcher implements IViewDispatcher {
-
+public class BindViewDispatcher implements IViewDispatcher {
     private final static ViewAttributeAccessor _accessor = new ViewAttributeAccessor();
     private final IViewBindCallback _viewBindCallback;
+    private final IViewParentChangedCallback _parentChangedCallback;
 
-    public NativeViewDispatcher(IViewBindCallback viewBindCallback) {
+    public BindViewDispatcher(IViewBindCallback viewBindCallback, IViewParentChangedCallback parentChangedCallback) {
         _viewBindCallback = viewBindCallback;
+        _parentChangedCallback = parentChangedCallback;
     }
 
     @Override
     public void onParentChanged(View view) {
-        IAndroidView wrapper = MugenExtensions.wrap(view, false);
-        if (wrapper != null)
-            wrapper.onMemberChanged(ViewWrapper.ParentMemberName, null);
+        if (_parentChangedCallback != null)
+            _parentChangedCallback.onParentChanged(view);
     }
 
     @Override
     public void onSettingView(Object owner, View view) {
-        _viewBindCallback.onSetView(MugenExtensions.wrap(owner, true), MugenExtensions.wrap(view, true));
+        _viewBindCallback.onSetView(owner, view);
     }
 
     @Override
@@ -48,26 +46,20 @@ public class NativeViewDispatcher implements IViewDispatcher {
     public View onViewCreated(View view, Context context, AttributeSet attrs) {
         if (view.getTag(R.id.bindHandled) != null)
             return view;
-
         view.setTag(R.id.bindHandled, "");
-        boolean disableParentObserver = false;
+
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.Bind, 0, 0);
         try {
             if (typedArray.getIndexCount() != 0) {
-                if (typedArray.getBoolean(R.styleable.Bind_disableParentObserver, false)) {
-                    disableParentObserver = true;
-                    view.setTag(R.id.disableParentObserver, "");
-                }
                 _accessor.setTypedArray(typedArray);
-                _viewBindCallback.bind(MugenExtensions.wrap(view, true), _accessor);
+                _viewBindCallback.bind(view, _accessor);
             }
         } finally {
             _accessor.setTypedArray(null);
             typedArray.recycle();
         }
 
-        if (!disableParentObserver)
-            ViewParentObserver.Instance.add(view);
+        ViewParentObserver.Instance.add(view);
         return view;
     }
 

@@ -20,14 +20,16 @@ public final class MugenNativeService {
     private MugenNativeService() {
     }
 
-    public static void initialize(Context context) {
+    public static void initialize(Context context, IViewBindCallback bindCallback, IViewParentChangedCallback parentChangedCallback) {
         MugenService.initialize(context, false);
+        MugenService.addViewDispatcher(new BindViewDispatcher(bindCallback, parentChangedCallback));
     }
 
     public static void initializeNative(Context context, IViewBindCallback bindCallback, INativeWeakReferenceCallback weakReferenceCallback) {
         MugenService.initialize(context, true);
         MugenService.setWeakReferenceCallback(weakReferenceCallback);
-        MugenService.addViewDispatcher(new NativeViewDispatcher(bindCallback));
+        NativeViewBindCallbackWrapper bindCallbackWrapper = new NativeViewBindCallbackWrapper(bindCallback);
+        MugenService.addViewDispatcher(new BindViewDispatcher(bindCallbackWrapper, bindCallbackWrapper));
         MugenService.addLifecycleDispatcher(new FragmentStateCleaner());
         MugenService.addLifecycleDispatcher(new ViewWrapperCleaner());
     }

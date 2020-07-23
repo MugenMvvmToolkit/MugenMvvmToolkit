@@ -22,6 +22,10 @@ public interface IAndroidView extends IResourceView, IHasTagView, IReleasable {
 
     void setVisibility(int visibility);
 
+    boolean isEnabled();
+
+    void setEnabled(boolean value);
+
     void setBackgroundColor(int color);
 
     void addMemberListener(String memberName);

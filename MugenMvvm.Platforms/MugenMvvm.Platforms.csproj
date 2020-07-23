@@ -42,6 +42,7 @@
     <None Remove="Android\Collections\AndroidMenuItemsSourceAdapter.cs" />
     <None Remove="Android\Collections\AndroidNativeBindableCollectionAdapter.cs" />
     <None Remove="Android\Extensions\MugenAndroidExtensions.cs" />
+    <None Remove="Android\Extensions\MugenAndroidNativeExtensions.cs" />
     <None Remove="Android\Interfaces\IAndroidViewMapping.cs" />
     <None Remove="Android\Interfaces\IContentTemplateSelector.cs" />
     <None Remove="Android\Interfaces\IDataTemplateSelector.cs" />

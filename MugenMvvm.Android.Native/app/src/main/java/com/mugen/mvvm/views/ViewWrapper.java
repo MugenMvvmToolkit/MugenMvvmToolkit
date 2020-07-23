@@ -35,6 +35,19 @@ public class ViewWrapper extends WeakTargetBase<View> implements IAndroidView, V
     }
 
     @Override
+    public boolean isEnabled() {
+        View view = getView();
+        return view != null && view.isEnabled();
+    }
+
+    @Override
+    public void setEnabled(boolean value) {
+        View view = getView();
+        if (view != null)
+            view.setEnabled(value);
+    }
+
+    @Override
     public void setBackgroundColor(int color) {
         View view = getView();
         if (view != null)

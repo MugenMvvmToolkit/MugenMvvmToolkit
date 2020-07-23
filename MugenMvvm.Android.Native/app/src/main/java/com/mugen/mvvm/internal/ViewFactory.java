@@ -56,6 +56,9 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
     @Override
     public void onLifecycleChanged(Object target, int lifecycle, Object state) {
+        if (!MugenService.IsNativeConfiguration)
+            return;
+
         if (lifecycle != LifecycleState.Destroy || !(target instanceof IActivityView))
             return;
         ArrayList<Object> views = (ArrayList<Object>) ((IActivityView) target).getTag(R.id.views);
