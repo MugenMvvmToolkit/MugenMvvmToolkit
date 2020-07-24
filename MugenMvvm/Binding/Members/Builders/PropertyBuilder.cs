@@ -8,6 +8,7 @@ using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -247,7 +248,14 @@ namespace MugenMvvm.Binding.Members.Builders
 
             bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
-                Raise(sender, message, metadata);
+                try
+                {
+                    Raise(sender, message, metadata);
+                }
+                catch (Exception e)
+                {
+                    MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
+                }
                 return true;
             }
 
@@ -356,13 +364,20 @@ namespace MugenMvvm.Binding.Members.Builders
 
             bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
             {
-                var target = (TTarget)_targetRef.Target;
-                if (target == null)
-                    return false;
-                if (message is InheritedProperty inheritedProperty)
-                    ApplyValues(target, inheritedProperty, metadata);
-                else
-                    InvalidateParent(target, metadata);
+                try
+                {
+                    var target = (TTarget)_targetRef.Target;
+                    if (target == null)
+                        return false;
+                    if (message is InheritedProperty inheritedProperty)
+                        ApplyValues(target, inheritedProperty, metadata);
+                    else
+                        InvalidateParent(target, metadata);
+                }
+                catch (Exception e)
+                {
+                    MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
+                }
                 return true;
             }
 

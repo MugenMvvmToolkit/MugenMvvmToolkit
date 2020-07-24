@@ -1,9 +1,11 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using MugenMvvm.Binding.Constants;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
@@ -43,13 +45,20 @@ namespace MugenMvvm.Binding.Observation
 
         bool IEventListener.TryHandle(object? sender, object? message, IReadOnlyMetadataContext? metadata)
         {
-            var target = _targetRef.Target;
-            if (target == null)
-                return false;
-            if (message is RootSourceObserver)
-                Raise(target, message, metadata);
-            else if (UpdateParent(target, metadata))
-                Raise(target, this, metadata);
+            try
+            {
+                var target = _targetRef.Target;
+                if (target == null)
+                    return false;
+                if (message is RootSourceObserver)
+                    Raise(target, message, metadata);
+                else if (UpdateParent(target, metadata))
+                    Raise(target, this, metadata);
+            }
+            catch (Exception e)
+            {
+                MugenService.Application.OnUnhandledException(e, UnhandledExceptionType.Binding, metadata);
+            }
 
             return true;
         }

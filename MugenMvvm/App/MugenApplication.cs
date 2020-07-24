@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Enums;
+﻿using System;
+using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Extensions.Components;
 using MugenMvvm.Interfaces.App;
@@ -54,6 +55,11 @@ namespace MugenMvvm.App
         #endregion
 
         #region Implementation of interfaces
+
+        public void OnUnhandledException(Exception exception, UnhandledExceptionType type, IReadOnlyMetadataContext? metadata = null)
+        {
+            Components.Get<IApplicationUnhandledExceptionComponent>().OnUnhandledException(this, exception, type, metadata);
+        }
 
         public void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null)
         {

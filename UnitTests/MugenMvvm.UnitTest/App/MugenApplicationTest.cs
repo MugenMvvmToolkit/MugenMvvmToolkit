@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using MugenMvvm.App;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -56,6 +57,36 @@ namespace MugenMvvm.UnitTest.App
             }
 
             application.OnLifecycleChanged(lifecycleState, state, DefaultMetadata);
+            invokeCount.ShouldEqual(count);
+        }
+
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
+        public void OnUnhandledExceptionShouldBeHandledByComponents(int count)
+        {
+            var application = new MugenApplication();
+            var invokeCount = 0;
+            var type = UnhandledExceptionType.System;
+            var ex = new Exception();
+            for (var i = 0; i < count; i++)
+            {
+                var component = new TestApplicationUnhandledExceptionComponent(application)
+                {
+                    OnUnhandledException = (e, t, metadata) =>
+                    {
+                        ++invokeCount;
+                        e.ShouldEqual(ex);
+                        t.ShouldEqual(type);
+                        metadata.ShouldEqual(DefaultMetadata);
+                    },
+                    Priority = i
+                };
+                application.AddComponent(component);
+            }
+
+            application.OnUnhandledException(ex, type, DefaultMetadata);
             invokeCount.ShouldEqual(count);
         }
 
