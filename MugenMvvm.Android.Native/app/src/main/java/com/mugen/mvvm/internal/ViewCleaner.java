@@ -4,12 +4,10 @@ import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
-import com.mugen.mvvm.interfaces.views.IAndroidView;
-import com.mugen.mvvm.interfaces.views.IReleasable;
+import com.mugen.mvvm.views.ViewExtensions;
 
-public class ViewWrapperCleaner implements ILifecycleDispatcher {
+public class ViewCleaner implements ILifecycleDispatcher {
     @Override
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
         return true;
@@ -23,10 +21,6 @@ public class ViewWrapperCleaner implements ILifecycleDispatcher {
         View view = ((Activity) target).findViewById(android.R.id.content);
         if (view != null)
             clear(view);
-
-        target = MugenExtensions.wrap(target, false);
-        if (target instanceof IReleasable)
-            ((IReleasable) target).release();
     }
 
     private static void clear(View view) {
@@ -37,8 +31,6 @@ public class ViewWrapperCleaner implements ILifecycleDispatcher {
             }
         }
 
-        IAndroidView wrap = MugenExtensions.wrap(view, false);
-        if (wrap != null)
-            wrap.release();
+        ViewExtensions.onDestroyView(view);
     }
 }

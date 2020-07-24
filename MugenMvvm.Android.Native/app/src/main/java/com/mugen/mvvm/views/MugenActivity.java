@@ -10,23 +10,20 @@ import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
-import com.mugen.mvvm.internal.MugenService;
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.internal.MugenContextWrapper;
-import com.mugen.mvvm.views.support.MugenAppCompatActivity;
 
 public class MugenActivity extends Activity implements INativeActivityView {
     private SparseArray<Object> _state;
 
     @Override
-    public Activity getActivity() {
+    public Context getActivity() {
         return this;
     }
 
     @Override
     public int getViewId() {
-        return MugenExtensions.tryGetViewId(getClass(), getIntent(), 0);
+        return ViewExtensions.tryGetViewId(getClass(), getIntent(), 0);
     }
 
     @Override
@@ -59,49 +56,49 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     public void finish() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Finish, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Finish, null)) {
             super.finish();
-            MugenService.onLifecycleChanged(this, LifecycleState.Finish, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Finish, null);
         }
     }
 
     @Override
     public void finishAfterTransition() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.FinishAfterTransition, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.FinishAfterTransition, null)) {
             super.finishAfterTransition();
-            MugenService.onLifecycleChanged(this, LifecycleState.FinishAfterTransition, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.FinishAfterTransition, null);
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.BackPressed, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.BackPressed, null)) {
             super.onBackPressed();
-            MugenService.onLifecycleChanged(this, LifecycleState.BackPressed, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.BackPressed, null);
         }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.NewIntent, intent)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.NewIntent, intent)) {
             super.onNewIntent(intent);
-            MugenService.onLifecycleChanged(this, LifecycleState.NewIntent, intent);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.NewIntent, intent);
         }
     }
 
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.ConfigurationChanged, newConfig)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.ConfigurationChanged, newConfig)) {
             super.onConfigurationChanged(newConfig);
-            MugenService.onLifecycleChanged(this, LifecycleState.ConfigurationChanged, newConfig);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.ConfigurationChanged, newConfig);
         }
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Create, savedInstanceState)) {
             super.onCreate(savedInstanceState);
-            MugenService.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Create, savedInstanceState);
             if (isFinishing())
                 return;
             int viewId = getViewId();
@@ -117,23 +114,23 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     public void setContentView(View view) {
-        MugenService.onSettingView(this, view);
+        ViewExtensions.onSettingView(this, view);
         super.setContentView(view);
-        MugenService.onSetView(this, view);
+        ViewExtensions.onSetView(this, view);
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
-        MugenService.onSettingView(this, view);
+        ViewExtensions.onSettingView(this, view);
         super.setContentView(view, params);
-        MugenService.onSetView(this, view);
+        ViewExtensions.onSetView(this, view);
     }
 
     @Override
     protected void onDestroy() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
             super.onDestroy();
-            MugenService.onLifecycleChanged(this, LifecycleState.Destroy, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
             if (_state != null)
                 _state = null;
         }
@@ -141,60 +138,57 @@ public class MugenActivity extends Activity implements INativeActivityView {
 
     @Override
     protected void onPause() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Pause, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Pause, null)) {
             super.onPause();
-            MugenService.onLifecycleChanged(this, LifecycleState.Pause, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Pause, null);
         }
     }
 
     @Override
     protected void onRestart() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Restart, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Restart, null)) {
             super.onRestart();
-            MugenService.onLifecycleChanged(this, LifecycleState.Restart, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Restart, null);
         }
     }
 
     @Override
     protected void onResume() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Resume, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Resume, null)) {
             super.onResume();
-            MugenService.onLifecycleChanged(this, LifecycleState.Resume, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Resume, null);
         }
     }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.SaveState, outState)) {
             super.onSaveInstanceState(outState);
-            MugenService.onLifecycleChanged(this, LifecycleState.SaveState, outState);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
         }
     }
 
     @Override
     protected void onStart() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Start, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Start, null)) {
             super.onStart();
-            MugenService.onLifecycleChanged(this, LifecycleState.Start, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Start, null);
         }
     }
 
     @Override
     protected void onStop() {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.Stop, null)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
             super.onStop();
-            MugenService.onLifecycleChanged(this, LifecycleState.Stop, null);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
         }
     }
 
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
-        if (MugenService.onLifecycleChanging(this, LifecycleState.PostCreate, savedInstanceState)) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.PostCreate, savedInstanceState)) {
             super.onPostCreate(savedInstanceState);
-            MugenService.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.PostCreate, savedInstanceState);
         }
-    }
-
-    public static class Main extends MugenAppCompatActivity {
     }
 }

@@ -1,5 +1,7 @@
 package com.mugen.mvvm.interfaces;
 
+import android.view.View;
+
 public interface IResourceItemsSourceProvider extends IItemsSourceProviderBase {
     boolean hasStableId();
 
@@ -9,7 +11,7 @@ public interface IResourceItemsSourceProvider extends IItemsSourceProviderBase {
 
     int getItemViewType(int position);
 
-    void onViewCreated(Object view);
+    void onViewCreated(View view);
 
-    void onBindView(Object view, int position);
+    void onBindView(View view, int position);
 }

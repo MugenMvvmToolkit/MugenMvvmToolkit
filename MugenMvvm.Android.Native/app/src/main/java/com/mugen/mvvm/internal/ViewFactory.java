@@ -1,42 +1,36 @@
 package com.mugen.mvvm.internal;
 
-import android.app.Activity;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.constants.LifecycleState;
-import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IActivityView;
-import com.mugen.mvvm.interfaces.views.IAndroidView;
-import com.mugen.mvvm.interfaces.views.IHasTagView;
+import com.mugen.mvvm.views.ActivityExtensions;
+import com.mugen.mvvm.views.LifecycleExtensions;
 
 import java.util.ArrayList;
 
 public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
     @Override
-    public Object getView(Object container, int resourceId) {
+    public Object getView(Object container, int resourceId, boolean trackLifecycle) {
         Context context;
-        if (container instanceof IAndroidView)
-            context = ((IAndroidView) container).getView().getContext();
-        else if (container instanceof IActivityView)
+        if (container instanceof IActivityView)
             context = ((IActivityView) container).getActivity();
         else if (container instanceof View)
             context = ((View) container).getContext();
         else
             context = (Context) container;
 
-        //todo check fragment mapping?
+        //note check fragment mapping?
         View view = LayoutInflater.from(context).inflate(resourceId, null);
-
-        //note need to keep strong reference
-        if (MugenService.IsNativeConfiguration) {
-            Activity activity = MugenExtensions.getActivity(context);
-            if (activity instanceof IHasTagView) {
-                IHasTagView hasTagView = (IHasTagView) activity;
+        if (trackLifecycle) {
+            Context activity = ActivityExtensions.getActivity(context);
+            if (activity instanceof IActivityView) {
+                IActivityView hasTagView = (IActivityView) activity;
                 ArrayList<Object> views = (ArrayList<Object>) hasTagView.getTag(R.id.views);
                 if (views == null) {
                     views = new ArrayList<>();
@@ -56,9 +50,6 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
     @Override
     public void onLifecycleChanged(Object target, int lifecycle, Object state) {
-        if (!MugenService.IsNativeConfiguration)
-            return;
-
         if (lifecycle != LifecycleState.Destroy || !(target instanceof IActivityView))
             return;
         ArrayList<Object> views = (ArrayList<Object>) ((IActivityView) target).getTag(R.id.views);
@@ -66,6 +57,6 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
             return;
 
         for (Object view : views)
-            MugenService.onLifecycleChanged(view, LifecycleState.Destroy, null);
+            LifecycleExtensions.onLifecycleChanged(view, LifecycleState.Destroy, null);
     }
 }

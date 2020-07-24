@@ -1,154 +1,41 @@
 package com.mugen.mvvm;
 
 import android.content.Context;
-import android.view.View;
-import androidx.appcompat.widget.Toolbar;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.ViewPager;
-import androidx.viewpager2.widget.ViewPager2;
-import com.mugen.mvvm.extensions.MugenExtensions;
-import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
-import com.mugen.mvvm.interfaces.INativeWeakReferenceCallback;
 import com.mugen.mvvm.interfaces.views.*;
 import com.mugen.mvvm.internal.*;
-import com.mugen.mvvm.views.MainMugenActivity;
-import com.mugen.mvvm.views.MugenActivity;
+import com.mugen.mvvm.views.LifecycleExtensions;
+import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.listeners.ViewMemberListenerManager;
 import com.mugen.mvvm.views.support.*;
 
 public final class MugenNativeService {
+    private static Context _context;
+
     private MugenNativeService() {
     }
 
-    public static void initialize(Context context, IViewBindCallback bindCallback, IViewParentChangedCallback parentChangedCallback) {
-        MugenService.initialize(context, false);
-        MugenService.addViewDispatcher(new BindViewDispatcher(bindCallback, parentChangedCallback));
+    public static Context getAppContext() {
+        return _context;
     }
 
-    public static void initializeNative(Context context, IViewBindCallback bindCallback, INativeWeakReferenceCallback weakReferenceCallback) {
-        MugenService.initialize(context, true);
-        MugenService.setWeakReferenceCallback(weakReferenceCallback);
-        NativeViewBindCallbackWrapper bindCallbackWrapper = new NativeViewBindCallbackWrapper(bindCallback);
-        MugenService.addViewDispatcher(new BindViewDispatcher(bindCallbackWrapper, bindCallbackWrapper));
-        MugenService.addLifecycleDispatcher(new FragmentStateCleaner());
-        MugenService.addLifecycleDispatcher(new ViewWrapperCleaner());
+    public static void initialize(Context context, IBindViewCallback bindCallback) {
+        _context = context;
+        ViewExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
+        LifecycleExtensions.addLifecycleDispatcher(new FragmentStateCleaner(), false);
+        LifecycleExtensions.addLifecycleDispatcher(new ViewCleaner(), false);
+        ViewExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
     }
 
-    public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
-        addLifecycleDispatcher(dispatcher, MugenService.IsNativeConfiguration);
-    }
-
-    public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher, boolean wrap) {
-        if (wrap)
-            dispatcher = new NativeLifecycleDispatcherWrapper(dispatcher);
-        MugenService.addLifecycleDispatcher(dispatcher, 0);
-    }
-
-    public static void removeLifecycleDispatcher(ILifecycleDispatcher dispatcher) {
-        MugenService.removeLifecycleDispatcher(dispatcher);
-    }
-
-    public static void addViewDispatcher(IViewDispatcher viewDispatcher) {
-        MugenService.addViewDispatcher(viewDispatcher);
-    }
-
-    public static void removeViewDispatcher(IViewDispatcher viewDispatcher) {
-        MugenService.removeViewDispatcher(viewDispatcher);
-    }
-
-    public static void setMainActivityMapping(int resource) {
-        MugenExtensions.addViewMapping(MugenService.IsNativeConfiguration ? MainMugenAppCompatActivity.class : MainMugenActivity.Main.class, resource);
-    }
-
-    public static void addCommonActivityMapping(int resource) {
-        MugenExtensions.addViewMapping(MugenService.IsNativeConfiguration ? MugenAppCompatActivity.class : MugenActivity.class, resource);
-    }
-
-    public static void addRecyclerViewMapping() {
-        MugenExtensions.addWrapperMapping(RecyclerView.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new RecyclerViewWrapper(view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-    }
-
-    public static void addToolbarCompatMapping() {
-        MugenExtensions.addWrapperMapping(Toolbar.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new ToolbarCompatWrapper(view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-    }
-
-    public static void addSwipeRefreshLayoutMapping() {
-        MugenExtensions.addWrapperMapping(SwipeRefreshLayout.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new SwipeRefreshLayoutWrapper(view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-    }
-
-    public static void addViewPagerMapping() {
-        MugenExtensions.addWrapperMapping(ViewPager.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new ViewPagerWrapper(view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-    }
-
-    public static void addViewPager2Mapping() {
-        MugenExtensions.addWrapperMapping(ViewPager2.class, new IWrapperFactory() {
-            @Override
-            public Object wrap(Object view) {
-                return new ViewPager2Wrapper(view);
-            }
-
-            @Override
-            public int getPriority() {
-                return 0;
-            }
-        });
-    }
-
-    public static Object getView(Object container, int resourceId) {
-        Object view = MugenService.getViewFactory().getView(container, resourceId);
-        if (MugenService.IsNativeConfiguration)
-            return MugenExtensions.wrap(view, true);
-        return view;
-    }
-
-    public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {
-        return MugenExtensions.startActivity(activityView, activityClass, resourceId, flags);
-    }
-
-    public static void removeParentObserver(Object target) {
-        if (target instanceof View)
-            ViewParentObserver.Instance.remove((View) target, true);
-        else if (target instanceof IAndroidView)
-            ViewParentObserver.Instance.remove(((IAndroidView) target).getView(), true);
+    public static void withSupportLibs(boolean recyclerView, boolean toolbar, boolean swipeRefresh, boolean viewPager, boolean viewPager2) {
+        if (recyclerView)
+            RecyclerViewExtensions.setSupported();
+        if (toolbar)
+            ToolbarCompatExtensions.setSupported();
+        if (swipeRefresh)
+            SwipeRefreshLayoutExtensions.setSupported();
+        if (viewPager)
+            ViewPagerExtensions.setSupported();
+        if (viewPager2)
+            ViewPager2Extensions.setSupported();
     }
 }

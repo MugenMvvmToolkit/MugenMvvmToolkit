@@ -3,6 +3,7 @@ package com.mugen.mvvm.internal;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mugen.mvvm.R;
+import com.mugen.mvvm.views.ViewExtensions;
 
 public final class ViewParentObserver implements ViewGroup.OnHierarchyChangeListener {
     public static final ViewParentObserver Instance = new ViewParentObserver();
@@ -13,12 +14,12 @@ public final class ViewParentObserver implements ViewGroup.OnHierarchyChangeList
     @Override
     public void onChildViewAdded(View parent, View child) {
         add(child);
-        MugenService.onParentChanged(child);
+        ViewExtensions.onParentChanged(child);
     }
 
     @Override
     public void onChildViewRemoved(View parent, View child) {
-        MugenService.onParentChanged(child);
+        ViewExtensions.onParentChanged(child);
     }
 
     public void add(View view) {

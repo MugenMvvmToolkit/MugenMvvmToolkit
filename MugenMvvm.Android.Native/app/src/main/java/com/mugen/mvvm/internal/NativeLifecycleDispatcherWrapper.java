@@ -1,7 +1,7 @@
 package com.mugen.mvvm.internal;
 
-import com.mugen.mvvm.extensions.MugenExtensions;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
+import com.mugen.mvvm.views.ActivityExtensions;
 
 public class NativeLifecycleDispatcherWrapper implements ILifecycleDispatcher {
     private final ILifecycleDispatcher _lifecycleDispatcher;
@@ -16,11 +16,11 @@ public class NativeLifecycleDispatcherWrapper implements ILifecycleDispatcher {
 
     @Override
     public boolean onLifecycleChanging(Object target, int lifecycle, Object state) {
-        return _lifecycleDispatcher.onLifecycleChanging(MugenExtensions.wrap(target, true), lifecycle, MugenExtensions.wrap(state, true));
+        return _lifecycleDispatcher.onLifecycleChanging(ActivityExtensions.tryWrapActivity(target), lifecycle, ActivityExtensions.tryWrapActivity(state));
     }
 
     @Override
     public void onLifecycleChanged(Object target, int lifecycle, Object state) {
-        _lifecycleDispatcher.onLifecycleChanged(MugenExtensions.wrap(target, true), lifecycle, MugenExtensions.wrap(state, true));
+        _lifecycleDispatcher.onLifecycleChanged(ActivityExtensions.tryWrapActivity(target), lifecycle, ActivityExtensions.tryWrapActivity(state));
     }
 }

@@ -5,45 +5,44 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import com.mugen.mvvm.R;
-import com.mugen.mvvm.interfaces.views.IViewBindCallback;
+import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.interfaces.views.IViewParentChangedCallback;
+import com.mugen.mvvm.views.ActivityExtensions;
+import com.mugen.mvvm.views.ViewExtensions;
 
 public class BindViewDispatcher implements IViewDispatcher {
     private final static ViewAttributeAccessor _accessor = new ViewAttributeAccessor();
-    private final IViewBindCallback _viewBindCallback;
-    private final IViewParentChangedCallback _parentChangedCallback;
+    private final IBindViewCallback _viewBindCallback;
 
-    public BindViewDispatcher(IViewBindCallback viewBindCallback, IViewParentChangedCallback parentChangedCallback) {
+    public BindViewDispatcher(IBindViewCallback viewBindCallback) {
         _viewBindCallback = viewBindCallback;
-        _parentChangedCallback = parentChangedCallback;
     }
 
     @Override
     public void onParentChanged(View view) {
-        if (_parentChangedCallback != null)
-            _parentChangedCallback.onParentChanged(view);
+        ViewExtensions.onMemberChanged(view, ViewExtensions.ParentMemberName, null);
+        ViewExtensions.onMemberChanged(view, ViewExtensions.ParentEventName, null);
     }
 
     @Override
-    public void onSettingView(Object owner, View view) {
-        _viewBindCallback.onSetView(owner, view);
+    public void onSetting(Object owner, View view) {
+        _viewBindCallback.onSetView(ActivityExtensions.tryWrapActivity(owner), view);
     }
 
     @Override
-    public void onSetView(Object owner, View view) {
+    public void onSet(Object owner, View view) {
     }
 
     @Override
-    public void onInflatingView(int resourceId, Context context) {
+    public void onInflating(int resourceId, Context context) {
     }
 
     @Override
-    public void onInflatedView(View view, int resourceId, Context context) {
+    public void onInflated(View view, int resourceId, Context context) {
     }
 
     @Override
-    public View onViewCreated(View view, Context context, AttributeSet attrs) {
+    public View onCreated(View view, Context context, AttributeSet attrs) {
         if (view.getTag(R.id.bindHandled) != null)
             return view;
         view.setTag(R.id.bindHandled, "");
@@ -64,7 +63,12 @@ public class BindViewDispatcher implements IViewDispatcher {
     }
 
     @Override
-    public View tryCreateCustomView(View parent, String name, Context viewContext, AttributeSet attrs) {
+    public void onDestroy(View view) {
+
+    }
+
+    @Override
+    public View tryCreate(View parent, String name, Context viewContext, AttributeSet attrs) {
         return null;
     }
 }

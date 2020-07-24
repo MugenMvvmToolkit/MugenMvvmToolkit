@@ -6,4 +6,6 @@
     <item name="parent" type="id"/>
     <item name="listItemResourceId" type="id"/>
     <item name="views" type="id"/>
+    <item name="memberObserver" type="id"/>
+    <item name="attachedValues" type="id"/>
 </resources>
