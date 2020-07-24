@@ -1,13 +1,15 @@
-﻿using Java.Lang;
+﻿using Android.Views;
+using Java.Lang;
 using MugenMvvm.Android.Native.Interfaces;
-using MugenMvvm.Android.Native.Interfaces.Views;
+using MugenMvvm.Android.Native.Views;
+using MugenMvvm.Binding;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Internal;
 
 namespace MugenMvvm.Android.Observation
 {
-    public sealed class AndroidViewMemberObserver : Object, IAndroidNativeMemberObserver
+    public sealed class AndroidViewMemberChangedListener : Object, IAndroidNativeMemberChangedListener
     {
         #region Fields
 
@@ -17,7 +19,7 @@ namespace MugenMvvm.Android.Observation
 
         #region Constructors
 
-        private AndroidViewMemberObserver(IAndroidView view)
+        private AndroidViewMemberChangedListener(View view)
         {
             _listeners = new AndroidViewMemberListenerCollection(view);
         }
@@ -26,7 +28,7 @@ namespace MugenMvvm.Android.Observation
 
         #region Implementation of interfaces
 
-        public void OnMemberChanged(Object target, string path, Object? state)
+        public void OnChanged(Object target, string path, Object? state)
         {
             _listeners.Raise(target, state, path, null);
         }
@@ -35,12 +37,12 @@ namespace MugenMvvm.Android.Observation
 
         #region Methods
 
-        public static ActionToken Add(IAndroidView view, IEventListener listener, string memberName)
+        public static ActionToken Add(View view, IEventListener listener, string memberName)
         {
-            if (!(view.MemberObserver is AndroidViewMemberObserver memberObserver))
+            if (!(ViewExtensions.GetMemberChangedListener(view) is AndroidViewMemberChangedListener memberObserver))
             {
-                memberObserver = new AndroidViewMemberObserver(view);
-                view.MemberObserver = memberObserver;
+                memberObserver = new AndroidViewMemberChangedListener(view);
+                ViewExtensions.SetMemberChangedListener(view, memberObserver);
             }
 
             return memberObserver._listeners.Add(listener, memberName);
@@ -54,13 +56,13 @@ namespace MugenMvvm.Android.Observation
         {
             #region Fields
 
-            private readonly IAndroidView _view;
+            private readonly View _view;
 
             #endregion
 
             #region Constructors
 
-            public AndroidViewMemberListenerCollection(IAndroidView view)
+            public AndroidViewMemberListenerCollection(View view)
             {
                 _view = view;
             }
@@ -71,12 +73,13 @@ namespace MugenMvvm.Android.Observation
 
             protected override void OnListenerAdded(string memberName)
             {
-                _view.AddMemberListener(memberName);
+                if (!ViewExtensions.AddMemberListener(_view, memberName))
+                    BindingExceptionManager.ThrowInvalidBindingMember(_view, memberName);
             }
 
             protected override void OnListenerRemoved(string memberName)
             {
-                _view.RemoveMemberListener(memberName);
+                ViewExtensions.RemoveMemberListener(_view, memberName);
             }
 
             #endregion

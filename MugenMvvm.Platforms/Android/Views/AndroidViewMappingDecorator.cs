@@ -29,11 +29,16 @@ namespace MugenMvvm.Android.Views
             MugenExtensions.TryGetViewModelView(request, out IResourceView? view);
             if (view == null)
                 return mappings;
+            var viewId = view.ViewId;
+            if (viewId == 0)
+                return mappings;
 
             var result = ItemOrListEditor.Get<IViewMapping>();
             foreach (var mapping in mappings.Iterator())
             {
-                if (mapping is IAndroidViewMapping map && map.ResourceId == view.ViewId)
+                if (!mapping.ViewType.IsInterface && mapping.ViewType.IsInstanceOfType(view))
+                    result.Add(mapping);
+                else if (mapping is IAndroidViewMapping map && map.ResourceId == viewId)
                     result.Add(mapping);
             }
 

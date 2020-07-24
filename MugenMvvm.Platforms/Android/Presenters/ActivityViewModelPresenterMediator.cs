@@ -5,8 +5,8 @@ using Android.Content;
 using Java.Lang;
 using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Android.Native;
 using MugenMvvm.Android.Native.Interfaces.Views;
+using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
@@ -144,7 +144,7 @@ namespace MugenMvvm.Android.Presenters
 
         protected virtual void StartActivity(IActivityView? topView, Class? activityType, int resourceId, int flags, IReadOnlyMetadataContext? metadata)
         {
-            if (!MugenAndroidNativeService.StartActivity(topView!, activityType!, resourceId, flags))
+            if (!ActivityExtensions.StartActivity(topView!, activityType!, resourceId, flags))
                 ExceptionManager.ThrowPresenterCannotShowRequest(Mapping, metadata);
         }
 

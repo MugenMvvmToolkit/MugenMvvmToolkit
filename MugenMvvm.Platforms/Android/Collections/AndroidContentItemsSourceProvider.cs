@@ -65,8 +65,7 @@ namespace MugenMvvm.Android.Collections
         {
             if (Count == 0)
                 return ContentItemsSourceProvider.PositionNone;
-            var context = content?.BindableMembers().DataContext();
-            var index = _collectionAdapter.IndexOf(content);
+            var index = _collectionAdapter.IndexOf(content?.BindableMembers().DataContext());
             if (index < 0)
                 return ContentItemsSourceProvider.PositionNone;
             return index;

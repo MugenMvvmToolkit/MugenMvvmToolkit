@@ -1,4 +1,5 @@
 ﻿using System.Collections;
+using Android.Views;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Interfaces;
@@ -56,12 +57,12 @@ namespace MugenMvvm.Android.Collections
             return _selector.SelectTemplate(_owner, GetItemAt(position));
         }
 
-        public virtual void OnBindView(Object view, int position)
+        public virtual void OnBindView(View view, int position)
         {
             view.BindableMembers().SetDataContext(GetItemAt(position));
         }
 
-        public virtual void OnViewCreated(Object view)
+        public virtual void OnViewCreated(View view)
         {
             view.BindableMembers().SetDataContext(null);
             view.BindableMembers().SetParent(view);

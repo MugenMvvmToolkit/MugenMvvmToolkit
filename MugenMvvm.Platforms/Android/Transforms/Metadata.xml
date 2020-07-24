@@ -1,26 +1,16 @@
 ﻿<metadata>
-  <!--
-  This sample removes the class: android.support.v4.content.AsyncTaskLoader.LoadTask:
-  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='AsyncTaskLoader.LoadTask']" />
-  
-  This sample removes the method: android.support.v4.content.CursorLoader.loadInBackground:
-  <remove-node path="/api/package[@name='android.support.v4.content']/class[@name='CursorLoader']/method[@name='loadInBackground']" />
-  -->
-  <remove-node path="/api/package[@name='com.mugen.mvvm.extensions']"/>
-  <remove-node path="/api/package[@name='com.mugen.mvvm.extensions']" />
   <remove-node path="/api/package[@name='com.mugen.mvvm.internal']" />
-  <remove-node path="/api/package[@name='com.mugen.mvvm.views.support']/class[@name='MugenAppCompatActivity']" />
+  <remove-node path="/api/package[@name='com.mugen.mvvm.views.listeners']" />
   <remove-node path="/api/package[@name='com.mugen.mvvm']/class[@name='BuildConfig']" />
   <attr path="/api/package[@name='com.mugen.mvvm']" name="managedName">MugenMvvm.Android.Native</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.constants']" name="managedName">MugenMvvm.Android.Native.Constants</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.views']" name="managedName">MugenMvvm.Android.Native.Views</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.views.support']" name="managedName">MugenMvvm.Android.Native.Views.Support</attr>
-  <attr path="/api/package[@name='com.mugen.mvvm.models']" name="managedName">MugenMvvm.Android.Native.Models</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']" name="managedName">MugenMvvm.Android.Native.Interfaces</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']" name="managedName">MugenMvvm.Android.Native.Interfaces.Views</attr>
 
   <attr path="/api/package[@name='com.mugen.mvvm']/class[@name='MugenNativeService']" name="managedName">MugenAndroidNativeService</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']/interface[@name='IViewDispatcher']" name="managedName">IAndroidNativeViewDispatcher</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='ILifecycleDispatcher']" name="managedName">IAndroidNativeLifecycleDispatcher</attr>
-  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IMemberObserver']" name="managedName">IAndroidNativeMemberObserver</attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IMemberChangedListener']" name="managedName">IAndroidNativeMemberChangedListener</attr>
 </metadata>

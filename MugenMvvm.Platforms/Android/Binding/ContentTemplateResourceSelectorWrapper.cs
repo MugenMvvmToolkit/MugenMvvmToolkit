@@ -1,6 +1,6 @@
 ﻿using Java.Lang;
 using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Android.Native;
+using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Android.Requests;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
@@ -33,7 +33,7 @@ namespace MugenMvvm.Android.Binding
             if (item is IViewModelBase viewModel)
                 return MugenService.ViewManager.GetOrCreateView(new AndroidViewRequest(viewModel, container, template)).Target;
             if (container is Object javaContainer)
-                return MugenAndroidNativeService.GetView(javaContainer, template);
+                return ViewExtensions.GetView(javaContainer, template, false);
             ExceptionManager.ThrowNotSupported(nameof(container));
             return null;
         }

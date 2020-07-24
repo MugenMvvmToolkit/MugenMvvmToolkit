@@ -3,7 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Java.Lang;
 using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Android.Native;
+using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Android.Requests;
 using MugenMvvm.Components;
 using MugenMvvm.Constants;
@@ -69,7 +69,7 @@ namespace MugenMvvm.Android.Views
             if (viewMapping == null && viewRequest.ResourceId == 0)
                 return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
-            var view = MugenAndroidNativeService.GetView(container, viewMapping?.ResourceId ?? viewRequest.ResourceId);
+            var view = ViewExtensions.GetView(container, viewMapping?.ResourceId ?? viewRequest.ResourceId, true);
             viewMapping ??= new AndroidViewMapping(viewRequest.ResourceId, view.GetType(), viewRequest.ViewModel.GetType(), metadata);
 
             return Components.TryInitializeAsync(viewManager, viewMapping, ViewModelViewRequest.GetRequestOrRaw(request, viewRequest.ViewModel, view), cancellationToken, metadata);
