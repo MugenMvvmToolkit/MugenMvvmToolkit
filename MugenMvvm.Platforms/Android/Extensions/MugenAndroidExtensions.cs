@@ -55,7 +55,7 @@ namespace MugenMvvm.Android.Extensions
                 .WithComponent(new AndroidViewStateDispatcher())
                 .WithComponent(new AndroidViewFirstInitializer())
                 .WithComponent(new AndroidViewRequestManager())
-                .WithComponent(new AndroidDestroyViewHandler())
+                .WithComponent(new AndroidViewStateMapperDispatcher())
                 .WithComponent(new AndroidViewMappingDecorator());
 
             var component = configuration.ServiceConfiguration<IWeakReferenceManager>().Service().GetOrAddComponent(ctx => new WeakReferenceProviderComponent());

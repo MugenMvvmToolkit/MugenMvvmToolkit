@@ -56,10 +56,10 @@
     <None Remove="Android\Native\Views\Support\MugenAppCompatActivityLite.cs" />
     <None Remove="Android\Native\Views\Support\MugenAppCompatActivityLiteGenerated.cs" />
     <None Remove="Android\Requests\AndroidViewRequest.cs" />
-    <None Remove="Android\Views\AndroidDestroyViewHandler.cs" />
     <None Remove="Android\Views\AndroidViewBindCallback.cs" />
     <None Remove="Android\Views\AndroidViewMemberObserver.cs" />
     <None Remove="Android\Views\AndroidViewRequestManager.cs" />
+    <None Remove="Android\Views\AndroidViewStateMapperDispatcher.cs" />
   </ItemGroup>
 
   <ItemGroup>

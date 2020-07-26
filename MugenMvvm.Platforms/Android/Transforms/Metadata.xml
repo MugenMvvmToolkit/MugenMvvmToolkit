@@ -13,4 +13,5 @@
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces.views']/interface[@name='IViewDispatcher']" name="managedName">IAndroidNativeViewDispatcher</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='ILifecycleDispatcher']" name="managedName">IAndroidNativeLifecycleDispatcher</attr>
   <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IMemberChangedListener']" name="managedName">IAndroidNativeMemberChangedListener</attr>
+  <attr path="/api/package[@name='com.mugen.mvvm.interfaces']/interface[@name='IHasPriority']" name="managedName">IAndroidHasPriority</attr>
 </metadata>

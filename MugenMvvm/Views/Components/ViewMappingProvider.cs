@@ -85,7 +85,7 @@ namespace MugenMvvm.Views.Components
 
         #region Methods
 
-        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = false, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
+        public void AddMapping(Type viewModelType, Type viewType, bool exactlyEqual = true, string? name = null, string? id = null, IReadOnlyMetadataContext? metadata = null)
         {
             Should.BeOfType(viewModelType, nameof(viewModelType), typeof(IViewModelBase));
             Should.NotBeNull(viewType, nameof(viewType));
@@ -93,7 +93,7 @@ namespace MugenMvvm.Views.Components
             AddMapping(mapping, exactlyEqual, name);
         }
 
-        public void AddMapping(IViewMapping mapping, bool exactlyEqual = false, string? name = null)
+        public void AddMapping(IViewMapping mapping, bool exactlyEqual = true, string? name = null)
         {
             Should.NotBeNull(mapping, nameof(mapping));
             var mappingInfo = new MappingInfo(mapping, exactlyEqual, name);
