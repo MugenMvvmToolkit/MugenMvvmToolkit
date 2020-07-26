@@ -70,15 +70,6 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public void onDestroy(View view) {
-        if (ViewPagerExtensions.isSupported(view))
-            ViewPagerExtensions.onDestroy(view);
-        else if (ViewPager2Extensions.isSupported(view))
-            ViewPager2Extensions.onDestroy(view);
-        else if (RecyclerViewExtensions.isSupported(view))
-            RecyclerViewExtensions.onDestroy(view);
-        else if (AdapterViewExtensions.isSupported(view))
-            AdapterViewExtensions.onDestroy(view);
-        ViewExtensions.setAttachedValues(view, null);
     }
 
     @Override

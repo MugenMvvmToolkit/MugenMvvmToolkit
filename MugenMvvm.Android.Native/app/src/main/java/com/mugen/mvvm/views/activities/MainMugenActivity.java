@@ -1,4 +1,4 @@
-package com.mugen.mvvm.views;
+package com.mugen.mvvm.views.activities;
 
 public final class MainMugenActivity extends MugenActivity {
 }

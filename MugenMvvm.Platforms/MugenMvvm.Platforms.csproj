@@ -52,9 +52,6 @@
     <None Remove="Android\Internal\AndroidAttachedValueStorageProvider.cs" />
     <None Remove="Android\Members\AndroidMenuBindableMembers.cs" />
     <None Remove="Android\Members\AndroidViewBindableMembers.cs" />
-    <None Remove="Android\Native\Views\Support\MugenActivity.cs" />
-    <None Remove="Android\Native\Views\Support\MugenAppCompatActivityLite.cs" />
-    <None Remove="Android\Native\Views\Support\MugenAppCompatActivityLiteGenerated.cs" />
     <None Remove="Android\Requests\AndroidViewRequest.cs" />
     <None Remove="Android\Views\AndroidViewBindCallback.cs" />
     <None Remove="Android\Views\AndroidViewMemberObserver.cs" />

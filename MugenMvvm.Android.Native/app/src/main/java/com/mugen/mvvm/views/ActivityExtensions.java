@@ -12,8 +12,10 @@ import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
 import com.mugen.mvvm.internal.ActivityAttachedValues;
-import com.mugen.mvvm.views.support.MainMugenAppCompatActivity;
-import com.mugen.mvvm.views.support.MugenAppCompatActivity;
+import com.mugen.mvvm.views.activities.MainMugenActivity;
+import com.mugen.mvvm.views.activities.MugenActivity;
+import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
+import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
 public abstract class ActivityExtensions {
     private static boolean _isNativeActivityMode;

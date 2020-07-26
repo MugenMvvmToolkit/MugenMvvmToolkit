@@ -1,6 +1,5 @@
-package com.mugen.mvvm.views;
+package com.mugen.mvvm.views.activities;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
@@ -11,11 +10,14 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.NonNull;
-import com.mugen.mvvm.interfaces.views.INativeActivityView;
+import androidx.appcompat.app.AppCompatActivity;
 import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.interfaces.views.INativeActivityView;
 import com.mugen.mvvm.internal.MugenContextWrapper;
+import com.mugen.mvvm.views.LifecycleExtensions;
+import com.mugen.mvvm.views.ViewExtensions;
 
-public class MugenActivity extends Activity implements INativeActivityView {
+public class MugenAppCompatActivity extends AppCompatActivity implements INativeActivityView {
     private Object _tag;
 
     @Override

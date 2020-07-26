@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
 using MugenMvvm.Interfaces.Internal;
 
-namespace MugenMvvm.Android.Native.Views
+namespace MugenMvvm.Android.Native.Views.Activities
 {
-    public partial class MugenActivity : IValueHolder<IDictionary<string, object?>>, IValueHolder<IWeakReference>
+    public partial class MugenAppCompatActivityLite : IValueHolder<IDictionary<string, object?>>, IValueHolder<IWeakReference>
     {
         #region Properties
 

@@ -6,14 +6,14 @@ using Java.Interop;
 using MugenMvvm.Android.Native.Interfaces.Views;
 using Object = Java.Lang.Object;
 
-namespace MugenMvvm.Android.Native.Views.Support
+namespace MugenMvvm.Android.Native.Views.Activities
 {
-    [Register("com/mugen/mvvm/views/support/MugenAppCompatActivity", DoNotGenerateAcw = true)]
+    [Register("com/mugen/mvvm/views/activities/MugenAppCompatActivity", DoNotGenerateAcw = true)]
     public partial class MugenAppCompatActivityLite : Activity, INativeActivityView
     {
         #region Fields
 
-        private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/views/support/MugenAppCompatActivity", typeof(MugenAppCompatActivityLite));
+        private static readonly JniPeerMembers _members = new XAPeerMembers("com/mugen/mvvm/views/activities/MugenAppCompatActivity", typeof(MugenAppCompatActivityLite));
 
         private static Delegate cb_getActivity;
 
