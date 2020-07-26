@@ -35,6 +35,10 @@ namespace MugenMvvm.Android.Enums
         public static readonly ViewLifecycleState Stopped = new ViewLifecycleState(nameof(Stopped));
         public static readonly ViewLifecycleState PostCreating = new ViewLifecycleState(nameof(PostCreating));
         public static readonly ViewLifecycleState PostCreated = new ViewLifecycleState(nameof(PostCreated));
+        public static readonly ViewLifecycleState CreatingOptionsMenu = new ViewLifecycleState(nameof(CreatingOptionsMenu));
+        public static readonly ViewLifecycleState CreatedOptionsMenu = new ViewLifecycleState(nameof(CreatedOptionsMenu));
+        public static readonly ViewLifecycleState OptionsItemSelecting = new ViewLifecycleState(nameof(OptionsItemSelecting));
+        public static readonly ViewLifecycleState OptionsItemSelected = new ViewLifecycleState(nameof(OptionsItemSelected));
         public static readonly ViewLifecycleState ClearBackStack = new ViewLifecycleState(nameof(ClearBackStack));
 
         #endregion
@@ -73,6 +77,10 @@ namespace MugenMvvm.Android.Enums
                     return Stopping;
                 case LifecycleState.PostCreate:
                     return PostCreating;
+                case LifecycleState.OptionsItemSelected:
+                    return OptionsItemSelecting;
+                case LifecycleState.CreateOptionsMenu:
+                    return CreatingOptionsMenu;
             }
             return null;
         }
@@ -109,6 +117,10 @@ namespace MugenMvvm.Android.Enums
                     return Stopped;
                 case LifecycleState.PostCreate:
                     return PostCreated;
+                case LifecycleState.OptionsItemSelected:
+                    return OptionsItemSelected;
+                case LifecycleState.CreateOptionsMenu:
+                    return CreatedOptionsMenu;
             }
 
             return null;

@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using Android.Views;
+using Java.Lang;
 using MugenMvvm.Android.Interfaces;
+using MugenMvvm.Android.Observation;
 using MugenMvvm.Binding.Attributes;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
@@ -40,6 +42,8 @@ namespace MugenMvvm.Android.Members
         public static BindableEventDescriptor<T> Refreshed<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(Refreshed);
 
         public static BindableEventDescriptor<T> SelectedIndexChanged<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SelectedIndexChanged);
+
+        public static BindableEventDescriptor<T> ActionBarHomeButtonClick<T>(this BindableMembersDescriptor<T> _) where T : Object => AndroidViewMemberChangedListener.HomeButtonClick;
 
 
         [BindingMember(nameof(StableIdProvider))]
@@ -111,6 +115,9 @@ namespace MugenMvvm.Android.Members
 
         public static ActionToken AddTextChangedListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : View =>
             TextChanged<T>(default).Subscribe(descriptor.Target, listener);
+
+        public static ActionToken AddActionBarHomeButtonClick<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : Object =>
+            ActionBarHomeButtonClick<T>(default).Subscribe(descriptor.Target, listener);
 
         #endregion
     }

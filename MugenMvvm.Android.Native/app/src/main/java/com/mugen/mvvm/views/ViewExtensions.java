@@ -63,7 +63,7 @@ public abstract class ViewExtensions {
 
     public static boolean addMemberListener(Object target, CharSequence memberNameChar) {
         String memberName = (String) memberNameChar;
-        if (ParentEventName.equals(memberName) || ParentMemberName.equals(memberName))
+        if (ParentEventName.equals(memberName) || ParentMemberName.equals(memberName) || HomeButtonClick.equals(memberName))
             return true;
 
         AttachedValues attachedValues = getNativeAttachedValues(target, false);
