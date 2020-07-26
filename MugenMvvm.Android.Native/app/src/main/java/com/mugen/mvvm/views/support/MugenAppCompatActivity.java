@@ -5,8 +5,11 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.AttributeSet;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
@@ -159,6 +162,26 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
             super.onSaveInstanceState(outState);
             LifecycleExtensions.onLifecycleChanged(this, LifecycleState.SaveState, outState);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.CreateOptionsMenu, menu)) {
+            boolean result = super.onCreateOptionsMenu(menu);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.CreateOptionsMenu, menu);
+            return result;
+        }
+        return false;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.OptionsItemSelected, item)) {
+            boolean result = super.onOptionsItemSelected(item);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.OptionsItemSelected, item);
+            return result;
+        }
+        return false;
     }
 
     @Override

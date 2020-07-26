@@ -42,7 +42,7 @@ namespace MugenMvvm.Android.Extensions
         public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeActivity = false)
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
-            LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeActivity, 0);
+            LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeActivity);
             if (nativeActivity)
                 ActivityExtensions.SetNativeActivityMode();
             configuration.ServiceConfiguration<IThreadDispatcher>()

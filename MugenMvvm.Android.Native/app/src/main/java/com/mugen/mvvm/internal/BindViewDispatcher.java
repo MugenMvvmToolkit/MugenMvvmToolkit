@@ -5,6 +5,7 @@ import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import com.mugen.mvvm.R;
+import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.views.ActivityExtensions;
@@ -83,5 +84,10 @@ public class BindViewDispatcher implements IViewDispatcher {
     @Override
     public View tryCreate(View parent, String name, Context viewContext, AttributeSet attrs) {
         return null;
+    }
+
+    @Override
+    public int getPriority() {
+        return PriorityConstants.Default;
     }
 }

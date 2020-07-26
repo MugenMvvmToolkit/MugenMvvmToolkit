@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.views.ViewExtensions;
 
@@ -32,5 +33,10 @@ public class ViewCleaner implements ILifecycleDispatcher {
         }
 
         ViewExtensions.onDestroyView(view);
+    }
+
+    @Override
+    public int getPriority() {
+        return PriorityConstants.PostInitializer;
     }
 }

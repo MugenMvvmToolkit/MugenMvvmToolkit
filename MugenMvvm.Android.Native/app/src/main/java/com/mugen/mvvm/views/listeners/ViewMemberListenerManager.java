@@ -5,10 +5,13 @@ import android.widget.TextView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
+import com.google.android.material.tabs.TabLayout;
+import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.views.TextViewExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 import com.mugen.mvvm.views.support.SwipeRefreshLayoutExtensions;
+import com.mugen.mvvm.views.support.TabLayoutExtensions;
 import com.mugen.mvvm.views.support.ViewPager2Extensions;
 import com.mugen.mvvm.views.support.ViewPagerExtensions;
 
@@ -39,11 +42,18 @@ public class ViewMemberListenerManager implements ViewExtensions.IMemberListener
                     return new ViewPagerSelectedIndexListener((ViewPager) target);
                 if (ViewPager2Extensions.isSupported(view))
                     return new ViewPager2SelectedIndexListener((ViewPager2) target);
+                if (TabLayoutExtensions.isSupported(view))
+                    return new TabLayoutSelectedIndexListener((TabLayout) target);
             }
         }
 
 
         return null;
+    }
+
+    @Override
+    public int getPriority() {
+        return PriorityConstants.Default;
     }
 
     private static boolean isTextViewMember(View view, String memberName) {

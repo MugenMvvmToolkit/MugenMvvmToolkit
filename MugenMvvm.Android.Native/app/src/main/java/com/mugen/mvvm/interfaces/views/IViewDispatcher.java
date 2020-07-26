@@ -3,8 +3,9 @@ package com.mugen.mvvm.interfaces.views;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
+import com.mugen.mvvm.interfaces.IHasPriority;
 
-public interface IViewDispatcher {//todo add priority
+public interface IViewDispatcher extends IHasPriority {
     void onParentChanged(View view);
 
     void onSetting(Object owner, View view);

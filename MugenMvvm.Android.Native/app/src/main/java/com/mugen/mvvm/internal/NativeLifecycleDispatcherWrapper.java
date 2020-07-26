@@ -23,4 +23,9 @@ public class NativeLifecycleDispatcherWrapper implements ILifecycleDispatcher {
     public void onLifecycleChanged(Object target, int lifecycle, Object state) {
         _lifecycleDispatcher.onLifecycleChanged(ActivityExtensions.tryWrapActivity(target), lifecycle, ActivityExtensions.tryWrapActivity(state));
     }
+
+    @Override
+    public int getPriority() {
+        return _lifecycleDispatcher.getPriority();
+    }
 }

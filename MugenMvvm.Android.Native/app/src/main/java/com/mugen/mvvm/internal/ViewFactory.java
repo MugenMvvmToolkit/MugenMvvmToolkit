@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IActivityView;
@@ -55,5 +56,10 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
 
         for (Object view : views)
             LifecycleExtensions.onLifecycleChanged(view, LifecycleState.Destroy, null);
+    }
+
+    @Override
+    public int getPriority() {
+        return PriorityConstants.PreInitializer;
     }
 }

@@ -1,9 +1,12 @@
 package com.mugen.mvvm.views;
 
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
+import com.mugen.mvvm.internal.HasPriorityComparator;
 import com.mugen.mvvm.internal.NativeLifecycleDispatcherWrapper;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 public final class LifecycleExtensions {
     private final static ArrayList<ILifecycleDispatcher> _lifecycleDispatchers = new ArrayList<>();
@@ -15,12 +18,7 @@ public final class LifecycleExtensions {
         if (wrap)
             dispatcher = new NativeLifecycleDispatcherWrapper(dispatcher);
         _lifecycleDispatchers.add(dispatcher);
-    }
-
-    public static void addLifecycleDispatcher(ILifecycleDispatcher dispatcher, boolean wrap, int index) {
-        if (wrap)
-            dispatcher = new NativeLifecycleDispatcherWrapper(dispatcher);
-        _lifecycleDispatchers.add(index, dispatcher);
+        Collections.sort(_lifecycleDispatchers, HasPriorityComparator.Instance);
     }
 
     public static void removeLifecycleDispatcher(ILifecycleDispatcher dispatcher) {

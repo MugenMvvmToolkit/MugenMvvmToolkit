@@ -1,8 +1,9 @@
 ﻿using Java.Lang;
 using MugenMvvm.Android.Enums;
+using MugenMvvm.Android.Native.Constants;
+using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Views;
-using MugenMvvm.Android.Native.Interfaces;
 using MugenMvvm.Requests;
 
 namespace MugenMvvm.Android.Views
@@ -21,6 +22,12 @@ namespace MugenMvvm.Android.Views
         {
             _viewManager = viewManager;
         }
+
+        #endregion
+
+        #region Properties
+
+        public int Priority => PriorityConstants.PreInitializer + 1;
 
         #endregion
 

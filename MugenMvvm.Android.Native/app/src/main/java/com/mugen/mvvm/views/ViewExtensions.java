@@ -7,6 +7,7 @@ import android.util.SparseArray;
 import android.view.View;
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.R;
+import com.mugen.mvvm.interfaces.IHasPriority;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
 import com.mugen.mvvm.interfaces.IViewFactory;
@@ -17,6 +18,7 @@ import com.mugen.mvvm.internal.*;
 import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 public abstract class ViewExtensions {
@@ -41,10 +43,7 @@ public abstract class ViewExtensions {
 
     public static void registerMemberListenerManager(IMemberListenerManager manager) {
         ListenerManagers.add(manager);
-    }
-
-    public static void registerMemberListenerManager(IMemberListenerManager manager, int index) {
-        ListenerManagers.add(index, manager);
+        Collections.sort(ListenerManagers, HasPriorityComparator.Instance);
     }
 
     public static boolean unregisterMemberListenerManager(String memberName, IMemberListenerManager manager) {
@@ -271,15 +270,12 @@ public abstract class ViewExtensions {
             LifecycleExtensions.removeLifecycleDispatcher((ILifecycleDispatcher) _viewFactory);
         _viewFactory = viewFactory;
         if (_viewFactory instanceof ILifecycleDispatcher)
-            LifecycleExtensions.addLifecycleDispatcher((ILifecycleDispatcher) _viewFactory, false, 0);
+            LifecycleExtensions.addLifecycleDispatcher((ILifecycleDispatcher) _viewFactory, false);
     }
 
     public static void addViewDispatcher(IViewDispatcher viewDispatcher) {
         _viewDispatchers.add(viewDispatcher);
-    }
-
-    public static void addViewDispatcher(IViewDispatcher viewDispatcher, int index) {
-        _viewDispatchers.add(index, viewDispatcher);
+        Collections.sort(_viewDispatchers, HasPriorityComparator.Instance);
     }
 
     public static void removeViewDispatcher(IViewDispatcher viewDispatcher) {
@@ -365,7 +361,7 @@ public abstract class ViewExtensions {
         return false;
     }
 
-    public interface IMemberListenerManager {
+    public interface IMemberListenerManager extends IHasPriority {
         IMemberListener tryGetListener(HashMap<String, IMemberListener> listeners, Object target, String memberName);
     }
 
