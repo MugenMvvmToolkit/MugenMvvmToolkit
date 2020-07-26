@@ -33,14 +33,11 @@ namespace MugenMvvm.Collections
 
         #region Constructors
 
-        protected BindableCollectionAdapterBase(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null,
-            ThreadExecutionMode? executionMode = null, bool ignoreItemChangedEvent = true)
+        protected BindableCollectionAdapterBase(IThreadDispatcher? threadDispatcher = null, IList<T>? sourceCollection = null)
             : base(sourceCollection ?? new List<T>())
         {
             _threadDispatcher = threadDispatcher;
             Events = new List<CollectionChangedEvent>();
-            ExecutionMode = executionMode ?? ThreadExecutionMode.Main;
-            IgnoreItemChangedEvent = ignoreItemChangedEvent;
         }
 
         #endregion
@@ -53,15 +50,17 @@ namespace MugenMvvm.Collections
 
         protected IThreadDispatcher ThreadDispatcher => _threadDispatcher.DefaultIfNull();
 
-        protected bool IgnoreItemChangedEvent { get; set; }
-
         protected bool IsSuspended => _suspendCount != 0;
 
         protected bool HasCollectionChangedListeners => CollectionChanged != null;
 
         protected bool HasPropertyChangedListeners => PropertyChanged != null;
 
-        protected ThreadExecutionMode ExecutionMode { get; }
+        protected virtual bool IsAlive => true;
+
+        protected virtual bool IgnoreItemChangedEvent => true;
+
+        protected virtual ThreadExecutionMode ExecutionMode => ThreadExecutionMode.Main;
 
         protected virtual bool IsLockRequired => ExecutionMode != ThreadExecutionMode.Main && ExecutionMode != ThreadExecutionMode.MainAsync;
 
@@ -416,6 +415,26 @@ namespace MugenMvvm.Collections
             }
         }
 
+        protected sealed override void ClearItems()
+        {
+            base.ClearItems();
+        }
+
+        protected sealed override void InsertItem(int index, T item)
+        {
+            base.InsertItem(index, item);
+        }
+
+        protected sealed override void RemoveItem(int index)
+        {
+            base.RemoveItem(index);
+        }
+
+        protected sealed override void SetItem(int index, T item)
+        {
+            base.SetItem(index, item);
+        }
+
         #endregion
 
         #region Nested types
@@ -502,7 +521,7 @@ namespace MugenMvvm.Collections
             public void OnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
             {
                 var adapter = GetAdapter();
-                if (adapter == null)
+                if (adapter == null || !adapter.IsAlive)
                     ((INotifyCollectionChanged)sender).CollectionChanged -= OnCollectionChanged;
                 else
                     adapter.OnCollectionChanged(sender, args);
@@ -510,10 +529,13 @@ namespace MugenMvvm.Collections
 
             private BindableCollectionAdapterBase<T>? GetAdapter()
             {
-                var referenceTarget = _reference.Target;
-                if (referenceTarget == null)
+                var adapter = (BindableCollectionAdapterBase<T>?)_reference.Target;
+                if (adapter == null || !adapter.IsAlive)
+                {
                     OwnerOptional?.Components.Remove(this);
-                return (BindableCollectionAdapterBase<T>?)referenceTarget;
+                    return null;
+                }
+                return adapter;
             }
 
             #endregion

@@ -38,6 +38,7 @@
     <None Remove="Android\Binding\MenuTemplate.cs" />
     <None Remove="Android\Binding\SingleDataTemplateSelector.cs" />
     <None Remove="Android\Collections\AndroidCollectionItemsSourceProvider.cs" />
+    <None Remove="Android\Collections\AndroidContentItemsSourceGenerator.cs" />
     <None Remove="Android\Collections\AndroidContentItemsSourceProvider.cs" />
     <None Remove="Android\Collections\AndroidMenuItemsSourceAdapter.cs" />
     <None Remove="Android\Collections\AndroidNativeBindableCollectionAdapter.cs" />
@@ -51,7 +52,9 @@
     <None Remove="Android\Internal\AndroidAttachedValueStorageProvider.cs" />
     <None Remove="Android\Members\AndroidMenuBindableMembers.cs" />
     <None Remove="Android\Members\AndroidViewBindableMembers.cs" />
+    <None Remove="Android\Native\Views\Support\MugenActivity.cs" />
     <None Remove="Android\Native\Views\Support\MugenAppCompatActivityLite.cs" />
+    <None Remove="Android\Native\Views\Support\MugenAppCompatActivityLiteGenerated.cs" />
     <None Remove="Android\Requests\AndroidViewRequest.cs" />
     <None Remove="Android\Views\AndroidDestroyViewHandler.cs" />
     <None Remove="Android\Views\AndroidViewBindCallback.cs" />

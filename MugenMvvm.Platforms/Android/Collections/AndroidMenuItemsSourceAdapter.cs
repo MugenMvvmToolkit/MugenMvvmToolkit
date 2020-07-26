@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Android.Views;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
@@ -25,6 +26,12 @@ namespace MugenMvvm.Android.Collections
 
         #endregion
 
+        #region Properties
+
+        protected override bool IsAlive => _menu.Handle != IntPtr.Zero;
+
+        #endregion
+
         #region Methods
 
         public static AndroidMenuItemsSourceAdapter GetOrAdd(IMenu menu, IMenuItemTemplate template)
@@ -34,7 +41,7 @@ namespace MugenMvvm.Android.Collections
             return MugenService
                 .AttachedValueManager
                 .TryGetAttachedValues(menu)
-                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, template, (m, t) => new AndroidMenuItemsSourceAdapter((IMenu)m, t));
+                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, template, (m, t) => new AndroidMenuItemsSourceAdapter((IMenu) m, t));
         }
 
         protected override void OnAdded(object? item, int index, bool batch)
