@@ -8,7 +8,6 @@ import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
-//todo ((ViewPager2) target).setAdapter(null); onreleased
 public abstract class RecyclerViewExtensions extends ViewExtensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceProviderType;
     private static boolean _supported;
@@ -36,5 +35,9 @@ public abstract class RecyclerViewExtensions extends ViewExtensions {
             view.setAdapter(null);
         } else
             view.setAdapter(new MugenRecyclerViewAdapter(view.getContext(), provider));
+    }
+
+    public static void onDestroy(View view) {
+        setItemsSourceProvider(view, null);
     }
 }

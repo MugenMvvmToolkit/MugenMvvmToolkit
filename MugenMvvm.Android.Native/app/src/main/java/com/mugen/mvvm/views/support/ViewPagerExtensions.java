@@ -8,7 +8,6 @@ import com.mugen.mvvm.internal.support.MugenPagerAdapter;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
-//todo setItemsSourceProvider((ViewPager) target, null); onreleased
 public abstract class ViewPagerExtensions extends ViewExtensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentProviderType;
     private static boolean _supported;
@@ -47,5 +46,9 @@ public abstract class ViewPagerExtensions extends ViewExtensions {
             viewPager.setAdapter(null);
         } else
             viewPager.setAdapter(new MugenPagerAdapter(viewPager, provider));
+    }
+
+    public static void onDestroy(View view) {
+        setItemsSourceProvider(view, null);
     }
 }

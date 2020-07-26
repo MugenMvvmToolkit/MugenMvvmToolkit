@@ -2,14 +2,10 @@ package com.mugen.mvvm.interfaces.views;
 
 import android.content.Context;
 
-public interface IActivityView extends IResourceView {
+public interface IActivityView extends IResourceView, IHasTagView {
     Context getActivity();
 
     boolean isFinishing();
 
     void finish();
-
-    Object getTag(int id);
-
-    void setTag(int id, Object state);
 }

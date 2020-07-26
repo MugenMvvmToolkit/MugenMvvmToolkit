@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 
-public interface IViewDispatcher {
+public interface IViewDispatcher {//todo add priority
     void onParentChanged(View view);
 
     void onSetting(Object owner, View view);

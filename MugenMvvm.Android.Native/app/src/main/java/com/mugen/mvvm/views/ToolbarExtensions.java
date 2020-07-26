@@ -1,38 +1,65 @@
 package com.mugen.mvvm.views;
 
+import android.annotation.SuppressLint;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Toolbar;
-import androidx.annotation.RequiresApi;
+import com.mugen.mvvm.MugenNativeService;
 
+@SuppressLint("NewApi")
 public abstract class ToolbarExtensions extends ViewExtensions {
-    public static boolean isSupported(View view){
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && view instanceof Toolbar;
+    public static boolean isSupportedCompat(View view) {
+        return MugenNativeService.isCompatSupported() && view instanceof androidx.appcompat.widget.Toolbar;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static boolean isSupported(View view) {
+        return isSupportedCompat(view) || (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP && view instanceof Toolbar);
+    }
+
     public static Menu getMenu(View view) {
+        if (isSupportedCompat(view))
+            return ((androidx.appcompat.widget.Toolbar) view).getMenu();
         return ((Toolbar) view).getMenu();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static CharSequence getTitle(View view) {
+        if (isSupportedCompat(view))
+            return ((androidx.appcompat.widget.Toolbar) view).getTitle();
         return ((Toolbar) view).getTitle();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void setTitle(View view, CharSequence title) {
-        ((Toolbar) view).setTitle(title);
+        if (isSupportedCompat(view))
+            ((androidx.appcompat.widget.Toolbar) view).setTitle(title);
+        else
+            ((Toolbar) view).setTitle(title);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static CharSequence getSubtitle(View view) {
+        if (isSupportedCompat(view))
+            return ((androidx.appcompat.widget.Toolbar) view).getSubtitle();
         return ((Toolbar) view).getSubtitle();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
     public static void setSubtitle(View view, CharSequence subtitle) {
-        ((Toolbar) view).setSubtitle(subtitle);
+        if (isSupportedCompat(view))
+            ((androidx.appcompat.widget.Toolbar) view).setSubtitle(subtitle);
+        else
+            ((Toolbar) view).setSubtitle(subtitle);
+    }
+
+    public static Drawable getNavigationIcon(View view) {
+        if (isSupportedCompat(view))
+            return ((androidx.appcompat.widget.Toolbar) view).getNavigationIcon();
+        return ((Toolbar) view).getNavigationIcon();
+    }
+
+    public static void setNavigationIcon(View view, Drawable icon) {
+        if (isSupportedCompat(view))
+            ((androidx.appcompat.widget.Toolbar) view).setNavigationIcon(icon);
+        else
+            ((Toolbar) view).setNavigationIcon(icon);
     }
 }

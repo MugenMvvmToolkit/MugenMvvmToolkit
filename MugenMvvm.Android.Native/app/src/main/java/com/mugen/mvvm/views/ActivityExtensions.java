@@ -1,5 +1,6 @@
 package com.mugen.mvvm.views;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -8,12 +9,11 @@ import android.view.View;
 import android.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.mugen.mvvm.MugenNativeService;
-import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
+import com.mugen.mvvm.internal.ActivityAttachedValues;
 import com.mugen.mvvm.views.support.MainMugenAppCompatActivity;
 import com.mugen.mvvm.views.support.MugenAppCompatActivity;
-import com.mugen.mvvm.views.support.ToolbarCompatExtensions;
 
 public abstract class ActivityExtensions {
     private static boolean _isNativeActivityMode;
@@ -27,8 +27,15 @@ public abstract class ActivityExtensions {
         _isNativeActivityMode = true;
     }
 
+    public static Object getActionBar(Context activity) {
+        if (MugenNativeService.isCompatSupported() && activity instanceof AppCompatActivity)
+            return ((AppCompatActivity) activity).getSupportActionBar();
+        return ((Activity) activity).getActionBar();
+    }
+
+    @SuppressLint("NewApi")
     public static boolean setActionBar(Context activityObj, View toolbar) {
-        if (ToolbarCompatExtensions.isSupported(toolbar)) {
+        if (ToolbarExtensions.isSupportedCompat(toolbar)) {
             AppCompatActivity activity = (AppCompatActivity) activityObj;
             activity.setSupportActionBar((androidx.appcompat.widget.Toolbar) toolbar);
             return true;
@@ -39,14 +46,6 @@ public abstract class ActivityExtensions {
             return true;
         }
         return false;
-    }
-
-    public static void setMainActivityMapping(int resource, boolean isCompat) {
-        ViewExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource);
-    }
-
-    public static void addCommonActivityMapping(int resource, boolean isCompat) {
-        ViewExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource);
     }
 
     public static boolean startActivity(IActivityView activityView, Class activityClass, int resourceId, int flags) {
@@ -84,14 +83,22 @@ public abstract class ActivityExtensions {
         if (!isNativeActivityMode())
             return target;
         if (target instanceof INativeActivityView) {
-            INativeActivityView nativeActivity = (INativeActivityView) target;
-            Object wrapper = nativeActivity.getTag(R.id.wrapper);
+            ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
+            Object wrapper = attachedValues.getWrapper();
             if (wrapper == null) {
-                wrapper = new ActivityWrapper(nativeActivity);
-                nativeActivity.setTag(R.id.wrapper, wrapper);
+                wrapper = new ActivityWrapper((INativeActivityView) target);
+                attachedValues.setWrapper(wrapper);
             }
             return wrapper;
         }
         return target;
+    }
+
+    public static void setMainActivityMapping(int resource, boolean isCompat) {
+        ViewExtensions.addViewMapping(isCompat ? MainMugenAppCompatActivity.class : MainMugenActivity.class, resource);
+    }
+
+    public static void addCommonActivityMapping(int resource, boolean isCompat) {
+        ViewExtensions.addViewMapping(isCompat ? MugenAppCompatActivity.class : MugenActivity.class, resource);
     }
 }

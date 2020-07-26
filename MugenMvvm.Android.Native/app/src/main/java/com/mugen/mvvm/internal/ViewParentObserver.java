@@ -2,7 +2,6 @@ package com.mugen.mvvm.internal;
 
 import android.view.View;
 import android.view.ViewGroup;
-import com.mugen.mvvm.R;
 import com.mugen.mvvm.views.ViewExtensions;
 
 public final class ViewParentObserver implements ViewGroup.OnHierarchyChangeListener {
@@ -23,15 +22,20 @@ public final class ViewParentObserver implements ViewGroup.OnHierarchyChangeList
     }
 
     public void add(View view) {
-        if (view instanceof ViewGroup && view.getTag(R.id.disableParentObserver) == null)
+        if (view instanceof ViewGroup && !isDisabled(view))
             ((ViewGroup) view).setOnHierarchyChangeListener(this);
     }
 
     public void remove(View view, boolean setTag) {
         if (view instanceof ViewGroup) {
             if (setTag)
-                view.setTag(R.id.disableParentObserver, "");
+                ViewExtensions.getNativeAttachedValues(view, true).setParentObserverDisabled(true);
             ((ViewGroup) view).setOnHierarchyChangeListener(null);
         }
+    }
+
+    private static boolean isDisabled(View view) {
+        ViewAttachedValues values = ViewExtensions.getNativeAttachedValues(view, false);
+        return values != null && values.isParentObserverDisabled();
     }
 }

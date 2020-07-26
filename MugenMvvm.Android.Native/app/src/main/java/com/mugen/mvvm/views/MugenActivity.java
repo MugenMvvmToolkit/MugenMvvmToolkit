@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.AttributeSet;
-import android.util.SparseArray;
 import android.view.View;
 import android.view.ViewGroup;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
@@ -14,7 +13,7 @@ import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.internal.MugenContextWrapper;
 
 public class MugenActivity extends Activity implements INativeActivityView {
-    private SparseArray<Object> _state;
+    private Object _tag;
 
     @Override
     public Context getActivity() {
@@ -27,21 +26,13 @@ public class MugenActivity extends Activity implements INativeActivityView {
     }
 
     @Override
-    public Object getTag(int id) {
-        if (_state != null)
-            return _state.get(id);
-        return null;
+    public Object getTag() {
+        return _tag;
     }
 
     @Override
-    public void setTag(int id, Object state) {
-        if (_state == null) {
-            _state = new SparseArray<Object>();
-        }
-        if (state == null)
-            _state.remove(id);
-        else
-            _state.put(id, state);
+    public void setTag(Object tag) {
+        _tag = tag;
     }
 
     @Override
@@ -131,8 +122,8 @@ public class MugenActivity extends Activity implements INativeActivityView {
         if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
             super.onDestroy();
             LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
-            if (_state != null)
-                _state = null;
+            if (_tag != null)
+                _tag = null;
         }
     }
 

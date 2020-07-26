@@ -8,7 +8,11 @@ import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
 import com.mugen.mvvm.views.ActivityExtensions;
+import com.mugen.mvvm.views.AdapterViewExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.views.support.RecyclerViewExtensions;
+import com.mugen.mvvm.views.support.ViewPager2Extensions;
+import com.mugen.mvvm.views.support.ViewPagerExtensions;
 
 public class BindViewDispatcher implements IViewDispatcher {
     private final static ViewAttributeAccessor _accessor = new ViewAttributeAccessor();
@@ -43,9 +47,10 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public View onCreated(View view, Context context, AttributeSet attrs) {
-        if (view.getTag(R.id.bindHandled) != null)
+        ViewAttachedValues attachedValues = ViewExtensions.getNativeAttachedValues(view, true);
+        if (attachedValues.isBindHandled())
             return view;
-        view.setTag(R.id.bindHandled, "");
+        attachedValues.setBindHandled(true);
 
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.Bind, 0, 0);
         try {
@@ -64,7 +69,15 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public void onDestroy(View view) {
-
+        if (ViewPagerExtensions.isSupported(view))
+            ViewPagerExtensions.onDestroy(view);
+        else if (ViewPager2Extensions.isSupported(view))
+            ViewPager2Extensions.onDestroy(view);
+        else if (RecyclerViewExtensions.isSupported(view))
+            RecyclerViewExtensions.onDestroy(view);
+        else if (AdapterViewExtensions.isSupported(view))
+            AdapterViewExtensions.onDestroy(view);
+        ViewExtensions.setAttachedValues(view, null);
     }
 
     @Override

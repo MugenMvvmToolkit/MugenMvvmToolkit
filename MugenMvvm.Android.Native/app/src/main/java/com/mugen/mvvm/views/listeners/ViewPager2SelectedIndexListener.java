@@ -1,6 +1,5 @@
 package com.mugen.mvvm.views.listeners;
 
-import android.view.View;
 import androidx.viewpager2.widget.ViewPager2;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
@@ -20,13 +19,13 @@ public class ViewPager2SelectedIndexListener extends ViewPager2.OnPageChangeCall
     }
 
     @Override
-    public void addListener(View view, String memberName) {
+    public void addListener(Object target, String memberName) {
         if (ViewGroupExtensions.SelectedIndexName.equals(memberName) || ViewGroupExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _viewPager.registerOnPageChangeCallback(this);
     }
 
     @Override
-    public void removeListener(View view, String memberName) {
+    public void removeListener(Object target, String memberName) {
         if (ViewGroupExtensions.SelectedIndexName.equals(memberName) || ViewGroupExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _viewPager.unregisterOnPageChangeCallback(this);
     }

@@ -17,27 +17,31 @@ import java.util.Map;
 
 public class ViewMemberListenerManager implements ViewExtensions.IMemberListenerManager {
     @Override
-    public ViewExtensions.IMemberListener tryGetListener(HashMap<String, ViewExtensions.IMemberListener> listeners, View view, String memberName) {
-        if (ViewExtensions.ClickEventName.equals(memberName) || isTextViewMember(view, memberName)) {
-            if (listeners != null) {
-                for (Map.Entry<String, ViewExtensions.IMemberListener> entry : listeners.entrySet()) {
-                    if (entry.getValue() instanceof ViewMemberListener)
-                        return entry.getValue();
+    public ViewExtensions.IMemberListener tryGetListener(HashMap<String, ViewExtensions.IMemberListener> listeners, Object target, String memberName) {
+        if (target instanceof View) {
+            View view = (View) target;
+            if (ViewExtensions.ClickEventName.equals(memberName) || isTextViewMember(view, memberName)) {
+                if (listeners != null) {
+                    for (Map.Entry<String, ViewExtensions.IMemberListener> entry : listeners.entrySet()) {
+                        if (entry.getValue() instanceof ViewMemberListener)
+                            return entry.getValue();
+                    }
                 }
+
+                return new ViewMemberListener(view);
             }
 
-            return new ViewMemberListener(view);
+            if (SwipeRefreshLayoutExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutExtensions.isSupported(view))
+                return new SwipeRefreshLayoutRefreshedListener((SwipeRefreshLayout) target);
+
+            if (ViewGroupExtensions.SelectedIndexEventName.equals(memberName) || ViewGroupExtensions.SelectedIndexName.equals(memberName)) {
+                if (ViewPagerExtensions.isSupported(view))
+                    return new ViewPagerSelectedIndexListener((ViewPager) target);
+                if (ViewPager2Extensions.isSupported(view))
+                    return new ViewPager2SelectedIndexListener((ViewPager2) target);
+            }
         }
 
-        if (SwipeRefreshLayoutExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutExtensions.isSupported(view))
-            return new SwipeRefreshLayoutRefreshedListener((SwipeRefreshLayout) view);
-
-        if (ViewGroupExtensions.SelectedIndexEventName.equals(memberName) || ViewGroupExtensions.SelectedIndexName.equals(memberName)) {
-            if (ViewPagerExtensions.isSupported(view))
-                return new ViewPagerSelectedIndexListener((ViewPager) view);
-            if (ViewPager2Extensions.isSupported(view))
-                return new ViewPager2SelectedIndexListener((ViewPager2) view);
-        }
 
         return null;
     }

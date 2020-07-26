@@ -14,5 +14,5 @@ public abstract class LifecycleState {
     public static final int SaveState = 11;
     public static final int Start = 12;
     public static final int Stop = 13;
-    public static final int PostCreate = 14;
+    public static final int PostCreate = 14;//todo onmenuclicked menu actionbar, on menu created 
 }

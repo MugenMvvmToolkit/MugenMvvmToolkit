@@ -1,6 +1,5 @@
 package com.mugen.mvvm.views;
 
-import android.app.Activity;
 import android.content.Context;
 import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
@@ -14,7 +13,7 @@ public class ActivityWrapper implements IActivityView {
 
     @Override
     public Context getActivity() {
-        return (Context)_target;
+        return (Context) _target;
     }
 
     @Override
@@ -28,13 +27,13 @@ public class ActivityWrapper implements IActivityView {
     }
 
     @Override
-    public Object getTag(int id) {
-        return _target.getTag(id);
+    public Object getTag() {
+        return _target.getTag();
     }
 
     @Override
-    public void setTag(int id, Object state) {
-        _target.setTag(id, state);
+    public void setTag(Object state) {
+        _target.setTag(state);
     }
 
     @Override

@@ -5,23 +5,31 @@ import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.SparseArray;
 import android.view.View;
+import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
 import com.mugen.mvvm.interfaces.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IActivityView;
+import com.mugen.mvvm.interfaces.views.IHasTagView;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.internal.ViewFactory;
-import com.mugen.mvvm.internal.ViewParentObserver;
-import com.mugen.mvvm.views.listeners.ViewMemberChangedListener;
+import com.mugen.mvvm.internal.*;
+import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class ViewExtensions {
-    public static final String ParentMemberName = "Parent";
-    public static final String ParentEventName = "ParentChanged";
-    public static final String ClickEventName = "Click";
+    public static final CharSequence ParentMemberName = "Parent";
+    public static final CharSequence ParentEventName = "ParentChanged";
+    public static final CharSequence ClickEventName = "Click";
+    public static final CharSequence LongClickEventName = "LongClick";
+    public static final CharSequence TextMemberName = "Text";
+    public static final CharSequence TextEventName = "TextChanged";
+    public static final CharSequence HomeButtonClick = "HomeButtonClick";
+    public static final CharSequence RefreshedEventName = "Refreshed";
+    public final static CharSequence SelectedIndexName = "SelectedIndex";
+    public final static CharSequence SelectedIndexEventName = "SelectedIndexChanged";
 
     private static IViewFactory _viewFactory;
 
@@ -43,58 +51,63 @@ public abstract class ViewExtensions {
         return ListenerManagers.remove(manager);
     }
 
-    public static IMemberChangedListener getMemberChangedListener(View view) {
-        ViewMemberChangedListener listener = (ViewMemberChangedListener) view.getTag(R.id.memberObserver);
-        if (listener != null)
-            return listener.getListener();
-        return null;
+    public static IMemberChangedListener getMemberChangedListener(Object target) {
+        AttachedValues attachedValues = getNativeAttachedValues(target, false);
+        if (attachedValues == null)
+            return null;
+        return attachedValues.getMemberListener();
     }
 
-    public static void setMemberChangedListener(View view, IMemberChangedListener memberObserver) {
-        ViewMemberChangedListener listener = (ViewMemberChangedListener) view.getTag(R.id.memberObserver);
-        if (listener == null) {
-            listener = new ViewMemberChangedListener();
-            view.setTag(R.id.memberObserver, listener);
-        }
-        listener.setListener(memberObserver);
+    public static void setMemberChangedListener(Object target, IMemberChangedListener listener) {
+        getNativeAttachedValues(target, true).setMemberListener(listener);
     }
 
-    public static boolean addMemberListener(View view, String memberName) {
+    public static boolean addMemberListener(Object target, CharSequence memberNameChar) {
+        String memberName = (String) memberNameChar;
         if (ParentEventName.equals(memberName) || ParentMemberName.equals(memberName))
             return true;
-        ViewMemberChangedListener listeners = (ViewMemberChangedListener) view.getTag(R.id.memberObserver);
+
+        AttachedValues attachedValues = getNativeAttachedValues(target, false);
+        MemberChangedListenerWrapper listeners = attachedValues == null ? null : attachedValues.getMemberListenerWrapper(false);
         if (listeners != null) {
             IMemberListener memberListener = listeners.get(memberName);
             if (memberListener != null) {
-                memberListener.addListener(view, memberName);
+                memberListener.addListener(target, memberName);
                 return true;
             }
         }
 
         for (int i = 0; i < ListenerManagers.size(); i++) {
-            IMemberListener memberListener = ListenerManagers.get(i).tryGetListener(listeners, view, memberName);
+            IMemberListener memberListener = ListenerManagers.get(i).tryGetListener(listeners, target, memberName);
             if (memberListener != null) {
                 if (listeners == null) {
-                    listeners = new ViewMemberChangedListener();
-                    view.setTag(R.id.memberObserver);
+                    if (attachedValues == null)
+                        attachedValues = getNativeAttachedValues(target, true);
+                    listeners = attachedValues.getMemberListenerWrapper(true);
                 }
 
                 listeners.put(memberName, memberListener);
-                memberListener.addListener(view, memberName);
+                memberListener.addListener(target, memberName);
                 return true;
             }
         }
         return false;
     }
 
-    public static boolean removeMemberListener(View view, String memberName) {
-        ViewMemberChangedListener listeners = (ViewMemberChangedListener) view.getTag(R.id.memberObserver);
+    public static boolean removeMemberListener(Object target, CharSequence memberName) {
+        AttachedValues attachedValues = getNativeAttachedValues(target, false);
+        if (attachedValues == null)
+            return false;
+
+        MemberChangedListenerWrapper listeners = attachedValues.getMemberListenerWrapper(false);
         if (listeners == null)
             return false;
-        IMemberListener memberListener = listeners.get(memberName);
+
+        IMemberListener memberListener = listeners.get((String) memberName);
         if (memberListener == null)
             return false;
-        memberListener.removeListener(view, memberName);
+
+        memberListener.removeListener(target, (String) memberName);
         return true;
     }
 
@@ -106,10 +119,16 @@ public abstract class ViewExtensions {
         ViewParentObserver.Instance.remove(view, true);
     }
 
-    public static void onMemberChanged(View view, String memberName, Object args) {
-        ViewMemberChangedListener memberObserver = (ViewMemberChangedListener) view.getTag(R.id.memberObserver);
-        if (memberObserver != null)
-            memberObserver.onChanged(view, memberName, args);
+    public static boolean onMemberChanged(Object target, CharSequence memberName, Object args) {
+        AttachedValues attachedValues = getNativeAttachedValues(target, false);
+        if (attachedValues == null)
+            return false;
+        MemberChangedListenerWrapper listener = attachedValues.getMemberListenerWrapper(false);
+        if (listener == null)
+            return false;
+
+        listener.onChanged(target, memberName, args);
+        return true;
     }
 
     public static Object getParent(View view) {
@@ -122,7 +141,7 @@ public abstract class ViewExtensions {
         if (oldParent == parent)
             return;
 
-        view.setTag(R.id.parent, parent);
+        getNativeAttachedValues(view, true).setParent(parent);
         onMemberChanged(view, ParentMemberName, null);
     }
 
@@ -142,17 +161,76 @@ public abstract class ViewExtensions {
         return null;
     }
 
+    public static boolean isSupportAttachedValues(Object target) {
+        return target instanceof View || target instanceof IHasTagView || TabLayoutTabExtensions.isSupported(target) || ActionBarExtensions.isSupported(target);
+    }
+
+    public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
+        if (MugenNativeService.isRawViewTagMode()) {
+            ViewAttachedValues result = (ViewAttachedValues) view.getTag();
+            if (result != null || !required)
+                return result;
+            result = new ViewAttachedValues();
+            view.setTag(result);
+            return result;
+        }
+
+        ViewAttachedValues result = (ViewAttachedValues) view.getTag(R.id.attachedValues);
+        if (result != null || !required)
+            return result;
+        result = new ViewAttachedValues();
+        view.setTag(R.id.attachedValues, result);
+        return result;
+    }
+
+    public static AttachedValues getNativeAttachedValues(Object target, boolean required) {
+        if (target instanceof View)
+            return getNativeAttachedValues((View) target, required);
+
+        if (target instanceof IHasTagView) {
+            IHasTagView hasTagView = (IHasTagView) target;
+            AttachedValues result = (AttachedValues) hasTagView.getTag();
+            if (result != null || !required)
+                return result;
+            if (target instanceof IActivityView)
+                result = new ActivityAttachedValues();
+            else
+                result = new AttachedValues();
+            hasTagView.setTag(result);
+            return result;
+        }
+
+        if (ActionBarExtensions.isSupported(target)) {
+            ActivityAttachedValues attachedValues = (ActivityAttachedValues) getNativeAttachedValues(ActivityExtensions.getActivity(ActionBarExtensions.getThemedContext(target)), true);
+            AttachedValues result = attachedValues.getActionBarAttachedValues();
+            if (result != null || !required)
+                return result;
+            result = new AttachedValues();
+            attachedValues.setActionBarAttachedValues(result);
+            return result;
+        }
+
+        if (TabLayoutTabExtensions.isSupported(target)) {
+            AttachedValues result = (AttachedValues) TabLayoutTabExtensions.getTag(target);
+            if (result != null || !required)
+                return result;
+            result = new AttachedValues();
+            TabLayoutTabExtensions.setTag(target, result);
+            return result;
+        }
+
+        throw new UnsupportedOperationException("Object not supported " + target);
+    }
+
     public static Object getAttachedValues(Object view) {
-        if (view instanceof View)
-            return ((View) view).getTag(R.id.attachedValues);
-        return ((IActivityView) view).getTag(R.id.attachedValues);
+        AttachedValues values = getNativeAttachedValues(view, false);
+        if (values == null)
+            return null;
+        return values.getAttachedValues();
     }
 
     public static void setAttachedValues(Object view, Object values) {
-        if (view instanceof View)
-            ((View) view).setTag(R.id.attachedValues, values);
-        else
-            ((IActivityView) view).setTag(R.id.attachedValues, values);
+        getNativeAttachedValues(view, true).setAttachedValues(values);
     }
 
     public static void addViewMapping(Class viewClass, int resourceId) {
@@ -268,7 +346,8 @@ public abstract class ViewExtensions {
         if (view.getId() == android.R.id.content)
             return ActivityExtensions.tryWrapActivity(ActivityExtensions.getActivity(view.getContext()));
 
-        Object parent = view.getTag(R.id.parent);
+        ViewAttachedValues attachedValues = getNativeAttachedValues(view, false);
+        Object parent = attachedValues == null ? null : attachedValues.getParent();
         if (parent == NullParent)
             return null;
 
@@ -287,12 +366,12 @@ public abstract class ViewExtensions {
     }
 
     public interface IMemberListenerManager {
-        IMemberListener tryGetListener(HashMap<String, IMemberListener> listeners, View view, String memberName);
+        IMemberListener tryGetListener(HashMap<String, IMemberListener> listeners, Object target, String memberName);
     }
 
     public interface IMemberListener {
-        void addListener(View view, String memberName);
+        void addListener(Object target, String memberName);
 
-        void removeListener(View view, String memberName);
+        void removeListener(Object target, String memberName);
     }
 }

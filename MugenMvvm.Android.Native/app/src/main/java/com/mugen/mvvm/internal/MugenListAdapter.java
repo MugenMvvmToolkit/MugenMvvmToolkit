@@ -7,9 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
-import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
+import com.mugen.mvvm.views.ViewExtensions;
 
 public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserver {
     private final IResourceItemsSourceProvider _provider;
@@ -87,7 +87,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
         int itemResourceId = _provider.getItemViewType(position);
         if (convertView == null || !isValidView(convertView, itemResourceId)) {
             convertView = _inflater.inflate(itemResourceId, parent, false);
-            convertView.setTag(R.id.listItemResourceId, itemResourceId);
+            ViewExtensions.getNativeAttachedValues(convertView, true).setListResourceId(itemResourceId);
             _provider.onViewCreated(convertView);
         }
         _provider.onBindView(convertView, position);
@@ -95,10 +95,7 @@ public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserve
     }
 
     private boolean isValidView(View convertView, int itemResourceId) {
-        Integer tag = (Integer) convertView.getTag(R.id.listItemResourceId);
-        if (tag == null)
-            return false;
-        return tag == itemResourceId;
+        return ViewExtensions.getNativeAttachedValues(convertView, true).getListResourceId() == itemResourceId;
     }
 
     @Override

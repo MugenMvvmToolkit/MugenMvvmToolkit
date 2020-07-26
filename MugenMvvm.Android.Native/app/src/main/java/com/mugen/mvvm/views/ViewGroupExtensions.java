@@ -6,15 +6,42 @@ import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.views.support.RecyclerViewExtensions;
+import com.mugen.mvvm.views.support.TabLayoutExtensions;
 import com.mugen.mvvm.views.support.ViewPager2Extensions;
 import com.mugen.mvvm.views.support.ViewPagerExtensions;
 
 public abstract class ViewGroupExtensions extends ViewExtensions {
-    public final static String SelectedIndexName = "SelectedIndex";
-    public final static String SelectedIndexEventName = "SelectedIndexChanged";
     public static final int NoneProviderType = 0;
     public static final int ResourceProviderType = 1;
     public static final int ContentProviderType = 2;
+    public static final int ContentRawType = 3;
+
+    public static Object get(View view, int index) {
+        if (TabLayoutExtensions.isSupported(view))
+            return TabLayoutExtensions.getTabAt(view, index);
+        return ((ViewGroup) view).getChildAt(index);
+    }
+
+    public static void add(View view, Object child, int position, boolean setSelected) {
+        if (TabLayoutExtensions.isSupported(view))
+            TabLayoutExtensions.addTab(view, child, position, setSelected);
+        else
+            ((ViewGroup) view).addView((View) child, position);
+    }
+
+    public static void remove(View view, int position) {
+        if (TabLayoutExtensions.isSupported(view))
+            TabLayoutExtensions.removeTab(view, position);
+        else
+            ((ViewGroup) view).removeViewAt(position);
+    }
+
+    public static void clear(View view) {
+        if (TabLayoutExtensions.isSupported(view))
+            TabLayoutExtensions.clearTabs(view);
+        else
+            ((ViewGroup) view).removeAllViews();
+    }
 
     public static int getItemSourceProviderType(View view) {
         if (RecyclerViewExtensions.isSupported(view))
@@ -25,11 +52,15 @@ public abstract class ViewGroupExtensions extends ViewExtensions {
             return ViewPagerExtensions.ItemsSourceProviderType;
         if (AdapterViewExtensions.isSupported(view))
             return AdapterViewExtensions.ItemsSourceProviderType;
+        if (TabLayoutExtensions.isSupported(view))
+            return TabLayoutExtensions.ItemsSourceProviderType;
+        if (view instanceof ViewGroup)
+            return ContentRawType;
         return NoneProviderType;
     }
 
     public static boolean isSelectedIndexSupported(View view) {
-        return ViewPagerExtensions.isSupported(view) || ViewPager2Extensions.isSupported(view);
+        return ViewPagerExtensions.isSupported(view) || ViewPager2Extensions.isSupported(view) || TabLayoutExtensions.isSupported(view);
     }
 
     public static int getSelectedIndex(View view) {
@@ -37,6 +68,8 @@ public abstract class ViewGroupExtensions extends ViewExtensions {
             return ViewPagerExtensions.getCurrentItem(view);
         if (ViewPager2Extensions.isSupported(view))
             return ViewPager2Extensions.getCurrentItem(view);
+        if (TabLayoutExtensions.isSupported(view))
+            return TabLayoutExtensions.getSelectedTabPosition(view);
         return -1;
     }
 
@@ -47,6 +80,10 @@ public abstract class ViewGroupExtensions extends ViewExtensions {
         }
         if (ViewPager2Extensions.isSupported(view)) {
             ViewPager2Extensions.setCurrentItem(view, index);
+            return true;
+        }
+        if (TabLayoutExtensions.isSupported(view)) {
+            TabLayoutExtensions.setSelectedTabPosition(view, index);
             return true;
         }
         return false;

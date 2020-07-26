@@ -10,6 +10,21 @@ import com.mugen.mvvm.views.support.*;
 
 public final class MugenNativeService {
     private static Context _context;
+    private static boolean _compatSupported;
+    private static boolean _materialSupported;
+    private static boolean _rawViewTagMode;
+
+    public static boolean isCompatSupported() {
+        return _compatSupported;
+    }
+
+    public static boolean isMaterialSupported() {
+        return _materialSupported;
+    }
+
+    public static boolean isRawViewTagMode() {
+        return _rawViewTagMode;
+    }
 
     private MugenNativeService() {
     }
@@ -18,19 +33,22 @@ public final class MugenNativeService {
         return _context;
     }
 
-    public static void initialize(Context context, IBindViewCallback bindCallback) {
+    public static void initialize(Context context, IBindViewCallback bindCallback, boolean rawViewTagMode) {
         _context = context;
+        _rawViewTagMode = rawViewTagMode;
         ViewExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
         LifecycleExtensions.addLifecycleDispatcher(new FragmentStateCleaner(), false);
         LifecycleExtensions.addLifecycleDispatcher(new ViewCleaner(), false);
         ViewExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
     }
 
-    public static void withSupportLibs(boolean recyclerView, boolean toolbar, boolean swipeRefresh, boolean viewPager, boolean viewPager2) {
+    public static void withSupportLibs(boolean compat, boolean material, boolean recyclerView, boolean swipeRefresh, boolean viewPager, boolean viewPager2) {
+        if (compat)
+            _compatSupported = true;
+        if (material)
+            _materialSupported = true;
         if (recyclerView)
             RecyclerViewExtensions.setSupported();
-        if (toolbar)
-            ToolbarCompatExtensions.setSupported();
         if (swipeRefresh)
             SwipeRefreshLayoutExtensions.setSupported();
         if (viewPager)

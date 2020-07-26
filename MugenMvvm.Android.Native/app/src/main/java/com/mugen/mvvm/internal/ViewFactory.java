@@ -3,13 +3,14 @@ package com.mugen.mvvm.internal;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
-import com.mugen.mvvm.R;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IActivityView;
+import com.mugen.mvvm.interfaces.views.IHasTagView;
 import com.mugen.mvvm.views.ActivityExtensions;
 import com.mugen.mvvm.views.LifecycleExtensions;
+import com.mugen.mvvm.views.ViewExtensions;
 
 import java.util.ArrayList;
 
@@ -25,17 +26,12 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         else
             context = (Context) container;
 
-        //note check fragment mapping?
+        //todo check fragment mapping?
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {
             Context activity = ActivityExtensions.getActivity(context);
-            if (activity instanceof IActivityView) {
-                IActivityView hasTagView = (IActivityView) activity;
-                ArrayList<Object> views = (ArrayList<Object>) hasTagView.getTag(R.id.views);
-                if (views == null) {
-                    views = new ArrayList<>();
-                    hasTagView.setTag(R.id.views, views);
-                }
+            if (activity instanceof IHasTagView) {
+                ArrayList<Object> views = ((ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(activity, true)).getViews(true);
                 views.add(view);
             }
         }
@@ -52,7 +48,8 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
     public void onLifecycleChanged(Object target, int lifecycle, Object state) {
         if (lifecycle != LifecycleState.Destroy || !(target instanceof IActivityView))
             return;
-        ArrayList<Object> views = (ArrayList<Object>) ((IActivityView) target).getTag(R.id.views);
+
+        ArrayList<Object> views = ((ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true)).getViews(false);
         if (views == null)
             return;
 

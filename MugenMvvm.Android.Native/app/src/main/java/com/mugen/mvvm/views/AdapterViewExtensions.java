@@ -6,7 +6,6 @@ import android.widget.AdapterView;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.MugenListAdapter;
 
-//todo release setItemsSourceProvider((AdapterView) target, null);
 public abstract class AdapterViewExtensions extends ViewExtensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceProviderType;
 
@@ -32,5 +31,9 @@ public abstract class AdapterViewExtensions extends ViewExtensions {
             adapterView.setAdapter(null);
         } else
             adapterView.setAdapter(new MugenListAdapter(view.getContext(), provider));
+    }
+
+    public static void onDestroy(View view) {
+        setItemsSourceProvider(view, null);
     }
 }
