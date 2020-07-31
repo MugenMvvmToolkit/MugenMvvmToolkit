@@ -29,6 +29,7 @@ namespace MugenMvvm.Android.Views
             MugenExtensions.TryGetViewModelView(request, out IResourceView? view);
             if (view == null)
                 return mappings;
+
             var viewId = view.ViewId;
             if (viewId == 0)
                 return mappings;

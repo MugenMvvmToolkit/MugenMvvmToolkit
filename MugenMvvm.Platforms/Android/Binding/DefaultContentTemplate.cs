@@ -1,6 +1,6 @@
-﻿using MugenMvvm.Android.Interfaces;
-using MugenMvvm.Android.Requests;
-using MugenMvvm.Extensions;
+﻿using Java.Lang;
+using MugenMvvm.Android.Extensions;
+using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Android.Binding
@@ -11,8 +11,8 @@ namespace MugenMvvm.Android.Binding
 
         public object? SelectTemplate(object container, object? item)
         {
-            if (item is IViewModelBase viewModel)
-                return MugenService.ViewManager.GetOrCreateView(new AndroidViewRequest(viewModel, container, 0)).Target;
+            if (item is IViewModelBase viewModel && container is Object c)
+                return viewModel.GetOrCreateView(c, 0).Target;
             ExceptionManager.ThrowNotSupported(nameof(item));
             return null;
         }

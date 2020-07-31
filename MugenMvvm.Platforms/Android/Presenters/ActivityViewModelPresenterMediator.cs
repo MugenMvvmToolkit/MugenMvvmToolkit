@@ -249,7 +249,7 @@ namespace MugenMvvm.Android.Presenters
             public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
             {
                 var viewModel = MugenExtensions.TryGetViewModelView(request, out object? view);
-                if (_viewTask == null || !ReferenceEquals(viewModel, _mediator.ViewModel) || view != null)
+                if (_viewTask == null || viewModel != _mediator.ViewModel || view != null)
                     return Components.TryInitializeAsync(viewManager, mapping, request, cancellationToken, metadata);
 
                 var tcs = new TaskCompletionSource<IView>();

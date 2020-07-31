@@ -1,8 +1,7 @@
 ﻿using Java.Lang;
+using MugenMvvm.Android.Extensions;
 using MugenMvvm.Android.Interfaces;
 using MugenMvvm.Android.Native.Views;
-using MugenMvvm.Android.Requests;
-using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Android.Binding
@@ -30,8 +29,8 @@ namespace MugenMvvm.Android.Binding
         public object? SelectTemplate(object container, object? item)
         {
             var template = _selector.SelectTemplate(container, item);
-            if (item is IViewModelBase viewModel)
-                return MugenService.ViewManager.GetOrCreateView(new AndroidViewRequest(viewModel, container, template)).Target;
+            if (item is IViewModelBase viewModel && container is Object c)
+                return viewModel.GetOrCreateView(c, template).Target;
             if (container is Object javaContainer)
                 return ViewExtensions.GetView(javaContainer, template, false);
             ExceptionManager.ThrowNotSupported(nameof(container));

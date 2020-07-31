@@ -31,35 +31,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="Android\Binding\ContentTemplateResourceSelectorWrapper.cs" />
-    <None Remove="Android\Binding\DefaultContentTemplate.cs" />
-    <None Remove="Android\Binding\MenuItemClickListener.cs" />
-    <None Remove="Android\Binding\MenuItemTemplate.cs" />
-    <None Remove="Android\Binding\MenuTemplate.cs" />
-    <None Remove="Android\Binding\SingleDataTemplateSelector.cs" />
-    <None Remove="Android\Collections\AndroidCollectionItemsSourceProvider.cs" />
-    <None Remove="Android\Collections\AndroidContentItemsSourceGenerator.cs" />
-    <None Remove="Android\Collections\AndroidContentItemsSourceProvider.cs" />
-    <None Remove="Android\Collections\AndroidMenuItemsSourceAdapter.cs" />
-    <None Remove="Android\Collections\AndroidNativeBindableCollectionAdapter.cs" />
-    <None Remove="Android\Extensions\MugenAndroidExtensions.cs" />
-    <None Remove="Android\Interfaces\IAndroidViewMapping.cs" />
-    <None Remove="Android\Interfaces\IContentTemplateSelector.cs" />
-    <None Remove="Android\Interfaces\IDataTemplateSelector.cs" />
-    <None Remove="Android\Interfaces\IMenuItemTemplate.cs" />
-    <None Remove="Android\Interfaces\IMenuTemplate.cs" />
-    <None Remove="Android\Interfaces\IStableIdProvider.cs" />
-    <None Remove="Android\Internal\AndroidAttachedValueStorageProvider.cs" />
-    <None Remove="Android\Members\AndroidMenuBindableMembers.cs" />
-    <None Remove="Android\Members\AndroidViewBindableMembers.cs" />
-    <None Remove="Android\Requests\AndroidViewRequest.cs" />
-    <None Remove="Android\Views\AndroidViewBindCallback.cs" />
-    <None Remove="Android\Views\AndroidViewMemberObserver.cs" />
-    <None Remove="Android\Views\AndroidViewRequestManager.cs" />
-    <None Remove="Android\Views\AndroidViewStateMapperDispatcher.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\MugenMvvm\MugenMvvm.csproj" />
   </ItemGroup>
 

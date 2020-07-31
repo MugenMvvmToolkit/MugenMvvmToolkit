@@ -35,16 +35,16 @@ using IViewManager = MugenMvvm.Interfaces.Views.IViewManager;
 
 namespace MugenMvvm.Android.Extensions
 {
-    public static class MugenAndroidExtensions
+    public static partial class MugenAndroidExtensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeActivity = false)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false)
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
-            LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeActivity);
-            if (nativeActivity)
-                ActivityExtensions.SetNativeActivityMode();
+            LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeMode);
+            if (nativeMode)
+                MugenAndroidNativeService.SetNativeMode();
             configuration.ServiceConfiguration<IThreadDispatcher>()
                 .WithComponent(new SynchronizationContextThreadDispatcher(Application.SynchronizationContext));
 
@@ -137,7 +137,7 @@ namespace MugenMvvm.Android.Extensions
                 .Parent()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => ViewExtensions.GetParent(target))
-                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object) value!))
+                .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object)value!))
                 .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, nameof(target.Parent)))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -157,7 +157,7 @@ namespace MugenMvvm.Android.Extensions
                 .RawMethod
                 .GetBuilder()
                 .WithParameters(AttachedMemberBuilder.Parameter<string>("p1").Build(), AttachedMemberBuilder.Parameter<string>("p2").DefaultValue(BoxingExtensions.Box(1)).Build())
-                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string) args[0]!, (int) args[1]!))
+                .InvokeHandler((member, target, args, metadata) => ViewExtensions.FindRelativeSource(target, (string)args[0]!, (int)args[1]!))
                 .ObservableHandler((member, target, listener, metadata) => RootSourceObserver.GetOrAdd(target).Add(listener))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
@@ -293,28 +293,32 @@ namespace MugenMvvm.Android.Extensions
                         ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
                     var oldValue = ViewGroupExtensions.GetContent(target);
-                    var newValue = value == null ? null : (Object) contentTemplateSelector.SelectTemplate(target, value)!;
+                    var newValue = value == null ? null : (Object)contentTemplateSelector.SelectTemplate(target, value)!;
                     if (Equals(newValue, oldValue))
                         return;
 
+                    bool lifecycleOld = oldValue != null && !(oldValue is IHasLifecycleView);
+                    bool lifecycleNew = newValue != null && !(newValue is IHasLifecycleView);
+
                     var viewManager = MugenService.ViewManager;
-                    if (oldValue != null)
-                        viewManager.OnLifecycleChanged(oldValue, ViewLifecycleState.Disappearing, metadata, metadata);
+                    if (lifecycleOld)
+                        viewManager.OnLifecycleChanged(oldValue!, ViewLifecycleState.Disappearing, metadata, metadata);
 
                     if (newValue != null)
                     {
                         newValue.BindableMembers().SetDataContext(value);
                         newValue.BindableMembers().SetParent(target);
-                        viewManager.OnLifecycleChanged(newValue, ViewLifecycleState.Appearing, metadata, metadata);
+                        if (lifecycleNew)
+                            viewManager.OnLifecycleChanged(newValue, ViewLifecycleState.Appearing, metadata, metadata);
                     }
 
                     ViewGroupExtensions.SetContent(target, newValue!);
 
-                    if (oldValue != null)
-                        viewManager.OnLifecycleChanged(oldValue, ViewLifecycleState.Disappeared, metadata, metadata);
+                    if (lifecycleOld)
+                        viewManager.OnLifecycleChanged(oldValue!, ViewLifecycleState.Disappeared, metadata, metadata);
 
-                    if (newValue != null)
-                        viewManager.OnLifecycleChanged(newValue, ViewLifecycleState.Appeared, metadata, metadata);
+                    if (lifecycleNew)
+                        viewManager.OnLifecycleChanged(newValue!, ViewLifecycleState.Appeared, metadata, metadata);
                 })
                 .Observable()
                 .Build());
@@ -371,7 +375,7 @@ namespace MugenMvvm.Android.Extensions
                     if (providerType == ViewGroupExtensions.ContentRawType)
                     {
                         AndroidContentItemsSourceGenerator
-                            .GetOrAdd(target, (IContentTemplateSelector) target.BindableMembers().ItemTemplateSelector()!)
+                            .GetOrAdd(target, (IContentTemplateSelector)target.BindableMembers().ItemTemplateSelector()!)
                             .Attach(newValue);
                     }
                     else if (providerType == ViewGroupExtensions.ContentProviderType)
@@ -379,7 +383,7 @@ namespace MugenMvvm.Android.Extensions
                         if (!(itemSource is AndroidContentItemsSourceProvider provider))
                         {
                             ViewExtensions.RemoveParentObserver(target);
-                            provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector) target.BindableMembers().ItemTemplateSelector()!);
+                            provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector)target.BindableMembers().ItemTemplateSelector()!);
                             ViewGroupExtensions.SetItemsSourceProvider(target, provider);
                         }
 
@@ -390,7 +394,7 @@ namespace MugenMvvm.Android.Extensions
                         if (!(itemSource is AndroidCollectionItemsSourceProvider provider))
                         {
                             ViewExtensions.RemoveParentObserver(target);
-                            provider = new AndroidCollectionItemsSourceProvider(target, (IDataTemplateSelector) target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
+                            provider = new AndroidCollectionItemsSourceProvider(target, (IDataTemplateSelector)target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
                             ViewGroupExtensions.SetItemsSourceProvider(target, provider);
                         }
 

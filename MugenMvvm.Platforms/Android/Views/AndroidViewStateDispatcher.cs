@@ -17,6 +17,7 @@ using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Interfaces.Views.Components;
 using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Android.Views
 {
@@ -59,8 +60,16 @@ namespace MugenMvvm.Android.Views
                 if (view is IView wrapperView)
                     view = wrapperView.Target;
 
-                if (!RestoreState(viewManager, view, b, metadata))
+                var request = TryRestoreState(viewManager, view, b, metadata);
+                if (request == null)
+                {
                     (view as IActivityView)?.Finish();
+                    return;
+                }
+
+                viewManager.TryInitializeAsync(ViewMapping.Undefined, request, default, metadata);
+                if (_presenter.DefaultIfNull().TryShow(request, default, metadata).IsNullOrEmpty() && view is IActivityView activity)
+                    activity.Finish();
             }
         }
 
@@ -90,35 +99,35 @@ namespace MugenMvvm.Android.Views
             }
         }
 
-        private bool RestoreState(IViewManager viewManager, object view, Bundle bundle, IReadOnlyMetadataContext? metadata)
+        private ViewModelViewRequest? TryRestoreState(IViewManager viewManager, object view, Bundle bundle, IReadOnlyMetadataContext? metadata)
         {
             if (!Guid.TryParse(bundle.GetString(AndroidInternalConstant.BundleVmId), out var id))
-                return false;
+                return null;
 
             var viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id, metadata);
             if (viewModel == null)
             {
                 var state = bundle.GetByteArray(AndroidInternalConstant.BundleViewState);
                 if (state == null)
-                    return false;
+                    return null;
 
                 using var stream = new MemoryStream(state);
                 if (!_serializer.DefaultIfNull().TryDeserialize(stream, metadata, out var value) || !(value is IReadOnlyMetadataContext restoredState))
-                    return false;
+                    return null;
 
                 var request = new StateRequest(false, view, restoredState);
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restoring, request, metadata);
                 if (request.Cancel)
-                    return false;
+                    return null;
 
                 viewManager.OnLifecycleChanged(view, ViewLifecycleState.Restored, restoredState, metadata);
                 viewModel = _viewModelManager.DefaultIfNull().TryGetViewModel(id, metadata);
 
                 if (viewModel == null)
-                    return false;
+                    return null;
             }
 
-            return !_presenter.DefaultIfNull().TryShow(new ViewModelViewRequest(viewModel, view), default, metadata).IsNullOrEmpty();
+            return new ViewModelViewRequest(viewModel, view);
         }
 
         #endregion

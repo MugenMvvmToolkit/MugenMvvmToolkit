@@ -8,6 +8,7 @@ using Object = Java.Lang.Object;
 
 namespace MugenMvvm.Android.Native.Views.Activities
 {
+    // Metadata.xml XPath class reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']"
     [Register("com/mugen/mvvm/views/activities/MugenAppCompatActivity", DoNotGenerateAcw = true)]
     public partial class MugenAppCompatActivityLite : Activity, INativeActivityView
     {
@@ -17,9 +18,9 @@ namespace MugenMvvm.Android.Native.Views.Activities
 
         private static Delegate cb_getActivity;
 
-        private static Delegate cb_getTag;
+        private static Delegate cb_getState;
 
-        private static Delegate cb_setTag_Ljava_lang_Object_;
+        private static Delegate cb_setState_Ljava_lang_Object_;
 
         private static Delegate cb_getViewId;
 
@@ -31,16 +32,17 @@ namespace MugenMvvm.Android.Native.Views.Activities
         {
         }
 
+        // Metadata.xml XPath constructor reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/constructor[@name='MugenAppCompatActivity' and count(parameter)=0]"
         [Register(".ctor", "()V", "")]
         public unsafe MugenAppCompatActivityLite()
             : base(IntPtr.Zero, JniHandleOwnership.DoNotTransfer)
         {
             const string __id = "()V";
 
-            if (Handle != IntPtr.Zero)
+            if (this.Handle != IntPtr.Zero)
                 return;
 
-            var __r = _members.InstanceMethods.StartCreateInstance(__id, GetType(), null);
+            var __r = _members.InstanceMethods.StartCreateInstance(__id, this.GetType(), null);
             SetHandle(__r.Handle, JniHandleOwnership.TransferLocalRef);
             _members.InstanceMethods.FinishCreateInstance(__id, this, null);
         }
@@ -59,6 +61,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
 
         public virtual unsafe Context Activity
         {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='getActivity' and count(parameter)=0]"
             [Register("getActivity", "()Landroid/content/Context;", "GetGetActivityHandler")]
             get
             {
@@ -68,19 +71,21 @@ namespace MugenMvvm.Android.Native.Views.Activities
             }
         }
 
-        public virtual unsafe Object Tag
+        public virtual unsafe Object State
         {
-            [Register("getTag", "()Ljava/lang/Object;", "GetGetTagHandler")]
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='getState' and count(parameter)=0]"
+            [Register("getState", "()Ljava/lang/Object;", "GetGetStateHandler")]
             get
             {
-                const string __id = "getTag.()Ljava/lang/Object;";
+                const string __id = "getState.()Ljava/lang/Object;";
                 var __rm = _members.InstanceMethods.InvokeVirtualObjectMethod(__id, this, null);
                 return GetObject<Object>(__rm.Handle, JniHandleOwnership.TransferLocalRef);
             }
-            [Register("setTag", "(Ljava/lang/Object;)V", "GetSetTag_Ljava_lang_Object_Handler")]
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='setState' and count(parameter)=1 and parameter[1][@type='java.lang.Object']]"
+            [Register("setState", "(Ljava/lang/Object;)V", "GetSetState_Ljava_lang_Object_Handler")]
             set
             {
-                const string __id = "setTag.(Ljava/lang/Object;)V";
+                const string __id = "setState.(Ljava/lang/Object;)V";
                 var __args = stackalloc JniArgumentValue[1];
                 __args[0] = new JniArgumentValue(value == null ? IntPtr.Zero : value.Handle);
                 _members.InstanceMethods.InvokeVirtualVoidMethod(__id, this, __args);
@@ -89,6 +94,7 @@ namespace MugenMvvm.Android.Native.Views.Activities
 
         public virtual unsafe int ViewId
         {
+            // Metadata.xml XPath method reference: path="/api/package[@name='com.mugen.mvvm.views.activities']/class[@name='MugenAppCompatActivity']/method[@name='getViewId' and count(parameter)=0]"
             [Register("getViewId", "()I", "GetGetViewIdHandler")]
             get
             {
@@ -115,32 +121,32 @@ namespace MugenMvvm.Android.Native.Views.Activities
         }
 #pragma warning restore 0169
 #pragma warning disable 0169
-        private static Delegate GetGetTagHandler()
+        private static Delegate GetGetStateHandler()
         {
-            if (cb_getTag == null)
-                cb_getTag = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetTag);
-            return cb_getTag;
+            if (cb_getState == null)
+                cb_getState = JNINativeWrapper.CreateDelegate((Func<IntPtr, IntPtr, IntPtr>) n_GetState);
+            return cb_getState;
         }
 
-        private static IntPtr n_GetTag(IntPtr jnienv, IntPtr native__this)
+        private static IntPtr n_GetState(IntPtr jnienv, IntPtr native__this)
         {
             MugenAppCompatActivityLite __this = GetObject<MugenAppCompatActivityLite>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);
-            return JNIEnv.ToLocalJniHandle(__this.Tag);
+            return JNIEnv.ToLocalJniHandle(__this.State);
         }
 #pragma warning restore 0169
 #pragma warning disable 0169
-        private static Delegate GetSetTag_Ljava_lang_Object_Handler()
+        private static Delegate GetSetState_Ljava_lang_Object_Handler()
         {
-            if (cb_setTag_Ljava_lang_Object_ == null)
-                cb_setTag_Ljava_lang_Object_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>) n_SetTag_Ljava_lang_Object_);
-            return cb_setTag_Ljava_lang_Object_;
+            if (cb_setState_Ljava_lang_Object_ == null)
+                cb_setState_Ljava_lang_Object_ = JNINativeWrapper.CreateDelegate((Action<IntPtr, IntPtr, IntPtr>) n_SetState_Ljava_lang_Object_);
+            return cb_setState_Ljava_lang_Object_;
         }
 
-        private static void n_SetTag_Ljava_lang_Object_(IntPtr jnienv, IntPtr native__this, IntPtr native_tag)
+        private static void n_SetState_Ljava_lang_Object_(IntPtr jnienv, IntPtr native__this, IntPtr native_tag)
         {
             MugenAppCompatActivityLite __this = GetObject<MugenAppCompatActivityLite>(jnienv, native__this, JniHandleOwnership.DoNotTransfer);
             Object tag = GetObject<Object>(native_tag, JniHandleOwnership.DoNotTransfer);
-            __this.Tag = tag;
+            __this.State = tag;
         }
 #pragma warning restore 0169
 #pragma warning disable 0169
