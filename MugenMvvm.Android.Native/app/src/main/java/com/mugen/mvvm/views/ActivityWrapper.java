@@ -27,13 +27,13 @@ public class ActivityWrapper implements IActivityView {
     }
 
     @Override
-    public Object getTag() {
-        return _target.getTag();
+    public Object getState() {
+        return _target.getState();
     }
 
     @Override
-    public void setTag(Object state) {
-        _target.setTag(state);
+    public void setState(Object state) {
+        _target.setState(state);
     }
 
     @Override

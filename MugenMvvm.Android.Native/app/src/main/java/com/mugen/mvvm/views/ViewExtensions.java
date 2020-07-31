@@ -10,10 +10,8 @@ import com.mugen.mvvm.R;
 import com.mugen.mvvm.interfaces.IHasPriority;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
 import com.mugen.mvvm.interfaces.IMemberChangedListener;
-import com.mugen.mvvm.interfaces.IViewFactory;
-import com.mugen.mvvm.interfaces.views.IActivityView;
-import com.mugen.mvvm.interfaces.views.IHasTagView;
-import com.mugen.mvvm.interfaces.views.IViewDispatcher;
+import com.mugen.mvvm.interfaces.views.IViewFactory;
+import com.mugen.mvvm.interfaces.views.*;
 import com.mugen.mvvm.internal.*;
 import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
 
@@ -136,7 +134,7 @@ public abstract class ViewExtensions {
 
     public static void setParent(View view, Object parent) {
         Object oldParent = getParentRaw(view);
-        parent = ActivityExtensions.tryWrapActivity(parent);
+        parent = tryWrap(parent);
         if (oldParent == parent)
             return;
 
@@ -161,7 +159,7 @@ public abstract class ViewExtensions {
     }
 
     public static boolean isSupportAttachedValues(Object target) {
-        return target instanceof View || target instanceof IHasTagView || TabLayoutTabExtensions.isSupported(target) || ActionBarExtensions.isSupported(target);
+        return target instanceof View || target instanceof IHasStateView || TabLayoutTabExtensions.isSupported(target) || ActionBarExtensions.isSupported(target);
     }
 
     public static ViewAttachedValues getNativeAttachedValues(View view, boolean required) {
@@ -186,16 +184,16 @@ public abstract class ViewExtensions {
         if (target instanceof View)
             return getNativeAttachedValues((View) target, required);
 
-        if (target instanceof IHasTagView) {
-            IHasTagView hasTagView = (IHasTagView) target;
-            AttachedValues result = (AttachedValues) hasTagView.getTag();
+        if (target instanceof IHasStateView) {
+            IHasStateView hasTagView = (IHasStateView) target;
+            AttachedValues result = (AttachedValues) hasTagView.getState();
             if (result != null || !required)
                 return result;
             if (target instanceof IActivityView)
                 result = new ActivityAttachedValues();
             else
                 result = new AttachedValues();
-            hasTagView.setTag(result);
+            hasTagView.setState(result);
             return result;
         }
 
@@ -338,9 +336,24 @@ public abstract class ViewExtensions {
         return null;
     }
 
+    public static Object tryWrap(Object target) {//todo fix for fragment
+        if (!MugenNativeService.isNativeMode())
+            return target;
+        if (target instanceof INativeActivityView) {
+            ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
+            Object wrapper = attachedValues.getWrapper();
+            if (wrapper == null) {
+                wrapper = new ActivityWrapper((INativeActivityView) target);
+                attachedValues.setWrapper(wrapper);
+            }
+            return wrapper;
+        }
+        return target;
+    }
+
     private static Object getParentRaw(View view) {
         if (view.getId() == android.R.id.content)
-            return ActivityExtensions.tryWrapActivity(ActivityExtensions.getActivity(view.getContext()));
+            return tryWrap(ActivityExtensions.getActivity(view.getContext()));
 
         ViewAttachedValues attachedValues = getNativeAttachedValues(view, false);
         Object parent = attachedValues == null ? null : attachedValues.getParent();

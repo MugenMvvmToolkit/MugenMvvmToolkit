@@ -6,9 +6,9 @@ import android.view.View;
 import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.ILifecycleDispatcher;
-import com.mugen.mvvm.interfaces.IViewFactory;
+import com.mugen.mvvm.interfaces.views.IViewFactory;
 import com.mugen.mvvm.interfaces.views.IActivityView;
-import com.mugen.mvvm.interfaces.views.IHasTagView;
+import com.mugen.mvvm.interfaces.views.IHasStateView;
 import com.mugen.mvvm.views.ActivityExtensions;
 import com.mugen.mvvm.views.LifecycleExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
@@ -31,7 +31,7 @@ public class ViewFactory implements IViewFactory, ILifecycleDispatcher {
         View view = LayoutInflater.from(context).inflate(resourceId, null);
         if (trackLifecycle) {
             Context activity = ActivityExtensions.getActivity(context);
-            if (activity instanceof IHasTagView) {
+            if (activity instanceof IHasStateView) {
                 ArrayList<Object> views = ((ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(activity, true)).getViews(true);
                 views.add(view);
             }

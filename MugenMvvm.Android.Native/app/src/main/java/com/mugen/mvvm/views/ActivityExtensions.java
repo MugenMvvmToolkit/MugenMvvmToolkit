@@ -10,40 +10,30 @@ import android.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.interfaces.views.IActivityView;
-import com.mugen.mvvm.interfaces.views.INativeActivityView;
-import com.mugen.mvvm.internal.ActivityAttachedValues;
 import com.mugen.mvvm.views.activities.MainMugenActivity;
 import com.mugen.mvvm.views.activities.MugenActivity;
 import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
 import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
 public abstract class ActivityExtensions {
-    private static boolean _isNativeActivityMode;
     static final String ViewIdIntentKey = "~v_id!";
 
-    public static boolean isNativeActivityMode() {
-        return _isNativeActivityMode;
-    }
-
-    public static void setNativeActivityMode() {
-        _isNativeActivityMode = true;
-    }
-
-    public static Object getActionBar(Context activity) {
+    public static Object getActionBar(IActivityView activityView) {
+        Activity activity = (Activity) activityView.getActivity();
         if (MugenNativeService.isCompatSupported() && activity instanceof AppCompatActivity)
             return ((AppCompatActivity) activity).getSupportActionBar();
-        return ((Activity) activity).getActionBar();
+        return activity.getActionBar();
     }
 
     @SuppressLint("NewApi")
-    public static boolean setActionBar(Context activityObj, View toolbar) {
+    public static boolean setActionBar(IActivityView activityView, View toolbar) {
         if (ToolbarExtensions.isSupportedCompat(toolbar)) {
-            AppCompatActivity activity = (AppCompatActivity) activityObj;
+            AppCompatActivity activity = (AppCompatActivity) activityView.getActivity();
             activity.setSupportActionBar((androidx.appcompat.widget.Toolbar) toolbar);
             return true;
         }
         if (ToolbarExtensions.isSupported(toolbar)) {
-            Activity activity = (Activity) activityObj;
+            Activity activity = (Activity) activityView.getActivity();
             activity.setActionBar((Toolbar) toolbar);
             return true;
         }
@@ -79,21 +69,6 @@ public abstract class ActivityExtensions {
             }
             return null;
         }
-    }
-
-    public static Object tryWrapActivity(Object target) {
-        if (!isNativeActivityMode())
-            return target;
-        if (target instanceof INativeActivityView) {
-            ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
-            Object wrapper = attachedValues.getWrapper();
-            if (wrapper == null) {
-                wrapper = new ActivityWrapper((INativeActivityView) target);
-                attachedValues.setWrapper(wrapper);
-            }
-            return wrapper;
-        }
-        return target;
     }
 
     public static void setMainActivityMapping(int resource, boolean isCompat) {

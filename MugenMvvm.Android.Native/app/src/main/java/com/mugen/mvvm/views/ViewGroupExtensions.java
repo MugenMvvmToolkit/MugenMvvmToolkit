@@ -2,9 +2,13 @@ package com.mugen.mvvm.views;
 
 import android.view.View;
 import android.view.ViewGroup;
+import androidx.fragment.app.Fragment;
+import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
+import com.mugen.mvvm.interfaces.views.IFragmentView;
+import com.mugen.mvvm.internal.ViewAttachedValues;
 import com.mugen.mvvm.views.support.RecyclerViewExtensions;
 import com.mugen.mvvm.views.support.TabLayoutExtensions;
 import com.mugen.mvvm.views.support.ViewPager2Extensions;
@@ -116,11 +120,27 @@ public abstract class ViewGroupExtensions extends ViewExtensions {
         ViewGroup viewGroup = (ViewGroup) view;
         if (viewGroup.getChildCount() == 0)
             return null;
-        return viewGroup.getChildAt(0);
+        View result = viewGroup.getChildAt(0);
+        if (result == null)
+            return null;
+        ViewAttachedValues attachedValues = ViewExtensions.getNativeAttachedValues(result, false);
+        if (attachedValues == null)
+            return result;
+        Fragment fragment = attachedValues.getFragment();
+        if (fragment == null)
+            return result;
+        return fragment;
     }
 
     public static void setContent(View view, Object content) {
         ViewGroup viewGroup = (ViewGroup) view;
+        if (MugenNativeService.isCompatSupported()) {
+            if (content == null && FragmentExtensions.setFragment(view, null))
+                return;
+            if (FragmentExtensions.isSupported(content) && FragmentExtensions.setFragment(view, (IFragmentView) content))
+                return;
+        }
+
         viewGroup.removeAllViews();
         if (content != null)
             viewGroup.addView((View) content);

@@ -8,12 +8,7 @@ import com.mugen.mvvm.R;
 import com.mugen.mvvm.constants.PriorityConstants;
 import com.mugen.mvvm.interfaces.views.IBindViewCallback;
 import com.mugen.mvvm.interfaces.views.IViewDispatcher;
-import com.mugen.mvvm.views.ActivityExtensions;
-import com.mugen.mvvm.views.AdapterViewExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
-import com.mugen.mvvm.views.support.RecyclerViewExtensions;
-import com.mugen.mvvm.views.support.ViewPager2Extensions;
-import com.mugen.mvvm.views.support.ViewPagerExtensions;
 
 public class BindViewDispatcher implements IViewDispatcher {
     private final static ViewAttributeAccessor _accessor = new ViewAttributeAccessor();
@@ -31,7 +26,7 @@ public class BindViewDispatcher implements IViewDispatcher {
 
     @Override
     public void onSetting(Object owner, View view) {
-        _viewBindCallback.onSetView(ActivityExtensions.tryWrapActivity(owner), view);
+        _viewBindCallback.onSetView(ViewExtensions.tryWrap(owner), view);
     }
 
     @Override

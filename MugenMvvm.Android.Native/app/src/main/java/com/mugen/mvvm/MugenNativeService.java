@@ -13,6 +13,11 @@ public final class MugenNativeService {
     private static boolean _compatSupported;
     private static boolean _materialSupported;
     private static boolean _rawViewTagMode;
+    private static boolean _isNativeMode;
+
+    public static boolean isNativeMode() {
+        return _isNativeMode;
+    }
 
     public static boolean isCompatSupported() {
         return _compatSupported;
@@ -36,9 +41,13 @@ public final class MugenNativeService {
     public static void initialize(Context context, IBindViewCallback bindCallback, boolean rawViewTagMode) {
         _context = context;
         _rawViewTagMode = rawViewTagMode;
+        ViewCleaner viewCleaner = new ViewCleaner();
+        FragmentDispatcher fragmentDispatcher = new FragmentDispatcher();
         ViewExtensions.addViewDispatcher(new BindViewDispatcher(bindCallback));
-        LifecycleExtensions.addLifecycleDispatcher(new FragmentStateCleaner(), false);
-        LifecycleExtensions.addLifecycleDispatcher(new ViewCleaner(), false);
+        ViewExtensions.addViewDispatcher(viewCleaner);
+        ViewExtensions.addViewDispatcher(fragmentDispatcher);
+        LifecycleExtensions.addLifecycleDispatcher(viewCleaner, false);
+        LifecycleExtensions.addLifecycleDispatcher(fragmentDispatcher, false);
         LifecycleExtensions.addLifecycleDispatcher(new ActionBarHomeClickListener(), false);
         ViewExtensions.registerMemberListenerManager(new ViewMemberListenerManager());
     }
@@ -56,5 +65,9 @@ public final class MugenNativeService {
             ViewPagerExtensions.setSupported();
         if (viewPager2)
             ViewPager2Extensions.setSupported();
+    }
+
+    public static void setNativeMode() {
+        _isNativeMode = true;
     }
 }

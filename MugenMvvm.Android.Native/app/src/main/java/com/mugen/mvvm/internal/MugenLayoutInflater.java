@@ -170,6 +170,8 @@ public class MugenLayoutInflater extends LayoutInflater {
         if (view == null)
             view = super.onCreateView(name, attrs);
 
+        if (view == null)
+            return null;
         return ViewExtensions.onViewCreated(view, view.getContext(), attrs);
     }
 

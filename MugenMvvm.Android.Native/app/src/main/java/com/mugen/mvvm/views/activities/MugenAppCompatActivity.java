@@ -18,7 +18,7 @@ import com.mugen.mvvm.views.LifecycleExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
 
 public class MugenAppCompatActivity extends AppCompatActivity implements INativeActivityView {
-    private Object _tag;
+    private Object _state;
 
     @Override
     public Context getActivity() {
@@ -31,13 +31,13 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
     }
 
     @Override
-    public Object getTag() {
-        return _tag;
+    public Object getState() {
+        return _state;
     }
 
     @Override
-    public void setTag(Object tag) {
-        _tag = tag;
+    public void setState(Object tag) {
+        _state = tag;
     }
 
     @Override
@@ -127,8 +127,8 @@ public class MugenAppCompatActivity extends AppCompatActivity implements INative
         if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Destroy, null)) {
             super.onDestroy();
             LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Destroy, null);
-            if (_tag != null)
-                _tag = null;
+            if (_state != null)
+                _state = null;
         }
     }
 
