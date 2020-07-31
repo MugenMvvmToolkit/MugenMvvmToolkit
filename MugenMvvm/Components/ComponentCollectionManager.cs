@@ -55,7 +55,7 @@ namespace MugenMvvm.Components
 
         private IComponentCollection GetComponentCollectionInternal(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (!ReferenceEquals(owner, this))
+            if (owner != this)
             {
                 var collection = _components.GetOrDefault<IComponentCollectionProviderComponent>(metadata).TryGetComponentCollection(this, owner, metadata);
                 if (collection != null)

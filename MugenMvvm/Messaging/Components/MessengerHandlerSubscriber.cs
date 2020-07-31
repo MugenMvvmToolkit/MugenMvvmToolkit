@@ -179,7 +179,7 @@ namespace MugenMvvm.Messaging.Components
             {
                 foreach (var item in this)
                 {
-                    if (ReferenceEquals(item.Subscriber, subscriber))
+                    if (item.Subscriber == subscriber)
                         return Remove(item);
                 }
             }
@@ -271,7 +271,7 @@ namespace MugenMvvm.Messaging.Components
 
             public bool Equals(HandlerSubscriber x, HandlerSubscriber y)
             {
-                return ReferenceEquals(x.Subscriber, y.Subscriber) || ReferenceEquals(x.GetSubscriber(), y.GetSubscriber());
+                return x.Subscriber == y.Subscriber || x.GetSubscriber() == y.GetSubscriber();
             }
 
             public int GetHashCode(HandlerSubscriber obj)

@@ -122,7 +122,7 @@ namespace MugenMvvm.Extensions
                 return false;
             if (items.Length == 1)
             {
-                if (ReferenceEquals(items[0], item))
+                if (items[0] == item)
                 {
                     items = Default.Array<T>();
                     return true;
@@ -134,7 +134,7 @@ namespace MugenMvvm.Extensions
             T[]? array = null;
             for (var i = 0; i < items.Length; i++)
             {
-                if (array == null && ReferenceEquals(item, items[i]))
+                if (array == null && item == items[i])
                 {
                     array = new T[items.Length - 1];
                     Array.Copy(items, 0, array, 0, i);

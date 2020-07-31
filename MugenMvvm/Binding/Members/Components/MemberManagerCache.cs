@@ -46,7 +46,7 @@ namespace MugenMvvm.Binding.Members.Components
         {
             if (x.MemberType != y.MemberType || x.MemberFlags != y.MemberFlags || !x.Key.Equals(y.Key) || x.Type != y.Type || x.Types.Length != y.Types.Length)
                 return false;
-            if (ReferenceEquals(x.Types, y.Types))
+            if (x.Types == y.Types)
                 return true;
             for (var i = 0; i < x.Types.Length; i++)
             {

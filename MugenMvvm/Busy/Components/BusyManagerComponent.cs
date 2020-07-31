@@ -136,7 +136,7 @@ namespace MugenMvvm.Busy.Components
 
             #region Properties
 
-            public bool IsCompleted => ReferenceEquals(this, _listeners);
+            public bool IsCompleted => this == _listeners;
 
             public object? Message { get; }
 

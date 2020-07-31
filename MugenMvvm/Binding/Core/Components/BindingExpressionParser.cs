@@ -120,7 +120,7 @@ namespace MugenMvvm.Binding.Core.Components
                 if (_compiledExpression == null)
                     Initialize(target, source, metadata);
 
-                if (ReferenceEquals(_compiledExpression, InitializedState))
+                if (_compiledExpression == InitializedState)
                 {
                     return InitializeBinding(new Core.Binding((IMemberPathObserver)((IBindingMemberExpressionNode)TargetExpression).GetBindingSource(target, source, metadata)!,
                         ((IBindingMemberExpressionNode)_sourceExpression).GetBindingSource(target, source, metadata)), target, source, metadata);

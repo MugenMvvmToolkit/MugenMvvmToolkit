@@ -435,7 +435,7 @@ namespace MugenMvvm.Binding.Members.Builders
                 var member = BindableMembers.For<object>().Parent().TryGetMember(target.GetType(), MemberFlags.InstancePublicAll, metadata);
                 var oldParent = _parentRef?.Target;
                 var parent = member?.GetValue(target, metadata) as TTarget;
-                if (ReferenceEquals(oldParent, parent))
+                if (oldParent == parent)
                 {
                     if (member != null && _parentRef == null && _parentToken.IsEmpty)
                         _parentToken = member.TryObserve(target, this, metadata);

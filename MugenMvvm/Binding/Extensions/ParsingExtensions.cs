@@ -41,7 +41,7 @@ namespace MugenMvvm.Binding.Extensions
         {
             if (!context.TryConvertExtension(member.DeclaringType ?? typeof(object), expression, out var result))
                 result = context.ConvertOptional(expression) ?? ConstantExpressionNode.Get(member.DeclaringType);
-            if (ReferenceEquals(result, ConstantExpressionNode.Null) || ReferenceEquals(result, MemberExpressionNode.Empty))
+            if (result == ConstantExpressionNode.Null || result == MemberExpressionNode.Empty)
                 result = null;
             return result;
         }

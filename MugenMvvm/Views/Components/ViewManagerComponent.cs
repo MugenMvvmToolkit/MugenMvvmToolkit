@@ -135,7 +135,7 @@ namespace MugenMvvm.Views.Components
                 var oldView = views[i];
                 if (oldView.Mapping.Id == mapping.Id)
                 {
-                    if (ReferenceEquals(oldView.Target, rawView))
+                    if (oldView.Target == rawView)
                         return oldView;
                     CleanupAsync(viewManager, oldView, null, collection, removeAction, metadata);
                 }

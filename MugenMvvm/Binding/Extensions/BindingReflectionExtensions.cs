@@ -88,7 +88,7 @@ namespace MugenMvvm.Binding.Extensions
             {
                 var inferredType = inferredTypes[i];
                 var arg = genericArguments[i];
-                if (ReferenceEquals(inferredType, arg))
+                if (inferredType == arg)
                     continue;
                 if (!IsCompatible(inferredType, arg.GenericParameterAttributes))
                     return null;

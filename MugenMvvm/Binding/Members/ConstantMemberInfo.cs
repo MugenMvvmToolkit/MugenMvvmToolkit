@@ -67,9 +67,7 @@ namespace MugenMvvm.Binding.Members
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
         {
-            if (ReferenceEquals(TargetObj, _result))
-                return target;
-            return _result;
+            return TargetObj == _result ? target : _result;
         }
 
         public void SetValue(object? target, object? value, IReadOnlyMetadataContext? metadata = null)

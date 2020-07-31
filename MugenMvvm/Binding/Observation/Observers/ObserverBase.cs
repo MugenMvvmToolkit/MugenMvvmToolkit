@@ -65,7 +65,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         protected bool HasListeners => _listeners != null;
 
-        protected bool IsDisposed => ReferenceEquals(_listeners, DisposedItems);
+        protected bool IsDisposed => _listeners == DisposedItems;
 
         public abstract bool CanDispose { get; set; }
 
@@ -75,7 +75,7 @@ namespace MugenMvvm.Binding.Observation.Observers
 
         public void Dispose()
         {
-            if (ReferenceEquals(_listeners, DisposedItems) || !CanDispose)
+            if (_listeners == DisposedItems || !CanDispose)
                 return;
             _listeners = DisposedItems;
             _target = null;
@@ -216,7 +216,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             if (_listeners == null)
                 return false;
 
-            if (ReferenceEquals(listener, _listeners))
+            if (listener == _listeners)
             {
                 _listeners = null;
                 return true;
@@ -227,13 +227,13 @@ namespace MugenMvvm.Binding.Observation.Observers
 
             if (items.Length == 2)
             {
-                if (ReferenceEquals(items[0], listener))
+                if (items[0] == listener)
                 {
                     _listeners = items[1];
                     return true;
                 }
 
-                if (ReferenceEquals(items[1], listener))
+                if (items[1] == listener)
                 {
                     _listeners = items[0];
                     return true;

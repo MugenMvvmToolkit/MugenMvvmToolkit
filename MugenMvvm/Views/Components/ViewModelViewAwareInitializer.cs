@@ -94,7 +94,7 @@ namespace MugenMvvm.Views.Components
             IViewAwareViewModel<TView> viewModel = (IViewAwareViewModel<TView>)view.ViewModel;
             if (clear)
             {
-                if (ReferenceEquals(viewModel.View, view.Target))
+                if (viewModel.View == view.Target)
                     viewModel.View = null;
             }
             else if (view.Target is TView v)

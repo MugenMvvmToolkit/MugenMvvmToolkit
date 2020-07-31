@@ -86,7 +86,7 @@ namespace MugenMvvm.Collections
                 return;
             }
 
-            if (ReferenceEquals(state, this))
+            if (state == this)
             {
                 OnEndBatchUpdateImpl();
                 return;
@@ -105,7 +105,7 @@ namespace MugenMvvm.Collections
                 return;
             if (Collection != null)
                 OnDetach();
-            if (collection != null && !ReferenceEquals(collection, Collection))
+            if (collection != null)
                 OnAttach(collection);
         }
 

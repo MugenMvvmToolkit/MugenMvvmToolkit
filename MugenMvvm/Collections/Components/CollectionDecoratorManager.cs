@@ -175,7 +175,7 @@ namespace MugenMvvm.Collections.Components
 
             for (var i = 0; i < components.Length; i++)
             {
-                if (ReferenceEquals(components[i], decorator))
+                if (components[i] == decorator)
                 {
                     index = i;
                     if (!isLengthDefault)

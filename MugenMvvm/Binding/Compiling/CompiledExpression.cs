@@ -84,7 +84,7 @@ namespace MugenMvvm.Binding.Compiling
 
         public object? Invoke(ItemOrList<ParameterValue, ParameterValue[]> values, IReadOnlyMetadataContext? metadata)
         {
-            if (ReferenceEquals(_values, DisposedValues))
+            if (_values == DisposedValues)
                 ExceptionManager.ThrowObjectDisposed(this);
             var list = values.List;
             var key = list ?? values.Item.Type ?? (object)Default.Array<ParameterValue>();
@@ -123,7 +123,7 @@ namespace MugenMvvm.Binding.Compiling
 
         public void Dispose()
         {
-            if (ReferenceEquals(_values, DisposedValues))
+            if (_values == DisposedValues)
                 return;
             _values = DisposedValues;
             _expressions.Clear();
@@ -139,14 +139,12 @@ namespace MugenMvvm.Binding.Compiling
 
         bool IEqualityComparer<IExpressionNode>.Equals([AllowNull] IExpressionNode x, [AllowNull] IExpressionNode y)
         {
-            if (ReferenceEquals(x, y))
-                return true;
-            return x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
+            return x == y || x is IBindingMemberExpressionNode xP && y is IBindingMemberExpressionNode yP && xP.Index == yP.Index && xP.Path == yP.Path;
         }
 
         bool IEqualityComparer<object>.Equals([AllowNull] object x, [AllowNull] object y)
         {
-            if (ReferenceEquals(x, y))
+            if (x == y)
                 return true;
 
             var typeX = x as Type;

@@ -55,7 +55,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         bool IEqualityComparer<IMemberInfo>.Equals([AllowNull] IMemberInfo x, [AllowNull] IMemberInfo y)
         {
-            if (ReferenceEquals(x, y))
+            if (x == y)
                 return true;
 
             if (x!.MemberType != y!.MemberType)

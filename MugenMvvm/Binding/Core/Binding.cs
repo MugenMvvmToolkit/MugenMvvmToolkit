@@ -250,7 +250,7 @@ namespace MugenMvvm.Binding.Core
 
         void IMemberPathObserverListener.OnPathMembersChanged(IMemberPathObserver observer)
         {
-            if (ReferenceEquals(Target, observer))
+            if (Target == observer)
                 BindingComponentExtensions.OnTargetPathMembersChanged(_components, this, observer, this);
             else
                 BindingComponentExtensions.OnSourcePathMembersChanged(_components, this, observer, this);
@@ -258,7 +258,7 @@ namespace MugenMvvm.Binding.Core
 
         void IMemberPathObserverListener.OnLastMemberChanged(IMemberPathObserver observer)
         {
-            if (ReferenceEquals(Target, observer))
+            if (Target == observer)
                 BindingComponentExtensions.OnTargetLastMemberChanged(_components, this, observer, this);
             else
                 BindingComponentExtensions.OnSourceLastMemberChanged(_components, this, observer, this);
@@ -266,7 +266,7 @@ namespace MugenMvvm.Binding.Core
 
         void IMemberPathObserverListener.OnError(IMemberPathObserver observer, Exception exception)
         {
-            if (ReferenceEquals(Target, observer))
+            if (Target == observer)
                 BindingComponentExtensions.OnTargetError(_components, this, observer, exception, this);
             else
                 BindingComponentExtensions.OnSourceError(_components, this, observer, exception, this);
@@ -460,7 +460,7 @@ namespace MugenMvvm.Binding.Core
             if (_components == null)
                 return false;
 
-            if (ReferenceEquals(component, _components))
+            if (component == _components)
             {
                 if (!OnComponentRemoving(component, metadata))
                     return false;
@@ -474,7 +474,7 @@ namespace MugenMvvm.Binding.Core
 
             if (items.Length == 2)
             {
-                if (ReferenceEquals(items[0], component))
+                if (items[0] == component)
                 {
                     if (!OnComponentRemoving(component, metadata))
                         return false;
@@ -483,7 +483,7 @@ namespace MugenMvvm.Binding.Core
                     return true;
                 }
 
-                if (ReferenceEquals(items[1], component))
+                if (items[1] == component)
                 {
                     if (!OnComponentRemoving(component, metadata))
                         return false;

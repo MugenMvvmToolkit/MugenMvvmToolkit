@@ -45,7 +45,7 @@ namespace MugenMvvm.Binding.Observation
             for (var i = 0; i < size; i++)
             {
                 var listener = listeners[i];
-                if (ReferenceEquals(listener.Target, target) && listener.State == propertyName)
+                if (listener.Target == target && listener.State == propertyName)
                 {
                     if (RemoveAt(listeners, i))
                         TrimIfNeed(false);
@@ -162,7 +162,7 @@ namespace MugenMvvm.Binding.Observation
 
         private bool RemoveAt(WeakEventListener<string>[] listeners, int index)
         {
-            if (!ReferenceEquals(listeners, _listeners))
+            if (listeners != _listeners)
                 return false;
 
             var listener = listeners[index];

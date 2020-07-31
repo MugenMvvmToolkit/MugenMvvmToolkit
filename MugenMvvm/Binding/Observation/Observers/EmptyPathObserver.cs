@@ -37,7 +37,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             {
                 if (_target is IWeakItem w)
                     return w.IsAlive;
-                return !ReferenceEquals(_target, Disposed);
+                return _target != Disposed;
             }
         }
 
@@ -47,9 +47,7 @@ namespace MugenMvvm.Binding.Observation.Observers
             {
                 if (_target is IWeakReference w)
                     return w.Target;
-                if (ReferenceEquals(_target, Disposed))
-                    return null;
-                return _target;
+                return _target == Disposed ? null : _target;
             }
         }
 

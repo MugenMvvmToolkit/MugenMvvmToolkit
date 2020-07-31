@@ -86,7 +86,7 @@ namespace MugenMvvm.Messaging.Components
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (ReferenceEquals(owner, _owner))
+            if (owner == _owner)
             {
                 _owner?.Components.RemoveComponent(this, metadata);
                 _owner = null;

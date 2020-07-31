@@ -43,16 +43,12 @@ namespace MugenMvvm.Binding.Parsing.Expressions
         public IMethodCallExpressionNode UpdateArguments(IReadOnlyList<IExpressionNode> arguments)
         {
             Should.NotBeNull(arguments, nameof(arguments));
-            if (ReferenceEquals(arguments, Arguments))
-                return this;
-            return new MethodCallExpressionNode(Target, Method, arguments, TypeArgs);
+            return ReferenceEquals(arguments, Arguments) ? this : new MethodCallExpressionNode(Target, Method, arguments, TypeArgs);
         }
 
         public IMethodCallExpressionNode UpdateTarget(IExpressionNode? target)
         {
-            if (ReferenceEquals(target, Target))
-                return this;
-            return new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
+            return target == Target ? this : new MethodCallExpressionNode(target, Method, Arguments, TypeArgs);
         }
 
         #endregion

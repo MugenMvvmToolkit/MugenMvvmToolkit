@@ -288,7 +288,7 @@ namespace MugenMvvm.Metadata
                 for (var index = 0; index < values.Count; index++)
                 {
                     var pair = values[index];
-                    if (ReferenceEquals(pair.Value, this))
+                    if (pair.Value == this)
                         listeners.OnAdded(this, pair.Key.Key, pair.Key.Value);
                     else
                         listeners.OnChanged(this, pair.Key.Key, pair.Value, pair.Key.Value);

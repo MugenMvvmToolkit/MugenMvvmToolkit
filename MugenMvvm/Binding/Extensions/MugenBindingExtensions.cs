@@ -641,25 +641,25 @@ namespace MugenMvvm.Binding.Extensions
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsNullOrUnsetValue([NotNullWhen(false)] this object? value)
         {
-            return value == null || ReferenceEquals(value, BindingMetadata.UnsetValue);
+            return value == null || value == BindingMetadata.UnsetValue;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsUnsetValueOrDoNothing(this object? value)
         {
-            return ReferenceEquals(value, BindingMetadata.UnsetValue) || ReferenceEquals(value, BindingMetadata.DoNothing);
+            return value == BindingMetadata.UnsetValue || value == BindingMetadata.DoNothing;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsDoNothing(this object? value)
         {
-            return ReferenceEquals(value, BindingMetadata.DoNothing);
+            return value == BindingMetadata.DoNothing;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static bool IsUnsetValue(this object? value)
         {
-            return ReferenceEquals(value, BindingMetadata.UnsetValue);
+            return value == BindingMetadata.UnsetValue;
         }
 
         internal static string GetPath(this StringBuilder memberNameBuilder)
@@ -690,7 +690,7 @@ namespace MugenMvvm.Binding.Extensions
             }
 
             var value = propertyInfo.GetValue(target, metadata);
-            if (ReferenceEquals(value, lastValueRef?.Target))
+            if (value == lastValueRef?.Target)
                 return;
 
             if (value.IsNullOrUnsetValue())

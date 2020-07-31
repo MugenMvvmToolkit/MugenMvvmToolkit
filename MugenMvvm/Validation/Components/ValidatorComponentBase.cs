@@ -308,7 +308,7 @@ namespace MugenMvvm.Validation.Components
             bool notify;
             lock (_validatingTasks!)
             {
-                notify = _validatingTasks.TryGetValue(member, out var value) && ReferenceEquals(cts, value) && _validatingTasks.Remove(member);
+                notify = _validatingTasks.TryGetValue(member, out var value) && cts == value && _validatingTasks.Remove(member);
             }
 
             if (notify)

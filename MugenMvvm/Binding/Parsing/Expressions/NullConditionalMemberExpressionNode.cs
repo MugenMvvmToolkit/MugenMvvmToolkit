@@ -29,7 +29,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public NullConditionalMemberExpressionNode UpdateTarget(IExpressionNode? target)
         {
-            if (ReferenceEquals(target, Target))
+            if (target == Target)
                 return this;
             return new NullConditionalMemberExpressionNode(target!);
         }

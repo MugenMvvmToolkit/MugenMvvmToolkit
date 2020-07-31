@@ -41,9 +41,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public IIndexExpressionNode UpdateTarget(IExpressionNode? target)
         {
-            if (ReferenceEquals(target, Target))
-                return this;
-            return new IndexExpressionNode(target, Arguments);
+            return target == Target ? this : new IndexExpressionNode(target, Arguments);
         }
 
         #endregion

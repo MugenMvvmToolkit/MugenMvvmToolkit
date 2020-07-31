@@ -65,7 +65,7 @@ namespace MugenMvvm.Components
 
         void IDetachableComponent.OnDetached(object owner, IReadOnlyMetadataContext? metadata)
         {
-            if (owner is T o && ReferenceEquals(OwnerOptional, o) && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
+            if (owner is T o && OwnerOptional == o && Interlocked.Exchange(ref _state, DetachedState) != DetachedState)
             {
                 OnDetached(o, metadata);
                 Owner = null;

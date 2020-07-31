@@ -115,7 +115,7 @@ namespace MugenMvvm.Presenters
         {
             Should.NotBeNull(viewModel, nameof(viewModel));
             Should.NotBeNull(mapping, nameof(mapping));
-            if (ReferenceEquals(_viewModel, viewModel) && ReferenceEquals(_mapping, mapping))
+            if (_viewModel == viewModel && _mapping == mapping)
                 return;
             if (_viewModel != null)
                 ExceptionManager.ThrowObjectInitialized(this);
@@ -333,7 +333,7 @@ namespace MugenMvvm.Presenters
             }
             else
             {
-                if (CurrentView != null && (view == null || ReferenceEquals(CurrentView, view)))
+                if (CurrentView != null && (view == null || CurrentView == view))
                     ThreadDispatcher.Execute(ExecutionMode, RefreshCallback, navigationContext, metadata);
                 else
                 {
@@ -357,13 +357,13 @@ namespace MugenMvvm.Presenters
         [return: NotNullIfNotNull("view")]
         private TView? UpdateView(IView? view, INavigationContext context)
         {
-            if (ReferenceEquals(view, View))
+            if (view == View)
                 return (TView?)view?.Target;
 
             View = view;
             var oldView = CurrentView;
             var newView = view?.Target as TView ?? view?.Wrap<TView>(context.GetMetadataOrDefault(), _wrapperManager);
-            if (ReferenceEquals(oldView, newView))
+            if (oldView == newView)
                 return oldView;
 
             if (oldView != null)

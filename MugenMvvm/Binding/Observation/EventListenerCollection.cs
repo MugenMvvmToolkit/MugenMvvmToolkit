@@ -61,7 +61,7 @@ namespace MugenMvvm.Binding.Observation
                             hasDeadRef = true;
                     }
 
-                    if (hasDeadRef && ReferenceEquals(_listeners, listeners))
+                    if (hasDeadRef && _listeners == listeners)
                         TrimIfNeed(listeners, true);
                 }
                 else if (_listeners != null && !WeakEventListener.TryHandle(_listeners, sender, args, metadata))
@@ -141,7 +141,7 @@ namespace MugenMvvm.Binding.Observation
                 var size = _size;
                 for (var i = 0; i < size; i++)
                 {
-                    if (ReferenceEquals(WeakEventListener.GetListener(listeners[i]), listener))
+                    if (WeakEventListener.GetListener(listeners[i]) == listener)
                     {
                         if (RemoveAt(listeners, i))
                             TrimIfNeed(listeners, false);
@@ -149,7 +149,7 @@ namespace MugenMvvm.Binding.Observation
                     }
                 }
             }
-            else if (ReferenceEquals(WeakEventListener.GetListener(_listeners), listener))
+            else if (WeakEventListener.GetListener(_listeners) == listener)
             {
                 _listeners = null;
                 _size = 0;
@@ -181,7 +181,7 @@ namespace MugenMvvm.Binding.Observation
 
         private void Unsubscribe(object? target)
         {
-            if (ReferenceEquals(_listeners, target))
+            if (_listeners == target)
             {
                 _listeners = null;
                 _size = 0;
@@ -194,7 +194,7 @@ namespace MugenMvvm.Binding.Observation
                 for (var i = 0; i < size; i++)
                 {
                     var t = listeners[i];
-                    if (ReferenceEquals(target, t))
+                    if (target == t)
                     {
                         if (RemoveAt(listeners, i))
                             TrimIfNeed(listeners, false);
@@ -223,7 +223,7 @@ namespace MugenMvvm.Binding.Observation
 
         private bool RemoveAt(object?[] listeners, int index)
         {
-            if (!ReferenceEquals(listeners, _listeners) || listeners[index] == null)
+            if (listeners != _listeners || listeners[index] == null)
                 return false;
 
             RemoveAtInternal(listeners, index);

@@ -130,7 +130,7 @@ namespace MugenMvvm.Binding.Core.Components.Binding
 
         public bool TrySetTargetValue(IBinding binding, MemberPathLastMember targetMember, object? value, IReadOnlyMetadataContext metadata)
         {
-            if (ReferenceEquals(value, _currentValue))
+            if (value == _currentValue)
                 return true;
 
             ClearValue();

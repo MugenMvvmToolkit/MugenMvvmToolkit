@@ -66,9 +66,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions
 
         public IMemberExpressionNode UpdateTarget(IExpressionNode? target)
         {
-            if (ReferenceEquals(target, Target))
-                return this;
-            return new MemberExpressionNode(target, Member);
+            return target == Target ? this : new MemberExpressionNode(target, Member);
         }
 
         #endregion

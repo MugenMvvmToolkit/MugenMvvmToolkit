@@ -1,18 +1,28 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using MugenMvvm.Enums;
 using MugenMvvm.Interfaces.Components;
 using MugenMvvm.Interfaces.Messaging;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.ViewModels;
+using MugenMvvm.Interfaces.Views;
 using MugenMvvm.Internal;
 using MugenMvvm.Metadata;
+using MugenMvvm.Requests;
+using MugenMvvm.Views;
 
 namespace MugenMvvm.Extensions
 {
     public static partial class MugenExtensions
     {
         #region Methods
+
+        public static IView GetOrCreateView(this IViewModelBase viewModel, Type viewType, IReadOnlyMetadataContext? metadata = null, IViewManager? viewManager = null)
+        {
+            Should.NotBeNull(viewType, nameof(viewType));
+            return viewManager.DefaultIfNull().InitializeAsync(ViewMapping.Undefined, new ViewModelViewRequest(viewModel, viewType), default, metadata).Result;
+        }
 
         public static object GetService(this IViewModelManager viewModelManager, IViewModelBase viewModel, object request, IReadOnlyMetadataContext? metadata = null)
         {

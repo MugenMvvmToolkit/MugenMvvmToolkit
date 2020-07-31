@@ -76,11 +76,11 @@ namespace MugenMvvm.Extensions.Components
                 for (var i = 0; i < c.Length; i++)
                 {
                     var comp = c[i];
-                    if (!ReferenceEquals(comp, component))
+                    if (comp != component)
                         (comp as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
                 }
             }
-            else if (!ReferenceEquals(components, component))
+            else if (components != component)
                 (components as IComponentCollectionChangedListener)?.OnAdded(collection, component, metadata);
         }
 
@@ -92,11 +92,11 @@ namespace MugenMvvm.Extensions.Components
             {
                 for (var i = 0; i < c.Length; i++)
                 {
-                    if (c[i] is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(collection, component, metadata))
+                    if (c[i] is IComponentCollectionChangingListener listener && listener != component && !listener.OnRemoving(collection, component, metadata))
                         return false;
                 }
             }
-            else if (components is IComponentCollectionChangingListener listener && !ReferenceEquals(listener, component) && !listener.OnRemoving(collection, component, metadata))
+            else if (components is IComponentCollectionChangingListener listener && listener != component && !listener.OnRemoving(collection, component, metadata))
                 return false;
 
             return true;

@@ -57,7 +57,7 @@ namespace MugenMvvm.Views.Components
                     }
                     else if (vm != null && view != null)
                     {
-                        if (mapping.IsValidViewModelType(vm.GetType(), vm, metadata) && mapping.IsValidViewType(view.GetType(), view, metadata))
+                        if (mapping.IsValidViewModelType(vm.GetType(), vm, metadata) && mapping.IsValidViewType(type ?? view.GetType(), view, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                     else if (vm != null)
@@ -70,9 +70,9 @@ namespace MugenMvvm.Views.Components
                         if (mapping.IsValidViewModelType(type, null, metadata) || mapping.IsValidViewType(type, null, metadata))
                             mappings.Add(mapping.Mapping);
                     }
-                    else
+                    else if (view != null)
                     {
-                        if (mapping.IsValidViewType(view!.GetType(), view, metadata))
+                        if (mapping.IsValidViewType(view.GetType(), view, metadata))
                             mappings.Add(mapping.Mapping);
                     }
                 }

@@ -39,7 +39,7 @@ namespace MugenMvvm.Internal
 
         bool IEqualityComparer<(object, object?)>.Equals((object, object?) x, (object, object?) y)
         {
-            return ReferenceEquals(x.Item1, y.Item1) && ReferenceEquals(x.Item2, y.Item2);
+            return x.Item1 == y.Item1 && x.Item2 == y.Item2;
         }
 
         int IEqualityComparer<(object, object?)>.GetHashCode((object, object?) key)
@@ -79,7 +79,7 @@ namespace MugenMvvm.Internal
 
         bool IEqualityComparer<Type[]?>.Equals(Type[]? x, Type[]? y)
         {
-            if (ReferenceEquals(x, y))
+            if (x == y)
                 return true;
 
             if (x!.Length != y!.Length)
