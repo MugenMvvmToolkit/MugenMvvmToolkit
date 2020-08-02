@@ -133,7 +133,7 @@ namespace MugenMvvm.Presenters
             if (_showingContext != null)
                 return GetPresenterResult(false, _showingContext?.Metadata ?? metadata);
 
-            WaitNavigationBeforeShowAsync(view, cancellationToken, metadata).ContinueWithEx((this, view, cancellationToken, metadata), (task, s) =>
+            WaitBeforeShowAsync(view, cancellationToken, metadata).ContinueWithEx((this, view, cancellationToken, metadata), (_, s) =>
             {
                 try
                 {
@@ -156,7 +156,7 @@ namespace MugenMvvm.Presenters
             if (_closingContext != null)
                 return GetPresenterResult(false, _closingContext?.Metadata ?? metadata);
 
-            WaitNavigationBeforeCloseAsync(cancellationToken, metadata).ContinueWithEx((this, cancellationToken, metadata), (task, s) =>
+            WaitBeforeCloseAsync(cancellationToken, metadata).ContinueWithEx((this, cancellationToken, metadata), (_, s) =>
             {
                 try
                 {
@@ -192,12 +192,12 @@ namespace MugenMvvm.Presenters
         {
         }
 
-        protected virtual Task WaitNavigationBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected virtual Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == state.NavigationType && callback.CallbackType == NavigationCallbackType.Showing, metadata);
         }
 
-        protected virtual Task WaitNavigationBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected virtual Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             return Task.CompletedTask;
         }

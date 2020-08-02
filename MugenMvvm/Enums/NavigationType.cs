@@ -17,14 +17,15 @@ namespace MugenMvvm.Enums
 
         public static readonly NavigationType Undefined = new NavigationType(nameof(Undefined));
 
-        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) {IsNestedNavigation = true};
-        public static readonly NavigationType Window = new NavigationType(nameof(Window)) {IsRootNavigation = true};
-        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) {IsRootNavigation = true};
-        public static readonly NavigationType Page = new NavigationType(nameof(Page)) {IsRootNavigation = true};
+        public static readonly NavigationType Tab = new NavigationType(nameof(Tab)) { IsNestedNavigation = true };
+        public static readonly NavigationType Window = new NavigationType(nameof(Window)) { IsRootNavigation = true };
+        public static readonly NavigationType Popup = new NavigationType(nameof(Popup)) { IsRootNavigation = true };
+        public static readonly NavigationType Page = new NavigationType(nameof(Page)) { IsRootNavigation = true };
 
-        public static readonly NavigationType System = new NavigationType(nameof(System)) {IsSystemNavigation = true};
-        public static readonly NavigationType Alert = new NavigationType(nameof(Alert)) {IsSystemNavigation = true};
-        public static readonly NavigationType Toast = new NavigationType(nameof(Toast)) {IsSystemNavigation = true};
+        public static readonly NavigationType Background = new NavigationType(nameof(Background));
+        public static readonly NavigationType Foreground = new NavigationType(nameof(Foreground));
+        public static readonly NavigationType Alert = new NavigationType(nameof(Alert));
+        public static readonly NavigationType Toast = new NavigationType(nameof(Toast));
 
         #endregion
 
@@ -52,9 +53,6 @@ namespace MugenMvvm.Enums
 
         [DataMember(Name = "n")]
         public bool IsNestedNavigation { get; protected set; }
-
-        [DataMember(Name = "s")]
-        public bool IsSystemNavigation { get; protected set; }
 
         #endregion
 

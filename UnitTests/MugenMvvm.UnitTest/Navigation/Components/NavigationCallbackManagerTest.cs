@@ -79,7 +79,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
+            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -100,7 +100,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
+            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.New);
             component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
@@ -122,7 +122,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
+            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -144,7 +144,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
+            var wrongIdCtx = new NavigationContext(this, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.New);
             component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx, exception).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 
@@ -166,7 +166,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 Metadata = new MetadataContext()
             };
             var result = new PresenterResult(target, "t", Default.NavigationProvider, NavigationType.Popup);
-            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.Background);
+            var navigationContext = new NavigationContext(target, Default.NavigationProvider, "t", NavigationType.Popup, NavigationMode.New);
             var component = new NavigationCallbackManager();
             var type = NavigationCallbackType.Closing;
             var callbacks = new List<INavigationCallback>();
@@ -188,7 +188,7 @@ namespace MugenMvvm.UnitTest.Navigation.Components
                 });
             }
 
-            var wrongIdCtx = new NavigationContext(target, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.Background);
+            var wrongIdCtx = new NavigationContext(target, Default.NavigationProvider, "t-", NavigationType.Popup, NavigationMode.New);
             component.TryInvokeNavigationCallbacks(null!, type, wrongIdCtx, cancellationToken).ShouldBeFalse();
             callbacks.Count.ShouldEqual(count);
 

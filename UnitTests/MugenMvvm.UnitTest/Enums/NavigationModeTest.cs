@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Enums
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
-            var enum1 = NavigationMode.Background;
+            var enum1 = NavigationMode.New;
             var enum2 = NavigationMode.Close;
             var enum3 = new NavigationMode(enum1.Value);
             var v1 = enum1.Value;

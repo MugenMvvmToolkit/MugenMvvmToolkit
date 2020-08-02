@@ -121,14 +121,14 @@ namespace MugenMvvm.UnitTest.Presenters.Internal
                 base.OnNavigationFailed(navigationContext, exception);
         }
 
-        protected override Task WaitNavigationBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return WaitNavigationBeforeCloseAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitNavigationBeforeCloseAsync(cancellationToken, metadata);
+            return WaitNavigationBeforeCloseAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeCloseAsync(cancellationToken, metadata);
         }
 
-        protected override Task WaitNavigationBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        protected override Task WaitBeforeShowAsync(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            return WaitNavigationBeforeShowAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitNavigationBeforeShowAsync(view, cancellationToken, metadata);
+            return WaitNavigationBeforeShowAsyncHandler?.Invoke(cancellationToken, metadata) ?? base.WaitBeforeShowAsync(view, cancellationToken, metadata);
         }
 
         protected override void ShowView(T view, INavigationContext context)

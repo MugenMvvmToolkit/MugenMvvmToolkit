@@ -21,7 +21,7 @@ namespace MugenMvvm.UnitTest.Navigation
             {
                 Dispose = () => ++invokeCount
             };
-            var ctx = new NavigationContext(disposable, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.Background);
+            var ctx = new NavigationContext(disposable, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
             NavigationCallbackDelegateListener.DisposeTargetCallback.OnCompleted(ctx);
             invokeCount.ShouldEqual(1);
 
@@ -35,7 +35,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void OnCompletedShouldInvokeDelegate()
         {
-            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.Background);
+            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
             Exception? error = null;
             CancellationToken? token = null;
             var invokeCount = 0;
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void OnErrorShouldInvokeDelegate()
         {
-            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.Background);
+            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
             var error = new Exception();
             CancellationToken? token = null;
             var invokeCount = 0;
@@ -71,7 +71,7 @@ namespace MugenMvvm.UnitTest.Navigation
         [Fact]
         public void OnCanceledShouldInvokeDelegate()
         {
-            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.Background);
+            var ctx = new NavigationContext(this, Default.NavigationProvider, "f", NavigationType.Alert, NavigationMode.New);
             Exception? error = null;
             var token = new CancellationToken(true);
             var invokeCount = 0;

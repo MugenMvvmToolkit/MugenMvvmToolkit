@@ -161,7 +161,10 @@ namespace MugenMvvm.Extensions.Components
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(navigationContext, nameof(navigationContext));
             if (components.Length == 0)
+            {
+                listeners.OnNavigating(navigationDispatcher, navigationContext);
                 return Default.TrueTask;
+            }
             return new NavigatingResult(navigationDispatcher, components, listeners, navigationContext, cancellationToken).Task;
         }
 
