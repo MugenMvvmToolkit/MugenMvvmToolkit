@@ -185,15 +185,17 @@ public abstract class ViewExtensions {
             return getNativeAttachedValues((View) target, required);
 
         if (target instanceof IHasStateView) {
-            IHasStateView hasTagView = (IHasStateView) target;
-            AttachedValues result = (AttachedValues) hasTagView.getState();
+            IHasStateView hasStateView = (IHasStateView) target;
+            AttachedValues result = (AttachedValues) hasStateView.getState();
             if (result != null || !required)
                 return result;
             if (target instanceof IActivityView)
                 result = new ActivityAttachedValues();
+            else if (target instanceof IFragmentView)
+                result = new FragmentAttachedValues();
             else
                 result = new AttachedValues();
-            hasTagView.setState(result);
+            hasStateView.setState(result);
             return result;
         }
 
@@ -336,14 +338,28 @@ public abstract class ViewExtensions {
         return null;
     }
 
-    public static Object tryWrap(Object target) {//todo fix for fragment
+    public static Object tryWrap(Object target) {
         if (!MugenNativeService.isNativeMode())
             return target;
+
         if (target instanceof INativeActivityView) {
             ActivityAttachedValues attachedValues = (ActivityAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
             Object wrapper = attachedValues.getWrapper();
             if (wrapper == null) {
                 wrapper = new ActivityWrapper((INativeActivityView) target);
+                attachedValues.setWrapper(wrapper);
+            }
+            return wrapper;
+        }
+
+        if (target instanceof INativeFragmentView) {
+            FragmentAttachedValues attachedValues = (FragmentAttachedValues) ViewExtensions.getNativeAttachedValues(target, true);
+            Object wrapper = attachedValues.getWrapper();
+            if (wrapper == null) {
+                if (target instanceof IDialogFragmentView)
+                    wrapper = new DialogFragmentWrapper((INativeFragmentView) target);
+                else
+                    wrapper = new FragmentWrapper((INativeFragmentView) target);
                 attachedValues.setWrapper(wrapper);
             }
             return wrapper;

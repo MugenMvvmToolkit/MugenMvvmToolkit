@@ -1,16 +1,18 @@
 package com.mugen.mvvm.views.fragments;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.*;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import com.mugen.mvvm.constants.LifecycleState;
+import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.INativeFragmentView;
 import com.mugen.mvvm.views.LifecycleExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
 
-public class MugenDialogFragment extends DialogFragment implements INativeFragmentView {
+public class MugenDialogFragment extends DialogFragment implements INativeFragmentView, IDialogFragmentView {
     private Object _state;
 
     @Override
@@ -130,6 +132,30 @@ public class MugenDialogFragment extends DialogFragment implements INativeFragme
         if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Stop, null)) {
             super.onStop();
             LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Stop, null);
+        }
+    }
+
+    @Override
+    public void dismiss() {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Dismiss, null)) {
+            super.dismiss();
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Dismiss, null);
+        }
+    }
+
+    @Override
+    public void dismissAllowingStateLoss() {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.DismissAllowingStateLoss, null)) {
+            super.dismissAllowingStateLoss();
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.DismissAllowingStateLoss, null);
+        }
+    }
+
+    @Override
+    public void onCancel(@NonNull DialogInterface dialog) {
+        if (LifecycleExtensions.onLifecycleChanging(this, LifecycleState.Cancel, dialog)) {
+            super.onCancel(dialog);
+            LifecycleExtensions.onLifecycleChanged(this, LifecycleState.Cancel, dialog);
         }
     }
 }

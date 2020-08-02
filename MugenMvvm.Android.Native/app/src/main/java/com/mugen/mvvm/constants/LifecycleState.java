@@ -20,4 +20,7 @@ public abstract class LifecycleState {
     public static final int PostCreate = 14;
     public static final int CreateOptionsMenu = 15;
     public static final int OptionsItemSelected = 16;
+    public static final int Dismiss = 17;
+    public static final int DismissAllowingStateLoss = 18;
+    public static final int Cancel = 19;
 }

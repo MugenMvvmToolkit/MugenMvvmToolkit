@@ -1,12 +1,13 @@
 package com.mugen.mvvm.views;
 
 import android.content.Context;
+import android.os.BaseBundle;
 import android.view.View;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.*;
 import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.interfaces.views.IActivityView;
+import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.internal.ViewAttachedValues;
 
@@ -60,5 +61,23 @@ public abstract class FragmentExtensions {
         fragmentTransaction.commit();
         fragmentManager.executePendingTransactions();
         return true;
+    }
+
+    public static void show(IDialogFragmentView fragmentView, IActivityView activityView, @Nullable String tag) {
+        DialogFragment fragment = (DialogFragment) fragmentView.getFragment();
+        FragmentActivity activity = (FragmentActivity) activityView.getActivity();
+        fragment.show(activity.getSupportFragmentManager(), tag);
+    }
+
+    public static void clearFragmentState(BaseBundle bundle) {
+        bundle.remove("android:support:fragments");
+        bundle.remove("android:fragments");
+    }
+
+    public static void remove(IFragmentView fragmentView) {
+        Fragment fragment = (Fragment) fragmentView.getFragment();
+        FragmentManager fragmentManager = fragment.getFragmentManager();
+        if (fragmentManager != null)
+            fragmentManager.beginTransaction().remove(fragment).commitAllowingStateLoss();
     }
 }

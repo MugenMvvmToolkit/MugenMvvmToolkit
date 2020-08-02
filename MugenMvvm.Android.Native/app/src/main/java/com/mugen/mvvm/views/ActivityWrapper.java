@@ -5,39 +5,39 @@ import com.mugen.mvvm.interfaces.views.IActivityView;
 import com.mugen.mvvm.interfaces.views.INativeActivityView;
 
 public class ActivityWrapper implements IActivityView {
-    private final IActivityView _target;
+    protected final IActivityView Target;
 
     public ActivityWrapper(INativeActivityView target) {
-        _target = target;
+        Target = target;
     }
 
     @Override
     public Context getActivity() {
-        return (Context) _target;
+        return (Context) Target;
     }
 
     @Override
     public boolean isFinishing() {
-        return _target.isFinishing();
+        return Target.isFinishing();
     }
 
     @Override
     public void finish() {
-        _target.finish();
+        Target.finish();
     }
 
     @Override
     public Object getState() {
-        return _target.getState();
+        return Target.getState();
     }
 
     @Override
     public void setState(Object state) {
-        _target.setState(state);
+        Target.setState(state);
     }
 
     @Override
     public int getViewId() {
-        return _target.getViewId();
+        return Target.getViewId();
     }
 }
