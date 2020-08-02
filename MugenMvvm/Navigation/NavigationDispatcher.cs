@@ -45,6 +45,11 @@ namespace MugenMvvm.Navigation
             return GetComponents<INavigationCallbackManagerComponent>(metadata).TryGetNavigationCallbacks(this, request, metadata);
         }
 
+        public void OnNavigating(INavigationContext navigationContext)
+        {
+            GetComponents<INavigationDispatcherNavigatingListener>(navigationContext.GetMetadataOrDefault()).OnNavigating(this, navigationContext);
+        }
+
         public Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default)
         {
             var meta = navigationContext.GetMetadataOrDefault();

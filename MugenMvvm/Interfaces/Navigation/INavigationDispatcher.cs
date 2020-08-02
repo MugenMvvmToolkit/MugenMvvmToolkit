@@ -18,6 +18,8 @@ namespace MugenMvvm.Interfaces.Navigation
 
         ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetNavigationCallbacks(object request, IReadOnlyMetadataContext? metadata = null);
 
+        void OnNavigating(INavigationContext navigationContext);
+
         Task<bool> OnNavigatingAsync(INavigationContext navigationContext, CancellationToken cancellationToken = default);
 
         void OnNavigated(INavigationContext navigationContext);

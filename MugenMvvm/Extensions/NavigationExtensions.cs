@@ -87,7 +87,7 @@ namespace MugenMvvm.Extensions
             return $"{navigationProvider.Id}/{viewModel.Metadata.Get(ViewModelMetadata.Id):N}";
         }
 
-        public static void OnNavigating<TState>(this INavigationDispatcher dispatcher, INavigationContext context, TState state,
+        public static void OnNavigatingAsync<TState>(this INavigationDispatcher dispatcher, INavigationContext context, TState state,
             Func<INavigationDispatcher, INavigationContext, TState, bool> completeNavigationCallback,
             Action<INavigationDispatcher, INavigationContext, Exception?, TState>? fallback = null, CancellationToken cancellationToken = default)
         {

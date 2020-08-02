@@ -82,7 +82,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationEntryProviderComponent(dispatcher)
                 {
                     Priority = -i,
-                    TryGetNavigationEntries = (ctx) =>
+                    TryGetNavigationEntries = ctx =>
                     {
                         ctx.ShouldEqual(DefaultMetadata);
                         return new[] { info };
@@ -181,7 +181,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 dispatcher.AddComponent(component);
                 dispatcher.AddComponent(new TestNavigationDispatcherNavigatingListener(dispatcher)
                 {
-                    OnNavigating = (context) =>
+                    OnNavigating = context =>
                     {
                         ++navigatingCount;
                         context.ShouldEqual(navigationContext);
@@ -229,6 +229,32 @@ namespace MugenMvvm.UnitTest.Navigation
         [Theory]
         [InlineData(1)]
         [InlineData(10)]
+        public void OnNavigatingShouldBeHandledByComponents(int count)
+        {
+            var invokeCount = 0;
+            var navigationContext = new NavigationContext(this, new TestNavigationProvider(), "t", NavigationType.Alert, NavigationMode.Close);
+            var dispatcher = new NavigationDispatcher();
+            for (var i = 0; i < count; i++)
+            {
+                var component = new TestNavigationDispatcherNavigatingListener(dispatcher)
+                {
+                    Priority = -i,
+                    OnNavigating = ctx =>
+                    {
+                        ++invokeCount;
+                        ctx.ShouldEqual(navigationContext);
+                    }
+                };
+                dispatcher.AddComponent(component);
+            }
+
+            dispatcher.OnNavigating(navigationContext);
+            invokeCount.ShouldEqual(count);
+        }
+
+        [Theory]
+        [InlineData(1)]
+        [InlineData(10)]
         public void OnNavigatedShouldBeHandledByComponents(int count)
         {
             var invokeCount = 0;
@@ -239,7 +265,7 @@ namespace MugenMvvm.UnitTest.Navigation
                 var component = new TestNavigationDispatcherNavigatedListener(dispatcher)
                 {
                     Priority = -i,
-                    OnNavigated = (ctx) =>
+                    OnNavigated = ctx =>
                     {
                         ++invokeCount;
                         ctx.ShouldEqual(navigationContext);
