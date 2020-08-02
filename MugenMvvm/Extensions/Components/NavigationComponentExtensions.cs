@@ -44,15 +44,17 @@ namespace MugenMvvm.Extensions.Components
         }
 
         public static INavigationCallback? TryAddNavigationCallback(this INavigationCallbackManagerComponent[] components,
-            INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, object request, IReadOnlyMetadataContext? metadata)
+            INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, object request, IReadOnlyMetadataContext? metadata)
         {
             Should.NotBeNull(components, nameof(components));
             Should.NotBeNull(navigationDispatcher, nameof(navigationDispatcher));
             Should.NotBeNull(request, nameof(request));
             Should.NotBeNull(callbackType, nameof(callbackType));
+            Should.NotBeNull(navigationId, nameof(navigationId));
+            Should.NotBeNull(navigationType, nameof(navigationType));
             for (var i = 0; i < components.Length; i++)
             {
-                var callback = components[i].TryAddNavigationCallback(navigationDispatcher, callbackType, request, metadata);
+                var callback = components[i].TryAddNavigationCallback(navigationDispatcher, callbackType, navigationId, navigationType, request, metadata);
                 if (callback != null)
                     return callback;
             }

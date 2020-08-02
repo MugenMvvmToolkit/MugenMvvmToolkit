@@ -32,7 +32,7 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         public int Priority { get; set; }
 
-        public Func<NavigationCallbackType, object, IReadOnlyMetadataContext?, INavigationCallback?>? TryAddNavigationCallback { get; set; }
+        public Func<NavigationCallbackType, string, NavigationType, object, IReadOnlyMetadataContext?, INavigationCallback?>? TryAddNavigationCallback { get; set; }
 
         public Func<object, IReadOnlyMetadataContext?, ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>>>? TryGetNavigationCallbacks { get; set; }
 
@@ -46,11 +46,11 @@ namespace MugenMvvm.UnitTest.Navigation.Internal
 
         #region Implementation of interfaces
 
-        INavigationCallback? INavigationCallbackManagerComponent.TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, object request,
-            IReadOnlyMetadataContext? metadata)
+        INavigationCallback? INavigationCallbackManagerComponent.TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId, NavigationType navigationType,
+            object request, IReadOnlyMetadataContext? metadata)
         {
             _navigationDispatcher?.ShouldEqual(navigationDispatcher);
-            return TryAddNavigationCallback?.Invoke(callbackType, request, metadata);
+            return TryAddNavigationCallback?.Invoke(callbackType, navigationId, navigationType, request, metadata);
         }
 
         ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> INavigationCallbackManagerComponent.TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request,

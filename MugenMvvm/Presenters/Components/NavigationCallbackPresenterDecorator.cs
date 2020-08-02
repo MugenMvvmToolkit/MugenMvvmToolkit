@@ -54,8 +54,8 @@ namespace MugenMvvm.Presenters.Components
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
                     foreach (var result in iterator)
                     {
-                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, result, metadata);
-                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Close, result, metadata);
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Showing, result.NavigationId, result.NavigationType, result, metadata);
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Close, result.NavigationId, result.NavigationType, result, metadata);
                     }
                 }
 
@@ -74,7 +74,7 @@ namespace MugenMvvm.Presenters.Components
                 {
                     var components = dispatcher.GetComponents<INavigationCallbackManagerComponent>(metadata);
                     foreach (var t in iterator)
-                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Closing, t, metadata);
+                        components.TryAddNavigationCallback(dispatcher, NavigationCallbackType.Closing, t.NavigationId, t.NavigationType, t, metadata);
                 }
 
                 return results;

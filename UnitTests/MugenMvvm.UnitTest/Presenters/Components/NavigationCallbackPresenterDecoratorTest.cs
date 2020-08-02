@@ -23,8 +23,8 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         {
             var suspended = false;
             var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
-            var presenterResult1 = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
-            var presenterResult2 = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
+            var presenterResult1 = new PresenterResult(this, "t1", Default.NavigationProvider, NavigationType.Tab);
+            var presenterResult2 = new PresenterResult(this, "t2", Default.NavigationProvider, NavigationType.Window);
             var presenter = new Presenter();
             var navigationDispatcher = new NavigationDispatcher();
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
@@ -34,9 +34,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryAddNavigationCallback = (callbackType, target, m) =>
+                TryAddNavigationCallback = (callbackType, id, navType, target, m) =>
                 {
                     suspended.ShouldBeTrue();
+                    id.ShouldEqual(presenterResult1.NavigationType == navType ? presenterResult1.NavigationId : presenterResult2.NavigationId);
                     addedCallbacks.Add(((IPresenterResult)target, callbackType));
                     m.ShouldEqual(DefaultMetadata);
                     return null;
@@ -68,8 +69,8 @@ namespace MugenMvvm.UnitTest.Presenters.Components
         {
             var suspended = false;
             var addedCallbacks = new List<(IPresenterResult, NavigationCallbackType)>();
-            var presenterResult1 = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
-            var presenterResult2 = new PresenterResult(this, "t", Default.NavigationProvider, NavigationType.Tab);
+            var presenterResult1 = new PresenterResult(this, "t1", Default.NavigationProvider, NavigationType.Tab);
+            var presenterResult2 = new PresenterResult(this, "t2", Default.NavigationProvider, NavigationType.Window);
             var presenter = new Presenter();
             var navigationDispatcher = new NavigationDispatcher();
             presenter.AddComponent(new NavigationCallbackPresenterDecorator(navigationDispatcher));
@@ -79,9 +80,10 @@ namespace MugenMvvm.UnitTest.Presenters.Components
             });
             navigationDispatcher.AddComponent(new TestNavigationCallbackManagerComponent
             {
-                TryAddNavigationCallback = (callbackType, target, m) =>
+                TryAddNavigationCallback = (callbackType, id, navType, target, m) =>
                 {
                     suspended.ShouldBeTrue();
+                    id.ShouldEqual(presenterResult1.NavigationType == navType ? presenterResult1.NavigationId : presenterResult2.NavigationId);
                     addedCallbacks.Add(((IPresenterResult)target, callbackType));
                     m.ShouldEqual(DefaultMetadata);
                     return null;

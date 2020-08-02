@@ -4,6 +4,7 @@ using System.Threading;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
+using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using MugenMvvm.Interfaces.Navigation;
@@ -17,9 +18,20 @@ namespace MugenMvvm.Navigation.Components
     {
         #region Fields
 
+        private readonly IAttachedValueManager? _attachedValueManager;
+
         private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> ShowingCallbacks = GetKey(nameof(ShowingCallbacks));
         private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> ClosingCallbacks = GetKey(nameof(ClosingCallbacks));
         private static readonly IMetadataContextKey<List<NavigationCallback?>, List<NavigationCallback?>> CloseCallbacks = GetKey(nameof(CloseCallbacks));
+
+        #endregion
+
+        #region Constructors
+
+        public NavigationCallbackManager(IAttachedValueManager? attachedValueManager = null)
+        {
+            _attachedValueManager = attachedValueManager;
+        }
 
         #endregion
 
@@ -31,25 +43,24 @@ namespace MugenMvvm.Navigation.Components
 
         #region Implementation of interfaces
 
-        public INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, object request, IReadOnlyMetadataContext? metadata)
+        public INavigationCallback? TryAddNavigationCallback(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, object request, IReadOnlyMetadataContext? metadata)
         {
-            if (!(request is IHasNavigationInfo hasNavigationInfo))
-                return null;
-
             var key = GetKeyByCallback(callbackType);
             if (key == null)
                 return null;
 
-            if (request is IHasTarget<object?> hasTarget && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner && targetOwner.Metadata is IMetadataContext targetMetadata)
+            var targetMetadata = (IMetadataContext?)GetTargetMetadata((request as IHasTarget<object?>)?.Target ?? request, false);
+            if (targetMetadata != null)
             {
-                var callback = TryFindCallback(callbackType, hasNavigationInfo.NavigationId, hasNavigationInfo.NavigationType, key, targetMetadata);
+                var callback = TryFindCallback(callbackType, navigationId, navigationType, key, targetMetadata);
                 if (callback == null)
                 {
-                    callback = new NavigationCallback(callbackType, hasNavigationInfo.NavigationId, hasNavigationInfo.NavigationType);
+                    callback = new NavigationCallback(callbackType, navigationId, navigationType);
                     AddCallback(key, callback, targetMetadata);
                 }
 
-                AddCallback(key, callback, (request as IMetadataOwner<IReadOnlyMetadataContext>)?.Metadata as IMetadataContext);
+                if (request is IMetadataOwner<IReadOnlyMetadataContext> owner && owner.Metadata is IMetadataContext m && m != targetMetadata)
+                    AddCallback(key, callback, m);
                 return callback;
             }
 
@@ -58,7 +69,7 @@ namespace MugenMvvm.Navigation.Components
 
         public ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> TryGetNavigationCallbacks(INavigationDispatcher navigationDispatcher, object request, IReadOnlyMetadataContext? metadata)
         {
-            return GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), request as IHasTarget<object?>);
+            return GetCallbacks((request as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault(), (request as IHasTarget<object?>)?.Target ?? request);
         }
 
         public bool TryInvokeNavigationCallbacks(INavigationDispatcher navigationDispatcher, NavigationCallbackType callbackType, INavigationContext navigationContext)
@@ -80,17 +91,17 @@ namespace MugenMvvm.Navigation.Components
 
         #region Methods
 
-        private static bool InvokeCallbacks(INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled, CancellationToken cancellationToken)
+        private bool InvokeCallbacks(INavigationContext navigationContext, NavigationCallbackType callbackType, Exception? exception, bool canceled, CancellationToken cancellationToken)
         {
             var key = GetKeyByCallback(callbackType);
             if (key == null)
                 return false;
 
-            var callbacks = (navigationContext.Target as IMetadataOwner<IReadOnlyMetadataContext>)?.GetMetadataOrDefault().Get(key);
+            var callbacks = GetTargetMetadata(navigationContext.Target, true)?.Get(key);
             if (callbacks == null)
                 return false;
 
-            ItemOrListEditor<NavigationCallback, List<NavigationCallback>> toInvoke = ItemOrListEditor.Get<NavigationCallback>();
+            var toInvoke = ItemOrListEditor.Get<NavigationCallback>();
             lock (callbacks)
             {
                 for (var i = 0; i < callbacks.Count; i++)
@@ -136,7 +147,7 @@ namespace MugenMvvm.Navigation.Components
         private static NavigationCallback? TryFindCallback(NavigationCallbackType callbackType, string navigationId, NavigationType navigationType, IReadOnlyMetadataContextKey<List<NavigationCallback?>> key,
             IReadOnlyMetadataContext metadata)
         {
-            var callbacks = metadata?.Get(key);
+            var callbacks = metadata.Get(key);
             if (callbacks == null)
                 return null;
             lock (callbacks)
@@ -159,10 +170,10 @@ namespace MugenMvvm.Navigation.Components
                 .Build();
         }
 
-        private static ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext? metadata, IHasTarget<object?>? hasTarget)
+        private ItemOrList<INavigationCallback, IReadOnlyList<INavigationCallback>> GetCallbacks(IReadOnlyMetadataContext? metadata, object target)
         {
             var canMoveNext = true;
-            ItemOrListEditor<INavigationCallback, List<INavigationCallback>> list = ItemOrListEditor.Get<INavigationCallback>();
+            var list = ItemOrListEditor.Get<INavigationCallback>();
             while (true)
             {
                 AddCallbacks(ShowingCallbacks, metadata, ref list);
@@ -171,8 +182,8 @@ namespace MugenMvvm.Navigation.Components
 
                 if (!list.IsNullOrEmpty || !canMoveNext)
                     break;
-                if (list.IsNullOrEmpty && hasTarget != null && hasTarget.Target is IMetadataOwner<IReadOnlyMetadataContext> targetOwner)
-                    metadata = targetOwner.GetMetadataOrDefault();
+                if (list.IsNullOrEmpty)
+                    metadata = GetTargetMetadata(target, true);
                 canMoveNext = false;
             }
 
@@ -201,6 +212,29 @@ namespace MugenMvvm.Navigation.Components
             if (callbackType == NavigationCallbackType.Close)
                 return CloseCallbacks;
             return null;
+        }
+
+        private IReadOnlyMetadataContext? GetTargetMetadata(object? target, bool isReadonly)
+        {
+            if (target == null)
+                return null;
+
+            if (target is IMetadataOwner<IReadOnlyMetadataContext> t)
+            {
+                if (isReadonly)
+                    return t.GetMetadataOrDefault();
+                if (t.Metadata is IMetadataContext ctx)
+                    return ctx;
+            }
+
+            var attachedValues = _attachedValueManager.DefaultIfNull().TryGetAttachedValues(target);
+            if (isReadonly)
+            {
+                attachedValues.TryGet(InternalConstant.CallbackMetadataKey, out var m);
+                return (IReadOnlyMetadataContext?)m;
+            }
+
+            return attachedValues.GetOrAdd(InternalConstant.CallbackMetadataKey, this, (o, manager) => new MetadataContext());
         }
 
         #endregion
