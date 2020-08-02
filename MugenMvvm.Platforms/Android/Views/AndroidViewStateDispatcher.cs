@@ -4,6 +4,7 @@ using Android.OS;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Enums;
 using MugenMvvm.Android.Native.Interfaces.Views;
+using MugenMvvm.Android.Native.Views;
 using MugenMvvm.Constants;
 using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
@@ -55,7 +56,7 @@ namespace MugenMvvm.Android.Views
             if (lifecycleState == AndroidViewLifecycleState.SavingState && view is IView v && state is ICancelableRequest cancelableRequest
                 && !cancelableRequest.Cancel && cancelableRequest.State is Bundle bundle)
                 PreserveState(viewManager, v, bundle, metadata);
-            else if (lifecycleState == AndroidViewLifecycleState.Created && state is Bundle b)
+            else if (lifecycleState == AndroidViewLifecycleState.Creating && state is ICancelableRequest r && !r.Cancel && r.State is Bundle b)
             {
                 if (view is IView wrapperView)
                     view = wrapperView.Target;
@@ -63,7 +64,11 @@ namespace MugenMvvm.Android.Views
                 var request = TryRestoreState(viewManager, view, b, metadata);
                 if (request == null)
                 {
-                    (view as IActivityView)?.Finish();
+                    FragmentExtensions.ClearFragmentState(b);
+                    if (view is IActivityView av)
+                        av.Finish();
+                    else if (view is IFragmentView f)
+                        FragmentExtensions.Remove(f);
                     return;
                 }
 

@@ -34,6 +34,7 @@ namespace MugenMvvm.Android.Presenters
         private bool _addedComponent;
         private bool _shouldRaiseOnResume;
         private bool _shouldRaiseOnShow;
+        private bool _ignoreFinishingNavigation;
 
         #endregion
 
@@ -50,19 +51,16 @@ namespace MugenMvvm.Android.Presenters
 
         public override NavigationType NavigationType => NavigationType.Page;
 
-        private ActivityViewDispatcher ActivityDispatcher
-        {
-            get
-            {
-                if (_activityDispatcher == null)
-                    _activityDispatcher = new ActivityViewDispatcher(this);
-                return _activityDispatcher;
-            }
-        }
+        private ActivityViewDispatcher ActivityDispatcher => _activityDispatcher ??= new ActivityViewDispatcher(this);
 
         #endregion
 
         #region Methods
+
+        protected override Task WaitBeforeCloseAsync(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
+        {
+            return NavigationDispatcher.WaitNavigationAsync(this, (callback, state) => callback.NavigationType == NavigationType.Background && callback.CallbackType == NavigationCallbackType.Close, metadata);
+        }
 
         protected override void ShowInternal(object? view, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
@@ -157,9 +155,9 @@ namespace MugenMvvm.Android.Presenters
             }
         }
 
-        protected virtual void OnFinishing(ICancelableRequest cancelableRequest, IReadOnlyMetadataContext? metadata)
+        protected virtual void OnFinishing(bool afterTransition, ICancelableRequest cancelableRequest, IReadOnlyMetadataContext? metadata)
         {
-            if (cancelableRequest.Cancel)
+            if (cancelableRequest.Cancel || _ignoreFinishingNavigation)
                 return;
 
             var currentView = CurrentView;
@@ -174,6 +172,9 @@ namespace MugenMvvm.Android.Presenters
                 OnViewClosing(currentView, eventArgs);
                 cancelableRequest.Cancel = eventArgs.Cancel;
             }
+
+            if (afterTransition && !cancelableRequest.Cancel)
+                _ignoreFinishingNavigation = true;
         }
 
         protected virtual void OnFinished(IReadOnlyMetadataContext? metadata)
@@ -181,6 +182,7 @@ namespace MugenMvvm.Android.Presenters
             OnViewClosed();
             ViewManager.RemoveComponent(ActivityDispatcher, metadata);
             _addedComponent = false;
+            _ignoreFinishingNavigation = false;
         }
 
         #endregion
@@ -224,7 +226,7 @@ namespace MugenMvvm.Android.Presenters
                 }
 
                 var currentView = _mediator.CurrentView;
-                if (currentView == null || !view.Equals(currentView))
+                if (currentView == null || !Equals(view, currentView))
                 {
                     if (lifecycleState == AndroidViewLifecycleState.ClearBackStack && _mediator != view)
                     {
@@ -239,11 +241,8 @@ namespace MugenMvvm.Android.Presenters
                     _mediator.OnResumed(metadata);
                 else if (lifecycleState == AndroidViewLifecycleState.Finished || lifecycleState == AndroidViewLifecycleState.Destroyed && currentView.IsFinishing)
                     _mediator.OnFinished(metadata);
-                else if (lifecycleState == AndroidViewLifecycleState.Finishing || lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition)
-                {
-                    if (state is ICancelableRequest cancelableRequest)
-                        _mediator.OnFinishing(cancelableRequest, metadata);
-                }
+                else if ((lifecycleState == AndroidViewLifecycleState.Finishing || lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition) && state is ICancelableRequest cancelableRequest)
+                    _mediator.OnFinishing(lifecycleState == AndroidViewLifecycleState.FinishingAfterTransition, cancelableRequest, metadata);
             }
 
             public Task<IView>? TryInitializeAsync(IViewManager viewManager, IViewMapping mapping, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)

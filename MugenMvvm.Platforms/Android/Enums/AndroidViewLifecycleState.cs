@@ -40,6 +40,12 @@ namespace MugenMvvm.Android.Enums
         public static readonly ViewLifecycleState OptionsItemSelecting = new ViewLifecycleState(nameof(OptionsItemSelecting));
         public static readonly ViewLifecycleState OptionsItemSelected = new ViewLifecycleState(nameof(OptionsItemSelected));
         public static readonly ViewLifecycleState ClearBackStack = new ViewLifecycleState(nameof(ClearBackStack));
+        public static readonly ViewLifecycleState Dismissing = new ViewLifecycleState(nameof(Dismissing));
+        public static readonly ViewLifecycleState Dismissed = new ViewLifecycleState(nameof(Dismissed));
+        public static readonly ViewLifecycleState DismissingAllowingStateLoss = new ViewLifecycleState(nameof(DismissingAllowingStateLoss));
+        public static readonly ViewLifecycleState DismissedAllowingStateLoss = new ViewLifecycleState(nameof(DismissedAllowingStateLoss));
+        public static readonly ViewLifecycleState Canceling = new ViewLifecycleState(nameof(Canceling));
+        public static readonly ViewLifecycleState Canceled = new ViewLifecycleState(nameof(Canceled));
 
         #endregion
 
@@ -81,6 +87,12 @@ namespace MugenMvvm.Android.Enums
                     return OptionsItemSelecting;
                 case LifecycleState.CreateOptionsMenu:
                     return CreatingOptionsMenu;
+                case LifecycleState.Dismiss:
+                    return Dismissing;
+                case LifecycleState.DismissAllowingStateLoss:
+                    return DismissingAllowingStateLoss;
+                case LifecycleState.Cancel:
+                    return Canceling;
             }
             return null;
         }
@@ -121,6 +133,12 @@ namespace MugenMvvm.Android.Enums
                     return OptionsItemSelected;
                 case LifecycleState.CreateOptionsMenu:
                     return CreatedOptionsMenu;
+                case LifecycleState.Dismiss:
+                    return Dismissed;
+                case LifecycleState.DismissAllowingStateLoss:
+                    return DismissedAllowingStateLoss;
+                case LifecycleState.Cancel:
+                    return Canceled;
             }
 
             return null;

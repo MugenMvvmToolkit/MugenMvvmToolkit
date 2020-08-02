@@ -63,6 +63,7 @@ namespace MugenMvvm.Android.Extensions
 
             var mediatorPresenter = configuration.ServiceConfiguration<IPresenter>().Service().GetOrAddComponent(ctx => new ViewModelPresenter());
             mediatorPresenter.RegisterMediator<ActivityViewModelPresenterMediator, IActivityView>();
+            mediatorPresenter.RegisterMediator<FragmentDialogViewModelPresenterMediator, IDialogFragmentView>();
             return configuration;
         }
 
