@@ -16,14 +16,12 @@ namespace MugenMvvm.UnitTest.App
         public void ConstructorShouldInitializeValues()
         {
             PlatformType type = PlatformType.Android;
-            PlatformIdiom idiom = PlatformIdiom.Desktop;
-            string version = "v";
             var meta = new MetadataContext();
-            var deviceInfo = new DeviceInfo(type, () => idiom, () => version, meta);
+            var deviceInfo = new DeviceInfo(type, meta);
             deviceInfo.Metadata.ShouldEqual(meta);
-            deviceInfo.Idiom.ShouldEqual(idiom);
+            deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
             deviceInfo.Platform.ShouldEqual(type);
-            deviceInfo.RawVersion.ShouldEqual(version);
+            deviceInfo.Version.ShouldEqual("0.0");
             deviceInfo.HasMetadata.ShouldBeFalse();
             meta.Set(ViewModelMetadata.Id, Guid.Empty);
             deviceInfo.HasMetadata.ShouldBeTrue();

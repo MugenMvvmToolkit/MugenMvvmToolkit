@@ -323,7 +323,7 @@ namespace MugenMvvm.Presenters
             _showingContext = navigationContext;
             if (navigationContext.NavigationMode.IsNew)
             {
-                NavigationDispatcher.OnNavigating(navigationContext, (this, view, cancellationToken), (dispatcher, context, state) =>
+                NavigationDispatcher.OnNavigatingAsync(navigationContext, (this, view, cancellationToken), (dispatcher, context, state) =>
                 {
                     state.Item1.ViewManager
                         .InitializeAsync(state.Item1.Mapping, ViewModelViewRequest.GetRequestOrRaw(state.Item1.ViewModel, state.Item2), state.Item3, context.Metadata)
@@ -347,7 +347,7 @@ namespace MugenMvvm.Presenters
         protected virtual void CloseInternal(CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
             _closingContext = GetNavigationContext(NavigationMode.Close, metadata);
-            NavigationDispatcher.OnNavigating(_closingContext, this, (dispatcher, context, state) =>
+            NavigationDispatcher.OnNavigatingAsync(_closingContext, this, (dispatcher, context, state) =>
             {
                 state.ThreadDispatcher.Execute(state.ExecutionMode, state.CloseViewCallback, context);
                 return false;

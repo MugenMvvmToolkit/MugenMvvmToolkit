@@ -17,8 +17,8 @@ namespace MugenMvvm.Enums
         public static readonly PlatformIdiom Desktop = new PlatformIdiom(nameof(Desktop));
         public static readonly PlatformIdiom Tablet = new PlatformIdiom(nameof(Tablet));
         public static readonly PlatformIdiom Phone = new PlatformIdiom(nameof(Phone));
-        public static readonly PlatformIdiom Car = new PlatformIdiom(nameof(Car));
         public static readonly PlatformIdiom TV = new PlatformIdiom(nameof(TV));
+        public static readonly PlatformIdiom Watch = new PlatformIdiom(nameof(Watch));
         public static readonly PlatformIdiom Unknown = new PlatformIdiom(nameof(Unknown));
 
         #endregion

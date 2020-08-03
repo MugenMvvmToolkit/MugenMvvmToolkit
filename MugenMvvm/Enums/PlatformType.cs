@@ -39,19 +39,7 @@ namespace MugenMvvm.Enums
 
         #endregion
 
-        #region Properties
-
-        [DataMember(Name = "x")]
-        public bool IsXamForms { get; protected set; }
-
-        #endregion
-
         #region Methods
-
-        public PlatformType ToXamForms()
-        {
-            return new PlatformType(Value) {IsXamForms = true};
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static bool operator ==(PlatformType? left, PlatformType? right)

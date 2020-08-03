@@ -12,7 +12,7 @@ namespace MugenMvvm.UnitTest.Enums
         [Fact]
         public void CompareToEqualsShouldBeValid()
         {
-            var enum1 = PlatformIdiom.Car;
+            var enum1 = PlatformIdiom.Tablet;
             var enum2 = PlatformIdiom.Desktop;
             var enum3 = new PlatformIdiom(enum1.Value);
             var v1 = enum1.Value;

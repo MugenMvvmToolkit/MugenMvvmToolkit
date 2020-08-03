@@ -13,6 +13,6 @@ namespace MugenMvvm.Interfaces.App
 
         void OnLifecycleChanged(ApplicationLifecycleState lifecycleState, object? state, IReadOnlyMetadataContext? metadata = null);
 
-        void Initialize(IDeviceInfo device, object? state, IReadOnlyMetadataContext? metadata = null);
+        void Initialize(IDeviceInfo deviceInfo, object? state, IReadOnlyMetadataContext? metadata = null);
     }
 }

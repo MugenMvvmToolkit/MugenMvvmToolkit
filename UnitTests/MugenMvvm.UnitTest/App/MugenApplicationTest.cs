@@ -26,7 +26,7 @@ namespace MugenMvvm.UnitTest.App
             deviceInfo.ShouldNotBeNull();
             deviceInfo.Idiom.ShouldEqual(PlatformIdiom.Unknown);
             deviceInfo.Platform.ShouldEqual(PlatformType.Unknown);
-            deviceInfo.RawVersion.ShouldEqual("0");
+            deviceInfo.Version.ShouldEqual("0.0");
             deviceInfo.Metadata.ShouldNotBeNull();
             MugenService.Application.ShouldEqual(mugenApplication);
         }
@@ -95,7 +95,7 @@ namespace MugenMvvm.UnitTest.App
         {
             var state = this;
             var states = new List<ApplicationLifecycleState>();
-            var device = new DeviceInfo(PlatformType.UnitTest, () => PlatformIdiom.Phone, () => "00", new MetadataContext());
+            var device = new DeviceInfo(PlatformType.UnitTest, new MetadataContext());
             var application = new MugenApplication();
             application.AddComponent(new TestApplicationLifecycleDispatcherComponent(application)
             {

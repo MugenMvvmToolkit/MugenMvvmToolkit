@@ -9,6 +9,6 @@ namespace MugenMvvm.Interfaces.App
 
         PlatformIdiom Idiom { get; }
 
-        string RawVersion { get; }
+        string Version { get; }
     }
 }

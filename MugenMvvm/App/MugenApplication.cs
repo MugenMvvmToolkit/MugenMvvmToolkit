@@ -48,7 +48,7 @@ namespace MugenMvvm.App
 
         public IDeviceInfo DeviceInfo
         {
-            get => _deviceInfo ??= new DeviceInfo(PlatformType.Unknown, () => PlatformIdiom.Unknown, () => "0");
+            get => _deviceInfo ??= new DeviceInfo(PlatformType.Unknown);
             private set => _deviceInfo = value;
         }
 
@@ -66,10 +66,12 @@ namespace MugenMvvm.App
             Components.Get<IApplicationLifecycleDispatcherComponent>().OnLifecycleChanged(this, lifecycleState, state, metadata);
         }
 
-        public void Initialize(IDeviceInfo device, object? state, IReadOnlyMetadataContext? metadata = null)
+        public void Initialize(IDeviceInfo deviceInfo, object? state, IReadOnlyMetadataContext? metadata = null)
         {
-            Should.NotBeNull(device, nameof(device));
-            DeviceInfo = device;
+            Should.NotBeNull(deviceInfo, nameof(deviceInfo));
+            if (_deviceInfo != null && _deviceInfo.HasMetadata)
+                deviceInfo.Metadata.Merge(_deviceInfo.Metadata);
+            DeviceInfo = deviceInfo;
             OnLifecycleChanged(ApplicationLifecycleState.Initializing, state, metadata);
             OnLifecycleChanged(ApplicationLifecycleState.Initialized, state, metadata);
         }
