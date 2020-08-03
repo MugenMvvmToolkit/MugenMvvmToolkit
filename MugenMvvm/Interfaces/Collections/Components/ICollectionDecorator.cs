@@ -3,7 +3,6 @@ using MugenMvvm.Interfaces.Components;
 
 namespace MugenMvvm.Interfaces.Collections.Components
 {
-    //todo implement tracking decorator (SelectedItem, SelectedIndex, Components)
     public interface ICollectionDecorator : IComponent<IObservableCollection>
     {
         IEnumerable<object?> DecorateItems(IObservableCollection collection, IEnumerable<object?> items);
