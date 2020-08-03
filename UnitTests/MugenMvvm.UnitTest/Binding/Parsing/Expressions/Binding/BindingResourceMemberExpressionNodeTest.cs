@@ -1,4 +1,5 @@
 ﻿using MugenMvvm.Binding.Enums;
+using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Observation;
 using MugenMvvm.Binding.Observation.Observers;
 using MugenMvvm.Binding.Observation.Paths;
@@ -27,22 +28,22 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         }
 
         [Fact]
-        public void GetTargetSourceShouldReturnResource()
+        public void GetSourceShouldReturnResource()
         {
             var path = new SingleMemberPath(Path);
             var t = "r";
             var src = new object();
-            var resource = new TestResourceValue();
+            var resource = new object();
 
             var resourceResolver = new ResourceResolver();
             resourceResolver.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResourceValue = (s, o, arg4) =>
+                TryGetResource = (s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return resource;
+                    return new ResourceResolverResult(resource);
                 }
             });
 
@@ -70,23 +71,63 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         }
 
         [Fact]
-        public void GetBindingTargetSourceShouldReturnResourceObserver()
+        public void GetBindingSourceShouldReturnRawValueEmptyPath()
+        {
+            var t = "r";
+            var src = new object();
+            var resource = new object();
+
+            var resourceResolver = new ResourceResolver();
+            resourceResolver.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResource = (s, o, arg4) =>
+                {
+                    s.ShouldEqual(ResourceName);
+                    o.ShouldEqual(t);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return new ResourceResolverResult(resource);
+                }
+            });
+            var observationManager = new ObservationManager();
+
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, "", observationManager, resourceResolver)
+            {
+                MemberFlags = MemberFlags.All,
+                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods,
+                ObservableMethodName = "M"
+            };
+
+            observationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (o, arg3) =>
+                {
+                    o.ShouldEqual("");
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return EmptyMemberPath.Instance;
+                }
+            });
+
+            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(resource);
+        }
+
+        [Fact]
+        public void GetBindingSourceShouldReturnResourceObserver()
         {
             var path = new SingleMemberPath(Path);
             var observer = EmptyPathObserver.Empty;
             var t = "r";
             var src = new object();
-            var resource = new TestResourceValue();
+            var resource = new object();
 
             var resourceResolver = new ResourceResolver();
             resourceResolver.AddComponent(new TestResourceResolverComponent
             {
-                TryGetResourceValue = (s, o, arg4) =>
+                TryGetResource = (s, o, arg4) =>
                 {
                     s.ShouldEqual(ResourceName);
                     o.ShouldEqual(t);
                     arg4.ShouldEqual(DefaultMetadata);
-                    return resource;
+                    return new ResourceResolverResult(resource);
                 }
             });
             var observationManager = new ObservationManager();
@@ -125,8 +166,64 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
             });
 
             exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
-            resource.IsStatic = true;
-            exp.GetBindingSource(t, src, DefaultMetadata).ShouldBeNull();
+        }
+
+        [Fact]
+        public void GetBindingSourceShouldReturnResourceObserverDynamic()
+        {
+            var path = new SingleMemberPath(Path);
+            var observer = EmptyPathObserver.Empty;
+            var t = "r";
+            var src = new object();
+            var resource = new TestDynamicResource { Value = new object() };
+
+            var resourceResolver = new ResourceResolver();
+            resourceResolver.AddComponent(new TestResourceResolverComponent
+            {
+                TryGetResource = (s, o, arg4) =>
+                {
+                    s.ShouldEqual(ResourceName);
+                    o.ShouldEqual(t);
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return new ResourceResolverResult(resource);
+                }
+            });
+            var observationManager = new ObservationManager();
+
+            var exp = new BindingResourceMemberExpressionNode(ResourceName, Path, observationManager, resourceResolver)
+            {
+                MemberFlags = MemberFlags.All,
+                Flags = BindingMemberExpressionFlags.Observable | BindingMemberExpressionFlags.Optional | BindingMemberExpressionFlags.StablePath | BindingMemberExpressionFlags.ObservableMethods,
+                ObservableMethodName = "M"
+            };
+
+            observationManager.AddComponent(new TestMemberPathProviderComponent
+            {
+                TryGetMemberPath = (o, arg3) =>
+                {
+                    o.ShouldEqual(nameof(IDynamicResource.Value) + "." + Path);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return path;
+                }
+            });
+            observationManager.AddComponent(new TestMemberPathObserverProviderComponent
+            {
+                TryGetMemberPathObserver = (target, req, arg4) =>
+                {
+                    target.ShouldEqual(resource);
+                    var request = (MemberPathObserverRequest)req;
+                    request.Path.ShouldEqual(path);
+                    request.MemberFlags.ShouldEqual(exp.MemberFlags);
+                    request.ObservableMethodName.ShouldEqual(exp.ObservableMethodName);
+                    request.HasStablePath.ShouldBeTrue();
+                    request.Optional.ShouldBeTrue();
+                    request.Observable.ShouldBeTrue();
+                    arg4.ShouldEqual(DefaultMetadata);
+                    return observer;
+                }
+            });
+
+            exp.GetBindingSource(t, src, DefaultMetadata).ShouldEqual(observer);
         }
 
         protected override BindingMemberExpressionNodeBase GetExpression()

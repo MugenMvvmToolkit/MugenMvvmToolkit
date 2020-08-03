@@ -25,7 +25,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         }
 
         [Fact]
-        public void GetTargetSourceShouldReturnInstance()
+        public void GetSourceShouldReturnInstance()
         {
             var path = new SingleMemberPath(Path);
             var observationManager = new ObservationManager();
@@ -57,7 +57,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Expressions.Binding
         }
 
         [Fact]
-        public void GetBindingTargetSourceShouldReturnInstanceObserver()
+        public void GetBindingSourceShouldReturnInstanceObserver()
         {
             var path = new SingleMemberPath(Path);
             var observer = EmptyPathObserver.Empty;

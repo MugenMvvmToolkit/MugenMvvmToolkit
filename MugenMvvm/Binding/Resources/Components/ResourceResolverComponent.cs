@@ -15,36 +15,40 @@ namespace MugenMvvm.Binding.Resources.Components
         [Preserve(Conditional = true)]
         public ResourceResolverComponent()
         {
-            Resources = new Dictionary<string, IResourceValue>();
+            Resources = new Dictionary<string, object?>();
         }
 
         #endregion
 
         #region Properties
 
-        public IDictionary<string, IResourceValue> Resources { get; }
+        public IDictionary<string, object?> Resources { get; }
 
-        public int Priority { get; set; } = ResourceComponentPriority.ConverterResolver;
+        public int Priority { get; set; } = ResourceComponentPriority.ResourceResolver;
 
         #endregion
 
         #region Implementation of interfaces
 
-        public IResourceValue? TryGetResourceValue(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        public ResourceResolverResult TryGetResource(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
-            Resources.TryGetValue(name, out var value);
-            return value;
+            return Resources.TryGetValue(name, out var value) ? new ResourceResolverResult(value) : default;
         }
 
         #endregion
 
         #region Methods
 
-        public void AddResource(string name, IResourceValue resource)
+        public void Add(string name, object? resource)
         {
             Should.NotBeNull(name, nameof(name));
-            Should.NotBeNull(resource, nameof(resource));
             Resources[name] = resource;
+        }
+
+        public void Remove(string name)
+        {
+            Should.NotBeNull(name, nameof(name));
+            Resources.Remove(name);
         }
 
         #endregion

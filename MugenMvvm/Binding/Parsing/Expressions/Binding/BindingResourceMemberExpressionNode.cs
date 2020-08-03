@@ -14,6 +14,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         private readonly IResourceResolver? _resourceResolver;
         private MemberPathObserverRequest? _request;
+        private MemberPathObserverRequest? _requestResource;
 
         #endregion
 
@@ -37,34 +38,43 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
-            path = GetMemberPath(metadata);
+            var resource = GetResource(target, metadata, out var r);
+            path = r.Path;
             memberFlags = MemberFlags;
-            return GetResource(target, metadata);
+            return resource;
         }
 
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            var resourceValue = GetResource(target, metadata);
-            var memberPath = GetMemberPath(metadata);
-            if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target) || !resourceValue.IsStatic)
-            {
-                _request ??= GetObserverRequest(memberPath);
-                return ObservationManager.DefaultIfNull().GetMemberPathObserver(resourceValue, _request, metadata);
-            }
+            var resource = GetResource(target, metadata, out var request);
+            if (_request == request && !Flags.HasFlagEx(BindingMemberExpressionFlags.Target) && string.IsNullOrEmpty(Path))
+                return resource;
 
-            if (resourceValue.Value == null)
-                return null;
-            return memberPath.GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags, 1, metadata);
+            if (resource == null)
+                BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
+
+            return ObservationManager.DefaultIfNull().GetMemberPathObserver(resource, request, metadata);
         }
 
-        private IResourceValue GetResource(object target, IReadOnlyMetadataContext? metadata)
+        private object? GetResource(object target, IReadOnlyMetadataContext? metadata, out MemberPathObserverRequest request)
         {
-            var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(ResourceName, target, metadata);
-            if (resourceValue == null)
+            var resource = _resourceResolver.DefaultIfNull().TryGetResource(ResourceName, target, metadata);
+            if (!resource.IsResolved)
                 BindingExceptionManager.ThrowCannotResolveResource(ResourceName);
-            return resourceValue;
+
+            if (resource.Resource is IDynamicResource)
+            {
+                _requestResource ??= GetObserverRequest(MergePath(nameof(IDynamicResource.Value)), metadata);
+                request = _requestResource;
+            }
+            else
+            {
+                _request ??= GetObserverRequest(Path, metadata);
+                request = _request;
+            }
+            return resource.Resource;
         }
 
         #endregion

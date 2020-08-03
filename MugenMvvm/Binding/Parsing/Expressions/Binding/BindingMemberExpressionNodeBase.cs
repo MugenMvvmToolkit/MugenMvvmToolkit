@@ -1,4 +1,5 @@
-﻿using MugenMvvm.Binding.Enums;
+﻿using System;
+using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Interfaces.Parsing;
@@ -14,7 +15,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
         #region Fields
 
         protected readonly IObservationManager? ObservationManager;
-        private IMemberPath? _memberPath;
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Implementation of interfaces
 
-        public abstract object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
+        public abstract object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
 
         public abstract object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
 
@@ -61,16 +61,20 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             return this;
         }
 
-        protected IMemberPath GetMemberPath(IReadOnlyMetadataContext? metadata)
+        protected MemberPathObserverRequest GetObserverRequest(string path, IReadOnlyMetadataContext? metadata)
         {
-            return _memberPath ??= ObservationManager.DefaultIfNull().GetMemberPath(Path, metadata);
-        }
-
-        protected MemberPathObserverRequest GetObserverRequest(IMemberPath memberPath)
-        {
-            return new MemberPathObserverRequest(memberPath, MemberFlags,
+            return new MemberPathObserverRequest(ObservationManager.DefaultIfNull().GetMemberPath(path, metadata), MemberFlags,
                 Flags.HasFlagEx(BindingMemberExpressionFlags.ObservableMethods) ? ObservableMethodName : null, Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath),
                 Flags.HasFlagEx(BindingMemberExpressionFlags.Observable), Flags.HasFlagEx(BindingMemberExpressionFlags.StablePath));
+        }
+
+        protected string MergePath(string value)
+        {
+            if (string.IsNullOrEmpty(Path))
+                return value;
+            if (Path.StartsWith("[", StringComparison.Ordinal))
+                return value + Path;
+            return value + "." + Path;
         }
 
         public override string ToString()

@@ -1,6 +1,7 @@
 ﻿using System;
 using MugenMvvm.Binding.Interfaces.Resources;
 using MugenMvvm.Binding.Interfaces.Resources.Components;
+using MugenMvvm.Binding.Resources;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
 using Should;
@@ -28,16 +29,16 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Internal
 
         public int Priority { get; set; }
 
-        public Func<string, object?, IReadOnlyMetadataContext?, IResourceValue?>? TryGetResourceValue { get; set; }
+        public Func<string, object?, IReadOnlyMetadataContext?, ResourceResolverResult>? TryGetResource { get; set; }
 
         #endregion
 
         #region Implementation of interfaces
 
-        IResourceValue? IResourceResolverComponent.TryGetResourceValue(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
+        ResourceResolverResult IResourceResolverComponent.TryGetResource(IResourceResolver resourceResolver, string name, object? state, IReadOnlyMetadataContext? metadata)
         {
             _resourceResolver?.ShouldEqual(resourceResolver);
-            return TryGetResourceValue?.Invoke(name, state, metadata);
+            return TryGetResource?.Invoke(name, state, metadata) ?? default;
         }
 
         #endregion

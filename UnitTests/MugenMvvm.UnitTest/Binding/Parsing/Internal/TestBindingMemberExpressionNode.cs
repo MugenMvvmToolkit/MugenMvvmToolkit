@@ -41,7 +41,7 @@ namespace MugenMvvm.UnitTest.Binding.Parsing.Internal
 
         #region Implementation of interfaces
 
-        object IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        object? IBindingMemberExpressionNode.GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             var tuple = GetSource?.Invoke(target, source, metadata);
             path = tuple?.Item2!;

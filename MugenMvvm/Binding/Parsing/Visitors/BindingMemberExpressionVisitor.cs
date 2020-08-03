@@ -69,7 +69,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
         int IEqualityComparer<CacheKey>.GetHashCode(CacheKey key)
         {
-            return HashCode.Combine(key.Path, key.MethodName, (int) key.MemberFlags, (int) key.MemberType, key.Target);
+            return HashCode.Combine(key.Path, key.MethodName, (int)key.MemberFlags, (int)key.MemberType, key.Target);
         }
 
         IExpressionNode? IExpressionVisitor.Visit(IExpressionNode expression, IReadOnlyMetadataContext? metadata)
@@ -157,11 +157,13 @@ namespace MugenMvvm.Binding.Parsing.Visitors
 
                 //type -> $string, $int, etc
                 var type = _resourceResolver.DefaultIfNull().TryGetType(memberExpression.Member, memberExpression, metadata);
+                IExpressionNode? result;
+                CacheKey key;
                 if (type != null)
                 {
                     if (unaryExpression.Token == UnaryTokenType.StaticExpression)
                     {
-                        var result = TryGetConstant("~t", memberExpression.Member, out var key);
+                        result = TryGetConstant("~t", memberExpression.Member, out key);
                         if (result == null)
                         {
                             var value = _observationManager.DefaultIfNull()
@@ -178,33 +180,34 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
 
                 //resource -> $i18n, $color, etc
-                var resourceValue = _resourceResolver.DefaultIfNull().TryGetResourceValue(memberExpression.Member, memberExpression, metadata);
-                if (unaryExpression.Token == UnaryTokenType.StaticExpression || resourceValue != null && resourceValue.IsStatic)
-                {
-                    var result = TryGetConstant("~r", memberExpression.Member, out var key);
-                    if (result == null)
-                    {
-                        if (resourceValue == null)
-                            BindingExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
-                        if (resourceValue.Value == null)
-                            result = ConstantExpressionNode.Null;
-                        else
-                        {
-                            var value = _observationManager
-                                .DefaultIfNull()
-                                .GetMemberPath(_memberBuilder.GetPath(), metadata)
-                                .GetValueFromPath(resourceValue.Value.GetType(), resourceValue.Value, MemberFlags.SetInstanceOrStaticFlags(false), 0, metadata, _memberManager);
-                            result = ConstantExpressionNode.Get(value);
-                        }
+                var resource = _resourceResolver.DefaultIfNull().TryGetResource(memberExpression.Member, memberExpression, metadata);
+                var resourceValue = resource.Resource;
+                if (unaryExpression.Token == UnaryTokenType.DynamicExpression)
+                    return GetOrAddResource(memberExpression.Member, methodName);
 
-                        _members[key] = result;
+                if (!resource.IsResolved)
+                    BindingExceptionManager.ThrowCannotResolveResource(memberExpression.Member);
+
+                result = TryGetConstant("~r", memberExpression.Member, out key);
+                if (result == null)
+                {
+                    if (resourceValue is IDynamicResource r)
+                        resourceValue = r.Value;
+
+                    if (resourceValue == null)
+                        result = ConstantExpressionNode.Null;
+                    else
+                    {
+                        result = ConstantExpressionNode.Get(_observationManager
+                            .DefaultIfNull()
+                            .GetMemberPath(_memberBuilder.GetPath(), metadata)
+                            .GetValueFromPath(resourceValue.GetType(), resourceValue, MemberFlags.SetInstanceOrStaticFlags(false), 0, metadata, _memberManager));
                     }
 
-                    return result;
+                    _members[key] = result;
                 }
 
-                _memberBuilder.Insert(0, nameof(IResourceValue.Value));
-                return GetOrAddResource(memberExpression.Member, methodName);
+                return result;
             }
 
             return null;
@@ -228,7 +231,7 @@ namespace MugenMvvm.Binding.Parsing.Visitors
                 }
             }
 
-            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType) type);
+            var key = new CacheKey(_memberBuilder.GetPath(), methodName, MemberFlags.SetInstanceOrStaticFlags(false), null, (BindingMemberType)type);
             if (!_members.TryGetValue(key, out var node))
             {
                 node = new BindingMemberExpressionNode(key.Path, _observationManager)

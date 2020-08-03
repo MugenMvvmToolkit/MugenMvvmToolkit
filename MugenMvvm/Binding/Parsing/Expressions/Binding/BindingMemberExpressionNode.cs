@@ -1,5 +1,4 @@
-﻿using System;
-using MugenMvvm.Binding.Enums;
+﻿using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
@@ -13,7 +12,6 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
     {
         #region Fields
 
-        private IMemberPath? _dataContextMemberPath;
         private MemberPathObserverRequest? _dataContextRequest;
         private MemberPathObserverRequest? _request;
 
@@ -29,22 +27,22 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
             memberFlags = MemberFlags;
             if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target))
             {
-                path = GetMemberPath(metadata);
+                path = Request(metadata).Path;
                 return target;
             }
 
             if (source == null)
             {
-                path = GetDataContextPath(metadata);
+                path = DataContextRequest(metadata).Path;
                 return target;
             }
 
-            path = GetMemberPath(metadata);
+            path = Request(metadata).Path;
             return source;
         }
 
@@ -53,38 +51,31 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
             if (Flags.HasFlagEx(BindingMemberExpressionFlags.Target))
                 return GetObserver(target, metadata);
             if (source == null)
-                return GetDataContextObserver(target, metadata);
+                return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, DataContextRequest(metadata), metadata);
             return GetObserver(source, metadata);
         }
 
         private IMemberPathObserver GetObserver(object target, IReadOnlyMetadataContext? metadata)
         {
-            _request ??= GetObserverRequest(GetMemberPath(metadata));
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, _request, metadata);
+            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, Request(metadata), metadata);
         }
 
-        private IMemberPathObserver GetDataContextObserver(object target, IReadOnlyMetadataContext? metadata)
+        private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata)
         {
-            _dataContextRequest ??= GetObserverRequest(GetDataContextPath(metadata));
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(target, _dataContextRequest, metadata);
+            return _request ??= GetObserverRequest(Path, metadata);
         }
 
-        private IMemberPath GetDataContextPath(IReadOnlyMetadataContext? metadata)
+        private MemberPathObserverRequest DataContextRequest(IReadOnlyMetadataContext? metadata)
         {
-            if (_dataContextMemberPath != null)
-                return _dataContextMemberPath;
+            return _dataContextRequest ??= GetObserverRequest(GetDataContextPath(), metadata);
+        }
 
-            string path;
-            if (string.IsNullOrEmpty(Path))
-                path = BindableMembers.For<object>().DataContext();
-            else if (Path.StartsWith("[", StringComparison.Ordinal))
-                path = BindableMembers.For<object>().DataContext().Name + Path;
-            else
-                path = BindableMembers.For<object>().DataContext().Name + "." + Path;
+        private string GetDataContextPath()
+        {
+            var path = MergePath(BindableMembers.For<object>().DataContext());
             if (Flags.HasFlagEx(BindingMemberExpressionFlags.DataContextPath))
                 path = BindableMembers.For<object>().Parent().Name + "." + path;
-            _dataContextMemberPath = ObservationManager.DefaultIfNull().GetMemberPath(path, metadata);
-            return _dataContextMemberPath;
+            return path;
         }
 
         #endregion

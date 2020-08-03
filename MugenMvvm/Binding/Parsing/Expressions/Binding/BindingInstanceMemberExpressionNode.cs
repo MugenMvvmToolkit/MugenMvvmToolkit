@@ -34,17 +34,21 @@ namespace MugenMvvm.Binding.Parsing.Expressions.Binding
 
         #region Methods
 
-        public override object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
+        public override object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags)
         {
-            path = GetMemberPath(metadata);
+            path = Request(metadata).Path;
             memberFlags = MemberFlags;
             return Instance;
         }
 
         public override object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata)
         {
-            _request ??= GetObserverRequest(GetMemberPath(metadata));
-            return ObservationManager.DefaultIfNull().GetMemberPathObserver(Instance, _request, metadata);
+            return ObservationManager.DefaultIfNull().GetMemberPathObserver(Instance, Request(metadata), metadata);
+        }
+
+        private MemberPathObserverRequest Request(IReadOnlyMetadataContext? metadata)
+        {
+            return _request ??= GetObserverRequest(Path, metadata);
         }
 
         #endregion

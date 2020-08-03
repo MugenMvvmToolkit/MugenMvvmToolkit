@@ -14,7 +14,7 @@ namespace MugenMvvm.Binding.Interfaces.Parsing.Expressions
 
         string Path { get; }
 
-        object GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
+        object? GetSource(object target, object? source, IReadOnlyMetadataContext? metadata, out IMemberPath path, out MemberFlags memberFlags);
 
         object? GetBindingSource(object target, object? source, IReadOnlyMetadataContext? metadata);
     }

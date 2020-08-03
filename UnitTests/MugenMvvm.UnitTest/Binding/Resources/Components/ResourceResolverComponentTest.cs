@@ -1,5 +1,4 @@
 ﻿using MugenMvvm.Binding.Resources.Components;
-using MugenMvvm.UnitTest.Binding.Resources.Internal;
 using Should;
 using Xunit;
 
@@ -10,27 +9,27 @@ namespace MugenMvvm.UnitTest.Binding.Resources.Components
         #region Methods
 
         [Fact]
-        public void TryGetResourceValueShouldReturnNullEmpty()
+        public void TryGetResourceValueShouldReturnUnresolvedResource()
         {
             var component = new ResourceResolverComponent();
-            component.TryGetResourceValue(null!, "test", this, DefaultMetadata).ShouldBeNull();
+            component.TryGetResource(null!, "test", this, DefaultMetadata).IsResolved.ShouldBeFalse();
         }
 
         [Fact]
         public void TryGetResourceValueAddRemoveResource()
         {
             var name = "test";
-            var resource = new TestResourceValue();
+            var resource = new object();
             var component = new ResourceResolverComponent();
             component.Resources.Count.ShouldEqual(0);
 
-            component.AddResource(name, resource);
+            component.Add(name, resource);
             component.Resources.Count.ShouldEqual(1);
             component.Resources[name].ShouldEqual(resource);
-            component.TryGetResourceValue(null!, name, this, DefaultMetadata).ShouldEqual(resource);
+            component.TryGetResource(null!, name, this, DefaultMetadata).Resource.ShouldEqual(resource);
 
-            component.Resources.Remove(name);
-            component.TryGetResourceValue(null!, name, this, DefaultMetadata).ShouldBeNull();
+            component.Remove(name);
+            component.TryGetResource(null!, name, this, DefaultMetadata).IsResolved.ShouldBeFalse();
         }
 
         #endregion

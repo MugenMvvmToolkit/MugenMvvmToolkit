@@ -20,7 +20,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources
             var resolver = new ResourceResolver();
             var name = "name";
             var request = this;
-            var result = new TestResourceValue();
+            var result = new ResourceResolverResult(this);
             var invokeCount = 0;
             for (var i = 0; i < componentCount; i++)
             {
@@ -28,7 +28,7 @@ namespace MugenMvvm.UnitTest.Binding.Resources
                 var component = new TestResourceResolverComponent(resolver)
                 {
                     Priority = -i,
-                    TryGetResourceValue = (s, o, arg4) =>
+                    TryGetResource = (s, o, arg4) =>
                     {
                         ++invokeCount;
                         s.ShouldEqual(name);
@@ -36,13 +36,13 @@ namespace MugenMvvm.UnitTest.Binding.Resources
                         arg4.ShouldEqual(DefaultMetadata);
                         if (isLast)
                             return result;
-                        return null;
+                        return default;
                     }
                 };
                 resolver.AddComponent(component);
             }
 
-            resolver.TryGetResourceValue(name, request, DefaultMetadata).ShouldEqual(result);
+            resolver.TryGetResource(name, request, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(componentCount);
         }
 

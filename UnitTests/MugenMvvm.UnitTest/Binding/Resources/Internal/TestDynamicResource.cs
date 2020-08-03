@@ -2,11 +2,9 @@
 
 namespace MugenMvvm.UnitTest.Binding.Resources.Internal
 {
-    public class TestResourceValue : IResourceValue
+    public class TestDynamicResource : IDynamicResource
     {
         #region Properties
-
-        public bool IsStatic { get; set; }
 
         public object? Value { get; set; }
 

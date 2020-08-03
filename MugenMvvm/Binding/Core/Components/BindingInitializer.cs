@@ -127,7 +127,9 @@ namespace MugenMvvm.Binding.Core.Components
         {
             if (targetExpression is IBindingMemberExpressionNode bindingMemberExpression)
             {
-                target = bindingMemberExpression.GetSource(target, source, metadata, out var path, out var flags);
+                target = bindingMemberExpression.GetSource(target, source, metadata, out var path, out var flags)!;
+                if (target == null)
+                    return false;
                 return path.GetLastMemberFromPath(flags.GetTargetType(ref target!), target, flags, MemberType.Event, metadata, _memberManager) != null;
             }
 
