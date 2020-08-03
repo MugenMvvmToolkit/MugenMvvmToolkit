@@ -2,7 +2,6 @@ package com.mugen.mvvm.views.listeners;
 
 import androidx.viewpager.widget.ViewPager;
 import com.mugen.mvvm.views.ViewExtensions;
-import com.mugen.mvvm.views.ViewGroupExtensions;
 
 public class ViewPagerSelectedIndexListener implements ViewExtensions.IMemberListener, ViewPager.OnPageChangeListener {
     private final ViewPager _viewPager;
@@ -19,8 +18,8 @@ public class ViewPagerSelectedIndexListener implements ViewExtensions.IMemberLis
 
     @Override
     public void onPageSelected(int position) {
-        ViewExtensions.onMemberChanged(_viewPager, ViewGroupExtensions.SelectedIndexName, null);
-        ViewExtensions.onMemberChanged(_viewPager, ViewGroupExtensions.SelectedIndexEventName, null);
+        ViewExtensions.onMemberChanged(_viewPager, ViewExtensions.SelectedIndexName, null);
+        ViewExtensions.onMemberChanged(_viewPager, ViewExtensions.SelectedIndexEventName, null);
     }
 
     @Override
@@ -30,13 +29,13 @@ public class ViewPagerSelectedIndexListener implements ViewExtensions.IMemberLis
 
     @Override
     public void addListener(Object target, String memberName) {
-        if (ViewGroupExtensions.SelectedIndexName.equals(memberName) || ViewGroupExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
+        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _viewPager.addOnPageChangeListener(this);
     }
 
     @Override
     public void removeListener(Object target, String memberName) {
-        if (ViewGroupExtensions.SelectedIndexName.equals(memberName) || ViewGroupExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
+        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _viewPager.removeOnPageChangeListener(this);
     }
 }

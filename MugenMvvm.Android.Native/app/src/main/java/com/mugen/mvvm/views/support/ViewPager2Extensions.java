@@ -5,12 +5,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager2.widget.ViewPager2;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
-import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
-public abstract class ViewPager2Extensions extends ViewExtensions {
+public final class ViewPager2Extensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceProviderType;
     private static boolean _supported;
+
+    private ViewPager2Extensions() {
+    }
 
     public static boolean isSupported(View view) {
         return _supported && view instanceof ViewPager2;

@@ -5,7 +5,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.View;
 import android.widget.Toolbar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,8 +15,11 @@ import com.mugen.mvvm.views.activities.MugenActivity;
 import com.mugen.mvvm.views.activities.MainMugenAppCompatActivity;
 import com.mugen.mvvm.views.activities.MugenAppCompatActivity;
 
-public abstract class ActivityExtensions {
+public final class ActivityExtensions {
     static final String ViewIdIntentKey = "~v_id!";
+
+    private ActivityExtensions() {
+    }
 
     public static Object getActionBar(IActivityView activityView) {
         Activity activity = (Activity) activityView.getActivity();

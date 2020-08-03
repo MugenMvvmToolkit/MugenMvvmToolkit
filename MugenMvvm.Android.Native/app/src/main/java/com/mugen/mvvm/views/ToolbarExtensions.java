@@ -9,7 +9,10 @@ import android.widget.Toolbar;
 import com.mugen.mvvm.MugenNativeService;
 
 @SuppressLint("NewApi")
-public abstract class ToolbarExtensions extends ViewExtensions {
+public final class ToolbarExtensions {
+    private ToolbarExtensions() {
+    }
+
     public static boolean isSupportedCompat(View view) {
         return MugenNativeService.isCompatSupported() && view instanceof androidx.appcompat.widget.Toolbar;
     }

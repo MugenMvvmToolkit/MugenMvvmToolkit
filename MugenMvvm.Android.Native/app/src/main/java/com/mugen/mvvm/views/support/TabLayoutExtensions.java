@@ -7,8 +7,11 @@ import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
-public abstract class TabLayoutExtensions extends ViewExtensions {
+public final class TabLayoutExtensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentRawType;
+
+    private TabLayoutExtensions() {
+    }
 
     public static boolean isSupported(View view) {
         return MugenNativeService.isMaterialSupported() && view instanceof TabLayout;

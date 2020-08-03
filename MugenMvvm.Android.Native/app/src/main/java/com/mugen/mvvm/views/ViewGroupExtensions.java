@@ -14,11 +14,14 @@ import com.mugen.mvvm.views.support.TabLayoutExtensions;
 import com.mugen.mvvm.views.support.ViewPager2Extensions;
 import com.mugen.mvvm.views.support.ViewPagerExtensions;
 
-public abstract class ViewGroupExtensions extends ViewExtensions {
+public final class ViewGroupExtensions {
     public static final int NoneProviderType = 0;
     public static final int ResourceProviderType = 1;
     public static final int ContentProviderType = 2;
     public static final int ContentRawType = 3;
+
+    private ViewGroupExtensions() {
+    }
 
     public static Object get(View view, int index) {
         if (TabLayoutExtensions.isSupported(view))

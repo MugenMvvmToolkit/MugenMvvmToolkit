@@ -11,7 +11,10 @@ import com.mugen.mvvm.interfaces.views.IDialogFragmentView;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
 import com.mugen.mvvm.internal.ViewAttachedValues;
 
-public abstract class FragmentExtensions {
+public final class FragmentExtensions {
+    private FragmentExtensions() {
+    }
+
     public static boolean isSupported(Object fragment) {
         return MugenNativeService.isCompatSupported() && fragment instanceof IFragmentView;
     }

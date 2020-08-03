@@ -4,7 +4,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.TextView;
-import com.mugen.mvvm.views.TextViewExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
 
 public class ViewMemberListener implements ViewExtensions.IMemberListener, View.OnClickListener, TextWatcher, android.view.View.OnLongClickListener {
@@ -23,7 +22,7 @@ public class ViewMemberListener implements ViewExtensions.IMemberListener, View.
             View.setOnClickListener(this);
         else if (ViewExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount++ == 0)
             View.setOnLongClickListener(this);
-        else if (TextViewExtensions.TextMemberName.equals(memberName) || TextViewExtensions.TextEventName.equals(memberName) && _textChangedListenerCount++ == 0)
+        else if (ViewExtensions.TextMemberName.equals(memberName) || ViewExtensions.TextEventName.equals(memberName) && _textChangedListenerCount++ == 0)
             ((TextView) target).addTextChangedListener(this);
     }
 
@@ -33,7 +32,7 @@ public class ViewMemberListener implements ViewExtensions.IMemberListener, View.
             View.setOnClickListener(null);
         else if (ViewExtensions.LongClickEventName.equals(memberName) && _longClickListenerCount != 0 && --_longClickListenerCount == 0)
             View.setOnLongClickListener(null);
-        else if (TextViewExtensions.TextMemberName.equals(memberName) || TextViewExtensions.TextEventName.equals(memberName) && _textChangedListenerCount != 0 && --_textChangedListenerCount == 0)
+        else if (ViewExtensions.TextMemberName.equals(memberName) || ViewExtensions.TextEventName.equals(memberName) && _textChangedListenerCount != 0 && --_textChangedListenerCount == 0)
             ((TextView) target).removeTextChangedListener(this);
     }
 
@@ -44,8 +43,8 @@ public class ViewMemberListener implements ViewExtensions.IMemberListener, View.
 
     @Override
     public void onTextChanged(CharSequence s, int start, int before, int count) {
-        ViewExtensions.onMemberChanged(View, TextViewExtensions.TextMemberName, null);
-        ViewExtensions.onMemberChanged(View, TextViewExtensions.TextEventName, null);
+        ViewExtensions.onMemberChanged(View, ViewExtensions.TextMemberName, null);
+        ViewExtensions.onMemberChanged(View, ViewExtensions.TextEventName, null);
     }
 
     @Override

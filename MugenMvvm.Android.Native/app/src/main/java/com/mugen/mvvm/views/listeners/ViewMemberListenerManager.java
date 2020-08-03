@@ -7,9 +7,7 @@ import androidx.viewpager.widget.ViewPager;
 import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
 import com.mugen.mvvm.constants.PriorityConstants;
-import com.mugen.mvvm.views.TextViewExtensions;
 import com.mugen.mvvm.views.ViewExtensions;
-import com.mugen.mvvm.views.ViewGroupExtensions;
 import com.mugen.mvvm.views.support.SwipeRefreshLayoutExtensions;
 import com.mugen.mvvm.views.support.TabLayoutExtensions;
 import com.mugen.mvvm.views.support.ViewPager2Extensions;
@@ -34,10 +32,10 @@ public class ViewMemberListenerManager implements ViewExtensions.IMemberListener
                 return new ViewMemberListener(view);
             }
 
-            if (SwipeRefreshLayoutExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutExtensions.isSupported(view))
+            if (ViewExtensions.RefreshedEventName.equals(memberName) && SwipeRefreshLayoutExtensions.isSupported(view))
                 return new SwipeRefreshLayoutRefreshedListener((SwipeRefreshLayout) target);
 
-            if (ViewGroupExtensions.SelectedIndexEventName.equals(memberName) || ViewGroupExtensions.SelectedIndexName.equals(memberName)) {
+            if (ViewExtensions.SelectedIndexEventName.equals(memberName) || ViewExtensions.SelectedIndexName.equals(memberName)) {
                 if (ViewPagerExtensions.isSupported(view))
                     return new ViewPagerSelectedIndexListener((ViewPager) target);
                 if (ViewPager2Extensions.isSupported(view))
@@ -57,6 +55,6 @@ public class ViewMemberListenerManager implements ViewExtensions.IMemberListener
     }
 
     private static boolean isTextViewMember(View view, String memberName) {
-        return view instanceof TextView && (TextViewExtensions.TextEventName.equals(memberName) || TextViewExtensions.TextMemberName.equals(memberName));
+        return view instanceof TextView && (ViewExtensions.TextEventName.equals(memberName) || ViewExtensions.TextMemberName.equals(memberName));
     }
 }

@@ -4,7 +4,10 @@ import android.app.ActionBar;
 import android.content.Context;
 import com.mugen.mvvm.MugenNativeService;
 
-public abstract class ActionBarExtensions extends ViewExtensions {
+public final class ActionBarExtensions {
+    private ActionBarExtensions() {
+    }
+
     public static boolean isSupportedCompat(Object actionBar) {
         return MugenNativeService.isCompatSupported() && actionBar instanceof androidx.appcompat.app.ActionBar;
     }

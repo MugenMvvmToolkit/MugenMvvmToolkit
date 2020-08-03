@@ -5,7 +5,6 @@ import com.mugen.mvvm.internal.HasPriorityComparator;
 import com.mugen.mvvm.internal.NativeLifecycleDispatcherWrapper;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 public final class LifecycleExtensions {

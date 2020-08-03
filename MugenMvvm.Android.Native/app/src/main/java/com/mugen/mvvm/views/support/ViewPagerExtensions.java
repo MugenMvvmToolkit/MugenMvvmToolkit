@@ -5,12 +5,14 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenPagerAdapter;
-import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
-public abstract class ViewPagerExtensions extends ViewExtensions {
+public final class ViewPagerExtensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentProviderType;
     private static boolean _supported;
+
+    private ViewPagerExtensions() {
+    }
 
     public static boolean isSupported(View view) {
         return _supported && view instanceof ViewPager;

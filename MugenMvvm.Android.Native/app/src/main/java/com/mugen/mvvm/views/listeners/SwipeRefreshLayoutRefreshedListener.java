@@ -14,18 +14,18 @@ public class SwipeRefreshLayoutRefreshedListener implements SwipeRefreshLayout.O
 
     @Override
     public void onRefresh() {
-        ViewExtensions.onMemberChanged(_refreshLayout, SwipeRefreshLayoutExtensions.RefreshedEventName, null);
+        ViewExtensions.onMemberChanged(_refreshLayout, ViewExtensions.RefreshedEventName, null);
     }
 
     @Override
     public void addListener(Object target, String memberName) {
-        if (SwipeRefreshLayoutExtensions.RefreshedEventName.equals(memberName) && _listenerCount++ == 0)
+        if (ViewExtensions.RefreshedEventName.equals(memberName) && _listenerCount++ == 0)
             _refreshLayout.setOnRefreshListener(this);
     }
 
     @Override
     public void removeListener(Object target, String memberName) {
-        if (SwipeRefreshLayoutExtensions.RefreshedEventName.equals(memberName) && --_listenerCount == 0)
+        if (ViewExtensions.RefreshedEventName.equals(memberName) && --_listenerCount == 0)
             _refreshLayout.setOnRefreshListener(null);
     }
 }

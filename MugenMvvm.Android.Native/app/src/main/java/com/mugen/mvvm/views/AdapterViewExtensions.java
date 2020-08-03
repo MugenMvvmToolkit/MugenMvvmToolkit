@@ -6,8 +6,11 @@ import android.widget.AdapterView;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.MugenListAdapter;
 
-public abstract class AdapterViewExtensions extends ViewExtensions {
+public abstract class AdapterViewExtensions {
     public static final int ItemsSourceProviderType = ViewGroupExtensions.ResourceProviderType;
+
+    private AdapterViewExtensions() {
+    }
 
     public static boolean isSupported(View view) {
         return view instanceof AdapterView;

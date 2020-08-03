@@ -15,6 +15,9 @@ public final class MugenNativeService {
     private static boolean _rawViewTagMode;
     private static boolean _isNativeMode;
 
+    private MugenNativeService() {
+    }
+
     public static boolean isNativeMode() {
         return _isNativeMode;
     }
@@ -29,9 +32,6 @@ public final class MugenNativeService {
 
     public static boolean isRawViewTagMode() {
         return _rawViewTagMode;
-    }
-
-    private MugenNativeService() {
     }
 
     public static Context getAppContext() {

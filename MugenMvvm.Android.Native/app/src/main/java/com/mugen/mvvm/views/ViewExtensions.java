@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
-public abstract class ViewExtensions {
+public final class ViewExtensions {
     public static final CharSequence ParentMemberName = "Parent";
     public static final CharSequence ParentEventName = "ParentChanged";
     public static final CharSequence ClickEventName = "Click";
@@ -36,8 +36,11 @@ public abstract class ViewExtensions {
     private final static SparseArray<Class> _resourceViewMapping = new SparseArray<>();
     private final static HashMap<Class, Integer> _viewResourceMapping = new HashMap<>();
     private final static ArrayList<IViewDispatcher> _viewDispatchers = new ArrayList<>();
-    private static final ArrayList<IMemberListenerManager> ListenerManagers = new ArrayList<>();
-    protected static final Object NullParent = "";
+    private final static ArrayList<IMemberListenerManager> ListenerManagers = new ArrayList<>();
+    protected final static Object NullParent = "";
+
+    private ViewExtensions() {
+    }
 
     public static void registerMemberListenerManager(IMemberListenerManager manager) {
         ListenerManagers.add(manager);

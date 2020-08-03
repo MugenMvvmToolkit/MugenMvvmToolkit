@@ -14,8 +14,8 @@ public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedLi
 
     @Override
     public void onTabSelected(TabLayout.Tab tab) {
-        ViewExtensions.onMemberChanged(_tabLayout, ViewGroupExtensions.SelectedIndexName, tab);
-        ViewExtensions.onMemberChanged(_tabLayout, ViewGroupExtensions.SelectedIndexEventName, tab);
+        ViewExtensions.onMemberChanged(_tabLayout, ViewExtensions.SelectedIndexName, tab);
+        ViewExtensions.onMemberChanged(_tabLayout, ViewExtensions.SelectedIndexEventName, tab);
     }
 
     @Override
@@ -30,13 +30,13 @@ public class TabLayoutSelectedIndexListener implements TabLayout.OnTabSelectedLi
 
     @Override
     public void addListener(Object target, String memberName) {
-        if (ViewGroupExtensions.SelectedIndexName.equals(memberName) || ViewGroupExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
+        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount++ == 0)
             _tabLayout.addOnTabSelectedListener(this);
     }
 
     @Override
     public void removeListener(Object target, String memberName) {
-        if (ViewGroupExtensions.SelectedIndexName.equals(memberName) || ViewGroupExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
+        if (ViewExtensions.SelectedIndexName.equals(memberName) || ViewExtensions.SelectedIndexEventName.equals(memberName) && _selectedIndexChangedCount != 0 && --_selectedIndexChangedCount == 0)
             _tabLayout.removeOnTabSelectedListener(this);
     }
 }

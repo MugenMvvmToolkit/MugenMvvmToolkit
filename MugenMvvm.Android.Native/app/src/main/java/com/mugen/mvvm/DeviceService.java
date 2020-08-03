@@ -16,7 +16,6 @@ public final class DeviceService {
     private static final int TabletCrossover = 600;
 
     private DeviceService() {
-
     }
 
     public static String appVersion() {
