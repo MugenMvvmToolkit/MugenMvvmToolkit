@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using MugenMvvm.Commands;
 using MugenMvvm.Enums;
+using MugenMvvm.Interfaces.App;
 using MugenMvvm.Interfaces.Commands;
 using MugenMvvm.Interfaces.Commands.Components;
 using MugenMvvm.Interfaces.Components;
@@ -27,6 +28,7 @@ using MugenMvvm.Interfaces.Validation;
 using MugenMvvm.Interfaces.Validation.Components;
 using MugenMvvm.Interfaces.ViewModels;
 using MugenMvvm.Internal;
+using MugenMvvm.Metadata;
 using MugenMvvm.Requests;
 using MugenMvvm.Validation.Components;
 
@@ -212,6 +214,12 @@ namespace MugenMvvm.Extensions
             if (result == null)
                 ExceptionManager.ThrowRequestNotSupported<ICommandProviderComponent>(commandManager, request, metadata);
             return result;
+        }
+
+        public static bool IsInBackground(this IMugenApplication application, bool defaultValue = false)
+        {
+            Should.NotBeNull(application, nameof(application));
+            return application.GetMetadataOrDefault().Get(ApplicationMetadata.IsInBackground, defaultValue);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
 ﻿using System;
+using MugenMvvm.App.Components;
 using MugenMvvm.App.Configuration;
 using MugenMvvm.Commands;
 using MugenMvvm.Commands.Components;
@@ -37,7 +38,10 @@ namespace MugenMvvm.Extensions
         {
             if (serviceProvider != null)
                 MugenService.Configuration.InitializeInstance(serviceProvider);
+
             configuration.WithAppService(new ComponentCollectionManager());
+
+            configuration.Application.AddComponent(new AppBackgroundDispatcher());
 
             configuration.WithAppService(new CommandManager())
                 .WithComponent(new DelegateCommandProvider());

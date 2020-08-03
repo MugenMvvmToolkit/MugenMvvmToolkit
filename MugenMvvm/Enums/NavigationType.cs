@@ -23,7 +23,6 @@ namespace MugenMvvm.Enums
         public static readonly NavigationType Page = new NavigationType(nameof(Page)) { IsRootNavigation = true };
 
         public static readonly NavigationType Background = new NavigationType(nameof(Background));
-        public static readonly NavigationType Foreground = new NavigationType(nameof(Foreground));
         public static readonly NavigationType Alert = new NavigationType(nameof(Alert));
         public static readonly NavigationType Toast = new NavigationType(nameof(Toast));
 
