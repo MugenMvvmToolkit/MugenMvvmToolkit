@@ -15,6 +15,7 @@
     <AndroidClassParser>class-parse</AndroidClassParser>
     <AndroidCodegenTarget>XAJavaInterop1</AndroidCodegenTarget>
     <IsBindingProject>true</IsBindingProject>
+    <AndroidGenerateJniMarshalMethods>true</AndroidGenerateJniMarshalMethods>
   </PropertyGroup>
 
   <ItemGroup>

@@ -1,6 +1,6 @@
 ﻿namespace MugenMvvm.Android.Interfaces
 {
-    public interface IDataTemplateSelector//todo add fragment support
+    public interface IDataTemplateSelector
     {
         int TemplateTypeCount { get; }
 
