@@ -259,7 +259,7 @@ public final class ViewExtensions {
     }
 
     public static Object getView(Object container, int resourceId, boolean trackLifecycle) {
-        return getViewFactory().getView(container, resourceId, trackLifecycle);
+        return ViewExtensions.tryWrap(getViewFactory().getView(container, resourceId, trackLifecycle));
     }
 
     public static IViewFactory getViewFactory() {

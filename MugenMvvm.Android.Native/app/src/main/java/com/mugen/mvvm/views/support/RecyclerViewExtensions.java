@@ -2,6 +2,8 @@ package com.mugen.mvvm.views.support;
 
 import android.view.View;
 import androidx.recyclerview.widget.RecyclerView;
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
+import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
 import com.mugen.mvvm.views.ViewGroupExtensions;
@@ -21,10 +23,10 @@ public final class RecyclerViewExtensions {
         _supported = true;
     }
 
-    public static IResourceItemsSourceProvider getItemsSourceProvider(View view) {
+    public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
         RecyclerView.Adapter adapter = ((RecyclerView) view).getAdapter();
-        if (adapter instanceof MugenRecyclerViewAdapter)
-            return ((MugenRecyclerViewAdapter) adapter).getItemsSourceProvider();
+        if (adapter instanceof IMugenAdapter)
+            return ((IMugenAdapter) adapter).getItemsSourceProvider();
         return null;
     }
 

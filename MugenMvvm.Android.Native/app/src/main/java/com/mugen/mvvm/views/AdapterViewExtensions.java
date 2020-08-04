@@ -3,6 +3,8 @@ package com.mugen.mvvm.views;
 import android.view.View;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
+import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.MugenListAdapter;
 
@@ -16,10 +18,10 @@ public abstract class AdapterViewExtensions {
         return view instanceof AdapterView;
     }
 
-    public static IResourceItemsSourceProvider getItemsSourceProvider(View view) {
+    public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
         Adapter adapter = ((AdapterView) view).getAdapter();
-        if (adapter instanceof MugenListAdapter)
-            return ((MugenListAdapter) adapter).getItemsSourceProvider();
+        if (adapter instanceof IMugenAdapter)
+            return ((IMugenAdapter) adapter).getItemsSourceProvider();
         return null;
     }
 

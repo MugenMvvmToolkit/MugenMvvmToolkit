@@ -1,10 +1,15 @@
 package com.mugen.mvvm.views.support;
 
 import android.view.View;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
+import com.mugen.mvvm.interfaces.IMugenAdapter;
+import com.mugen.mvvm.internal.support.MugenFragmentPagerAdapter;
 import com.mugen.mvvm.internal.support.MugenPagerAdapter;
+import com.mugen.mvvm.views.FragmentExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
 public final class ViewPagerExtensions {
@@ -30,27 +35,37 @@ public final class ViewPagerExtensions {
         ((ViewPager) view).setCurrentItem(index);
     }
 
-    public static IContentItemsSourceProvider getItemsSourceProvider(View view) {
+    public static int setOffscreenPageLimit(View view) {
+        return ((ViewPager) view).getOffscreenPageLimit();
+    }
+
+    public static void setOffscreenPageLimit(View view, int limit) {
+        ((ViewPager) view).setOffscreenPageLimit(limit);
+    }
+
+    public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
         PagerAdapter adapter = ((ViewPager) view).getAdapter();
-        if (adapter instanceof MugenPagerAdapter)
-            return ((MugenPagerAdapter) adapter).getItemsSourceProvider();
+        if (adapter instanceof IMugenAdapter)
+            return ((IMugenAdapter) adapter).getItemsSourceProvider();
         return null;
     }
 
-    public static void setItemsSourceProvider(View view, IContentItemsSourceProvider provider) {
+    public static void setItemsSourceProvider(View view, IContentItemsSourceProvider provider, boolean hasFragments) {
         if (getItemsSourceProvider(view) == provider)
             return;
         ViewPager viewPager = (ViewPager) view;
         PagerAdapter adapter = viewPager.getAdapter();
         if (provider == null) {
-            if (adapter instanceof MugenPagerAdapter)
-                ((MugenPagerAdapter) adapter).detach();
+            if (adapter instanceof IMugenAdapter)
+                ((IMugenAdapter) adapter).detach();
             viewPager.setAdapter(null);
-        } else
-            viewPager.setAdapter(new MugenPagerAdapter(viewPager, provider));
+        } else if (hasFragments)
+            viewPager.setAdapter(new MugenFragmentPagerAdapter(provider, (FragmentManager) FragmentExtensions.getFragmentManager(view)));
+        else
+            viewPager.setAdapter(new MugenPagerAdapter(provider));
     }
 
     public static void onDestroy(View view) {
-        setItemsSourceProvider(view, null);
+        setItemsSourceProvider(view, null, false);
     }
 }

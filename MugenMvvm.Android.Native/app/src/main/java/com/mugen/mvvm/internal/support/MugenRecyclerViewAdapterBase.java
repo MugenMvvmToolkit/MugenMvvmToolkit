@@ -4,8 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
+import com.mugen.mvvm.interfaces.IMugenAdapter;
 
-public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProviderBase> extends RecyclerView.Adapter implements IItemsSourceObserver {
+public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProviderBase> extends RecyclerView.Adapter implements IItemsSourceObserver, IMugenAdapter {
     protected final T _provider;
     private int _attachCount;
 
@@ -15,6 +16,9 @@ public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProvide
 
     public T getItemsSourceProvider() {
         return _provider;
+    }
+
+    public void detach() {
     }
 
     @Override

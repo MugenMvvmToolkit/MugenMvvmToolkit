@@ -18,7 +18,8 @@ public final class ViewGroupExtensions {
     public static final int NoneProviderType = 0;
     public static final int ResourceProviderType = 1;
     public static final int ContentProviderType = 2;
-    public static final int ContentRawType = 3;
+    public static final int ContentRawProviderType = 3;
+    public static final int ResourceOrContentProviderType = 4;
 
     private ViewGroupExtensions() {
     }
@@ -62,7 +63,7 @@ public final class ViewGroupExtensions {
         if (TabLayoutExtensions.isSupported(view))
             return TabLayoutExtensions.ItemsSourceProviderType;
         if (view instanceof ViewGroup)
-            return ContentRawType;
+            return ContentRawProviderType;
         return NoneProviderType;
     }
 
@@ -108,13 +109,13 @@ public final class ViewGroupExtensions {
         return null;
     }
 
-    public static void setItemsSourceProvider(View view, IItemsSourceProviderBase provider) {
+    public static void setItemsSourceProvider(View view, IItemsSourceProviderBase provider, boolean hasFragments) {
         if (RecyclerViewExtensions.isSupported(view))
             RecyclerViewExtensions.setItemsSourceProvider(view, (IResourceItemsSourceProvider) provider);
         else if (ViewPager2Extensions.isSupported(view))
-            ViewPager2Extensions.setItemsSourceProvider(view, (IResourceItemsSourceProvider) provider);
+            ViewPager2Extensions.setItemsSourceProvider(view, provider, hasFragments);
         else if (ViewPagerExtensions.isSupported(view))
-            ViewPagerExtensions.setItemsSourceProvider(view, (IContentItemsSourceProvider) provider);
+            ViewPagerExtensions.setItemsSourceProvider(view, (IContentItemsSourceProvider) provider, hasFragments);
         else if (AdapterViewExtensions.isSupported(view))
             AdapterViewExtensions.setItemsSourceProvider(view, (IResourceItemsSourceProvider) provider);
     }

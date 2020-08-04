@@ -1,7 +1,7 @@
 package com.mugen.mvvm.views;
 
 import android.content.Context;
-import android.os.BaseBundle;
+import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.*;
@@ -23,14 +23,14 @@ public final class FragmentExtensions {
         return ((Fragment) fragment.getFragment()).getActivity();
     }
 
-    public static Object getFragmentManager(View container) {
+    public static Object getFragmentOwner(View container) {
         View v = container;
         while (v != null) {
             ViewAttachedValues attachedValues = ViewExtensions.getNativeAttachedValues(v, false);
             if (attachedValues != null) {
                 Fragment fragment = attachedValues.getFragment();
                 if (fragment != null)
-                    return fragment.getFragmentManager();
+                    return fragment;
             }
             Object parent = ViewExtensions.getParent(v);
             if (parent instanceof View)
@@ -39,8 +39,15 @@ public final class FragmentExtensions {
                 v = null;
         }
 
-        FragmentActivity activity = (FragmentActivity) ActivityExtensions.getActivity(container.getContext());
-        return activity.getSupportFragmentManager();
+        return ActivityExtensions.getActivity(container.getContext());
+    }
+
+    public static Object getFragmentManager(Object owner) {
+        if (owner instanceof View)
+            owner = getFragmentOwner((View) owner);
+        if (owner instanceof FragmentActivity)
+            return ((FragmentActivity) owner).getSupportFragmentManager();
+        return ((Fragment) owner).getFragmentManager();
     }
 
     public static boolean setFragment(View container, IFragmentView target) {
@@ -72,7 +79,7 @@ public final class FragmentExtensions {
         fragment.show(activity.getSupportFragmentManager(), tag);
     }
 
-    public static void clearFragmentState(BaseBundle bundle) {
+    public static void clearFragmentState(Bundle bundle) {
         bundle.remove("android:support:fragments");
         bundle.remove("android:fragments");
     }

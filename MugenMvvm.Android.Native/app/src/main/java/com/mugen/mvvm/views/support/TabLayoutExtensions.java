@@ -8,7 +8,7 @@ import com.mugen.mvvm.views.ViewExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
 public final class TabLayoutExtensions {
-    public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentRawType;
+    public static final int ItemsSourceProviderType = ViewGroupExtensions.ContentRawProviderType;
 
     private TabLayoutExtensions() {
     }

@@ -8,10 +8,11 @@ import android.view.ViewGroup;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
+import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.views.ViewExtensions;
 
-public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserver {
+public class MugenListAdapter extends BaseAdapter implements IItemsSourceObserver, IMugenAdapter {
     private final IResourceItemsSourceProvider _provider;
     private final boolean _hasStableId;
     private final int _viewTypeCount;

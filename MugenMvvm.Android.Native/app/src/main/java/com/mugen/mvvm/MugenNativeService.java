@@ -14,8 +14,13 @@ public final class MugenNativeService {
     private static boolean _materialSupported;
     private static boolean _rawViewTagMode;
     private static boolean _isNativeMode;
+    private static boolean _isFragmentStateDisabled;
 
     private MugenNativeService() {
+    }
+
+    public static boolean isFragmentStateDisabled() {
+        return _isFragmentStateDisabled;
     }
 
     public static boolean isNativeMode() {
@@ -69,5 +74,9 @@ public final class MugenNativeService {
 
     public static void setNativeMode() {
         _isNativeMode = true;
+    }
+
+    public static void disableFragmentState() {
+        _isFragmentStateDisabled = true;
     }
 }

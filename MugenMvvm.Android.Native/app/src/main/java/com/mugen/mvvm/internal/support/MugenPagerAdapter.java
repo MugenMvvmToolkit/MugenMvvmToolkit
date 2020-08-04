@@ -6,18 +6,17 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
+import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceObserver;
+import com.mugen.mvvm.interfaces.IMugenAdapter;
+import com.mugen.mvvm.views.LifecycleExtensions;
 
-//todo handle fragments
-public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObserver {
-    private final ViewPager _owner;
+public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObserver, IMugenAdapter {
     private final IContentItemsSourceProvider _provider;
     private Object _currentPrimaryItem;
 
-    public MugenPagerAdapter(ViewPager owner, IContentItemsSourceProvider provider) {
-        _owner = owner;
+    public MugenPagerAdapter(IContentItemsSourceProvider provider) {
         _provider = provider;
         provider.addObserver(this);
     }
@@ -38,7 +37,7 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        return _provider.getTitle(position);
+        return null;
     }
 
     @NonNull
@@ -46,7 +45,7 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         Object content = _provider.getContent(position);
         if (content == null) {
-            TextView txt = new TextView(_owner.getContext());
+            TextView txt = new TextView(container.getContext());
             txt.setText("null");
             content = txt;
         }
@@ -57,8 +56,9 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
 
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+        LifecycleExtensions.onLifecycleChanging(object, LifecycleState.Destroy, null);
         container.removeView((View) object);
-        _provider.destroyContent(position, object);
+        LifecycleExtensions.onLifecycleChanged(object, LifecycleState.Destroy, null);
     }
 
     @Override
@@ -75,8 +75,13 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     public void setPrimaryItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
         Object oldContent = _currentPrimaryItem;
         if (oldContent != object) {
+            if (oldContent != null) {
+                LifecycleExtensions.onLifecycleChanging(oldContent, LifecycleState.Pause, null);
+                LifecycleExtensions.onLifecycleChanged(oldContent, LifecycleState.Pause, null);
+            }
             _currentPrimaryItem = object;
-            _provider.onPrimaryContentChanged(position, oldContent, object);
+            LifecycleExtensions.onLifecycleChanging(object, LifecycleState.Resume, null);
+            LifecycleExtensions.onLifecycleChanged(object, LifecycleState.Resume, null);
         }
     }
 
