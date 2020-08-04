@@ -15,6 +15,7 @@ import com.mugen.mvvm.interfaces.views.*;
 import com.mugen.mvvm.internal.*;
 import com.mugen.mvvm.views.support.TabLayoutTabExtensions;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -258,7 +259,7 @@ public final class ViewExtensions {
         return value;
     }
 
-    public static Object getView(Object container, int resourceId, boolean trackLifecycle) {
+    public static Object getView(Object container, int resourceId, boolean trackLifecycle) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
         return ViewExtensions.tryWrap(getViewFactory().getView(container, resourceId, trackLifecycle));
     }
 
