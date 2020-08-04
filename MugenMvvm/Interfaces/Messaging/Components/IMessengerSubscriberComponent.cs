@@ -8,7 +8,7 @@ using MugenMvvm.Messaging;
 
 namespace MugenMvvm.Interfaces.Messaging.Components
 {
-    public interface IMessengerSubscriberComponent : IComponent<IMessenger>//todo add delegate subscriber
+    public interface IMessengerSubscriberComponent : IComponent<IMessenger>
     {
         bool TrySubscribe(IMessenger messenger, object subscriber, ThreadExecutionMode? executionMode, IReadOnlyMetadataContext? metadata);
 
