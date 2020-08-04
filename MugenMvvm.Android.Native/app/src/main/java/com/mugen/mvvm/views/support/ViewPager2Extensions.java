@@ -10,7 +10,7 @@ import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IMugenAdapter;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.internal.support.MugenFragmentPager2Adapter;
-import com.mugen.mvvm.internal.support.MugenRecyclerViewAdapter;
+import com.mugen.mvvm.internal.support.MugenPager2Adapter;
 import com.mugen.mvvm.views.FragmentExtensions;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
@@ -37,12 +37,20 @@ public final class ViewPager2Extensions {
         ((ViewPager2) view).setCurrentItem(index);
     }
 
-    public static int setOffscreenPageLimit(View view) {
+    public static int getOffscreenPageLimit(View view) {
         return ((ViewPager2) view).getOffscreenPageLimit();
     }
 
     public static void setOffscreenPageLimit(View view, int limit) {
         ((ViewPager2) view).setOffscreenPageLimit(limit);
+    }
+
+    public static int getOrientation(View view) {
+        return ((ViewPager2) view).getOrientation();
+    }
+
+    public static void setOrientation(View view, int orientation) {
+        ((ViewPager2) view).setOrientation(orientation);
     }
 
     public static IItemsSourceProviderBase getItemsSourceProvider(View view) {
@@ -62,7 +70,7 @@ public final class ViewPager2Extensions {
             LifecycleOwner owner = (LifecycleOwner) FragmentExtensions.getFragmentOwner(view);
             viewPager.setAdapter(new MugenFragmentPager2Adapter((IContentItemsSourceProvider) provider, (FragmentManager) FragmentExtensions.getFragmentManager(owner), owner.getLifecycle()));
         } else
-            viewPager.setAdapter(new MugenRecyclerViewAdapter(view.getContext(), (IResourceItemsSourceProvider) provider));
+            viewPager.setAdapter(new MugenPager2Adapter(viewPager, (IResourceItemsSourceProvider) provider));
     }
 
     public static void onDestroy(View view) {

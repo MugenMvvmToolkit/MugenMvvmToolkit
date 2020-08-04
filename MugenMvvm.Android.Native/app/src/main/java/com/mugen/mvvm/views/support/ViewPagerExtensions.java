@@ -35,7 +35,7 @@ public final class ViewPagerExtensions {
         ((ViewPager) view).setCurrentItem(index);
     }
 
-    public static int setOffscreenPageLimit(View view) {
+    public static int getOffscreenPageLimit(View view) {
         return ((ViewPager) view).getOffscreenPageLimit();
     }
 

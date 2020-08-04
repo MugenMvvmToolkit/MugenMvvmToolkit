@@ -4,15 +4,19 @@ import android.view.View;
 import android.view.ViewGroup;
 import androidx.fragment.app.Fragment;
 import com.mugen.mvvm.MugenNativeService;
+import com.mugen.mvvm.constants.LifecycleState;
 import com.mugen.mvvm.interfaces.IContentItemsSourceProvider;
 import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.interfaces.IResourceItemsSourceProvider;
 import com.mugen.mvvm.interfaces.views.IFragmentView;
+import com.mugen.mvvm.interfaces.views.IHasLifecycleView;
 import com.mugen.mvvm.internal.ViewAttachedValues;
 import com.mugen.mvvm.views.support.RecyclerViewExtensions;
 import com.mugen.mvvm.views.support.TabLayoutExtensions;
 import com.mugen.mvvm.views.support.ViewPager2Extensions;
 import com.mugen.mvvm.views.support.ViewPagerExtensions;
+
+import java.util.Objects;
 
 public final class ViewGroupExtensions {
     public static final int NoneProviderType = 0;
@@ -137,6 +141,10 @@ public final class ViewGroupExtensions {
     }
 
     public static void setContent(View view, Object content) {
+        Object oldContent = getContent(view);
+        if (Objects.equals(oldContent, content))
+            return;
+
         ViewGroup viewGroup = (ViewGroup) view;
         if (MugenNativeService.isCompatSupported()) {
             if (content == null && FragmentExtensions.setFragment(view, null))
@@ -145,8 +153,20 @@ public final class ViewGroupExtensions {
                 return;
         }
 
+        boolean hasLifecycleOld = oldContent != null && !(oldContent instanceof IHasLifecycleView);
+        boolean hasLifecycleNew = content != null && !(content instanceof IHasLifecycleView);
+        if (hasLifecycleOld)
+            LifecycleExtensions.onLifecycleChanging(oldContent, LifecycleState.Pause, null);
+        if (hasLifecycleNew)
+            LifecycleExtensions.onLifecycleChanging(content, LifecycleState.Resume, null);
+
         viewGroup.removeAllViews();
         if (content != null)
             viewGroup.addView((View) content);
+
+        if (hasLifecycleOld)
+            LifecycleExtensions.onLifecycleChanged(oldContent, LifecycleState.Pause, null);
+        if (hasLifecycleNew)
+            LifecycleExtensions.onLifecycleChanged(content, LifecycleState.Resume, null);
     }
 }

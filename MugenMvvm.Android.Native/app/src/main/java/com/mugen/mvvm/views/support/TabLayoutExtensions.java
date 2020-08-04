@@ -1,10 +1,13 @@
 package com.mugen.mvvm.views.support;
 
 import android.view.View;
+import androidx.annotation.NonNull;
 import androidx.viewpager.widget.ViewPager;
+import androidx.viewpager2.widget.ViewPager2;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 import com.mugen.mvvm.MugenNativeService;
-import com.mugen.mvvm.views.ViewExtensions;
+import com.mugen.mvvm.interfaces.IItemsSourceProviderBase;
 import com.mugen.mvvm.views.ViewGroupExtensions;
 
 public final class TabLayoutExtensions {
@@ -49,8 +52,20 @@ public final class TabLayoutExtensions {
         ((TabLayout) view).removeAllTabs();
     }
 
-    public static void setupWithViewPager(View view, View viewPager) {
-        ((TabLayout) view).setupWithViewPager((ViewPager) viewPager);
+    public static void setupWithViewPager(final View view, final View viewPager) {
+        if (!ViewPager2Extensions.isSupported(viewPager)) {
+            ((TabLayout) view).setupWithViewPager((ViewPager) viewPager);
+            return;
+        }
+
+        new TabLayoutMediator((TabLayout) view, (ViewPager2) viewPager, true, new TabLayoutMediator.TabConfigurationStrategy() {
+            @Override
+            public void onConfigureTab(@NonNull TabLayout.Tab tab, int position) {
+                IItemsSourceProviderBase provider = ViewPager2Extensions.getItemsSourceProvider(viewPager);
+                if (provider != null)
+                    tab.setText(provider.getItemTitle(position));
+            }
+        }).attach();
     }
 
     public static int getSelectedTabPosition(View view) {

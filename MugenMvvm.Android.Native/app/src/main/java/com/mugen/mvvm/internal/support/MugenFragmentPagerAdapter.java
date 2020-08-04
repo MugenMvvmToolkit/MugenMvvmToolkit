@@ -31,8 +31,8 @@ public class MugenFragmentPagerAdapter extends FragmentPagerAdapter implements I
 
     @Nullable
     @Override
-    public CharSequence getPageTitle(int position) {//todo review
-        return super.getPageTitle(position);
+    public CharSequence getPageTitle(int position) {
+        return _provider.getItemTitle(position);
     }
 
     @NonNull

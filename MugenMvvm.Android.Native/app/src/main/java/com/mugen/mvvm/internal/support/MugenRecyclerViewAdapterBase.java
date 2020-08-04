@@ -18,21 +18,26 @@ public abstract class MugenRecyclerViewAdapterBase<T extends IItemsSourceProvide
         return _provider;
     }
 
+    public void attach(@NonNull RecyclerView recyclerView) {
+        _provider.addObserver(this);
+    }
+
     public void detach() {
+        _provider.removeObserver(this);
     }
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         if (_attachCount++ == 0)
-            _provider.addObserver(this);
+            attach(recyclerView);
     }
 
     @Override
     public void onDetachedFromRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onDetachedFromRecyclerView(recyclerView);
         if (_attachCount != 0 && --_attachCount == 0)
-            _provider.removeObserver(this);
+            detach();
     }
 
     @Override

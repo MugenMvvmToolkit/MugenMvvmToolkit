@@ -5,7 +5,11 @@ public interface IItemsSourceProviderBase {
 
     long getItemId(int position);
 
+    boolean containsItem(long itemId);
+
     int getCount();
+
+    CharSequence getItemTitle(int position);
 
     void addObserver(IItemsSourceObserver observer);
 

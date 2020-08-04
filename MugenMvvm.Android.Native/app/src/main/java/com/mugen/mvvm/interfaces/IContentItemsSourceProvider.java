@@ -7,6 +7,4 @@ public interface IContentItemsSourceProvider extends IItemsSourceProviderBase {
     Object getContent(int position);
 
     int getContentPosition(Object content);
-
-    boolean containsItem(long itemId);
 }

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.AttributeSet;
 import android.util.SparseArray;
+import android.view.Menu;
 import android.view.View;
 import com.mugen.mvvm.MugenNativeService;
 import com.mugen.mvvm.R;
@@ -160,6 +161,14 @@ public final class ViewExtensions {
         }
 
         return null;
+    }
+
+    public static boolean isMenuSupported(View view) {
+        return ToolbarExtensions.isSupported(view);
+    }
+
+    public static Menu getMenu(View view) {
+        return ToolbarExtensions.getMenu(view);
     }
 
     public static boolean isSupportAttachedValues(Object target) {

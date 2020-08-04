@@ -37,7 +37,7 @@ public class MugenPagerAdapter extends PagerAdapter implements IItemsSourceObser
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        return null;
+        return _provider.getItemTitle(position);
     }
 
     @NonNull
