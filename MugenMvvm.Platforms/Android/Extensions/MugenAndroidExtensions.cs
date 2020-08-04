@@ -1,4 +1,7 @@
-﻿using Android.App;
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using Android.App;
 using Android.Content;
 using Android.Views;
 using Java.Lang;
@@ -23,7 +26,6 @@ using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observation;
-using MugenMvvm.Enums;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Presenters;
@@ -40,7 +42,8 @@ namespace MugenMvvm.Android.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false,
+            bool disableFragmentState = false)
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
             LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeMode);
@@ -88,7 +91,7 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<IMenu>()
                 .ItemsSource()
                 .GetBuilder()
-                .PropertyChangedHandler((member, target, value, newValue, metadata) => AndroidMenuItemsSourceAdapter.GetOrAdd(target, target.BindableMembers().ItemTemplate()!).Attach(newValue))
+                .PropertyChangedHandler((member, target, value, newValue, metadata) => AndroidMenuItemsSourceGenerator.GetOrAdd(target, target.BindableMembers().ItemTemplate()!).Attach(newValue))
                 .Build());
 
             var enabled = AttachedMemberBuilder
@@ -144,7 +147,7 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) => ViewExtensions.GetParent(target))
                 .CustomSetter((member, target, value, metadata) => ViewExtensions.SetParent(target, (Object)value!))
-                .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, nameof(target.Parent)))
+                .ObservableHandler((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ParentMemberName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Visible()
@@ -169,12 +172,12 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .ParentChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, member.Name))
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ParentEventName))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Click()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, member.Name))
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.ClickEventName))
                 .Build());
 
             //textview
@@ -186,21 +189,21 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .TextChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, member.Name))
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.TextEventName))
                 .Build());
 
             //swiperefreshlayout
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Refreshed()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, member.Name))
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.RefreshedEventName))
                 .Build());
 
             //actionbar
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                 .ActionBarHomeButtonClick()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, member.Name))
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.HomeButtonClick))
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<Object>()
                 .Enabled()
@@ -264,9 +267,9 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                 {
-                    if (ToolbarExtensions.IsSupported(target))
+                    if (ViewExtensions.IsMenuSupported(target))
                     {
-                        var menu = ToolbarExtensions.GetMenu(target);
+                        var menu = ViewExtensions.GetMenu(target);
                         oldValue?.Clear(menu);
                         newValue?.Apply(menu, target);
                     }
@@ -298,33 +301,14 @@ namespace MugenMvvm.Android.Extensions
                     if (contentTemplateSelector == null)
                         ExceptionManager.ThrowNotSupported(nameof(contentTemplateSelector));
 
-                    var oldValue = ViewGroupExtensions.GetContent(target);
-                    var newValue = value == null ? null : (Object)contentTemplateSelector.SelectTemplate(target, value)!;
-                    if (Equals(newValue, oldValue))
-                        return;
-
-                    bool lifecycleOld = oldValue != null && !(oldValue is IHasLifecycleView);
-                    bool lifecycleNew = newValue != null && !(newValue is IHasLifecycleView);
-
-                    var viewManager = MugenService.ViewManager;
-                    if (lifecycleOld)
-                        viewManager.OnLifecycleChanged(oldValue!, ViewLifecycleState.Disappearing, metadata, metadata);
-
+                    var newValue = (Object)contentTemplateSelector.SelectTemplate(target, value);
                     if (newValue != null)
                     {
                         newValue.BindableMembers().SetDataContext(value);
                         newValue.BindableMembers().SetParent(target);
-                        if (lifecycleNew)
-                            viewManager.OnLifecycleChanged(newValue, ViewLifecycleState.Appearing, metadata, metadata);
                     }
 
-                    ViewGroupExtensions.SetContent(target, newValue!);
-
-                    if (lifecycleOld)
-                        viewManager.OnLifecycleChanged(oldValue!, ViewLifecycleState.Disappeared, metadata, metadata);
-
-                    if (lifecycleNew)
-                        viewManager.OnLifecycleChanged(newValue!, ViewLifecycleState.Appeared, metadata, metadata);
+                    ViewGroupExtensions.SetContent(target, newValue);
                 })
                 .Observable()
                 .Build());
@@ -417,7 +401,8 @@ namespace MugenMvvm.Android.Extensions
                 }).Build());
 
             //viewpager/viewpager2/tablayout
-            attachedMemberProvider.Register(new BindablePropertyDescriptor<View, int>(AndroidViewMemberChangedListener.SelectedIndexName)
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                .SelectedIndex()
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) =>
                 {
@@ -432,11 +417,54 @@ namespace MugenMvvm.Android.Extensions
                 })
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
+                .SelectedItem()
+                .GetBuilder()
+                .CustomGetter((member, target, metadata) =>
+                {
+                    if (!ViewGroupExtensions.IsSelectedIndexSupported(target))
+                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+
+                    var itemsSource = target.BindableMembers().ItemsSource();
+                    if (itemsSource == null)
+                        return null;
+
+                    return ((itemsSource as IEnumerable<object>) ?? itemsSource.OfType<object>()).ElementAtOrDefault(ViewGroupExtensions.GetSelectedIndex(target));
+                })
+                .CustomSetter((member, target, value, metadata) =>
+                {
+                    var index = IndexOf(target.BindableMembers().ItemsSource(), value);
+                    if (!ViewGroupExtensions.SetSelectedIndex(target, index))
+                        BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                })
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
                 .SelectedIndexChanged()
                 .GetBuilder()
-                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, member.Name))
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.SelectedIndexEventName))
+                .Build());
+            attachedMemberProvider.Register(BindableMembers.For<View>()
+                .SelectedItemChanged()
+                .GetBuilder()
+                .CustomImplementation((member, target, listener, metadata) => AndroidViewMemberChangedListener.Add(target, listener, AndroidViewMemberChangedListener.SelectedIndexEventName))
                 .Build());
             return configuration;
+        }
+
+        private static int IndexOf(IEnumerable? enumerable, object? item)
+        {
+            if (enumerable == null)
+                return -1;
+            if (enumerable is IList collection)
+                return collection.IndexOf(item);
+            int index = 0;
+            foreach (var v in enumerable)
+            {
+                if (Equals(v, item))
+                    return index;
+                ++index;
+            }
+
+            return -1;
         }
 
         #endregion

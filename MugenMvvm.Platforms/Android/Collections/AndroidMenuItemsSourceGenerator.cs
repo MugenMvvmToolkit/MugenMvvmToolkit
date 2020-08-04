@@ -7,7 +7,7 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidMenuItemsSourceAdapter : BindableCollectionAdapterBase<object?>
+    public class AndroidMenuItemsSourceGenerator : BindableCollectionAdapterBase<object?>
     {
         #region Fields
 
@@ -18,7 +18,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        private AndroidMenuItemsSourceAdapter(IMenu menu, IMenuItemTemplate template)
+        private AndroidMenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate template)
         {
             _menu = menu;
             _template = template;
@@ -34,14 +34,14 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public static AndroidMenuItemsSourceAdapter GetOrAdd(IMenu menu, IMenuItemTemplate template)
+        public static AndroidMenuItemsSourceGenerator GetOrAdd(IMenu menu, IMenuItemTemplate template)
         {
             Should.NotBeNull(menu, nameof(menu));
             Should.NotBeNull(template, nameof(template));
             return MugenService
                 .AttachedValueManager
                 .TryGetAttachedValues(menu)
-                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, template, (m, t) => new AndroidMenuItemsSourceAdapter((IMenu) m, t));
+                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, template, (m, t) => new AndroidMenuItemsSourceGenerator((IMenu) m, t));
         }
 
         protected override void OnAdded(object? item, int index, bool batch)

@@ -33,6 +33,8 @@ namespace MugenMvvm.Android.Members
 
         public static BindablePropertyDescriptor<T, int> SelectedIndex<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SelectedIndex);
 
+        public static BindablePropertyDescriptor<T, object?> SelectedItem<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SelectedItem);
+
         public static BindableEventDescriptor<T> Click<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(Click);
 
         public static BindableEventDescriptor<T> ParentChanged<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(ParentChanged);
@@ -42,6 +44,8 @@ namespace MugenMvvm.Android.Members
         public static BindableEventDescriptor<T> Refreshed<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(Refreshed);
 
         public static BindableEventDescriptor<T> SelectedIndexChanged<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SelectedIndexChanged);
+
+        public static BindableEventDescriptor<T> SelectedItemChanged<T>(this BindableMembersDescriptor<T> _) where T : View => nameof(SelectedItemChanged);
 
         public static BindableEventDescriptor<T> ActionBarHomeButtonClick<T>(this BindableMembersDescriptor<T> _) where T : Object => AndroidViewMemberChangedListener.HomeButtonClick;
 
@@ -107,6 +111,12 @@ namespace MugenMvvm.Android.Members
         public static void SetSelectedIndex<T>(this BindableMembersTargetDescriptor<T> descriptor, int value) where T : View => SelectedIndex<T>(_: default).SetValue(descriptor.Target, value);
 
 
+        [BindingMember(nameof(SelectedItem))]
+        public static object? SelectedItem<T>(this BindableMembersTargetDescriptor<T> descriptor) where T : View => SelectedItem<T>(_: default).GetValue(descriptor.Target);
+
+        public static void SetSelectedItem<T>(this BindableMembersTargetDescriptor<T> descriptor, object? value) where T : View => SelectedItem<T>(_: default).SetValue(descriptor.Target, value);
+
+
         public static ActionToken AddClickListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : View =>
             Click<T>(default).Subscribe(descriptor.Target, listener);
 
@@ -115,6 +125,12 @@ namespace MugenMvvm.Android.Members
 
         public static ActionToken AddTextChangedListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : View =>
             TextChanged<T>(default).Subscribe(descriptor.Target, listener);
+
+        public static ActionToken AddSelectedIndexChangedListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : View =>
+            SelectedIndexChanged<T>(default).Subscribe(descriptor.Target, listener);
+
+        public static ActionToken AddSelectedItemChangedListener<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : View =>
+            SelectedItemChanged<T>(default).Subscribe(descriptor.Target, listener);
 
         public static ActionToken AddActionBarHomeButtonClick<T>(this BindableMembersTargetDescriptor<T> descriptor, IEventListener listener) where T : Object =>
             ActionBarHomeButtonClick<T>(default).Subscribe(descriptor.Target, listener);

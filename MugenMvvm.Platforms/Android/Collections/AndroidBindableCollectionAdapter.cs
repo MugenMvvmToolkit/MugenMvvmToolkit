@@ -5,7 +5,7 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class AndroidNativeBindableCollectionAdapter : BindableCollectionAdapterBase<object?>
+    public sealed class AndroidBindableCollectionAdapter : BindableCollectionAdapterBase<object?>
     {
         #region Fields
 
@@ -15,7 +15,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        public AndroidNativeBindableCollectionAdapter()
+        public AndroidBindableCollectionAdapter()
         {
             Observers = new List<IItemsSourceObserver>();
             _isAlive = true;

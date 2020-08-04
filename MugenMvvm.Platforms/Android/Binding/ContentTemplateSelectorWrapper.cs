@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Android.Binding
 {
-    public sealed class ContentTemplateSelectorWrapper : IContentTemplateSelector, IFragmentTemplateSelector
+    public sealed class ContentTemplateSelectorWrapper : IContentTemplateSelector, IFragmentTemplateSelector, ITitleTemplateSelector
     {
         #region Fields
 
@@ -49,6 +49,11 @@ namespace MugenMvvm.Android.Binding
                 return ViewExtensions.GetView(javaContainer, template, false);
             ExceptionManager.ThrowNotSupported(nameof(container));
             return null;
+        }
+
+        public ICharSequence? GetTitle(object container, object? item)
+        {
+            return (_selector as ITitleTemplateSelector)?.GetTitle(container, item);
         }
 
         #endregion
