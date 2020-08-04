@@ -162,7 +162,7 @@ namespace MugenMvvm.Binding.Members.Builders
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             return new DelegateAccessorMemberInfo<TTarget, TValue, TState>(Name, DeclaringType, PropertyType,
-                AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, IsNonObservable ? null : tryObserve, raise);
+                AttachedMemberBuilder.GetFlags(IsStatic), UnderlyingMemberField, state, getValue, setValue, !IsNonObservable, IsNonObservable ? null : tryObserve, raise);
         }
 
         #endregion

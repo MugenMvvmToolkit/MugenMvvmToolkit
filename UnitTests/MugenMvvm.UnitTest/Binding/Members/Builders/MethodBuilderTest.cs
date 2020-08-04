@@ -2,9 +2,11 @@
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Members.Builders;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
+using MugenMvvm.UnitTest.Internal.Internal;
 using Should;
 using Xunit;
 
@@ -149,6 +151,42 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
             {
                 memberInfo.TryObserve(target, testEventHandler, DefaultMetadata);
                 attachedInvokeCount.ShouldEqual(1);
+            }
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldUseObservationManager(bool observable)
+        {
+            int invokeCount = 0;
+            var actionToken = new ActionToken((o, o1) => { });
+            var b = new MethodBuilder<object, object>("t", typeof(object), typeof(EventHandler)).InvokeHandler((member, target, args, metadata) => "");
+            if (!observable)
+                b.NonObservable();
+            var memberInfo = b.Build();
+            using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg3) =>
+                {
+                    ++invokeCount;
+                    type.ShouldEqual(memberInfo.DeclaringType);
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return new MemberObserver((o1, o2, listener, arg4) => actionToken, memberInfo);
+                }
+            });
+
+            var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
+            if (observable)
+            {
+                invokeCount.ShouldEqual(1);
+                token.ShouldEqual(actionToken);
+            }
+            else
+            {
+                invokeCount.ShouldEqual(0);
+                token.IsEmpty.ShouldBeTrue();
             }
         }
 

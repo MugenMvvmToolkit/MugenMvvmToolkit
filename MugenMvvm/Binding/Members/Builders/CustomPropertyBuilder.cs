@@ -69,6 +69,13 @@ namespace MugenMvvm.Binding.Members.Builders
             return this;
         }
 
+        public CustomPropertyBuilder<TTarget, TValue> NonObservable()
+        {
+            _isObservable = false;
+            _propertyBuilder.NonObservable();
+            return this;
+        }
+
         public CustomPropertyBuilder<TTarget, TValue> ObservableHandler(TryObserveDelegate<IObservableMemberInfo, TTarget> tryObserve, RaiseDelegate<IObservableMemberInfo, TTarget>? raise = null)
         {
             Should.NotBeNull(tryObserve, nameof(tryObserve));

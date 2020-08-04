@@ -12,6 +12,8 @@ namespace MugenMvvm.Binding.Observation
     {
         #region Fields
 
+        public static readonly MemberObserver NoDo = new MemberObserver((_, __, ___, ____) => default, Default.Metadata);
+
         public readonly Func<object?, object, IEventListener, IReadOnlyMetadataContext?, ActionToken> Handler;
         public readonly object Member;
 
@@ -36,6 +38,8 @@ namespace MugenMvvm.Binding.Observation
         #endregion
 
         #region Methods
+
+        public MemberObserver NoDoIfEmpty() => IsEmpty ? NoDo : this;
 
         [Pure]
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata)

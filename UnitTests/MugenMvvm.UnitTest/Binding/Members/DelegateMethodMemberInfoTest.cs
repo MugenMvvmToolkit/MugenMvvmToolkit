@@ -23,7 +23,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void ShouldNotBeGeneric()
         {
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null, null);
             memberInfo.IsGenericMethod.ShouldBeFalse();
             memberInfo.IsGenericMethodDefinition.ShouldBeFalse();
             ShouldThrow<NotSupportedException>(() => memberInfo.GetGenericMethodDefinition());
@@ -34,7 +34,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         [Fact]
         public void GetParametersShouldUseDelegate()
         {
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null, null);
             memberInfo.GetParameters().ShouldBeEmpty();
 
             var invokeCount = 0;
@@ -44,7 +44,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 ++invokeCount;
                 info.ShouldEqual(memberInfo);
                 return parameters;
-            }, null, null, null);
+            }, null, false, null, null);
             memberInfo.GetParameters().ShouldEqual(parameters);
         }
 
@@ -53,7 +53,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
         {
             var flags = ArgumentFlags.Metadata;
             var values = new object[] { this };
-            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, null, null);
+            var memberInfo = new DelegateMethodMemberInfo<string, object?, object?>("", typeof(object), typeof(object), MemberFlags.Dynamic, null, null, (member, target, args, metadata) => "", null, null, false, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldBeNull();
 
             var invokeCount = 0;
@@ -67,7 +67,7 @@ namespace MugenMvvm.UnitTest.Binding.Members
                     args.ShouldEqual(values);
                     metadata.ShouldEqual(DefaultMetadata);
                     return accessor;
-                }, null, null);
+                }, false, null, null);
             memberInfo.TryGetAccessor(flags, values, DefaultMetadata).ShouldEqual(accessor);
         }
 
@@ -87,18 +87,17 @@ namespace MugenMvvm.UnitTest.Binding.Members
                 objects.ShouldEqual(args);
                 metadata.ShouldEqual(DefaultMetadata);
                 return result;
-            }, null, null, null, null);
+            }, null, null, false, null, null);
             m = memberInfo;
             memberInfo.Invoke(t, objects, DefaultMetadata).ShouldEqual(result);
             invokeCount.ShouldEqual(1);
         }
 
         protected override DelegateObservableMemberInfo<TTarget, TState> Create<TTarget, TState>(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, in TState state,
-            TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve,
-            RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
+            bool tryObserveByMember, TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             return new DelegateMethodMemberInfo<TTarget, object?, TState>(name, declaringType, memberType, accessModifiers, underlyingMember, state, (member, target, args, metadata) => "",
-                null, null, tryObserve, raise);
+                null, null, tryObserveByMember, tryObserve, raise);
         }
 
         #endregion

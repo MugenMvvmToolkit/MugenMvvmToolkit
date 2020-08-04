@@ -6,6 +6,7 @@ using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
 using MugenMvvm.Binding.Members;
 using MugenMvvm.Binding.Members.Builders;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Internal;
 using MugenMvvm.UnitTest.Binding.Members.Internal;
 using MugenMvvm.UnitTest.Binding.Observation.Internal;
@@ -364,6 +365,63 @@ namespace MugenMvvm.UnitTest.Binding.Members.Builders
 
             for (var i = 0; i < count; i++)
                 member.GetValue(targets[i]).ShouldEqual(i);
+        }
+
+        [Theory]
+        [InlineData(true)]
+        [InlineData(false)]
+        public void ShouldUseObservationManagerCustomProperty(bool observable)
+        {
+            int invokeCount = 0;
+            var actionToken = new ActionToken((o, o1) => { });
+            var b = new CustomPropertyBuilder<object, object>(new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler))).CustomGetter((member, target, metadata) => "");
+            if (!observable)
+                b.NonObservable();
+            var memberInfo = b.Build();
+            using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg3) =>
+                {
+                    ++invokeCount;
+                    type.ShouldEqual(memberInfo.DeclaringType);
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return new MemberObserver((o1, o2, listener, arg4) => actionToken, memberInfo);
+                }
+            });
+
+            var token = memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
+            if (observable)
+            {
+                invokeCount.ShouldEqual(1);
+                token.ShouldEqual(actionToken);
+            }
+            else
+            {
+                invokeCount.ShouldEqual(0);
+                token.IsEmpty.ShouldBeTrue();
+            }
+        }
+
+        [Fact]
+        public void ShouldUseObservationManagerAutoProperty()
+        {
+            int invokeCount = 0;
+            var memberInfo = new PropertyBuilder<object, object>("t", typeof(object), typeof(EventHandler)).NonObservable().Build();
+            using var _ = TestComponentSubscriber.Subscribe(new TestMemberObserverProviderComponent
+            {
+                TryGetMemberObserver = (type, o, arg3) =>
+                {
+                    ++invokeCount;
+                    type.ShouldEqual(memberInfo.DeclaringType);
+                    o.ShouldEqual(memberInfo);
+                    arg3.ShouldEqual(DefaultMetadata);
+                    return MemberObserver.NoDo;
+                }
+            });
+
+            memberInfo.TryObserve(this, new TestWeakEventListener(), DefaultMetadata);
+            invokeCount.ShouldEqual(0);
         }
 
         [Fact]

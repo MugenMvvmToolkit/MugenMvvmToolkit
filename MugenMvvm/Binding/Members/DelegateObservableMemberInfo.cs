@@ -3,6 +3,7 @@ using MugenMvvm.Binding.Delegates;
 using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Members;
 using MugenMvvm.Binding.Interfaces.Observation;
+using MugenMvvm.Binding.Observation;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Internal;
 
@@ -14,13 +15,14 @@ namespace MugenMvvm.Binding.Members
 
         private readonly RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _raise;
         private readonly TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? _tryObserve;
+        private MemberObserver _observer;
         public readonly TState State;
 
         #endregion
 
         #region Constructors
 
-        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, TState state,
+        public DelegateObservableMemberInfo(string name, Type declaringType, Type memberType, MemberFlags accessModifiers, object? underlyingMember, TState state, bool tryObserveByMember,
             TryObserveDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? tryObserve, RaiseDelegate<DelegateObservableMemberInfo<TTarget, TState>, TTarget>? raise)
         {
             Should.NotBeNull(name, nameof(name));
@@ -34,6 +36,8 @@ namespace MugenMvvm.Binding.Members
             Type = memberType;
             _tryObserve = tryObserve;
             _raise = raise;
+            if (!tryObserveByMember)
+                _observer = MemberObserver.NoDo;
         }
 
         #endregion
@@ -64,7 +68,12 @@ namespace MugenMvvm.Binding.Members
         public ActionToken TryObserve(object? target, IEventListener listener, IReadOnlyMetadataContext? metadata = null)
         {
             if (_tryObserve == null)
-                return default;
+            {
+                if (_observer.IsEmpty)
+                    _observer = MugenBindingService.ObservationManager.TryGetMemberObserver(DeclaringType, this, metadata).NoDoIfEmpty();
+
+                return _observer.TryObserve(target, listener, metadata);
+            }
             return _tryObserve(this, (TTarget)target!, listener, metadata);
         }
 

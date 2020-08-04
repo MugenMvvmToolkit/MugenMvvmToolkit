@@ -3,11 +3,6 @@ using MugenMvvm.Extensions;
 
 namespace MugenMvvm.Internal
 {
-    internal class Test1
-    {
-
-    }
-
     public static class TypeChecker
     {
         #region Methods

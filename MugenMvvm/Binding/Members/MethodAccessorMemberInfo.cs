@@ -21,7 +21,7 @@ namespace MugenMvvm.Binding.Members
         private readonly IObservationManager? _observationManager;
         private readonly Type _reflectedType;
         private readonly IMethodMemberInfo? _setMethod;
-        private MemberObserver? _observer;
+        private MemberObserver _observer;
 
         #endregion
 
@@ -83,14 +83,15 @@ namespace MugenMvvm.Binding.Members
                 if (!token.IsEmpty)
                     return token;
             }
-            if (_observer == null)
+            if (_observer.IsEmpty)
             {
                 _observer = _observationManager
                     .DefaultIfNull()
-                    .TryGetMemberObserver(_reflectedType, this, metadata);
+                    .TryGetMemberObserver(_reflectedType, this, metadata)
+                    .NoDoIfEmpty();
             }
 
-            return _observer.Value.TryObserve(target, listener, metadata);
+            return _observer.TryObserve(target, listener, metadata);
         }
 
         public object? GetValue(object? target, IReadOnlyMetadataContext? metadata = null)
