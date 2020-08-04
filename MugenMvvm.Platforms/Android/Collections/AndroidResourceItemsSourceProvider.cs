@@ -8,7 +8,7 @@ using MugenMvvm.Binding.Members;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidCollectionItemsSourceProvider : Object, IResourceItemsSourceProvider
+    public class AndroidResourceItemsSourceProvider : Object, IResourceItemsSourceProvider
     {
         #region Fields
 
@@ -21,7 +21,7 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        public AndroidCollectionItemsSourceProvider(object owner, IDataTemplateSelector selector, IStableIdProvider? stableIdProvider)
+        public AndroidResourceItemsSourceProvider(object owner, IDataTemplateSelector selector, IStableIdProvider? stableIdProvider)
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(selector, nameof(selector));
@@ -48,7 +48,7 @@ namespace MugenMvvm.Android.Collections
         public virtual long GetItemId(int position)
         {
             if (_stableIdProvider == null)
-                return 0;
+                return position;
             return _stableIdProvider.GetId(GetItemAt(position));
         }
 

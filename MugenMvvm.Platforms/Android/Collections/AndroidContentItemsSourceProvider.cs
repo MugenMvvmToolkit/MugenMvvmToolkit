@@ -14,17 +14,19 @@ namespace MugenMvvm.Android.Collections
         private readonly AndroidNativeBindableCollectionAdapter _collectionAdapter;
         private readonly object _owner;
         private readonly IContentTemplateSelector _selector;
+        private readonly IStableIdProvider? _stableIdProvider;
 
         #endregion
 
         #region Constructors
 
-        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector selector)
+        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector selector, IStableIdProvider? stableIdProvider)
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(selector, nameof(selector));
             _owner = owner;
             _selector = selector;
+            _stableIdProvider = stableIdProvider;
             _collectionAdapter = new AndroidNativeBindableCollectionAdapter();
         }
 
@@ -33,6 +35,8 @@ namespace MugenMvvm.Android.Collections
         #region Properties
 
         public virtual int Count => _collectionAdapter.Count;
+
+        public bool HasStableId => _stableIdProvider != null;
 
         #endregion
 
@@ -48,8 +52,25 @@ namespace MugenMvvm.Android.Collections
             _collectionAdapter.Observers.Remove(observer);
         }
 
-        public virtual void DestroyContent(int position, Object content)
+        public long GetItemId(int position)
         {
+            if (_stableIdProvider == null)
+                return position;
+            return _stableIdProvider.GetId(GetItemAt(position));
+        }
+
+        public bool ContainsItem(long itemId)
+        {
+            if (_stableIdProvider == null)
+                return false;
+
+            for (var i = 0; i < _collectionAdapter.Count; i++)
+            {
+                if (_stableIdProvider.GetId(_collectionAdapter[i]) == itemId)
+                    return true;
+            }
+
+            return false;
         }
 
         public virtual Object GetContent(int position)
@@ -69,15 +90,6 @@ namespace MugenMvvm.Android.Collections
             if (index < 0)
                 return ContentItemsSourceProvider.PositionNone;
             return index;
-        }
-
-        public virtual ICharSequence GetTitleFormatted(int position)
-        {
-            return null!;
-        }
-
-        public virtual void OnPrimaryContentChanged(int position, Object oldContent, Object newContent)
-        {
         }
 
         #endregion

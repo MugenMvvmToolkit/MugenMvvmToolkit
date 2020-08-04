@@ -40,7 +40,7 @@ namespace MugenMvvm.Android.Extensions
     {
         #region Methods
 
-        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false)
+        public static MugenApplicationConfiguration AndroidConfiguration(this MugenApplicationConfiguration configuration, Context? context = null, bool rawViewTagMode = true, bool nativeMode = false, bool disableFragmentState = false)
         {
             MugenAndroidNativeService.Initialize(context ?? Application.Context, new AndroidBindViewCallback(), rawViewTagMode);
             LifecycleExtensions.AddLifecycleDispatcher(new AndroidNativeViewLifecycleDispatcher(), nativeMode);
@@ -48,6 +48,8 @@ namespace MugenMvvm.Android.Extensions
 
             if (nativeMode)
                 MugenAndroidNativeService.SetNativeMode();
+            if (disableFragmentState)
+                MugenAndroidNativeService.DisableFragmentState();
             configuration.ServiceConfiguration<IThreadDispatcher>()
                 .WithComponent(new SynchronizationContextThreadDispatcher(Application.SynchronizationContext));
 
@@ -281,10 +283,10 @@ namespace MugenMvvm.Android.Extensions
                 .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                 {
                     if (newValue is IDataTemplateSelector selector)
-                        member.SetValue(target, new ContentTemplateResourceSelectorWrapper(selector), metadata);
+                        member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                 })
                 .NonObservable()
-                .DefaultValue(new DefaultContentTemplate())
+                .DefaultValue(DefaultContentTemplateSelector.Instance)
                 .Build());
             attachedMemberProvider.Register(BindableMembers.For<View>()
                 .Content()
@@ -360,9 +362,13 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                 {
+                    if (!(newValue is IDataTemplateSelector selector))
+                        return;
+
                     var providerType = ViewGroupExtensions.GetItemSourceProviderType(target);
-                    if ((providerType == ViewGroupExtensions.ContentProviderType || providerType == ViewGroupExtensions.ContentRawType) && newValue is IDataTemplateSelector selector)
-                        member.SetValue(target, new ContentTemplateResourceSelectorWrapper(selector), metadata);
+                    if (providerType == ViewGroupExtensions.ContentProviderType || providerType == ViewGroupExtensions.ContentRawProviderType
+                                                                                || (providerType == ViewGroupExtensions.ResourceOrContentProviderType && selector is IFragmentTemplateSelector fts && fts.HasFragments))
+                        member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                 })
                 .NonObservable()
                 .Build());
@@ -374,39 +380,43 @@ namespace MugenMvvm.Android.Extensions
                     var providerType = ViewGroupExtensions.GetItemSourceProviderType(target);
                     if (providerType == ViewGroupExtensions.NoneProviderType)
                         BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
+                    var itemTemplateSelector = target.BindableMembers().ItemTemplateSelector();
+                    if (itemTemplateSelector == null)
+                        ExceptionManager.ThrowObjectNotInitialized(target, target.BindableMembers().Descriptor.ItemTemplateSelector());
 
                     var itemSource = ViewGroupExtensions.GetItemsSourceProvider(target);
-                    if (providerType == ViewGroupExtensions.ContentRawType)
+                    bool hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
+                    if (providerType == ViewGroupExtensions.ContentRawProviderType)
                     {
                         AndroidContentItemsSourceGenerator
-                            .GetOrAdd(target, (IContentTemplateSelector)target.BindableMembers().ItemTemplateSelector()!)
+                            .GetOrAdd(target, (IContentTemplateSelector)itemTemplateSelector)
                             .Attach(newValue);
                     }
-                    else if (providerType == ViewGroupExtensions.ContentProviderType)
+                    else if (providerType == ViewGroupExtensions.ContentProviderType || (providerType == ViewGroupExtensions.ResourceOrContentProviderType && hasFragments))
                     {
                         if (!(itemSource is AndroidContentItemsSourceProvider provider))
                         {
                             ViewExtensions.RemoveParentObserver(target);
-                            provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector)target.BindableMembers().ItemTemplateSelector()!);
-                            ViewGroupExtensions.SetItemsSourceProvider(target, provider);
+                            provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                            ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                         }
 
                         provider.SetItemsSource(newValue);
                     }
                     else
                     {
-                        if (!(itemSource is AndroidCollectionItemsSourceProvider provider))
+                        if (!(itemSource is AndroidResourceItemsSourceProvider provider))
                         {
                             ViewExtensions.RemoveParentObserver(target);
-                            provider = new AndroidCollectionItemsSourceProvider(target, (IDataTemplateSelector)target.BindableMembers().ItemTemplateSelector()!, target.BindableMembers().StableIdProvider());
-                            ViewGroupExtensions.SetItemsSourceProvider(target, provider);
+                            provider = new AndroidResourceItemsSourceProvider(target, (IDataTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                            ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                         }
 
                         provider.SetItemsSource(newValue);
                     }
                 }).Build());
 
-            //viewpager/viewpager2
+            //viewpager/viewpager2/tablayout
             attachedMemberProvider.Register(new BindablePropertyDescriptor<View, int>(AndroidViewMemberChangedListener.SelectedIndexName)
                 .GetBuilder()
                 .CustomGetter((member, target, metadata) =>

@@ -6,7 +6,7 @@ using MugenMvvm.Interfaces.ViewModels;
 
 namespace MugenMvvm.Android.Binding
 {
-    public sealed class ContentTemplateResourceSelectorWrapper : IContentTemplateSelector
+    public sealed class ContentTemplateSelectorWrapper : IContentTemplateSelector, IFragmentTemplateSelector
     {
         #region Fields
 
@@ -16,10 +16,24 @@ namespace MugenMvvm.Android.Binding
 
         #region Constructors
 
-        public ContentTemplateResourceSelectorWrapper(IDataTemplateSelector selector)
+        public ContentTemplateSelectorWrapper(IDataTemplateSelector selector)
         {
             Should.NotBeNull(selector, nameof(selector));
             _selector = selector;
+        }
+
+        #endregion
+
+        #region Properties
+
+        public bool HasFragments
+        {
+            get
+            {
+                if (_selector is IFragmentTemplateSelector s)
+                    return s.HasFragments;
+                return false;
+            }
         }
 
         #endregion

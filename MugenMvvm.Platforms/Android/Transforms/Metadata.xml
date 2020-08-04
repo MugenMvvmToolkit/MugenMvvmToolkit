@@ -1,5 +1,6 @@
 ﻿<metadata>
   <remove-node path="/api/package[@name='com.mugen.mvvm.internal']" />
+  <remove-node path="/api/package[@name='com.mugen.mvvm.internal.support']" />
   <remove-node path="/api/package[@name='com.mugen.mvvm.views.listeners']" />
   <remove-node path="/api/package[@name='com.mugen.mvvm']/class[@name='BuildConfig']" />
   <attr path="/api/package[@name='com.mugen.mvvm']" name="managedName">MugenMvvm.Android.Native</attr>
