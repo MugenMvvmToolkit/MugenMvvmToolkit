@@ -10,6 +10,7 @@ using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Core.Components;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
 using MugenMvvm.Binding.Members;
+using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Components;
 using MugenMvvm.Interfaces.Metadata;
 using MugenMvvm.Interfaces.Models;
@@ -33,6 +34,7 @@ namespace MugenMvvm.Binding.Core.Components
                 {BindingInternalConstant.ContentTemplate, BindableMemberPriority.Template},
                 {BindingInternalConstant.ContentTemplateSelector, BindableMemberPriority.Template},
                 {BindingInternalConstant.StableIdProvider, BindableMemberPriority.Template},
+                {BindingInternalConstant.ItemsSource, BindableMemberPriority.ItemsSource}
             };
         }
 
@@ -41,6 +43,8 @@ namespace MugenMvvm.Binding.Core.Components
         #region Properties
 
         public Dictionary<string, int> BindingMemberPriorities { get; }
+
+        public int FakeMemberPriority { get; set; } = BindableMemberPriority.Fake;
 
         public int Priority { get; set; } = BindingComponentPriority.ExpressionPriorityDecorator;
 
@@ -89,14 +93,25 @@ namespace MugenMvvm.Binding.Core.Components
 
         private int TryGetPriority(IExpressionNode expression)
         {
-            if (expression is IBindingMemberExpressionNode bindingMemberExpression && BindingMemberPriorities.TryGetValue(bindingMemberExpression.Path, out var priority))
+            if (expression is IBindingMemberExpressionNode bindingMemberExpression && TryGetPriority(bindingMemberExpression.Path, out var priority))
                 return priority;
             var node = expression.TryGetRootMemberExpression();
             if (node is IHasPriority hasPriority)
                 return hasPriority.Priority;
-            if (node is IMemberExpressionNode member && BindingMemberPriorities.TryGetValue(member.Member, out priority))
+            if (node is IMemberExpressionNode member && TryGetPriority(member.Member, out priority))
                 return priority;
             return 0;
+        }
+
+        private bool TryGetPriority(string member, out int priority)
+        {
+            if (FakeMemberProvider.IsFakeMember(member))
+            {
+                priority = FakeMemberPriority;
+                return true;
+            }
+
+            return BindingMemberPriorities.TryGetValue(member, out priority);
         }
 
         #endregion

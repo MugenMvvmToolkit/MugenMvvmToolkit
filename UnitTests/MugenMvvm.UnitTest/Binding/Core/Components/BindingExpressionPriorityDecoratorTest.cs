@@ -8,6 +8,7 @@ using MugenMvvm.Binding.Enums;
 using MugenMvvm.Binding.Interfaces.Core;
 using MugenMvvm.Binding.Interfaces.Parsing;
 using MugenMvvm.Binding.Interfaces.Parsing.Expressions;
+using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Parsing.Expressions;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Metadata;
@@ -51,6 +52,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
         {
             const string maxPriorityName = "T1";
             const string minPriorityName = "T2";
+            const string fakePriorityName = FakeMemberProvider.FakeMemberPrefix + "2";
 
             var expressions = new IBindingBuilder[]
             {
@@ -58,9 +60,10 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 new TestBindingBuilder {TargetExpression = new MemberExpressionNode(new MemberExpressionNode(null, minPriorityName), Guid.NewGuid().ToString())},
                 new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(maxPriorityName)},
                 new HasPriorityBindingBuilder {Priority = int.MaxValue - 1},
-                new TestBindingBuilder {TargetExpression = new HasPriorityExpressionNode {Priority = 1}}
+                new TestBindingBuilder {TargetExpression = new HasPriorityExpressionNode {Priority = 1}},
+                new TestBindingBuilder {TargetExpression = new TestBindingMemberExpressionNode(fakePriorityName)},
             };
-            var expected = new[] { expressions[2], expressions[3], expressions[4], expressions[0], expressions[1] };
+            var expected = new[] { expressions[2], expressions[3], expressions[5], expressions[4], expressions[0], expressions[1] };
             IList<IBindingBuilder> result;
             if (inputParameterState == 1)
                 result = expressions;
@@ -70,7 +73,7 @@ namespace MugenMvvm.UnitTest.Binding.Core.Components
                 result = new Collection<IBindingBuilder>(expressions);
 
             var bindingManager = new BindingManager();
-            var decorator = new BindingExpressionPriorityDecorator();
+            var decorator = new BindingExpressionPriorityDecorator { FakeMemberPriority = 2 };
             decorator.BindingMemberPriorities.Clear();
             decorator.BindingMemberPriorities[maxPriorityName] = int.MaxValue;
             decorator.BindingMemberPriorities[minPriorityName] = int.MinValue;

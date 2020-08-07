@@ -43,7 +43,7 @@ namespace MugenMvvm.Binding.Members.Components
 
         public ItemOrList<IMemberInfo, IReadOnlyList<IMemberInfo>> TryGetMembers(IMemberManager memberManager, Type type, string name, MemberType memberTypes, IReadOnlyMetadataContext? metadata)
         {
-            if (!memberTypes.HasFlagEx(MemberType.Accessor) || name.Length == 0 || name[0] != FakeMemberPrefixSymbol && !name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal))
+            if (!memberTypes.HasFlagEx(MemberType.Accessor) || !IsFakeMember(name))
                 return default;
 
             if (!_cache.TryGetValue(name, out var value))
@@ -53,6 +53,15 @@ namespace MugenMvvm.Binding.Members.Components
             }
 
             return value;
+        }
+
+        #endregion
+
+        #region Methods
+
+        public static bool IsFakeMember(string name)
+        {
+            return name.Length != 0 && (name[0] == FakeMemberPrefixSymbol || name.StartsWith(FakeMemberPrefix, StringComparison.Ordinal));
         }
 
         #endregion

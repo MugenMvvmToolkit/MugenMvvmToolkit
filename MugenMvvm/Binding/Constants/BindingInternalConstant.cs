@@ -10,6 +10,7 @@
         public const string ContentTemplate = nameof(ContentTemplate);
         public const string ContentTemplateSelector = nameof(ContentTemplateSelector);
         public const string StableIdProvider = nameof(StableIdProvider);
+        public const string ItemsSource = nameof(ItemsSource);
 
         public const string ChangedEventPostfix = "Changed";
         public const string ChangeEventPostfix = "Change";
