@@ -51,11 +51,11 @@ namespace MugenMvvm.Presenters.Components
 
         public ItemOrList<IPresenterResult, IReadOnlyList<IPresenterResult>> TryShow(IPresenter presenter, object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata)
         {
-            var viewModel = TryGetViewModel(request, cancellationToken, metadata, out var view);
+            var viewModel = TryGetViewModel(request, cancellationToken, metadata, out var view, out var canDisposeViewModel);
             if (viewModel == null)
                 return Components.TryShow(presenter, request, cancellationToken, metadata);
             var result = Components.TryShow(presenter, ViewModelViewRequest.GetRequestOrRaw(request, viewModel, view), cancellationToken, metadata);
-            if (DisposeViewModelOnClose)
+            if (canDisposeViewModel && DisposeViewModelOnClose)
             {
                 foreach (var presenterResult in result.Iterator())
                 {
@@ -80,9 +80,10 @@ namespace MugenMvvm.Presenters.Components
 
         #region Methods
 
-        private IViewModelBase? TryGetViewModel(object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, out object? view)
+        private IViewModelBase? TryGetViewModel(object request, CancellationToken cancellationToken, IReadOnlyMetadataContext? metadata, out object? view, out bool canDisposeViewModel)
         {
             view = null;
+            canDisposeViewModel = true;
             if (cancellationToken.IsCancellationRequested)
                 return null;
 
@@ -90,7 +91,15 @@ namespace MugenMvvm.Presenters.Components
             if (viewModel != null || view == null)
                 return null;
 
-            var mappings = _viewManager.DefaultIfNull().GetMappings(request, metadata);
+            var viewManager = _viewManager.DefaultIfNull();
+            var views = viewManager.GetViews(view, metadata);
+            if (!views.IsNullOrEmpty())
+            {
+                canDisposeViewModel = false;
+                return views.Item?.ViewModel;
+            }
+
+            var mappings = viewManager.GetMappings(request, metadata);
             if (mappings.Item == null)
                 return null;
             return _viewModelManager.DefaultIfNull().TryGetViewModel(mappings.Item.ViewModelType, metadata);
