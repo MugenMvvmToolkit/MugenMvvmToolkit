@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using Android.Views;
 using MugenMvvm.Android.Constants;
 using MugenMvvm.Android.Interfaces;
+using MugenMvvm.Android.Members;
+using MugenMvvm.Binding.Extensions;
 using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidMenuItemsSourceGenerator : BindableCollectionAdapterBase<object?>
+    public class AndroidMenuItemsSourceGenerator : BindableCollectionAdapter
     {
         #region Fields
 
@@ -20,6 +22,7 @@ namespace MugenMvvm.Android.Collections
 
         private AndroidMenuItemsSourceGenerator(IMenu menu, IMenuItemTemplate template)
         {
+            Should.NotBeNull(template, nameof(template));
             _menu = menu;
             _template = template;
         }
@@ -34,56 +37,55 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        public static AndroidMenuItemsSourceGenerator GetOrAdd(IMenu menu, IMenuItemTemplate template)
+        public static AndroidMenuItemsSourceGenerator GetOrAdd(IMenu menu)
         {
             Should.NotBeNull(menu, nameof(menu));
-            Should.NotBeNull(template, nameof(template));
             return MugenService
                 .AttachedValueManager
                 .TryGetAttachedValues(menu)
-                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, template, (m, t) => new AndroidMenuItemsSourceGenerator((IMenu) m, t));
+                .GetOrAdd(AndroidInternalConstant.MenuItemsSource, menu, (_, m) => new AndroidMenuItemsSourceGenerator(m, m.BindableMembers().ItemTemplate()!));
         }
 
-        protected override void OnAdded(object? item, int index, bool batch)
+        protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
-            base.OnAdded(item, index, batch);
+            base.OnAdded(item, index, batchUpdate, version);
             if (index == _menu.Size())
                 _template.Apply(_menu, index, index, item);
             else
                 Reload();
         }
 
-        protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batch)
+        protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
         {
-            base.OnMoved(item, oldIndex, newIndex, batch);
+            base.OnMoved(item, oldIndex, newIndex, batchUpdate, version);
             Reload();
         }
 
-        protected override void OnRemoved(object? item, int index, bool batch)
+        protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
         {
-            base.OnRemoved(item, index, batch);
+            base.OnRemoved(item, index, batchUpdate, version);
             if (index == _menu.Size() - 1)
                 RemoveMenuItem(index);
             else
                 Reload();
         }
 
-        protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batch)
+        protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
         {
-            base.OnReplaced(oldItem, newItem, index, batch);
+            base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
             RemoveMenuItem(index);
             _template.Apply(_menu, index, index, newItem);
         }
 
-        protected override void OnReset(IEnumerable<object?> items, bool batch)
+        protected override void OnReset(IEnumerable<object?> items, bool batchUpdate, int version)
         {
-            base.OnReset(items, batch);
+            base.OnReset(items, batchUpdate, version);
             Reload();
         }
 
-        protected override void OnCleared(bool batch)
+        protected override void OnCleared(bool batchUpdate, int version)
         {
-            base.OnCleared(batch);
+            base.OnCleared(batchUpdate, version);
             Reload();
         }
 

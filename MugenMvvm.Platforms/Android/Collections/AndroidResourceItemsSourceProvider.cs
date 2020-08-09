@@ -6,12 +6,12 @@ using MugenMvvm.Binding.Members;
 
 namespace MugenMvvm.Android.Collections
 {
-    public class AndroidResourceItemsSourceProvider : AndroidItemsSourceProviderBase<IDataTemplateSelector>, IResourceItemsSourceProvider
+    public class AndroidResourceItemsSourceProvider : AndroidItemsSourceProviderBase<IResourceTemplateSelector>, IResourceItemsSourceProvider
     {
         #region Constructors
 
-        public AndroidResourceItemsSourceProvider(object owner, IDataTemplateSelector selector, IStableIdProvider? stableIdProvider)
-            : base(owner, selector, stableIdProvider)
+        public AndroidResourceItemsSourceProvider(object owner, IResourceTemplateSelector selector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
+            : base(owner, selector, stableIdProvider, collectionAdapter)
         {
         }
 

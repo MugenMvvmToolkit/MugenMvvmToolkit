@@ -10,8 +10,8 @@ namespace MugenMvvm.Android.Collections
     {
         #region Constructors
 
-        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector selector, IStableIdProvider? stableIdProvider)
-            : base(owner, selector, stableIdProvider)
+        public AndroidContentItemsSourceProvider(object owner, IContentTemplateSelector selector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter = null)
+            : base(owner, selector, stableIdProvider, collectionAdapter)
         {
         }
 
@@ -32,7 +32,7 @@ namespace MugenMvvm.Android.Collections
         {
             if (Count == 0)
                 return ContentItemsSourceProvider.PositionNone;
-            var index = CollectionAdapter.IndexOf(content?.BindableMembers().DataContext());
+            var index = IndexOf(content?.BindableMembers().DataContext());
             if (index < 0)
                 return ContentItemsSourceProvider.PositionNone;
             return index;

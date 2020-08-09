@@ -5,7 +5,7 @@ using MugenMvvm.Collections;
 
 namespace MugenMvvm.Android.Collections
 {
-    public sealed class AndroidBindableCollectionAdapter : BindableCollectionAdapterBase<object?>
+    public class AndroidBindableCollectionAdapter : BindableCollectionAdapter
     {
         #region Fields
 
@@ -33,49 +33,49 @@ namespace MugenMvvm.Android.Collections
 
         #region Methods
 
-        protected override void OnAdded(object? item, int index, bool batch)
+        protected override void OnAdded(object? item, int index, bool batchUpdate, int version)
         {
-            base.OnAdded(item, index, batch);
+            base.OnAdded(item, index, batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemInserted(index);
         }
 
-        protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batch)
+        protected override void OnMoved(object? item, int oldIndex, int newIndex, bool batchUpdate, int version)
         {
-            base.OnMoved(item, oldIndex, newIndex, batch);
+            base.OnMoved(item, oldIndex, newIndex, batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemMoved(oldIndex, newIndex);
         }
 
-        protected override void OnRemoved(object? item, int index, bool batch)
+        protected override void OnRemoved(object? item, int index, bool batchUpdate, int version)
         {
-            base.OnRemoved(item, index, batch);
+            base.OnRemoved(item, index, batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemRemoved(index);
         }
 
-        protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batch)
+        protected override void OnReplaced(object? oldItem, object? newItem, int index, bool batchUpdate, int version)
         {
-            base.OnReplaced(oldItem, newItem, index, batch);
+            base.OnReplaced(oldItem, newItem, index, batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnItemChanged(index);
         }
 
-        protected override void OnReset(IEnumerable<object?> items, bool batch)
+        protected override void OnReset(IEnumerable<object?> items, bool batchUpdate, int version)
         {
-            base.OnReset(items, batch);
+            base.OnReset(items, batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnReset();
         }
 
-        protected override void OnCleared(bool batch)
+        protected override void OnCleared(bool batchUpdate, int version)
         {
-            base.OnCleared(batch);
+            base.OnCleared(batchUpdate, version);
             for (var i = 0; i < Observers.Count; i++)
                 GetObserver(i)?.OnReset();
         }
 
-        private IItemsSourceObserver? GetObserver(int index)
+        protected IItemsSourceObserver? GetObserver(int index)
         {
             var observer = Observers[index];
             if (observer.Handle == IntPtr.Zero)

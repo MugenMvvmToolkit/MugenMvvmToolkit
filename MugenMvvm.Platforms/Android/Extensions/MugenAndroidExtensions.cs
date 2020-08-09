@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using Android.App;
+﻿using Android.App;
 using Android.Content;
 using Android.Views;
 using Java.Lang;
@@ -26,6 +23,7 @@ using MugenMvvm.Binding.Members.Builders;
 using MugenMvvm.Binding.Members.Components;
 using MugenMvvm.Binding.Members.Descriptors;
 using MugenMvvm.Binding.Observation;
+using MugenMvvm.Collections;
 using MugenMvvm.Extensions;
 using MugenMvvm.Interfaces.Internal;
 using MugenMvvm.Interfaces.Presenters;
@@ -91,7 +89,7 @@ namespace MugenMvvm.Android.Extensions
             attachedMemberProvider.Register(BindableMembers.For<IMenu>()
                 .ItemsSource()
                 .GetBuilder()
-                .PropertyChangedHandler((member, target, value, newValue, metadata) => AndroidMenuItemsSourceGenerator.GetOrAdd(target, target.BindableMembers().ItemTemplate()!).Attach(newValue))
+                .PropertyChangedHandler((member, target, value, newValue, metadata) => AndroidMenuItemsSourceGenerator.GetOrAdd(target).Collection = newValue)
                 .Build());
 
             var enabled = AttachedMemberBuilder
@@ -285,7 +283,7 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                 {
-                    if (newValue is IDataTemplateSelector selector)
+                    if (newValue is IResourceTemplateSelector selector)
                         member.SetValue(target, new ContentTemplateSelectorWrapper(selector), metadata);
                 })
                 .NonObservable()
@@ -346,7 +344,7 @@ namespace MugenMvvm.Android.Extensions
                 .GetBuilder()
                 .PropertyChangedHandler((member, target, oldValue, newValue, metadata) =>
                 {
-                    if (!(newValue is IDataTemplateSelector selector))
+                    if (!(newValue is IResourceTemplateSelector selector))
                         return;
 
                     var providerType = ViewGroupExtensions.GetItemSourceProviderType(target);
@@ -368,35 +366,31 @@ namespace MugenMvvm.Android.Extensions
                     if (itemTemplateSelector == null)
                         ExceptionManager.ThrowObjectNotInitialized(target, target.BindableMembers().Descriptor.ItemTemplateSelector());
 
-                    var itemSource = ViewGroupExtensions.GetItemsSourceProvider(target);
+                    var itemsSourceProvider = ViewGroupExtensions.GetItemsSourceProvider(target);
                     bool hasFragments = itemTemplateSelector is IFragmentTemplateSelector fts && fts.HasFragments;
                     if (providerType == ViewGroupExtensions.ContentRawProviderType)
-                    {
-                        AndroidContentItemsSourceGenerator
-                            .GetOrAdd(target, (IContentTemplateSelector)itemTemplateSelector)
-                            .Attach(newValue);
-                    }
+                        AndroidContentItemsSourceGenerator.GetOrAdd(target, (IContentTemplateSelector)itemTemplateSelector).Collection = newValue;
                     else if (providerType == ViewGroupExtensions.ContentProviderType || (providerType == ViewGroupExtensions.ResourceOrContentProviderType && hasFragments))
                     {
-                        if (!(itemSource is AndroidContentItemsSourceProvider provider))
+                        if (!(itemsSourceProvider is AndroidContentItemsSourceProvider provider))
                         {
                             ViewExtensions.RemoveParentObserver(target);
                             provider = new AndroidContentItemsSourceProvider(target, (IContentTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
                             ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                         }
 
-                        provider.SetItemsSource(newValue);
+                        provider.ItemsSource = newValue;
                     }
                     else
                     {
-                        if (!(itemSource is AndroidResourceItemsSourceProvider provider))
+                        if (!(itemsSourceProvider is AndroidResourceItemsSourceProvider provider))
                         {
                             ViewExtensions.RemoveParentObserver(target);
-                            provider = new AndroidResourceItemsSourceProvider(target, (IDataTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
+                            provider = new AndroidResourceItemsSourceProvider(target, (IResourceTemplateSelector)itemTemplateSelector, target.BindableMembers().StableIdProvider());
                             ViewGroupExtensions.SetItemsSourceProvider(target, provider, hasFragments);
                         }
 
-                        provider.SetItemsSource(newValue);
+                        provider.ItemsSource = newValue;
                     }
                 }).Build());
 
@@ -423,16 +417,30 @@ namespace MugenMvvm.Android.Extensions
                 {
                     if (!ViewGroupExtensions.IsSelectedIndexSupported(target))
                         BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
-
-                    var itemsSource = target.BindableMembers().ItemsSource();
-                    if (itemsSource == null)
+                    var index = ViewGroupExtensions.GetSelectedIndex(target);
+                    if (index < 0)
                         return null;
-
-                    return ((itemsSource as IEnumerable<object>) ?? itemsSource.OfType<object>()).ElementAtOrDefault(ViewGroupExtensions.GetSelectedIndex(target));
+                    var itemsSourceProvider = GetItemsSourceProvider(target);
+                    if (itemsSourceProvider == null)
+                        return null;
+                    if (itemsSourceProvider is IAndroidItemsSourceProvider p)
+                        return p.GetItemAt(index);
+                    return ((BindableCollectionAdapter)itemsSourceProvider)[index];
                 })
                 .CustomSetter((member, target, value, metadata) =>
                 {
-                    var index = IndexOf(target.BindableMembers().ItemsSource(), value);
+                    int index;
+                    var itemsSourceProvider = GetItemsSourceProvider(target);
+                    if (itemsSourceProvider == null)
+                        index = -1;
+                    else
+                    {
+                        if (itemsSourceProvider is IAndroidItemsSourceProvider p)
+                            index = p.IndexOf(value);
+                        else
+                            index = ((BindableCollectionAdapter)itemsSourceProvider).IndexOf(value);
+                    }
+
                     if (!ViewGroupExtensions.SetSelectedIndex(target, index))
                         BindingExceptionManager.ThrowInvalidBindingMember(target, member.Name);
                 })
@@ -450,21 +458,12 @@ namespace MugenMvvm.Android.Extensions
             return configuration;
         }
 
-        private static int IndexOf(IEnumerable? enumerable, object? item)
+        private static object? GetItemsSourceProvider(View target)
         {
-            if (enumerable == null)
-                return -1;
-            if (enumerable is IList collection)
-                return collection.IndexOf(item);
-            int index = 0;
-            foreach (var v in enumerable)
-            {
-                if (Equals(v, item))
-                    return index;
-                ++index;
-            }
-
-            return -1;
+            var itemsSourceProvider = ViewGroupExtensions.GetItemsSourceProvider(target);
+            if (itemsSourceProvider != null)
+                return itemsSourceProvider;
+            return AndroidContentItemsSourceGenerator.Get(target);
         }
 
         #endregion

@@ -10,13 +10,13 @@ namespace MugenMvvm.Android.Binding
     {
         #region Fields
 
-        private readonly IDataTemplateSelector _selector;
+        private readonly IResourceTemplateSelector _selector;
 
         #endregion
 
         #region Constructors
 
-        public ContentTemplateSelectorWrapper(IDataTemplateSelector selector)
+        public ContentTemplateSelectorWrapper(IResourceTemplateSelector selector)
         {
             Should.NotBeNull(selector, nameof(selector));
             _selector = selector;

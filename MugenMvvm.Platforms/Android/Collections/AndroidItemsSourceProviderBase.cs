@@ -5,7 +5,7 @@ using MugenMvvm.Android.Native.Interfaces;
 
 namespace MugenMvvm.Android.Collections
 {
-    public abstract class AndroidItemsSourceProviderBase<TSelector> : Object, IItemsSourceProviderBase where TSelector : class
+    public abstract class AndroidItemsSourceProviderBase<TSelector> : Object, IAndroidItemsSourceProvider where TSelector : class
     {
         #region Fields
 
@@ -18,14 +18,14 @@ namespace MugenMvvm.Android.Collections
 
         #region Constructors
 
-        protected AndroidItemsSourceProviderBase(object owner, TSelector selector, IStableIdProvider? stableIdProvider)
+        protected AndroidItemsSourceProviderBase(object owner, TSelector selector, IStableIdProvider? stableIdProvider, AndroidBindableCollectionAdapter? collectionAdapter)
         {
             Should.NotBeNull(owner, nameof(owner));
             Should.NotBeNull(selector, nameof(selector));
             Owner = owner;
             Selector = selector;
             StableIdProvider = stableIdProvider;
-            CollectionAdapter = new AndroidBindableCollectionAdapter();
+            CollectionAdapter = collectionAdapter ?? new AndroidBindableCollectionAdapter();
         }
 
         #endregion
@@ -35,6 +35,12 @@ namespace MugenMvvm.Android.Collections
         public virtual int Count => CollectionAdapter.Count;
 
         public virtual bool HasStableId => StableIdProvider != null;
+
+        public virtual IEnumerable? ItemsSource
+        {
+            get => CollectionAdapter.Collection;
+            set => CollectionAdapter.Collection = value;
+        }
 
         #endregion
 
@@ -61,10 +67,7 @@ namespace MugenMvvm.Android.Collections
             return false;
         }
 
-        public virtual ICharSequence GetItemTitleFormatted(int position)
-        {
-            return (Selector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
-        }
+        public virtual ICharSequence GetItemTitleFormatted(int position) => (Selector as ITitleTemplateSelector)?.GetTitle(Owner, GetItemAt(position))!;
 
         public virtual void AddObserver(IItemsSourceObserver observer)
         {
@@ -76,19 +79,9 @@ namespace MugenMvvm.Android.Collections
             CollectionAdapter.Observers.Remove(observer);
         }
 
-        #endregion
+        public virtual object? GetItemAt(int position) => CollectionAdapter[position];
 
-        #region Methods
-
-        public virtual void SetItemsSource(IEnumerable? items)
-        {
-            CollectionAdapter.Attach(items);
-        }
-
-        protected virtual object? GetItemAt(int position)
-        {
-            return CollectionAdapter[position];
-        }
+        public virtual int IndexOf(object? item) => CollectionAdapter.IndexOf(item);
 
         #endregion
     }

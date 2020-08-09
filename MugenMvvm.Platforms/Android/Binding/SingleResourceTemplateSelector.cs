@@ -3,18 +3,18 @@ using MugenMvvm.Android.Interfaces;
 
 namespace MugenMvvm.Android.Binding
 {
-    public sealed class SingleDataTemplateSelector : IDataTemplateSelector
+    public sealed class SingleResourceTemplateSelector : IResourceTemplateSelector
     {
         #region Fields
 
         private readonly int _templateId;
-        private static readonly Dictionary<int, SingleDataTemplateSelector> Cache = new Dictionary<int, SingleDataTemplateSelector>();
+        private static readonly Dictionary<int, SingleResourceTemplateSelector> Cache = new Dictionary<int, SingleResourceTemplateSelector>();
 
         #endregion
 
         #region Constructors
 
-        private SingleDataTemplateSelector(int templateId)
+        private SingleResourceTemplateSelector(int templateId)
         {
             _templateId = templateId;
         }
@@ -35,11 +35,11 @@ namespace MugenMvvm.Android.Binding
 
         #region Methods
 
-        public static SingleDataTemplateSelector Get(int templateId)
+        public static SingleResourceTemplateSelector Get(int templateId)
         {
             if (!Cache.TryGetValue(templateId, out var value))
             {
-                value = new SingleDataTemplateSelector(templateId);
+                value = new SingleResourceTemplateSelector(templateId);
                 Cache[templateId] = value;
             }
 

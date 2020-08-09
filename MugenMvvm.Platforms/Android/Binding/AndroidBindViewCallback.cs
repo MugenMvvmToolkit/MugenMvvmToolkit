@@ -21,7 +21,7 @@ namespace MugenMvvm.Android.Binding
         {
             var template = accessor.ItemTemplate;
             if (template != 0)
-                ItemTemplateSelector.SetValue(view, SingleDataTemplateSelector.Get(template));
+                ItemTemplateSelector.SetValue(view, SingleResourceTemplateSelector.Get(template));
             view.BindWithoutResult(accessor.Bind);
         }
 
